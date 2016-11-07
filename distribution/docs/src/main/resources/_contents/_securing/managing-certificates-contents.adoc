@@ -1,0 +1,351 @@
+
+==== Certificate Management
+
+${branding} uses certificates in two ways:
+
+["lowerroman"]
+. Transmitting and receive encrypted messages.
+. Performing authentication of an incoming user request.
+
+For more certificate configuration options, see <<_configuring_${ddf-security}, Configuring ${ddf-security}>>.
+
+===== Keystores
+
+To manage certificates and keys, ${branding} includes a default keystore.
+
+.Default Keystore Files
+[cols="5m" options="header"]
+|===
+
+|Host
+|Keystore
+|Truststore
+|Configuration Location
+|Usage
+
+|localhost
+|serverKeystore.jks
+|serverTruststore.jks
+|etc/org.ops4j.pax.web.cfg
+
+etc/system.properties
+
+etc/ws-security/server/encryption.properties
+
+etc/ws-security/server/signature.properties
+
+etc/ws-security/issuer/encryption.properties
+
+etc/ws-security/issuer/signature.properties
+
+etc/system.properties
+|Used to secure (SSL) all of the endpoints for ${branding}, to perform outgoing SSL requests, and sign STS SAML assertions.
+This also includes the ${admin-console} and any other web service that is hosted by ${branding}.
+
+|===
+
+[NOTE]
+====
+The following information was sourced from https://www.racf.bnl.gov/terapaths/software/the-terapaths-api/example-java-client/java-client/setting-up-keystores-with-jetty-and-keytool.
+====
+
+====== Creating a Client Keystore
+
+[WARNING]
+====
+This walk-through details how to use a PKCS12 store. This is the most popular format used when exporting from a web browser.
+====
+
+. Obtain a personal ECA cert (client certificate)
+.. To do this, open *Internet Explorer -> Tools -> Options*.
+.. Select the *Content* tab.
+.. Click *Certificates*
+.. Select the *Personal* tab.
+.. Select the _certificate_ needed to export. There should be the one without a "Friendly Name" and it is not the "Encryption Cert").
+.. Click *Export*.
+.. Follow *Certificate Export Wizard*.
+.. When a prompt requests to export the private key, select *Yes*.
+. Add a cert to a new java keystore, replacing cert with the name of the PKCS12 Keystore needed to convert, and replace MY_KEYSTORE.jks with the desired name of the Java Keystore:
+
+[source]
+----
+keytool -importkeystore -srckeystore [MY_FILE.p12] -srcstoretype pkcs12
+ -srcalias [ALIAS_SRC] -destkeystore [MY_KEYSTORE.jks]
+ -deststoretype jks -deststorepass [PASSWORD_JKS] -destalias [ALIAS_DEST]
+----
+. The command prompts for two passwords:
+.. Input keystore passphrase is the passphrase that is used to protect cert.p12
+.. Output keystore passphrase is the passphrase that is set for the new java keystore serverKeystore.jks
+. It is recommended that the private key password be the same as the keystore password due to limitations in java.
+.. Run the following command to determine the alias name of the added current entry. It is listed after "Alias Name:"
+
+[source]
+----
+keytool -list -v -keystore serverKeystore.jks
+----
+.. Clone the existing key using the java keytool executable, filling in <CurrentAlias>, <NewAlias>, serverKeystore.jks, and password with the correct names.
+
+[source]
+----
+keytool -keyclone -alias "<CurrentAlias>" -dest "<NewAlias>" -keystore serverKeystore.jks -storepass password
+----
+.. When prompted for a password, use the same password used when the keystore was created.
+.. Delete the original alias
+
+[source]
+----
+keytool -delete -alias "<CurrentAlias>" -keystore serverKeystore.jks -storepass password
+----
+
+[NOTE]
+====
+After the keystore is successfully created, delete the jetty files used to perform the import.
+====
+
+====== Creating a Truststore
+
+[WARNING]
+====
+This walk-through details how to import a .cer certificate
+====
+
+["lowerroman"]
+. Import the certificate into a java keystore as a trusted ca certificate
+
+[source]
+----
+keytool -import -trustcacerts -alias "Trusted Cert" -file trustcert.cer -keystore serverTruststore.jks
+----
+. Enter in a keystore password when prompted.
+
+*Adding a certificate to an existing Keystore*
+
+["lowerroman"]
+. Import the certificate into a java keystore as a certificate.
+
+[source]
+----
+keytool -importcert -file newcert.cer -keystore serverKeystore.jks -alias "New Alias"
+----
+. Enter in the keystore password if prompted.
+
+====== Default Certificates
+
+${branding} comes with a default keystore that contains certificates.
+This allows the distribution to be unzipped and run immediately in a secure manner.
+If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.
+If the hostname was left as `localhost` or the hostname was changed after installation, in order to access the ${branding} instance from another machine over HTTPS (now the default for many services) the default certificates need to be replaced with a certificates that use the fully qualified hostname of the server running the ${branding} instance.
+
+The keystore is used for different services and the certificate contained within it is aliased to `localhost`.
+
+====== Demo Certificate Authority (CA)
+
+Generate self-signed certificates for testing with a Demo CA included in ${branding}.
+
+====== Creating New Server Keystore Entry with the `CertNew` Scripts
+
+To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
+To use the scripts, run them out of the `<INSTALL_HOME>/etc/certs` directory. For *NIX, use the `CertNew.sh` script.
+
+`sh CertNew.sh <FQDN>`
+
+The above command creates a new entry in the keystore for a server named `my.server.com`.
+
+Alternatively, a FQDN can be provided to the script with a comma-delimited string.
+
+`sh CertNew.sh -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
+
+To create and install the certificates on Windows, use the `CertNew.cmd` file in the same directory.
+
+`CertNew <FQDN>`
+
+Alternatively, a FQDN can be provided to the script with a comma-delimited string.
+
+`CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
+
+To install a certificate signed by a different Certificate Authority, see <<_import_into_a_java_keystore_jks,Import into a Java Keystore (JKS)>>.
+
+Finally, restart the ${branding} instance.
+Browse the ${admin-console} at \https://<FQDN>:8993/admin to test changes.
+
+[WARNING]
+====
+If the server's fully qualified domain name is not recognized, the name may need to be added to the network's DNS server.
+====
+
+[TIP]
+====
+The ${branding} instance can be tested even if there is no entry for the FQDN in the DNS.
+First, test if the FQDN is already recognized.
+Execute this command:
+
+`ping <FQDN>`
+
+If the command responds with an error message such as unknown host, then modify the system's `hosts` file to point the server's FQDN to the loopback address.
+For example:
+
+`127.0.0.1 <FQDN>`
+====
+
+[NOTE]
+====
+By default, the Catalog Backup Post-Ingest Plugin is *NOT* enabled.
+To enable, the Enable Backup Plugin configuration item must be checked in the Backup Post-Ingest Plugin configuration.
+
+`Enable Backup Plugin: true`
+====
+
+[IMPORTANT]
+====
+The Embedded LDAP has hard-coded values for the keystore path, truststore path, keystore password, and truststore password (https://github.com/codice/opendj-osgi/blob/d5021cbac4db831467ceb109ffd7ffd2c734dcd4/embedded/opendj-embedded-server/src/main/resources/config/config.ldif).
+So if using a non-default keystore and non-default truststore, the Embedded LDAP will not work.
+You will see errors in `<INSTALL_HOME>/etc/org.codice.opendj/ldap/logs/errors` similar to the one below:
+
+[source]
+----
+`21/Jan/2015:08:58:57 -0700] category=CORE severity=NOTICE msgID=458891 msg=The Directory Server has sent an alert notification generated by class org.opends.server.protocols.ldap.LDAPConnectionHandler (alert type org.opends.server.LDAPHandlerDisabledByConsecutiveFailures, alert ID 2425016):  The LDAP connection handler defined in configuration entry cn=LDAP Connection Handler,cn=Connection Handlers,cn=config has experienced consecutive failures while trying to accept client connections:  An error occurred while attempting to initialize the SSL context for use in the LDAP Connection Handler:  An error occurred while trying to load the keystore contents from file ../../keystores/serverKeystore.jks:  IOException(Keystore was tampered with, or password was incorrect) (id=1310782) (LDAPConnectionHandler.java:1324 LDAPConnectionHandler.java:1255 LDAPConnectionHandler.java:1091 LDAPConnectionHandler.java:974).  This connection handler will be disabled`
+----
+
+A workaround is to modify `config.ldif` as seen in the steps below and hot deploy `opendj-embedded-app-<version>.kar.`
+====
+
+** The default password in `config.ldif` for `serverKeystore.jks` is `changeit`. This needs to be modified.
+*** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
+*** `ds-cfg-key-store-type: JKS`
+*** `ds-cfg-key-store-pin: password`
+*** `cn: JKS`
+** The default password in `config.ldif` for `serverTruststore.jks` is `changeit`.  This needs to be modified.
+*** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
+*** `ds-cfg-trust-store-pin: password`
+*** `cn: JKS`
+
+====== Updating Key Store / Trust Store via the ${admin-console}
+
+. Open the ${admin-console}.
+. Select the *${ddf-security}* application.
+. Select the *Certificates* tab.
+. Add and remove certificates and private keys as necessary.
+. Restart ${branding}.
+
+[IMPORTANT]
+====
+The default trust store and key store files for ${branding} included in `etc/keystores` use self-signed certificates.
+Self-signed certificates should never be used outside of development/testing areas.
+====
+
+===== Certificate Revocation List (CRL)
+
+A Certificate Revocation List is a collection of formerly-valid certificates that should explicitly _not_ be accepted.
+
+====== Creating a Certificate Revocation List (CRL)
+
+.  Using the CA create in the above steps, create a CRL in which the `tokenissuer`'s certificate is valid. +
+`$> openssl ca -gencrl -out crl-tokenissuer-valid.pem`
+
+====== Revoke a Certificate and Create a New CRL that Contains the Revoked Certificate
+
+----
+$> openssl ca -revoke tokenissuer.crt
+
+$> openssl ca -gencrl -out crl-tokenissuer-revoked.pem
+----
+
+====== Viewing a CRL
+
+. Use the following command to view the serial numbers of the revoked certificates:
+`$> openssl crl -inform PEM -text -noout -in crl-tokenissuer-revoked.pem`
+
+====== Enabling Revocation
+
+[NOTE]
+====
+Enabling CRL revocation or modifying the CRL file will require a restart of ${branding} to apply updates.
+====
+
+. Place the CRL in <${branding}.home>/etc/keystores.
+. Add the line `org.apache.ws.security.crypto.merlin.x509crl.file=etc/keystores/<CRL_FILENAME>` to the following files:
+.. `<${branding}.home>/etc/ws-security/server/encryption.properties`
+.. `<${branding}_HOME>/etc/ws-security/server/encryption.properties`
+.. `<${branding-lowercase}.home>/etc/ws-security/issuer/encryption.properties`
+.. `<${branding}_HOME>/etc/ws-security/server/signature.properties`
+.. `<${branding}_HOME>/etc/ws-security/issuer/signature.properties`
+. (Replace <CRL_FILENAME> with the CRL file used in previous step.)
+
+Adding this property will also enable CRL revocation for any context policy implementing PKI authentication.
+For example, adding an authentication policy in the Web Context Policy Manager of `/search=PKI|GUEST` will disable basic authentication, and require a certificate for the search UI.
+If a certificate is not in the CRL, it will be allowed through, otherwise it will get a 401 error.
+If no certificate is provided, the guest handler will grant guest access.
+
+This also enables CRL revocation for the STS endpoint.
+The STS CRL Interceptor monitors the same `encryption.properties` file and operates in an identical manner to the PKI Authenication's CRL handler. Enabling the CRL via the `encryption.properties` file will also enable it for the STS, and also requires a restart.
+
+====== Add Revocation to a Web Context
+
+The PKIHandler implements CRL revocation, so any web context that is configured to use PKI authentication will also use CRL revocation if revocation is enabled.
+
+. After enabling revocation (see above), open the *Web Context Policy Manager*.
+. Add or modify a Web Context to use PKI in authentication. For example, enabling CRL for the search ui endpoint would require adding an authorization policy of `/search=SAML|PKI`
+. If guest access is required, add `GUEST` to the policy. Ex, `/search=SAML|PKI|GUEST`.
+
+With guest access, a user with a revoked cert will be given a 401 error, but users without a certificate will be able to access the web context as the guest user.
+
+The STS CRL interceptor does not need a web context specified.
+The CRL interceptor for the STS will become active after specifying the CRL file in the `encryption.properties` file and restarting ${branding}.
+
+[NOTE]
+====
+Disabling or enabling CRL revocation or modifying the CRL file will require a restart of ${branding} to apply updates.
+If CRL checking is already enabled, adding a new context via the *Web Context Policy Manager* will not require a restart.
+====
+
+====== Adding Revocation to a New Endpoint
+
+[NOTE]
+====
+This section explains how to add CXF's CRL revocation method to an endpoint and not the CRL revocation method in the `PKIHandler`.
+====
+
+This guide assumes that the endpoint being created uses CXF and is being started via Blueprint from inside the OSGi container.
+If other tools are being used the configuration may differ.
+
+Add the following property to the `jasws` endpoint in the endpoint's `blueprint.xml`:
+
+[source]
+----
+<entry key="ws-security.enableRevocation" value="true"/>
+----
+
+.Example xml snippet for the `jaxws:endpoint` with the property:
+[source]
+----
+<jaxws:endpoint id="Test" implementor="#testImpl"
+                wsdlLocation="classpath:META-INF/wsdl/TestService.wsdl"
+                address="/TestService">
+
+    <jaxws:properties>
+        <entry key="ws-security.enableRevocation" value="true"/>
+    </jaxws:properties>
+</jaxws:endpoint>
+----
+
+====== Verifying Revocation
+
+A *Warning* similar to the following will be displayed in the logs of the source and endpoint showing the exception encountered during certificate validation:
+
+[source]
+----
+11:48:00,016 | WARN  | tp2085517656-302 | WSS4JInInterceptor               | ecurity.wss4j.WSS4JInInterceptor  330 | 164 - org.apache.cxf.cxf-rt-ws-security - 2.7.3 |
+org.apache.ws.security.WSSecurityException: General security error (Error during certificate path validation: Certificate has been revoked, reason: unspecified)
+    at org.apache.ws.security.components.crypto.Merlin.verifyTrust(Merlin.java:838)[161:org.apache.ws.security.wss4j:1.6.9]
+    at org.apache.ws.security.validate.SignatureTrustValidator.verifyTrustInCert(SignatureTrustValidator.java:213)[161:org.apache.ws.security.wss4j:1.6.9]
+
+[ ... section removed for space]
+
+Caused by: java.security.cert.CertPathValidatorException: Certificate has been revoked, reason: unspecified
+    at sun.security.provider.certpath.PKIXMasterCertPathValidator.validate(PKIXMasterCertPathValidator.java:139)[:1.6.0_33]
+    at sun.security.provider.certpath.PKIXCertPathValidator.doValidate(PKIXCertPathValidator.java:330)[:1.6.0_33]
+    at sun.security.provider.certpath.PKIXCertPathValidator.engineValidate(PKIXCertPathValidator.java:178)[:1.6.0_33]
+    at java.security.cert.CertPathValidator.validate(CertPathValidator.java:250)[:1.6.0_33]
+    at org.apache.ws.security.components.crypto.Merlin.verifyTrust(Merlin.java:814)[161:org.apache.ws.security.wss4j:1.6.9]
+    ... 45 more
+----

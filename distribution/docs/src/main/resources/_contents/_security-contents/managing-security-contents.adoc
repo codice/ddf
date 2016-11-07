@@ -4,18 +4,16 @@ They comprise both a framework that developers and integrators can extend and a 
 
 This section documents the installation, maintenance, and support of this application.
 
-=== Installing ${ddf-security}
-
 ==== Prerequisites
 
 Before the ${ddf-security} application can be installed:
 
-* the ${branding} must be running
-* the ${ddf-platform} Application must be installed
+* the ${branding} must be running.
+* the ${ddf-platform} Application must be installed.
 
 ==== Installing ${ddf-security}
 
-${ddf-security} is included with a standard installation.
+${ddf-security} is installed by default with a standard installation.
 
 === Configuring ${ddf-security}
 

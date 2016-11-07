@@ -1,5 +1,5 @@
 
-==== Standalone Security Token Service (STS) Installation
+=== Standalone Security Token Service (STS) Installation
 
 To run a STS-only ${branding} installation, uninstall the catalog components that are not being used.
 The following list displays the features that can be uninstalled to minimize the runtime size of ${branding} in an STS-only mode.
