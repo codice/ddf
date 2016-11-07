@@ -45,7 +45,7 @@ public class XMLUtils {
 
     protected static volatile XMLInputFactory xmlInputFactory;
 
-    private static void initializeXMLInputFactory() {
+    private static synchronized void initializeXMLInputFactory() {
         if (xmlInputFactory == null) {
             xmlInputFactory = XMLInputFactory.newInstance();
         }
@@ -147,12 +147,32 @@ public class XMLUtils {
     }
 
     /**
+     * This method lets clients parse through the elements of an XML document with less
+     * boiler-plate code. This methods handles the configuration of the
+     * XML factory and disables security risks like macro expansion.
+     * This methods also catches the several exceptions that can be thrown during the creation
+     * and use of an XML parser.
+     * <p>
+     * Example: Get the first three elements whose local name is "Fizz".
+     * <p>
+     * String xml = "my XML document"; // The string representation of the XML document to parse
+     * <p>
+     * XMLUtils.ProcessingResult<List<String>> result =
+     * new XMLUtils.ProcessingResult<>(new ArrayList<String>());
+     * <p>
+     * List<String> output = XMLUtils.processElements(xml, result, (xmlReader) -> {
+     * if (xmlReader.getLocalName().equals("Fizz")) {
+     * if (result.getValue().size() < 3) {
+     * result.getValue().add(xmlReader.getElementText());
+     * } else { result.done(); }
+     * }
+     * });
      *
-     * @param xml   The XML to process
-     * @param result    Instance of processing result
-     * @param processElementFunction    Function that accepts an instance of XMLStreamReader
-     *                                  and updates the processing result
-     * @param <T> The type that of the processing result's value
+     * @param xml                    The XML to process
+     * @param result                 Instance of ProcessingResult
+     * @param processElementFunction Function that accepts an instance of XMLStreamReader
+     *                               and updates the processing result
+     * @param <T>                    The type of the processing result's value
      * @return Processing results's value
      */
     public static <T> T processElements(String xml, ProcessingResult<T> result,
@@ -213,9 +233,9 @@ public class XMLUtils {
         }
     }
 
-    // This class is used with the processElements method. Pass a function and an instance of
-    // ProcessingResult into the processElements method. Inside the function, set
-    // use setResult to the return value and call done() to stop processing the XML document.
+    // This class is used with the processElements method. It works in conjunction with the
+    // #processElementFunction. Inside the function, set the value of the ProcessingResult and
+    // call done() to stop processing the XML document.
     public static class ProcessingResult<T> {
         boolean isDone = false;
 
