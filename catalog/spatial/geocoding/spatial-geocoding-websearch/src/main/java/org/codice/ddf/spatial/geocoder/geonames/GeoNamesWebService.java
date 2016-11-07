@@ -18,6 +18,7 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Optional;
 
@@ -25,7 +26,6 @@ import javax.ws.rs.WebApplicationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.libs.location.ISOFormatConverter;
 import org.codice.ddf.spatial.geocoder.GeoCoder;
 import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoder.GeoResultCreator;
@@ -204,13 +204,13 @@ public class GeoNamesWebService implements GeoCoder {
                 String alpha2CountryCode = (String) countryCode;
                 if (StringUtils.isNotEmpty(alpha2CountryCode)) {
                     try {
-                        String alpha3CountryCode =
-                                ISOFormatConverter.convert(ISOFormatConverter.ENGLISH_LANG,
-                                        alpha2CountryCode);
+                        String alpha3CountryCode = new Locale(Locale.ENGLISH.getLanguage(),
+                                alpha2CountryCode).getISO3Country();
                         return Optional.of(alpha3CountryCode);
                     } catch (MissingResourceException e) {
                         LOGGER.debug(
-                                "Failed to convert country code {} to alpha-3 format. Returning empty value",
+                                "Failed to convert country code {} to alpha-3 format. Returning "
+                                        + "empty value",
                                 alpha2CountryCode);
                     }
                 }
