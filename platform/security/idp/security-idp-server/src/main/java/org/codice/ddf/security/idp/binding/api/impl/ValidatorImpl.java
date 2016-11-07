@@ -81,9 +81,10 @@ public abstract class ValidatorImpl implements Validator {
 
         if (authnRequest.getProtocolBinding() != null && !(authnRequest.getProtocolBinding()
                 .equals(Idp.HTTP_POST_BINDING) || authnRequest.getProtocolBinding()
-                .equals(Idp.HTTP_REDIRECT_BINDING))) {
+                .equals(Idp.HTTP_REDIRECT_BINDING) || authnRequest.getProtocolBinding()
+                .equals(Idp.SAML_SOAP_BINDING))) {
             throw new UnsupportedOperationException(
-                    "Only HTTP-POST and HTTP-Redirect bindings are supported");
+                    "Only HTTP-POST, HTTP-Redirect, and SOAP bindings are supported");
         }
     }
 

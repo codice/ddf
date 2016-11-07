@@ -121,6 +121,11 @@
             <artifactId>boon</artifactId>
             <version>0.33</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -137,7 +142,8 @@
                             ddf-security-common,
                             catalog-core-api-impl;scope=!test,
                             commons-lang3,
-                            boon
+                            boon,
+                            security-core-impl
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util,

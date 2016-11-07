@@ -15,6 +15,7 @@ package org.codice.ddf.security.idp.client;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -30,6 +32,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -39,8 +42,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPPart;
 import javax.xml.stream.XMLStreamException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -113,11 +120,68 @@ public class AssertionConsumerService {
     }
 
     @POST
+    @Consumes({"*/*"})
     @Produces(MediaType.APPLICATION_FORM_URLENCODED)
     public Response postSamlResponse(@FormParam(SAML_RESPONSE) String encodedSamlResponse,
             @FormParam(RELAY_STATE) String relayState) {
 
         return processSamlResponse(decodeBase64(encodedSamlResponse), relayState);
+    }
+
+    @POST
+    @Consumes({"text/xml", "application/soap+xml"})
+    public Response processSoapResponse(InputStream body, @Context HttpServletRequest request) {
+        try {
+            SOAPPart soapMessage = SamlProtocol.parseSoapMessage(IOUtils.toString(body));
+            String relayState = getRelayState(soapMessage);
+            org.opensaml.saml.saml2.core.Response samlpResponse = getSamlpResponse(soapMessage);
+            boolean validateResponse = validateResponse(samlpResponse);
+            if (validateResponse) {
+                return processSamlResponse(samlpResponse, relayState);
+            }
+        } catch (XMLStreamException e) {
+            LOGGER.debug("Unable to parse SOAP message from response.", e);
+        } catch (IOException e) {
+            LOGGER.debug("Unable to get SAMLP response.", e);
+        } catch (SOAPException e) {
+            LOGGER.debug("Unable to get relay state from response.", e);
+        }
+        return Response.serverError()
+                .entity("Invalid AuthN response.")
+                .build();
+    }
+
+    private String getRelayState(SOAPPart soapRequest) throws SOAPException {
+        Iterator responseHeaderElements = soapRequest.getEnvelope()
+                .getHeader()
+                .examineAllHeaderElements();
+        while (responseHeaderElements.hasNext()) {
+            Object nextElement = responseHeaderElements.next();
+            if (nextElement instanceof SOAPElement) {
+                SOAPElement soapHeaderElement = (SOAPElement) nextElement;
+                if (RELAY_STATE.equals(soapHeaderElement.getLocalName())) {
+                    return soapHeaderElement.getValue();
+                }
+            }
+        }
+        return "";
+    }
+
+    private org.opensaml.saml.saml2.core.Response getSamlpResponse(SOAPPart soapRequest)
+            throws IOException {
+        XMLObject responseXmlObj;
+        try {
+            responseXmlObj = SamlProtocol.getXmlObjectFromNode(soapRequest.getEnvelope()
+                    .getBody()
+                    .getFirstChild());
+        } catch (WSSecurityException | SOAPException | XMLStreamException ex) {
+            throw new IOException("Unable to convert AuthnRequest document to XMLObject.");
+        }
+        if (!(responseXmlObj instanceof org.opensaml.saml.saml2.core.Response)) {
+            throw new IOException(
+                    "SAMLRequest object is not org.opensaml.saml.saml2.core.Response.");
+        }
+        return (org.opensaml.saml.saml2.core.Response) responseXmlObj;
     }
 
     @GET
@@ -175,10 +239,7 @@ public class AssertionConsumerService {
         return signaturePasses;
     }
 
-    public Response processSamlResponse(String authnResponse, String relayState) {
-        LOGGER.trace(authnResponse);
-
-        org.opensaml.saml.saml2.core.Response samlResponse = extractSamlResponse(authnResponse);
+    public Response processSamlResponse(org.opensaml.saml.saml2.core.Response samlResponse, String relayState) {
         if (samlResponse == null) {
             return Response.serverError()
                     .entity("Unable to parse AuthN response.")
@@ -217,6 +278,13 @@ public class AssertionConsumerService {
         LOGGER.trace("Successfully logged in.  Redirecting to {}", relayUri.toString());
         return Response.seeOther(relayUri)
                 .build();
+    }
+
+    public Response processSamlResponse(String authnResponse, String relayState) {
+        LOGGER.trace(authnResponse);
+
+        org.opensaml.saml.saml2.core.Response samlResponse = extractSamlResponse(authnResponse);
+        return processSamlResponse(samlResponse, relayState);
     }
 
     private boolean validateResponse(org.opensaml.saml.saml2.core.Response samlResponse) {

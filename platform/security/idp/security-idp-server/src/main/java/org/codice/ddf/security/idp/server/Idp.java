@@ -13,9 +13,12 @@
  */
 package org.codice.ddf.security.idp.server;
 
+import java.io.InputStream;
 import java.security.cert.CertificateEncodingException;
 
+import javax.jws.WebService;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -35,6 +38,8 @@ import ddf.security.samlp.SamlProtocol.Binding;
 /**
  * IdP endpoint interface
  */
+@WebService(name = "IdpService",
+        targetNamespace = "")
 @Path("/")
 public interface Idp {
 
@@ -48,11 +53,19 @@ public interface Idp {
 
     String SAML_RESPONSE = "SAMLResponse";
 
+    String ECP_RESPONSE = "ECPResponse";
+
+    String ECP_RELAY_STATE = "ECPRelayState";
+
+    String ECP_REQUEST_AUTHENTICATED = "ECPRequestAuthenticated";
+
     String IDP_STATE_OBJ = "IDP_STATE_OBJ";
 
     String SAML_TYPE = "SAML_TYPE";
 
     String PKI = "pki";
+
+    String SAML = "saml";
 
     String GUEST = "guest";
 
@@ -73,7 +86,12 @@ public interface Idp {
     String ORIGINAL_BINDING = "OriginalBinding";
 
     ImmutableSet<Binding> SUPPORTED_BINDINGS = ImmutableSet.of(Binding.HTTP_POST,
-            Binding.HTTP_REDIRECT);
+            Binding.HTTP_REDIRECT, Binding.SOAP);
+
+    @POST
+    @Path("/login")
+    @Consumes({"text/xml", "application/soap+xml"})
+    Response doSoapLogin(InputStream body, @Context HttpServletRequest request) throws WSSecurityException;
 
     /**
      * Returns the IdP login form.
