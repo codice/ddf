@@ -35,6 +35,9 @@ define([
             } else if (result.isDeleted()) {
                 types.deleted = true;
             }
+            if (result.isRemote()){
+                types.remote = true;
+            }
         });
         return Object.keys(types);
     }
@@ -71,6 +74,9 @@ define([
             } else if (types.indexOf('deleted') >= 0 && types.length > 1 && ['Archive'].indexOf(activeTabName) >= 0){
                 this.model.set('activeTab', 'Details');
             }
+            if (types.indexOf('remote') >= 0 && ['Archive'].indexOf(activeTabName) >= 0){
+                this.model.set('activeTab', 'Details');
+            }
             var activeTab = this.model.getActiveView();
             this.tabsContent.show(new activeTab({
                 selectionInterface: this.selectionInterface
@@ -89,6 +95,7 @@ define([
                 this.$el.toggleClass('is-resource', types.indexOf('resource') >= 0);
                 this.$el.toggleClass('is-revision', types.indexOf('revision') >= 0);
                 this.$el.toggleClass('is-deleted', types.indexOf('deleted') >= 0);
+                this.$el.toggleClass('is-remote', types.indexOf('remote') >=0);
             }
         }
     });

@@ -470,7 +470,10 @@ define([
         });
 
         MetaCard.MetacardResult = Backbone.AssociatedModel.extend({
-            defaults: {
+            defaults: function(){
+                return {
+                    isResourceLocal: false
+                };
             },
             relations: [
                 {
@@ -493,6 +496,9 @@ define([
             },
             isDeleted: function(){
                 return this.get('metacard').get('properties').get('metacard-tags').indexOf('deleted') >= 0;
+            },
+            isRemote: function(){
+                return !this.get('isResourceLocal');
             },
             refreshData: function(){
                 //let solr flush
@@ -550,7 +556,7 @@ define([
 
         MetaCard.Results = Backbone.PageableCollection.extend({
             state: {
-              pageSize: 25
+              pageSize: 50
             },
             model: MetaCard.MetacardResult,
             mode: "client",

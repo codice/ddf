@@ -34,7 +34,9 @@ function getDropdownUpdateMethod(dropdownModel, property, relatedModel) {
 function determineChoices(view) {
     var currentMetacard = view.options.currentMetacard;
     var choices = view.options.selectionInterface.getActiveSearchResults().filter(function(result) {
-        return result.get('metacard').id !== currentMetacard.get('metacard').id
+        return result.get('metacard').id !== currentMetacard.get('metacard').id;
+    }).filter(function(result){
+        return !(result.isWorkspace() || result.isRevision() || result.isRemote() || result.isDeleted());
     }).reduce(function(options, result) {
         options.push({
             label: result.get('metacard').get('properties').get('title'),

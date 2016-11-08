@@ -57,6 +57,9 @@ define([
             } else if (result.isWorkspace() && ['History', 'Actions', 'Overwrite', 'Archive'].indexOf(activeTabName) >= 0){
                 this.model.set('activeTab', 'Summary');
             }
+            if (result.isRemote() && ['History', 'Associations', 'Quality', 'Archive', 'Overwrite'].indexOf(activeTabName) >=0){
+                this.model.set('activeTabName', 'Summary');
+            }
             var activeTab = this.model.getActiveView();
             this.tabsContent.show(new activeTab({
                 selectionInterface: this.selectionInterface
@@ -74,6 +77,7 @@ define([
                 this.$el.toggleClass('is-resource', result.isResource());
                 this.$el.toggleClass('is-revision', result.isRevision());
                 this.$el.toggleClass('is-deleted', result.isDeleted());
+                this.$el.toggleClass('is-remote', result.isRemote());
             }
         }
     });

@@ -193,5 +193,6 @@ module.exports = Marionette.LayoutView.extend({
         this.$el.toggleClass('is-resource', this.model.isResource());
         this.$el.toggleClass('is-revision', this.model.isRevision());
         this.$el.toggleClass('is-deleted', this.model.isDeleted());
+        this.$el.toggleClass('is-remote', this.model.isRemote());
     }
 });
