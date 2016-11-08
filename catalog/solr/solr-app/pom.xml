@@ -105,6 +105,11 @@
             <version>${jts.bundle.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.solr</groupId>
+            <artifactId>catalog-solr-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.solr.external</groupId>
             <artifactId>catalog-solr-external-provider</artifactId>
             <version>${project.version}</version>

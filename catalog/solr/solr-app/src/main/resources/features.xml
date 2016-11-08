@@ -34,7 +34,7 @@
         <bundle>mvn:ddf.catalog.solr.embedded/catalog-solr-embedded-provider/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-solr-external-provider" install="auto" version="${project.version}"
+    <feature name="catalog-solr-external-provider" install="manual" version="${project.version}"
              description="Catalog Provider to interface with an external Solr ${solr.version} Server">
         <feature prerequisite="true">solr-app</feature>
         <bundle>mvn:ddf.catalog.solr.external/catalog-solr-external-provider/${project.version}</bundle>
@@ -44,7 +44,12 @@
              description="Catalog Provider to interface with a Solr ${solr.version} Cloud">
         <feature prerequisite="true">solr-app</feature>
         <bundle>mvn:ddf.catalog.solr.cloud/catalog-solr-cloud-provider/${project.version}</bundle>
+    </feature>
 
+    <feature name="catalog-solr-provider" install="auto" version="${project.version}"
+             description="Catalog Provider to interface with Solr ${solr.version}">
+        <feature prerequisite="true">solr-app</feature>
+        <bundle>mvn:ddf.catalog.solr/catalog-solr-provider/${project.version}</bundle>
     </feature>
 
 	<feature name="solr-app" install="auto" version="${project.version}"

@@ -33,6 +33,7 @@
         </dependencies>
     </dependencyManagement>
     <modules>
+        <module>catalog-solr-provider</module>
         <module>catalog-solr-embedded-provider</module>
         <module>catalog-solr-external-provider</module>
         <module>catalog-solr-cloud-provider</module>
