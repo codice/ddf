@@ -38,6 +38,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.core.versioning.DeletedMetacard;
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -69,7 +71,8 @@ public class Associated {
 
     public Collection<Edge> getAssociations(String metacardId)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-        Map<String, Metacard> metacardMap = query(withAnytag(forRootAndParents(metacardId)));
+        Map<String, Metacard> metacardMap =
+                query(withNonrestrictedTags(forRootAndParents(metacardId)));
         if (metacardMap.isEmpty()) {
             return Collections.emptyList();
         }
@@ -80,7 +83,8 @@ public class Associated {
                         .equals(metacardId))
                 .collect(Collectors.toList());
 
-        Map<String, Metacard> childMetacardMap = query(withAnytag(forChildAssociations(root)));
+        Map<String, Metacard> childMetacardMap = query(withNonrestrictedTags(forChildAssociations(
+                root)));
 
         Collection<Edge> parentEdges = createParentEdges(parents, root);
         Collection<Edge> childrenEdges = createChildEdges(childMetacardMap.values(), root);
@@ -105,7 +109,7 @@ public class Associated {
                 .distinct()
                 .collect(Collectors.toList());
 
-        Map<String, Metacard> metacards = util.getMetacards(ids, Metacard.DEFAULT_TAG)
+        Map<String, Metacard> metacards = util.getMetacards(ids, getNonrestrictedTagsFilter())
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
@@ -212,14 +216,27 @@ public class Associated {
                 .anyOf(root, parents);
     }
 
-    private Filter withAnytag(Filter filter) {
+    private Filter withNonrestrictedTags(Filter filter) {
+        if (filter == null) {
+            return null;
+        }
         return util.getFilterBuilder()
-                .allOf(filter,
-                        util.getFilterBuilder()
-                                .attribute(Metacard.TAGS)
-                                .is()
-                                .like()
-                                .text("*"));
+                .allOf(filter, getNonrestrictedTagsFilter());
+    }
+
+    private Filter getNonrestrictedTagsFilter() {
+        return util.getFilterBuilder()
+                .not(util.getFilterBuilder()
+                        .anyOf(util.getFilterBuilder()
+                                        .attribute(Metacard.TAGS)
+                                        .is()
+                                        .like()
+                                        .text(DeletedMetacard.DELETED_TAG),
+                                util.getFilterBuilder()
+                                        .attribute(Metacard.TAGS)
+                                        .is()
+                                        .like()
+                                        .text(MetacardVersion.VERSION_TAG)));
     }
 
     private Filter forChildAssociations(Metacard metacard) {
@@ -233,6 +250,9 @@ public class Associated {
                 .map(String.class::cast)
                 .collect(Collectors.toSet());
 
+        if (childIds.isEmpty()) {
+            return null;
+        }
         return util.getFilterBuilder()
                 .anyOf(childIds.stream()
                         .map(id -> util.getFilterBuilder()
@@ -246,6 +266,10 @@ public class Associated {
 
     private Map<String, Metacard> query(Filter filter)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        if (filter == null) {
+            return Collections.emptyMap();
+        }
+
         QueryResponse query = catalogFramework.query(new QueryRequestImpl(new QueryImpl(filter,
                 1,
                 0,

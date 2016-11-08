@@ -137,8 +137,24 @@ public class EndpointUtil {
         return getMetacards(Metacard.ID, ids, tagFilter);
     }
 
+    public Map<String, Result> getMetacards(Collection<String> ids, Filter tagFilter)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        return getMetacards(Metacard.ID, ids, tagFilter);
+    }
+
     public Map<String, Result> getMetacards(String attributeName, Collection<String> ids,
             String tag)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        return getMetacards(attributeName,
+                ids,
+                filterBuilder.attribute(Metacard.TAGS)
+                        .is()
+                        .like()
+                        .text(tag));
+    }
+
+    public Map<String, Result> getMetacards(String attributeName, Collection<String> ids,
+            Filter tagFilter)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         if (ids.isEmpty()) {
             return new HashMap<>();
@@ -150,10 +166,6 @@ public class EndpointUtil {
                     .is()
                     .equalTo()
                     .text(id);
-            Filter tagFilter = filterBuilder.attribute(Metacard.TAGS)
-                    .is()
-                    .like()
-                    .text(tag);
             Filter filter = filterBuilder.allOf(attributeFilter, tagFilter);
             filters.add(filter);
         }
