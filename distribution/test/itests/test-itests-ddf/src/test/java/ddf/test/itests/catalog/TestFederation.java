@@ -2255,6 +2255,8 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testAsyncDownloadActionPresentUsingCometDClient() throws Exception {
+        unstableTest(); // TODO: DDF-2581
+
         getCatalogBundle().setupCaching(true);
         String src = "ddf.distribution";
         String metacardId = ingestXmlWithProduct(String.format("%s.txt", testName.getMethodName()));

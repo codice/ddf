@@ -15,7 +15,8 @@ package org.codice.ddf.itests.common;
 
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
-
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assume.assumeThat;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
@@ -108,6 +109,8 @@ public abstract class AbstractIntegrationTest {
 
     protected static String ddfHome;
 
+    private static final String INCLUDE_UNSTABLE_TESTS_PROPERTY = "includeUnstableTests";
+
     @Rule
     public PaxExamRule paxExamRule = new PaxExamRule(this);
 
@@ -143,6 +146,10 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String[] DEFAULT_REQUIRED_APPS =
             {"catalog-app", "solr-app", "spatial-app", "sdk-app"};
+
+    private static final String INCLUDE_UNSTABLE_TESTS = System.getProperty(
+            INCLUDE_UNSTABLE_TESTS_PROPERTY,
+            "false");
 
     /**
      * An enum that returns a port number based on the class variable {@link #basePort}. Used to allow parallel itests
@@ -329,6 +336,7 @@ public abstract class AbstractIntegrationTest {
         basePort = findPortNumber(20000);
         return combineOptions(configureCustom(),
                 configureLogLevel(),
+                configureIncludeUnstableTests(),
                 configureDistribution(),
                 configureConfigurationPorts(),
                 configureMavenRepos(),
@@ -348,6 +356,17 @@ public abstract class AbstractIntegrationTest {
             LOGGER.debug("Bad port, trying {}", portToTry);
             return findPortNumber(portToTry);
         }
+    }
+
+    /**
+     * Indicates that a test should only be run if the {@value INCLUDE_UNSTABLE_TESTS_PROPERTY}
+     * system property is set to {@code true}.
+     * <p>
+     * To use, simply add as the first line of a test method that is currently unstable or fails
+     * intermittently.
+     */
+    protected void unstableTest() {
+        assumeThat(INCLUDE_UNSTABLE_TESTS, is("true"));
     }
 
     /**
@@ -494,6 +513,13 @@ public abstract class AbstractIntegrationTest {
                         ""))));
     }
 
+    protected Option[] configureIncludeUnstableTests() {
+        return options(when(System.getProperty(INCLUDE_UNSTABLE_TESTS_PROPERTY) != null).useOptions(
+                systemProperty(INCLUDE_UNSTABLE_TESTS_PROPERTY).value(System.getProperty(
+                        INCLUDE_UNSTABLE_TESTS_PROPERTY,
+                        ""))));
+    }
+
     protected Option[] configureVmOptions() {
         return options(vmOption("-Xmx2048M"),
                 // avoid integration tests stealing focus on OS X
@@ -600,9 +626,8 @@ public abstract class AbstractIntegrationTest {
         String fileContent;
 
         try {
-            fileContent =
-                    IOUtils.toString(classRelativeToResource.getClassLoader()
-                            .getResourceAsStream(filePath), "UTF-8");
+            fileContent = IOUtils.toString(classRelativeToResource.getClassLoader()
+                    .getResourceAsStream(filePath), "UTF-8");
         } catch (IOException e) {
             throw new RuntimeException("Failed to read filepath: " + filePath);
         }
