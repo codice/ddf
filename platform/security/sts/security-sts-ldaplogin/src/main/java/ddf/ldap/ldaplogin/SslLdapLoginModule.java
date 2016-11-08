@@ -41,6 +41,8 @@ import org.forgerock.opendj.ldap.LDAPOptions;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
+import org.forgerock.opendj.ldap.requests.BindRequest;
+import org.forgerock.opendj.ldap.requests.Requests;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
@@ -78,11 +80,15 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     public static final String SSL_STARTTLS = "ssl.starttls";
 
+    public static final String BIND_METHOD = "bindMethod";
+
     public static final String PROTOCOL = "TLS";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SslLdapLoginModule.class);
 
     private static final String DEFAULT_AUTHENTICATION = "simple";
+
+    private String bindMethod;
 
     private String connectionURL;
 
@@ -158,8 +164,34 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         if (connection != null) {
             try {
                 try {
-                    BindResult bindResult = connection.bind(connectionUsername,
-                            connectionPassword.toCharArray());
+                    BindRequest request;
+                    switch (bindMethod) {
+                    case "Simple":
+                        request = Requests.newSimpleBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        break;
+                    case "SASL":
+                        request = Requests.newPlainSASLBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        break;
+                    case "GSSAPI SASL":
+                        request = Requests.newGSSAPISASLBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        break;
+                    case "Digest MD5 SASL":
+                        request = Requests.newDigestMD5SASLBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        break;
+                    case "CRAM MD5 SASL":
+                        request = Requests.newCRAMMD5SASLBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        break;
+                    default:
+                        request = Requests.newSimpleBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        break;
+                    }
+                    BindResult bindResult = connection.bind(request);
 
                     if (!bindResult.isSuccess()) {
                         LOGGER.debug("Bind failed");
@@ -350,6 +382,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE);
             roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE));
             startTls = Boolean.parseBoolean(String.valueOf(options.get(SSL_STARTTLS)));
+            bindMethod = (String) options.get(BIND_METHOD);
 
             if (ldapConnectionFactory != null) {
                 ldapConnectionFactory.close();

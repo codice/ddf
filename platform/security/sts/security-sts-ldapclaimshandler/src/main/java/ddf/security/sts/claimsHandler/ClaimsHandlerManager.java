@@ -57,6 +57,8 @@ public class ClaimsHandlerManager {
 
     public static final String LDAP_BIND_USER_DN = "ldapBindUserDn";
 
+    public static final String BIND_METHOD = "bindMethod";
+
     public static final String PASSWORD = "password";
 
     public static final String LOGIN_USER_ATTRIBUTE = "loginUserAttribute";
@@ -128,6 +130,7 @@ public class ClaimsHandlerManager {
                 ClaimsHandlerManager.MEMBER_USER_ATTRIBUTE);
         String propertyFileLocation = (String) props.get(
                 ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
+        String bindMethod = (String) props.get(ClaimsHandlerManager.BIND_METHOD);
         Boolean overrideCertDn;
         if (props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN) instanceof String) {
             overrideCertDn = Boolean.valueOf(
@@ -143,9 +146,9 @@ public class ClaimsHandlerManager {
             LDAPConnectionFactory connection2 = createLdapConnectionFactory(url, startTls);
             registerRoleClaimsHandler(connection1, propertyFileLocation, userBaseDn,
                     loginUserAttribute, membershipUserAttribute, objectClass, memberNameAttribute,
-                    groupBaseDn, userDn, password, overrideCertDn);
+                    groupBaseDn, userDn, password, overrideCertDn, bindMethod);
             registerLdapClaimsHandler(connection2, propertyFileLocation, userBaseDn,
-                    loginUserAttribute, userDn, password, overrideCertDn);
+                    loginUserAttribute, userDn, password, overrideCertDn, bindMethod);
 
         } catch (Exception e) {
             LOGGER.warn(
@@ -224,7 +227,7 @@ public class ClaimsHandlerManager {
     private void registerRoleClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
             String userBaseDn, String loginUserAttribute, String membershipUserAttribute,
             String objectClass, String memberNameAttribute, String groupBaseDn, String userDn,
-            String password, boolean overrideCertDn) {
+            String password, boolean overrideCertDn, String bindMethod) {
         RoleClaimsHandler roleHandler = new RoleClaimsHandler();
         roleHandler.setLdapConnectionFactory(connection);
         roleHandler.setPropertyFileLocation(propertyFileLoc);
@@ -237,6 +240,7 @@ public class ClaimsHandlerManager {
         roleHandler.setBindUserDN(userDn);
         roleHandler.setBindUserCredentials(password);
         roleHandler.setOverrideCertDn(overrideCertDn);
+        roleHandler.setBindMethod(bindMethod);
         LOGGER.debug("Registering new role claims handler.");
         roleHandlerRegistration = registerClaimsHandler(roleHandler, roleHandlerRegistration);
     }
@@ -251,7 +255,7 @@ public class ClaimsHandlerManager {
      */
     private void registerLdapClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
             String userBaseDn, String userNameAttr, String userDn, String password,
-            boolean overrideCertDn) {
+            boolean overrideCertDn, String bindMethod) {
         LdapClaimsHandler ldapHandler = new LdapClaimsHandler();
         ldapHandler.setLdapConnectionFactory(connection);
         ldapHandler.setPropertyFileLocation(propertyFileLoc);
@@ -260,6 +264,7 @@ public class ClaimsHandlerManager {
         ldapHandler.setBindUserDN(userDn);
         ldapHandler.setBindUserCredentials(password);
         ldapHandler.setOverrideCertDn(overrideCertDn);
+        ldapHandler.setBindMethod(bindMethod);
         LOGGER.debug("Registering new ldap claims handler.");
         ldapHandlerRegistration = registerClaimsHandler(ldapHandler, ldapHandlerRegistration);
     }
@@ -357,6 +362,11 @@ public class ClaimsHandlerManager {
     public void setPropertyFileLocation(String propertyFileLocation) {
         LOGGER.trace("Setting propertyFileLocation: {}", propertyFileLocation);
         ldapProperties.put(PROPERTY_FILE_LOCATION, propertyFileLocation);
+    }
+
+    public void setBindMethod(String bindMethod) {
+        LOGGER.trace("Setting bindMethod: {}", bindMethod);
+        ldapProperties.put(BIND_METHOD, bindMethod);
     }
 
     public void setOverrideCertDn(boolean overrideCertDn) {
