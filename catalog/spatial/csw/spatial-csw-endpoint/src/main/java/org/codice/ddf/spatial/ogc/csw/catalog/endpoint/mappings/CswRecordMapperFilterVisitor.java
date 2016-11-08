@@ -148,8 +148,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         String name;
 
         if (CswConstants.BBOX_PROP.equals(propertyName)
-                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName) ||
-                GmdMetacardType.APISO_BOUNDING_BOX.equals(propertyName)) {
+                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName)
+                || GmdMetacardType.APISO_BOUNDING_BOX.equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
             NamespaceSupport namespaceSupport = expression.getNamespaceContext();
@@ -367,7 +367,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     }
 
     private void setExpressionType(AttributeType type, LiteralExpressionImpl typedExpression) {
-        if (type != null) {
+        if (type != null && typedExpression != null) {
             if (type.getBinding() == Short.class) {
                 typedExpression.setValue(Short.valueOf((String) typedExpression.getValue()));
             } else if (type.getBinding() == Integer.class) {
