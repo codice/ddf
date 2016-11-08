@@ -158,6 +158,20 @@ The contents of `<outfile>` should be pasted into this field.
 |
 |yes
 
+|Additional Links title
+|`linksTitle`
+|String
+|The title displayed for additional links (e.g. Bookmarks, Additional Links, etc.).
+|
+|yes
+
+|Additional Links
+|`links`
+|String
+|Additional links to be displayed on the landing page. Use the format <text>,<link> (e.g. example, http://www.example.com).
+|
+|yes
+
 |===
 
 === ${ddf-branding} Mime Framework

@@ -55,6 +55,16 @@
                 name="Branding Logo" id="logo" required="true" type="String"
                 default=""
                 />
+        <AD
+                description="Title displayed for additional links (e.g. Bookmarks, Additional Links, etc.)."
+                name="Additional Links Title" id="linksTitle" required="true" type="String"
+                default="Bookmarks"
+        />
+        <AD
+                description="Additional links to be displayed on the landing page. Use the format <text>,<link> (e.g. example, http://www.example.com)."
+                name="Additional Links" id="links" required="true" type="String"
+                cardinality="100"
+                />
     </OCD>
 
     <Designate pid="org.codice.ddf.distribution.landing-page.properties">
