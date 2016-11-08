@@ -559,6 +559,10 @@ public class MetacardImpl implements Metacard {
 
         Serializable data = attribute.getValue();
 
+        if (data == null) {
+            return null;
+        }
+
         if (returnType.isAssignableFrom(data.getClass())) {
             return returnType.cast(data);
         } else {
