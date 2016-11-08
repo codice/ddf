@@ -376,7 +376,7 @@ define([
                 model: new Property({
                     value: [this.filter.anyText && this.filter.anyText[0].type === 'LIKE' ? 'LIKE' : 'ILIKE'],
                     id: 'Match Case',
-                    placeholder: 'Text to search for.  Use "%" or "*" for wildcard.',
+                    placeholder: 'Text to search for.  Use "*" for wildcard.',
                     radio: [{
                         label: 'Yes',
                         value: 'LIKE'

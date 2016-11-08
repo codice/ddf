@@ -120,6 +120,7 @@ define([
             if (propertyJSON.type === 'GEOMETRY'){
                 propertyJSON.type = 'LOCATION';
             }
+            propertyJSON.placeholder = propertyJSON.type === 'DATE' ? 'DD MMM YYYY HH:mm:ss.SSS' : 'Use * for wildcard.';
             this.filterInput.show(new MultivalueView({
                 model: new PropertyModel(propertyJSON)
             }));

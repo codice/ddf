@@ -30,12 +30,26 @@ define([
 
         var blacklist = [];
 
+        function checkTokenWithWildcard(token, filter){
+            var filterRegex = new RegExp(filter.split('*').join('.*'));
+            return filterRegex.test(token);
+        }
+
+        function checkToken(token, filter){
+            if (filter.indexOf('*') >= 0){
+                return checkTokenWithWildcard(token, filter);
+            } else if (token === filter){
+                return true;
+            }
+            return false;
+        }
+
         function matchesILIKE(value, filter){
             var valueToCheckFor = filter.value.toLowerCase();
             value = value.toString().toLowerCase();
             var tokens = value.split(' ');
             for (var i = 0; i <= tokens.length - 1; i++){
-                if (tokens[i] === valueToCheckFor){
+                if (checkToken(tokens[i], valueToCheckFor)){
                     return true;
                 }
             }
@@ -46,7 +60,7 @@ define([
             var valueToCheckFor = filter.value;
             var tokens = value.toString().split(' ');
             for (var i = 0; i <= tokens.length - 1; i++){
-                if (tokens[i] === valueToCheckFor){
+                if (checkToken(tokens[i], valueToCheckFor)){
                     return true;
                 }
             }
