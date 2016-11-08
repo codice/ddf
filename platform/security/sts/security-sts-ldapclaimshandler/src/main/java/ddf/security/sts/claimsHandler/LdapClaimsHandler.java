@@ -32,6 +32,7 @@ import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
+import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
@@ -50,6 +51,12 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     private String bindUserCredentials;
 
     private String bindUserDN;
+
+    private String bindMethod;
+
+    private String kerberosRealm;
+
+    private String kdcAddress;
 
     private boolean overrideCertDn = false;
 
@@ -72,7 +79,8 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     public void setPropertyFileLocation(String propertyFileLocation) {
         if (propertyFileLocation != null && !propertyFileLocation.isEmpty()
                 && !propertyFileLocation.equals(this.propertyFileLocation)) {
-            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
+            setClaimsLdapAttributeMapping(
+                    AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }
@@ -114,27 +122,25 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
             connection = connectionFactory.getConnection();
             if (connection != null) {
-                BindResult bindResult = connection.bind(bindUserDN,
-                        bindUserCredentials.toCharArray());
+                BindRequest request = BindMethodChooser.selectBindMethod(bindMethod, bindUserDN,
+                        bindUserCredentials, kerberosRealm, kdcAddress);
+                BindResult bindResult = connection.bind(request);
                 if (bindResult.isSuccess()) {
                     String baseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDN(),
                             overrideCertDn);
                     LOGGER.trace("Executing ldap search with base dn of {} and filter of {}",
-                            baseDN,
-                            filter.toString());
+                            baseDN, filter.toString());
 
                     ConnectionEntryReader entryReader = connection.search(baseDN,
-                            SearchScope.WHOLE_SUBTREE,
-                            filter.toString(),
-                            searchAttributes);
+                            SearchScope.WHOLE_SUBTREE, filter.toString(), searchAttributes);
 
                     SearchResultEntry entry;
                     while (entryReader.hasNext()) {
                         entry = entryReader.readEntry();
                         for (Claim claim : claims) {
                             URI claimType = claim.getClaimType();
-                            String ldapAttribute =
-                                    getClaimsLdapAttributeMapping().get(claimType.toString());
+                            String ldapAttribute = getClaimsLdapAttributeMapping().get(
+                                    claimType.toString());
                             Attribute attr = entry.getAttribute(ldapAttribute);
                             if (attr == null) {
                                 LOGGER.trace("Claim '{}' is null", claim.getClaimType());
@@ -176,7 +182,8 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                     "Cannot connect to server, therefore unable to set user attributes. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information");
             LOGGER.debug("Cannot connect to server, therefore unable to set user attributes.", e);
         } catch (SearchResultReferenceIOException e) {
-            LOGGER.info("Unable to set user attributes. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information");
+            LOGGER.info(
+                    "Unable to set user attributes. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information");
             LOGGER.debug("Unable to set user attributes.", e);
         } finally {
             if (connection != null) {
@@ -200,5 +207,17 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
     public void setOverrideCertDn(boolean overrideCertDn) {
         this.overrideCertDn = overrideCertDn;
+    }
+
+    public void setBindMethod(String bindMethod) {
+        this.bindMethod = bindMethod;
+    }
+
+    public void setKerberosRealm(String kerberosRealm) {
+        this.kerberosRealm = kerberosRealm;
+    }
+
+    public void setKdcAddress(String kdcAddress) {
+        this.kdcAddress = kdcAddress;
     }
 }

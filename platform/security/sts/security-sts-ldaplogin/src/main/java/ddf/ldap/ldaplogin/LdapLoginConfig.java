@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.jaas.config.impl.Module;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
@@ -45,11 +46,17 @@ public class LdapLoginConfig {
 
     public static final String LDAP_URL = "ldapUrl";
 
+    public static final String BIND_METHOD = "bindMethod";
+
     public static final String USER_BASE_DN = "userBaseDn";
 
     public static final String GROUP_BASE_DN = "groupBaseDn";
 
     public static final String START_TLS = "startTls";
+
+    public static final String REALM = "realm";
+
+    public static final String KDC_ADDRESS = "kdcAddress";
 
     private static final String SUFFICIENT_FLAG = "sufficient";
 
@@ -111,6 +118,16 @@ public class LdapLoginConfig {
         props.put("ssl.protocol", "TLS");
         props.put("ssl.algorithm", "SunX509");
         props.put(SSL_STARTTLS, properties.get(START_TLS));
+        props.put(BIND_METHOD, properties.get(BIND_METHOD));
+        props.put(REALM, (properties.get(REALM) != null) ? properties.get(REALM) : "");
+        props.put(KDC_ADDRESS,
+                (properties.get(KDC_ADDRESS) != null) ? properties.get(KDC_ADDRESS) : "");
+        if ("GSSAPI SASL".equals(properties.get(BIND_METHOD)) && (
+                StringUtils.isEmpty((String) properties.get(REALM)) || StringUtils.isEmpty(
+                        (String) properties.get(KDC_ADDRESS)))) {
+            LOGGER.warn(
+                    "LDAP connection will fail. GSSAPI SASL connection requires Kerberos Realm and KDC Address.");
+        }
         ldapModule.setOptions(props);
 
         return ldapModule;
@@ -158,6 +175,21 @@ public class LdapLoginConfig {
     public void setUserNameAttribute(String userNameAttribute) {
         LOGGER.trace("setUserNameAttribute called: {}", userNameAttribute);
         ldapProperties.put(USER_NAME_ATTRIBUTE, userNameAttribute);
+    }
+
+    public void setBindMethod(String bindMethod) {
+        LOGGER.trace("setBindMethod: {}", bindMethod);
+        ldapProperties.put(BIND_METHOD, bindMethod);
+    }
+
+    public void setRealm(String realm) {
+        LOGGER.trace("setRealm: {}", realm);
+        ldapProperties.put(REALM, realm);
+    }
+
+    public void setKdcAddress(String kdcAddress) {
+        LOGGER.trace("setKdcAddress: {}", kdcAddress);
+        ldapProperties.put(KDC_ADDRESS, kdcAddress);
     }
 
     public void configure() {
