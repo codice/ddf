@@ -58,7 +58,7 @@ public class TestGenericXmlLib {
     MetacardTypeRegister mockMetacardTypeRegister;
 
     @Before
-    public void setup() {
+    public void setup() throws CatalogTransformerException {
         mockMetacardTypeRegister = mock(MetacardTypeRegister.class);
         doReturn(BasicTypes.BASIC_METACARD).when(mockMetacardTypeRegister)
                 .getMetacardType();
@@ -148,7 +148,7 @@ public class TestGenericXmlLib {
     }
 
     @Test
-    public void testNoFactoriesTransform() {
+    public void testNoFactoriesTransform() throws CatalogTransformerException {
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(null);
@@ -310,7 +310,8 @@ public class TestGenericXmlLib {
                 false,
                 false,
                 BasicTypes.STRING_TYPE));
-        MetacardTypeImpl dynamicMetacardType = new MetacardTypeImpl("Foo.metacard", attributeDescriptors);
+        MetacardTypeImpl dynamicMetacardType = new MetacardTypeImpl("Foo.metacard",
+                attributeDescriptors);
         assertThat(dynamicMetacardType.getName(), is("Foo.metacard"));
         assertThat(dynamicMetacardType.getAttributeDescriptor(Metacard.TITLE), is(notNullValue()));
         assertThat(dynamicMetacardType.getAttributeDescriptors()

@@ -76,7 +76,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      *
      * @return a new SaxEventHandlerDelegate
      */
-    private SaxEventHandlerDelegate create() {
+    private SaxEventHandlerDelegate create() throws CatalogTransformerException {
 
         /*
          * Gets new instances of each SaxEventHandler denoted in saxEventHandlerConfiguration

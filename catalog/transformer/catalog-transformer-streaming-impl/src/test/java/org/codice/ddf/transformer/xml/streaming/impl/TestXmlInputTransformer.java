@@ -74,9 +74,10 @@ public class TestXmlInputTransformer {
     MetacardTypeRegister mockMetacardTypeRegister;
 
     @Before
-    public void setup() {
+    public void setup() throws CatalogTransformerException {
         mockMetacardTypeRegister = mock(MetacardTypeRegister.class);
-        doReturn(BasicTypes.BASIC_METACARD).when(mockMetacardTypeRegister).getMetacardType();
+        doReturn(BasicTypes.BASIC_METACARD).when(mockMetacardTypeRegister)
+                .getMetacardType();
     }
 
     /*

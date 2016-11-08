@@ -34,6 +34,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.transform.CatalogTransformerException;
 
 public class MetacardTypeRegister {
 
@@ -47,13 +48,14 @@ public class MetacardTypeRegister {
 
     private String id = "DEFAULT_ID";
 
-    public synchronized void bind(SaxEventHandlerFactory saxEventHandlerFactory) throws Exception {
+    public synchronized void bind(SaxEventHandlerFactory saxEventHandlerFactory)
+            throws CatalogTransformerException {
         saxEventHandlerFactories.add(saxEventHandlerFactory);
         setMetacardType();
     }
 
     public synchronized void unbind(SaxEventHandlerFactory saxEventHandlerFactory)
-            throws Exception {
+            throws CatalogTransformerException {
         saxEventHandlerFactories.remove(saxEventHandlerFactory);
         setMetacardType();
     }
@@ -64,7 +66,7 @@ public class MetacardTypeRegister {
      *
      * @return a DynamicMetacardType that describes the type of metacard that is created in this transformer
      */
-    private synchronized void setMetacardType() throws Exception {
+    private synchronized void setMetacardType() throws CatalogTransformerException {
         Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
 
         for (SaxEventHandlerFactory factory : saxEventHandlerFactories) {
@@ -77,7 +79,7 @@ public class MetacardTypeRegister {
         metacardType = dynamicMetacardType;
     }
 
-    public MetacardType getMetacardType() throws Exception {
+    public MetacardType getMetacardType() throws CatalogTransformerException {
         if (metacardType == null) {
             setMetacardType();
         }
@@ -85,7 +87,8 @@ public class MetacardTypeRegister {
         return metacardType;
     }
 
-    private synchronized void registerMetacardType(MetacardType metacardType) throws Exception {
+    private synchronized void registerMetacardType(MetacardType metacardType)
+            throws CatalogTransformerException {
         unregisterMetacardType(metacardType);
 
         Dictionary serviceProperties = new Hashtable();
@@ -116,12 +119,12 @@ public class MetacardTypeRegister {
         this.id = id;
     }
 
-    protected BundleContext getContext() throws Exception {
+    protected BundleContext getContext() throws CatalogTransformerException {
         Bundle bundle = FrameworkUtil.getBundle(MetacardTypeRegister.class);
         if (bundle != null) {
             return bundle.getBundleContext();
         }
-        throw new Exception(
+        throw new CatalogTransformerException(
                 "Failed to register new MetacardType Attributes. Could not get BundleContext.");
     }
 }
