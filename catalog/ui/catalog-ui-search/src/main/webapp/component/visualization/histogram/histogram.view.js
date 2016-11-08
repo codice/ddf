@@ -34,6 +34,11 @@ define([
         });
         return availableAttributes.filter(function(attribute){
             return metacardDefinitions.metacardTypes[attribute] !== undefined;
+        }).map(function(attribute){
+            return {
+                label: metacardDefinitions.metacardTypes[attribute].alias || attribute,
+                value: attribute
+            };
         });
     }
 
