@@ -22,7 +22,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,10 +82,21 @@ public class DerivedContentActionProvider implements MultiActionProvider {
                                     builder.build()
                                             .toURL()));
                         } else {
-                            return Optional.of(new ActionImpl(ID,
-                                    "View " + uri.toString(),
-                                    DESCRIPTION_PREFIX + uri.toString(),
-                                    uri.toURL()));
+                            String uriString = uri.toString();
+                            String qualifier = getQualifierForRemoteResource(uriString);
+                            if (StringUtils.isNotBlank(qualifier)) {
+                                // remote source
+                                return Optional.of(new ActionImpl(ID,
+                                        "View " + qualifier,
+                                        DESCRIPTION_PREFIX + uriString,
+                                        uri.toURL()));
+                            } else {
+                                // fail case
+                                return Optional.of(new ActionImpl(ID,
+                                        "View " + uriString,
+                                        DESCRIPTION_PREFIX + uriString,
+                                        uri.toURL()));
+                            }
                         }
                     } catch (URISyntaxException | MalformedURLException e) {
                         LOGGER.debug("Unable to create action URL.", e);
@@ -112,6 +125,17 @@ public class DerivedContentActionProvider implements MultiActionProvider {
             }
         }
         return false;
+    }
+
+    private String getQualifierForRemoteResource(String uriString) throws URISyntaxException {
+        final String QUALIFIER_KEY = "qualifier";
+
+        return URLEncodedUtils.parse(new URI(uriString), "UTF-8")
+                .stream()
+                .filter(pair -> QUALIFIER_KEY.equals(pair.getName()))
+                .map(NameValuePair::getValue)
+                .findFirst()
+                .orElse(""); // default
     }
 
 }
