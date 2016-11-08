@@ -16,10 +16,15 @@ define([
         'underscore',
         'webglcheck',
         'twodcheck',
-        'querystring'
+        'querystring',
+        'component/singletons/user-instance'
     ],
-    function ($, _, webgl, twoD, qs) {
+    function ($, _, webgl, twoD, qs, user) {
         'use strict';
+
+        function getActiveVisualization() {
+            return user.get('user').get('preferences').get('visualization');
+        }
 
         var MapTypeEnum = {
             THREED: '3d',
@@ -52,10 +57,10 @@ define([
             }(),
 
             is3d: function () {
-                return this.type === MapTypeEnum.THREED;
+                return getActiveVisualization() === '3dmap';
             },
             is2d: function () {
-                return this.type === MapTypeEnum.TWOD;
+                return getActiveVisualization() === '2dmap';
             },
             isNone: function () {
                 return this.type === MapTypeEnum.NONE;
