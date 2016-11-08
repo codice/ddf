@@ -32,6 +32,8 @@ import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
+import org.forgerock.opendj.ldap.requests.BindRequest;
+import org.forgerock.opendj.ldap.requests.Requests;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
@@ -74,6 +76,8 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
     private String bindUserDN;
 
+    private String bindMethod;
+
     public URI getRoleURI() {
         URI uri = null;
         try {
@@ -93,8 +97,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
     public void setPropertyFileLocation(String propertyFileLocation) {
         if (propertyFileLocation != null && !propertyFileLocation.isEmpty()
                 && !propertyFileLocation.equals(this.propertyFileLocation)) {
-            setClaimsLdapAttributeMapping(
-                    AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
+            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }
@@ -179,6 +182,10 @@ public class RoleClaimsHandler implements ClaimsHandler {
         this.userBaseDn = userBaseDn;
     }
 
+    public void setBindMethod(String bindMethod) {
+        this.bindMethod = bindMethod;
+    }
+
     public Map<String, String> getClaimsLdapAttributeMapping() {
         return claimsLdapAttributeMapping;
     }
@@ -213,14 +220,44 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
             connection = connectionFactory.getConnection();
             if (connection != null) {
-                BindResult bindResult = connection.bind(bindUserDN,
-                        bindUserCredentials.toCharArray());
+
+                BindRequest request;
+                switch (bindMethod) {
+                case "Simple":
+                    request = Requests.newSimpleBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                case "SASL":
+                    request = Requests.newPlainSASLBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                case "GSSAPI SASL":
+                    request = Requests.newGSSAPISASLBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                case "Digest MD5 SASL":
+                    request = Requests.newDigestMD5SASLBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                case "CRAM MD5 SASL":
+                    request = Requests.newCRAMMD5SASLBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                default:
+                    request = Requests.newSimpleBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                }
+
+                BindResult bindResult = connection.bind(request);
 
                 String baseDN = AttributeMapLoader.getBaseDN(principal, userBaseDn, overrideCertDn);
                 AndFilter filter = new AndFilter();
                 filter.and(new EqualsFilter(this.getLoginUserAttribute(), user));
                 ConnectionEntryReader entryReader = connection.search(baseDN,
-                        SearchScope.WHOLE_SUBTREE, filter.toString(), membershipUserAttribute);
+                        SearchScope.WHOLE_SUBTREE,
+                        filter.toString(),
+                        membershipUserAttribute);
                 String membershipValue = null;
                 while (entryReader.hasNext()) {
                     SearchResultEntry entry = entryReader.readEntry();
@@ -234,7 +271,8 @@ public class RoleClaimsHandler implements ClaimsHandler {
                 }
 
                 filter = new AndFilter();
-                String userBaseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDn(),
+                String userBaseDN = AttributeMapLoader.getBaseDN(principal,
+                        getUserBaseDn(),
                         overrideCertDn);
                 filter.and(new EqualsFilter("objectClass", getObjectClass()))
                         .and(new EqualsFilter(getMemberNameAttribute(),
@@ -243,10 +281,13 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
                 if (bindResult.isSuccess()) {
                     LOGGER.trace("Executing ldap search with base dn of {} and filter of {}",
-                            groupBaseDn, filter.toString());
+                            groupBaseDn,
+                            filter.toString());
 
-                    entryReader = connection.search(groupBaseDn, SearchScope.WHOLE_SUBTREE,
-                            filter.toString(), attributes);
+                    entryReader = connection.search(groupBaseDn,
+                            SearchScope.WHOLE_SUBTREE,
+                            filter.toString(),
+                            attributes);
 
                     SearchResultEntry entry;
                     while (entryReader.hasNext()) {

@@ -23,6 +23,15 @@
             description="LDAP or LDAPS server and port">
 	    </AD>
 
+		<AD name="LDAP Bind Method" id="bindMethod" required="true" type="String"
+			default="Simple">
+			<Option label="CRAM MD5 SASL" value="CRAM MD5 SASL" />
+			<Option label="Digest MD5 SASL" value="Digest MD5 SASL" />
+			<Option label="GSSAPI SASL" value="GSSAPI SASL" />
+			<Option label="SASL" value="SASL" />
+			<Option label="Simple" value="Simple" />
+		</AD>
+
         <AD name="StartTLS:" id="startTls" required="true" type="Boolean"
             default="false"
             description="Determines whether or not to use StartTLS when connecting via the ldap protocol. This setting is ignored if the URL uses ldaps.">
