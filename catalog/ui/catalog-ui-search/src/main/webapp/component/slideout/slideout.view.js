@@ -18,6 +18,7 @@ var template = require('./slideout.hbs');
 var CustomElements = require('js/CustomElements');
 var $ = require('jquery');
 var router = require('component/router/router');
+var Common = require('js/Common');
 
 var componentName = 'slideout';
 
@@ -56,7 +57,12 @@ module.exports = Marionette.LayoutView.extend({
     close: function() {
         this.$el.toggleClass('is-open', false);
         $('html').toggleClass('blur-content', false);
-        this.slideoutContent.empty();
+        this.emptyContent();
+    },
+    emptyContent: function(){
+        setTimeout(function() {
+            this.slideoutContent.empty();
+        }.bind(this), Common.coreTransitionTime*1.1);
     },
     updateContent: function(view) {
         this.slideoutContent.show(view);

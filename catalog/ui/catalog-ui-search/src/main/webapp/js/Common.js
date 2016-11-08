@@ -18,6 +18,7 @@ define([
 ], function ($, moment) {
 
     return {
+        coreTransitionTime: 250,
         generateUUID: function(){
             var d = new Date().getTime();
             if(window.performance && typeof window.performance.now === "function"){

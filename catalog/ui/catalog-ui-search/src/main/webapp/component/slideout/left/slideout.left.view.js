@@ -21,12 +21,10 @@ module.exports = SlideoutView.extend({
     open: function() {
         $('html').toggleClass('has-slideout-left', true);
         $('html').toggleClass('blur-content', true);
-        this.$el.toggleClass('is-open', true);
+        SlideoutView.prototype.open.call(this);
     },
     close: function() {
-        this.$el.toggleClass('is-open', false);
         $('html').toggleClass('has-slideout-left', false);
-        $('html').toggleClass('blur-content', false);
-        this.slideoutContent.empty();
+        SlideoutView.prototype.close.call(this);
     }
 });
