@@ -15,8 +15,6 @@ package org.codice.ddf.itests.common;
 
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assume.assumeThat;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
@@ -55,6 +53,7 @@ import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.codice.ddf.itests.common.annotations.PaxExamRule;
 import org.codice.ddf.itests.common.annotations.PostTestConstruct;
+import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.security.SecurityPolicyConfigurator;
 import org.junit.Rule;
@@ -109,8 +108,6 @@ public abstract class AbstractIntegrationTest {
 
     protected static String ddfHome;
 
-    private static final String INCLUDE_UNSTABLE_TESTS_PROPERTY = "includeUnstableTests";
-
     @Rule
     public PaxExamRule paxExamRule = new PaxExamRule(this);
 
@@ -146,10 +143,6 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String[] DEFAULT_REQUIRED_APPS =
             {"catalog-app", "solr-app", "spatial-app", "sdk-app"};
-
-    private static final String INCLUDE_UNSTABLE_TESTS = System.getProperty(
-            INCLUDE_UNSTABLE_TESTS_PROPERTY,
-            "false");
 
     /**
      * An enum that returns a port number based on the class variable {@link #basePort}. Used to allow parallel itests
@@ -359,17 +352,6 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
-     * Indicates that a test should only be run if the {@value INCLUDE_UNSTABLE_TESTS_PROPERTY}
-     * system property is set to {@code true}.
-     * <p>
-     * To use, simply add as the first line of a test method that is currently unstable or fails
-     * intermittently.
-     */
-    protected void unstableTest() {
-        assumeThat(INCLUDE_UNSTABLE_TESTS, is("true"));
-    }
-
-    /**
      * Combines all the {@link Option} objects contained in multiple {@link Option} arrays.
      *
      * @param options arrays of {@link Option} objects to combine. Arrays can be {@code null} or
@@ -514,10 +496,9 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureIncludeUnstableTests() {
-        return options(when(System.getProperty(INCLUDE_UNSTABLE_TESTS_PROPERTY) != null).useOptions(
-                systemProperty(INCLUDE_UNSTABLE_TESTS_PROPERTY).value(System.getProperty(
-                        INCLUDE_UNSTABLE_TESTS_PROPERTY,
-                        ""))));
+        return options(when(System.getProperty(SkipUnstableTest.INCLUDE_UNSTABLE_TESTS_PROPERTY)
+                != null).useOptions(systemProperty(SkipUnstableTest.INCLUDE_UNSTABLE_TESTS_PROPERTY).value(
+                System.getProperty(SkipUnstableTest.INCLUDE_UNSTABLE_TESTS_PROPERTY, ""))));
     }
 
     protected Option[] configureVmOptions() {
