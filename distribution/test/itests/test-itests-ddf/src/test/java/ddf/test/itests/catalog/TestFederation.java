@@ -82,6 +82,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleService;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
+import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
+import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.cometd.CometDClient;
 import org.codice.ddf.itests.common.cometd.CometDMessageValidator;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
@@ -218,6 +221,9 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Rule
     public TestName testName = new TestName();
+
+    @Rule
+    public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
 
     private List<String> metacardsToDelete = new ArrayList<>();
 
@@ -2254,9 +2260,8 @@ public class TestFederation extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class)  // TODO: DDF-2581
     public void testAsyncDownloadActionPresentUsingCometDClient() throws Exception {
-        unstableTest(); // TODO: DDF-2581
-
         getCatalogBundle().setupCaching(true);
         String src = "ddf.distribution";
         String metacardId = ingestXmlWithProduct(String.format("%s.txt", testName.getMethodName()));
