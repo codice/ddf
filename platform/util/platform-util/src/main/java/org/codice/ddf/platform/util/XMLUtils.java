@@ -147,26 +147,11 @@ public class XMLUtils {
     }
 
     /**
-     * This method lets clients parse through the elements of an XML document with less
-     * boiler-plate code. This methods handles the configuration of the
-     * XML factory and disables security risks like macro expansion.
-     * This methods also catches the several exceptions that can be thrown during the creation
-     * and use of an XML parser.
-     * <p>
-     * Example: Get the first three elements whose local name is "Fizz".
-     * <p>
-     * String xml = "my XML document"; // The string representation of the XML document to parse
-     * <p>
-     * XMLUtils.ProcessingResult<List<String>> result =
-     * new XMLUtils.ProcessingResult<>(new ArrayList<String>());
-     * <p>
-     * List<String> output = XMLUtils.processElements(xml, result, (xmlReader) -> {
-     * if (xmlReader.getLocalName().equals("Fizz")) {
-     * if (result.getValue().size() < 3) {
-     * result.getValue().add(xmlReader.getElementText());
-     * } else { result.done(); }
-     * }
-     * });
+     * Parse the elements of an XML document.
+     * It uses a lambda function and an instance of the the internal class ProcessingResults.
+     * Set the value in the ProcessingResult to be the return value of this method.
+     * To stop processing, set the value "done" in ProcessingResult to true.
+     * For an example, see the getRootNamespace() method.
      *
      * @param xml                    The XML to process
      * @param result                 Instance of ProcessingResult
@@ -187,14 +172,14 @@ public class XMLUtils {
                 int event = xmlStreamReader.next();
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     processElementFunction.accept(xmlStreamReader);
-                    if (result.isDone) {
+                    if (result.isDone()) {
                         break;
                     }
                 }
             }
         } catch (XMLStreamException e) {
             result.setValue(null);
-            LOGGER.debug(XMLUtils.class.getSimpleName() + " is unable to parse XML", e);
+            LOGGER.debug("{} ", XMLUtils.class.getSimpleName(), e);
         } finally {
             if (xmlStreamReader != null) {
                 try {
@@ -234,7 +219,7 @@ public class XMLUtils {
     }
 
     // This class is used with the processElements method. It works in conjunction with the
-    // #processElementFunction. Inside the function, set the value of the ProcessingResult and
+    // processElementFunction. Inside the function, set the value of the ProcessingResult and
     // call done() to stop processing the XML document.
     public static class ProcessingResult<T> {
         boolean isDone = false;
@@ -260,13 +245,10 @@ public class XMLUtils {
             return isDone;
         }
 
-        public void setDone(boolean done) {
-            isDone = done;
+        public void done() {
+            isDone = true;
         }
 
-        public void done() {
-            setDone(true);
-        }
     }
 
 }
