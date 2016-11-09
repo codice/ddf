@@ -30,6 +30,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,12 @@ public class SecureCxfClientFactory<T> {
         this(endpointUrl, interfaceClass, null, null, false, false, null, null, username, password);
     }
 
+    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
+            Interceptor<? extends Message> interceptor, boolean disableCnCheck,
+            boolean allowRedirects) {
+        this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects,
+                new PropertyResolver(endpointUrl));
+    }
     /**
      * Constructs a factory that will return security-aware cxf clients. Once constructed,
      * use the getClient* methods to retrieve a fresh client  with the same configuration.
@@ -91,10 +98,17 @@ public class SecureCxfClientFactory<T> {
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
             Interceptor<? extends Message> interceptor, boolean disableCnCheck,
-            boolean allowRedirects) {
+            boolean allowRedirects, PropertyResolver propertyResolver) {
         if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
             throw new IllegalArgumentException(
                     "Called without a valid URL, will not be able to connect.");
+        }
+
+        if (propertyResolver != null) {
+            endpointUrl = propertyResolver.getResolvedString();
+        } else {
+            LOGGER.warn(
+                    "Called without a valid propertyResolver, system properties in URI may not resolve.");
         }
 
         this.interfaceClass = interfaceClass;
