@@ -3,15 +3,16 @@
 
 Set the configurations needed to run ${branding}
 
-.. Go to ${secure_url}/admin.
-.. Enter the default username of `admin` and the password of `admin`.
-.. Follow the prompts installer prompts for a standard installation.
-... Click start to begin the setup process.
-... Configure <<_guest_interceptor,guest claims attributes>> or use defaults.
-.... (these attributes represent the minimum authorization for all users)
-... Select *Standard Installation*.
-... On the System Configuration page, configure any port or protocol changes desired and add any keystores/truststores needed.
-.... See <<_configuring_new_certificates,Configuring New Certificates>> for more details.
-... Click *Next*
-... Click *Finish*
+. In a browser, navigate to the ${admin-console} at ${secure_url}/admin.
+.. The ${admin-console} may take a few minutes to start up.
+. Enter the default username of `admin` and the password of `admin`.
+. Follow the installer prompts for a standard installation.
+.. Click start to begin the setup process.
+.. Configure <<_guest_interceptor,guest claims attributes>> or use defaults.
+... (these attributes represent the minimum authorization for all users)
+.. Select *Standard Installation*.
+.. On the System Configuration page, configure any port or protocol changes desired and add any keystores/truststores needed.
+... See <<_configuring_new_certificates,Configuring New Certificates>> for more details.
+.. Click *Next*
+.. Click *Finish*
 
