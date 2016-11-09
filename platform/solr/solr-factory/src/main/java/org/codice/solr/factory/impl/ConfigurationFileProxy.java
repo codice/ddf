@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -74,16 +75,15 @@ public class ConfigurationFileProxy {
         }
     }
 
-    public void writeBundleFilesTo(String core) {
-        writeBundleFilesTo(new File(
-                DEFAULT_SOLR_DATA_PARENT_DIR + "/" + core
-                        + "/conf"));
+    public void writeSolrConfiguration(String core) {
+        writeSolrConfiguration(Paths.get(this.dataDirectory.getAbsolutePath(), core, "conf")
+                .toFile());
     }
 
     /**
      * Writes the solr configuration files out of the classpath onto the disk.
      */
-    public void writeBundleFilesTo(File configDir) {
+    public void writeSolrConfiguration(File configDir) {
 
         boolean directoriesMade = configDir.mkdirs();
         LOGGER.debug("Solr Config directories made?  {}", directoriesMade);
@@ -115,9 +115,11 @@ public class ConfigurationFileProxy {
     }
 
     public URL getResource(String configFilename, String core) {
-        File resourceFile = new File(new File(
-                DEFAULT_SOLR_DATA_PARENT_DIR + "/" + core
-                        + "/conf"), configFilename);
+        File resourceFile = Paths.get(this.dataDirectory.getAbsolutePath(),
+                core,
+                "conf",
+                configFilename)
+                .toFile();
         if (resourceFile.exists()) {
             try {
                 return resourceFile.toURI()

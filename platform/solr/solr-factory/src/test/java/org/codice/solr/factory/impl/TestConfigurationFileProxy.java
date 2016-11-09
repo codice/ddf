@@ -50,7 +50,7 @@ public class TestConfigurationFileProxy {
 
         File tempLocation = tempFolder.newFolder();
 
-        proxy.writeBundleFilesTo(tempLocation);
+        proxy.writeSolrConfiguration(tempLocation);
 
         verifyFilesExist(tempLocation);
     }
@@ -69,7 +69,7 @@ public class TestConfigurationFileProxy {
         ConfigurationFileProxy proxy =
                 new ConfigurationFileProxy(ConfigurationStore.getInstance());
 
-        proxy.writeBundleFilesTo(tempLocation);
+        proxy.writeSolrConfiguration(tempLocation);
 
         verifyFilesExist(tempLocation);
 
@@ -80,7 +80,7 @@ public class TestConfigurationFileProxy {
 
         LOGGER.info("Contents switched to:{}", FileUtils.readFileToString(solrXml));
 
-        proxy.writeBundleFilesTo(tempLocation);
+        proxy.writeSolrConfiguration(tempLocation);
 
         String fileContents = FileUtils.readFileToString(solrXml);
 
@@ -110,7 +110,7 @@ public class TestConfigurationFileProxy {
                 new ConfigurationFileProxy(ConfigurationStore.getInstance());
 
         // when
-        proxy.writeBundleFilesTo(tempLocation);
+        proxy.writeSolrConfiguration(tempLocation);
 
         verifyFilesExist(tempLocation);
 
@@ -119,7 +119,7 @@ public class TestConfigurationFileProxy {
 
         delete(solrXml);
 
-        proxy.writeBundleFilesTo(tempLocation);
+        proxy.writeSolrConfiguration(tempLocation);
 
         // then
         verifyFilesExist(tempLocation);

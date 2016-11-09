@@ -50,10 +50,16 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
 
     @Override
     public Future<SolrClient> newClient(String core) {
+        ConfigurationStore configStore = ConfigurationStore.getInstance();
+        if (System.getProperty("solr.data.dir") != null) {
+            configStore.setDataDirectoryPath(System.getProperty("solr.data.dir"));
+        }
+        ConfigurationFileProxy configProxy =
+                new ConfigurationFileProxy(configStore);
         return Futures.immediateFuture(getEmbeddedSolrServer(core,
                 HttpSolrClientFactory.DEFAULT_SOLRCONFIG_XML,
                 null,
-                null));
+                configProxy));
     }
 
     /**
@@ -104,7 +110,7 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
             configProxy = new ConfigurationFileProxy(ConfigurationStore.getInstance());
         }
 
-        configProxy.writeBundleFilesTo(coreName);
+        configProxy.writeSolrConfiguration(coreName);
         File solrConfigFile = getConfigFile(solrConfigFileName, configProxy, coreName);
         File solrSchemaFile = getConfigFile(schemaFileName, configProxy, coreName);
 

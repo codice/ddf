@@ -105,11 +105,11 @@ public class SolrCloudClientFactory implements SolrClientFactory {
         }
 
         if (!configExistsInZk) {
-            Path configPath = Paths.get(System.getProperty("karaf.home"),
-                    "data",
-                    "solr",
-                    collection,
-                    "conf");
+            ConfigurationFileProxy configProxy =
+                    new ConfigurationFileProxy(ConfigurationStore.getInstance());
+            configProxy.writeSolrConfiguration(collection);
+            Path configPath = Paths.get(configProxy.getDataDirectory()
+                    .getAbsolutePath(), collection, "conf");
             try {
                 client.uploadConfig(configPath, collection);
             } catch (IOException e) {

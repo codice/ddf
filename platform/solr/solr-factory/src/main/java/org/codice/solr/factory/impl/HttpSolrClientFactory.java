@@ -106,6 +106,10 @@ public class HttpSolrClientFactory implements SolrClientFactory {
 
     @Override
     public Future<SolrClient> newClient(String core) {
+        ConfigurationStore configStore = ConfigurationStore.getInstance();
+        if (System.getProperty("solr.data.dir") != null) {
+            configStore.setDataDirectoryPath(System.getProperty("solr.data.dir"));
+        }
         String solrUrl = System.getProperty("solr.http.url", getDefaultHttpsAddress());
         return getHttpSolrClient(solrUrl, core);
     }
@@ -257,19 +261,30 @@ public class HttpSolrClientFactory implements SolrClientFactory {
                 .getStatusCode() == 200) {
             ConfigurationFileProxy configProxy =
                     new ConfigurationFileProxy(ConfigurationStore.getInstance());
-            configProxy.writeBundleFilesTo(coreName);
+            configProxy.writeSolrConfiguration(coreName);
             if (!solrCoreExists(client, coreName)) {
                 LOGGER.debug("Creating Solr core {}", coreName);
 
                 String configFile = StringUtils.defaultIfBlank(configFileName,
                         DEFAULT_SOLRCONFIG_XML);
 
-                String instanceDir = Paths.get(System.getProperty("karaf.home"), "data", "solr",
+                String solrDir;
+                if (System.getProperty("solr.data.dir") != null) {
+                    solrDir = System.getProperty("solr.data.dir");
+                } else {
+                    solrDir = Paths.get(System.getProperty("karaf.home"), "data", "solr")
+                            .toString();
+                }
+
+                String instanceDir = Paths.get(solrDir,
                         coreName)
                         .toString();
 
+                String dataDir = Paths.get(instanceDir, "data")
+                        .toString();
+
                 CoreAdminRequest.createCore(coreName, instanceDir, client, configFile,
-                        DEFAULT_SCHEMA_XML);
+                        DEFAULT_SCHEMA_XML, dataDir, dataDir);
             } else {
                 LOGGER.debug("Solr core ({}) already exists - reloading it", coreName);
                 CoreAdminRequest.reloadCore(coreName, client);
