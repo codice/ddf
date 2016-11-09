@@ -121,11 +121,11 @@ define([
                                 }
                                 break;
                         }
+                        result.customDetail.push({
+                            label: additionProperty,
+                            value: value
+                        });
                     }
-                    result.customDetail.push({
-                        label: additionProperty,
-                        value: value ? value : 'NA'
-                    });
                 });
             }
             return result;
