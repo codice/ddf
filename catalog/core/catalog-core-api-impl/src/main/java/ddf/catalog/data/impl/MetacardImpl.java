@@ -158,7 +158,11 @@ public class MetacardImpl implements Metacard {
         }
         map = new HashMap<>();
         for (AttributeDescriptor attribute : metacard.getMetacardType().getAttributeDescriptors()) {
-            map.put(attribute.getName(), metacard.getAttribute(attribute.getName()));
+            Attribute metacardAttribute = metacard.getAttribute(attribute.getName());
+            if (metacardAttribute == null || metacardAttribute.getValue() == null) {
+                continue;
+            }
+            map.put(attribute.getName(), metacardAttribute);
         }
     }
 
