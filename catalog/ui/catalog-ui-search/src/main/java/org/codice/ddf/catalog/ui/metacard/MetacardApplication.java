@@ -436,6 +436,7 @@ public class MetacardApplication implements SparkApplication {
 
     private void revertMetacard(Metacard versionMetacard, String id)
             throws SourceUnavailableException, IngestException {
+        LOGGER.trace("Reverting metacard [{}] to version [{}]", id, versionMetacard.getId());
         Metacard revertMetacard = MetacardVersionImpl.toMetacard(versionMetacard, types);
         Action action = Action.fromKey((String) versionMetacard.getAttribute(MetacardVersion.ACTION)
                 .getValue());
@@ -444,7 +445,10 @@ public class MetacardApplication implements SparkApplication {
         if (action.equals(Action.DELETED)) {
             catalogFramework.create(new CreateRequestImpl(revertMetacard));
         } else {
-            catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
+            tryUpdate(4, () -> {
+                catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
+                return true;
+            });
         }
     }
 
@@ -453,6 +457,11 @@ public class MetacardApplication implements SparkApplication {
             throws SourceUnavailableException, IngestException, ResourceNotFoundException,
             IOException, ResourceNotSupportedException, FederationException,
             UnsupportedQueryException {
+        LOGGER.trace(
+                "Reverting content and metacard for metacard [{}]. \nLatest content: [{}] \nVersion metacard: [{}]",
+                id,
+                latestContent.getId(),
+                versionMetacard.getId());
         Map<String, Serializable> properties = new HashMap<>();
         properties.put("no-default-tags", true);
         ResourceResponse latestResource = catalogFramework.getLocalResource(new ResourceRequestById(
@@ -479,16 +488,46 @@ public class MetacardApplication implements SparkApplication {
             catalogFramework.create(new CreateStorageRequestImpl(Collections.singletonList(
                     contentItem), id, new HashMap<>()));
         } else {
-            catalogFramework.update(new UpdateStorageRequestImpl(Collections.singletonList(
-                    contentItem), id, new HashMap<>()));
-
+            // Currently we can't guarantee the metacard will exist yet because of the 1 second
+            // soft commit in solr. this busy wait loop should be fixed when alternate solution
+            // is found.
+            tryUpdate(4, () -> {
+                catalogFramework.update(new UpdateStorageRequestImpl(Collections.singletonList(
+                        contentItem), id, new HashMap<>()));
+                return true;
+            });
         }
-
+        LOGGER.trace("Successfully reverted metacard content for [{}]", id);
         revertMetacard(versionMetacard, id);
+    }
+
+    private void trySleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // Do nothing
+        }
+    }
+
+    private void tryUpdate(int retries, Callable<Boolean> func)
+            throws IngestException, SourceUnavailableException {
+        if (retries <= 0) {
+            throw new IngestException("Could not update metacard!");
+        }
+        LOGGER.trace("Trying to update metacard.");
+        try {
+            func.call();
+            LOGGER.trace("Successfully updated metacard.");
+        } catch (Exception e) {
+            LOGGER.trace("Failed to update metacard");
+            trySleep(350);
+            tryUpdate(retries - 1, func);
+        }
     }
 
     private void attemptDeleteDeletedMetacard(String id)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        LOGGER.trace("Attemping to delete metacard [{}]", id);
         Filter tags = filterBuilder.attribute(Metacard.TAGS)
                 .is()
                 .like()
@@ -520,7 +559,7 @@ public class MetacardApplication implements SparkApplication {
         } catch (ExecutionException e) {
             LOGGER.debug("Could not delete the deleted metacard marker", e);
         }
-
+        LOGGER.trace("Deleted delete marker metacard successfully");
     }
 
     /**
