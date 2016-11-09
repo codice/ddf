@@ -19,6 +19,7 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class KeyValueParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyValueParser.class);
 
-    private static final String KEY_VALUE_REGEX = "[^=]+[=][^=]+";
+    private static final Pattern KEY_VALUE_PATTERN = Pattern.compile("[^=]+[=][^=]+");
 
     private static final String SPLIT_REGEX = "=";
 
@@ -71,8 +72,8 @@ public class KeyValueParser {
      */
     public boolean validatePair(final String pair) {
         notNull(pair);
-        return pair.trim()
-                .matches(KEY_VALUE_REGEX);
+        return KEY_VALUE_PATTERN.matcher(pair.trim())
+                .matches();
     }
 
     /**
@@ -88,7 +89,8 @@ public class KeyValueParser {
         for (String pair : pairList) {
             if (pair != null) {
                 pair = pair.trim();
-                if (pair.matches(KEY_VALUE_REGEX)) {
+                if (KEY_VALUE_PATTERN.matcher(pair)
+                        .matches()) {
                     String[] pairSplit = pair.split(SPLIT_REGEX, SPLIT_LIMIT);
                     pairMap.put(pairSplit[0].trim(), pairSplit[1].trim());
                 } else if (failFast) {
