@@ -19,7 +19,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
@@ -27,15 +29,18 @@ import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.util.Describable;
 
 /**
  * A {@link InputTransformer} that can be configured to parse any XML into a {@link Metacard}
- * It is configured through {@link XmlInputTransformer#setSaxEventHandlerConfiguration(List)}}
+ * It is configured through {@link XmlInputTransformer#setSaxEventHandlerConfiguration(List)} and {@link XmlInputTransformer#getMetacardType()}
  * {@inheritDoc}
  */
 public class XmlInputTransformer implements InputTransformer, Describable {
@@ -68,15 +73,13 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      */
     private List<String> saxEventHandlerConfiguration;
 
-    private MetacardTypeRegister dynamicMetacardTypeRegister;
-
     /**
      * Method to create a new {@link SaxEventHandlerDelegate}, configured to parse a metacard
-     * according to {@link XmlInputTransformer#saxEventHandlerConfiguration}.
+     * according to {@link XmlInputTransformer#saxEventHandlerConfiguration} and {@link XmlInputTransformer#metacardType}
      *
      * @return a new SaxEventHandlerDelegate
      */
-    private SaxEventHandlerDelegate create() throws CatalogTransformerException {
+    private SaxEventHandlerDelegate create() {
 
         /*
          * Gets new instances of each SaxEventHandler denoted in saxEventHandlerConfiguration
@@ -89,8 +92,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
          * Pass all the new handlers to configure and create a new SaxEventHandlerDelegate and sets
          * the metacardType
          */
-        return new SaxEventHandlerDelegate(filteredSaxEventHandlers).setMetacardType(
-                dynamicMetacardTypeRegister.getMetacardType());
+        return new SaxEventHandlerDelegate(filteredSaxEventHandlers).setMetacardType(getMetacardType());
 
     }
 
@@ -192,14 +194,6 @@ public class XmlInputTransformer implements InputTransformer, Describable {
         this.saxEventHandlerConfiguration = saxEventHandlerConfiguration;
     }
 
-    public void setDynamicMetacardTypeRegister(MetacardTypeRegister metacardTypeRegister) {
-        this.dynamicMetacardTypeRegister = metacardTypeRegister;
-    }
-
-    public MetacardTypeRegister getDynamicMetacardTypeRegister() {
-        return dynamicMetacardTypeRegister;
-    }
-
     @Override
     public String getVersion() {
         return version;
@@ -243,5 +237,61 @@ public class XmlInputTransformer implements InputTransformer, Describable {
 
     public void setOrganization(String organization) {
         this.organization = organization;
+    }
+
+    /**
+     * Defines and returns a {@link DynamicMetacardType} based on component Sax Event Handler Factories
+     * and what attributes they populate
+     *
+     * @return a DynamicMetacardType that describes the type of metacard that is created in this transformer
+     */
+
+    public MetacardType getMetacardType() {
+        Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
+
+        if (saxEventHandlerConfiguration != null && saxEventHandlerFactories != null) {
+            List<SaxEventHandlerFactory> filteredSaxEventHandlerFactories =
+                    saxEventHandlerFactories.stream()
+                            .filter(p -> saxEventHandlerConfiguration.contains(p.getId()))
+                            .collect(Collectors.toList());
+
+            for (SaxEventHandlerFactory factory : filteredSaxEventHandlerFactories) {
+                attributeDescriptors.addAll(factory.getSupportedAttributeDescriptors());
+            }
+        }
+        attributeDescriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+        return new DynamicMetacardType(attributeDescriptors, id);
+    }
+
+}
+
+class DynamicMetacardType implements MetacardType {
+
+    Set<AttributeDescriptor> attributeDescriptors;
+
+    String name;
+
+    public DynamicMetacardType(Set<AttributeDescriptor> attDesc, String name) {
+        this.attributeDescriptors = attDesc;
+        this.name = name + ".metacard";
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public Set<AttributeDescriptor> getAttributeDescriptors() {
+        return attributeDescriptors;
+    }
+
+    @Override
+    public AttributeDescriptor getAttributeDescriptor(String attributeName) {
+        return attributeDescriptors.stream()
+                .filter(p -> p.getName()
+                        .equals(attributeName))
+                .collect(Collectors.toList())
+                .get(0);
     }
 }
