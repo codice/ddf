@@ -28,6 +28,32 @@ replace with next unreleased version
 - Open bugs affecting this version
 	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Unresolved%20AND%20affectedVersion%20%3D%20{VERSION-NUMBER}%20ORDER%20BY%20createdDate) affecting this version.
  -->
+
+## 2.9.4
+    Release Date: `unreleased`
+
+### NOTES
+
+ - None in this version.
+
+### NEW FEATURES
+
+ - None in this version.
+
+### API CHANGES
+
+ - None in this version.
+
+### BUG FIXES
+
+  - [DDF-2507](https://codice.atlassian.net/browse/DDF-2507): CSW numerical queries returns no results
+
+### KNOWN ISSUES
+
+ - Open bugs affecting this version
+ 	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Unresolved%20AND%20affectedVersion%20%3D%20ddf-2.9.4%20ORDER%20BY%20createdDate) affecting this version.
+
+
 ## 2.9.3
 	Release Date: `unreleased`
 

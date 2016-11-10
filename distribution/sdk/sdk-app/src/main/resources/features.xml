@@ -53,6 +53,11 @@
         </bundle>
     </feature>
 
+    <feature name="sample-metacard-type" version="${project.version}" install="manual"
+             description="SDK sample metacardType">
+        <bundle>mvn:ddf.distribution/sample-metacard-type/${project.version}</bundle>
+    </feature>
+
     <feature name="sdk-app" version="${project.version}" description="SDK app." install="auto">
         <feature prerequisite="true">security-services-app</feature>
         <feature prerequisite="true">catalog-app</feature>

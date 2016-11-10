@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,8 +16,10 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -25,7 +27,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
-import org.geotools.filter.FilterFactoryImpl;
+import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
@@ -33,7 +35,6 @@ import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -54,7 +55,9 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.helpers.NamespaceSupport;
 
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
@@ -65,11 +68,6 @@ import ddf.measure.Distance.LinearUnit;
  * Metacard terminology
  */
 public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
-
-    protected static final CswRecordMetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
-
-    protected static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
-
     protected static final String SPATIAL_QUERY_TAG = "spatialQueryExtraData";
 
     private static final Logger LOGGER =
@@ -83,12 +81,27 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         return sourceIds;
     }
 
+    private Map<String, AttributeType> attributeTypes;
+
+    private MetacardType metacardType;
+
     public Filter getVisitedFilter() {
         return visitedFilter;
     }
 
     public void setVisitedFilter(Filter filter) {
         visitedFilter = filter;
+    }
+
+    public CswRecordMapperFilterVisitor(MetacardType metacardType,
+            List<MetacardType> metacardTypes) {
+        this.metacardType = metacardType;
+        attributeTypes = new HashMap<>();
+        for (MetacardType type : metacardTypes) {
+            for (AttributeDescriptor ad : type.getAttributeDescriptors()) {
+                attributeTypes.put(ad.getName(), ad.getType());
+            }
+        }
     }
 
     @Override
@@ -128,15 +141,15 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     @Override
     public Object visit(PropertyName expression, Object extraData) {
         if (expression == null) {
-            LOGGER.warn("Attempting to visit a null expression");
+            LOGGER.debug("Attempting to visit a null expression");
             return null;
         }
         String propertyName = expression.getPropertyName();
         String name;
 
         if (CswConstants.BBOX_PROP.equals(propertyName)
-                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName) ||
-                GmdMetacardType.APISO_BOUNDING_BOX.equals(propertyName)) {
+                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName)
+                || GmdMetacardType.APISO_BOUNDING_BOX.equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
             NamespaceSupport namespaceSupport = expression.getNamespaceContext();
@@ -145,7 +158,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                     .getDefaultMetacardFieldForPrefixedString(propertyName, namespaceSupport);
 
             if (SPATIAL_QUERY_TAG.equals(extraData)) {
-                AttributeDescriptor attrDesc = CSW_METACARD_TYPE.getAttributeDescriptor(name);
+                AttributeDescriptor attrDesc = metacardType.getAttributeDescriptor(name);
                 if (attrDesc != null && !BasicTypes.GEO_TYPE.equals(attrDesc.getType())) {
                     throw new UnsupportedOperationException(
                             "Attempted a spatial query on a non-geometry-valued attribute ("
@@ -161,8 +174,20 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     @Override
     public Object visit(PropertyIsBetween filter, Object extraData) {
         Expression expr = visit(filter.getExpression(), extraData);
-        Expression lower = visit(filter.getLowerBoundary(), expr);
-        Expression upper = visit(filter.getUpperBoundary(), expr);
+
+        AttributeType type =
+                attributeTypes.get(((PropertyName) filter.getExpression()).getPropertyName());
+
+        LiteralExpressionImpl typedLowerExpression =
+                (LiteralExpressionImpl) filter.getLowerBoundary();
+        setExpressionType(type, typedLowerExpression);
+
+        LiteralExpressionImpl typedUpperExpression =
+                (LiteralExpressionImpl) filter.getUpperBoundary();
+        setExpressionType(type, typedUpperExpression);
+
+        Expression lower = visit((Expression) typedLowerExpression, expr);
+        Expression upper = visit((Expression) typedUpperExpression, expr);
         return getFactory(extraData).between(expr, lower, upper);
     }
 
@@ -173,18 +198,28 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
             sourceIds.add((String) ((Literal) filter.getExpression2()).getValue());
             return null;
         }
+        AttributeType type =
+                attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+        LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+        setExpressionType(type, typedExpression);
+
         Expression expr1 = visit(filter.getExpression1(), extraData);
-        Expression expr2 = visit(filter.getExpression2(), expr1);
-        boolean matchCase = filter.isMatchingCase();
-        return getFactory(extraData).equal(expr1, expr2, matchCase);
+        Expression expr2 = visit((Expression) typedExpression, expr1);
+        return getFactory(extraData).equal(expr1, expr2, filter.isMatchingCase());
     }
 
     @Override
     public Object visit(PropertyIsNotEqualTo filter, Object extraData) {
+        AttributeType type =
+                attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+        LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+        setExpressionType(type, typedExpression);
+
         Expression expr1 = visit(filter.getExpression1(), extraData);
-        Expression expr2 = visit(filter.getExpression2(), expr1);
-        boolean matchCase = filter.isMatchingCase();
-        return getFactory(extraData).notEqual(expr1, expr2, matchCase);
+        Expression expr2 = visit((Expression) typedExpression, expr1);
+        return getFactory(extraData).notEqual(expr1, expr2, filter.isMatchingCase());
     }
 
     @Override
@@ -215,6 +250,14 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 Literal literal = getFactory(extraData).literal(period);
                 return getFactory(extraData).during(other, literal);
             }
+        } else {
+            AttributeType type =
+                    attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+            LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+            setExpressionType(type, typedExpression);
+
+            expr2 = visit((Expression) typedExpression, expr1);
         }
         return getFactory(extraData).greater(expr1, expr2);
     }
@@ -250,6 +293,14 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 return getFactory(extraData).during(other, literal);
             }
 
+        } else {
+            AttributeType type =
+                    attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+            LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+            setExpressionType(type, typedExpression);
+
+            expr2 = visit((Expression) typedExpression, expr1);
         }
         return getFactory(extraData).greaterOrEqual(expr1, expr2);
     }
@@ -262,6 +313,14 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         // work around since solr provider doesn't support lessthan on temporal (DDF-311)
         if (isTemporalQuery(expr1, expr2)) {
             return getFactory(extraData).before(expr1, expr2);
+        } else {
+            AttributeType type =
+                    attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+            LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+            setExpressionType(type, typedExpression);
+
+            expr2 = visit((Expression) typedExpression, expr1);
         }
         return getFactory(extraData).less(expr1, expr2);
     }
@@ -295,8 +354,34 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 Literal literal = getFactory(extraData).literal(orig);
                 return getFactory(extraData).before(other, literal);
             }
+        } else {
+            AttributeType type =
+                    attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
+
+            LiteralExpressionImpl typedExpression = (LiteralExpressionImpl) filter.getExpression2();
+            setExpressionType(type, typedExpression);
+
+            expr2 = visit((Expression) typedExpression, expr1);
         }
         return getFactory(extraData).lessOrEqual(expr1, expr2);
+    }
+
+    private void setExpressionType(AttributeType type, LiteralExpressionImpl typedExpression) {
+        if (type != null && typedExpression != null) {
+            if (type.getBinding() == Short.class) {
+                typedExpression.setValue(Short.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Integer.class) {
+                typedExpression.setValue(Integer.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Long.class) {
+                typedExpression.setValue(Long.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Float.class) {
+                typedExpression.setValue(Float.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Double.class) {
+                typedExpression.setValue(Double.valueOf((String) typedExpression.getValue()));
+            } else if (type.getBinding() == Boolean.class) {
+                typedExpression.setValue(Boolean.valueOf((String) typedExpression.getValue()));
+            }
+        }
     }
 
     @Override
@@ -304,7 +389,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         if (extraData != null && extraData instanceof PropertyName
                 && expression.getValue() instanceof String) {
             String propName = ((PropertyName) extraData).getPropertyName();
-            AttributeDescriptor attrDesc = CSW_METACARD_TYPE.getAttributeDescriptor(propName);
+            AttributeDescriptor attrDesc = metacardType.getAttributeDescriptor(propName);
             if (attrDesc != null && attrDesc.getType() != null) {
                 String value = (String) expression.getValue();
                 Serializable convertedValue = CswRecordConverter.convertStringValueToMetacardValue(
@@ -370,10 +455,10 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     private boolean isTemporalProperty(Expression expr) {
         if (expr instanceof PropertyName) {
             AttributeDescriptor attrDesc =
-                    CSW_METACARD_TYPE.getAttributeDescriptor(((PropertyName) expr).getPropertyName());
+                    metacardType.getAttributeDescriptor(((PropertyName) expr).getPropertyName());
             if (attrDesc != null) {
-                return attrDesc.getType()
-                        .equals(BasicTypes.DATE_TYPE);
+                return AttributeType.AttributeFormat.DATE.equals(attrDesc.getType()
+                        .getAttributeFormat());
             }
         }
         return false;

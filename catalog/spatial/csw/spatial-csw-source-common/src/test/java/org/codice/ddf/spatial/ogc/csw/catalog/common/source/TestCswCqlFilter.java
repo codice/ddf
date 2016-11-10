@@ -1538,8 +1538,7 @@ public class TestCswCqlFilter {
         }
 
         CswFilterDelegate localCswFilterDelegate =
-                new CswFilterDelegate(new CswRecordMetacardType(),
-                        getOperation(),
+                new CswFilterDelegate(getOperation(),
                         getMockFilterCapabilities(),
                         outputFormatValues,
                         resultTypesValues,
