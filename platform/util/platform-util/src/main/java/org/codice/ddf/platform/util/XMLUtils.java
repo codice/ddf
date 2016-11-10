@@ -145,33 +145,6 @@ public class XMLUtils {
         });
     }
 
-    /**
-     * Iterate through the elements of an XML document.
-     * <p>
-     * It uses a lambda function and an instance of the the internal class Holder. The holder
-     * stores the return value. The lambda function has a change to process every element
-     * in the document. To store a result, call set() on the holder object.
-     * <p>
-     * If the lambda function returns false, processing continues to the next element.
-     * <p>
-     * When the last element in the document is processed, the value in the holder object
-     * is returned.
-     * <p>
-     * If the function encounters a processing exception, the value of the holder object is
-     * set to null, processing stops, and the value returned to the caller is null.
-     * <p>
-     * If the lambda function return true, processing terminate processing, During processing Set the value in the ProcessingResult to be the return value of this method.
-     * To stop processing, set the value "done" in ProcessingResult to true.
-     * For an example, see the getRootNamespace() method.
-     * <p>
-     * //     * @param xml                    The XML to process
-     * //     * @param result                 Instance of ProcessingResult
-     * //     * @param processElementFunction Function that accepts an instance of XMLStreamReader
-     * //     *                               and holder. The function must retrun a boolean.
-     * //     * @param <T>                    The type of the holders value
-     * //     * @return The value stored in the result holder object
-     */
-
     private static void transformation(Source sourceXml, TransformerProperties transformProperties,
             Result result) {
         ClassLoader tccl = Thread.currentThread()
@@ -198,25 +171,21 @@ public class XMLUtils {
     }
 
     /**
-     * Iterate through the elements of an XML document.
+     * Iterate through the elements of an XML document. The processor calls
+     * the processElementFunction for each element.
+     * Call result.set() to change the value that will be returned.
      * <p>
-     * It uses a lambda function and an instance of the the internal class ResultHolder. The result
-     * stores the return value. The lambda function has a change to process every element
-     * in the document. To store a result, call set() on the result object.
-     * <p>
-     * If the lambda function returns false, processing continues to the next element.
-     * <p>
-     * When the last element in the document is processed, the value in the holder object
+     * If the function returns true, processing continues to the next element.
+     * When the last element in the document is processed, the value in the result
      * is returned.
      * <p>
-     * If the function encounters a processing exception and the value returned to the caller is null.
+     * If the lambda function returns false, processing stops. The value of the result is returned.
      * <p>
-     * If the lambda function return true, processing terminate processing, During processing Set the value in the ProcessingResult to be the return value of this method.
-     * To stop processing, set the value "done" in ProcessingResult to true.
-     * For an example, see the getRootNamespace() method.
+     * If the function encounters a processing exception, processing stops and null is returned.
      *
      * @param xml                    The XML to process
-     * @param processElementFunction Function that accepts an instance of XMLStreamReader and result holder. The function must return a boolean.
+     * @param processElementFunction Function that accepts an instance of XMLStreamReader and result holder.
+     *                               The function must return a boolean.
      * @return <T>  The result of the processing
      */
 
@@ -226,17 +195,14 @@ public class XMLUtils {
         initializeXMLInputFactory();
         XMLStreamReader xmlStreamReader = null;
         ResultHolder<T> result = new ResultHolder<>();
-        boolean keepProcessing;
+        boolean keepProcessing = true;
 
         try (StringReader strReader = new StringReader(xml)) {
             xmlStreamReader = xmlInputFactory.createXMLStreamReader(strReader);
-            while (xmlStreamReader.hasNext()) {
+            while (keepProcessing && xmlStreamReader.hasNext()) {
                 int event = xmlStreamReader.next();
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     keepProcessing = processElementFunction.apply(result, xmlStreamReader);
-                    if (!keepProcessing) {
-                        break;
-                    }
                 }
             }
         } catch (XMLStreamException e) {
@@ -256,9 +222,8 @@ public class XMLUtils {
     }
 
     /**
-     * This class is used with the processElements method. It works in conjunction with the
-     * processElementFunction. Inside the function, set the value of the ProcessingResult and that
-     * value will be returned by the processElements method.
+     * This class is used with the processElements method. Inside the function, set the value
+     * of the result holder. That value is then returned by the processElementsFunction.
      */
 
     public static class ResultHolder<T> {
