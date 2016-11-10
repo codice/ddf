@@ -141,7 +141,7 @@ public class XMLUtils {
 
         return processElements(xml, (result, xmlStreamReader) -> {
             result.set(xmlStreamReader.getNamespaceURI());
-            return true;
+            return false;
         });
     }
 
