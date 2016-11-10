@@ -43,7 +43,7 @@ import ddf.catalog.data.Metacard;
 
 public class DerivedContentActionProviderTest {
 
-    public static final String EXAMPLE_URL = "https://exmaple.com/other";
+    public static final String EXAMPLE_URL = "https://example.com/other";
 
     private static DerivedContentActionProvider actionProvider;
 
@@ -64,7 +64,8 @@ public class DerivedContentActionProviderTest {
 
     @BeforeClass
     public static void init() throws URISyntaxException {
-        actionUri = new URI("https://example.com/download?transform=resource");
+        actionUri = new URI(
+                "https://example.com/download?transform=resource&qualifier=" + QUALIFIER_VALUE);
         derivedResourceUri = new URI(ContentItem.CONTENT_SCHEME, CONTENT_ID, QUALIFIER_VALUE);
         actionProvider = new DerivedContentActionProvider(mockResourceActionProvider);
 
@@ -79,7 +80,6 @@ public class DerivedContentActionProviderTest {
 
     @Test
     public void testGetActions() throws Exception {
-
         ActionImpl expectedAction = new ActionImpl("expected",
                 "expected",
                 "expected",
@@ -93,11 +93,10 @@ public class DerivedContentActionProviderTest {
         assertThat(actions.get(0)
                 .getUrl()
                 .getQuery(), containsString(ContentItem.QUALIFIER + "=" + QUALIFIER_VALUE));
-
     }
 
     @Test
-    public void testGetActionsNonContentUri() throws Exception {
+    public void testGetActionsNonContentUriDefault() throws Exception {
         ActionImpl expectedAction = new ActionImpl("expected",
                 "expected",
                 "expected",
@@ -111,6 +110,24 @@ public class DerivedContentActionProviderTest {
                 .getUrl(), notNullValue());
         assertThat(actions.get(0)
                 .getUrl(), is(new URL(EXAMPLE_URL)));
+    }
+
+    @Test
+    public void testGetActionsNonContentUriWithQualifier() throws Exception {
+        ActionImpl expectedAction = new ActionImpl("expected",
+                "expected",
+                "expected",
+                actionUri.toURL());
+        when(mockResourceActionProvider.getAction(any(Metacard.class))).thenReturn(expectedAction);
+        when(attribute.getValues()).thenReturn(Arrays.asList(actionUri));
+        List<Action> actions = actionProvider.getActions(metacard);
+        assertThat(actions, hasSize(1));
+        assertThat(actions.get(0), notNullValue());
+        assertThat(actions.get(0).getUrl(), notNullValue());
+        assertThat(actions.get(0)
+                .getUrl().toString(), is(actionUri.toString()));
+        assertThat(actions.get(0)
+                .getTitle(), is("View " + QUALIFIER_VALUE));
     }
 
     @Test
