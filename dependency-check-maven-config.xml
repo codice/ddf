@@ -116,6 +116,13 @@
     </suppress>
 
     <suppress>
+        <notes>
+            CVE-2016-1000031: Applies to commons-fileupload-1.2.1, suppressing because the vulnerable class DiskFileItem is not used in the project
+        </notes>
+        <cve>CVE-2016-1000031</cve>
+    </suppress>
+
+    <suppress>
         <notes><![CDATA[
         false positive the effected camel version is 2.12 this uses a later version and does use the XSLT component
       file name: proxy-camel-servlet-2.9.0-SNAPSHOT.jar
