@@ -37,6 +37,10 @@
         <property name="announcements">
             <list></list>
         </property>
+        <property name="linksTitle" value="Bookmarks"></property>
+        <property name="links">
+            <list></list>
+        </property>
     </bean>
 
     <service ref="landingPage" interface="javax.servlet.http.HttpServlet">
