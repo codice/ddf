@@ -17,6 +17,13 @@
         <cve>CVE-2016-3720</cve>
     </suppress>
 
+    <suppress>
+        <notes>
+            CVE-2016-1000031: Applies to commons-fileupload-1.2.1, suppressing because the vulnerable class DiskFileItem is not used in the project
+        </notes>
+        <cve>CVE-2016-1000031</cve>
+    </suppress>
+
     <!--
     CVE-2008-0660 is a stack based buffer overflow vulnerability related to ActiveX and
     several image uploaders. This is unrelated to presto-parser, so marking as a false positive.
