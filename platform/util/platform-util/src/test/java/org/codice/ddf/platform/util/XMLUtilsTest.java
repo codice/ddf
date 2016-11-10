@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.platform.util;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -26,6 +25,7 @@ import java.io.StringWriter;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -127,27 +127,24 @@ public class XMLUtilsTest {
     @Test
     public void testProcessElementException() {
 
-        XMLUtils.ProcessingResult<Object> result = new XMLUtils.ProcessingResult<>(new Object());
-        assertThat(result.getValue(), is(notNullValue()));
-        XMLUtils.processElements("", result, (x) -> {
-        });
-        assertThat("Processing result should be null if an exception was thrown",
-                result.getValue(),
+        Object returnValue = XMLUtils.processElements("", (result, xmlReader) -> true);
+        assertThat("Processing result should be null if an exception was thrown", returnValue,
                 is(nullValue()));
     }
 
     @Test
     public void testProcessingStop() {
-        XMLUtils.ProcessingResult<Integer> result = new XMLUtils.ProcessingResult<>(0);
-        assertThat("Expected processing result to default to 'not done'",
-                result.isDone(),
-                is(false));
-        XMLUtils.processElements(XML_MULTIPLE_NODES, result, (xmlStreamReader) -> {
-            result.setValue(result.getValue() + 1);
-            result.done();
-        });
+        int expectedValue = 3;
+        int returnValue = XMLUtils.processElements(XML_MULTIPLE_NODES,
+                (XMLUtils.ResultHolder<Integer> result, XMLStreamReader xmlStreamReader) -> {
+                    result.setIfEmpty(0);
+                    result.set((result.get() + 1));
+                    return result.get() < expectedValue;
+                });
 
-        assertThat("Expected result value to be 1", result.getValue(), equalTo(1));
+        assertThat(String.format("Expected result value to be %s", expectedValue),
+                returnValue,
+                equalTo(expectedValue));
     }
 
     private TransformerProperties setTransformerProperties() {

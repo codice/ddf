@@ -17,7 +17,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map.Entry;
-import java.util.function.Consumer;
+import java.util.function.BiFunction;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -139,59 +139,38 @@ public class XMLUtils {
             return null;
         }
 
-        ProcessingResult<String> result = new ProcessingResult();
-        return processElements(xml, result, (xmlStreamReader) -> {
-            result.setValue(xmlStreamReader.getNamespaceURI());
-            result.done();
+        return processElements(xml, (result, xmlStreamReader) -> {
+            result.set(xmlStreamReader.getNamespaceURI());
+            return true;
         });
     }
 
     /**
-     * Parse the elements of an XML document.
-     * It uses a lambda function and an instance of the the internal class ProcessingResults.
-     * Set the value in the ProcessingResult to be the return value of this method.
+     * Iterate through the elements of an XML document.
+     * <p>
+     * It uses a lambda function and an instance of the the internal class Holder. The holder
+     * stores the return value. The lambda function has a change to process every element
+     * in the document. To store a result, call set() on the holder object.
+     * <p>
+     * If the lambda function returns false, processing continues to the next element.
+     * <p>
+     * When the last element in the document is processed, the value in the holder object
+     * is returned.
+     * <p>
+     * If the function encounters a processing exception, the value of the holder object is
+     * set to null, processing stops, and the value returned to the caller is null.
+     * <p>
+     * If the lambda function return true, processing terminate processing, During processing Set the value in the ProcessingResult to be the return value of this method.
      * To stop processing, set the value "done" in ProcessingResult to true.
      * For an example, see the getRootNamespace() method.
-     *
-     * @param xml                    The XML to process
-     * @param result                 Instance of ProcessingResult
-     * @param processElementFunction Function that accepts an instance of XMLStreamReader
-     *                               and updates the processing result
-     * @param <T>                    The type of the processing result's value
-     * @return Processing results's value
+     * <p>
+     * //     * @param xml                    The XML to process
+     * //     * @param result                 Instance of ProcessingResult
+     * //     * @param processElementFunction Function that accepts an instance of XMLStreamReader
+     * //     *                               and holder. The function must retrun a boolean.
+     * //     * @param <T>                    The type of the holders value
+     * //     * @return The value stored in the result holder object
      */
-    public static <T> T processElements(String xml, ProcessingResult<T> result,
-            Consumer<XMLStreamReader> processElementFunction) {
-
-        initializeXMLInputFactory();
-        XMLStreamReader xmlStreamReader = null;
-
-        try (StringReader strReader = new StringReader(xml)) {
-            xmlStreamReader = xmlInputFactory.createXMLStreamReader(strReader);
-            while (xmlStreamReader.hasNext()) {
-                int event = xmlStreamReader.next();
-                if (event == XMLStreamConstants.START_ELEMENT) {
-                    processElementFunction.accept(xmlStreamReader);
-                    if (result.isDone()) {
-                        break;
-                    }
-                }
-            }
-        } catch (XMLStreamException e) {
-            result.setValue(null);
-            LOGGER.debug("{} ", XMLUtils.class.getSimpleName(), e);
-        } finally {
-            if (xmlStreamReader != null) {
-                try {
-                    xmlStreamReader.close();
-                } catch (XMLStreamException e) {
-                    // ignore
-                }
-            }
-        }
-
-        return result.getValue();
-    }
 
     private static void transformation(Source sourceXml, TransformerProperties transformProperties,
             Result result) {
@@ -218,37 +197,94 @@ public class XMLUtils {
         }
     }
 
-    // This class is used with the processElements method. It works in conjunction with the
-    // processElementFunction. Inside the function, set the value of the ProcessingResult and
-    // call done() to stop processing the XML document.
-    public static class ProcessingResult<T> {
-        boolean isDone = false;
+    /**
+     * Iterate through the elements of an XML document.
+     * <p>
+     * It uses a lambda function and an instance of the the internal class ResultHolder. The result
+     * stores the return value. The lambda function has a change to process every element
+     * in the document. To store a result, call set() on the result object.
+     * <p>
+     * If the lambda function returns false, processing continues to the next element.
+     * <p>
+     * When the last element in the document is processed, the value in the holder object
+     * is returned.
+     * <p>
+     * If the function encounters a processing exception and the value returned to the caller is null.
+     * <p>
+     * If the lambda function return true, processing terminate processing, During processing Set the value in the ProcessingResult to be the return value of this method.
+     * To stop processing, set the value "done" in ProcessingResult to true.
+     * For an example, see the getRootNamespace() method.
+     *
+     * @param xml                    The XML to process
+     * @param processElementFunction Function that accepts an instance of XMLStreamReader and result holder. The function must return a boolean.
+     * @return <T>  The result of the processing
+     */
+
+    public static <T> T processElements(String xml,
+            BiFunction<ResultHolder<T>, XMLStreamReader, Boolean> processElementFunction) {
+
+        initializeXMLInputFactory();
+        XMLStreamReader xmlStreamReader = null;
+        ResultHolder<T> result = new ResultHolder<>();
+        boolean keepProcessing;
+
+        try (StringReader strReader = new StringReader(xml)) {
+            xmlStreamReader = xmlInputFactory.createXMLStreamReader(strReader);
+            while (xmlStreamReader.hasNext()) {
+                int event = xmlStreamReader.next();
+                if (event == XMLStreamConstants.START_ELEMENT) {
+                    keepProcessing = processElementFunction.apply(result, xmlStreamReader);
+                    if (!keepProcessing) {
+                        break;
+                    }
+                }
+            }
+        } catch (XMLStreamException e) {
+            result.set(null);
+            LOGGER.debug("{} ", XMLUtils.class.getSimpleName(), e);
+        } finally {
+            if (xmlStreamReader != null) {
+                try {
+                    xmlStreamReader.close();
+                } catch (XMLStreamException e) {
+                    // ignore
+                }
+            }
+        }
+
+        return result.get();
+    }
+
+    /**
+     * This class is used with the processElements method. It works in conjunction with the
+     * processElementFunction. Inside the function, set the value of the ProcessingResult and that
+     * value will be returned by the processElements method.
+     */
+
+    public static class ResultHolder<T> {
 
         T value;
 
-        public ProcessingResult(T value) {
-            this.value = value;
+        public ResultHolder() {
         }
 
-        public ProcessingResult() {
-        }
-
-        public T getValue() {
+        public T get() {
             return value;
         }
 
-        public void setValue(T value) {
+        public void set(T value) {
             this.value = value;
         }
 
-        public boolean isDone() {
-            return isDone;
+        public boolean isEmpty() {
+            return get() == null;
         }
 
-        public void done() {
-            isDone = true;
+        public void setIfEmpty(T value) {
+            if (isEmpty()) {
+                set(value);
+            }
         }
-
     }
 
 }
