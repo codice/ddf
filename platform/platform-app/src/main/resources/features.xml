@@ -727,6 +727,7 @@
 
     <feature name="platform-api" install="manual" version="${project.version}"
              description="Top Level Platform API">
+        <bundle dependency="true">wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
     </feature>
 
@@ -1091,6 +1092,7 @@
     <feature name="platform-paxweb-jettyconfig" install="manual" version="${project.version}"
              description="Custom Session Manager">
         <feature>pax-jetty</feature>
+        <bundle dependency="true">wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <bundle>mvn:ddf.platform/platform-paxweb-jettyconfig/${project.version}</bundle>
     </feature>
 
