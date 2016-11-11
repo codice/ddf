@@ -72,7 +72,7 @@ define([
                 this.get('queries').on('add',function(){
                     this.trigger('change');
                 });
-                this._toJSON = this.toJSON();
+                this._toJSON = JSON.stringify(this.toJSON());
             },
             save: function (options) {
                 if (this.get('localStorage')) {
@@ -82,10 +82,12 @@ define([
                 } else {
                     Backbone.AssociatedModel.prototype.save.apply(this, arguments);
                 }
-                this._toJSON = this.toJSON();
+                this.once('sync', function(){
+                    this._toJSON = JSON.stringify(this.toJSON());
+                }.bind(this));
             },
             dirty: function () {
-                return !_.isEqual(this._toJSON, this.toJSON());
+                return this._toJSON !== JSON.stringify(this.toJSON());
             },
             destroy: function (options) {
                 this.get('queries').forEach(function(query){

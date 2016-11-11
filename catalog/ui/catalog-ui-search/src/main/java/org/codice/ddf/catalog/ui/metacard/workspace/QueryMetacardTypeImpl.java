@@ -38,6 +38,8 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
     public static final String QUERY_SORT_FIELD = "sortField";
 
+    public static final String QUERY_POLLING = "polling";
+
     private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     static {
@@ -91,6 +93,13 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
                 false   /* tokenized */,
                 false    /* multivalued */,
                 BasicTypes.STRING_TYPE));
+
+        DESCRIPTORS.add(new AttributeDescriptorImpl(QUERY_POLLING,
+                false   /* indexed */,
+                true    /* stored */,
+                false   /* tokenized */,
+                false    /* multivalued */,
+                BasicTypes.INTEGER_TYPE));
     }
 
     public QueryMetacardTypeImpl() {
