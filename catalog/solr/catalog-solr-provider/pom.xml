@@ -128,6 +128,7 @@
                             org.apache.log4j,
                             org.apache.xerces.parsers,
                             org.apache.xerces.xni.parser,
+                            org.ietf.jgss,
                             org.opengis.filter,
                             org.opengis.filter.expression,
                             org.opengis.filter.sort,

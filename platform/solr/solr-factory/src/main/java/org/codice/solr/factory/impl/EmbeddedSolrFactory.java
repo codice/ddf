@@ -114,6 +114,10 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
         File solrConfigFile = getConfigFile(solrConfigFileName, configProxy, coreName);
         File solrSchemaFile = getConfigFile(schemaFileName, configProxy, coreName);
 
+        if (solrSchemaFile == null) {
+            solrSchemaFile = getConfigFile("managed-schema", configProxy, coreName);
+        }
+
         File solrConfigHome = new File(solrConfigFile.getParent());
 
         ClassLoader tccl = Thread.currentThread()

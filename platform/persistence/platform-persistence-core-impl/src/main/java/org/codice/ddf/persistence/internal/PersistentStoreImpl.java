@@ -298,7 +298,7 @@ public class PersistentStoreImpl implements PersistentStore {
         try {
             Future<SolrClient> coreSolrClientFuture =
                     HttpSolrClientFactory.getHttpSolrClient(solrUrl.getResolvedString(), storeName);
-            coreSolrClient = coreSolrClientFuture.get(5, TimeUnit.SECONDS);
+            coreSolrClient = coreSolrClientFuture.get(30, TimeUnit.SECONDS);
             coreSolrClients.put(storeName, coreSolrClient);
 
             LOGGER.trace("EXITING: getSolrCore");

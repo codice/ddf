@@ -84,26 +84,23 @@ public class ConfigurationFileProxy {
      * Writes the solr configuration files out of the classpath onto the disk.
      */
     public void writeSolrConfiguration(File configDir) {
-
         boolean directoriesMade = configDir.mkdirs();
         LOGGER.debug("Solr Config directories made?  {}", directoriesMade);
 
         for (String filename : SOLR_CONFIG_FILES) {
-            try (InputStream inputStream = ConfigurationFileProxy.class.getClassLoader()
-                    .getResourceAsStream("solr/conf/" + filename)) {
-                File currentFile = new File(configDir, filename);
-
-                if (!currentFile.exists()) {
-                    try (FileOutputStream outputStream = new FileOutputStream(currentFile)) {
-                        long byteCount = IOUtils.copyLarge(inputStream, outputStream);
-                        LOGGER.debug("Wrote out {} bytes.", byteCount);
-                    }
+            File currentFile = new File(configDir, filename);
+            File backupFile = new File(configDir, filename + ".bak");
+            if (!currentFile.exists() && !backupFile.exists()) {
+                try (InputStream inputStream = ConfigurationFileProxy.class.getClassLoader()
+                        .getResourceAsStream("solr/conf/" + filename);
+                        FileOutputStream outputStream = new FileOutputStream(currentFile)) {
+                    long byteCount = IOUtils.copyLarge(inputStream, outputStream);
+                    LOGGER.debug("Wrote out {} bytes.", byteCount);
+                } catch (IOException e) {
+                    LOGGER.debug("Unable to copy Solr configuration file: " + filename, e);
                 }
-            } catch (IOException e) {
-                LOGGER.debug("IO exception copying out file", e);
             }
         }
-
     }
 
     /**

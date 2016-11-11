@@ -204,6 +204,8 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
             } catch (IOException e) {
                 LOGGER.info("Unable to close Solr client", e);
             }
+        } else if (!clientFuture.isDone() && !clientFuture.isCancelled()) {
+            clientFuture.cancel(true);
         }
     }
 
