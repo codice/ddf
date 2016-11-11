@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, window, performance*/
+/*global define, window, performance, setTimeout*/
 /*jshint bitwise: false*/
 define([
     'jquery',
@@ -109,6 +109,9 @@ define([
             return window.requestAnimationFrame(function(){
                 window.requestAnimationFrame(callback);
             });
+        },
+        queueExecution: function(callback){
+            return setTimeout(callback, 0);
         },
         escapeHTML: function(value){
             return $("<div>").text(value).html();

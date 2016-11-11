@@ -666,7 +666,8 @@ define([
                 'queryId': undefined,
                 'results': [],
                 'mergedResults': [],
-                'merged': true
+                'merged': true,
+                'currentlyViewed': false
             },
             relations: [
                 {
@@ -690,9 +691,10 @@ define([
             url: "/search/catalog/internal/cql",
             useAjaxSync: true,
             initialize: function(){
-                this.listenTo(this.get('mergedResults'), 'add change', _.throttle(this.updateMerged, 250, {leading: false}));
+                this.listenTo(this.get('mergedResults'), 'add change', _.throttle(this.updateMerged, 2500, {leading: false}));
+                this.listenTo(this, 'change:currentlyViewed', this.handleCurrentlyViewed);
             },
-            parse: function (resp) {
+            parse: function (resp, options) {
                 if (resp.results) {
                     var queryId = this.getQueryId();
                     var color = this.getColor();
@@ -710,8 +712,9 @@ define([
                         }
                     });
 
-                    if (this.get('results').length === 0){
+                    if (this.allowAutoMerge()){
                         this.lastMerge = Date.now();
+                        options.resort = true;
                     }
                 }
 
@@ -722,24 +725,29 @@ define([
                 };
             },
             allowAutoMerge: function(){
-                if (this.get('results').length === 0){
+                if (this.get('results').length === 0 || !this.get('currentlyViewed')){
                     return true;
                 } else {
-                    return (Date.now() - this.lastMerge) < 250;
+                    return (Date.now() - this.lastMerge) < 16;
                 }
             },
             updateMerged: function(){
-                this.lastMerge = Date.now();
                 this.set('merged', this.get('results').fullCollection.length === this.get('mergedResults').fullCollection.length);
             },
             isUnmerged: function(){
                 return !this.get('merged');
             },
             mergeNewResults: function(){
+                this.lastMerge = Date.now();
                 this.set('merged', true);
                 this.get('results').set(this.get('mergedResults').fullCollection.models, { remove: false });
                 this.get('results').fullCollection.sort();
                 this.trigger('sync');
+            },
+            handleCurrentlyViewed: function(){
+                if (!this.get('currentlyViewed') && !this.get('merged')){
+                    this.mergeNewResults();
+                }
             },
             isSearching: function(){
                 return this.get('status').some(function(status){

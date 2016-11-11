@@ -87,6 +87,7 @@ define([
             this.selectionInterface = options.selectionInterface || store;
             if (!this.model.get('result')) {
                 this.model.startSearch();
+                this.model.get('result').set('currentlyViewed', true);
             }
             this.startListeningToFilter();
             this.startListeningToSort();
@@ -246,6 +247,11 @@ define([
                 prefs.set('resultDisplay', value);
                 prefs.savePreferences();
             });
+        },
+        onDestroy: function(){
+            Common.queueExecution(function(){
+                this.model.get('result').set('currentlyViewed', false);
+            }.bind(this));
         }
     });
 

@@ -673,7 +673,10 @@ define([
                         method: "POST",
                         processData: false,
                         timeout: properties.timeout,
-                        success: function() {
+                        success: function(model, resp, options) {
+                            if (options.resort === true){
+                                model.get('results').fullCollection.sort();
+                            }
                         },
                         error: function () {
                             var srcStatus = result.get('status').get(src);
