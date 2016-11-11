@@ -70,7 +70,7 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
     protected String url;
 
-    private CatalogProvider provider = new UnconfiguredCatalogProvider();
+    private CatalogProvider provider = new UnconfiguredSolrCatalogProvider();
 
     private SolrClient client;
 
@@ -112,7 +112,7 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
     @Override
     public void maskId(String id) {
         super.maskId(id);
-        if (!(provider instanceof UnconfiguredCatalogProvider)) {
+        if (!(provider instanceof UnconfiguredSolrCatalogProvider)) {
             provider.maskId(id);
         }
     }
@@ -264,10 +264,10 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
     private CatalogProvider getProvider() {
 
         if (!isClientConnected(getClient())) {
-            return new UnconfiguredCatalogProvider();
+            return new UnconfiguredSolrCatalogProvider();
         }
 
-        if (provider instanceof UnconfiguredCatalogProvider) {
+        if (provider instanceof UnconfiguredSolrCatalogProvider) {
             provider = new SolrCatalogProvider(getClient(),
                     filterAdapter,
                     solrFilterDelegateFactory,
@@ -310,80 +310,4 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
         return client;
     }
 
-    /**
-     * This class is used to signify an unconfigured CatalogProvider instance. If a user tries to
-     * unsuccessfully connect to Solr, then a message will be displayed to check the
-     * connection.
-     */
-    private static class UnconfiguredCatalogProvider implements CatalogProvider {
-
-        private static final String CLIENT_DISCONNECTED_MESSAGE =
-                "Solr client is not connected. Please check Solr status or url, and then retry.";
-
-        @Override
-        public Set<ContentType> getContentTypes() {
-            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
-        }
-
-        @Override
-        public boolean isAvailable() {
-            return false;
-        }
-
-        @Override
-        public boolean isAvailable(SourceMonitor arg0) {
-            return false;
-        }
-
-        @Override
-        public SourceResponse query(QueryRequest arg0) throws UnsupportedQueryException {
-            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
-        }
-
-        @Override
-        public String getDescription() {
-            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
-        }
-
-        @Override
-        public String getId() {
-            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
-        }
-
-        @Override
-        public String getOrganization() {
-            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
-        }
-
-        @Override
-        public String getTitle() {
-            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
-        }
-
-        @Override
-        public String getVersion() {
-            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
-        }
-
-        @Override
-        public void maskId(String arg0) {
-            // no op
-        }
-
-        @Override
-        public CreateResponse create(CreateRequest arg0) throws IngestException {
-            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
-        }
-
-        @Override
-        public DeleteResponse delete(DeleteRequest arg0) throws IngestException {
-            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
-        }
-
-        @Override
-        public UpdateResponse update(UpdateRequest arg0) throws IngestException {
-            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
-        }
-
-    }
 }
