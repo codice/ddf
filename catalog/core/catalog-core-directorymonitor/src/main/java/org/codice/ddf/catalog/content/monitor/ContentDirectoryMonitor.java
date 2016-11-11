@@ -260,7 +260,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                String inbox = "file:" + monitoredDirectory + "?moveFailed=.errors";
+                // Configure the camel route to ignore changing file (larger files that are in the process of being copied)
+                // Set the readLockTimeout to continuously poll the directory so long as the directory monitor exists
+                // Set the readLockCheckInterval to check every 5 seconds
+                String inbox = "file:" + monitoredDirectory + "?moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval=5000";
                 if (copyIngestedFiles) {
                     inbox += "&move=.ingested";
                 } else {
