@@ -62,7 +62,7 @@
         <!-- ouput directory for reports -->
         <project.report.output.directory>project-info</project.report.output.directory>
         <!-- Properties for the frontend-maven-plugin -->
-        <node.version>v4.4.4</node.version>
+        <node.version>v7.1.0</node.version>
         <npm.version>2.15.6</npm.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-io.version>2.1</commons-io.version>
@@ -531,7 +531,6 @@
                             </goals>
                             <configuration>
                                 <nodeVersion>${node.version}</nodeVersion>
-                                <npmVersion>${npm.version}</npmVersion>
                                 <downloadRoot>http://artifacts.codice.org/nodejs/dist/
                                 </downloadRoot>
                             </configuration>
@@ -542,7 +541,7 @@
                                 <goal>npm</goal>
                             </goals>
                             <configuration>
-                                <arguments>install --ignore-scripts --registry=http://artifacts.codice.org/content/repositories/npm-registry/</arguments>
+                                <arguments>install --ignore-scripts</arguments>
                             </configuration>
                         </execution>
                         <execution>
