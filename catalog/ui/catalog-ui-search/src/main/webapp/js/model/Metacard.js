@@ -17,6 +17,7 @@ define([
         'jquery',
         'wreqr',
         'component/singletons/metacard-definitions',
+        'component/singletons/sources-instance',
         'terraformer',
         'terraformer-wkt-parser',
         'js/CQLUtils',
@@ -24,7 +25,7 @@ define([
         'backboneassociations',
         'backbone.paginator'
     ],
-    function (Backbone, _, $, wreqr, metacardDefinitions, Terraformer, TerraformerWKTParser, CQLUtils,
+    function (Backbone, _, $, wreqr, metacardDefinitions, Sources, Terraformer, TerraformerWKTParser, CQLUtils,
               Turf) {
         "use strict";
 
@@ -512,7 +513,7 @@ define([
                 return this.get('metacard').get('properties').get('metacard-tags').indexOf('deleted') >= 0;
             },
             isRemote: function(){
-                return !this.get('isResourceLocal');
+                return this.get('metacard').get('properties').get('source-id') !== Sources.localCatalog;
             },
             refreshData: function(){
                 //let solr flush
