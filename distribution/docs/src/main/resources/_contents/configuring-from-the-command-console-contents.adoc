@@ -1,3 +1,4 @@
+
 [NOTE]
 ====
 Depending on the environment, it may be easier for integrators and administrators to configure ${branding} using the ${admin-console} prior to disabling it for hardening purposes.
@@ -145,14 +146,3 @@ State         Version          Name                          Repository  Descrip
 [installed  ] [${project.version}         ] ${ddf-branding-lowercase}-resource-impl             ddf-${project.version}
 [uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-source-dummy              ddf-${project.version}
 ----
-
-===== Configuring HTTP Port from the ${command-console}
-
-==== Configuring HTTP to HTTPS Proxy From the ${command-console}
-
-[NOTE]
-====
-If ${branding} has not been installed, configure from  <<Configuring HTTP to HTTPS Proxy From the ${admin-console}, ${admin-console}>>.
-====
-
-. Type the command `feature:install platform-http-proxy`
