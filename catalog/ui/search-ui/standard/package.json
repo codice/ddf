@@ -21,7 +21,7 @@
     "chai-as-promised": "4.3.0",
     "colors": "1.1.2",
     "connect-livereload": "0.3.2",
-    "grunt": "1.0.1",
+    "grunt": "0.4.5",
     "grunt-bower-task": "0.4.0",
     "grunt-cli": "0.1.13",
     "grunt-contrib-clean": "0.4.0",
