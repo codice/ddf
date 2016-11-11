@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -40,9 +41,20 @@ import org.w3c.dom.Node;
  */
 public class XMLUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(XMLUtils.class);
+
     protected static volatile XMLInputFactory xmlInputFactory;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(XMLUtils.class);
+    private static synchronized void initializeXMLInputFactory() {
+        if (xmlInputFactory == null) {
+            xmlInputFactory = XMLInputFactory.newInstance();
+        }
+        xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD,
+                Boolean.FALSE); // This disables DTDs entirely for that factory
+        xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+    }
 
     /**
      * Formats XML into a String
@@ -55,7 +67,6 @@ public class XMLUtils {
         Writer buffer = new StringWriter();
         Result streamResult = new StreamResult(buffer);
         transformation(sourceXml, transformProperties, streamResult);
-
         return buffer.toString();
     }
 
@@ -124,51 +135,14 @@ public class XMLUtils {
      */
     public static String getRootNamespace(String xml) {
 
-        String rootNamespace = null;
-
         if (xml == null) {
             return null;
         }
 
-        initializeXMLInputFactory();
-
-        XMLStreamReader xmlStreamReader = null;
-
-        try (StringReader strReader = new StringReader(xml)) {
-            xmlStreamReader = xmlInputFactory.createXMLStreamReader(strReader);
-
-            while (xmlStreamReader.hasNext()) {
-                int event = xmlStreamReader.next();
-                if (event == XMLStreamConstants.START_ELEMENT) {
-                    rootNamespace = xmlStreamReader.getNamespaceURI();
-                    return rootNamespace;
-                }
-            }
-        } catch (XMLStreamException e) {
-            LOGGER.debug("Unable to parse root namespace from XML", e);
-        } finally {
-            if (xmlStreamReader != null) {
-                try {
-                    xmlStreamReader.close();
-                } catch (XMLStreamException e) {
-                    // ignore
-                }
-            }
-        }
-
-        return rootNamespace;
-    }
-
-    protected static synchronized void initializeXMLInputFactory() {
-        if (xmlInputFactory == null) {
-            xmlInputFactory = XMLInputFactory.newInstance();
-            xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
-                    Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
-                    Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
-            xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
-        }
+        return processElements(xml, (result, xmlStreamReader) -> {
+            result.set(xmlStreamReader.getNamespaceURI());
+            return false;
+        });
     }
 
     private static void transformation(Source sourceXml, TransformerProperties transformProperties,
@@ -195,4 +169,87 @@ public class XMLUtils {
                     .setContextClassLoader(tccl);
         }
     }
+
+    /**
+     * Iterate through the elements of an XML document. The processor calls
+     * the processElementFunction for each element.
+     * Call result.set() to change the value that will be returned.
+     * <p>
+     * If the function returns true, processing continues to the next element.
+     * When the last element in the document is processed, the value in the result
+     * is returned.
+     * <p>
+     * If the lambda function returns false, processing stops. The value of the result is returned.
+     * <p>
+     * If the function encounters a processing exception, processing stops and null is returned.
+     *
+     * @param xml                    The XML to process
+     * @param processElementFunction Function that accepts an instance of XMLStreamReader and result holder.
+     *                               The function must return a boolean.
+     * @return <T>  The result of the processing
+     */
+
+    public static <T> T processElements(String xml,
+            BiFunction<ResultHolder<T>, XMLStreamReader, Boolean> processElementFunction) {
+
+        initializeXMLInputFactory();
+        XMLStreamReader xmlStreamReader = null;
+        ResultHolder<T> result = new ResultHolder<>();
+        boolean keepProcessing = true;
+
+        try (StringReader strReader = new StringReader(xml)) {
+            xmlStreamReader = xmlInputFactory.createXMLStreamReader(strReader);
+            while (keepProcessing && xmlStreamReader.hasNext()) {
+                int event = xmlStreamReader.next();
+                if (event == XMLStreamConstants.START_ELEMENT) {
+                    keepProcessing = processElementFunction.apply(result, xmlStreamReader);
+                }
+            }
+        } catch (XMLStreamException e) {
+            result.set(null);
+            LOGGER.debug("{} ", XMLUtils.class.getSimpleName(), e);
+        } finally {
+            if (xmlStreamReader != null) {
+                try {
+                    xmlStreamReader.close();
+                } catch (XMLStreamException e) {
+                    // ignore
+                }
+            }
+        }
+
+        return result.get();
+    }
+
+    /**
+     * This class is used with the processElements method. Inside the function, set the value
+     * of the result holder. That value is then returned by the processElementsFunction.
+     */
+
+    public static class ResultHolder<T> {
+
+        T value;
+
+        public ResultHolder() {
+        }
+
+        public T get() {
+            return value;
+        }
+
+        public void set(T value) {
+            this.value = value;
+        }
+
+        public boolean isEmpty() {
+            return get() == null;
+        }
+
+        public void setIfEmpty(T value) {
+            if (isEmpty()) {
+                set(value);
+            }
+        }
+    }
+
 }

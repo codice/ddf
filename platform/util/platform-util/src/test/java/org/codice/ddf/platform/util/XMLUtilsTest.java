@@ -14,6 +14,7 @@
 package org.codice.ddf.platform.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -24,6 +25,7 @@ import java.io.StringWriter;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -52,6 +54,11 @@ public class XMLUtilsTest {
 
     private static final String XML_WITH_NAMESPACE =
             "<?xml version=\"1.0\"?><dog:Dog xmlns:dog=\"doggy-namespace\"></dog:Dog>";
+
+    private static final String XML_MULTIPLE_NODES =
+            "<bookstore>\n" + "  <book category=\"children\">\n"
+                    + "    <title>Harry Potter</title>\n" + "    <author>J K. Rowling</author>\n"
+                    + "    <year>2005</year>\n" + "    <price>29.99</price>\n" + "  </book>";
 
     @Test
     public void testFormatSource() throws ParserConfigurationException, IOException, SAXException {
@@ -115,6 +122,29 @@ public class XMLUtilsTest {
     @Test
     public void testGetRootNamespace() {
         assert "doggy-namespace".equals(XMLUtils.getRootNamespace(XML_WITH_NAMESPACE));
+    }
+
+    @Test
+    public void testProcessElementException() {
+
+        Object returnValue = XMLUtils.processElements("", (result, xmlReader) -> true);
+        assertThat("Processing result should be null if an exception was thrown", returnValue,
+                is(nullValue()));
+    }
+
+    @Test
+    public void testProcessingStop() {
+        int expectedValue = 3;
+        int returnValue = XMLUtils.processElements(XML_MULTIPLE_NODES,
+                (XMLUtils.ResultHolder<Integer> result, XMLStreamReader xmlStreamReader) -> {
+                    result.setIfEmpty(0);
+                    result.set((result.get() + 1));
+                    return result.get() < expectedValue;
+                });
+
+        assertThat(String.format("Expected result value to be %s", expectedValue),
+                returnValue,
+                equalTo(expectedValue));
     }
 
     private TransformerProperties setTransformerProperties() {
