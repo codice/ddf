@@ -109,6 +109,7 @@ public class TestWorkspaceQueryService {
                 securityService,
                 filterService);
 
+        workspaceQueryServiceImpl.setQueryTimeInterval(60);
         String ecql = "area( Polygon((10 10, 20 10, 20 20, 10 10)) ) BETWEEN 10000 AND 30000";
 
         WorkspaceMetacardImpl workspaceMetacard = mock(WorkspaceMetacardImpl.class);

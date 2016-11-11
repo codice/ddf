@@ -23,8 +23,13 @@
             name="Query Timeout" id="queryTimeoutMinutes" required="true" type="Long"
             default="5"/>
 
-        <AD description="Set the cron string trigger."
-            name="Cron String" id="cronString" required="true" type="String"
+        <AD description="Set the Relative Time Search (past X minutes up to 24 hours).
+                         Note:  This will query for results from the interval to the time the query is sent out."
+            name="Notification Time Interval" id="queryTimeInterval" required="true" type="Integer"
+            default="1440"/>
+
+        <AD description="Email Subscription Interval (Cron Expression)"
+            name="Email Subscription Interval" id="cronString" required="true" type="String"
             default="0 0 0 * * ?"/>
 
     </OCD>

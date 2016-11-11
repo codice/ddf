@@ -299,6 +299,7 @@
                 update-strategy="container-managed"/>
         <property name="queryTimeoutMinutes" value="5"/>
         <property name="cronString" value="0 0 0 * * ?"/>
+        <property name="queryTimeInterval" value="1440"/>
         <argument>
             <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.QueryUpdateSubscriberList">
                 <argument>
@@ -320,7 +321,6 @@
                 <argument ref="filterBuilder"/>
             </bean>
         </argument>
-
     </bean>
 
     <service ref="workspaceQueryService"
