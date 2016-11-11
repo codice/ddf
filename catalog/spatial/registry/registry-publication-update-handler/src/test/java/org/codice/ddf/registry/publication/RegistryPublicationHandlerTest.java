@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.registry.common.RegistryConstants;
@@ -51,7 +51,7 @@ public class RegistryPublicationHandlerTest {
     private RegistryPublicationService service;
 
     @Mock
-    private ExecutorService executorService;
+    private ScheduledExecutorService executorService;
 
     private MetacardImpl mcard;
 
@@ -76,27 +76,36 @@ public class RegistryPublicationHandlerTest {
     public void testNullMetacard() {
         Dictionary<String, Object> eventProperties = new Hashtable<>();
         Event event = new Event("myevent", eventProperties);
-        doNothing().when(executorService)
-                .execute(any(Runnable.class));
+        when(executorService.schedule(any(Runnable.class),
+                anyLong(),
+                any(TimeUnit.class))).thenReturn(null);
         rph.handleEvent(event);
-        verify(executorService, never()).execute(any(Runnable.class));
+        verify(executorService, never()).schedule(any(Runnable.class),
+                anyLong(),
+                any(TimeUnit.class));
     }
 
     @Test
     public void testNonRegistryMetacard() {
         mcard.setAttribute(Metacard.TAGS, Metacard.DEFAULT_TAG);
-        doNothing().when(executorService)
-                .execute(any(Runnable.class));
+        when(executorService.schedule(any(Runnable.class),
+                anyLong(),
+                any(TimeUnit.class))).thenReturn(null);
         rph.handleEvent(event);
-        verify(executorService, never()).execute(any(Runnable.class));
+        verify(executorService, never()).schedule(any(Runnable.class),
+                anyLong(),
+                any(TimeUnit.class));
     }
 
     @Test
     public void testRegistryMetacardExecutorCall() {
-        doNothing().when(executorService)
-                .execute(any(Runnable.class));
+        when(executorService.schedule(any(Runnable.class),
+                anyLong(),
+                any(TimeUnit.class))).thenReturn(null);
         rph.handleEvent(event);
-        verify(executorService, times(1)).execute(any(Runnable.class));
+        verify(executorService, times(1)).schedule(any(Runnable.class),
+                anyLong(),
+                any(TimeUnit.class));
     }
 
     @Test
@@ -194,6 +203,6 @@ public class RegistryPublicationHandlerTest {
             ((Runnable) args.getArguments()[0]).run();
             return null;
         }).when(executorService)
-                .execute(any());
+                .schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
     }
 }

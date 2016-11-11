@@ -17,9 +17,7 @@
     <reference id="registryPublicationService"
                interface="org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService"/>
 
-    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
-        <argument value="1"/>
-    </bean>
+    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
 
     <bean id="registryEventManager" class="org.codice.ddf.registry.publication.RegistryPublicationHandler" destroy-method="destroy">
         <argument ref="registryPublicationService"/>
