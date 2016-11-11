@@ -27,8 +27,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.catalog.plugin.metacard.util.AttributeHelper;
+import org.codice.ddf.catalog.plugin.metacard.util.AttributeFactory;
 import org.codice.ddf.catalog.plugin.metacard.util.KeyValueParser;
+import org.codice.ddf.catalog.plugin.metacard.util.MetacardServices;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,13 +67,16 @@ public class MetacardIngestNetworkPluginTest {
     private CreateRequest mockCreateRequest;
 
     @Mock
-    private KeyValueParser mockParser;
-
-    @Mock
     private Map<String, String> mockParsedAttributes;
 
     @Mock
-    private AttributeHelper mockHelper;
+    private KeyValueParser mockParser;
+
+    @Mock
+    private MetacardServices mockMetacardServices;
+
+    @Mock
+    private AttributeFactory mockAttributeFactory;
 
     @Mock
     private MetacardCondition mockMetacardCondition;
@@ -89,7 +93,10 @@ public class MetacardIngestNetworkPluginTest {
         metacards = new ArrayList<>();
         newAttributes = new ArrayList<>();
 
-        plugin = new MetacardIngestNetworkPlugin(mockParser, mockHelper, mockMetacardCondition);
+        plugin = new MetacardIngestNetworkPlugin(mockParser,
+                mockMetacardServices,
+                mockAttributeFactory,
+                mockMetacardCondition);
         plugin.setNewAttributes(newAttributes);
 
         when(mockCreateRequest.getMetacards()).thenReturn(metacards);
@@ -114,8 +121,10 @@ public class MetacardIngestNetworkPluginTest {
         when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(true);
         plugin.processPreCreate(mockCreateRequest);
         verify(mockParser).parsePairsToMap(newAttributes);
-        verify(mockHelper).applyNewAttributes(metacards, mockParsedAttributes);
-        verifyNoMoreInteractions(mockParser, mockHelper);
+        verify(mockMetacardServices).setAttributesIfAbsent(metacards,
+                mockParsedAttributes,
+                mockAttributeFactory);
+        verifyNoMoreInteractions(mockParser, mockMetacardServices);
     }
 
     @Test
@@ -123,13 +132,13 @@ public class MetacardIngestNetworkPluginTest {
         ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
         when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(false);
         plugin.processPreCreate(mockCreateRequest);
-        verifyZeroInteractions(mockParser, mockHelper);
+        verifyZeroInteractions(mockParser, mockMetacardServices);
     }
 
     @Test
     public void testGettersAndSetters() throws Exception {
         MetacardIngestNetworkPlugin networkPlugin = new MetacardIngestNetworkPlugin(mockParser,
-                mockHelper);
+                mockMetacardServices);
 
         networkPlugin.setCriteriaKey(CRITERIA_KEY);
         networkPlugin.setExpectedValue(EXPECTED_VALUE);
@@ -166,7 +175,7 @@ public class MetacardIngestNetworkPluginTest {
 
         verifyZeroInteractions(mockMetacardCondition,
                 mockParser,
-                mockHelper,
+                mockMetacardServices,
                 updateRequest,
                 deleteRequest,
                 queryRequest,

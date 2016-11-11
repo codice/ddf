@@ -14,23 +14,7 @@
 package org.codice.ddf.catalog.plugin.metacard.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.when;
-import static ddf.catalog.data.AttributeType.AttributeFormat.BINARY;
-import static ddf.catalog.data.AttributeType.AttributeFormat.BOOLEAN;
-import static ddf.catalog.data.AttributeType.AttributeFormat.DATE;
-import static ddf.catalog.data.AttributeType.AttributeFormat.DOUBLE;
-import static ddf.catalog.data.AttributeType.AttributeFormat.FLOAT;
-import static ddf.catalog.data.AttributeType.AttributeFormat.GEOMETRY;
-import static ddf.catalog.data.AttributeType.AttributeFormat.INTEGER;
-import static ddf.catalog.data.AttributeType.AttributeFormat.LONG;
-import static ddf.catalog.data.AttributeType.AttributeFormat.OBJECT;
-import static ddf.catalog.data.AttributeType.AttributeFormat.SHORT;
-import static ddf.catalog.data.AttributeType.AttributeFormat.STRING;
-import static ddf.catalog.data.AttributeType.AttributeFormat.XML;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -42,48 +26,34 @@ import javax.xml.bind.DatatypeConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
 /**
- * Validate the attribute methods that modify metacards.
+ * Validate all the helpers within the {@link MetacardServices} utility operations class.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AttributeHelperTest {
+public class MetacardServicesTest {
 
-    private static final String SAMPLE_JSON = "{ \"id\": \"j8k767bjav592j2\"}";
+    private static final String METACARD_TITLE = "Metacard Title";
 
-    private static final String LANGUAGE = "language";
+    private static final String METACARD_DESCRIPTION = "Hello from the metacard";
 
-    private static final String COMMA_SEPARATED_LANGUAGES = "English, French, German";
+    private static final String DESCRIPTION_KEY = "description";
 
-    private static final String ENGLISH = "English";
+    private AttributeFactory attributeFactory;
 
-    private static final String FRENCH = "French";
-
-    private static final String GERMAN = "German";
-
-    @Mock
-    private AttributeDescriptor mockDescriptor;
-
-    @Mock
-    private AttributeType mockType;
-
-    private AttributeHelper attributeHelper;
+    private MetacardServices metacardHelper;
 
     @Before
     public void setup() throws Exception {
-        when(mockDescriptor.getType()).thenReturn(mockType);
-        attributeHelper = new AttributeHelper();
+        attributeFactory = new AttributeFactory();
+        metacardHelper = new MetacardServices();
     }
 
     @Test
@@ -91,7 +61,7 @@ public class AttributeHelperTest {
         List<Metacard> metacards = ImmutableList.of();
         Map<String, String> attributeMap = ImmutableMap.of();
 
-        attributeHelper.applyNewAttributes(metacards, attributeMap);
+        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
     }
 
     @Test
@@ -100,7 +70,7 @@ public class AttributeHelperTest {
         List<Metacard> metacards = ImmutableList.of(metacard);
         Map<String, String> attributeMap = ImmutableMap.of();
 
-        attributeHelper.applyNewAttributes(metacards, attributeMap);
+        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
         assertThatMetacardHasExpectedTitleAndDescription(metacard);
     }
 
@@ -115,7 +85,7 @@ public class AttributeHelperTest {
 
                 "metadata", "<? xml version=1.0 ?><Root><Child/></Root>");
 
-        attributeHelper.applyNewAttributes(metacards, attributeMap);
+        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
 
         assertThatMetacardHasExpectedTitleAndDescription(metacard);
         assertThatMetacardHasAttributesEqualToThoseInMap(metacard, attributeMap);
@@ -133,25 +103,12 @@ public class AttributeHelperTest {
 
                 "metadata", "<? xml version=1.0 ?><Root><Child/></Root>");
 
-        attributeHelper.applyNewAttributes(metacards, attributeMap);
+        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
 
         assertThatMetacardHasExpectedTitleAndDescription(metacard1);
         assertThatMetacardHasExpectedTitleAndDescription(metacard2);
         assertThatMetacardHasAttributesEqualToThoseInMap(metacard1, attributeMap);
         assertThatMetacardHasAttributesEqualToThoseInMap(metacard2, attributeMap);
-    }
-
-    @Test
-    public void testCreateMultiValuedAttributeFromCommaSeparatedList() throws Exception {
-        when(mockDescriptor.isMultiValued()).thenReturn(true);
-        when(mockDescriptor.getName()).thenReturn(LANGUAGE);
-
-        Attribute attribute = attributeHelper.createAttribute(mockDescriptor,
-                COMMA_SEPARATED_LANGUAGES);
-        List<Serializable> languages = attribute.getValues();
-
-        assertThat(languages, hasSize(3));
-        assertThat(languages, containsInAnyOrder(ENGLISH, FRENCH, GERMAN));
     }
 
     @Test
@@ -165,7 +122,7 @@ public class AttributeHelperTest {
 
                 "description", "canned description");
 
-        attributeHelper.applyNewAttributes(metacards, attributeMap);
+        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
 
         assertThatMetacardHasExpectedTitleAndDescription(metacard);
     }
@@ -193,7 +150,7 @@ public class AttributeHelperTest {
                 .putAll(attributesThatShouldNOTBeOnMetacard)
                 .build();
 
-        attributeHelper.applyNewAttributes(metacards, attributeMap);
+        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
 
         assertThatMetacardHasExpectedTitleAndDescription(metacard);
         assertThatMetacardHasAttributesEqualToThoseInMap(metacard,
@@ -210,7 +167,8 @@ public class AttributeHelperTest {
         metacardWithPoc.setPointOfContact("my name here");
 
         MetacardImpl metacardWithCreatedDate = createMetacard();
-        metacardWithCreatedDate.setCreatedDate(new Date());
+        metacardWithCreatedDate.setCreatedDate(DatatypeConverter.parseDateTime("2001-10-26T21:32:52")
+                .getTime());
 
         List<Metacard> metacards =
                 ImmutableList.of(metacardWithMetadataNoExpectedTitleOrDescription,
@@ -226,7 +184,7 @@ public class AttributeHelperTest {
         Map<String, String> attributeMetadata = ImmutableMap.of("metadata",
                 "<? xml version=1.0 ?><Root><Child/></Root>");
         Map<String, String> attributePoc = ImmutableMap.of("point-of-contact", "contact");
-        Map<String, String> attributeCreated = ImmutableMap.of("created", new Date().toString());
+        Map<String, String> attributeCreated = ImmutableMap.of("created", "2001-10-26T21:32:52");
 
         Map attributeMap = ImmutableMap.builder()
                 .putAll(attributesTitleAndDescription)
@@ -234,7 +192,7 @@ public class AttributeHelperTest {
                 .putAll(attributePoc)
                 .putAll(attributeCreated)
                 .build();
-        attributeHelper.applyNewAttributes(metacards, attributeMap);
+        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
 
         assertThatMetacardHasExpectedTitleAndDescription(metacardWithPoc);
         assertThatMetacardHasExpectedTitleAndDescription(metacardWithCreatedDate);
@@ -261,100 +219,17 @@ public class AttributeHelperTest {
         assertThatMetacardHasAttributesEqualToThoseInMap(metacardWithCreatedDate, createdResult);
     }
 
-    @Test
-    public void testCreateAttributeInteger() throws Exception {
-        runParameterizedAttributeTest(INTEGER, "186", 186);
-    }
-
-    @Test
-    public void testCreateAttributeDouble() throws Exception {
-        runParameterizedAttributeTest(DOUBLE, "0.8866432", 0.8866432);
-    }
-
-    @Test
-    public void testCreateAttributeFloat() throws Exception {
-        runParameterizedAttributeTest(FLOAT, "0.123", 0.123f);
-    }
-
-    @Test
-    public void testCreateAttributeShort() throws Exception {
-        runParameterizedAttributeTest(SHORT, "16", (short) 16);
-    }
-
-    @Test
-    public void testCreateAttributeLong() throws Exception {
-        runParameterizedAttributeTest(LONG, "123456789", 123456789L);
-    }
-
-    @Test
-    public void testCreateAttributeBoolean() throws Exception {
-        runParameterizedAttributeTest(BOOLEAN, "true", true);
-    }
-
-    @Test
-    public void testCreateAttributeBinary() throws Exception {
-        String binaryString = "0100101010110110010010110110010";
-        runParameterizedAttributeTest(BINARY, binaryString, binaryString.getBytes());
-    }
-
-    @Test
-    public void testCreateAttributeDate() throws Exception {
-        String lexicalXsdDateTime = "2001-10-26T21:32:52";
-        runParameterizedAttributeTest(DATE,
-                lexicalXsdDateTime,
-                DatatypeConverter.parseDateTime(lexicalXsdDateTime)
-                        .getTime());
-    }
-
-    @Test
-    public void testCreateAttributeString() throws Exception {
-        runParameterizedAttributeTest(STRING, "This is a test String", "This is a test String");
-    }
-
-    @Test
-    public void testCreateAttributeObject() throws Exception {
-        runParameterizedAttributeTest(OBJECT, SAMPLE_JSON, SAMPLE_JSON);
-    }
-
-    @Test
-    public void testCreateAttributeGeometry() throws Exception {
-        runParameterizedAttributeTest(GEOMETRY, SAMPLE_JSON, SAMPLE_JSON);
-    }
-
-    @Test
-    public void testCreateAttributeXml() throws Exception {
-        runParameterizedAttributeTest(XML, SAMPLE_JSON, SAMPLE_JSON);
-    }
-
-    @Test
-    public void testCreateAttributeWithIllegalArgument() throws Exception {
-        haveDescriptorReturnFormatOf(INTEGER);
-        Attribute attribute = attributeHelper.createAttribute(mockDescriptor, "1874xyz");
-        assertNull(attribute);
-    }
-
-    private void runParameterizedAttributeTest(AttributeType.AttributeFormat format,
-            String rawValue, Object value) {
-        haveDescriptorReturnFormatOf(format);
-        Attribute attribute = attributeHelper.createAttribute(mockDescriptor, rawValue);
-        assertThat(attribute.getValue(), is(value));
-    }
-
-    private void haveDescriptorReturnFormatOf(AttributeType.AttributeFormat format) {
-        when(mockType.getAttributeFormat()).thenReturn(format);
-    }
-
     private MetacardImpl createMetacard() {
         MetacardImpl metacard = new MetacardImpl();
-        metacard.setTitle("Metacard Title");
-        metacard.setDescription("Hello from the metacard");
+        metacard.setTitle(METACARD_TITLE);
+        metacard.setDescription(METACARD_DESCRIPTION);
         return metacard;
     }
 
     private void assertThatMetacardHasExpectedTitleAndDescription(Metacard metacard) {
-        assertThat(metacard.getTitle(), is("Metacard Title"));
-        assertThat(metacard.getAttribute("description")
-                .getValue(), is("Hello from the metacard"));
+        assertThat(metacard.getTitle(), is(METACARD_TITLE));
+        assertThat(metacard.getAttribute(DESCRIPTION_KEY)
+                .getValue(), is(METACARD_DESCRIPTION));
     }
 
     private void assertThatMetacardHasAttributesEqualToThoseInMap(Metacard metacard,
@@ -363,9 +238,16 @@ public class AttributeHelperTest {
                 .stream()
                 .filter(entry -> metacard.getAttribute(entry.getKey()) != null)
                 .forEach(entry -> {
-                    assertThat(metacard.getAttribute(entry.getKey())
-                            .getValue()
-                            .toString(), is(entry.getValue()));
+                    Serializable serializable = metacard.getAttribute(entry.getKey())
+                            .getValue();
+                    if (serializable instanceof Date) {
+                        Date dateValue = Date.class.cast(serializable);
+                        assertThat(dateValue,
+                                is(DatatypeConverter.parseDateTime(entry.getValue())
+                                        .getTime()));
+                    } else {
+                        assertThat(serializable, is(entry.getValue()));
+                    }
                 });
     }
 }

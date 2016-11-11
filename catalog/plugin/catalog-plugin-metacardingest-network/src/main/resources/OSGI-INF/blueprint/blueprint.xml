@@ -23,7 +23,8 @@
     </reference-list>
 
     <bean id="parser" class="org.codice.ddf.catalog.plugin.metacard.util.KeyValueParser"/>
-    <bean id="attributeHelper" class="org.codice.ddf.catalog.plugin.metacard.util.AttributeHelper">
+    <bean id="metacardServices"
+          class="org.codice.ddf.catalog.plugin.metacard.util.MetacardServices">
         <argument ref="types"/>
     </bean>
 

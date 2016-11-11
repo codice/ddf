@@ -13,13 +13,16 @@
  */
 package org.codice.ddf.catalog.plugin.metacard;
 
+import static org.apache.commons.lang.BooleanUtils.isFalse;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.catalog.plugin.metacard.util.AttributeHelper;
+import org.codice.ddf.catalog.plugin.metacard.util.AttributeFactory;
 import org.codice.ddf.catalog.plugin.metacard.util.KeyValueParser;
+import org.codice.ddf.catalog.plugin.metacard.util.MetacardServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,11 +49,34 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
 
     private final KeyValueParser keyValueParser;
 
-    private final AttributeHelper attributeHelper;
+    private final MetacardServices metacardServices;
 
-    private MetacardCondition metacardCondition;
+    private final AttributeFactory attributeFactory;
+
+    private final MetacardCondition metacardCondition;
 
     private List<String> newAttributes;
+
+    /**
+     * Default constructor.
+     */
+    public MetacardIngestNetworkPlugin(KeyValueParser keyValueParser,
+            MetacardServices metacardServices) {
+        this(keyValueParser, metacardServices, new AttributeFactory(), new MetacardCondition());
+    }
+
+    /**
+     * Extended constructor with an {@link AttributeFactory} and {@link MetacardCondition} to provide
+     * more fine-grained control.
+     */
+    public MetacardIngestNetworkPlugin(KeyValueParser keyValueParser,
+            MetacardServices metacardServices, AttributeFactory attributeFactory,
+            MetacardCondition metacardCondition) {
+        this.keyValueParser = keyValueParser;
+        this.metacardServices = metacardServices;
+        this.attributeFactory = attributeFactory;
+        this.metacardCondition = metacardCondition;
+    }
 
     public String getCriteriaKey() {
         return metacardCondition.getCriteriaKey();
@@ -74,24 +100,6 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
 
     public void setNewAttributes(List<String> newAttributes) {
         this.newAttributes = newAttributes;
-    }
-
-    /**
-     * Default constructor.
-     */
-    public MetacardIngestNetworkPlugin(KeyValueParser keyValueParser,
-            AttributeHelper attributeHelper) {
-        this(keyValueParser, attributeHelper, new MetacardCondition());
-    }
-
-    /**
-     * Extended constructor with a {@link MetacardCondition}.
-     */
-    public MetacardIngestNetworkPlugin(KeyValueParser keyValueParser,
-            AttributeHelper attributeHelper, MetacardCondition metacardCondition) {
-        this.keyValueParser = keyValueParser;
-        this.attributeHelper = attributeHelper;
-        this.metacardCondition = metacardCondition;
     }
 
     @Override
@@ -151,13 +159,13 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
                         criteria.get(metacardCondition.getCriteriaKey()));
             }
             Map<String, String> parsedAttributes = keyValueParser.parsePairsToMap(newAttributes);
-            attributeHelper.applyNewAttributes(metacards, parsedAttributes);
+            metacardServices.setAttributesIfAbsent(metacards, parsedAttributes, attributeFactory);
         }
     }
 
     private Map<String, Serializable> getClientInfoProperties() throws StopProcessingException {
         Object info = ThreadContext.get(CLIENT_INFO_KEY);
-        if (info == null || !(info instanceof Map)) {
+        if (isFalse(info instanceof Map)) {
             throw new StopProcessingException("Client-info map was not found or is not a valid map");
         }
 
