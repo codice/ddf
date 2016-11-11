@@ -26,7 +26,6 @@ define([
         template: template,
         initialize: function (options) {
             this.listenTo(this.model, 'pageable:state:change', _.throttle(this.render, 200));
-            this.updateSelectionInterface();
         },
         updateSelectionInterface: function(){
             this.options.selectionInterface.setActiveSearchResults(this.model.reduce(function(results, result){
@@ -45,23 +44,22 @@ define([
         },
         firstPage: function() {
             this.model.getFirstPage();
-            this.updateSelectionInterface();
             this.render();
         },
         previousPage: function() {
             this.model.getPreviousPage();
-            this.updateSelectionInterface();
             this.render();
         },
         nextPage: function() {
             this.model.getNextPage();
-            this.updateSelectionInterface();
             this.render();
         },
         lastPage: function() {
             this.model.getLastPage();
-            this.updateSelectionInterface();
             this.render();
+        },
+        onRender: function(){
+            this.updateSelectionInterface();
         },
         serializeData: function(){
             var resultsCollection = this.model;

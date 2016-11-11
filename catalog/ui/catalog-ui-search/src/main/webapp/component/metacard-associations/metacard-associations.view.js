@@ -62,10 +62,12 @@ module.exports = Marionette.LayoutView.extend({
         this.clearAssociations();
         LoadingCompanionView.beginLoading(this);
         $.get('/search/catalog/internal/associations/' + this.model.get('metacard').get('id')).then(function(response) {
-            this._originalAssociations = JSON.parse(JSON.stringify(response));
-            this._associations = response;
-            this.parseAssociations();
-            this.onBeforeShow();
+            if (!self.isDestroyed && this.associationsMenu !== undefined){
+                this._originalAssociations = JSON.parse(JSON.stringify(response));
+                this._associations = response;
+                this.parseAssociations();
+                this.onBeforeShow();
+            }
         }.bind(this)).always(function() {
             LoadingCompanionView.endLoading(this);
         }.bind(this));

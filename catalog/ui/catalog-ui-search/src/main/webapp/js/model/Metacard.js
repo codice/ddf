@@ -570,7 +570,7 @@ define([
 
         MetaCard.Results = Backbone.PageableCollection.extend({
             state: {
-              pageSize: 50
+              pageSize: 25
             },
             model: MetaCard.MetacardResult,
             mode: "client",
@@ -664,9 +664,17 @@ define([
         MetaCard.SearchResult = Backbone.AssociatedModel.extend({
             defaults: {
                 'queryId': undefined,
-                'results': []
+                'results': [],
+                'mergedResults': [],
+                'merged': true
             },
             relations: [
+                {
+                    type: Backbone.Many,
+                    key: 'mergedResults',
+                    collectionType: MetaCard.Results,
+                    relatedModel: MetaCard.MetacardResult
+                },
                 {
                     type: Backbone.Many,
                     key: 'results',
@@ -682,6 +690,7 @@ define([
             url: "/search/catalog/internal/cql",
             useAjaxSync: true,
             initialize: function(){
+                this.listenTo(this.get('mergedResults'), 'add change', _.throttle(this.updateMerged, 250, {leading: false}));
             },
             parse: function (resp) {
                 if (resp.results) {
@@ -700,9 +709,42 @@ define([
                             result.metacard.properties.thumbnail = thumbnailAction.url + '&_='+Date.now();
                         }
                     });
+
+                    if (this.get('results').length === 0){
+                        this.lastMerge = Date.now();
+                    }
                 }
 
-                return resp;
+                return {
+                    mergedResults: resp.results,
+                    results: this.allowAutoMerge() ? resp.results : [],
+                    status: resp.status   
+                };
+            },
+            allowAutoMerge: function(){
+                if (this.get('results').length === 0){
+                    return true;
+                } else {
+                    return (Date.now() - this.lastMerge) < 250;
+                }
+            },
+            updateMerged: function(){
+                this.lastMerge = Date.now();
+                this.set('merged', this.get('results').fullCollection.length === this.get('mergedResults').fullCollection.length);
+            },
+            isUnmerged: function(){
+                return !this.get('merged');
+            },
+            mergeNewResults: function(){
+                this.set('merged', true);
+                this.get('results').set(this.get('mergedResults').fullCollection.models, { remove: false });
+                this.get('results').fullCollection.sort();
+                this.trigger('sync');
+            },
+            isSearching: function(){
+                return this.get('status').some(function(status){
+                    return status.get('successful') === undefined;
+                });
             },
             setQueryId: function(queryId){
                 this.set('queryId', queryId);
@@ -725,36 +767,6 @@ define([
                             status.set({'canceled': true});
                         }
                     });
-                }
-            },
-            mergeLatest: function () {
-                console.log(this.lastResponse);
-                var queryId = this.getQueryId();
-                var color = this.getColor();
-                if (this.lastResponse) {
-                    var update = this.parse(this.lastResponse);
-                    if (update && this.get('results') && this.get('results').length > 0) {
-                        var selectedForSave = this.get('results').filter(function (result) {
-                            return result.get('metacard').has('selectedForSave') &&
-                                result.get('metacard').get('selectedForSave') === true;
-                        });
-                        _.forEach(update.results, function (result) {
-                            result.propertyTypes = update['metacard-types'][result.metacard.properties['metacard-type']];
-                            result.metacardType = result.metacard.properties['metacard-type'];
-                            result.metacard.id = result.metacard.properties.id;
-                            result.id = result.metacard.id;
-                            result.metacard.queryId = queryId;
-                            result.metacard.color = color;
-                            if (_.some(selectedForSave, function (saved) {
-                                return saved.get('metacard').get('properties').get('id') ===
-                                    result.metacard.properties.id;
-                            })) {
-                                result.metacard.selectedForSave = true;
-                            }
-                        });
-                    }
-
-                    return this.set(update);
                 }
             }
         });

@@ -94,6 +94,12 @@ define([
             } else {
                 return null;
             }
+        },
+        onDestroy: function(){
+            var datetimepicker = this.$el.find('.input-group.date').data('DateTimePicker');
+            if (datetimepicker) {
+                datetimepicker.destroy();
+            }
         }
     });
 });

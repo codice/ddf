@@ -1,13 +1,13 @@
 @{customElementNamespace}result-item-collection {
   display: block;
-  padding: 0px 10px;
+  padding: 0px @minimumSpacing;
   @{customElementNamespace}result-item + @{customElementNamespace}result-item {
-    margin-top: 10px;
+    margin-top: @minimumSpacing;
   }
 
   > .result-item-collection-empty {
     box-shadow: none !important;
-    padding: 10px;
+    padding: @minimumSpacing;
     text-align: center;
   }
 }

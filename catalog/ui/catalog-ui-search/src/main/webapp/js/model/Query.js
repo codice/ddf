@@ -595,6 +595,9 @@ define([
                     result = this.get('result');
                     result.setColor(this.getColor());
                     result.setQueryId(this.getId());
+                    result.set('merged', true);
+                    result.get('mergedResults').fullCollection.reset();
+                    result.get('mergedResults').reset();
                     result.get('results').fullCollection.reset();
                     result.get('results').reset();
                     result.get('status').reset(initialStatus);
@@ -662,6 +665,7 @@ define([
                         cqlString;
 
                     return result.fetch({
+                        customErrorHandling: true,
                         data: JSON.stringify(data),
                         remove: false,
                         dataType: "json",
@@ -670,13 +674,6 @@ define([
                         processData: false,
                         timeout: properties.timeout,
                         success: function() {
-                            var length = result.get('results').fullCollection.length;
-                            result.get('results').state.totalRecords = length;
-                            var totalPages = Math.ceil(length / result.get('results').state.pageSize);
-                            result.get('results').state.totalPages = totalPages;
-                            result.get('results').state.lastPage = totalPages;
-
-                            result.get('results').fullCollection.sort();
                         },
                         error: function () {
                             var srcStatus = result.get('status').get(src);

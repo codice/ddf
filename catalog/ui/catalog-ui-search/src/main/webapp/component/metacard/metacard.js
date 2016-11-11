@@ -13,11 +13,17 @@
 define([
     'underscore',
     'backbone',
-    'js/model/Metacard'
-], function (_, Backbone, Metacard) {
+    'js/model/Metacard',
+    'js/model/Query'
+], function (_, Backbone, Metacard, Query) {
 
     return new (Backbone.AssociatedModel.extend({
         relations: [
+            {
+                type: Backbone.One,
+                key: 'currentQuery',
+                relatedModel: Query.Model
+            },
             {
                 type: Backbone.One,
                 key: 'currentMetacard',
@@ -35,6 +41,7 @@ define([
             }
         ],
         defaults: {
+            currentQuery: undefined,
             currentMetacard: undefined,
             selectedResults: [],
             activeSearchResults: [],
@@ -43,7 +50,14 @@ define([
         initialize: function(){
             this.set('currentResult', new Metacard.SearchResult());
             this.listenTo(this, 'change:currentMetacard', this.handleUpdate);
+            this.listenTo(this, 'change:currentResult', this.handleResultChange);
             this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
+        },
+        handleResultChange: function(){
+            this.listenTo(this.get('currentResult'), 'sync reset:results', this.handleResults);
+        },
+        handleResults: function(){
+            this.set('currentMetacard', this.get('currentResult').get('results').first());
         },
         updateActiveSearchResultsAttributes: function(){
             var availableAttributes = this.get('activeSearchResults').reduce(function(currentAvailable, result) {

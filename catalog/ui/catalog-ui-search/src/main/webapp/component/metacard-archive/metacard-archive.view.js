@@ -91,8 +91,9 @@ define([
                             type: 'DELETE',
                             data: payload,
                             contentType: 'application/json'
-                        }).always(function(response) {
+                        }).then(function(response){
                             this.refreshResults();
+                        }.bind(this)).always(function(response) {
                             setTimeout(function() { //let solr flush
                                 loadingView.remove();
                             }, 2000);
@@ -116,7 +117,7 @@ define([
                                 result.get('metacard').get('properties').get('metacard.deleted.id') +
                                 '/revert/' +
                                 result.get('metacard').get('properties').get('metacard.deleted.version')).then(function(response) {
-                                    this.refreshResults();
+                                    ResultUtils.refreshResult(result);
                             }.bind(this));
                         }.bind(this))).always(function(response) {
                             setTimeout(function() { //let solr flush

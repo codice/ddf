@@ -60,7 +60,9 @@ define([
     var namespace = CustomElements.getNamespace();
     var resultItemSelector = namespace+'result-item';
     var eventsHash = {
-            'mousedown .resultSelector-list': 'stopTextSelection'
+            'mousedown .resultSelector-list': 'stopTextSelection',
+            'click > .resultSelector-new .merge': 'mergeNewResults',
+            'click > .resultSelector-new .ignore': 'ignoreNewResults'
     };
     eventsHash['click .resultSelector-list '+resultItemSelector] = 'handleClick';
 
@@ -89,7 +91,28 @@ define([
             this.startListeningToFilter();
             this.startListeningToSort();
             this.startListeningToResult();
+            this.startListeningToMerged();
+            this.startListeningToStatus();
             //metacardDefinitions.addMetacardTypes(this.model.get('result').get('metacard-types'));
+        },
+        mergeNewResults: function(){
+            this.model.get('result').mergeNewResults();
+        },
+        ignoreNewResults: function(){
+            this.$el.toggleClass('ignore-new', true);
+        },
+        handleMerged: function(){
+            this.$el.toggleClass('ignore-new', false);
+            this.$el.toggleClass('has-unmerged', this.model.get('result').isUnmerged());
+        },
+        startListeningToMerged: function(){
+            this.listenTo(this.model.get('result'), 'change:merged', this.handleMerged);
+        },
+        handleStatus: function(){
+            this.$el.toggleClass('is-searching', this.model.get('result').isSearching());
+        },
+        startListeningToStatus: function(){
+            this.listenTo(this.model.get('result'), 'sync request error', this.handleStatus);
         },
         startListeningToBlacklist: function(){
             this.listenTo(user.get('user').get('preferences').get('resultBlacklist'),
@@ -97,6 +120,7 @@ define([
         },
         startListeningToResult: function(){
             this.listenTo(this.model.get('result'), 'sync', this.onBeforeShow);
+            this.listenTo(this.model.get('result'), 'reset:results', this.onBeforeShow);
         },
         startListeningToFilter: function(){
             this.listenTo(user.get('user').get('preferences'), 'change:resultFilter', this.onBeforeShow);
@@ -169,6 +193,8 @@ define([
             this.showResultFilterDropdown();
             this.showResultSortDropdown();
             this.handleFiltering(collapsedResults);
+            this.handleMerged();
+            this.handleStatus();
         },
         handleFiltering: function(resultCollection){
             this.$el.toggleClass('has-filter', resultCollection.amountFiltered !== 0);

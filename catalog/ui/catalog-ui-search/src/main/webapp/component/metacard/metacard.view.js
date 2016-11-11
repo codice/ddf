@@ -45,6 +45,16 @@ define([
         initialize: function(){
             this.listenTo(router, 'change', this.handleRoute);
             this.handleRoute();
+            this.handleResultChange();
+            this.listenTo(metacardInstance, 'change:currentResult', this.handleResultChange);
+        },
+        handleStatus: function(){
+            this.$el.toggleClass('not-found', metacardInstance.get('currentMetacard') === undefined);
+            this.$el.toggleClass('is-searching', metacardInstance.get('currentResult').isSearching());
+        },
+        handleResultChange: function(){
+            this.handleStatus();
+            this.listenTo(metacardInstance.get('currentResult'), 'sync request error', this.handleStatus);
         },
         handleRoute: function(){
             if (router.toJSON().name === 'openMetacard'){

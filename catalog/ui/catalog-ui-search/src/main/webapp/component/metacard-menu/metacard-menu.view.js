@@ -42,6 +42,7 @@ define([
         },
         initialize: function(){
             this.listenTo(router, 'change', this.handleRoute);
+            this.listenTo(metacardInstance, 'change:currentMetacard', this.handleRoute);
             this.handleRoute();
         },
         handleRoute: function(){

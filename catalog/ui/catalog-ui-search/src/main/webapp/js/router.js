@@ -27,19 +27,16 @@ define([
     'js/cql',
     'component/alert/alert',
     'component/alert/alert.view',
-    'component/recent/recent',
-    'component/recent/recent.view',
     'component/ingest/ingest.view',
     'component/router/router',
     'component/singletons/user-instance',
     'component/upload/upload',
     'component/upload/upload.view',
     'component/navigator/navigator.view',
-    'component/singletons/slideout.left.view-instance.js',
-    'js/jquery.whenAll'
+    'component/singletons/slideout.left.view-instance.js'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
-            recentInstance, RecentView, IngestView, router, user, uploadInstance, UploadView,
+            IngestView, router, user, uploadInstance, UploadView,
             NavigatorView, SlideoutLeftViewInstance) {
 
     function toggleNavigator() {
@@ -52,7 +49,6 @@ define([
         Application.App.workspacesRegion.$el.addClass("is-hidden");
         Application.App.metacardRegion.$el.addClass("is-hidden");
         Application.App.alertRegion.$el.addClass("is-hidden");
-        Application.App.recentRegion.$el.addClass("is-hidden");
         Application.App.ingestRegion.$el.addClass('is-hidden');
         Application.App.uploadRegion.$el.addClass('is-hidden');
     }
@@ -74,9 +70,6 @@ define([
             openAlert: function(){
                 //console.log('route to specific alert:'+alertId);
             },
-            openRecent: function(){
-                //console.log('route to recent uploads');
-            },
             openIngest: function(){
                 //console.log('route to ingest');
             },
@@ -90,7 +83,6 @@ define([
             'workspaces(/)': 'workspaces',
             'metacards/:id': 'openMetacard',
             'alerts/:id': 'openAlert',
-            'recent(/)': 'openRecent',
             'ingest(/)': 'openIngest',
             'uploads/:id': 'openUpload'
         },
@@ -152,30 +144,20 @@ define([
                           }]
                         })
                     });
-                    $.whenAll.apply(this, queryForMetacard.startSearch()).always(function(){
-                        if (queryForMetacard.get('result').get('results').length === 0) {
-                            toggleNavigator();
-                            self.listenTo(ConfirmationView.generateConfirmation({
-                                    prompt: 'Metacard(s) unable to be found.  ' +
-                                        'This could be do to unavailable sources, deletion of the metacard, or lack of permissions to view the metacard.  ' +
-                                        'Please use the left navigation to go somewhere else.',
-                                    yes: 'Okay.'
-                                }),
-                                'change:choice',
-                                function(){
-                                });
-                        } else {
-                            metacardInstance.set({
-                                'currentMetacard': queryForMetacard.get('result').get('results').first(),
-                                'currentResult': queryForMetacard.get('result')
-                            });
-                            if (Application.App.metacardRegion.currentView === undefined) {
-                                Application.App.metacardRegion.show(new MetacardView());
-                            }
-                            Application.App.metacardRegion.$el.removeClass('is-hidden');
-                            self.updateRoute(name, path, args);
-                        }
+                    if (metacardInstance.get('currentQuery')){
+                        metacardInstance.get('currentQuery').cancelCurrentSearches();
+                    }
+                    queryForMetacard.startSearch();
+                    metacardInstance.set({
+                        'currentMetacard': undefined,
+                        'currentResult': queryForMetacard.get('result'),
+                        'currentQuery': queryForMetacard
                     });
+                    if (Application.App.metacardRegion.currentView === undefined) {
+                        Application.App.metacardRegion.show(new MetacardView());
+                    }
+                    Application.App.metacardRegion.$el.removeClass('is-hidden');
+                    self.updateRoute(name, path, args);
                     break;
                 case 'openAlert':
                     var alertId = args[0];
@@ -202,24 +184,26 @@ define([
                                 })
                             })
                         });
-                        $.whenAll.apply(this, queryForMetacards.startSearch()).always(function(){
-                                alertInstance.set({
-                                    currentResult: queryForMetacards.get('result'),
-                                    currentAlert: alert,
-                                    currentQuery: queryForMetacards
-                                });
-                                if (Application.App.alertRegion.currentView === undefined) {
-                                    Application.App.alertRegion.show(new AlertView());
-                                }
-                                Application.App.alertRegion.$el.removeClass('is-hidden');
-                                var workspace = store.get('workspaces').filter(function(workspace){
-                                    return workspace.get('queries').get(alert.get('queryId'));
-                                })[0];
-                                if (workspace){
-                                    store.setCurrentWorkspaceById(workspace.id);
-                                }
-                                self.updateRoute(name, path, args);
+                        if (alertInstance.get('currentQuery')){
+                            alertInstance.get('currentQuery').cancelCurrentSearches();
+                        }
+                        queryForMetacards.startSearch();
+                        alertInstance.set({
+                            currentResult: queryForMetacards.get('result'),
+                            currentAlert: alert,
+                            currentQuery: queryForMetacards
                         });
+                        if (Application.App.alertRegion.currentView === undefined) {
+                            Application.App.alertRegion.show(new AlertView());
+                        }
+                        Application.App.alertRegion.$el.removeClass('is-hidden');
+                        var workspace = store.get('workspaces').filter(function(workspace){
+                            return workspace.get('queries').get(alert.get('queryId'));
+                        })[0];
+                        if (workspace){
+                            store.setCurrentWorkspaceById(workspace.id);
+                        }
+                        self.updateRoute(name, path, args);
                     }
                     break;
                 case 'openUpload':
@@ -253,48 +237,22 @@ define([
                                 })
                             })
                         });
-                        $.whenAll.apply(this, queryForMetacards.startSearch()).always(function(){
-                                uploadInstance.set({
-                                    currentResult: queryForMetacards.get('result'),
-                                    currentUpload: upload,
-                                    currentQuery: queryForMetacards
-                                });
-                                uploadInstance.trigger('change:currentUpload', upload);
-                                if (Application.App.uploadRegion.currentView === undefined) {
-                                    Application.App.uploadRegion.show(new UploadView());
-                                }
-                                Application.App.uploadRegion.$el.removeClass('is-hidden');
-                                self.updateRoute(name, path, args);
+                        if (uploadInstance.get('currentQuery')){
+                            uploadInstance.get('currentQuery').cancelCurrentSearches();
+                        }
+                        queryForMetacards.startSearch();
+                        uploadInstance.set({
+                            currentResult: queryForMetacards.get('result'),
+                            currentUpload: upload,
+                            currentQuery: queryForMetacards
                         });
+                        uploadInstance.trigger('change:currentUpload', upload);
+                        if (Application.App.uploadRegion.currentView === undefined) {
+                            Application.App.uploadRegion.show(new UploadView());
+                        }
+                        Application.App.uploadRegion.$el.removeClass('is-hidden');
+                        self.updateRoute(name, path, args);
                     }
-                    break;
-                case 'openRecent':
-                    $.get('/search/catalog/internal/metacards/recent').then(function(response){
-                        response.push('Invalid Id');
-                        queryForMetacards = new Query.Model({
-                            cql: cql.write({
-                                type: 'OR',
-                                filters: response.map(function(metacardId){
-                                    return {
-                                        type: '=',
-                                        value: metacardId,
-                                        property: '"id"'
-                                    };
-                                })
-                            })
-                        });
-                        $.whenAll.apply(this, queryForMetacards.startSearch()).always(function(){
-                            recentInstance.set({
-                                currentResult: queryForMetacards.get('result'),
-                                currentQuery: queryForMetacards
-                            });
-                            if (Application.App.recentRegion.currentView === undefined) {
-                                Application.App.recentRegion.show(new RecentView());
-                            }
-                            Application.App.recentRegion.$el.removeClass('is-hidden');
-                            self.updateRoute(name, path, args);
-                        });
-                    });
                     break;
                 case 'openIngest':
                     if (Application.App.ingestRegion.currentView === undefined){
