@@ -68,8 +68,6 @@ The Search UI queries a Catalog using the following criteria.
 
 |===
 
-image:search-form.png[Search criteria]
-
 ==== Results
 
 After a query is executed, the records matching the search criteria are automatically displayed in
@@ -81,7 +79,7 @@ the Results pane.
 |Item
 |Description
 
-|image:result-status-toggle.png[Search criteria]
+|Search criteria
 |Enhanced search toggle. Enables the enhanced search menu (see below). Allows users to filter and
  refine search and build more sophisticated queries.
 
@@ -106,8 +104,6 @@ Source – The gray text displayed below the record title is the data source (e.
 and the amount of time that has passed since the record was modified (e.g., an hour ago).
 
 |===
-
-image:results-list.png[Search results]
 
 ==== Enhanced Search
 
@@ -138,8 +134,6 @@ sophisticated queries.
 |Search button
 |Executes an enhanced search on any new parameters that were specified or the query built above.
 |===
-
-image:results-filters.png[Enhanced Search]
 
 ==== Record Summary
 
@@ -183,8 +177,6 @@ button is selected in the Record pane, the following information is displayed.
 |Download
 |A link to download the record. The size, if known, is indicated.
 |===
-
-image:record-summary.png[Record summary]
 
 ==== Record Details
 
@@ -248,8 +240,6 @@ button is selected in the Record pane, the following information is displayed.
 |Shows a representation of the metadata XML, if available.
 |===
 
-image:record-details.png[Record details]
-
 === Actions
 
 Depending on the contents of the metacard, various actions will be available to perform on the
@@ -257,8 +247,6 @@ metadata.
 
 Troubleshooting: if no actions are available, ensure IP address is configured correctly under
 global configuration in Admin Console.
-
-image:record-actions.png[Actions]
 
 ==== Save a Search
 
@@ -273,10 +261,7 @@ a saved search.
 . Use the fields provided to define the <<_search_criteria>> for the query to be saved.
 . Select the *Save* button. The Select Workspace pane opens.
 . Type a name for the query in the *ENTER NAME FOR SEARCH* field.
-. Select a workspace in which to save the query, or create a workspace by typing a title for the
-  new workspace in the *New Workspace* field.
-  image:search-save.png[New workspace]
-
+. Select a workspace in which to save the query, or create a workspace by typing a title for the new workspace in the *New Workspace* field.
 . Select the Save button.
 
 
@@ -307,7 +292,6 @@ are private and cannot be viewed by other users.
   option to *Add* and an option to *Edit* are displayed.
 . Select the *Add* button at the top of the left pane. A new workspace is created.
 . In the *Workspace Name* field, enter a descriptive name for the workspace.
-  image:workspace-add.png[Enhanced Search]
 
 . Select the *Add* button. The Workspaces pane opens, which now displays the new workspace and any
   existing workspaces.
@@ -317,25 +301,19 @@ are private and cannot be viewed by other users.
   The Add/Edit Search pane opens.
 . Enter a name for the new query to be saved in the QUERY NAME field.
 . Complete the rest of the <<_search_criteria>>.
-  image:workspace-query.png[complete search criteria]
-
 . Select the *Save & Search* button. The Search UI begins searching for records matching the
   criteria, and the new query is saved to the workspace. When the search is complete, the
   Workspace pane opens.
 . Select the name of the search to view the query results.
-  image:workspace-list.png[]
-. If necessary, in the Workspace pane, select the *Edit* button then select the pencil
-  (image:workspace-edit-search.png[]) icon next to the name of a query to change the search
+. If necessary, in the Workspace pane, select the *Edit* button then select the pencil icon next to the name of a query to change the search
   criteria.
-. If necessary, in the Workspace pane, select the delete (image:workspace-remove-search.png[]) icon
-  next to the name of a query to delete the query from the workspace.
-  image:workspace-edit.png[]
+. If necessary, in the Workspace pane, select the delete icon next to the name of a query to delete the query from the workspace.
 
 === Notifications
 
 The Standard Search UI receives all notifications from {branding}. These notifications appear as
 pop-up windows inside the Search UI to alert the user of an event of interest. To view all
-notifications, select the notification (image:notification-icon.png[Notification icon]) icon.
+notifications, select the notification icon.
 
 Currently, the notifications provide information about product retrieval only. After a user
 initiates a resource download, they receive periodic notifications that provide the progress of the
@@ -351,7 +329,7 @@ notification is dismissed, it cannot be retrieved again.
 
 Similar to notifications, activities appear as pop-up windows inside the Search UI. Activity events
 include the status and progress of actions that are being performed by the user, such as searches
-and downloads. To view all activities, select the activity (image:notification-icon.png[]) icon in
+and downloads. To view all activities, select the activity icon in
 the top-right corner of the window. A list of all activities opens in a drop-down menu, from which
 activities can be read and deleted. If a download activity is being performed, the Activity
 drop-down menu provides the link to retrieve the product.
@@ -368,5 +346,4 @@ The UI itself does not have a built-in download manager utility.
 
 The right side of the Search UI contains a map to locate search results on. There are three views
 for this map, 3D, 2D, and Columbus View. To choose a different view, select the map icon in the
-upper right corner. (The icon will change depending on current view selected: 3D
-(image:3d-map-icon.png[]), 2D (image:2d-map-icon.png[]), Columbus (image:columbus-map-icon.png[])
+upper right corner. (The icon will change depending on current view selected.)
