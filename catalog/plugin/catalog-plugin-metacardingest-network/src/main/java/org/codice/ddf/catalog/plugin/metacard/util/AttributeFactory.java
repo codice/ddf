@@ -44,6 +44,8 @@ public class AttributeFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributeFactory.class);
 
+    private static final String MULTI_VALUED_SPLIT_REGEX = ",";
+
     /**
      * Attempts to create an {@link Attribute} according to the provided {@link AttributeDescriptor}
      * whose value is represented by the given string {@param value}. Throws an exception if
@@ -167,8 +169,7 @@ public class AttributeFactory {
      * @return The list of values that were in the string as {@link Serializable}s.
      */
     private List<String> handleMultiValuedString(String valueWithMultipleValues) {
-        final String splitSymbol = ",";
-        String[] entities = valueWithMultipleValues.split(splitSymbol, 0);
+        String[] entities = valueWithMultipleValues.split(MULTI_VALUED_SPLIT_REGEX, 0);
         return Arrays.stream(entities)
                 .map(String::trim)
                 .filter(str -> !str.isEmpty())

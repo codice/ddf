@@ -14,11 +14,13 @@
 package org.codice.ddf.catalog.plugin.metacard.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 
@@ -70,41 +72,33 @@ public class MetacardServices {
         }
 
         List<MetacardType> systemMetacardTypesCopy = ImmutableList.copyOf(systemMetacardTypes);
-        Map<String, AttributeDescriptor> systemAndMetacardDescriptors = new HashMap<>();
 
-        systemMetacardTypesCopy.stream()
-                .map(MetacardType::getAttributeDescriptors)
-                // ** Does our API allow null descriptors? **
-                .filter(Objects::nonNull)
-                .forEach(descriptors -> loadUniqueDescriptors(descriptors,
-                        systemAndMetacardDescriptors));
+        Map<String, AttributeDescriptor> systemAndMetacardDescriptors = Stream.concat(
+                systemMetacardTypesCopy.stream()
+                        .map(MetacardType::getAttributeDescriptors)
+                        .flatMap(Set::stream)
+                        // ** Does our API publish null descriptors? **
+                        .filter(Objects::nonNull),
+                metacards.stream()
+                        .map(Metacard::getMetacardType)
+                        .map(MetacardType::getAttributeDescriptors)
+                        .flatMap(Set::stream)
+                        // ** Does our API allow null descriptors on metacards? **
+                        .filter(Objects::nonNull))
 
-        metacards.stream()
-                .map(Metacard::getMetacardType)
-                .map(MetacardType::getAttributeDescriptors)
-                // ** Does our API allow null descriptors? **
-                .filter(Objects::nonNull)
-                .forEach(descriptors -> loadUniqueDescriptors(descriptors,
-                        systemAndMetacardDescriptors));
+                .collect(Collectors.toMap(AttributeDescriptor::getName,
+                        Function.identity(),
+                        (oldValue, newValue) -> oldValue));
 
         metacards.forEach(metacard -> attributeMap.keySet()
                 .stream()
                 .filter(key -> metacard.getAttribute(key) == null)
                 .map(systemAndMetacardDescriptors::get)
                 // ** Filter during unique loading instead of here **
-                .filter(Objects::nonNull)
+                // .filter(Objects::nonNull)
                 .map(descriptor -> attributeFactory.createAttribute(descriptor,
                         attributeMap.get(descriptor.getName())))
                 .filter(Objects::nonNull)
                 .forEach(metacard::setAttribute));
-    }
-
-    /**
-     * Helper method for loading only unique descriptors into a specified map.
-     */
-    private void loadUniqueDescriptors(Set<AttributeDescriptor> descriptorsToLoad,
-            /*mutable*/ Map<String, AttributeDescriptor> destination) {
-        descriptorsToLoad.forEach(descriptor -> destination.putIfAbsent(descriptor.getName(),
-                descriptor));
     }
 }

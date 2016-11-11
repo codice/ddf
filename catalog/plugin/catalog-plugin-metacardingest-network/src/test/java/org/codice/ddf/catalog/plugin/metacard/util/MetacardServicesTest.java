@@ -15,6 +15,8 @@ package org.codice.ddf.catalog.plugin.metacard.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -32,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 
 /**
@@ -48,12 +51,12 @@ public class MetacardServicesTest {
 
     private AttributeFactory attributeFactory;
 
-    private MetacardServices metacardHelper;
+    private MetacardServices metacardServices;
 
     @Before
     public void setup() throws Exception {
         attributeFactory = new AttributeFactory();
-        metacardHelper = new MetacardServices();
+        metacardServices = new MetacardServices();
     }
 
     @Test
@@ -61,7 +64,12 @@ public class MetacardServicesTest {
         List<Metacard> metacards = ImmutableList.of();
         Map<String, String> attributeMap = ImmutableMap.of();
 
-        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
+        List<MetacardType> mockMetacardTypes = mock(List.class);
+        metacardServices = new MetacardServices(mockMetacardTypes);
+        AttributeFactory mockAttributeFactory = mock(AttributeFactory.class);
+
+        metacardServices.setAttributesIfAbsent(metacards, attributeMap, mockAttributeFactory);
+        verifyZeroInteractions(mockMetacardTypes, mockAttributeFactory);
     }
 
     @Test
@@ -70,7 +78,12 @@ public class MetacardServicesTest {
         List<Metacard> metacards = ImmutableList.of(metacard);
         Map<String, String> attributeMap = ImmutableMap.of();
 
-        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
+        List<MetacardType> mockMetacardTypes = mock(List.class);
+        metacardServices = new MetacardServices(mockMetacardTypes);
+        AttributeFactory mockAttributeFactory = mock(AttributeFactory.class);
+
+        metacardServices.setAttributesIfAbsent(metacards, attributeMap, mockAttributeFactory);
+        verifyZeroInteractions(mockMetacardTypes, mockAttributeFactory);
         assertThatMetacardHasExpectedTitleAndDescription(metacard);
     }
 
@@ -85,7 +98,7 @@ public class MetacardServicesTest {
 
                 "metadata", "<? xml version=1.0 ?><Root><Child/></Root>");
 
-        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
+        metacardServices.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
 
         assertThatMetacardHasExpectedTitleAndDescription(metacard);
         assertThatMetacardHasAttributesEqualToThoseInMap(metacard, attributeMap);
@@ -103,7 +116,7 @@ public class MetacardServicesTest {
 
                 "metadata", "<? xml version=1.0 ?><Root><Child/></Root>");
 
-        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
+        metacardServices.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
 
         assertThatMetacardHasExpectedTitleAndDescription(metacard1);
         assertThatMetacardHasExpectedTitleAndDescription(metacard2);
@@ -122,7 +135,7 @@ public class MetacardServicesTest {
 
                 "description", "canned description");
 
-        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
+        metacardServices.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
 
         assertThatMetacardHasExpectedTitleAndDescription(metacard);
     }
@@ -150,7 +163,7 @@ public class MetacardServicesTest {
                 .putAll(attributesThatShouldNOTBeOnMetacard)
                 .build();
 
-        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
+        metacardServices.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
 
         assertThatMetacardHasExpectedTitleAndDescription(metacard);
         assertThatMetacardHasAttributesEqualToThoseInMap(metacard,
@@ -192,7 +205,7 @@ public class MetacardServicesTest {
                 .putAll(attributePoc)
                 .putAll(attributeCreated)
                 .build();
-        metacardHelper.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
+        metacardServices.setAttributesIfAbsent(metacards, attributeMap, attributeFactory);
 
         assertThatMetacardHasExpectedTitleAndDescription(metacardWithPoc);
         assertThatMetacardHasExpectedTitleAndDescription(metacardWithCreatedDate);

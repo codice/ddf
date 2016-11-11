@@ -35,7 +35,7 @@
         <cm:managed-component
                 class="org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin">
             <argument ref="parser"/>
-            <argument ref="attributeHelper"/>
+            <argument ref="metacardServices"/>
             <property name="criteriaKey" value=""/>
             <property name="expectedValue" value=""/>
             <property name="newAttributes">
