@@ -75,15 +75,12 @@ public class ConfigurationFileProxy {
         }
     }
 
-    public void writeSolrConfiguration(String core) {
-        writeSolrConfiguration(Paths.get(this.dataDirectory.getAbsolutePath(), core, "conf")
-                .toFile());
-    }
-
     /**
-     * Writes the solr configuration files out of the classpath onto the disk.
+     * Writes the Solr configuration files for a core from the classpath to disk.
      */
-    public void writeSolrConfiguration(File configDir) {
+    void writeSolrConfiguration(String core) {
+        File configDir = Paths.get(this.dataDirectory.getAbsolutePath(), core, "conf")
+                .toFile();
         boolean directoriesMade = configDir.mkdirs();
         LOGGER.debug("Solr Config directories made?  {}", directoriesMade);
 
@@ -97,7 +94,7 @@ public class ConfigurationFileProxy {
                     long byteCount = IOUtils.copyLarge(inputStream, outputStream);
                     LOGGER.debug("Wrote out {} bytes.", byteCount);
                 } catch (IOException e) {
-                    LOGGER.debug("Unable to copy Solr configuration file: " + filename, e);
+                    LOGGER.info("Unable to copy Solr configuration file: " + filename, e);
                 }
             }
         }

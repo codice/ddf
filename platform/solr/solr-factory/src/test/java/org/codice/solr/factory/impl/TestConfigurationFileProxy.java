@@ -13,16 +13,15 @@
  */
 package org.codice.solr.factory.impl;
 
-import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -36,23 +35,32 @@ public class TestConfigurationFileProxy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestConfigurationFileProxy.class);
 
+    public static final String TEST_CORE_NAME = "test";
+
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
+    private ConfigurationStore store;
+
+    @Before
+    public void beforeTest() throws Exception {
+        File tempLocation = tempFolder.newFolder();
+
+        store = ConfigurationStore.getInstance();
+        store.setDataDirectoryPath(tempLocation.getPath());
+    }
 
     /**
      * Tests that files are indeed written to disk.
      */
     @Test
-    public void testWritingToDisk() throws IOException {
+    public void testWritingToDisk() throws Exception {
 
-        ConfigurationFileProxy proxy = new ConfigurationFileProxy(ConfigurationStore.getInstance());
+        ConfigurationFileProxy proxy = new ConfigurationFileProxy(store);
 
-        File tempLocation = tempFolder.newFolder();
+        proxy.writeSolrConfiguration(TEST_CORE_NAME);
 
-        proxy.writeSolrConfiguration(tempLocation);
-
-        verifyFilesExist(tempLocation);
+        verifyFilesExist(proxy);
     }
 
     /**
@@ -62,31 +70,31 @@ public class TestConfigurationFileProxy {
      * @throws java.io.IOException
      */
     @Test
-    public void testKeepingExistingFiles() throws IOException {
+    public void testKeepingExistingFiles() throws Exception {
 
         File tempLocation = tempFolder.newFolder();
 
         ConfigurationFileProxy proxy =
-                new ConfigurationFileProxy(ConfigurationStore.getInstance());
+                new ConfigurationFileProxy(store);
 
-        proxy.writeSolrConfiguration(tempLocation);
+        proxy.writeSolrConfiguration(TEST_CORE_NAME);
 
-        verifyFilesExist(tempLocation);
+        verifyFilesExist(proxy);
 
         File solrXml = Paths.get(tempLocation.getAbsolutePath(), "solr.xml")
                 .toFile();
 
-        FileUtils.writeStringToFile(solrXml, "test");
+        FileUtils.writeStringToFile(solrXml, TEST_CORE_NAME);
 
         LOGGER.info("Contents switched to:{}", FileUtils.readFileToString(solrXml));
 
-        proxy.writeSolrConfiguration(tempLocation);
+        proxy.writeSolrConfiguration(TEST_CORE_NAME);
 
         String fileContents = FileUtils.readFileToString(solrXml);
 
         LOGGER.info("Final File contents:{}", fileContents);
 
-        assertThat(fileContents, is("test"));
+        assertThat(fileContents, is(TEST_CORE_NAME));
 
     }
 
@@ -97,7 +105,7 @@ public class TestConfigurationFileProxy {
      * @throws java.io.IOException
      */
     @Test
-    public void testReplacement() throws IOException {
+    public void testReplacement() throws Exception {
 
         // given
         File tempLocation = tempFolder.newFolder();
@@ -107,22 +115,22 @@ public class TestConfigurationFileProxy {
         }
 
         ConfigurationFileProxy proxy =
-                new ConfigurationFileProxy(ConfigurationStore.getInstance());
+                new ConfigurationFileProxy(store);
 
         // when
-        proxy.writeSolrConfiguration(tempLocation);
+        proxy.writeSolrConfiguration(TEST_CORE_NAME);
 
-        verifyFilesExist(tempLocation);
+        verifyFilesExist(proxy);
 
         File solrXml = Paths.get(tempLocation.getAbsolutePath(), "solr.xml")
                 .toFile();
 
         delete(solrXml);
 
-        proxy.writeSolrConfiguration(tempLocation);
+        proxy.writeSolrConfiguration(TEST_CORE_NAME);
 
         // then
-        verifyFilesExist(tempLocation);
+        verifyFilesExist(proxy);
 
     }
 
@@ -133,18 +141,12 @@ public class TestConfigurationFileProxy {
         }
     }
 
-    /**
-     * @param tempLocation
-     */
-    private void verifyFilesExist(File tempLocation) {
-        File[] files = tempLocation.listFiles();
-        if (null != files) {
-            assertThat(files.length, is(8));
-        } else {
-            fail();
-        }
+    private void verifyFilesExist(ConfigurationFileProxy proxy) throws URISyntaxException {
         for (String file : ConfigurationFileProxy.SOLR_CONFIG_FILES) {
-            assertThat(tempLocation.list(), hasItemInArray(file));
+            assertThat(Paths.get(proxy.getResource(file, "test")
+                    .toURI())
+                    .toFile()
+                    .exists(), is(true));
         }
     }
 

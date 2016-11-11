@@ -17,11 +17,11 @@
 	<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
 	<bean id="solrCatalogProvider" class="ddf.catalog.solr.cloud.SolrCloudCatalogProvider"
-          destroy-method="shutdown">
+		  destroy-method="shutdown">
 		<!-- Aries does not call my object on startup if set to component-managed. Therefore, we will use container-managed
 		and have the setter call the update method. -->
-        <cm:managed-properties persistent-id="ddf.catalog.solr.cloud.SolrCloudCatalogProvider"
-                               update-strategy="container-managed"/>
+		<cm:managed-properties persistent-id="ddf.catalog.solr.cloud.SolrCloudCatalogProvider"
+							   update-strategy="container-managed"/>
 		<argument ref="filterAdapter"/>
 		<argument>
 			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>

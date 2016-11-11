@@ -30,14 +30,14 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 
 /**
- * This class is used to signify an unconfigured CatalogProvider instance. If a user tries to
+ * This class is used to signify an unavailable CatalogProvider instance. If a user tries to
  * unsuccessfully connect to Solr, then a message will be displayed to check the
  * connection.
  */
-public class UnconfiguredSolrCatalogProvider implements CatalogProvider {
+public class UnavailableSolrCatalogProvider implements CatalogProvider {
 
     private static final String CLIENT_DISCONNECTED_MESSAGE =
-            "Solr client is not connected. Please check Solr status, and then retry.";
+            "Solr client is not connected. Please verify Solr is available and retry.";
 
     @Override
     public Set<ContentType> getContentTypes() {
@@ -50,12 +50,12 @@ public class UnconfiguredSolrCatalogProvider implements CatalogProvider {
     }
 
     @Override
-    public boolean isAvailable(SourceMonitor arg0) {
+    public boolean isAvailable(SourceMonitor callback) {
         return false;
     }
 
     @Override
-    public SourceResponse query(QueryRequest arg0) throws UnsupportedQueryException {
+    public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
         throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
@@ -85,22 +85,22 @@ public class UnconfiguredSolrCatalogProvider implements CatalogProvider {
     }
 
     @Override
-    public void maskId(String arg0) {
+    public void maskId(String sourceId) {
         // no op
     }
 
     @Override
-    public CreateResponse create(CreateRequest arg0) throws IngestException {
+    public CreateResponse create(CreateRequest createRequest) throws IngestException {
         throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
-    public DeleteResponse delete(DeleteRequest arg0) throws IngestException {
+    public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
         throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
-    public UpdateResponse update(UpdateRequest arg0) throws IngestException {
+    public UpdateResponse update(UpdateRequest updateRequest) throws IngestException {
         throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
     }
 

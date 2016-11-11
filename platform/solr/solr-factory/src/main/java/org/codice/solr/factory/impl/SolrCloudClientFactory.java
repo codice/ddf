@@ -39,32 +39,50 @@ public class SolrCloudClientFactory implements SolrClientFactory {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(SolrCloudClientFactory.class);
 
-    public static final String DEFAULT_ZOOKEEPER_HOST = "localhost:9983";
+    private static final int SHARD_COUNT = parseSystemProperty("solr.cloud.shardCount", 2);
 
-    private static final int SHARD_COUNT = Integer.parseInt(System.getProperty("solr.cloud.shardCount", "2"));
+    private static final int REPLICATION_FACTOR = parseSystemProperty("solr.cloud.replicationFactor", 2);
 
-    private static final int REPLICATION_FACTOR = Integer.parseInt(System.getProperty("solr.cloud.replicationFactor", "2"));
+    private static final int MAXIMUM_SHARDS_PER_NODE = parseSystemProperty("solr.cloud.maxShardPerNode", 2);
 
-    private static final int MAXIMUM_SHARDS_PER_NODE = Integer.parseInt(System.getProperty("solr.cloud.maxShardPerNode", "2"));
-
-    private static final String THREAD_POOL_DEFAULT_SIZE = "128";
+    private static final int THREAD_POOL_DEFAULT_SIZE = 128;
 
     private static final ScheduledExecutorService EXECUTOR_SERVICE = createExecutorService();
 
     private static ScheduledExecutorService createExecutorService() throws NumberFormatException {
-        Integer threadPoolSize = Integer.parseInt(System.getProperty(
-                "org.codice.ddf.system.threadPoolSize",
-                THREAD_POOL_DEFAULT_SIZE));
+        Integer threadPoolSize = parseSystemProperty("org.codice.ddf.system.threadPoolSize",
+                THREAD_POOL_DEFAULT_SIZE);
         return Executors.newScheduledThreadPool(threadPoolSize);
+    }
+
+    private static int parseSystemProperty(String propertyKey, int defaultValue) {
+        int value = defaultValue;
+        String propertyValue = System.getProperty(propertyKey);
+        if (propertyValue != null) {
+            try {
+                value = Integer.parseInt(propertyValue);
+            } catch (NumberFormatException e) {
+                LOGGER.warn("Unable to parse number from system property [{}] with value [{}]. Using default value [{}] instead.",
+                        propertyKey,
+                        System.getProperty(propertyKey),
+                        defaultValue);
+            }
+        }
+        return value;
     }
 
     @Override
     public Future<SolrClient> newClient(String core) {
-        String zookeeperHosts = System.getProperty("solr.cloud.zookeeper", DEFAULT_ZOOKEEPER_HOST);
+        String zookeeperHosts = System.getProperty("solr.cloud.zookeeper");
+        if (zookeeperHosts == null) {
+            LOGGER.warn(
+                    "Cannot create Solr Cloud client without Zookeeper host list system property [solr.cloud.zookeeper] being set.");
+            return null;
+        }
         return getClient(zookeeperHosts, core);
     }
 
-    public static Future<SolrClient> getClient(String zookeeperHost, String collection) {
+    public static Future<SolrClient> getClient(String zookeeperHosts, String collection) {
         RetryPolicy retryPolicy = new RetryPolicy()
                 .retryWhen(null)
                 .withBackoff(10,
@@ -84,47 +102,40 @@ public class SolrCloudClientFactory implements SolrClientFactory {
                 .onFailure(failure -> LOGGER.warn(
                         "All attempts failed to create Solr Cloud client (" + collection + ")",
                         failure))
-                .get(() -> createSolrCloudClient(zookeeperHost, collection));
+                .get(() -> createSolrCloudClient(zookeeperHosts, collection));
     }
 
-    private static SolrClient createSolrCloudClient(String zookeeperHost, String collection) {
+    private static SolrClient createSolrCloudClient(String zookeeperHosts, String collection) {
 
-        CloudSolrClient client = new CloudSolrClient(zookeeperHost);
+        CloudSolrClient client = new CloudSolrClient(zookeeperHosts);
         client.connect();
 
-        boolean configExistsInZk;
         try {
-            configExistsInZk = client.getZkStateReader()
-                    .getZkClient()
-                    .exists("/configs/" + collection, true);
-        } catch (KeeperException | InterruptedException e) {
-            LOGGER.debug(
-                    "Failed to check config status with Zookeeper for collection: " + collection,
-                    e);
+            uploadCoreConfiguration(collection, client);
+        } catch (SolrFactoryException e) {
+            LOGGER.debug("Unable to upload configuration to Solr Cloud", e);
             return null;
         }
 
-        if (!configExistsInZk) {
-            ConfigurationFileProxy configProxy =
-                    new ConfigurationFileProxy(ConfigurationStore.getInstance());
-            configProxy.writeSolrConfiguration(collection);
-            Path configPath = Paths.get(configProxy.getDataDirectory()
-                    .getAbsolutePath(), collection, "conf");
-            try {
-                client.uploadConfig(configPath, collection);
-            } catch (IOException e) {
-                LOGGER.debug("Failed to upload configurations for collection: " + collection, e);
-                return null;
-            }
+        try {
+            createCollection(collection, client);
+        } catch (SolrFactoryException e) {
+            LOGGER.debug("Unable to create collection on Solr Cloud", e);
+            return null;
         }
-        
+
+        client.setDefaultCollection(collection);
+        return client;
+    }
+
+    private static void createCollection(String collection, CloudSolrClient client)
+            throws SolrFactoryException {
         try {
             CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
 
             if (response == null || response.getResponse() == null || response.getResponse()
                     .get("collections") == null) {
-                LOGGER.debug("Failed to get a list of existing collections");
-                return null;
+                throw new SolrFactoryException("Failed to get a list of existing collections");
             }
 
             List<String> collections = (List<String>) response.getResponse()
@@ -136,20 +147,49 @@ public class SolrCloudClientFactory implements SolrClientFactory {
                         .setCollectionName(collection)
                         .process(client);
                 if (!response.isSuccess()) {
-                    LOGGER.debug("Failed to create collection: " + response.getErrorMessages());
-                    return null;
+                    throw new SolrFactoryException(
+                            "Failed to create collection [" + collection + "]: "
+                                    + response.getErrorMessages());
                 }
-                isCollectionReady(client, collection);
+                if (!isCollectionReady(client, collection)) {
+                    throw new SolrFactoryException(
+                            "Solr collection [" + collection + "] was not ready in time.");
+                }
             } else {
                 LOGGER.debug("Collection already exists: " + collection);
             }
         } catch (SolrServerException | IOException e) {
-            LOGGER.debug("Failed to create collection: " + collection, e);
-            return null;
+            throw new SolrFactoryException("Failed to create collection: " + collection, e);
+        }
+    }
+
+    private static void uploadCoreConfiguration(String collection, CloudSolrClient client)
+            throws SolrFactoryException {
+        boolean configExistsInZk;
+
+        try {
+            configExistsInZk = client.getZkStateReader()
+                    .getZkClient()
+                    .exists("/configs/" + collection, true);
+        } catch (KeeperException | InterruptedException e) {
+            throw new SolrFactoryException("Failed to check config status with Zookeeper for collection: " + collection,
+                    e);
         }
 
-        client.setDefaultCollection(collection);
-        return client;
+        if (!configExistsInZk) {
+            ConfigurationFileProxy configProxy =
+                    new ConfigurationFileProxy(ConfigurationStore.getInstance());
+            configProxy.writeSolrConfiguration(collection);
+            Path configPath = Paths.get(configProxy.getDataDirectory()
+                    .getAbsolutePath(), collection, "conf");
+
+            try {
+                client.uploadConfig(configPath, collection);
+            } catch (IOException e) {
+                throw new SolrFactoryException("Failed to upload configurations for collection: " + collection,
+                        e);
+            }
+        }
     }
 
     private static boolean isCollectionReady(CloudSolrClient client, String collection) {
@@ -158,6 +198,10 @@ public class SolrCloudClientFactory implements SolrClientFactory {
                 .withDelay(1, TimeUnit.SECONDS);
 
         boolean collectionCreated = Failsafe.with(retryPolicy)
+                .onFailure(failure -> LOGGER.debug(
+                        "All attempts failed to read Zookeeper state for collection existence ("
+                                + collection + ")",
+                        failure))
                 .get(() -> client.getZkStateReader()
                         .getClusterState()
                         .hasCollection(collection));
@@ -168,6 +212,10 @@ public class SolrCloudClientFactory implements SolrClientFactory {
         }
 
         boolean shardsStarted = Failsafe.with(retryPolicy)
+                .onFailure(failure -> LOGGER.debug(
+                        "All attempts failed to read Zookeeper state for collection's shard count ("
+                                + collection + ")",
+                        failure))
                 .get(() -> client.getZkStateReader()
                         .getClusterState()
                         .getSlices(collection)

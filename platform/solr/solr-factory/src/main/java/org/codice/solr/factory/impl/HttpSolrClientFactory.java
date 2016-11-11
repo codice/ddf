@@ -200,7 +200,7 @@ public class HttpSolrClientFactory implements SolrClientFactory {
                 System.getProperty("javax.net.ssl.trustStore") == null ||
                 System.getProperty("javax.net.ssl.trustStorePassword") == null) {
             throw new IllegalArgumentException(
-                    "KeyStore and TrustStore system properties must be" + " set.");
+                    "KeyStore and TrustStore system properties must be set.");
         }
 
         KeyStore trustStore = getKeyStore(System.getProperty("javax.net.ssl.trustStore"),
@@ -219,8 +219,8 @@ public class HttpSolrClientFactory implements SolrClientFactory {
                     .build();
         } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
                 KeyManagementException e) {
-            LOGGER.warn("Unable to create secure HttpClient. The Solr Client should not be used in this state.", e);
-            return null;
+            throw new IllegalArgumentException(
+                    "Unable to use javax.net.ssl.keyStorePassword to load key material to create SSL context for Solr client.");
         }
 
         sslContext.getDefaultSSLParameters()
@@ -295,15 +295,11 @@ public class HttpSolrClientFactory implements SolrClientFactory {
         }
     }
 
-    private static boolean solrCoreExists(SolrClient client, String coreName) {
-        try {
-            CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, client);
-            return response.getCoreStatus(coreName)
-                    .get("instanceDir") != null;
-        } catch (Exception e) {
-            LOGGER.debug("Exception getting {} core status", coreName, e);
-            return false;
-        }
+    private static boolean solrCoreExists(SolrClient client, String coreName)
+            throws IOException, SolrServerException {
+        CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, client);
+        return response.getCoreStatus(coreName)
+                .get("instanceDir") != null;
     }
 
 }

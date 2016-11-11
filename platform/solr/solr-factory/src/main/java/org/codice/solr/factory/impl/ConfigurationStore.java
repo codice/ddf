@@ -108,7 +108,4 @@ public class ConfigurationStore {
         this.forceAutoCommit = forceAutoCommit;
     }
 
-    public Object clone() throws CloneNotSupportedException {
-        throw new CloneNotSupportedException();
-    }
 }

@@ -35,7 +35,7 @@ public class SolrHttpCatalogProvider extends RemoteSolrCatalogProvider {
 
     @Override
     protected Future<SolrClient> createClient() {
-        return HttpSolrClientFactory.getHttpSolrClient(Optional.ofNullable(url)
+        return HttpSolrClientFactory.getHttpSolrClient(Optional.ofNullable(getUrl())
                 .orElse(HttpSolrClientFactory.getDefaultHttpsAddress()), SOLR_CATALOG_CORE_NAME);
     }
 

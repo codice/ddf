@@ -53,7 +53,7 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteSolrCatalogProvider.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(RemoteSolrCatalogProvider.class);
 
     private static Properties describableProperties = new Properties();
 
@@ -68,9 +68,9 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
     protected static final String SOLR_CATALOG_CORE_NAME = "catalog";
 
-    protected String url;
+    private String url;
 
-    private CatalogProvider provider = new UnconfiguredSolrCatalogProvider();
+    private CatalogProvider provider = new UnavailableSolrCatalogProvider();
 
     private SolrClient client;
 
@@ -112,9 +112,7 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
     @Override
     public void maskId(String id) {
         super.maskId(id);
-        if (!(provider instanceof UnconfiguredSolrCatalogProvider)) {
-            provider.maskId(id);
-        }
+        provider.maskId(id);
     }
 
     /**
@@ -145,8 +143,8 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
     }
 
     @Override
-    public boolean isAvailable(SourceMonitor arg0) {
-        return getProvider().isAvailable(arg0);
+    public boolean isAvailable(SourceMonitor callback) {
+        return getProvider().isAvailable(callback);
     }
 
     @Override
@@ -156,26 +154,22 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
     @Override
     public String getDescription() {
-
-        return describableProperties.getProperty("description");
+        return describableProperties.getProperty("description", "");
     }
 
     @Override
     public String getOrganization() {
-
-        return describableProperties.getProperty("organization");
+        return describableProperties.getProperty("organization", "");
     }
 
     @Override
     public String getTitle() {
-
-        return describableProperties.getProperty("name");
+        return describableProperties.getProperty("name", "");
     }
 
     @Override
     public String getVersion() {
-
-        return describableProperties.getProperty("version");
+        return describableProperties.getProperty("version", "");
     }
 
     @Override
@@ -193,33 +187,31 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
         return getProvider().update(updateRequest);
     }
 
+    public void shutdown() {
+        closeSolrClient();
+    }
+
     /**
      * Shutdown the connection to Solr and releases resources.
      */
-    public void shutdown() {
-        LOGGER.debug("Closing connection to solr client.");
+    private void closeSolrClient() {
+        LOGGER.debug("Closing connection to Solr client.");
         if (getClient() != null) {
             try {
                 getClient().close();
             } catch (IOException e) {
                 LOGGER.info("Unable to close Solr client", e);
             }
-        } else if (!clientFuture.isDone() && !clientFuture.isCancelled()) {
+        } else if (clientFuture != null && !clientFuture.isDone() && !clientFuture.isCancelled()) {
             clientFuture.cancel(true);
         }
+        LOGGER.debug("Finished closing connection to Solr client.");
     }
 
     public String getUrl() {
         return url;
     }
 
-    /**
-     * This method exists only as a workaround to a Aries Blueprint bug. If Blueprint is upgraded or
-     * fixed, this method should be removed and a different update(Map properties) method should be
-     * called directly.
-     *
-     * @param url
-     */
     public void setUrl(String url) {
         updateClient(PropertyResolver.resolveProperties(url));
     }
@@ -239,11 +231,7 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
                 if (getClient() != null) {
                     LOGGER.debug(
                             "Shutting down the connection manager to Solr and releasing allocated resources.");
-                    try {
-                        getClient().close();
-                    } catch (IOException e) {
-                        LOGGER.info("Unable to close Solr client", e);
-                    }
+                    closeSolrClient();
                     LOGGER.debug("Shutdown complete.");
                 }
 
@@ -251,7 +239,6 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
             }
 
         } else {
-            // sets to null
             url = null;
         }
     }
@@ -266,10 +253,10 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
     private CatalogProvider getProvider() {
 
         if (!isClientConnected(getClient())) {
-            return new UnconfiguredSolrCatalogProvider();
+            return new UnavailableSolrCatalogProvider();
         }
 
-        if (provider instanceof UnconfiguredSolrCatalogProvider) {
+        if (provider instanceof UnavailableSolrCatalogProvider) {
             provider = new SolrCatalogProvider(getClient(),
                     filterAdapter,
                     solrFilterDelegateFactory,
@@ -296,7 +283,8 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
              * if we get any type of exception, whether declared by Solr or not, we do not want to
              * fail, we just want to return false
              */
-            LOGGER.info(PING_ERROR_MESSAGE, e);
+            LOGGER.info(PING_ERROR_MESSAGE);
+            LOGGER.debug(PING_ERROR_MESSAGE, e);
         }
         return false;
     }

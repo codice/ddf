@@ -13,7 +13,6 @@
  */
 package ddf.catalog.solr.cloud;
 
-import java.util.Optional;
 import java.util.concurrent.Future;
 
 import org.apache.solr.client.solrj.SolrClient;
@@ -35,8 +34,11 @@ public class SolrCloudCatalogProvider extends RemoteSolrCatalogProvider {
 
     @Override
     protected Future<SolrClient> createClient() {
-        return SolrCloudClientFactory.getClient(Optional.ofNullable(url)
-                .orElse(SolrCloudClientFactory.DEFAULT_ZOOKEEPER_HOST), SOLR_CATALOG_CORE_NAME);
+        String zookeeperHosts = getUrl();
+        if (zookeeperHosts == null) {
+            return null;
+        }
+        return SolrCloudClientFactory.getClient(zookeeperHosts, SOLR_CATALOG_CORE_NAME);
     }
 
 }

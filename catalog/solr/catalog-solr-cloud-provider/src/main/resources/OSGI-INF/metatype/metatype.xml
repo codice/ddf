@@ -17,8 +17,9 @@
 
     <OCD name="Solr Cloud Catalog Provider"
          id="ddf.catalog.solr.cloud.SolrCloudCatalogProvider">
-		<AD description="Zookeeper host list for Solr Cloud" name="Zookeeper Hosts" id="url"
-            required="true" type="String" default="localhost:9983"/>
+        <AD description="Zookeeper host list for Solr Cloud (e.g. zookeeperhost1:9983,zookeeperhost2:9983)"
+            name="Zookeeper Hosts" id="url" required="true" type="String"
+            default="${org.codice.ddf.system.hostname}:9983"/>
     </OCD>
 
     <Designate pid="ddf.catalog.solr.cloud.SolrCloudCatalogProvider">
