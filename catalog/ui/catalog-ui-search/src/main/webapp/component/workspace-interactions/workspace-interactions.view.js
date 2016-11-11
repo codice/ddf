@@ -111,6 +111,7 @@ define([
         },
         handleTrash: function() {
             var loadingview = new LoadingView();
+            store.getWorkspaceById(this.model.id).off(null, null, 'handleTrash');
             store.getWorkspaceById(this.model.id).once('sync', function() {
                 wreqr.vent.trigger('router:navigate', {
                     fragment: 'workspaces',
@@ -119,7 +120,10 @@ define([
                     }
                 });
                 loadingview.remove();
-            });
+            }, 'handleTrash');
+            store.getWorkspaceById(this.model.id).once('error', function() {
+                loadingview.remove();
+            }, 'handleTrash');
             store.getWorkspaceById(this.model.id).destroy({
                 wait: true
             });
