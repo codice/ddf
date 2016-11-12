@@ -1,14 +1,24 @@
 @{customElementNamespace}location-old {
   display: block;
 
-  width: 500px;
+  width: 31.25rem;
   
   .btn:hover {
     color: @text-color;
   }
 
   input {
-    width: 200px;
+    width: 12.5rem;
+    font-size: @minimumFontSize !important;
+  }
+
+  div.multiselect span {
+    font-weight: normal;
+    font-size: @minimumFontSize;
+  }
+
+  button.multiselect > span {
+    font-size: @minimumFontSize;
   }
 
   .btn-group {
@@ -66,13 +76,17 @@
   .form-group {
     margin: 0px !important;
 
+    .input-group-addon {
+      font-size: @minimumFontSize;
+    }
+
     .input-group {
       border: 1px solid rgba(255,255,255,.4);
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;
 
       > span {
-        min-width: 150px;
+        min-width: 9.375rem;
         background: inherit;
         font-size: @minimumFontSize;
       }
@@ -96,13 +110,14 @@
     .input-group.for-line {
 
       > input {
-        height: 45px;
+        height: 2.8125rem;
       }
       > span.input-group-btn {
         min-width: 0px;
         button {
           height: @minimumButtonSize;
           text-align: center;
+          width: 8.125rem !important;
         }
       }
     }

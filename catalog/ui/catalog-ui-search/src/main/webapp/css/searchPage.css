@@ -631,6 +631,19 @@ select.add-on {
 
 div.multiselect span {
     font-weight: normal;
+    font-size: 1rem;
+}
+
+.ui-multiselect-menu {
+    width: 8.125rem !important;
+}
+
+.ui-multiselect-menu > ul {
+    height: 11.5625rem !important;
+}
+
+div.ui-multiselect-single .ui-multiselect-checkboxes label >span {
+    padding: 0 0.625rem !important;
 }
 
 div.multiselect label {
