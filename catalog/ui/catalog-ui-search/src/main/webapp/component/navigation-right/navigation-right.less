@@ -24,6 +24,27 @@
         transform: scale(1);
     }
 
+    .user-unique {
+        white-space: nowrap;
+        vertical-align: top;
+    }
+
+    .user-unique span:first-of-type {
+        padding-left: @minimumSpacing;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: ~'calc(11rem - @{minimumButtonSize} - 2*@{mediumSpacing})';
+        vertical-align: top;
+    }
+
+    .user-unique span:nth-of-type(2){
+        display: inline-block;
+        width: @minimumButtonSize;
+        line-height: inherit !important;
+        vertical-align: top;
+    }
+
 }
 
 @{customElementNamespace}navigation-right.is-guest {
