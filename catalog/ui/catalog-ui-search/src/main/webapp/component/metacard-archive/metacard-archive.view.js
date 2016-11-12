@@ -92,6 +92,11 @@ define([
                             data: payload,
                             contentType: 'application/json'
                         }).then(function(response){
+                            //needed for high latency systems where refreshResults might take too long
+                            this.model.forEach(function(result){
+                                result.get('metacard').get('properties').set('metacard-tags', ['deleted']);
+                                result.trigger('refreshdata');
+                            });
                             this.refreshResults();
                         }.bind(this)).always(function(response) {
                             setTimeout(function() { //let solr flush
