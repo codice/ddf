@@ -89,6 +89,12 @@ define([
         },
         removeSelectedResult: function(metacard){
             this.getSelectedResults().remove(metacard);
+        },
+        setCurrentQuery: function(query){
+            this.set('currentQuery', query);
+        },
+        getCurrentQuery: function(){
+            return this.get('currentQuery');
         }
     }))();
 });

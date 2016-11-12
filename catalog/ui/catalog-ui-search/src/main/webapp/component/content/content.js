@@ -23,6 +23,11 @@ define([
         relations: [
             {
                 type: Backbone.One,
+                key: 'currentQuery',
+                relatedModel: Query.Model
+            },
+            {
+                type: Backbone.One,
                 key: 'currentWorkspace',
                 relatedModel: Workspace.Model
             },
@@ -130,6 +135,12 @@ define([
             } else {
                 filteredQueries.add(queryRef);
             }
+        },
+        setCurrentQuery: function(query){
+            this.set('currentQuery', query);
+        },
+        getCurrentQuery: function(){
+            return this.get('currentQuery');
         }
     });
 });

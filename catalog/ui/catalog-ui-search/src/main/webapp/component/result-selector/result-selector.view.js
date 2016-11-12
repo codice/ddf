@@ -87,8 +87,9 @@ define([
             this.selectionInterface = options.selectionInterface || store;
             if (!this.model.get('result')) {
                 this.model.startSearch();
-                this.model.get('result').set('currentlyViewed', true);
             }
+            this.model.get('result').set('currentlyViewed', true);
+            this.selectionInterface.setCurrentQuery(this.model);
             this.startListeningToFilter();
             this.startListeningToSort();
             this.startListeningToResult();

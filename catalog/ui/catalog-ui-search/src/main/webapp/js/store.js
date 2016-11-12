@@ -128,6 +128,12 @@ define([
         },
         saveCurrentWorkspace: function(){
             this.getCurrentWorkspace().save();
+        },
+        setCurrentQuery: function(query){
+            this.get('content').setCurrentQuery(query);
+        },
+        getCurrentQuery: function(){
+            return this.get('content').getCurrentQuery();
         }
     }))();
 });

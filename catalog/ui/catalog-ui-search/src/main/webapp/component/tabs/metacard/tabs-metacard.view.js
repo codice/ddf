@@ -58,7 +58,7 @@ define([
                 this.model.set('activeTab', 'Summary');
             }
             if (result.isRemote() && ['History', 'Associations', 'Quality', 'Archive', 'Overwrite'].indexOf(activeTabName) >=0){
-                this.model.set('activeTabName', 'Summary');
+                this.model.set('activeTab', 'Summary');
             }
             var activeTab = this.model.getActiveView();
             this.tabsContent.show(new activeTab({
