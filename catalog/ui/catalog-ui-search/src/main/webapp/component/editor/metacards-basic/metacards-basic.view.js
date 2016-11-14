@@ -55,9 +55,10 @@ define([
             self.editorProperties.currentView.clearValidation();
             results.forEach(function(result){
                 (function(id) {
-                    $.get( '/search/catalog/internal/metacard/'+
-                    id+
-                    '/attribute/validation').then(function(response){
+                    $.get({
+                        url: '/search/catalog/internal/metacard/'+id+'/attribute/validation',
+                        customErrorHandling: true
+                    }).then(function(response){
                         if (!self.isDestroyed && self.editorProperties.currentView){
                             response.forEach(function(issue){
                                 issue.id = id;

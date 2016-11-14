@@ -49,7 +49,10 @@ define([
         getValidation: function(){
             var self = this;
             self.editorProperties.currentView.clearValidation();
-            $.get('/search/catalog/internal/metacard/'+this.model.first().get('metacard').id+'/attribute/validation').then(function(response){
+            $.get({
+                url: '/search/catalog/internal/metacard/'+this.model.first().get('metacard').id+'/attribute/validation',
+                customErrorHandling: true
+            }).then(function(response){
                 if (!self.isDestroyed && self.editorProperties.currentView){
                     self.editorProperties.currentView.updateValidation(response);
                 }
