@@ -21,7 +21,8 @@
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="uiCamelContext"/>
 
-    <bean id="servlet" class="org.codice.proxy.http.HttpProxyCamelHttpTransportServlet">
+    <bean id="servlet" class="org.codice.proxy.http.HttpProxyCamelHttpTransportServlet"
+          init-method="init" destroy-method="destroy">
         <argument ref="uiCamelContext"/>
     </bean>
 
