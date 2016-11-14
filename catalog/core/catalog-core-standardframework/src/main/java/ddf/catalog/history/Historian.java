@@ -96,7 +96,7 @@ public class Historian {
     private FilterBuilder filterBuilder;
 
     /**
-     * Versions metacards being updated based off of the <code>getOldMetacards</code> method on
+     * Versions metacards being updated based off of the {@link Update#getOldMetacard} method on
      * {@link UpdateResponse}
      *
      * @param updateResponse Versioned metacards created from any old metacards
@@ -195,15 +195,15 @@ public class Historian {
         CreateResponse createResponse =
                 executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(new ArrayList<>(
                         versionedMap.values()))));
-
-        List<Metacard> deletedMetacards = versionedMap.keySet()
+        String emailAddress = SubjectUtils.getEmailAddress((Subject) deleteResponse.getProperties()
+                .get(SecurityConstants.SECURITY_SUBJECT));
+        List<Metacard> deletedMetacards = versionedMap.entrySet()
                 .stream()
-                .map(s -> new DeletedMetacardImpl(s,
-                        SubjectUtils.getEmailAddress((Subject) deleteResponse.getProperties()
-                                .get(SecurityConstants.SECURITY_SUBJECT)),
-                        versionedMap.get(s)
+                .map(s -> new DeletedMetacardImpl(s.getKey(),
+                        emailAddress,
+                        s.getValue()
                                 .getId(),
-                        MetacardVersionImpl.toMetacard(versionedMap.get(s), metacardTypes)))
+                        MetacardVersionImpl.toMetacard(s.getValue(), metacardTypes)))
                 .collect(Collectors.toList());
 
         CreateResponse deleteTrackResponse =
@@ -331,7 +331,7 @@ public class Historian {
             throws SourceUnavailableException, IngestException {
         List<ContentItem> contentItems = items.entrySet()
                 .stream()
-                .map(e -> getVersionedContentItems(e, versionedMetacards))
+                .map(e -> getVersionedContentItems(e.getValue(), versionedMetacards))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
@@ -363,10 +363,9 @@ public class Historian {
         }
     }
 
-    private List<ContentItemImpl> getVersionedContentItems(
-            Map.Entry<String, List<ContentItem>> entry, Map<String, Metacard> versionedMetacards) {
-        return entry.getValue()
-                .stream()
+    private List<ContentItemImpl> getVersionedContentItems(List<ContentItem> entry,
+            Map<String, Metacard> versionedMetacards) {
+        return entry.stream()
                 .map(content -> createContentItem(content, versionedMetacards))
                 .collect(Collectors.toList());
     }
@@ -394,8 +393,7 @@ public class Historian {
 
     /*Map<MetacardVersion.VERSION_OF_ID -> MetacardVersion>*/
     private Map<String, Metacard> getVersionMetacards(Collection<Metacard> metacards,
-            final Action action, Subject subject)
-            throws SourceUnavailableException, IngestException {
+            final Action action, Subject subject) {
         return metacards.stream()
                 .filter(MetacardVersionImpl::isNotVersion)
                 .map(metacard -> new MetacardVersionImpl(metacard, action, subject))
