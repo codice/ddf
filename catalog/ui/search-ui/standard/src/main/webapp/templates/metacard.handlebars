@@ -152,13 +152,25 @@
                                             {{/each}}
                                         </td>
                                     {{else}}
-                                        {{#isUrl this}}
+                                        {{#isMultiValued this}}
                                             <td>
-                                                <a target='_blank' title="{{propertyTitle @key}}" href='{{this}}'>{{this}}</a>
+                                            {{#each this}}
+                                                {{#isUrl this}}
+                                                        <a target='_blank' title="{{propertyTitle @../key}}" href='{{this}}'>{{appendValue ../../this @index}}</a>
+                                                {{else}}
+                                                    {{appendValue ../../this @index}}
+                                                {{/isUrl}}
+                                            {{/each}}
                                             </td>
                                         {{else}}
-                                            <td>{{this}}</td>
-                                        {{/isUrl}}
+                                            {{#isUrl this}}
+                                                <td>
+                                                    <a target='_blank' title="{{propertyTitle @key}}" href='{{this}}'>{{this}}</a>
+                                                </td>
+                                            {{else}}
+                                                <td>{{this}}</td>
+                                            {{/isUrl}}
+                                        {{/isMultiValued}}
                                      {{/is}}
                                 {{/is}}
                             {{/is}}

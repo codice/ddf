@@ -214,6 +214,19 @@ define([
                 }
                 return options.inverse(this);
             },
+            isMultiValued: function(value, options){
+                if (_.isArray(value)) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            },
+            appendValue: function(array, index){
+              if(array.length === (index + 1)){
+                  return array[index];
+              }
+              return array[index]+", ";
+            },
             gt: function (value, test, options) {
                 if (value > test) {
                     return options.fn(this);
