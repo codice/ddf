@@ -14,8 +14,12 @@
 package org.codice.ddf.cxf;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 
@@ -30,6 +34,7 @@ import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.junit.Test;
 
 import ddf.security.Subject;
@@ -179,6 +184,33 @@ public class SecureCxfClientFactoryTest {
                 .getHttpConduit();
         assertThat(httpConduit.getTlsClientParameters()
                 .isDisableCNCheck(), is(true));
+    }
+
+    @Test
+    public void testHttpsClientWithSystemProperty() {
+        PropertyResolver mockPropertyResolver = mock(PropertyResolver.class);
+        when(mockPropertyResolver.getResolvedString()).thenReturn(SECURE_ENDPOINT);
+        // positive case
+        SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
+                SECURE_ENDPOINT,
+                IDummy.class,
+                null,
+                null,
+                false,
+                false,
+                mockPropertyResolver);
+        Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
+        assertThat(unsecuredClient.getBaseURI()
+                .toASCIIString(), is(SECURE_ENDPOINT));
+        verify(mockPropertyResolver).getResolvedString();
+        // negative cases
+        IDummy result;
+        result = secureCxfClientFactory.getClientForSubject(getSubject());
+        assertThat(result, notNullValue());
+        result = secureCxfClientFactory.getClient();
+        assertThat(result, notNullValue());
+        secureCxfClientFactory.getClient();
+        assertThat(result, notNullValue());
     }
 
     private DummySubject getSubject() {
