@@ -12,7 +12,7 @@
  *
  **/
 -->
-<features name="ddf-itest-dependencies">
+<features name="ddf-itest-dependencies-${project.version}">
 
     <feature name="ddf-itest-dependencies">
         <feature>third-party-dependencies</feature>
@@ -26,7 +26,9 @@
         <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
         <bundle>mvn:ddf.test.thirdparty/rest-assured/${project.version}</bundle>
 
-        <bundle>wrap:mvn:ddf.security/ddf-security-common/${project.version}$Bundle-SymbolicName=itest-test-security-common</bundle>
+        <bundle>
+            wrap:mvn:ddf.security/ddf-security-common/${project.version}$Bundle-SymbolicName=itest-test-security-common
+        </bundle>
         <bundle>mvn:ddf.test.itests/test-itests-common/${project.version}</bundle>
 
         <bundle>mvn:ddf.test.thirdparty/restito/${project.version}</bundle>
@@ -34,14 +36,24 @@
 
     <feature name="third-party-dependencies">
         <bundle>mvn:commons-io/commons-io/2.5</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec.servicemix.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec.servicemix.version}
+        </bundle>
         <bundle>wrap:mvn:commons-logging/commons-logging/1.2</bundle>
         <bundle>wrap:mvn:commons-net/commons-net/3.5</bundle>
 
-        <bundle>wrap:mvn:org.cometd.java/cometd-java-client/${cometd.version}$Export-Package=*;version=${cometd.version}</bundle>
-        <bundle>wrap:mvn:org.cometd.java/bayeux-api/${cometd.version}$Export-Package=*;version=${cometd.version}</bundle>
-        <bundle>wrap:mvn:org.cometd.java/cometd-java-common/${cometd.version}$Export-Package=*;version=${cometd.version}</bundle>
+        <bundle>
+            wrap:mvn:org.cometd.java/cometd-java-client/${cometd.version}$Export-Package=*;version=${cometd.version}
+        </bundle>
+        <bundle>
+            wrap:mvn:org.cometd.java/bayeux-api/${cometd.version}$Export-Package=*;version=${cometd.version}
+        </bundle>
+        <bundle>
+            wrap:mvn:org.cometd.java/cometd-java-common/${cometd.version}$Export-Package=*;version=${cometd.version}
+        </bundle>
 
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/${hamcrest-all.servicemix.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hamcrest/${hamcrest-all.servicemix.version}
+        </bundle>
     </feature>
 </features>

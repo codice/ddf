@@ -41,9 +41,9 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationImpl.class);
 
-    private Set<Feature> features;
+    private Set<Feature> features = new HashSet<>();
 
-    private Set<Feature> autoInstallFeatures;
+    private Set<Feature> autoInstallFeatures = new HashSet<>();
 
     private Feature mainFeature;
 
@@ -62,25 +62,15 @@ public class ApplicationImpl implements Application, Comparable<Application> {
      *             object.
      */
     public ApplicationImpl(Repository repo) {
-        location = repo.getURI();
+        String repoName = null;
         try {
-            String[] parts = repo.getName()
-                    .split("-[0-9]");
-            if (parts.length != 0) {
-                name = parts[0];
-                version = repo.getName()
-                        .substring(name.length() + 1);
-            } else {
-                name = repo.getName();
-                version = "0.0.0";
-            }
-            features = new HashSet<>(Arrays.asList(repo.getFeatures()));
+            repoName = repo.getName();
+            features.addAll(Arrays.asList(repo.getFeatures()));
         } catch (Exception e) {
-            LOGGER.warn(
-                    "Error occured while trying to parse information for application. Application created but may have missing information.");
-            features = new HashSet<>();
+            throw new RuntimeException(e.getMessage());
         }
-        autoInstallFeatures = new HashSet<>();
+        setRepoNameAndVersion(repoName);
+        location = repo.getURI();
         if (features.size() == 1) {
             autoInstallFeatures.add(features.iterator()
                     .next());
@@ -114,6 +104,29 @@ public class ApplicationImpl implements Application, Comparable<Application> {
                     + "should have 1 feature with the same name as the repository or 1 auto"
                     + " install feature. This Application will take no action when started"
                     + " or stopped.", name);
+        }
+    }
+
+    private void setRepoNameAndVersion(String repoName) {
+
+        String[] repoNameParts;
+        int numberOfParts;
+
+        // DDF-2596
+        repoNameParts = repoName.split("-(?=[0-9])");
+        numberOfParts = repoNameParts.length;
+        switch (numberOfParts) {
+        case 1:
+            name = repoName;
+            version = "0.0.0";
+            break;
+        case 2:
+            name = repoNameParts[0];
+            version = repoNameParts[1];
+            break;
+        case 3:
+            throw new RuntimeException(String.format("Could not tokenize repository name of '%s'",
+                    repoName));
         }
     }
 
@@ -153,7 +166,7 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
     @Override
     public Set<BundleInfo> getBundles() throws ApplicationServiceException {
-        Set<BundleInfo> bundles = new TreeSet<BundleInfo>(new BundleInfoComparator());
+        Set<BundleInfo> bundles = new TreeSet<>(new BundleInfoComparator());
         for (Feature curFeature : getFeatures()) {
             bundles.addAll(curFeature.getBundles());
         }

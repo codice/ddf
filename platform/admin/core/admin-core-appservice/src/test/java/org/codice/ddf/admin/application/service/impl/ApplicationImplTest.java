@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -21,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Set;
@@ -29,6 +32,7 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.service.RepositoryImpl;
 import org.codice.ddf.admin.application.service.Application;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -77,13 +81,35 @@ public class ApplicationImplTest {
                         .size());
     }
 
+    // There is no known reason for creating an instance of ApplicationImpl if the repository
+    // has no name. Getting a repositories name or its features triggers the repository to be
+    // loaded from storage. If that fails, it throws an exception. An Application without features
+    // or a name is not useful.
+    @Ignore
     @Test
     public void testBadRepoNoName() throws Exception {
         Repository repo = mock(Repository.class);
         when(repo.getURI()).thenReturn(new URI(""));
         when(repo.getFeatures()).thenThrow(new RuntimeException("Testing Exceptions."));
-
         new ApplicationImpl(repo).getFeatures();
+    }
+
+    @Test
+    public void testMissingVersionInName() throws Exception {
+        String expectedName = "test-dependencies";
+        Repository repo = mock(Repository.class);
+        when(repo.getName()).thenReturn(expectedName);
+        when(repo.getFeatures()).thenReturn(new Feature[0]);
+        ApplicationImpl application = new ApplicationImpl(repo);
+        assertThat("Application name is wrong", application.getName(), equalTo(expectedName));
+        assertThat("Version number is wrong", application.getVersion(), equalTo("0.0.0"));
+    }
+
+    @Test(expected = Exception.class)
+    public void testUnparsableApplicationName() throws IOException {
+        Repository repo = mock(Repository.class);
+        when(repo.getName()).thenReturn("MyName-0.0.0-1.1");
+        new ApplicationImpl(repo);
     }
 
     /**
