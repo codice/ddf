@@ -56,7 +56,7 @@ public class CatalogBundle {
 
     public CatalogProvider waitForCatalogProvider() throws InterruptedException {
         LOGGER.info("Waiting for CatalogProvider to become available.");
-        serviceManager.printInactiveBundles();
+        serviceManager.printInactiveBundlesInfo();
 
         CatalogProvider provider = null;
         long timeoutLimit = System.currentTimeMillis() + CATALOG_PROVIDER_TIMEOUT;

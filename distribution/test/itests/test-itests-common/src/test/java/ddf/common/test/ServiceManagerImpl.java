@@ -37,6 +37,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -167,6 +169,7 @@ public class ServiceManagerImpl implements ServiceManager {
             }
 
             if (waitForService >= MANAGED_SERVICE_TIMEOUT) {
+                printInactiveBundles();
                 throw new RuntimeException(String.format(
                         "Service %s not initialized within %d minute timeout",
                         sourceConfig.getPid(),
@@ -313,6 +316,7 @@ public class ServiceManagerImpl implements ServiceManager {
                     appService.startApplication(appName);
                 } catch (ApplicationServiceException e) {
                     LOGGER.error("Failed to start application", e);
+                    printInactiveBundles();
                     fail("Failed to start boot feature: " + e.getMessage());
                 }
                 waitForAllBundles();
@@ -441,6 +445,7 @@ public class ServiceManagerImpl implements ServiceManager {
                     .length() > 0;
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
+                    printInactiveBundles();
                     fail(String.format("%s did not start within %d minutes.",
                             path,
                             TimeUnit.MILLISECONDS.toMinutes(HTTP_ENDPOINT_TIMEOUT)));
@@ -483,6 +488,7 @@ public class ServiceManagerImpl implements ServiceManager {
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     response.prettyPrint();
+                    printInactiveBundles();
                     fail("Sources at " + path + " did not start in time.");
                 }
                 Thread.sleep(1000);
@@ -500,13 +506,18 @@ public class ServiceManagerImpl implements ServiceManager {
             boolean available = false;
             while (!available) {
                 File file = etc.toFile();
-                File[] files = file.listFiles((dir, name) -> {
-                    return name.endsWith(".config");
-                });
+                File[] files = file.listFiles((dir, name) -> name.endsWith(".config"));
                 if (files.length == 0) {
                     available = true;
                 } else {
                     if (System.currentTimeMillis() > timeoutLimit) {
+                        String remainingFiles = Arrays.stream(files)
+                                .map(File::getName)
+                                .collect(Collectors.joining("\n\t"));
+                        LOGGER.error(
+                                "Failed waiting for configurations. The following files remain:\n\t{}",
+                                remainingFiles);
+                        printInactiveBundles();
                         fail("Configurations were not read in time.");
                     }
                     Thread.sleep(2000);
@@ -594,11 +605,20 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     public void printInactiveBundles() {
-        LOGGER.info("Listing inactive bundles");
+        printInactiveBundles(LOGGER::error, LOGGER::error);
+    }
+
+    public void printInactiveBundlesInfo() {
+        printInactiveBundles(LOGGER::info, LOGGER::info);
+    }
+
+    private void printInactiveBundles(Consumer<String> headerConsumer,
+            BiConsumer<String, Object[]> logConsumer) {
+        headerConsumer.accept("Listing inactive bundles");
 
         for (Bundle bundle : getBundleContext().getBundles()) {
             if (bundle.getState() != Bundle.ACTIVE) {
-                StringBuffer headerString = new StringBuffer("[ ");
+                StringBuilder headerString = new StringBuilder("[ ");
                 Dictionary<String, String> headers = bundle.getHeaders();
                 Enumeration<String> keys = headers.keys();
 
@@ -611,14 +631,13 @@ public class ServiceManagerImpl implements ServiceManager {
                 }
 
                 headerString.append(" ]");
-                LOGGER.info("{} | {} | {} | {}",
-                        bundle.getSymbolicName(),
-                        bundle.getVersion()
-                                .toString(),
-                        OsgiStringUtils.bundleStateAsString(bundle),
-                        headerString.toString());
+                logConsumer.accept("\n\tBundle: {}_v{} | {}\n\tHeaders: {}",
+                        new Object[] {bundle.getSymbolicName(), bundle.getVersion().toString(),
+                                OsgiStringUtils.bundleStateAsString(bundle),
+                                headerString.toString()});
             }
         }
+
     }
 
     public <S> ServiceReference<S> getServiceReference(Class<S> aClass) {

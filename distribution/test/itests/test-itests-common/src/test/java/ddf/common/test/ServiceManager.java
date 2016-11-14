@@ -123,6 +123,8 @@ public interface ServiceManager {
 
     void printInactiveBundles();
 
+    void printInactiveBundlesInfo();
+
     <S> ServiceReference<S> getServiceReference(Class<S> aClass);
 
     <S> Collection<ServiceReference<S>> getServiceReferences(Class<S> aClass, String s)
