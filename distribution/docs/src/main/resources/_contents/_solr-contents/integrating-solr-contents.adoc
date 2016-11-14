@@ -11,6 +11,7 @@ Some notable features of the Solr Catalog Provider include:
 ** No configuration necessary on a single-node distribution
 ** Data directory of Solr indexes are configurable
 * Works with a standalone Solr Server
+* Works with Solr Cloud
 
 === Embedded Solr Catalog Provider Pros and Cons
 

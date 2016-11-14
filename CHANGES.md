@@ -42,6 +42,7 @@ replace with next unreleased version
 
 ### NEW FEATURES
 
+- [DDF-2467](https://codice.atlassian.net/browse/DDF-2467) Initial support for Solr Cloud
 - [DDF-2413](https://codice.atlassian.net/browse/DDF-2413), [DDF-2388](https://codice.atlassian.net/browse/DDF-2388) Improved support for Expanded metadata taxonomy 
 - [DDF-2196](https://codice.atlassian.net/browse/DDF-2196) Separate admin duties via Admin Console
 - [DDF-2162](https://codice.atlassian.net/browse/DDF-2162) Add the ability to inject attributes into Metacard Types
