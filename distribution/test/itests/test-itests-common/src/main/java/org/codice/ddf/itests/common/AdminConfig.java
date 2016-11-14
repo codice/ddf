@@ -15,16 +15,13 @@ package org.codice.ddf.itests.common;
 
 import java.io.IOException;
 import java.util.Dictionary;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.itests.common.config.ConfigurationPredicate;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class AdminConfig {
     public static final String LOG_CONFIG_PID = "org.ops4j.pax.logging";
@@ -72,51 +69,6 @@ public class AdminConfig {
 
     public Configuration[] listConfigurations(String s) throws IOException, InvalidSyntaxException {
         return configAdmin.listConfigurations(s);
-    }
-
-    /**
-     * Waits until a {@link ConfigurationPredicate} returns {@code true}.
-     *
-     * @param pid       ID of the {@link Configuration} object that the {@link ConfigurationPredicate}
-     *                  will use to validate the condition
-     * @param predicate predicate to wait on
-     * @param timeoutMs wait timeout
-     * @return {@link Configuration} object
-     * @throws IOException          thrown if the {@link Configuration} object cannot be accessed
-     * @throws InterruptedException thrown if the wait times out
-     * @deprecated Use {@link WaitCondition} instead.
-     */
-    public Configuration waitForConfiguration(String pid, ConfigurationPredicate predicate,
-            long timeoutMs) throws IOException, InterruptedException {
-        LOGGER.debug("Waiting for condition {} in Configuration object [{}] to be true",
-                predicate.toString(),
-                pid);
-
-        Configuration configuration = configAdmin.getConfiguration(pid, null);
-
-        int waitPeriod = 0;
-
-        while ((waitPeriod < timeoutMs) && !predicate.test(configuration)) {
-            TimeUnit.MILLISECONDS.sleep(CONFIG_WAIT_POLLING_INTERVAL);
-            waitPeriod += CONFIG_WAIT_POLLING_INTERVAL;
-            configuration = configAdmin.getConfiguration(pid, null);
-        }
-
-        LOGGER.debug("Waited for {}ms", waitPeriod);
-
-        if (waitPeriod >= timeoutMs) {
-            LOGGER.error(
-                    "Timed out after waiting {}ms for condition {} to be true on configuration object {}",
-                    waitPeriod,
-                    predicate.toString(),
-                    pid);
-            throw new InterruptedException(String.format(
-                    "Timed out waiting for condition [%s] to be true in configuration object [%s]",
-                    predicate.toString(),
-                    pid));
-        }
-
-        return configuration;
     }
 
     public void setLogLevels() throws IOException {

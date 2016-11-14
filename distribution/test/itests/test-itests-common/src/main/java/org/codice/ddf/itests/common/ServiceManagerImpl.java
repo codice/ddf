@@ -36,6 +36,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -66,10 +68,20 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.jayway.restassured.response.Response;
 
 public class ServiceManagerImpl implements ServiceManager {
+    private static final Map<Integer, String> BUNDLE_STATES =
+            new ImmutableMap.Builder<Integer, String>().put(Bundle.UNINSTALLED, "UNINSTALLED")
+                    .put(Bundle.INSTALLED, "INSTALLED")
+                    .put(Bundle.RESOLVED, "RESOLVED")
+                    .put(Bundle.STARTING, "STARTING")
+                    .put(Bundle.STOPPING, "STOPPING")
+                    .put(Bundle.ACTIVE, "ACTIVE")
+                    .build();
+
     public static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
     public static final long FEATURES_AND_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
@@ -169,6 +181,7 @@ public class ServiceManagerImpl implements ServiceManager {
             }
 
             if (waitForService >= MANAGED_SERVICE_TIMEOUT) {
+                printInactiveBundles();
                 throw new RuntimeException(String.format(
                         "Service %s not initialized within %d minute timeout",
                         sourceConfig.getPid(),
@@ -321,6 +334,7 @@ public class ServiceManagerImpl implements ServiceManager {
                     appService.startApplication(appName);
                 } catch (ApplicationServiceException e) {
                     LOGGER.error("Failed to start application", e);
+                    printInactiveBundles();
                     fail("Failed to start boot feature: " + e.getMessage());
                 }
                 waitForAllBundles();
@@ -454,6 +468,7 @@ public class ServiceManagerImpl implements ServiceManager {
                     .length() > 0;
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
+                    printInactiveBundles();
                     fail(String.format("%s did not start within %d minutes.",
                             path,
                             TimeUnit.MILLISECONDS.toMinutes(HTTP_ENDPOINT_TIMEOUT)));
@@ -497,6 +512,7 @@ public class ServiceManagerImpl implements ServiceManager {
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     response.prettyPrint();
+                    printInactiveBundles();
                     fail("Sources at " + path + " did not start in time.");
                 }
                 Thread.sleep(1000);
@@ -515,13 +531,18 @@ public class ServiceManagerImpl implements ServiceManager {
             boolean available = false;
             while (!available) {
                 File file = etc.toFile();
-                File[] files = file.listFiles((dir, name) -> {
-                    return name.endsWith(".config");
-                });
+                File[] files = file.listFiles((dir, name) -> name.endsWith(".config"));
                 if (files.length == 0) {
                     available = true;
                 } else {
                     if (System.currentTimeMillis() > timeoutLimit) {
+                        String remainingFiles = Arrays.stream(files)
+                                .map(File::getName)
+                                .collect(Collectors.joining("\n\t"));
+                        LOGGER.error(
+                                "Failed waiting for configurations. The following files remain:\n\t{}",
+                                remainingFiles);
+                        printInactiveBundles();
                         fail("Configurations were not read in time.");
                     }
                     Thread.sleep(2000);
@@ -611,11 +632,21 @@ public class ServiceManagerImpl implements ServiceManager {
 
     @Override
     public void printInactiveBundles() {
-        LOGGER.info("Listing inactive bundles");
+        printInactiveBundles(LOGGER::error, LOGGER::error);
+    }
+
+    @Override
+    public void printInactiveBundlesInfo() {
+        printInactiveBundles(LOGGER::info, LOGGER::info);
+    }
+
+    private void printInactiveBundles(Consumer<String> headerConsumer,
+            BiConsumer<String, Object[]> logConsumer) {
+        headerConsumer.accept("Listing inactive bundles");
 
         for (Bundle bundle : getBundleContext().getBundles()) {
             if (bundle.getState() != Bundle.ACTIVE) {
-                StringBuffer headerString = new StringBuffer("[ ");
+                StringBuilder headerString = new StringBuilder("[ ");
                 Dictionary<String, String> headers = bundle.getHeaders();
                 Enumeration<String> keys = headers.keys();
 
@@ -628,11 +659,10 @@ public class ServiceManagerImpl implements ServiceManager {
                 }
 
                 headerString.append(" ]");
-                LOGGER.info("{} | {} | {} | {}",
-                        bundle.getSymbolicName(),
-                        bundle.getVersion(),
-                        bundle.getState(),
-                        headerString);
+                logConsumer.accept("\n\tBundle: {}_v{} | {}\n\tHeaders: {}",
+                        new Object[] {bundle.getSymbolicName(), bundle.getVersion(),
+                                BUNDLE_STATES.getOrDefault(bundle.getState(), "UNKNOWN"),
+                                headerString});
             }
         }
     }
@@ -651,8 +681,7 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     public <S> S getService(ServiceReference<S> serviceReference) {
         WaitCondition.expect("Service to be available: " + serviceReference)
-                .within(2,
-                TimeUnit.MINUTES)
+                .within(2, TimeUnit.MINUTES)
                 .until(() -> getBundleContext().getService(serviceReference), notNullValue());
         return getBundleContext().getService(serviceReference);
     }
