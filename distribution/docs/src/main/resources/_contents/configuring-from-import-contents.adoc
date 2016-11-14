@@ -7,12 +7,12 @@ The Configuration Export/Import capability allows administrators to export the c
 * Importing configuration files is only guaranteed to work when importing files from the same ${branding} version.
   Importing from a different version is not recommended as it may cause the new ${branding} instance to be incorrectly configured and become unusable.
 * All configurations editable in the Admin Console will be exported to `<${branding}_HOME>/etc/exported/etc`.
-* All other configuration files (system configurations) will be put under `etc/exported/<ID>` followed by their relative path from `${branding}_HOME`. 
+* All other configuration files (system configurations) will be put under `etc/exported/<ID>` followed by their relative path from `${branding}_HOME`.
   For instance, if a key store file was located under `<${branding}_HOME>/keystores/keystore.jks`, it will be exported to `<${branding}_HOME>/etc/exported/<ID>/keystore/keystore.jks`.
 * To keep the export/import process simple and consistent, all system configuration files are required to be under the `${branding}_HOME` directory.
 ====
 
-==== Exporting Configurations from ${admin-console}
+===== Exporting Configurations from ${admin-console}
 
 You can export the current system configurations using the ${admin-console}.
 This is useful for migrating from one running instance to another.
@@ -59,7 +59,7 @@ Using absolute paths and/or symbolic links in those cases will cause the `migrat
 The export process itself will not be aborted.
 ====
 
-==== Import Configuration Settings
+===== Import Configuration Settings
 
 To import a previously exported configuration:
 

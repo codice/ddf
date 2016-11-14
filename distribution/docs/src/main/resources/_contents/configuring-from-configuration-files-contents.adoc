@@ -1,4 +1,5 @@
-==== Configuring ${branding} Global Settings
+
+===== Configuring ${branding} Global Settings
 
 Global configuration settings are configured via the properties file `system.properties`.
 These properties can be manually set by editing this file or set via the initial configuration from the ${admin-console}.
@@ -401,7 +402,7 @@ Edit the port numbers in the files in the ${branding} install folder.
 
 |===
 
-==== Editing ${branding} Web Service Providers Configuration Files
+===== Editing ${branding} Web Service Providers Configuration Files
 
 [IMPORTANT]
 ====
@@ -454,7 +455,7 @@ https.cipherSuites=TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC
 https.protocols=TLSv1.1,TLSv1.2
 ----
 
-==== Configuring Notifications
+===== Configuring Notifications
 
 Notifications are messages that are sent to clients to inform them of some significant event happening in ${branding}.
 Clients must subscribe to a ${branding} notification channel to receive these messages.
@@ -552,7 +553,8 @@ Event event = new Event("${ddf-branding-lowercase}/notification/catalog/download
 
 eventAdmin.postEvent(event);
 ----
-==== Configuring Solr Catalog Provider Data Directory
+
+===== Configuring Solr Catalog Provider Data Directory
 
 The Solr Catalog Provider writes index files to the file system.
 By default, these files are stored under `${branding}_HOME/data/solr/catalog/data`.
