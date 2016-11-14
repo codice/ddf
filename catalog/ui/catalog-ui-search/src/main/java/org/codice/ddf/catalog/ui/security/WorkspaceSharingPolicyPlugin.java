@@ -130,7 +130,7 @@ public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreDelete(List<Metacard> metacards,
             Map<String, Serializable> properties) throws StopProcessingException {
-        return new PolicyResponseImpl(Collections.emptyMap(), getPolicy(metacards));
+        return new PolicyResponseImpl(getPolicy(metacards), getPolicy(metacards));
     }
 
     @Override

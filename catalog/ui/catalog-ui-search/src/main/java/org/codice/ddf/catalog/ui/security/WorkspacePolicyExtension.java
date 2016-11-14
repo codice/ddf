@@ -17,6 +17,7 @@ import static java.util.stream.Stream.concat;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -88,10 +89,31 @@ public class WorkspacePolicyExtension implements PolicyExtension {
             return match;
         }
 
+        if (isOwnerPermission(getPermissions(match), subject)) {
+            return new KeyValueCollectionPermission();
+        }
+
         return new KeyValueCollectionPermission(match.getAction(),
                 permissions.stream()
                         .filter(byKeys(keyMapping.keySet()).negate())
                         .collect(Collectors.toList()));
+    }
+
+    private boolean isOwnerPermission(List<KeyValuePermission> permissions,
+            CollectionPermission subject) {
+        Optional<KeyValuePermission> ownerPerm = permissions.stream()
+                .filter(keyValuePermission -> keyValuePermission.getKey()
+                        .equals(Core.METACARD_OWNER))
+                .findAny();
+
+        if (ownerPerm.isPresent()) {
+            KeyValuePermission ownerEmailPermission =
+                    new KeyValuePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
+                            ownerPerm.get()
+                                    .getValues());
+            return subject.implies(ownerEmailPermission);
+        }
+        return false;
     }
 
     @Override
