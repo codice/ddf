@@ -232,7 +232,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
         LOGGER.debug("uri = {}", uri);
 
-        String expectedUri = "file:" + monitoredDirectory + "?moveFailed=.errors";
+        String expectedUri = "file:" + monitoredDirectory + "?moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval=5000";
         if (copyIngestedFiles) {
             expectedUri += "&move=.ingested";
         } else {
