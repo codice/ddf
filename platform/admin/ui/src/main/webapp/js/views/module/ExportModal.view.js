@@ -29,14 +29,6 @@ define([
     ],
     function (ich, _, Marionette, Backbone, $, Modal, exportModal, Spinner, spinnerConfig, AlertsModel, AlertsView, Export) {
 
-        function generateAlertModel(alertType, alerts){
-            return {
-                banner: generateAlertBanner(alertType),
-                items: generateAlertItems(alerts),
-                type: generateAlertType(alertType)
-            };
-        }
-
         function generateAlertBanner(alertType){
             switch(alertType){
                 case 'warnings':
@@ -59,6 +51,13 @@ define([
                 default:
                     return 'danger';
             }
+        }
+        function generateAlertModel(alertType, alerts){
+            return {
+                banner: generateAlertBanner(alertType),
+                items: generateAlertItems(alerts),
+                type: generateAlertType(alertType)
+            };
         }
 
         ich.addTemplate('exportModal', exportModal);

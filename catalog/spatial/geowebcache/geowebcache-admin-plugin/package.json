@@ -26,7 +26,7 @@
     "grunt-cli": "0.1.13",
     "grunt-contrib-clean": "0.4.0",
     "grunt-contrib-cssmin": "0.5.0",
-    "grunt-contrib-jshint": "0.10.0",
+    "grunt-contrib-jshint": "1.0.0",
     "grunt-contrib-watch": "0.6.0",
     "grunt-mocha-test": "0.12.7",
     "grunt-newer": "0.8.0",
@@ -34,6 +34,7 @@
     "jquery": "2.1.4",
     "jshint-stylish": "1.0.2",
     "load-grunt-tasks": "1.0.0",
+    "mocha": "1.20.0",
     "requirejs": "2.1.22",
     "underscore": "1.7.0"
   },

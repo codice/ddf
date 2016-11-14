@@ -34,6 +34,31 @@ define([
         ServiceBinding: 1
     };
 
+    function getSlotValue(slot, type, multiValued) {
+        if (_.isArray(slot.value)) { //ebrim value list
+            if (multiValued) {
+                return slot.value.slice(0);
+            }
+            if (type === 'boolean') {
+                return slot.value[0] === 'true' ? true : false;
+            }
+            return slot.value[0];
+        } else {
+            if (type === 'boolean') {
+                return slot.value === 'true' ? true : false;
+            } else if (type === 'point') {
+                return {coords: slot.value.Point.pos.split(/[ ]+/)};
+            }
+            else if (type === 'bounds') {
+                var lowerCorner = slot.value.Envelope.lowerCorner.split(/[ ]+/);
+                var upperCorner = slot.value.Envelope.upperCorner.split(/[ ]+/);
+                return {coords: upperCorner.concat(lowerCorner)};
+            } else {
+                return slot.value;
+            }
+        }
+    }
+
     function addValueFields(field, values) {
         var properties = {};
         properties.value = values;
@@ -140,31 +165,6 @@ define([
                 array.push(field);
             }
         });
-    }
-
-    function getSlotValue(slot, type, multiValued) {
-        if (_.isArray(slot.value)) { //ebrim value list
-            if (multiValued) {
-                return slot.value.slice(0);
-            }
-            if (type === 'boolean') {
-                return slot.value[0] === 'true' ? true : false;
-            }
-            return slot.value[0];
-        } else {
-            if (type === 'boolean') {
-                return slot.value === 'true' ? true : false;
-            } else if (type === 'point') {
-                return {coords: slot.value.Point.pos.split(/[ ]+/)};
-            }
-            else if (type === 'bounds') {
-                var lowerCorner = slot.value.Envelope.lowerCorner.split(/[ ]+/);
-                var upperCorner = slot.value.Envelope.upperCorner.split(/[ ]+/);
-                return {coords: upperCorner.concat(lowerCorner)};
-            } else {
-                return slot.value;
-            }
-        }
     }
 
     function generateId() {
