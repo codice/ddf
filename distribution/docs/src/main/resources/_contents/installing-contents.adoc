@@ -31,9 +31,7 @@ which java
 ----
 +
 .Find Java Path in Windows
-----
-for %i in (java.exe) do @echo. %~$PATH:i
-----
+The path to the JDK can vary between versions of Windows, so manually verify the path under `C:\Program Files\Java\jdk<M.m.p_build>\bin\java.exe`
 +
 . Copy path to Java installation. (example: `/usr/java/<JAVA_VERSION`)
 . Set `JAVA_HOME` by replacing <PATH_TO_JAVA> with the copied path in this command:
@@ -46,7 +44,7 @@ export JAVA_HOME
 
 .Setting `JAVA_HOME` on Windows
 ----
-set JAVA_HOME=<PATH_TO_JAVA><JAVA_VERSION> /m
+set JAVA_HOME=<PATH_TO_JAVA><JAVA_VERSION>
 ----
 
 .Adding `JAVA_HOME` to `PATH` Environment Variable on Windows

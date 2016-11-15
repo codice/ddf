@@ -1,7 +1,7 @@
 
-=== Configuring (Quick Install)
+=== Configuring (Quick Start)
 
-Set the configurations needed to run ${branding}
+Set the configurations needed to run ${branding}.
 
 . In a browser, navigate to the ${admin-console} at ${secure_url}/admin.
 .. The ${admin-console} may take a few minutes to start up.
