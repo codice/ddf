@@ -54,9 +54,6 @@ define([
                 case '3dmap':
                     this.showCesium();
                     break;
-                case 'map':
-                    this.showMap();
-                    break;
                 case 'histogram':
                     this.showHistogram();
                     break;
@@ -74,13 +71,6 @@ define([
             this.activeVisualization.show(new CesiumView({
                 selectionInterface: this.options.selectionInterface
             }));
-        },
-        showMap: function(){
-            if (maptype.is3d()) {
-                this.showCesium();
-            } else if (maptype.is2d()) {
-                this.showOpenlayers();
-            }
         },
         showHistogram: function(){
             this.activeVisualization.show(new HistogramView({

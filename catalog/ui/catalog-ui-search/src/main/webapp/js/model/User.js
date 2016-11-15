@@ -138,7 +138,7 @@ define([
                 alertPersistance: false, // don't persist across sessions by default
                 alertExpiration: 86400000, // 1 day
                 resultBlacklist: [],
-                visualization: 'map',
+                visualization: '3dmap',
                 columnHide: [],
                 columnOrder: ['title', 'created', 'modified', 'thumbnail'],
                 uploads: [],
