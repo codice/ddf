@@ -29,6 +29,8 @@ include::./_contents/securing-contents.adoc[]
 
 include::./_contents/running-contents.adoc[]
 
+include::{adoc-include}/_formats/supported-file-formats-contents.adoc[]
+
 include::./_contents/troubleshooting-contents.adoc[]
 
 <<<
@@ -242,3 +244,8 @@ include::${project.build.directory}/doc-contents/_contents/_spatial-contents/ext
 [small]#Version: ${project.version}#
 
 include::${project.build.directory}/doc-contents/_contents/_ui-contents/extending-ui-contents.adoc[]
+
+[appendix]
+== All File Formats Supported
+
+include::{adoc-include}/_formats/complete-list-file-types-contents.adoc[]
