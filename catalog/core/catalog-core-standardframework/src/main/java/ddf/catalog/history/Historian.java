@@ -146,6 +146,11 @@ public class Historian {
         setSkipFlag(updateStorageResponse);
 
         Collection<ReadStorageRequest> ids = getReadStorageRequests(updateStorageResponse);
+        if (ids.isEmpty()) {
+            LOGGER.debug("No root content items to version");
+            return updateStorageResponse;
+        }
+
         Map<String, Metacard> metacards = query(forIds(fromStorageRequests(ids)));
         Map<String, List<ContentItem>> oldContent = getOldContent(ids);
 
@@ -298,6 +303,7 @@ public class Historian {
             UpdateStorageResponse updateStorageResponse) {
         return getReadStorageRequests(updateStorageResponse.getUpdatedContentItems()
                 .stream()
+                .filter(ci -> ci .getQualifier() == null || ci.getQualifier().equals(""))
                 .map(ContentItem::getMetacard)
                 .collect(Collectors.toList()));
     }
