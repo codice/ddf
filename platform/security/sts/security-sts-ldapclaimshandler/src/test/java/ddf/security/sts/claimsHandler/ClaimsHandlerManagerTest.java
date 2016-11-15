@@ -87,6 +87,7 @@ public class ClaimsHandlerManagerTest {
         manager.setMemberNameAttribute("member");
         manager.setPassword("secret");
         manager.setPropertyFileLocation("etc/ws-security/attributeMap.properties");
+        manager.setOverrideCertDn(false);
         manager.configure();
 
         // verify initial registration

@@ -51,6 +51,8 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
     private String bindUserDN;
 
+    private boolean overrideCertDn = false;
+
     public LdapClaimsHandler() {
         super();
     }
@@ -115,7 +117,8 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                 BindResult bindResult = connection.bind(bindUserDN,
                         bindUserCredentials.toCharArray());
                 if (bindResult.isSuccess()) {
-                    String baseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDN());
+                    String baseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDN(),
+                            overrideCertDn);
                     LOGGER.trace("Executing ldap search with base dn of {} and filter of {}",
                             baseDN,
                             filter.toString());
@@ -193,5 +196,9 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
     public void setBindUserCredentials(String bindUserCredentials) {
         this.bindUserCredentials = bindUserCredentials;
+    }
+
+    public void setOverrideCertDn(boolean overrideCertDn) {
+        this.overrideCertDn = overrideCertDn;
     }
 }
