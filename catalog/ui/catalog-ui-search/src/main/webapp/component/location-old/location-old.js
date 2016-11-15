@@ -53,10 +53,10 @@ define([
             this.listenTo(this, 'change:usng', this.setRadiusUsng);
             this.listenTo(this, 'EndExtent', this.notDrawing);
             this.listenTo(this, 'BeginExtent', this.drawingOn);
-            if (store.get('content').get('query')){
+            if (this.get('color') === undefined && store.get('content').get('query')){
                 this.set('color', store.get('content').get('query').get('color'));
-            } else {
-                this.set('color', '#cab2d6');
+            } else if (this.get('color') === undefined) {
+                this.set('color', '#c89600');
             }
         },
         notDrawing: function () {

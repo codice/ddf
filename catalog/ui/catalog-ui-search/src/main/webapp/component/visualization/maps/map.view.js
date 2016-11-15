@@ -22,6 +22,9 @@ var store = require('js/store');
 var GeometryCollectionView = require('./geometry.collection.view');
 var ClusterCollectionView = require('./cluster.collection.view');
 var ClusterCollection = require('./cluster.collection');
+var CQLUtils = require('js/CQLUtils');
+var LocationModel = require('component/location-old/location-old');
+var user = require('component/singletons/user-instance');
 
 module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('map'),
@@ -70,6 +73,10 @@ module.exports = Marionette.LayoutView.extend({
         this.listenTo(this.options.selectionInterface.getSelectedResults(), 'add', this.map.zoomToSelected.bind(this.map));
         this.listenTo(this.options.selectionInterface.getSelectedResults(), 'remove', this.map.zoomToSelected.bind(this.map));
 
+        this.listenTo(user.get('user').get('preferences'), 'change:resultFilter', this.handleCurrentQuery);
+        this.listenTo(this.options.selectionInterface, 'change:currentQuery', this.handleCurrentQuery);
+        this.handleCurrentQuery();
+
         if (this.options.selectionInterface.getSelectedResults()) {
             this.map.zoomToSelected(this.options.selectionInterface.getSelectedResults());
         }
@@ -112,6 +119,74 @@ module.exports = Marionette.LayoutView.extend({
     },
     handleDrawing: function() {
         this.$el.toggleClass('is-drawing', store.get('content').get('drawing'));
+    },
+    handleCurrentQuery: function() {
+        this.removePreviousLocations();
+        var currentQuery = this.options.selectionInterface.get('currentQuery');
+        if (currentQuery) {
+            this.handleFilter(CQLUtils.transformCQLToFilter(currentQuery.get('cql')), currentQuery.get('color'));
+        }
+        var resultFilter = user.get('user').get('preferences').get('resultFilter');
+        if (resultFilter){
+            this.handleFilter(CQLUtils.transformCQLToFilter(resultFilter), '#c89600');
+        }
+    },
+    handleFilter: function(filter, color){
+        if (filter.filters) {
+            filter.filters.forEach(function(subfilter){
+                this.handleFilter(subfilter, color);
+            }.bind(this));
+        } else {
+            var pointText;
+            var locationModel;
+            switch (filter.type) {
+                case 'DWITHIN':
+                    if (CQLUtils.isPointRadiusFilter(filter)) {
+                        pointText = filter.value.value.substring(6);
+                        pointText = pointText.substring(0, pointText.length - 1);
+                        latLon = pointText.split(' ');
+                        locationModel = new LocationModel({
+                            lat: latLon[1],
+                            lon: latLon[0],
+                            radius: filter.distance,
+                            color: color
+                        });
+                        this.map.showCircleShape(locationModel);
+                    } else {
+                        pointText = filter.value.value.substring(11);
+                        pointText = pointText.substring(0, pointText.length - 1);
+                        locationModel = new LocationModel({
+                            lineWidth: filter.distance,
+                            line: pointText.split(',').map(function(coordinate) {
+                                return coordinate.split(' ').map(function(value) {
+                                    return Number(value)
+                                });
+                            }),
+                            color: color
+                        });
+                        this.map.showLineShape(locationModel);
+                    }
+                    break;
+                case 'INTERSECTS':
+                    pointText = filter.value.value.substring(9);
+                    pointText = pointText.substring(0, pointText.length - 2);
+                    pointText = pointText.split(',');
+                    var points = pointText.map(function(pairText) {
+                        return pairText.trim().split(' ').map(function(point) {
+                            return Number(point);
+                        });
+                    });
+                    locationModel = new LocationModel({
+                        polygon: points,
+                        color: color
+                    });
+                    this.map.showPolygonShape(locationModel);
+                    break;
+            }
+        }
+    },
+    removePreviousLocations: function(){
+        this.map.destroyShapes();
     },
     onDestroy: function() {
         if (this.map) {

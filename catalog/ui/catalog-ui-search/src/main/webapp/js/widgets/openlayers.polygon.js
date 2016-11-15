@@ -19,10 +19,9 @@ define([
         'properties',
         'wreqr',
         'maptype',
-        './notification.view',
-        'js/store'
+        './notification.view'
     ],
-    function(Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, store) {
+    function(Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView) {
         "use strict";
 
         var Draw = {};
@@ -38,6 +37,7 @@ define([
         Draw.PolygonView = Marionette.View.extend({
             initialize: function(options) {
                 this.map = options.map;
+                this.updatePrimitive(this.model);
             },
             setModelFromGeometry: function(geometry) {
 
@@ -170,8 +170,11 @@ define([
                 if (this.vectorLayer) {
                     this.map.removeLayer(this.vectorLayer);
                 }
+            },
+            destroy: function(){
+                this.destroyPrimitive();
+                this.remove();
             }
-
         });
 
         Draw.Controller = Marionette.Controller.extend({
@@ -191,24 +194,13 @@ define([
                     }
                 });
                 this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
-                    if (this.isVisible()) {
-                        this.stop(model);
-                    }
+                    this.stop(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawend', function(model) {
-                    if (this.isVisible()) {
-                        this.destroy(model);
-                    }
+                    this.destroy(model);
                 });
                 this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
-                    if (this.isVisible()) {
-                        this.destroyAll(model);
-                    }
-                });
-                this.listenTo(store.get('content'), 'change:query', function(model) {
-                    if (this.isVisible()) {
-                        this.destroyAll(model);
-                    }
+                    this.destroyAll(model);
                 });
             },
             views: [],

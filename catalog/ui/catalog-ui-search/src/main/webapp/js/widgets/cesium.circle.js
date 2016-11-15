@@ -19,10 +19,9 @@ define([
         'wreqr',
         'js/widgets/cesium.bbox',
         'maptype',
-        './notification.view',
-        'js/store'
+        './notification.view'
     ],
-    function(Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView, store) {
+    function(Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView) {
         "use strict";
         var DrawCircle = {};
 
@@ -39,6 +38,7 @@ define([
                 this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.options.map.scene.canvas);
 
                 this.listenTo(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
+                this.updatePrimitive(this.model);
             },
             enableInput: function() {
                 var controller = this.options.map.scene.screenSpaceCameraController;
@@ -188,6 +188,10 @@ define([
                 if (this.primitive && !this.primitive.isDestroyed()) {
                     this.options.map.scene.primitives.remove(this.primitive);
                 }
+            },
+            destroy: function(){
+                this.destroyPrimitive();
+                this.remove(); // backbone cleanup.
             }
 
 
@@ -207,24 +211,13 @@ define([
                     }
                 });
                 this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
-                    if (this.isVisible()) {
-                        this.stop(model);
-                    }
+                    this.stop(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawend', function(model) {
-                    if (this.isVisible()) {
-                        this.destroy(model);
-                    }
+                    this.destroy(model);
                 });
                 this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
-                    if (this.isVisible()) {
-                        this.destroyAll(model);
-                    }
-                });
-                this.listenTo(store.get('content'), 'change:query', function(model) {
-                    if (this.isVisible()) {
-                        this.destroyAll(model);
-                    }
+                    this.destroyAll(model);
                 });
             },
             views: [],

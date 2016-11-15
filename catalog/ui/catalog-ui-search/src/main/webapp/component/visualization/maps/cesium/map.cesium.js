@@ -244,6 +244,7 @@ function isNotVisible(cartesian3CenterOfGeometry, occluder) {
 
 module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl) {
     var overlays = {};
+    var shapes = [];
     var map = createMap(insertionElement);
     var drawHelper = new DrawHelper(map);
     var billboardCollection = setupBillboard();
@@ -644,6 +645,33 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             billboardCollection.remove(geometry);
             map.scene.primitives.remove(geometry);
             map.entities.remove(geometry);
+        },
+        showPolygonShape: function(locationModel){
+            var polygon = new DrawPolygon.PolygonRenderView({
+                model: locationModel,
+                map: map
+            });
+            shapes.push(polygon);
+        },
+        showCircleShape: function(locationModel){
+            var circle = new DrawCircle.CircleView({
+                model: locationModel,
+                map: map
+            });
+            shapes.push(circle);
+        },
+        showLineShape: function(locationModel){
+            var line = new DrawLine.LineRenderView({
+                model: locationModel,
+                map: map
+            });
+            shapes.push(line);
+        },
+        destroyShapes: function(){
+            shapes.forEach(function(shape){
+                shape.destroy();
+            });
+            shapes = [];
         },
         destroy: function() {}
     });

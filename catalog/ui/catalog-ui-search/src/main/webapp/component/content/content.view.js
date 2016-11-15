@@ -94,7 +94,8 @@ define([
                 }
             } else {
                 this.panelOne.show(new WorkspaceContentTabsView({
-                    model: new WorkspaceContentTabs()
+                    model: new WorkspaceContentTabs(),
+                    selectionInterface: store.get('content')
                 }));
                 this.hidePanelTwo();
             }
@@ -142,6 +143,7 @@ define([
             this.$el.find('.content-panelTwo-title').html(title);
         },
         hidePanelTwo: function(){
+            this.panelTwo.empty();
             this.$el.addClass('hide-panelTwo');
             Common.repaintForTimeframe(500, function(){
                 wreqr.vent.trigger('resize');

@@ -183,6 +183,7 @@ function unconvertPointCoordinate(point) {
 
 module.exports = function OpenlayersMap(insertionElement, selectionInterface, notificationEl) {
     var overlays = {};
+    var shapes = [];
     var map = createMap(insertionElement);
     listenToResize();
     setupDrawingTools(map);
@@ -585,6 +586,33 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         },
         removeGeometry: function(geometry) {
             map.removeLayer(geometry);
+        },
+        showPolygonShape: function(locationModel){
+            var polygon = new DrawPolygon.PolygonView({
+                model: locationModel,
+                map: map
+            });
+            shapes.push(polygon);
+        },
+        showCircleShape: function(locationModel){
+            var circle = new DrawCircle.CircleView({
+                model: locationModel,
+                map: map
+            });
+            shapes.push(circle);
+        },
+        showLineShape: function(locationModel){
+            var line = new DrawLine.LineView({
+                model: locationModel,
+                map: map
+            });
+            shapes.push(line);
+        },
+        destroyShapes: function(){
+            shapes.forEach(function(shape){
+                shape.destroy();
+            });
+            shapes = [];
         },
         destroy: function() {
             unlistenToResize();

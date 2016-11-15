@@ -20,10 +20,9 @@ define([
         'wreqr',
         'maptype',
         './notification.view',
-        'js/store',
         '@turf/turf'
     ],
-    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, store,
+    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView,
               Turf) {
         "use strict";
 
@@ -52,6 +51,7 @@ define([
         Draw.LineView = Marionette.View.extend({
             initialize: function (options) {
                 this.map = options.map;
+                this.updatePrimitive(this.model);
             },
             setModelFromGeometry: function (geometry) {
                 this.model.set({
@@ -174,6 +174,10 @@ define([
                 if (this.vectorLayer) {
                     this.map.removeLayer(this.vectorLayer);
                 }
+            },
+            destroy: function(){
+                this.destroyPrimitive();
+                this.remove();
             }
 
         });
@@ -194,25 +198,14 @@ define([
                         this.draw(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawstop', function (model) {
-                    if (this.isVisible()) {
-                        this.stop(model);
-                    }
+                this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
+                    this.stop(model);
                 });
-                this.listenTo(wreqr.vent, 'search:drawend', function (model) {
-                    if (this.isVisible()) {
-                        this.destroy(model);
-                    }
+                this.listenTo(wreqr.vent, 'search:drawend', function(model) {
+                    this.destroy(model);
                 });
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function (model) {
-                    if (this.isVisible()) {
-                        this.destroyAll(model);
-                    }
-                });
-                this.listenTo(store.get('content'), 'change:query', function (model) {
-                    if (this.isVisible()) {
-                        this.destroyAll(model);
-                    }
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
+                    this.destroyAll(model);
                 });
             },
             views: [],

@@ -28,7 +28,12 @@ define([
         },
         closePanelTwo: function(){
             store.get('content').set('query', undefined);
-            store.clearSelectedResults();
+            this.options.selectionInterface.setCurrentQuery(undefined);
+            this.options.selectionInterface.setActiveSearchResults([]);
+            this.options.selectionInterface.clearSelectedResults();
+        },
+        onDestroy: function(){
+            this.closePanelTwo();
         }
     });
 

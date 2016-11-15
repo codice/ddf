@@ -18,10 +18,9 @@ define([
         'underscore',
         'wreqr',
         'maptype',
-        './notification.view',
-        'js/store'
+        './notification.view'
     ],
-    function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, store) {
+    function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView) {
         "use strict";
         var Draw = {};
 
@@ -324,24 +323,13 @@ define([
                     }
                 });
                 this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
-                    if (this.isVisible()) {
-                        this.stop(model);
-                    }
+                    this.stop(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawend', function(model) {
-                    if (this.isVisible()) {
-                        this.destroy(model);
-                    }
+                    this.destroy(model);
                 });
                 this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
-                    if (this.isVisible()) {
-                        this.destroyAll(model);
-                    }
-                });
-                this.listenTo(store.get('content'), 'change:query', function(model) {
-                    if (this.isVisible()) {
-                        this.destroyAll(model);
-                    }
+                    this.destroyAll(model);
                 });
             },
             views: [],

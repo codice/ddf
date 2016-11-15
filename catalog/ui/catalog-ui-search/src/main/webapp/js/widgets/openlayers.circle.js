@@ -20,12 +20,11 @@ define([
         'wreqr',
         'maptype',
         './notification.view',
-        'js/store',
         'terraformer',
         '@turf/turf',
         '@turf/circle'
     ],
-    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, store,
+    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView,
               Terraformer, Turf, TurfCircle) {
         "use strict";
 
@@ -50,6 +49,7 @@ define([
         Draw.CircleView = Marionette.View.extend({
             initialize: function (options) {
                 this.map = options.map;
+                this.updateGeometry(this.model);
             },
             setModelFromGeometry: function (geometry) {
                 var center = translateFromOpenlayersCoordinate(geometry.getCenter());
@@ -169,6 +169,10 @@ define([
                 if (this.vectorLayer) {
                     this.map.removeLayer(this.vectorLayer);
                 }
+            },
+            destroy: function(){
+                this.destroyPrimitive();
+                this.remove();
             }
 
         });
@@ -189,25 +193,14 @@ define([
                         this.draw(model);
                     }
                 });
-                this.listenTo(wreqr.vent, 'search:drawstop', function (model) {
-                    if (this.isVisible()) {
-                        this.stop(model);
-                    }
+                this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
+                    this.stop(model);
                 });
-                this.listenTo(wreqr.vent, 'search:drawend', function (model) {
-                    if (this.isVisible()) {
-                        this.destroy(model);
-                    }
+                this.listenTo(wreqr.vent, 'search:drawend', function(model) {
+                    this.destroy(model);
                 });
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function (model) {
-                    if (this.isVisible()) {
-                        this.destroyAll(model);
-                    }
-                });
-                this.listenTo(store.get('content'), 'change:query', function (model) {
-                    if (this.isVisible()) {
-                        this.destroyAll(model);
-                    }
+                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
+                    this.destroyAll(model);
                 });
             },
             views: [],
