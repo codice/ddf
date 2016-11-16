@@ -40,6 +40,8 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
     public static final String QUERY_POLLING = "polling";
 
+    public static final String QUERY_FEDERATION = "federation";
+
     private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     static {
@@ -100,6 +102,13 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
                 false   /* tokenized */,
                 false    /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
+
+        DESCRIPTORS.add(new AttributeDescriptorImpl(QUERY_FEDERATION,
+                false   /* indexed */,
+                true    /* stored */,
+                false   /* tokenized */,
+                false    /* multivalued */,
+                BasicTypes.STRING_TYPE));
     }
 
     public QueryMetacardTypeImpl() {
