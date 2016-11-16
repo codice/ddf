@@ -15,6 +15,7 @@ package ddf.catalog.history;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static ddf.catalog.Constants.CONTENT_PATHS;
+import static ddf.catalog.Constants.SUBJECT_PROPERTY;
 import static ddf.catalog.core.versioning.MetacardVersion.HISTORY_METACARDS_PROPERTY;
 import static ddf.catalog.core.versioning.MetacardVersion.SKIP_VERSIONING;
 
@@ -38,6 +39,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import ddf.catalog.operation.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.security.common.Security;
@@ -59,11 +61,6 @@ import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.Operation;
-import ddf.catalog.operation.Update;
-import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
@@ -87,6 +84,7 @@ public class Historian {
 
     private Supplier<org.apache.shiro.subject.Subject> getSubject = SecurityUtils::getSubject;
 
+
     /**
      * Versions {@link Metacard}s from the given {@link CreateResponse}.
      *
@@ -103,7 +101,7 @@ public class Historian {
         List<Metacard> versionedMetacards = createResponse.getCreatedMetacards()
                 .stream()
                 .filter(MetacardVersion::isNotVersion)
-                .map(m -> new MetacardVersion(m, MetacardVersion.Action.CREATED, getSubject.get()))
+                .map(m -> new MetacardVersion(m, MetacardVersion.Action.CREATED, getSubjectFromResponse(createResponse)))
                 .collect(Collectors.toList());
 
         if (!versionedMetacards.isEmpty()) {
@@ -147,6 +145,10 @@ public class Historian {
         }
 
         return updateResponse;
+    }
+
+    private org.apache.shiro.subject.Subject getSubjectFromResponse(Response response) {
+        return (org.apache.shiro.subject.Subject) response.getProperties().get(SUBJECT_PROPERTY);
     }
 
     /**
@@ -223,7 +225,7 @@ public class Historian {
      * @throws IOException
      */
     public Optional<String> version(UpdateStorageRequest streamUpdateRequest,
-            UpdateStorageResponse updateStorageResponse, HashMap<String, Path> tmpContentPaths)
+                                    UpdateStorageResponse updateStorageResponse, HashMap<String, Path> tmpContentPaths)
             throws IOException {
         if (doSkip(updateStorageResponse)) {
             return Optional.empty();
@@ -298,7 +300,7 @@ public class Historian {
                 .stream()
                 .map(mc -> new MetacardVersion(mc,
                         MetacardVersion.Action.DELETED,
-                        getSubject.get()))
+                        getSubjectFromResponse(deleteResponse)))
                 .collect(Collectors.toList());
 
         CreateResponse createResponse =
@@ -396,7 +398,7 @@ public class Historian {
     }
 
     private List<ContentItem> versionContentItems(List<ContentItem> contentItems,
-            Map<String, Path> tmpContentPaths, MetacardVersion.Action action) {
+                                                  Map<String, Path> tmpContentPaths, MetacardVersion.Action action) {
         return contentItems.stream()
                 .map(ContentItem::getMetacard)
                 .distinct()
@@ -426,7 +428,7 @@ public class Historian {
     }
 
     private CreateResponse versionMetacards(List<Metacard> metacards,
-            final MetacardVersion.Action action)
+                                            final MetacardVersion.Action action)
             throws SourceUnavailableException, IngestException {
         final List<Metacard> versionedMetacards = metacards.stream()
                 .filter(MetacardVersion::isNotVersion)
@@ -442,7 +444,7 @@ public class Historian {
     }
 
     private List<ContentItem> getVersionedContent(Metacard root, List<ContentItem> contentItems,
-            MetacardVersion.Action versionAction, Map<String, Path> tmpContentPaths) {
+                                                  MetacardVersion.Action versionAction, Map<String, Path> tmpContentPaths) {
         String id = root.getId();
         MetacardVersion rootVersion = new MetacardVersion(root, versionAction, getSubject.get());
         Supplier<Stream<ContentItem>> relatedContent = () -> contentItems.stream()
@@ -506,7 +508,7 @@ public class Historian {
      * @return result of the callable func
      */
     private <T> T executeAsSystem(Callable<T> func) {
-        Subject systemSubject = Security.runAsAdmin(() -> Security.getInstance()
+        org.apache.shiro.subject.Subject systemSubject = Security.runAsAdmin(() -> Security.getInstance()
                 .getSystemSubject());
         if (systemSubject == null) {
             throw new RuntimeException("Could not get systemSubject to version metacards.");
