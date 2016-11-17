@@ -278,6 +278,56 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
+    public void testQueryWithNullSorting()
+            throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
+            SAXException, IOException, SecurityServiceException {
+        // Setup
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        final int numRecordsReturned = 1;
+        final long numRecordsMatched = 1;
+
+        setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
+
+        try {
+            configureMockCsw(numRecordsReturned, numRecordsMatched, CswConstants.VERSION_2_0_2);
+        } catch (CswException e) {
+            fail("Could not configure Mock Remote CSW: " + e.getMessage());
+        }
+
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
+        query.setPageSize(pageSize);
+        query.setSortBy(SortBy.NATURAL_ORDER);
+
+        AbstractCswSource cswSource = getCswSource(mockCsw, mockContext);
+        cswSource.setCswUrl(URL);
+        cswSource.setId(ID);
+
+        // Perform test
+        SourceResponse response = cswSource.query(new QueryRequestImpl(query));
+
+        // Verify
+        Assert.assertNotNull(response);
+        assertThat(response.getResults()
+                .size(), is(numRecordsReturned));
+        assertThat(response.getHits(), is(numRecordsMatched));
+        ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
+        try {
+            verify(mockCsw, atLeastOnce()).getRecords(captor.capture());
+        } catch (CswException e) {
+            fail("Could not verify mock CSW record count: " + e.getMessage());
+        }
+        GetRecordsType getRecordsType = captor.getValue();
+
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery()
+                .getValue();
+        assertThat(cswQuery.getSortBy(), nullValue());
+    }
+
+    @Test
     public void testQueryWithSorting()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
             SAXException, IOException, SecurityServiceException {

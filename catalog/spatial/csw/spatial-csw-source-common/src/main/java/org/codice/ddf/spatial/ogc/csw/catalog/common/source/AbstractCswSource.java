@@ -1160,31 +1160,40 @@ public abstract class AbstractCswSource extends MaskableImpl
             sortBy = new SortByType();
             SortPropertyType sortProperty = new SortPropertyType();
             PropertyNameType propertyName = new PropertyNameType();
-            String propName = query.getSortBy()
-                    .getPropertyName()
-                    .getPropertyName();
-            if (propName != null) {
-                if (Result.TEMPORAL.equals(propName) || Metacard.ANY_DATE.equals(propName)) {
-                    propName = Metacard.MODIFIED;
-                } else if (Result.RELEVANCE.equals(propName)
-                        || Metacard.ANY_TEXT.equals(propName)) {
-                    propName = Metacard.TITLE;
-                } else if (Result.DISTANCE.equals(propName) || Metacard.ANY_GEO.equals(propName)) {
-                    return null;
-                }
-            }
 
-            propertyName.setContent(Arrays.asList((Object) cswFilterDelegate.mapPropertyName(
-                    propName)));
-            sortProperty.setPropertyName(propertyName);
-            if (SortOrder.DESCENDING.equals(query.getSortBy()
-                    .getSortOrder())) {
-                sortProperty.setSortOrder(SortOrderType.DESC);
+            String propName;
+            if (query.getSortBy()
+                    .getPropertyName() != null) {
+                propName = query.getSortBy()
+                        .getPropertyName()
+                        .getPropertyName();
+
+                if (propName != null) {
+                    if (Result.TEMPORAL.equals(propName) || Metacard.ANY_DATE.equals(propName)) {
+                        propName = Metacard.MODIFIED;
+                    } else if (Result.RELEVANCE.equals(propName) || Metacard.ANY_TEXT.equals(
+                            propName)) {
+                        propName = Metacard.TITLE;
+                    } else if (Result.DISTANCE.equals(propName)
+                            || Metacard.ANY_GEO.equals(propName)) {
+                        return null;
+                    }
+
+                    propertyName.setContent(Arrays.asList((Object) cswFilterDelegate.mapPropertyName(
+                            propName)));
+                    sortProperty.setPropertyName(propertyName);
+                    if (SortOrder.DESCENDING.equals(query.getSortBy()
+                            .getSortOrder())) {
+                        sortProperty.setSortOrder(SortOrderType.DESC);
+                    } else {
+                        sortProperty.setSortOrder(SortOrderType.ASC);
+                    }
+                    sortBy.getSortProperty()
+                            .add(sortProperty);
+                }
             } else {
-                sortProperty.setSortOrder(SortOrderType.ASC);
+                return null;
             }
-            sortBy.getSortProperty()
-                    .add(sortProperty);
         }
 
         return sortBy;
