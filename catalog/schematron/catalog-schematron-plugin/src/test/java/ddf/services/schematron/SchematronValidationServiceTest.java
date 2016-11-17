@@ -140,7 +140,7 @@ public class SchematronValidationServiceTest {
         assertThat(service.getSchematronReport(), is(nullValue()));
     }
 
-    @Test(expected = SchematronInitializationException.class)
+    @Test(expected = ValidationException.class)
     public void testSchematronFileNotFound()
             throws ValidationException, IOException, SchematronInitializationException {
         SchematronValidationService service = getService(false,
