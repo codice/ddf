@@ -21,6 +21,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,6 +56,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.util.Describable;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ValidationException;
+import ddf.catalog.validation.impl.ValidationExceptionImpl;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.TransformerFactoryImpl;
 
@@ -85,9 +93,9 @@ public class SchematronValidationService implements MetacardValidator, Describab
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchematronValidationService.class);
 
-    private TransformerFactory transformerFactory;
+    public static final String DEFAULT_THREAD_POOL_SIZE = "16";
 
-    private List<Templates> validators;
+    private TransformerFactory transformerFactory;
 
     private Vector<String> warnings;
 
@@ -102,6 +110,17 @@ public class SchematronValidationService implements MetacardValidator, Describab
     private String namespace;
 
     private String id;
+
+    private ExecutorService pool = getThreadPool();
+
+    private List<Future<Templates>> validators = new ArrayList<>();
+
+    private static ExecutorService getThreadPool() throws NumberFormatException {
+        Integer threadPoolSize = Integer.parseInt(System.getProperty(
+                "org.codice.ddf.system.threadPoolSize",
+                DEFAULT_THREAD_POOL_SIZE));
+        return Executors.newFixedThreadPool(threadPoolSize);
+    }
 
     public void init() throws SchematronInitializationException {
         if (transformerFactory == null) {
@@ -119,10 +138,13 @@ public class SchematronValidationService implements MetacardValidator, Describab
     }
 
     private void updateValidators() throws SchematronInitializationException {
-        validators = new ArrayList<>(schematronFileNames.size());
+        validators.clear();
         for (String schematronFileName : schematronFileNames) {
-            Templates template = compileSchematronRules(schematronFileName);
-            validators.add(template);
+            FutureTask<Templates> task = new FutureTask<Templates>(() -> {
+                return compileSchematronRules(schematronFileName);
+            });
+            validators.add(task);
+            pool.submit(task);
         }
     }
 
@@ -238,24 +260,28 @@ public class SchematronValidationService implements MetacardValidator, Describab
 
     @Override
     public void validate(Metacard metacard) throws ValidationException {
-        for (Templates validator : validators) {
+        try {
             String metadata = metacard.getMetadata();
             if (StringUtils.isEmpty(metadata) || (namespace != null
                     && !namespace.equals(XMLUtils.getRootNamespace(metadata)))) {
                 return;
             }
-            schematronReport = generateReport(metadata, validator);
-            if (!schematronReport.isValid(suppressWarnings)) {
-                throw new SchematronValidationException("Schematron validation failed.",
-                        schematronReport.getErrors()
-                                .stream()
-                                .map(SchematronValidationService::sanitize)
-                                .collect(Collectors.toList()),
-                        schematronReport.getWarnings()
-                                .stream()
-                                .map(SchematronValidationService::sanitize)
-                                .collect(Collectors.toList()));
+            for (Future<Templates> validator : validators) {
+                schematronReport = generateReport(metadata, validator.get(10, TimeUnit.MINUTES));
+                if (!schematronReport.isValid(suppressWarnings)) {
+                    throw new SchematronValidationException("Schematron validation failed.",
+                            schematronReport.getErrors()
+                                    .stream()
+                                    .map(SchematronValidationService::sanitize)
+                                    .collect(Collectors.toList()),
+                            schematronReport.getWarnings()
+                                    .stream()
+                                    .map(SchematronValidationService::sanitize)
+                                    .collect(Collectors.toList()));
+                }
             }
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new ValidationExceptionImpl(e);
         }
     }
 
