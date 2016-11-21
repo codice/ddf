@@ -20,7 +20,6 @@ module.exports = SlideoutView.extend({
     className: 'is-left',
     open: function() {
         $('html').toggleClass('has-slideout-left', true);
-        $('html').toggleClass('blur-content', true);
         SlideoutView.prototype.open.call(this);
     },
     close: function() {
