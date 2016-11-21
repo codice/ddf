@@ -53,6 +53,8 @@ public class ClaimsHandlerManager {
 
     public static final String START_TLS = "startTls";
 
+    public static final String OVERRIDE_CERT_DN = "overrideCertDn";
+
     public static final String LDAP_BIND_USER_DN = "ldapBindUserDn";
 
     public static final String PASSWORD = "password";
@@ -121,6 +123,13 @@ public class ClaimsHandlerManager {
         String userNameAttribute = (String) props.get(ClaimsHandlerManager.USER_NAME_ATTRIBUTE);
         String propertyFileLocation =
                 (String) props.get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
+        Boolean overrideCertDn;
+        if (props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN) instanceof String) {
+            overrideCertDn = Boolean.valueOf(
+                    (String) props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN));
+        } else {
+            overrideCertDn = (Boolean) props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN);
+        }
         try {
             if (encryptService != null) {
                 password = encryptService.decryptValue(password);
@@ -135,13 +144,15 @@ public class ClaimsHandlerManager {
                     memberNameAttribute,
                     groupBaseDn,
                     userDn,
-                    password);
+                    password,
+                    overrideCertDn);
             registerLdapClaimsHandler(connection2,
                     propertyFileLocation,
                     userBaseDn,
                     userNameAttribute,
                     userDn,
-                    password);
+                    password,
+                    overrideCertDn);
 
         } catch (Exception e) {
             LOGGER.warn(
@@ -219,7 +230,7 @@ public class ClaimsHandlerManager {
      */
     private void registerRoleClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
             String userBaseDn, String userNameAttr, String objectClass, String memberNameAttribute,
-            String groupBaseDn, String userDn, String password) {
+            String groupBaseDn, String userDn, String password, boolean overrideCertDn) {
         RoleClaimsHandler roleHandler = new RoleClaimsHandler();
         roleHandler.setLdapConnectionFactory(connection);
         roleHandler.setPropertyFileLocation(propertyFileLoc);
@@ -230,6 +241,7 @@ public class ClaimsHandlerManager {
         roleHandler.setGroupBaseDn(groupBaseDn);
         roleHandler.setBindUserDN(userDn);
         roleHandler.setBindUserCredentials(password);
+        roleHandler.setOverrideCertDn(overrideCertDn);
         LOGGER.debug("Registering new role claims handler.");
         roleHandlerRegistration = registerClaimsHandler(roleHandler, roleHandlerRegistration);
     }
@@ -243,7 +255,8 @@ public class ClaimsHandlerManager {
      * @param userNameAttr    Identifier that defines the user.
      */
     private void registerLdapClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
-            String userBaseDn, String userNameAttr, String userDn, String password) {
+            String userBaseDn, String userNameAttr, String userDn, String password,
+            boolean overrideCertDn) {
         LdapClaimsHandler ldapHandler = new LdapClaimsHandler();
         ldapHandler.setLdapConnectionFactory(connection);
         ldapHandler.setPropertyFileLocation(propertyFileLoc);
@@ -251,6 +264,7 @@ public class ClaimsHandlerManager {
         ldapHandler.setUserNameAttribute(userNameAttr);
         ldapHandler.setBindUserDN(userDn);
         ldapHandler.setBindUserCredentials(password);
+        ldapHandler.setOverrideCertDn(overrideCertDn);
         LOGGER.debug("Registering new ldap claims handler.");
         ldapHandlerRegistration = registerClaimsHandler(ldapHandler, ldapHandlerRegistration);
     }
@@ -343,6 +357,11 @@ public class ClaimsHandlerManager {
     public void setPropertyFileLocation(String propertyFileLocation) {
         LOGGER.trace("Setting propertyFileLocation: {}", propertyFileLocation);
         ldapProperties.put(PROPERTY_FILE_LOCATION, propertyFileLocation);
+    }
+
+    public void setOverrideCertDn(boolean overrideCertDn) {
+        LOGGER.trace("Setting propertyFileLocation: {}", overrideCertDn);
+        ldapProperties.put(OVERRIDE_CERT_DN, overrideCertDn);
     }
 
     public void configure() {

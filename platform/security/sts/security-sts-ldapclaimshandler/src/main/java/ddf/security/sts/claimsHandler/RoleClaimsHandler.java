@@ -44,6 +44,8 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleClaimsHandler.class);
 
+    private boolean overrideCertDn = false;
+
     private Map<String, String> claimsLdapAttributeMapping;
 
     private LDAPConnectionFactory connectionFactory;
@@ -198,7 +200,8 @@ public class RoleClaimsHandler implements ClaimsHandler {
             }
 
             AndFilter filter = new AndFilter();
-            String userBaseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDn());
+            String userBaseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDn(),
+                    overrideCertDn);
             filter.and(new EqualsFilter("objectClass", getObjectClass()))
                     .and(new EqualsFilter(getMemberNameAttribute(),
                             getUserNameAttribute() + "=" + user + "," + userBaseDN));
@@ -266,5 +269,9 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
     public void setBindUserCredentials(String bindUserCredentials) {
         this.bindUserCredentials = bindUserCredentials;
+    }
+
+    public void setOverrideCertDn(boolean overrideCertDn) {
+        this.overrideCertDn = overrideCertDn;
     }
 }

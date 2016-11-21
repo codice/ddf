@@ -58,6 +58,7 @@
             <property name="memberNameAttribute" value="member"/>
             <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
             <property name="propertyFileLocation" value="${ddf.home}/etc/ws-security/attributeMap.properties"/>
+            <property name="overrideCertDn" value="false" />
             <cm:managed-properties persistent-id=""
                                    update-strategy="component-managed" update-method="update"/>
         </cm:managed-component>
