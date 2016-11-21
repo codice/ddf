@@ -154,10 +154,17 @@ Integrators and developers can add more claims handlers that can handle other ty
 |secret
 |true
 
-|LDAP Username Attribute
-|userNameAttribute
+|LDAP Group User Membership Attribute
+|membershipUserAttribute
 |String
-|Attribute used to designate the user's name in LDAP. Usually this is uid, cn, or something similar.
+|Attribute used as the membership attribute for the user in the group. Usually this is uid, cn, or something similar.
+|uid
+|true
+
+|LDAP User Login Attribute
+|loginUserAttribute
+|String
+|Attribute used as the login username. Usually this is uid, cn, or something similar.
 |uid
 |true
 
@@ -166,6 +173,13 @@ Integrators and developers can add more claims handlers that can handle other ty
 |String
 |Full LDAP path to where users can be found.
 |ou=users\,dc=example\,dc=com
+|true
+
+|Override User Certificate DN
+|overrideCertDn
+|Boolean
+|When checked, this setting will ignore the DN of a user and instead use the LDAP Base User DN value.
+|false
 |true
 
 |LDAP Group ObjectClass

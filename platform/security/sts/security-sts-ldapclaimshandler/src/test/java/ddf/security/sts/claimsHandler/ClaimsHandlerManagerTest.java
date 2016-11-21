@@ -34,7 +34,6 @@ import ddf.security.encryption.EncryptionService;
 
 /**
  * Tests out the ClaimsHandlerManager.
- *
  */
 public class ClaimsHandlerManagerTest {
 
@@ -54,8 +53,7 @@ public class ClaimsHandlerManagerTest {
         context = mock(BundleContext.class);
         encryptService = mock(EncryptionService.class);
         handlerReg = mock(ServiceRegistration.class);
-        when(context.registerService(eq(ClaimsHandler.class),
-                any(ClaimsHandler.class),
+        when(context.registerService(eq(ClaimsHandler.class), any(ClaimsHandler.class),
                 Matchers.<Dictionary<String, Object>>any())).thenReturn(handlerReg);
     }
 
@@ -79,7 +77,8 @@ public class ClaimsHandlerManagerTest {
         manager.setLdapBindUserDn("cn=admin");
         manager.setUserBaseDn("ou=users,dc=example,dc=com");
         manager.setGroupBaseDn("ou=groups,dc=example,dc=com");
-        manager.setUserNameAttribute("uid");
+        manager.setLoginUserAttribute("uid");
+        manager.setMembershipUserAttribute("uid");
         manager.setUrl("ldap://ldap:1389");
         manager.setStartTls(false);
         manager.setLdapBindUserDn("cn=admin");
@@ -91,8 +90,7 @@ public class ClaimsHandlerManagerTest {
         manager.configure();
 
         // verify initial registration
-        verify(context, times(2)).registerService(eq(ClaimsHandler.class),
-                any(ClaimsHandler.class),
+        verify(context, times(2)).registerService(eq(ClaimsHandler.class), any(ClaimsHandler.class),
                 Matchers.<Dictionary<String, Object>>any());
         verify(handlerReg, never()).unregister();
     }
