@@ -15,7 +15,7 @@ package org.codice.ddf.registry.publication;
 
 import java.security.PrivilegedActionException;
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.registry.common.RegistryConstants;
@@ -43,12 +43,14 @@ public class RegistryPublicationHandler implements EventHandler {
 
     private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
 
+    private static final int PUBLICATION_DELAY = 3; //seconds
+
     private final RegistryPublicationService registryPublicationService;
 
-    private final ExecutorService executor;
+    private final ScheduledExecutorService executor;
 
     public RegistryPublicationHandler(RegistryPublicationService registryPublicationService,
-            ExecutorService service) {
+            ScheduledExecutorService service) {
         this.registryPublicationService = registryPublicationService;
         this.executor = service;
     }
@@ -74,12 +76,13 @@ public class RegistryPublicationHandler implements EventHandler {
                 .contains(RegistryConstants.REGISTRY_TAG)) {
             return;
         }
-        executor.execute(() -> processUpdate(mcard));
+        executor.schedule(() -> processUpdate(mcard), PUBLICATION_DELAY, TimeUnit.SECONDS);
     }
 
     private void processUpdate(Metacard mcard) {
         if (RegistryUtility.getListOfStringAttribute(mcard,
-                RegistryObjectMetacardType.PUBLISHED_LOCATIONS).isEmpty()) {
+                RegistryObjectMetacardType.PUBLISHED_LOCATIONS)
+                .isEmpty()) {
             return;
         }
 
