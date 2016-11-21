@@ -95,7 +95,6 @@ define([
             this.startListeningToResult();
             this.startListeningToMerged();
             this.startListeningToStatus();
-            //metacardDefinitions.addMetacardTypes(this.model.get('result').get('metacard-types'));
         },
         mergeNewResults: function(){
             this.model.get('result').mergeNewResults();

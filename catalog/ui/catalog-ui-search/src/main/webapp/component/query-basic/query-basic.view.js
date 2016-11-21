@@ -451,7 +451,7 @@ define([
             var filters = [];
 
             var text = this.basicText.currentView.getCurrentValue()[0];
-            text = text === "" ? '%' : text;
+            text = text === "" ? '*' : text;
             var matchCase = this.basicTextMatch.currentView.getCurrentValue()[0];
             filters.push(CQLUtils.generateFilter(matchCase, 'anyText', text));
 

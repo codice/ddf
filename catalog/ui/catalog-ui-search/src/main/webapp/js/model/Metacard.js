@@ -696,6 +696,7 @@ define([
                 this.listenTo(this, 'change:currentlyViewed', this.handleCurrentlyViewed);
             },
             parse: function (resp, options) {
+                metacardDefinitions.addMetacardDefinitions(resp.types);
                 if (resp.results) {
                     var queryId = this.getQueryId();
                     var color = this.getColor();

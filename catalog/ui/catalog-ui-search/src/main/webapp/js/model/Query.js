@@ -399,7 +399,7 @@ define([
 
                 var cql = this.logicalCql(filters, 'AND');
                 if (!cql) {
-                    cql = "anyText LIKE '%'";
+                    cql = "anyText LIKE '*'";
                 }
 
                 return cql;

@@ -20,50 +20,70 @@ define([
 
     return new (Backbone.Model.extend({
         initialize: function () {
+            this.updateSortedMetacardTypes();
             this.getMetacardTypes();
+            this.getDatatypeEnum();
         },
-        getEnums: function(){
-            $.when.apply(this, this.metacardDefinitions.map(function(metacardDefinition){
-                return $.get( '/search/catalog/internal/enumerations/metacardtype/'+metacardDefinition);
-            }).concat([
-                $.get( '/search/catalog/internal/enumerations/attribute/datatype') // always retrieve (for match type dropdown)
-            ])).always(function(){
-                _.forEach(arguments, function(response){
-                    _.extend(this.enums, response[0]);
-                }.bind(this));
+        getDatatypeEnum: function(){
+            $.get( '/search/catalog/internal/enumerations/attribute/datatype').then(function(response){
+                _.extend(this.enums, response);
             }.bind(this));
+        },
+        getEnumForMetacardDefinition: function(metacardDefinition){
+            $.get( '/search/catalog/internal/enumerations/metacardtype/'+metacardDefinition).then(function(response){
+                _.extend(this.enums, response);
+            }.bind(this));
+        },
+        addMetacardDefinition: function(metacardDefinitionName, metacardDefinition){
+            if (this.metacardDefinitions.indexOf(metacardDefinitionName) === -1){
+                this.getEnumForMetacardDefinition(metacardDefinitionName);
+                this.metacardDefinitions.push(metacardDefinitionName);
+                for (var type in metacardDefinition) {
+                    if (metacardDefinition.hasOwnProperty(type)) {
+                        this.metacardTypes[type] = metacardDefinition[type];
+                        this.metacardTypes[type].id = this.metacardTypes[type].id || type;
+                        this.metacardTypes[type].type = this.metacardTypes[type].type || this.metacardTypes[type].format;
+                        this.metacardTypes[type].alias = properties.attributeAliases[type];
+                    }
+                }
+                return true;
+            }
+            return false;
+        },
+        addMetacardDefinitions: function(metacardDefinitions){
+            var updated = false;
+            for (var metacardDefinition in metacardDefinitions){
+                if (metacardDefinitions.hasOwnProperty(metacardDefinition)) {
+                    updated = this.addMetacardDefinition(metacardDefinition, metacardDefinitions[metacardDefinition]) || updated;
+                }
+            }
+            if (updated){
+                this.updateSortedMetacardTypes();
+            }
         },
         getMetacardTypes: function(){
-            $.get('/search/catalog/internal/metacardtype').then(function(metacardTypes){
-                for (var metacardType in metacardTypes){
-                    if (metacardTypes.hasOwnProperty(metacardType)) {
-                        this.metacardDefinitions.push(metacardType);
-                        for (var type in metacardTypes[metacardType]) {
-                            if (metacardTypes[metacardType].hasOwnProperty(type)) {
-                                this.metacardTypes[type] = metacardTypes[metacardType][type];
-                                this.metacardTypes[type].alias = properties.attributeAliases[type];
-                            }
-                        }
-                    }
-                }
-                for (var propertyType in this.metacardTypes){
-                    if (this.metacardTypes.hasOwnProperty(propertyType)) {
-                        this.sortedMetacardTypes.push(this.metacardTypes[propertyType]);
-                    }
-                }
-                this.sortedMetacardTypes.sort(function(a, b){
-                    var attrToCompareA = a.alias || a.id;
-                    var attrToCompareB = b.alias || b.id;
-                    if (attrToCompareA < attrToCompareB){
-                        return -1;
-                    }
-                    if (attrToCompareA > attrToCompareB){
-                        return 1;
-                    }
-                    return 0;
-                });
-                this.getEnums();
+            $.get('/search/catalog/internal/metacardtype').then(function(metacardDefinitions){
+                this.addMetacardDefinitions(metacardDefinitions);
             }.bind(this));
+        },
+        updateSortedMetacardTypes: function(){
+            this.sortedMetacardTypes = [];
+            for (var propertyType in this.metacardTypes){
+                if (this.metacardTypes.hasOwnProperty(propertyType)) {
+                    this.sortedMetacardTypes.push(this.metacardTypes[propertyType]);
+                }
+            }
+            this.sortedMetacardTypes.sort(function(a, b){
+                var attrToCompareA = (a.alias || a.id).toLowerCase();
+                var attrToCompareB = (b.alias || b.id).toLowerCase();
+                if (attrToCompareA < attrToCompareB){
+                    return -1;
+                }
+                if (attrToCompareA > attrToCompareB){
+                    return 1;
+                }
+                return 0;
+            });
         },
         metacardDefinitions: [],
         sortedMetacardTypes: [],
