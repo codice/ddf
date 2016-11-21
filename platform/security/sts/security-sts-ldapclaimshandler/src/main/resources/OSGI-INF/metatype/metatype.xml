@@ -48,6 +48,11 @@
             description="Full LDAP path to where users can be found.">
 	    </AD>
 
+		<AD name="Override User Certificate DN:" id="overrideCertDn" required="true" type="Boolean"
+			default="false"
+			description="When checked, this setting will ignore the DN of a user and instead use the LDAP Base User DN value.">
+		</AD>
+
         <AD name="LDAP Group ObjectClass:" id="objectClass" required="true" type="String"
             default="groupOfNames"
             description="ObjectClass that defines structure for group membership in LDAP. Usually this is groupOfNames or groupOfUniqueNames.">

@@ -108,9 +108,10 @@ public class AttributeMapLoader {
      * @param defaultBaseDN the default DN to fall back to
      * @return the base DN
      */
-    public static String getBaseDN(Principal principal, String defaultBaseDN) {
+    public static String getBaseDN(Principal principal, String defaultBaseDN,
+            boolean overrideCertDn) {
         String baseDN = null;
-        if (principal instanceof X500Principal) {
+        if (principal instanceof X500Principal && !overrideCertDn) {
             Predicate<RDN> predicate = rdn -> !rdn.getTypesAndValues()[0].getType()
                     .equals(BCStyle.CN);
             baseDN = SubjectUtils.filterDN((X500Principal) principal, predicate);
