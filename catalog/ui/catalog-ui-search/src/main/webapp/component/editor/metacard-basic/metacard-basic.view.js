@@ -43,24 +43,25 @@ define([
                 [this.model.first().get('metacard>properties').toJSON()]));
             this.editorProperties.currentView.turnOnLimitedWidth();
             this.editorProperties.currentView.$el.addClass("is-list");
-
             this.getValidation();
         },
         getValidation: function(){
-            var self = this;
-            self.editorProperties.currentView.clearValidation();
-            $.get({
-                url: '/search/catalog/internal/metacard/'+this.model.first().get('metacard').id+'/attribute/validation',
-                customErrorHandling: true
-            }).then(function(response){
-                if (!self.isDestroyed && self.editorProperties.currentView){
-                    self.editorProperties.currentView.updateValidation(response);
-                }
-            }).always(function(){
-                if (!self.isDestroyed){
+            if (!this.model.first().isRemote()){
+                var self = this;
+                self.editorProperties.currentView.clearValidation();
+                $.get({
+                    url: '/search/catalog/internal/metacard/'+this.model.first().get('metacard').id+'/attribute/validation',
+                    customErrorHandling: true
+                }).then(function(response){
+                    if (!self.isDestroyed && self.editorProperties.currentView){
+                        self.editorProperties.currentView.updateValidation(response);
+                    }
+                }).always(function(){
+                    if (!self.isDestroyed){
 
-                }
-            });
+                    }
+                });
+            }
         },
         afterCancel: function(){
 

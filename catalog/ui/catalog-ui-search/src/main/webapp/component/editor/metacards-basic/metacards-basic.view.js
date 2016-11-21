@@ -53,7 +53,9 @@ define([
             var results = this.selectionInterface.getSelectedResults();
             var self = this;
             self.editorProperties.currentView.clearValidation();
-            results.forEach(function(result){
+            results.filter(function(result){
+                return !result.isRemote();
+            }).forEach(function(result){
                 (function(id) {
                     $.get({
                         url: '/search/catalog/internal/metacard/'+id+'/attribute/validation',
