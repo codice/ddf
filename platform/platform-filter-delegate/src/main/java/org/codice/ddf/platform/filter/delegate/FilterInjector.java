@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Injects the delegating filter into the servletcontext as it is being created.
  * This guarantees that all servlets will have the delegating filter added.
- *
  */
 public class FilterInjector {
 
@@ -48,8 +47,7 @@ public class FilterInjector {
     /**
      * Creates a new filter injector with the specified filter.
      *
-     * @param filter
-     *            filter that should be injected.
+     * @param filter filter that should be injected.
      */
     public FilterInjector(Filter filter) {
         this.delegatingServletFilter = filter;
@@ -59,17 +57,22 @@ public class FilterInjector {
      * Injects the filter into the passed-in servlet context. This only works if
      * the servlet has not already been initialized.
      *
-     * @param serviceReference
-     *            Reference to the servlet context that the filter should be
-     *            injected into.
+     * @param serviceReference Reference to the servlet context that the filter should be
+     *                         injected into.
      */
     public void injectFilter(ServiceReference<ServletContext> serviceReference) {
         Bundle refBundle = serviceReference.getBundle();
         LOGGER.debug("Adding Servlet Filter for {}", refBundle.getSymbolicName());
         BundleContext bundlectx = refBundle.getBundleContext();
         ServletContext context = bundlectx.getService(serviceReference);
-        SessionCookieConfig sessionCookieConfig = context.getSessionCookieConfig();
-        sessionCookieConfig.setPath("/");
+        try {
+            SessionCookieConfig sessionCookieConfig = context.getSessionCookieConfig();
+            sessionCookieConfig.setPath("/");
+        } catch (Exception e) {
+            LOGGER.trace(
+                    "Failed trying to set the cookie config path to /. This can usually be ignored",
+                    e);
+        }
 
         //Jetty will place non-programmatically added filters (filters added via web.xml) in front of programmatically
         //added filters. This is probably OK in most instances, however, this security filter must ALWAYS be first.
@@ -98,8 +101,7 @@ public class FilterInjector {
             } catch (IllegalAccessException e) {
                 LOGGER.warn(
                         "Unable to get the ServletContextHandler for {}. The delegating filter may not work properly.",
-                        refBundle.getSymbolicName(),
-                        e);
+                        refBundle.getSymbolicName(), e);
             }
 
             if (httpServiceContext != null) {
