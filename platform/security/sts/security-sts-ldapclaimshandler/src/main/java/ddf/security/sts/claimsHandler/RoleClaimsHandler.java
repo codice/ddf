@@ -56,7 +56,9 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
     private String memberNameAttribute = "member";
 
-    private String userNameAttribute = "uid";
+    private String membershipUserAttribute = "uid";
+
+    private String loginUserAttribute = "uid";
 
     private String groupNameAttribute = "cn";
 
@@ -77,7 +79,8 @@ public class RoleClaimsHandler implements ClaimsHandler {
         try {
             uri = new URI(roleClaimType);
         } catch (URISyntaxException e) {
-            LOGGER.info("Unable to add role claim type. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
+            LOGGER.info(
+                    "Unable to add role claim type. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
             LOGGER.debug("Unable to add role claim type.", e);
         }
         return uri;
@@ -90,7 +93,8 @@ public class RoleClaimsHandler implements ClaimsHandler {
     public void setPropertyFileLocation(String propertyFileLocation) {
         if (propertyFileLocation != null && !propertyFileLocation.isEmpty()
                 && !propertyFileLocation.equals(this.propertyFileLocation)) {
-            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
+            setClaimsLdapAttributeMapping(
+                    AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }
@@ -135,12 +139,20 @@ public class RoleClaimsHandler implements ClaimsHandler {
         this.connectionFactory = connection;
     }
 
-    public String getUserNameAttribute() {
-        return userNameAttribute;
+    public String getMembershipUserAttribute() {
+        return membershipUserAttribute;
     }
 
-    public void setUserNameAttribute(String userNameAttribute) {
-        this.userNameAttribute = userNameAttribute;
+    public void setMembershipUserAttribute(String membershipUserAttribute) {
+        this.membershipUserAttribute = membershipUserAttribute;
+    }
+
+    public String getLoginUserAttribute() {
+        return loginUserAttribute;
+    }
+
+    public void setLoginUserAttribute(String loginUserAttribute) {
+        this.loginUserAttribute = loginUserAttribute;
     }
 
     public String getObjectClass() {
@@ -199,28 +211,42 @@ public class RoleClaimsHandler implements ClaimsHandler {
                 return new ProcessedClaimCollection();
             }
 
-            AndFilter filter = new AndFilter();
-            String userBaseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDn(),
-                    overrideCertDn);
-            filter.and(new EqualsFilter("objectClass", getObjectClass()))
-                    .and(new EqualsFilter(getMemberNameAttribute(),
-                            getUserNameAttribute() + "=" + user + "," + userBaseDN));
-
-            String filterString = filter.toString();
-
             connection = connectionFactory.getConnection();
             if (connection != null) {
-                BindResult bindResult = connection.bind(bindUserDN, bindUserCredentials.toCharArray());
+                BindResult bindResult = connection.bind(bindUserDN,
+                        bindUserCredentials.toCharArray());
+
+                String baseDN = AttributeMapLoader.getBaseDN(principal, userBaseDn, overrideCertDn);
+                AndFilter filter = new AndFilter();
+                filter.and(new EqualsFilter(this.getLoginUserAttribute(), user));
+                ConnectionEntryReader entryReader = connection.search(baseDN,
+                        SearchScope.WHOLE_SUBTREE, filter.toString(), membershipUserAttribute);
+                String membershipValue = null;
+                while (entryReader.hasNext()) {
+                    SearchResultEntry entry = entryReader.readEntry();
+
+                    Attribute attr = entry.getAttribute(membershipUserAttribute);
+                    if (attr != null) {
+                        for (ByteString value : attr) {
+                            membershipValue = value.toString();
+                        }
+                    }
+                }
+
+                filter = new AndFilter();
+                String userBaseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDn(),
+                        overrideCertDn);
+                filter.and(new EqualsFilter("objectClass", getObjectClass()))
+                        .and(new EqualsFilter(getMemberNameAttribute(),
+                                getMembershipUserAttribute() + "=" + membershipValue + ","
+                                        + userBaseDN));
 
                 if (bindResult.isSuccess()) {
                     LOGGER.trace("Executing ldap search with base dn of {} and filter of {}",
-                            groupBaseDn,
-                            filterString);
+                            groupBaseDn, filter.toString());
 
-                    ConnectionEntryReader entryReader = connection.search(groupBaseDn,
-                            SearchScope.WHOLE_SUBTREE,
-                            filter.toString(),
-                            attributes);
+                    entryReader = connection.search(groupBaseDn, SearchScope.WHOLE_SUBTREE,
+                            filter.toString(), attributes);
 
                     SearchResultEntry entry;
                     while (entryReader.hasNext()) {
@@ -246,10 +272,12 @@ public class RoleClaimsHandler implements ClaimsHandler {
                 }
             }
         } catch (LdapException e) {
-            LOGGER.info("Cannot connect to server, therefore unable to set role claims. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
+            LOGGER.info(
+                    "Cannot connect to server, therefore unable to set role claims. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
             LOGGER.debug("Cannot connect to server, therefore unable to set role claims.", e);
         } catch (SearchResultReferenceIOException e) {
-            LOGGER.info("Unable to set role claims. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
+            LOGGER.info(
+                    "Unable to set role claims. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
             LOGGER.debug("Unable to set role claims.", e);
         } finally {
             if (connection != null) {

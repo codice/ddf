@@ -59,7 +59,9 @@ public class ClaimsHandlerManager {
 
     public static final String PASSWORD = "password";
 
-    public static final String USER_NAME_ATTRIBUTE = "userNameAttribute";
+    public static final String LOGIN_USER_ATTRIBUTE = "loginUserAttribute";
+
+    public static final String MEMBER_USER_ATTRIBUTE = "membershipUserAttribute";
 
     public static final String USER_BASE_DN = "userBaseDn";
 
@@ -106,7 +108,8 @@ public class ClaimsHandlerManager {
         if (props == null) {
             return;
         }
-        LOGGER.debug("Received an updated set of configurations for the LDAP/Role Claims Handlers.");
+        LOGGER.debug(
+                "Received an updated set of configurations for the LDAP/Role Claims Handlers.");
         String url = new PropertyResolver((String) props.get(ClaimsHandlerManager.URL)).toString();
         Boolean startTls;
         if (props.get(ClaimsHandlerManager.START_TLS) instanceof String) {
@@ -120,9 +123,11 @@ public class ClaimsHandlerManager {
         String objectClass = (String) props.get(ClaimsHandlerManager.OBJECT_CLASS);
         String memberNameAttribute = (String) props.get(ClaimsHandlerManager.MEMBER_NAME_ATTRIBUTE);
         String groupBaseDn = (String) props.get(ClaimsHandlerManager.GROUP_BASE_DN);
-        String userNameAttribute = (String) props.get(ClaimsHandlerManager.USER_NAME_ATTRIBUTE);
-        String propertyFileLocation =
-                (String) props.get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
+        String loginUserAttribute = (String) props.get(ClaimsHandlerManager.LOGIN_USER_ATTRIBUTE);
+        String membershipUserAttribute = (String) props.get(
+                ClaimsHandlerManager.MEMBER_USER_ATTRIBUTE);
+        String propertyFileLocation = (String) props.get(
+                ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
         Boolean overrideCertDn;
         if (props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN) instanceof String) {
             overrideCertDn = Boolean.valueOf(
@@ -136,23 +141,11 @@ public class ClaimsHandlerManager {
             }
             LDAPConnectionFactory connection1 = createLdapConnectionFactory(url, startTls);
             LDAPConnectionFactory connection2 = createLdapConnectionFactory(url, startTls);
-            registerRoleClaimsHandler(connection1,
-                    propertyFileLocation,
-                    userBaseDn,
-                    userNameAttribute,
-                    objectClass,
-                    memberNameAttribute,
-                    groupBaseDn,
-                    userDn,
-                    password,
-                    overrideCertDn);
-            registerLdapClaimsHandler(connection2,
-                    propertyFileLocation,
-                    userBaseDn,
-                    userNameAttribute,
-                    userDn,
-                    password,
-                    overrideCertDn);
+            registerRoleClaimsHandler(connection1, propertyFileLocation, userBaseDn,
+                    loginUserAttribute, membershipUserAttribute, objectClass, memberNameAttribute,
+                    groupBaseDn, userDn, password, overrideCertDn);
+            registerLdapClaimsHandler(connection2, propertyFileLocation, userBaseDn,
+                    loginUserAttribute, userDn, password, overrideCertDn);
 
         } catch (Exception e) {
             LOGGER.warn(
@@ -187,18 +180,18 @@ public class ClaimsHandlerManager {
                         keystorePass = encryptService.decryptValue(keystorePass);
                         truststorePass = encryptService.decryptValue(truststorePass);
                     }
-                    
-                    sslContext.init(createKeyManagerFactory(keystoreLoc,
-                            keystorePass).getKeyManagers(),
+
+                    sslContext.init(
+                            createKeyManagerFactory(keystoreLoc, keystorePass).getKeyManagers(),
                             createTrustManagerFactory(truststoreLoc,
-                                    truststorePass).getTrustManagers(),
-                            new SecureRandom());
+                                    truststorePass).getTrustManagers(), new SecureRandom());
                 }
 
                 lo.setSSLContext(sslContext);
             }
         } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
-            LOGGER.error("Error encountered while configuring SSL. Secure connection to LDAP will fail.",
+            LOGGER.error(
+                    "Error encountered while configuring SSL. Secure connection to LDAP will fail.",
                     e);
         }
 
@@ -222,20 +215,22 @@ public class ClaimsHandlerManager {
     /**
      * Registers a new Role-based ClaimsHandler.
      *
-     * @param connection      LdapTemplate used to query ldap for the roles.
-     * @param propertyFileLoc File location of the property file.
-     * @param userBaseDn      Base DN to determine the roles.
-     * @param userNameAttr    Identifier that defines the user.
-     * @param groupBaseDn     Base DN of the group.
+     * @param connection         LdapTemplate used to query ldap for the roles.
+     * @param propertyFileLoc    File location of the property file.
+     * @param userBaseDn         Base DN to determine the roles.
+     * @param loginUserAttribute Identifier that defines the user.
+     * @param groupBaseDn        Base DN of the group.
      */
     private void registerRoleClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
-            String userBaseDn, String userNameAttr, String objectClass, String memberNameAttribute,
-            String groupBaseDn, String userDn, String password, boolean overrideCertDn) {
+            String userBaseDn, String loginUserAttribute, String membershipUserAttribute,
+            String objectClass, String memberNameAttribute, String groupBaseDn, String userDn,
+            String password, boolean overrideCertDn) {
         RoleClaimsHandler roleHandler = new RoleClaimsHandler();
         roleHandler.setLdapConnectionFactory(connection);
         roleHandler.setPropertyFileLocation(propertyFileLoc);
         roleHandler.setUserBaseDn(userBaseDn);
-        roleHandler.setUserNameAttribute(userNameAttr);
+        roleHandler.setLoginUserAttribute(loginUserAttribute);
+        roleHandler.setMembershipUserAttribute(membershipUserAttribute);
         roleHandler.setObjectClass(objectClass);
         roleHandler.setMemberNameAttribute(memberNameAttribute);
         roleHandler.setGroupBaseDn(groupBaseDn);
@@ -329,9 +324,14 @@ public class ClaimsHandlerManager {
         ldapProperties.put(PASSWORD, password);
     }
 
-    public void setUserNameAttribute(String userNameAttribute) {
-        LOGGER.trace("Setting userNameAttribute: {}", userNameAttribute);
-        ldapProperties.put(USER_NAME_ATTRIBUTE, userNameAttribute);
+    public void setLoginUserAttribute(String loginUserAttribute) {
+        LOGGER.trace("Setting userNameAttribute: {}", loginUserAttribute);
+        ldapProperties.put(LOGIN_USER_ATTRIBUTE, loginUserAttribute);
+    }
+
+    public void setMembershipUserAttribute(String membershipUserAttribute) {
+        LOGGER.trace("Setting userNameAttribute: {}", membershipUserAttribute);
+        ldapProperties.put(MEMBER_USER_ATTRIBUTE, membershipUserAttribute);
     }
 
     public void setUserBaseDn(String userBaseDn) {
@@ -374,8 +374,8 @@ public class ClaimsHandlerManager {
         KeyManagerFactory kmf;
         try {
             // keystore stuff
-            KeyStore keyStore =
-                    KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+            KeyStore keyStore = KeyStore.getInstance(
+                    System.getProperty("javax.net.ssl.keyStoreType"));
             LOGGER.debug("keyStoreLoc = {}", keyStoreLoc);
             FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
             try {
@@ -408,8 +408,8 @@ public class ClaimsHandlerManager {
         TrustManagerFactory tmf;
         try {
             // truststore stuff
-            KeyStore trustStore = KeyStore.getInstance(System.getProperty(
-                    "javax.net.ssl.keyStoreType"));
+            KeyStore trustStore = KeyStore.getInstance(
+                    System.getProperty("javax.net.ssl.keyStoreType"));
             LOGGER.debug("trustStoreLoc = {}", trustStoreLoc);
             FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
             try {
