@@ -275,7 +275,7 @@ public class Associated {
                 0,
                 SortBy.NATURAL_ORDER,
                 false,
-                TimeUnit.SECONDS.toMillis(30)), true));
+                TimeUnit.SECONDS.toMillis(30)), false));
 
         return query.getResults()
                 .stream()

@@ -97,7 +97,7 @@ public class EndpointUtil {
         Filter filter = filterBuilder.allOf(idFilter, tagsFilter);
 
         QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
-                filter), true));
+                filter), false));
 
         if (queryResponse.getResults()
                 .isEmpty()) {

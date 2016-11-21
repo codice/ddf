@@ -74,6 +74,10 @@ public class ExperimentalEnumerationExtractor {
         }
         MetacardType type = getTypeFromName(metacardType);
 
+        if (type == null) {
+            return new HashMap<>();
+        }
+
         return type.getAttributeDescriptors()
                 .stream()
                 .flatMap(ad -> attributeValidatorRegistry.getValidators(ad.getName())
@@ -99,11 +103,12 @@ public class ExperimentalEnumerationExtractor {
 
     }
 
+    @Nullable
     private MetacardType getTypeFromName(String metacardType) {
         return metacardTypes.stream()
                 .filter(mt -> mt.getName()
                         .equals(metacardType))
                 .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+                .orElse(null);
     }
 }
