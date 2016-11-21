@@ -190,12 +190,12 @@ define([
                             }
                         });
                         return enumArray;
-                    }, metacardDefinitions.enums.datatype.map(function(value){
+                    }, metacardDefinitions.enums.datatype ? metacardDefinitions.enums.datatype.map(function(value){
                        return {
                             label: value,
                             value: value
                        };
-                    })),
+                    }) : []),
                     value: [currentValue],
                     id: 'Types'
                 })
