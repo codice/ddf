@@ -236,6 +236,14 @@ public class ApplicationFileInstaller {
         }
 
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+
+        try {
+            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to set features on document builder.", e);
+        }
+
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(zipFile.getInputStream(featureZipEntry));
 
