@@ -78,7 +78,7 @@
                     <dependency>
                         <groupId>rubygems</groupId>
                         <artifactId>asciidoctor-diagram</artifactId>
-                        <version>1.2.1</version>
+                        <version>1.5.0</version>
                         <type>gem</type>
                         <scope>provided</scope>
                         <exclusions>
@@ -91,7 +91,7 @@
                     <dependency>
                         <groupId>org.asciidoctor</groupId>
                         <artifactId>asciidoctorj</artifactId>
-                        <version>1.5.2</version>
+                        <version>${asciidoctorj.version}</version>
                     </dependency>
                 </dependencies>
                 <build>
@@ -196,7 +196,7 @@
                             <version>1.1.5</version>
                             <configuration>
                                 <!-- align JRuby version with AsciidoctorJ to avoid redundant downloading -->
-                                <jrubyVersion>1.7.25</jrubyVersion>
+                                <jrubyVersion>${jruby.version}</jrubyVersion>
                                 <gemHome>${project.build.directory}/gems</gemHome>
                                 <gemPath>${project.build.directory}/gems-provided</gemPath>
                             </configuration>
