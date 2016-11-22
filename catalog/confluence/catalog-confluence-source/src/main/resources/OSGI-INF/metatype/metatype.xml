@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0"
+                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0">
+
+    <OCD description="DDF Confluence Federated Source" name="Confluence Federated Source"
+         id="Confluence_Federated_Source">
+
+        <AD name="Confluence Rest URL" id="endpointUrl" required="true"
+            type="String"
+            description="The Confluence Rest API endpoint URL. Example: https://<host>:<port>/rest/api/content"/>
+        <AD name="Username" id="username" required="false"
+            type="String"
+            default=""
+            description="Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication."/>
+        <AD name="Password" id="password" required="false"
+            type="Password"
+            default=""
+            description="Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication."/>
+        <AD name="Include Page Contents In Results" id="includePageContent" required="false"
+            type="Boolean"
+            default="false"
+            description="Flag indicating if Confluence page contents should be included in the returned results"/>
+        <AD name="Include Archived Spaces" id="includeArchivedSpaces" required="false"
+            type="Boolean"
+            default="false"
+            description="Flag indicating if archived Confluence spaces should be included in search results"/>
+        <AD name="Exclude Confluence Spaces" id="excludeSpaces" required="false"
+            type="Boolean"
+            default="false"
+            description="Flag indicating if the list of Confluence spaces should be excluded from searches instead of included"/>
+        <AD name="Confluence Spaces" id="ConfluenceSpaces" required="false"
+            type="String" cardinality="1000"
+            description="The Confluence spaces to include/exclude from searches. If no spaces are specified all visible spaces will be searched"/>
+        <AD name="Additional Attributes" id="additionalAttributes" required="false"
+            type="String" cardinality="100"
+            description="Additional attributes to add to Confluence metacards returned from this source."/>
+        <AD name="Availability Poll Interval" id="availabilityPollInterval" required="false"
+            type="Long"
+            default="60000"
+            description="Availability polling interval in milliseconds"/>
+    </OCD>
+
+
+    <OCD description="DDF Confluence Connected Source" name="Confluence Connected Source"
+         id="Confluence_Connected_Source">
+
+        <AD name="Confluence Rest URL" id="endpointUrl" required="true"
+            type="String"
+            description="The Confluence Rest API endpoint URL. Example: https://<host>:<port>/rest/api/content"/>
+        <AD name="Username" id="username" required="false"
+            type="String"
+            default=""
+            description="Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication."/>
+        <AD name="Password" id="password" required="false"
+            type="Password"
+            default=""
+            description="Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication."/>
+        <AD name="Include Page Contents In Results" id="includePageContent" required="false"
+            type="Boolean"
+            default="false"
+            description="Flag indicating if Confluence page contents should be included in the returned results"/>
+        <AD name="Include Archived Spaces" id="includeArchivedSpaces" required="false"
+            type="Boolean"
+            default="false"
+            description="Flag indicating if archived Confluence spaces should be included in search results"/>
+        <AD name="Exclude Confluence Spaces" id="excludeSpaces" required="false"
+            type="Boolean"
+            default="false"
+            description="Flag indicating if the list of Confluence spaces should be excluded from searches instead of included"/>
+        <AD name="Confluence Spaces" id="ConfluenceSpaces" required="false"
+            type="String" cardinality="1000"
+            description="The Confluence spaces to include/exclude from searches. If no spaces are specified all visible spaces will be searched"/>
+        <AD name="Additional Attributes" id="additionalAttributes" required="false"
+            type="String" cardinality="100"
+            description="Additional attributes to add to Confluence metacards returned from this source."/>
+        <AD name="Availability Poll Interval" id="availabilityPollInterval" required="false"
+            type="Long"
+            default="60000"
+            description="Availability polling interval in milliseconds"/>
+    </OCD>
+
+    <Designate pid="Confluence_Federated_Source" factoryPid="Confluence_Federated_Source">
+        <Object ocdref="Confluence_Federated_Source"/>
+    </Designate>
+
+    <Designate pid="Confluence_Connected_Source" factoryPid="Confluence_Connected_Source">
+        <Object ocdref="Confluence_Connected_Source"/>
+    </Designate>
+
+</metatype:MetaData>

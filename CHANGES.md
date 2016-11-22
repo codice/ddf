@@ -42,6 +42,7 @@ replace with next unreleased version
 
 ### NEW FEATURES
 
+- [DDF-2535](https://codice.atlassian.net/browse/DDF-2535) Added Confluence Federated Source
 - [DDF-2467](https://codice.atlassian.net/browse/DDF-2467) Initial support for Solr Cloud
 - [DDF-2413](https://codice.atlassian.net/browse/DDF-2413), [DDF-2388](https://codice.atlassian.net/browse/DDF-2388) Improved support for Expanded metadata taxonomy 
 - [DDF-2196](https://codice.atlassian.net/browse/DDF-2196) Separate admin duties via Admin Console

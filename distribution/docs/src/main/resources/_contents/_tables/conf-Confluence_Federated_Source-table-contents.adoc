@@ -1,0 +1,4 @@
+|<<Confluence_Federated_Source,Federated Source for Atlassian Confluence(R)>>
+|Confluence_Federated_Source
+|Federated Source for Atlassian Confluence(R) should be used when federating to an external Confluence service.
+

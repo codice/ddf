@@ -157,6 +157,13 @@
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-source/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-confluence-source" install="auto" version="${project.version}"
+             description="Confluence source and transformer">
+        <feature prerequisite="true">catalog-app</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-jaxrs</feature>
+        <bundle>mvn:ddf.catalog.confluence/catalog-confluence-source/${project.version}</bundle>
+    </feature>
+
     <feature name="abdera" install="manual" version="${project.version}"
              description="Apache Abdera">
         <bundle>wrap:mvn:org.apache.james/apache-mime4j-core/0.7.2</bundle>

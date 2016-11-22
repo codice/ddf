@@ -3107,7 +3107,7 @@ Supports "asc" and "desc" using colon as delimiter.
 |Service Property
 |Value
 
-|`${ddf-branding}.catalog.source.FederatedSource`
+|`${ddf-branding-lowercase}.catalog.source.FederatedSource`
 |
 |
 
@@ -3122,7 +3122,7 @@ Supports "asc" and "desc" using colon as delimiter.
 |Multiple
 |Filter
 
-|${ddf-branding}.catalog.transform.InputTransformer
+|${ddf-branding-lowercase}.catalog.transform.InputTransformer
 |required
 |false
 |(&amp;(mime-type=text/xml)(id=xml))
@@ -3132,6 +3132,266 @@ Supports "asc" and "desc" using colon as delimiter.
 ===== Known Issues
 
 The OpenSearch source does not provide a Connected Source interface.
+
+==== Federated Source for Atlassian Confluence(R)
+
+The Confluence source provides a Federated Source to retrieve pages, comments, and attachments from a Confluence REST API and turns the results into Metacards the system can use.
+The Confluence source does provide a Connected Source interface but its functionality has not been verified.
+
+Confluence Source has been tested against the following versions of Confluence with REST API v2
+
+* Confluence 1000.444.5 (Cloud)
+* Confluence 5.10.6 (Server)
+* Confluence 5.10.7 (Server)
+
+===== Installing the Confluence Source
+
+The Confluence Federated Source is installed by default with a standard installation in the ${ddf-spatial} application.
+
+Add a New Confluence Federated Source through the ${admin-console}:
+
+* Navigate to the *${admin-console}*.
+* Select the *${ddf-catalog}* application.
+* Select the *Sources* tab.
+* Add a New source.
+* Name the New source.
+* Select *Confluence Federated Source* from *Binding Configurations*.
+
+===== Configuring the Confluence Source
+
+This component can be configured using the normal processes described in the Configuring ${branding} section.
+The configurable properties for the Confluence source are accessed from the Confluence Federated Source Configuration in the Admin UI.
+
+====== Configurable Properties
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Source Name
+|shortname
+|String
+|
+|
+|Yes
+
+|Confluence Rest URL
+|endpointUrl
+|String
+|The Confluence Rest API endpoint URL. Example: https://<host>:<port>/rest/api/content
+|
+|Yes
+
+|Username
+|username
+|String
+|Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication.
+|
+|No
+
+|Password
+|password
+|Password
+|Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication.
+|
+|No
+
+|Include Page Contents In Results
+|includePageContent
+|Boolean
+|Flag indicating if Confluence page contents should be included in the returned results. If page contents not included in results then the returned metacards will not have the `description` or `metadata` fields set.
+|false
+|No
+
+|Include Archived Spaces
+|includeArchivedSpaces
+|Boolean
+|Flag indicating if archived confluence spaces should be included in search results.
+|false
+|No
+
+|Exclude Confluence Spaces
+|excludeSpaces
+|Boolean
+|Flag indicating if the list of Confluence Spaces should be excluded from searches instead of included.
+|false
+|No
+
+|Confluence Spaces
+|confluenceSpaces
+|String cardinality=1000
+|The confluence spaces to include/exclude from searches. If no spaces are specified, all visible spaces will be searched. A confluence space must be set in order for wildcard only searches to work.
+|
+|No
+
+|Additional Attributes
+|additionalAttributes
+|String cardinality=100
+|Additional attributes to add to confluence metacards returned from this source.
+|
+|No
+
+|Availability Poll Interval
+|availabilityPollInterval
+|Long
+|Availability polling interval in milliseconds.
+|60000
+|No
+
+|===
+
+===== Using
+
+Use the Confluence source if querying a Confluence server is desired.
+
+===== Restrictions
+
+Most of the fields that can be queried on confluence have some sort of restriction on them. Most of the fields do not support the `like` aka `~` operation so the source will convert `like` queries to `equal` queries for attributes that don't support `like`. If the source receives a query with attributes it doesn't understand, it will just ignore them. If the query doesn't contain any attributes that map to confluence search attributes, an empty result set will be returned.
+
+===== Implementation Details
+
+====== Common Taxonomy Mappings
+[cols="2,4,2" options="header"]
+|===
+
+|Taxonomy Name
+|Source
+|Query Restrictions
+
+|created
+|history.createDate
+|>, <, =
+
+|description
+|First 256 characters of the Confluence entry body
+|Not directly queryable.
+
+|id
+|Uses the Confluence id as the metacard id.
+|=, !=
+
+|metacard-tags
+|resource, confluence
+|blank
+
+|metadata
+|Tika-like formatted xml containing the entire text body of the Confluence entry
+|Queryable via `anyText` ~, !~
+
+|modified
+|history.lastModified.when
+|>, <, =
+
+|resource-download-url
+|_links.download
+|Not directly queryable.
+
+|resource-size
+|extensions.fileSize
+|Not directly queryable.
+
+|resource-uri
+|_links.download
+|Not directly queryable.
+
+|title
+|title
+|=, !=, ~, !~
+
+|associations.external
+|_links.webui, _links.base, space._links.webui
+|Not directly queryable.
+
+|contact.contributor-name
+|history.contributors.publishers.users.username
+|=, !=
+
+|contact.creator-name
+|history.createdBy.username
+|=, !=
+
+|media.type
+|metadata.mediaType
+|Not directly queryable.
+
+|metacard.created
+|history.createDate
+|>, <, =
+
+|metacard.modified
+|history.lastModified.when
+|>, <, =
+
+|security.access-groups
+|restrictions.read.restrictions.group.name
+|Not directly queryable.
+
+|security.access-individuals
+|restrictions.read.restrictions.user.username
+|Not directly queryable.
+
+|topic.keyword
+|metadata.labels.results.name
+|=, !=
+
+|topic.category
+|type
+|=, !=
+
+|topic.vocabulary
+|https://developer.atlassian.com/confdev/confluence-server-rest-api/advanced-searching-using-cql/cql-field-reference#CQLFieldReference-titleTitleType
+|Not directly queryable.
+
+|===
+
+====== Exported Services
+
+[cols="2,1,1" options="header"]
+|===
+
+|Registered Interface
+|Service Property
+|Value
+
+|`${ddf-branding-lowercase}.catalog.source.FederatedSource`
+|
+|
+
+|===
+
+===== Imported Services
+[cols="2,1,1,2" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+|Filter
+
+|${ddf-branding-lowercase}.security.encryption.EncryptionService
+|required
+|false
+|
+
+|${ddf-branding-lowercase}.catalog.filter.FilterAdapter
+|required
+|false
+|
+
+|${ddf-branding-lowercase}.catalog.resource.ResourceReader
+|required
+|false
+|(shortname=URLResourceReader)
+
+|===
+
+===== Known Issues
+
+Depending on your version of Confluence, when downloading attachments you might get redirected to a different download URL. If this happens the default URLResourceReader configuration does not allow redirects and will fail the download. This can be fixed by enabling redirects in the URLResourceReader configuration.
 
 ==== Developing a Source
 
