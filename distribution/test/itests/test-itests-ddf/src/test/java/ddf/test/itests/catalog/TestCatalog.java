@@ -1597,22 +1597,18 @@ public class TestCatalog extends AbstractIntegrationTest {
         clientIP rule currently broken - not getting what we expect */
         final String factoryPid =
                 "org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin";
-        final String symbolicName = "catalog-plugin-metacardingest-network";
-        final String clientIP = "0:0:0:0:0:0:0:1";
+        final String bundleSymbolicName = "catalog-plugin-metacardingest-network";
+        final String clientIP = "127.0.0.1";
         final String clientScheme = "https";
 
-        Map<String, Object> networkRule1Properties = getServiceManager().getMetatypeDefaults(
-                symbolicName,
-                factoryPid);
-
-        Map<String, Object> networkRule2Properties = Maps.newHashMap(networkRule1Properties);
+        Map<String, Object> networkRule1Properties = new HashMap<>();
+        Map<String, Object> networkRule2Properties = new HashMap<>();
 
         List<Object> attributeAdjustmentsForRule1 = ImmutableList.of(
                 "security.access-groups = FIFA, NFL");
 
         List<Object> attributeAdjustmentsForRule2 = ImmutableList.of("description = None",
-                "metacard-tags = ALPHA, BRAVO, resource",
-                "security.access-groups = FIFA, NFL");
+                "metacard-tags = ALPHA, BRAVO, resource");
 
         networkRule1Properties.put("criteriaKey", "remoteAddr");
         networkRule1Properties.put("expectedValue", clientIP);
@@ -1626,9 +1622,10 @@ public class TestCatalog extends AbstractIntegrationTest {
 
             /* START SERVICES
             Add instances of the rules */
+            getServiceManager().startFeature(true, "catalog-metacardingest-network");
             getServiceManager().createManagedService(factoryPid, networkRule1Properties);
             getServiceManager().createManagedService(factoryPid, networkRule2Properties);
-            getServiceManager().waitForRequiredBundles(symbolicName);
+            getServiceManager().waitForRequiredBundles(bundleSymbolicName);
 
             /* INGEST
             Working with two metacard xml files and one txt file to serve as a tika product */

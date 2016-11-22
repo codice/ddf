@@ -15,8 +15,8 @@ package org.codice.ddf.catalog.plugin.metacard;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNot.not;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import ddf.catalog.data.Metacard;
@@ -62,6 +64,16 @@ public class MetacardIngestNetworkPluginTest {
     private static final String EXPECTED_VALUE = "criteria-value";
 
     private static final Map<String, Serializable> INFO_MAP = ImmutableMap.of();
+
+    private static final String[] NEW_ATTRIBUTES = new String[0];
+
+    private static final Map<String, Object> PROPERTIES = ImmutableMap.of(
+
+            "criteriaKey", CRITERIA_KEY,
+
+            "expectedValue", EXPECTED_VALUE,
+
+            "newAttributes", NEW_ATTRIBUTES);
 
     @Mock
     private CreateRequest mockCreateRequest;
@@ -98,10 +110,9 @@ public class MetacardIngestNetworkPluginTest {
                 mockAttributeFactory,
                 mockMetacardCondition);
 
+        when(mockMetacardCondition.getParsedAttributes()).thenReturn(mockParsedAttributes);
         when(mockCreateRequest.getMetacards()).thenReturn(metacards);
         when(mockParser.parsePairsToMap(newAttributes)).thenReturn(mockParsedAttributes);
-
-        plugin.setNewAttributes(newAttributes);
     }
 
     @Test
@@ -121,42 +132,71 @@ public class MetacardIngestNetworkPluginTest {
     }
 
     @Test
-    public void testApplySuceeds() throws Exception {
+    public void testApplySucceeds() throws Exception {
         ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
         when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(true);
 
-        plugin.processPreCreate(mockCreateRequest);
+        CreateRequest createRequest = plugin.processPreCreate(mockCreateRequest);
 
         verify(mockMetacardServices).setAttributesIfAbsent(metacards,
                 mockParsedAttributes,
                 mockAttributeFactory);
 
         verifyNoMoreInteractions(mockMetacardServices);
+        assertThat(createRequest, is(not(mockCreateRequest)));
     }
 
     @Test
     public void testApplyFails() throws Exception {
         ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
         when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(false);
-        plugin.processPreCreate(mockCreateRequest);
+        CreateRequest createRequest = plugin.processPreCreate(mockCreateRequest);
         verifyZeroInteractions(mockMetacardServices);
+        assertThat(createRequest, is(mockCreateRequest));
     }
 
     @Test
-    public void testGettersAndSetters() throws Exception {
+    public void testGetters() throws Exception {
+        MetacardCondition metacardCondition = new MetacardCondition(CRITERIA_KEY,
+                EXPECTED_VALUE,
+                newAttributes,
+                mockParser);
+
         MetacardIngestNetworkPlugin networkPlugin = new MetacardIngestNetworkPlugin(mockParser,
-                mockMetacardServices);
+                mockMetacardServices,
+                mockAttributeFactory,
+                metacardCondition);
 
-        networkPlugin.setCriteriaKey(CRITERIA_KEY);
-        networkPlugin.setExpectedValue(EXPECTED_VALUE);
-        networkPlugin.setNewAttributes(newAttributes);
-
-        verify(mockParser, times(2)).parsePairsToMap(newAttributes);
+        verify(mockParser).parsePairsToMap(newAttributes);
         verifyNoMoreInteractions(mockParser);
 
         assertThat(networkPlugin.getCriteriaKey(), is(CRITERIA_KEY));
         assertThat(networkPlugin.getExpectedValue(), is(EXPECTED_VALUE));
         assertThat(networkPlugin.getNewAttributes(), is(newAttributes));
+    }
+
+    @Test
+    public void testUpdateCondition() throws Exception {
+        List<String> tempList = ImmutableList.of();
+        MetacardCondition metacardCondition = new MetacardCondition("key",
+                "value",
+                tempList,
+                mockParser);
+
+        MetacardIngestNetworkPlugin networkPlugin = new MetacardIngestNetworkPlugin(mockParser,
+                mockMetacardServices,
+                mockAttributeFactory,
+                metacardCondition);
+
+        assertThat(networkPlugin.getCriteriaKey(), is("key"));
+        assertThat(networkPlugin.getExpectedValue(), is("value"));
+        assertThat(networkPlugin.getNewAttributes(), is(tempList));
+
+        networkPlugin.updateCondition(PROPERTIES);
+
+        assertThat(networkPlugin.getCriteriaKey(), is(CRITERIA_KEY));
+        assertThat(networkPlugin.getExpectedValue(), is(EXPECTED_VALUE));
+        assertThat(networkPlugin.getNewAttributes(), is(Arrays.asList(NEW_ATTRIBUTES)));
     }
 
     @Test

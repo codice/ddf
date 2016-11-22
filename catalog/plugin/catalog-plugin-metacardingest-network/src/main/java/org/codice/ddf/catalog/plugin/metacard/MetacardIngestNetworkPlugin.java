@@ -14,6 +14,8 @@
 package org.codice.ddf.catalog.plugin.metacard;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +35,7 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 
@@ -47,6 +50,8 @@ import ddf.catalog.plugin.StopProcessingException;
  * Any attribute already set on the metacards cannot be changed. Currently there is no support for
  * appending new values within a multi-valued attribute onto an already existing one. As long as
  * an attribute is not null, it cannot be overwritten.
+ * <p>
+ * See {@link MetacardCondition} for details on its immutability and volatility.
  */
 public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
 
@@ -54,29 +59,24 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
 
     private static final String CLIENT_INFO_KEY = "client-info";
 
+    private static final String CRITERIA_KEY = "criteriaKey";
+
+    private static final String EXPECTED_VALUE = "expectedValue";
+
+    private static final String NEW_ATTRIBUTES = "newAttributes";
+
     private final KeyValueParser keyValueParser;
 
     private final MetacardServices metacardServices;
 
     private final AttributeFactory attributeFactory;
 
-    private final MetacardCondition metacardCondition;
+    private volatile MetacardCondition metacardCondition;
 
-    private List<String> newAttributes;
-
-    private Map<String, String> parsedAttributes;
+    private Map<String, Object> initParameters;
 
     /**
-     * Default constructor.
-     */
-    public MetacardIngestNetworkPlugin(KeyValueParser keyValueParser,
-            MetacardServices metacardServices) {
-        this(keyValueParser, metacardServices, new AttributeFactory(), new MetacardCondition());
-    }
-
-    /**
-     * Extended constructor with an {@link AttributeFactory} and {@link MetacardCondition} to provide
-     * more fine-grained control.
+     * Constructor requires all dependencies.
      */
     public MetacardIngestNetworkPlugin(KeyValueParser keyValueParser,
             MetacardServices metacardServices, AttributeFactory attributeFactory,
@@ -85,41 +85,75 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
         this.metacardServices = metacardServices;
         this.attributeFactory = attributeFactory;
         this.metacardCondition = metacardCondition;
+
+        this.initParameters = new HashMap<>();
     }
 
     public String getCriteriaKey() {
         return metacardCondition.getCriteriaKey();
     }
 
-    public void setCriteriaKey(String criteriaKey) {
-        metacardCondition.setCriteriaKey(criteriaKey);
-    }
-
     public String getExpectedValue() {
         return metacardCondition.getExpectedValue();
     }
 
-    public void setExpectedValue(String expectedValue) {
-        metacardCondition.setExpectedValue(expectedValue);
+    public List<String> getNewAttributes() {
+        return metacardCondition.getNewAttributes();
     }
 
-    public List<String> getNewAttributes() {
-        return newAttributes;
+    public void setCriteriaKey(String criteriaKey) {
+        initParameters.put(CRITERIA_KEY, criteriaKey);
+    }
+
+    public void setExpectedValue(String expectedValue) {
+        initParameters.put(EXPECTED_VALUE, expectedValue);
     }
 
     public void setNewAttributes(List<String> newAttributes) {
-        this.newAttributes = newAttributes;
-        this.parsedAttributes = keyValueParser.parsePairsToMap(newAttributes);
+        initParameters.put(NEW_ATTRIBUTES, newAttributes.toArray(new String[newAttributes.size()]));
+    }
+
+    /**
+     * Method required by the component-managed strategy. Performs set-up based on initial values
+     * passed to the service.
+     */
+    public void init() {
+        updateCondition(initParameters);
+    }
+
+    /**
+     * Method required by the component-managed strategy.
+     */
+    public void destroy() {
+    }
+
+    /**
+     * Atomically update the condition so that ingest rules are not evaluated based on an invalid
+     * rule.
+     */
+    public void updateCondition(Map<String, Object> properties) {
+
+        if (properties != null) {
+            String criteriaKey = (String) properties.get(CRITERIA_KEY);
+            String expectedValue = (String) properties.get(EXPECTED_VALUE);
+            String[] newAttributes = (String[]) properties.get(NEW_ATTRIBUTES);
+
+            metacardCondition = new MetacardCondition(criteriaKey,
+                    expectedValue,
+                    Arrays.asList(newAttributes),
+                    keyValueParser);
+        }
     }
 
     @Override
     public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
-        Map<String, Serializable> clientInfoProperties = getClientInfoProperties();
-        if (clientInfoProperties == null) {
+        Object info = ThreadContext.get(CLIENT_INFO_KEY);
+        if (!(info instanceof Map)) {
+            LOGGER.debug("Client network info was null or not properly formatted");
             return input;
         }
-        updateMetacardsIfConditionApplies(input.getMetacards(), getClientInfoProperties());
-        return input;
+        Map<String, Serializable> clientInfoProperties = (Map<String, Serializable>) info;
+        return createNewMetacardsIfConditionApplies(input, clientInfoProperties);
     }
 
     //region - Passthrough  methods
@@ -164,7 +198,7 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
 
     //endregion
 
-    private void updateMetacardsIfConditionApplies(List<Metacard> metacards,
+    private CreateRequest createNewMetacardsIfConditionApplies(CreateRequest request,
             Map<String, Serializable> criteria) {
         if (metacardCondition.applies(criteria)) {
             if (LOGGER.isDebugEnabled()) {
@@ -173,16 +207,15 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
                         metacardCondition.getExpectedValue(),
                         criteria.get(metacardCondition.getCriteriaKey()));
             }
-            metacardServices.setAttributesIfAbsent(metacards, parsedAttributes, attributeFactory);
-        }
-    }
 
-    private Map<String, Serializable> getClientInfoProperties() throws StopProcessingException {
-        Object info = ThreadContext.get(CLIENT_INFO_KEY);
-        if (!(info instanceof Map)) {
-            return null;
+            List<Metacard> metacards = request.getMetacards();
+            List<Metacard> newMetacards = metacardServices.setAttributesIfAbsent(metacards,
+                    metacardCondition.getParsedAttributes(),
+                    attributeFactory);
+
+            return new CreateRequestImpl(newMetacards, request.getProperties());
         }
 
-        return (Map<String, Serializable>) info;
+        return request;
     }
 }

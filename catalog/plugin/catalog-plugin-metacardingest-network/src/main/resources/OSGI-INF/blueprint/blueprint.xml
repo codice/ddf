@@ -24,9 +24,23 @@
     </reference-list>
 
     <bean id="parser" class="org.codice.ddf.catalog.plugin.metacard.util.KeyValueParser"/>
+
     <bean id="metacardServices"
           class="org.codice.ddf.catalog.plugin.metacard.util.MetacardServices">
         <argument ref="types"/>
+    </bean>
+
+    <bean id="attributeFactory"
+          class="org.codice.ddf.catalog.plugin.metacard.util.AttributeFactory"/>
+
+    <bean id="initialMetacardCondition"
+          class="org.codice.ddf.catalog.plugin.metacard.MetacardCondition">
+        <argument value="None"/>
+        <argument value="None"/>
+        <argument>
+            <list/>
+        </argument>
+        <argument ref="parser"/>
     </bean>
 
     <cm:managed-service-factory
@@ -34,15 +48,14 @@
             factory-pid="org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin"
             interface="ddf.catalog.plugin.PreAuthorizationPlugin">
         <cm:managed-component
-                class="org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin">
+                class="org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin"
+                init-method="init" destroy-method="destroy">
             <argument ref="parser"/>
             <argument ref="metacardServices"/>
-            <property name="criteriaKey" value=""/>
-            <property name="expectedValue" value=""/>
-            <property name="newAttributes">
-                <list/>
-            </property>
-            <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
+            <argument ref="attributeFactory"/>
+            <argument ref="initialMetacardCondition"/>
+            <cm:managed-properties persistent-id="" update-strategy="component-managed"
+                                   update-method="updateCondition"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 

@@ -14,13 +14,21 @@
 package org.codice.ddf.catalog.plugin.metacard;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import org.codice.ddf.catalog.plugin.metacard.util.KeyValueParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Represents a rule-based check on a metacard given a map of possible criteria to check against.
+ * Represents an immutable, rule-based check on a metacard given a map of possible criteria to
+ * check against. The class must remain immutable to account for the case where an admin submits
+ * configuration changes during live ingest traffic; there must exist a deterministic boundary where
+ * the rule (and all its fields) synchronously swap to the new configuration without corrupting the
+ * ingest traffic (i.e. attempts to test a scheme criteria for an IP address value, which will
+ * produce undefined behavior, resulting with incorrect attribute markings).
  */
 public class MetacardCondition {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardCondition.class);
@@ -29,20 +37,36 @@ public class MetacardCondition {
 
     private String expectedValue;
 
-    public String getCriteriaKey() {
-        return criteriaKey;
+    private List<String> newAttributes;
+
+    private Map<String, String> parsedAttributes;
+
+    public MetacardCondition(final String criteriaKey, final String expectedValue) {
+        this(criteriaKey, expectedValue, new ArrayList<>(), new KeyValueParser());
     }
 
-    public void setCriteriaKey(String criteriaKey) {
+    public MetacardCondition(final String criteriaKey, final String expectedValue,
+            final List<String> newAttributes, final KeyValueParser parser) {
         this.criteriaKey = criteriaKey.trim();
+        this.expectedValue = expectedValue.trim();
+        this.newAttributes = newAttributes;
+        this.parsedAttributes = parser.parsePairsToMap(this.newAttributes);
+    }
+
+    public String getCriteriaKey() {
+        return criteriaKey;
     }
 
     public String getExpectedValue() {
         return expectedValue;
     }
 
-    public void setExpectedValue(String expectedValue) {
-        this.expectedValue = expectedValue.trim();
+    public List<String> getNewAttributes() {
+        return newAttributes;
+    }
+
+    public Map<String, String> getParsedAttributes() {
+        return parsedAttributes;
     }
 
     public boolean applies(Map<String, Serializable> criteria) {
