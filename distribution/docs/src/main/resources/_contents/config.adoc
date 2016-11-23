@@ -13,7 +13,6 @@ Version ${project.version}. Copyright (c) Codice Foundation
 :download-url: https://github.com/codice/ddf/releases
 :adoc-include: ${project.build.directory}/doc-contents/_contents
 :title-logo: logo_ddf.png
-:adoc-include: ${project.build.directory}/doc-contents/_contents
 :last-update-label: Copyright (c) Codice Foundation. +
 This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). +
 
@@ -27,6 +26,6 @@ This work is licensed under a http://creativecommons.org/licenses/by/4.0[Creativ
 
 <<<
 endif::[]
-
 // workaround to remove "table of contents" blocks from table cells
 :toc!:
+
