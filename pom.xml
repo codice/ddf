@@ -159,9 +159,8 @@
         <ddf-ui>DDF Search UI</ddf-ui>
 
         <asciidoctor.maven.plugin.version>1.5.3</asciidoctor.maven.plugin.version>
-        <asciidoctorj-pdf.version>1.5.0-alpha.11</asciidoctorj-pdf.version>
-        <asciidoctorj.version>1.5.4</asciidoctorj.version>
-        <jruby.version>9.1.6.0</jruby.version>
+        <asciidoctorj.pdf.version>1.5.0-alpha.11</asciidoctorj.pdf.version>
+        <jruby.version>1.7.25</jruby.version>
 
         <solr.version>6.0.0</solr.version>
         <lucene.version>6.0.0</lucene.version>
