@@ -1688,6 +1688,109 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
+    public void testCreatePendingNrtIndex() throws Exception {
+        deleteAllIn(provider);
+        ConfigurationStore.getInstance()
+                .setForceAutoCommit(false);
+
+        try {
+            MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+
+            CreateResponse response = create(metacard);
+
+            String createdId = response.getCreatedMetacards()
+                    .get(0)
+                    .getId();
+
+            Filter titleFilter = filterBuilder.attribute(Metacard.TITLE)
+                    .like()
+                    .text(MockMetacard.DEFAULT_TITLE);
+
+            Filter idFilter = filterBuilder.attribute(Metacard.ID)
+                    .equalTo()
+                    .text(createdId);
+
+            SourceResponse titleResponse = provider.query(new QueryRequestImpl(new QueryImpl(
+                    titleFilter)));
+
+            SourceResponse idResponse =
+                    provider.query(new QueryRequestImpl(new QueryImpl(idFilter)));
+
+            assertThat(titleResponse.getResults()
+                    .size(), is(0));
+            assertThat(idResponse.getResults()
+                    .size(), is(1));
+        } finally {
+            ConfigurationStore.getInstance()
+                    .setForceAutoCommit(true);
+        }
+    }
+
+    @Test
+    public void testUpdatePendingNrtIndex() throws Exception {
+        deleteAllIn(provider);
+        ConfigurationStore.getInstance()
+                .setForceAutoCommit(false);
+
+        try {
+            MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+
+            CreateResponse createResponse = create(metacard);
+
+            String id = createResponse.getCreatedMetacards()
+                    .get(0)
+                    .getId();
+
+            MockMetacard updatedMetacard = new MockMetacard(Library.getFlagstaffRecord());
+
+            updatedMetacard.setContentTypeName("pendingContentType");
+
+            UpdateResponse response = update(id, updatedMetacard);
+
+            Update update = response.getUpdatedMetacards()
+                    .get(0);
+
+            Metacard newMetacard = update.getNewMetacard();
+
+            Metacard oldMetacard = update.getOldMetacard();
+
+            assertThat(response.getUpdatedMetacards()
+                    .size(), is(1));
+
+            assertThat(newMetacard.getContentTypeName(), is("pendingContentType"));
+            assertThat(oldMetacard.getContentTypeName(), is(MockMetacard.DEFAULT_TYPE));
+        } finally {
+            ConfigurationStore.getInstance()
+                    .setForceAutoCommit(true);
+        }
+    }
+
+    @Test
+    public void testDeletePendingNrtIndex() throws Exception {
+        deleteAllIn(provider);
+        ConfigurationStore.getInstance()
+                .setForceAutoCommit(false);
+
+        try {
+            MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+
+            CreateResponse createResponse = create(metacard);
+
+            DeleteResponse deleteResponse = delete(createResponse.getCreatedMetacards()
+                    .get(0)
+                    .getId());
+
+            Metacard deletedMetacard = deleteResponse.getDeletedMetacards()
+                    .get(0);
+
+            verifyDeletedRecord(metacard, createResponse, deleteResponse, deletedMetacard);
+        } finally {
+            ConfigurationStore.getInstance()
+                    .setForceAutoCommit(true);
+        }
+    }
+
+    @Test
     public void testExtensibleMetacards() throws IngestException, UnsupportedQueryException {
 
         deleteAllIn(provider);

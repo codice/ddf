@@ -24,6 +24,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
@@ -39,11 +42,16 @@ import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -80,8 +88,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
-    private static final double HASHMAP_DEFAULT_LOAD_FACTOR = 0.75;
-
     public static final int MAX_BOOLEAN_CLAUSES = 1024;
 
     private static Properties describableProperties = new Properties();
@@ -101,6 +107,16 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     private SolrMetacardClient client;
 
+    private FilterAdapter filterAdapter;
+
+    /**
+     * Cache of Metacards that have been updated on Solr but might not be visible in the
+     * near real time index yet.  Cache is checked when ID queries fail from Solr.
+     */
+    private Cache<String, Metacard> pendingNrtIndex = CacheBuilder.newBuilder()
+            .expireAfterWrite(5, TimeUnit.SECONDS)
+            .build();
+
     /**
      * Constructor that creates a new instance and allows for a custom {@link DynamicSchemaResolver}
      *
@@ -115,6 +131,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         }
 
         this.solr = solrClient;
+        this.filterAdapter = adapter;
         this.resolver = resolver;
 
         LOGGER.debug("Constructing {} with Solr client [{}]",
@@ -195,7 +212,36 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-        return client.query(request);
+        SourceResponse response = client.query(request);
+        queryPendingNrtIndex(request, response);
+        return response;
+    }
+
+    private void queryPendingNrtIndex(QueryRequest request, SourceResponse response)
+            throws UnsupportedQueryException {
+        if (request == null || request.getQuery() == null) {
+            return;
+        }
+
+        Set<String> ids = filterAdapter.adapt(request.getQuery(),
+                new MetacardIdEqualityFilterDelegate());
+        if (ids.size() == 0 || ids.size() <= response.getResults()
+                .size()) {
+            return;
+        }
+
+        for (Result result : response.getResults()) {
+            ids.remove(result.getMetacard()
+                    .getId());
+        }
+
+        for (String id : ids) {
+            Metacard metacard = pendingNrtIndex.getIfPresent(id);
+            if (metacard != null) {
+                response.getResults()
+                        .add(new ResultImpl(metacard));
+            }
+        }
     }
 
     @Override
@@ -238,6 +284,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             LOGGER.debug("Solr could not ingest metacard(s).", e);
             throw new IngestException("Solr could not ingest metacard(s).");
         }
+
+        pendingNrtIndex.putAll(output.stream()
+                .collect(Collectors.toMap(Metacard::getId, Function.identity())));
+
         return new CreateResponseImpl(request, request.getProperties(), output);
     }
 
@@ -289,6 +339,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             LOGGER.info("Solr exception during query", e);
         }
 
+        // map of old metacards to be populated
+        Map<Serializable, Metacard> idToMetacardMap = new HashMap<>();
+
+
         // CHECK if we got any results back
         if (idResults != null && idResults.getResults() != null && idResults.getResults()
                 .size() != 0) {
@@ -304,6 +358,11 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                         "Found more metacards than updated metacards provided. Please ensure your attribute values match unique records.");
             }
 
+        } else if (pendingNrtIndex.getAllPresent(identifiers).size() > 0) {
+            Map<String, Metacard> matches = pendingNrtIndex.getAllPresent(identifiers);
+            for (Entry<String, Metacard> match : matches.entrySet()) {
+                idToMetacardMap.put(match.getKey(), match.getValue());
+            }
         } else {
             LOGGER.debug("No results found for given attribute values.");
 
@@ -311,22 +370,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             return new UpdateResponseImpl(updateRequest, null, new ArrayList<Update>());
 
         }
-
-        /*
-         * According to HashMap javadoc, if initialCapacity > (max entries / load factor), then no
-         * rehashing will occur. We purposely calculate the correct capacity for no rehashing.
-         */
-
-        /*
-         * A map is used to store the metacards so that the order of metacards returned will not
-         * matter. If we use a List and the metacards are out of order, we might not match the new
-         * metacards properly with the old metacards.
-         */
-        int initialHashMapCapacity = (int) (idResults.getResults()
-                .size() / HASHMAP_DEFAULT_LOAD_FACTOR) + 1;
-
-        // map of old metacards to be populated
-        Map<Serializable, Metacard> idToMetacardMap = new HashMap<>(initialHashMapCapacity);
 
         /* 1c. Populate list of old metacards */
         for (SolrDocument doc : idResults.getResults()) {
@@ -380,6 +423,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             throw new IngestException("Solr could not ingest metacard(s).");
         }
 
+        pendingNrtIndex.putAll(updateList.stream()
+                .collect(Collectors.toMap(u -> u.getNewMetacard()
+                        .getId(), Update::getNewMetacard)));
+
         return new UpdateResponseImpl(updateRequest, updateRequest.getProperties(), updateList);
     }
 
@@ -422,6 +469,12 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                     identifiers.size());
             deleteListOfMetacards(deletedMetacards, identifierPaged, attributeName);
         }
+        addPendingNrtDeletedMetacards(deletedMetacards, identifiers);
+
+        pendingNrtIndex.invalidateAll(deletedMetacards.stream()
+                .map(Metacard::getId)
+                .collect(Collectors.toList()));
+
         return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
 
     }
@@ -457,7 +510,18 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 LOGGER.info("Metacard creation exception creating metacards during delete", e);
                 throw new IngestException("Could not create metacard(s).");
             }
+        }
+    }
 
+    private void addPendingNrtDeletedMetacards(List<Metacard> deletedMetacards,
+            List<? extends Serializable> identifiers) {
+        if (deletedMetacards.size() < identifiers.size() && pendingNrtIndex.getAllPresent(
+                identifiers)
+                .size() > 0) {
+            Map<String, Metacard> matches = pendingNrtIndex.getAllPresent(identifiers);
+
+            deletedMetacards.forEach(m -> matches.remove(m.getId()));
+            deletedMetacards.addAll(matches.values());
         }
     }
 
