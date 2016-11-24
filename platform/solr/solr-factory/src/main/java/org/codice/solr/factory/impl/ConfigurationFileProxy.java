@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory;
+package org.codice.solr.factory.impl;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -21,14 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Enumeration;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.configuration.AbsolutePathResolver;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,13 +39,20 @@ public class ConfigurationFileProxy {
 
     public static final String DEFAULT_SOLR_CONFIG_PARENT_DIR = "etc";
 
-    public static final String SOLR_CONFIG_LOCATION_IN_BUNDLE =
-            new AbsolutePathResolver("solr/conf").getPath();
-
     public static final String DEFAULT_SOLR_DATA_PARENT_DIR =
             new AbsolutePathResolver("data/solr").getPath();
 
     public static final String CATALOG_SOLR_COLLECTION_NAME = "metacard";
+
+    protected static final List<String> SOLR_CONFIG_FILES =
+            Collections.unmodifiableList(Arrays.asList("protwords.txt",
+                    "schema.xml",
+                    "solr.xml",
+                    "solrconfig.xml",
+                    "solrconfig-inmemory.xml",
+                    "stopwords.txt",
+                    "stopwords_en.txt",
+                    "synonyms.txt"));
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileProxy.class);
 
@@ -69,46 +75,26 @@ public class ConfigurationFileProxy {
         }
     }
 
-    protected BundleContext getContext() {
-        Bundle cxfBundle = FrameworkUtil.getBundle(ConfigurationFileProxy.class);
-        if (cxfBundle != null) {
-            return cxfBundle.getBundleContext();
-        }
-        return null;
-    }
-
     /**
-     * Writes the solr configuration files out of the bundle onto the disk. This method requires
-     * that the dataDirectoryPath has been set. If the code is run in an OSGi container, it will
-     * automatically have a default dataDirectory location set and will not require setting
-     * dataDirectory ahead of time.
+     * Writes the Solr configuration files for a core from the classpath to disk.
      */
-    public void writeBundleFilesTo(File configDir) {
-        BundleContext bundleContext = getContext();
-        if (bundleContext != null && configDir != null) {
-            boolean directoriesMade = configDir.mkdirs();
-            LOGGER.debug("Solr Config directories made?  {}", directoriesMade);
+    void writeSolrConfiguration(String core) {
+        File configDir = Paths.get(this.dataDirectory.getAbsolutePath(), core, "conf")
+                .toFile();
+        boolean directoriesMade = configDir.mkdirs();
+        LOGGER.debug("Solr Config directories made?  {}", directoriesMade);
 
-            @SuppressWarnings("rawtypes")
-            Enumeration entries = bundleContext.getBundle()
-                    .findEntries(SOLR_CONFIG_LOCATION_IN_BUNDLE, "*.*", false);
-
-            while (entries.hasMoreElements()) {
-                URL resourceURL = (URL) (entries.nextElement());
-                LOGGER.debug("Found {}", resourceURL);
-
-                try (InputStream inputStream = resourceURL.openStream()) {
-                    String fileName = FilenameUtils.getName(resourceURL.getPath());
-                    File currentFile = new File(configDir, fileName);
-
-                    if (!currentFile.exists()) {
-                        try (FileOutputStream outputStream = new FileOutputStream(currentFile)) {
-                            long byteCount = IOUtils.copyLarge(inputStream, outputStream);
-                            LOGGER.debug("Wrote out {} bytes.", byteCount);
-                        }
-                    }
+        for (String filename : SOLR_CONFIG_FILES) {
+            File currentFile = new File(configDir, filename);
+            File backupFile = new File(configDir, filename + ".bak");
+            if (!currentFile.exists() && !backupFile.exists()) {
+                try (InputStream inputStream = ConfigurationFileProxy.class.getClassLoader()
+                        .getResourceAsStream("solr/conf/" + filename);
+                        FileOutputStream outputStream = new FileOutputStream(currentFile)) {
+                    long byteCount = IOUtils.copyLarge(inputStream, outputStream);
+                    LOGGER.debug("Wrote out {} bytes.", byteCount);
                 } catch (IOException e) {
-                    LOGGER.debug("IO exception copying out file", e);
+                    LOGGER.info("Unable to copy Solr configuration file: " + filename, e);
                 }
             }
         }
@@ -122,13 +108,15 @@ public class ConfigurationFileProxy {
         return this.dataDirectory;
     }
 
-    public URL getResource(String name) {
-        BundleContext bundleContext = getContext();
-        if (bundleContext != null) {
+    public URL getResource(String configFilename, String core) {
+        File resourceFile = Paths.get(this.dataDirectory.getAbsolutePath(),
+                core,
+                "conf",
+                configFilename)
+                .toFile();
+        if (resourceFile.exists()) {
             try {
-                return new File(new File(
-                        DEFAULT_SOLR_DATA_PARENT_DIR + "/" + CATALOG_SOLR_COLLECTION_NAME
-                                + "/conf"), name).toURI()
+                return resourceFile.toURI()
                         .toURL();
             } catch (MalformedURLException e) {
                 LOGGER.info("Malformed URL exception getting SOLR configuration file", e);
@@ -137,7 +125,7 @@ public class ConfigurationFileProxy {
 
         return this.getClass()
                 .getClassLoader()
-                .getResource("solr/conf/" + name);
+                .getResource("solr/conf/" + configFilename);
     }
 
     @Override

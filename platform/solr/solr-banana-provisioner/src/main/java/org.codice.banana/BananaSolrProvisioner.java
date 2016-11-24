@@ -25,20 +25,17 @@ import org.slf4j.LoggerFactory;
 
 public class BananaSolrProvisioner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SolrClientFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BananaSolrProvisioner.class);
 
-    public BananaSolrProvisioner() {
-        CompletableFuture.supplyAsync(BananaSolrProvisioner::bananaClientSupplier)
+    public BananaSolrProvisioner(SolrClientFactory solrClientFactory) {
+        CompletableFuture.supplyAsync(() -> bananaClientSupplier(solrClientFactory))
                 .thenAccept(BananaSolrProvisioner::closeSolrClient);
     }
 
-    private static SolrClient bananaClientSupplier() {
+    private static SolrClient bananaClientSupplier(SolrClientFactory solrClientFactory) {
         SolrClient client = null;
         try {
-            client =
-                    SolrClientFactory.getHttpSolrClient(SolrClientFactory.getDefaultHttpsAddress(),
-                            "banana")
-                            .get();
+            client = solrClientFactory.newClient("banana").get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.debug("Failed to provision Banana Solr core", e);
         }

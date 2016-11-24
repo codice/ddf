@@ -11,24 +11,18 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.solr.factory;
+package org.codice.solr.factory.impl;
 
-import org.apache.solr.core.CoreContainer;
-import org.apache.solr.core.SolrCore;
-import org.apache.solr.core.SolrResourceLoader;
-import org.apache.solr.core.SolrXmlConfig;
-
-/**
- * Extends functionality of CoreContainer to allow direct registration of
- * a SolrCore
- */
-public class SolrCoreContainer extends CoreContainer {
-    public SolrCoreContainer(SolrResourceLoader loader) {
-        super(SolrXmlConfig.fromSolrHome(loader, loader.getInstancePath()));
-        this.load();
+public class SolrFactoryException extends Exception {
+    public SolrFactoryException(String message) {
+        super(message);
     }
 
-    public void register(String coreName, SolrCore core, boolean publish) {
-        this.registerCore(coreName, core, publish);
+    public SolrFactoryException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public SolrFactoryException(Throwable cause) {
+        super(cause);
     }
 }

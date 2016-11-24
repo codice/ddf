@@ -53,10 +53,10 @@
     </dependencyManagement>
     <modules>
         <module>solr-dependencies</module>
-        <module>solr-factory</module>
         <module>solr-query</module>
         <module>solr-xpath</module>
         <module>platform-solr-server-standalone</module>
+        <module>solr-factory</module>
         <module>solr-banana</module>
         <module>solr-banana-provisioner</module>
     </modules>

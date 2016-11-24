@@ -565,7 +565,7 @@ In order to change the Data Directory, the `system.properties` file in `${brandi
 [source]
 ----
 # Uncomment the following line and set it to the desired path
-#solr.catalog.data.dir=/opt/solr/catalog/data
+# solr.data.dir = ${karaf.home}/data/solr
 ----
 
 ===== Changing the Data Directory after ${branding} has ingested data
@@ -587,12 +587,12 @@ mkdir /path/to/new/data/dir
 cp /path/to/old/data/dir/* /path/to/new/data/dir/.
 ----
 +
-. Set the `system.properties` file to use the new directory.
+. Edit the `system.properties` file to use the new directory.
 +
-.Set the SOLR_CATALOG_DATA_DIR
-[source,java]
+.Edit the solr.data.dir system property
+[source]
 ----
-solr.catalog.data.dir=/path/to/new/data/dir
+solr.data.dir = /path/to/new/data/dir
 ----
 +
 . Restart ${branding}.

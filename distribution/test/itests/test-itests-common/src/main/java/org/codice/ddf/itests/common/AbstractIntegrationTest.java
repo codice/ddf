@@ -454,7 +454,11 @@ public abstract class AbstractIntegrationTest {
                 installStartupFile(getClass().getClassLoader()
                                 .getResourceAsStream(
                                         "ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
-                        "/etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.config"));
+                        "/etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
+                installStartupFile(getClass().getClassLoader()
+                                .getResourceAsStream(
+                                        "ddf.catalog.solr.provider.SolrCatalogProvider.config"),
+                        "/etc/ddf.catalog.solr.provider.SolrCatalogProvider.config"));
     }
 
     protected Option[] configureMavenRepos() {

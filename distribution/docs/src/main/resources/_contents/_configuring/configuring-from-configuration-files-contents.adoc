@@ -593,7 +593,7 @@ In order to change the Data Directory, the `system.properties` file in `${brandi
 [source]
 ----
 # Uncomment the following line and set it to the desired path
-#solr.catalog.data.dir=/opt/solr/catalog/data
+# solr.data.dir = ${karaf.home}/data/solr
 ----
 
 ===== Changing the Data Directory
@@ -622,7 +622,7 @@ cp /path/to/old/data/dir/* /path/to/new/data/dir/.
 .Update system.properties file
 [source,java]
 ----
-solr.catalog.data.dir=/path/to/new/data/dir
+solr.data.dir = /path/to/new/data/dir
 ----
 +
 . Restart the ${branding}.
