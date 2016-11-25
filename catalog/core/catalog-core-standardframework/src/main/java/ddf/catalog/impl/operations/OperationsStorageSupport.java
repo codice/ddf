@@ -14,8 +14,8 @@
 package ddf.catalog.impl.operations;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -87,7 +87,8 @@ public class OperationsStorageSupport {
         return storageRequest;
     }
 
-    void commitAndCleanup(StorageRequest storageRequest, HashMap<String, Path> tmpContentPaths) {
+    public void commitAndCleanup(StorageRequest storageRequest,
+            Map<String, Map<String, Path>> tmpContentPaths) {
         if (storageRequest != null) {
             try {
                 sourceOperations.getStorage()
@@ -101,6 +102,9 @@ public class OperationsStorageSupport {
         }
 
         tmpContentPaths.values()
+                .stream()
+                .flatMap(id -> id.values()
+                        .stream())
                 .forEach(path -> FileUtils.deleteQuietly(path.toFile()));
         tmpContentPaths.clear();
     }

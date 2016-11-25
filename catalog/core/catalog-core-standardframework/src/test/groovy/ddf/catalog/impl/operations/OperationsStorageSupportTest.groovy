@@ -103,7 +103,7 @@ class OperationsStorageSupportTest extends Specification {
         def path1 = Mock(Path)
         def path2 = Mock(Path)
         def path3 = Mock(Path)
-        HashMap<String, Path> contentPaths = [a: path1, b: path2, c: path3]
+        Map<String, Map<String, Path>> contentPaths = [a: [c: path1], b: [d: path2], c: [e: path3]]
 
         when:
         opsStorage.commitAndCleanup(null, contentPaths)
@@ -118,7 +118,8 @@ class OperationsStorageSupportTest extends Specification {
     def 'commit and cleanup happy path'() {
         setup:
         def path1 = Mock(Path)
-        HashMap<String, Path> contentPaths = [a: path1]
+
+        Map<String, Map<String, Path>> contentPaths = [a: [b: path1]]
         def request = Mock(StorageRequest)
 
         and:
@@ -130,16 +131,40 @@ class OperationsStorageSupportTest extends Specification {
 
         then:
         1 * storageProvider.commit(request)
+        1 * path1.toFile() >> Mock(File)
+        contentPaths.isEmpty()
+    }
+
+    def 'commit and cleanup multiple happy paths per id'() {
+        setup:
+        def path1 = Mock(Path)
+        def path2 = Mock(Path)
+        def path3 = Mock(Path)
+        def path4 = Mock(Path)
+
+        Map<String, Map<String, Path>> contentPaths = [a: [c: path1, d: path2, e: path3], b: [f: path4]]
+        def request = Mock(StorageRequest)
+
+        and:
+        def storageProvider = Mock(StorageProvider)
+        sourceOperations.getStorage() >> storageProvider
+
+        when:
+        opsStorage.commitAndCleanup(request, contentPaths)
 
         then:
+        1 * storageProvider.commit(request)
         1 * path1.toFile() >> Mock(File)
+        1 * path2.toFile() >> Mock(File)
+        1 * path3.toFile() >> Mock(File)
+        1 * path4.toFile() >> Mock(File)
         contentPaths.isEmpty()
     }
 
     def 'commit and cleanup storage exception'() {
         setup:
         def path1 = Mock(Path)
-        HashMap<String, Path> contentPaths = [a: path1]
+        Map<String, Map<String, Path>> contentPaths = [a: [b: path1]]
         def request = Mock(StorageRequest)
 
         and:
@@ -163,7 +188,7 @@ class OperationsStorageSupportTest extends Specification {
     def 'commit and cleanup two storage exceptions'() {
         setup:
         def path1 = Mock(Path)
-        HashMap<String, Path> contentPaths = [a: path1]
+        Map<String, Map<String, Path>> contentPaths = [a: [b: path1]]
         def request = Mock(StorageRequest)
 
         and:

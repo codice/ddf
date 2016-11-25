@@ -146,7 +146,7 @@ class OperationsMetacardSupportTest extends Specification {
         setup:
         def metacardMap = [:]
         List<ContentItem> contentItems = []
-        Map<String, Path> contentPaths = [:]
+        Map<String, Map<String, Path>> contentPaths = [:]
         frameworkProperties.mimeTypeMapper.guessMimeType(_, _) >> { 'text/plain' }
         def item = Mock(ContentItem)
         item.getFilename() >> 'joe.txt'
@@ -173,7 +173,7 @@ class OperationsMetacardSupportTest extends Specification {
         setup:
         def metacardMap = [:]
         List<ContentItem> contentItems = []
-        Map<String, Path> contentPaths = [:]
+        Map<String, Map<String, Path>> contentPaths = [:]
         frameworkProperties.mimeTypeMapper.guessMimeType(_, _) >> { 'text/plain' }
         def item = Mock(ContentItem)
         item.getFilename() >> 'joe.txt'
