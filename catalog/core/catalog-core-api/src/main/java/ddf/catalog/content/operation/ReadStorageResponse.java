@@ -13,6 +13,8 @@
  **/
 package ddf.catalog.content.operation;
 
+import javax.annotation.Nullable;
+
 import ddf.catalog.content.data.ContentItem;
 
 /**
@@ -25,9 +27,11 @@ import ddf.catalog.content.data.ContentItem;
 public interface ReadStorageResponse extends StorageResponse<ReadStorageRequest> {
 
     /**
-     * Returns a {@link ContentItem} representing a file associated with a Metacard
+     * Returns a {@link ContentItem} representing a file associated with a Metacard, or
+     * <code>null</code> if absent.
      *
      * @return {@link ContentItem}
      */
+    @Nullable
     ContentItem getContentItem();
 }
