@@ -18,13 +18,14 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.validation.AttributeValidator;
@@ -54,10 +55,8 @@ public class EnumerationValidator implements AttributeValidator {
 
         this.ignoreCase = ignoreCase;
 
-        this.values = Collections.unmodifiableSet(values.stream()
-                .filter(Objects::nonNull)
-                .map(ignoreCase ? String::toLowerCase : String::toString)
-                .collect(Collectors.toSet()));
+        this.values = new TreeSet<>(ignoreCase ? String.CASE_INSENSITIVE_ORDER : null);
+        this.values.addAll(Sets.filter(values, Objects::nonNull));
     }
 
     /**
@@ -74,16 +73,11 @@ public class EnumerationValidator implements AttributeValidator {
         String name = attribute.getName();
 
         for (final Serializable value : attribute.getValues()) {
-            final String stringValue = ignoreCase ?
-                    String.valueOf(value)
-                            .toLowerCase() :
-                    String.valueOf(value);
-
-            if (!values.contains(stringValue)) {
+            if (!values.contains(value)) {
                 final AttributeValidationReportImpl report = new AttributeValidationReportImpl();
                 // TODO (jrnorth) - escape the value.
                 report.addViolation(new ValidationViolationImpl(Collections.singleton(name),
-                        name + " has an invalid value: [" + stringValue + "]",
+                        name + " has an invalid value: [" + value + "]",
                         Severity.ERROR));
                 values.forEach(report::addSuggestedValue);
                 return Optional.of(report);
