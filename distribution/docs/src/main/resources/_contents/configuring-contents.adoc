@@ -277,6 +277,13 @@ Then change the LDAP Bind User Password in the configurations to use the encrypt
 |ldaps://${org.codice.ddf.system.hostname}:1636
 |yes
 
+|LDAP Bind Method
+|bindMethod
+|String
+|Method to use when binding to the LDAP server. Default is Simple. Some LDAP operations may not work correctly over Simple bind against all LDAP servers. Select the appropriate bind method for the LDAP server being used.
+|Simple
+|yes
+
 |StartTLS
 |startTls
 |Boolean

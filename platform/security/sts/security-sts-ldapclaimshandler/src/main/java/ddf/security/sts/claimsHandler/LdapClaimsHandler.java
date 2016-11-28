@@ -32,6 +32,8 @@ import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
+import org.forgerock.opendj.ldap.requests.BindRequest;
+import org.forgerock.opendj.ldap.requests.Requests;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
@@ -50,6 +52,8 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     private String bindUserCredentials;
 
     private String bindUserDN;
+
+    private String bindMethod;
 
     private boolean overrideCertDn = false;
 
@@ -114,8 +118,34 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
             connection = connectionFactory.getConnection();
             if (connection != null) {
-                BindResult bindResult = connection.bind(bindUserDN,
-                        bindUserCredentials.toCharArray());
+                BindRequest request;
+                switch (bindMethod) {
+                case "Simple":
+                    request = Requests.newSimpleBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                case "SASL":
+                    request = Requests.newPlainSASLBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                case "GSSAPI SASL":
+                    request = Requests.newGSSAPISASLBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                case "Digest MD5 SASL":
+                    request = Requests.newDigestMD5SASLBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                case "CRAM MD5 SASL":
+                    request = Requests.newCRAMMD5SASLBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                default:
+                    request = Requests.newSimpleBindRequest(bindUserDN,
+                            bindUserCredentials.toCharArray());
+                    break;
+                }
+                BindResult bindResult = connection.bind(request);
                 if (bindResult.isSuccess()) {
                     String baseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDN(),
                             overrideCertDn);
@@ -195,5 +225,9 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
     public void setOverrideCertDn(boolean overrideCertDn) {
         this.overrideCertDn = overrideCertDn;
+    }
+
+    public void setBindMethod(String bindMethod) {
+        this.bindMethod = bindMethod;
     }
 }

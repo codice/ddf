@@ -45,6 +45,8 @@ public class LdapLoginConfig {
 
     public static final String LDAP_URL = "ldapUrl";
 
+    public static final String BIND_METHOD = "bindMethod";
+
     public static final String USER_BASE_DN = "userBaseDn";
 
     public static final String GROUP_BASE_DN = "groupBaseDn";
@@ -111,6 +113,7 @@ public class LdapLoginConfig {
         props.put("ssl.protocol", "TLS");
         props.put("ssl.algorithm", "SunX509");
         props.put(SSL_STARTTLS, properties.get(START_TLS));
+        props.put(BIND_METHOD, properties.get(BIND_METHOD));
         ldapModule.setOptions(props);
 
         return ldapModule;
@@ -158,6 +161,11 @@ public class LdapLoginConfig {
     public void setUserNameAttribute(String userNameAttribute) {
         LOGGER.trace("setUserNameAttribute called: {}", userNameAttribute);
         ldapProperties.put(USER_NAME_ATTRIBUTE, userNameAttribute);
+    }
+
+    public void setBindMethod(String bindMethod) {
+        LOGGER.trace("setBindMethod: {}", bindMethod);
+        ldapProperties.put(BIND_METHOD, bindMethod);
     }
 
     public void configure() {
