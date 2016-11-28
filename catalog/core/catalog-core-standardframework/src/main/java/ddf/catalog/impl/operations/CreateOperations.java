@@ -125,10 +125,6 @@ public class CreateOperations {
         this.opsStorageSupport = opsStorageSupport;
     }
 
-    public void setHistorian(Historian historian) {
-        this.historian = historian;
-    }
-
     //
     // Delegate methods
     //

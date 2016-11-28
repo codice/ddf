@@ -83,7 +83,6 @@
         <argument ref="cfOpsMetacard"/>
         <argument ref="cfOpsCatStore"/>
         <argument ref="cfOpsStorage"/>
-        <property name="historian" ref="historian"/>
     </bean>
 
     <bean id="cfUpdateOps" class="ddf.catalog.impl.operations.UpdateOperations">

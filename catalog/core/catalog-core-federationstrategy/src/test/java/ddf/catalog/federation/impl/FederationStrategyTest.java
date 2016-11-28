@@ -198,7 +198,6 @@ public class FederationStrategyTest {
                 opsCatStore);
 
         opsStorage.setHistorian(historian);
-        createOperations.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
 
