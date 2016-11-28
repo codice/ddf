@@ -52,7 +52,6 @@ import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
-import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.core.versioning.MetacardVersion.Action;
 import ddf.catalog.core.versioning.impl.DeletedMetacardImpl;
 import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
@@ -303,7 +302,8 @@ public class Historian {
             UpdateStorageResponse updateStorageResponse) {
         return getReadStorageRequests(updateStorageResponse.getUpdatedContentItems()
                 .stream()
-                .filter(ci -> ci .getQualifier() == null || ci.getQualifier().equals(""))
+                .filter(ci -> ci.getQualifier() == null || ci.getQualifier()
+                        .equals(""))
                 .map(ContentItem::getMetacard)
                 .collect(Collectors.toList()));
     }
