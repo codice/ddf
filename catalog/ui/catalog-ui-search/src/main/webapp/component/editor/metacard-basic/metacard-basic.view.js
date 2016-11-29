@@ -82,7 +82,7 @@ define([
                        type: 'PATCH',
                        data: JSON.stringify(payload),
                        contentType: 'application/json'
-                   }).always(function(response){
+                   }).then(function(response){
                        var attributeMap = response.reduce(function(attributeMap, changes){
                            return changes.attributes.reduce(function(attrMap, chnges){
                                attrMap[chnges.attribute] = metacardDefinitions.metacardTypes[chnges.attribute].multivalued ? chnges.values : chnges.values[0];
@@ -106,6 +106,7 @@ define([
                                result.get('metacard').get('properties').set(attributeMap);
                            }
                        });
+                   }).always(function(){
                        setTimeout(function(){  //let solr flush
                           LoadingCompanionView.endLoading(self);
                            self.getValidation();
