@@ -7,7 +7,7 @@ import Ldap from './wizards/ldap'
 import Sources from './wizards/sources'
 import { SourcesHome } from './wizards/sourcesHome'
 
-import { Router, Route, hashHistory } from 'react-router'
+import { Router, Route, hashHistory, IndexRoute } from 'react-router'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import Flexbox from 'flexbox-react'
 
@@ -44,9 +44,9 @@ export default () => (
       <div>
         <Router history={hashHistory}>
           <Route path='/' component={App}>
+            <IndexRoute component={SourcesHome} />
             <Route path='/ldap' component={Ldap} />
             <Route path='/sources' component={Sources} />
-            <Route path='/sourcesHome' component={SourcesHome} />
           </Route>
         </Router>
         <DevTools />

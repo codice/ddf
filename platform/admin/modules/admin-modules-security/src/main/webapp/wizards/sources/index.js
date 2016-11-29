@@ -350,7 +350,7 @@ let CompletedStage = ({ changeStage, clearConfiguration }) => (
       <Info title={completedTitle} subtitle={completedSubtitle} />
       <StatusPage succeeded />
       <ButtonBox>
-        <Link to='/sourcesHome'>
+        <Link to='/'>
           <Submit label='Go Home' onClick={clearConfiguration} />
         </Link>
         <Submit label='Add Another Source' onClick={() => { clearConfiguration(); changeStage('welcomeStage') }} />
