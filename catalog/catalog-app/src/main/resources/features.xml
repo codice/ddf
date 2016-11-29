@@ -156,6 +156,12 @@
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-source/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-confluence-source" install="auto" version="${project.version}"
+             description="Confluence Federated Source queries a Confluence instance via REST API.">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.confluence/catalog-confluence-source/${project.version}</bundle>
+    </feature>
+
     <feature name="abdera" install="manual" version="${project.version}"
              description="Apache Abdera">
         <bundle>wrap:mvn:org.apache.james/apache-mime4j-core/0.7.2</bundle>
