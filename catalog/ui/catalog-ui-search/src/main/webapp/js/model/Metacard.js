@@ -148,6 +148,9 @@ define([
         function matchesFilter(metacard, filter, metacardTypes) {
             if (!filter.filters) {
                 var valuesToCheck = [];
+                if (metacardTypes[filter.property] && metacardTypes[filter.property].type === 'GEOMETRY') {
+                    filter.property = 'anyGeo';
+                }
                 switch (filter.property) {
                     case '"anyText"':
                         valuesToCheck = Object.keys(metacard.properties).filter(function (property) {
