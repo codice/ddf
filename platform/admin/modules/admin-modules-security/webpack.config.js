@@ -77,13 +77,12 @@ if (process.env.NODE_ENV === 'production') {
   config = merge.smart(config, {
     entry: [
       'react-hot-loader/patch',
-      'webpack-dev-server/client?/',
-      'webpack/hot/only-dev-server',
       './src/main/webapp'
     ],
     devServer: {
       noInfo: true,
       contentBase: 'src/main/resources/',
+      inline: true,
       compress: true,
       hot: true,
       historyApiFallback: true,

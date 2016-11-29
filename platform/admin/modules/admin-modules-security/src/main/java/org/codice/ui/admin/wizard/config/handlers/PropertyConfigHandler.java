@@ -25,9 +25,6 @@ import java.util.Properties;
 import org.codice.ui.admin.wizard.config.ConfigHandler;
 import org.codice.ui.admin.wizard.config.ConfiguratorException;
 
-/**
- * Transactional handler for persisting property file changes.
- */
 public class PropertyConfigHandler implements ConfigHandler<Void> {
     private final File configFile;
 
@@ -55,16 +52,6 @@ public class PropertyConfigHandler implements ConfigHandler<Void> {
         }
     }
 
-    /**
-     * Creates a handler for persisting property file changes to an existing property file.
-     *
-     * @param configFile  the property file to be updated
-     * @param configs     map of key:value pairs to be written to the property file
-     * @param keepIgnored if true, any keys in the current property file that are not in the
-     *                    {@code configs} map will be left with their initial values; if false, they
-     *                    will be removed from the file
-     * @return instance of this class
-     */
     public static PropertyConfigHandler instance(Path configFile, Map<String, String> configs,
             boolean keepIgnored) {
         return new PropertyConfigHandler(configFile, configs, keepIgnored);
@@ -72,10 +59,11 @@ public class PropertyConfigHandler implements ConfigHandler<Void> {
 
     @Override
     public Void commit() throws ConfiguratorException {
-        Properties properties = new Properties();
-
+        Properties properties;
         if (keepIgnored) {
-            properties.putAll(currentProperties);
+            properties = new Properties(currentProperties);
+        } else {
+            properties = new Properties();
         }
         properties.putAll(configs);
 

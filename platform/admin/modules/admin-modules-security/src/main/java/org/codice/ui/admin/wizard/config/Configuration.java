@@ -1,35 +1,29 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+
 package org.codice.ui.admin.wizard.config;
 
-import java.util.HashMap;
-import java.util.Map;
+public class Configuration {
 
-import org.apache.commons.collections.map.HashedMap;
+    String configurationHandlerId;
 
-public abstract class Configuration<T extends Enum> {
-
-    private Map<T, Object> values;
-
-    public Configuration(Configuration config) {
-        this.values = new HashedMap(config.getValues());
+    public String configurationHandlerId() {
+        return configurationHandlerId;
     }
 
-    public Configuration(){
-        values = new HashMap<>();
+    public Configuration configurationHandlerId(String configurationHandlerId) {
+        this.configurationHandlerId = configurationHandlerId;
+        return this;
     }
-
-    public void setValues(Map<T, Object> values) {
-        this.values = values;
-    }
-
-    public void addValue(T key, Object value) {
-        values.put(key, value);
-    }
-
-    public Object getValue(T key) {
-        return values.get(key);
-    }
-
-    public abstract Configuration copy();
-
-    public Map<T, Object> getValues() { return values; }
 }

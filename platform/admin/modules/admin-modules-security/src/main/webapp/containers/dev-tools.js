@@ -15,7 +15,7 @@ const DevTools = createDevTools(
     changePositionKey='ctrl-q'
     defaultSize={0.35}
     defaultPosition='right'
-    defaultIsVisible>
+    defaultIsVisible={false}>
     <MultipleMonitors>
       <LogMonitor
         theme='solarized'

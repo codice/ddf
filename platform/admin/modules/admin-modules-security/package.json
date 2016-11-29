@@ -12,7 +12,7 @@
   "scripts": {
     "start": "webpack-dev-server --progress --open",
     "pretest": "standard ./src/**/*.js",
-    "test": "NODE_ENV=test webpack && node target/test/bundle.js",
+    "test": "#NODE_ENV=test webpack && node target/test/bundle.js",
     "format": "standard --fix ./src/**/*.js",
     "dist": "NODE_ENV=production webpack --bail --progress",
     "dist:stat": "NODE_ENV=production webpack --json | webpack-bundle-size-analyzer"
@@ -31,9 +31,10 @@
     "react-dom": "^15.1.0",
     "react-redux": "^4.4.5",
     "react-router": "^2.5.2",
-    "react-tap-event-plugin": "^1.0.0",
+    "react-tap-event-plugin": "^2.0.1",
     "redux": "^3.5.2",
     "redux-immutable": "^3.0.8",
+    "validator": "^6.1.0",
     "whatwg-fetch": "^1.0.0"
   },
   "devDependencies": {

@@ -1,6 +1,18 @@
-package org.codice.ui.admin.sources.config;
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 
-import com.google.gson.internal.LinkedTreeMap;
+package org.codice.ui.admin.sources.config;
 
 public class SourceInfo {
 
@@ -10,26 +22,12 @@ public class SourceInfo {
 
     private String url;
 
-    private SourceConfigurationHandler.CERT_STATUS certStatus;
-
-    public SourceInfo(String sourceType, String genericType, String url, SourceConfigurationHandler.CERT_STATUS certStatus) {
-        this.sourceType = sourceType;
-        this.genericType = genericType;
-        this.url = url;
-        this.certStatus = certStatus;
-    }
-
     public SourceInfo(String sourceType, String genericType, String url) {
         this.sourceType = sourceType;
         this.genericType = genericType;
         this.url = url;
     }
 
-    public SourceInfo(LinkedTreeMap<String, String> map){
-        sourceType = map.get("sourceType");
-        genericType = map.get("genericType");
-        url = map.get("url");
-    }
     public String getSourceType() {
         return sourceType;
     }
@@ -41,6 +39,4 @@ public class SourceInfo {
     public String getUrl() {
         return url;
     }
-
-    public SourceConfigurationHandler.CERT_STATUS getCertStatus() { return certStatus; }
 }

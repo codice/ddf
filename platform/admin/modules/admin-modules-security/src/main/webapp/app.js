@@ -2,13 +2,13 @@ import React from 'react'
 import { Provider } from 'react-redux'
 import store from './store'
 
-import Stage from './containers/stage'
-import StageList from './containers/stage-list'
 import Exception from './containers/exceptions'
+import Ldap from './wizards/ldap'
+import Sources from './wizards/sources'
+import { SourcesHome } from './wizards/sourcesHome'
 
 import { Router, Route, hashHistory } from 'react-router'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-import AppBar from 'material-ui/AppBar'
 import Flexbox from 'flexbox-react'
 
 const fixed = {
@@ -19,19 +19,11 @@ const fixed = {
   right: 0
 }
 
-const App = (props) => (
+const App = ({ children }) => (
   <Flexbox flexDirection='column' height='100vh' style={fixed}>
-    <AppBar title='Security UI' iconClassNameRight='muidocs-icon-navigation-expand-more' />
-
-    <Flexbox flex='1' style={{ overflowY: 'scroll' }}>
-      <Flexbox>
-        <StageList />
-      </Flexbox>
-      <Flexbox>
-        {props.children}
-      </Flexbox>
+    <Flexbox flex='1' style={{ overflowY: 'scroll', width: '100%' }}>
+      {children}
     </Flexbox>
-
     <Exception />
   </Flexbox>
 )
@@ -52,7 +44,9 @@ export default () => (
       <div>
         <Router history={hashHistory}>
           <Route path='/' component={App}>
-            <Route path='/stage/:stageId' component={Stage} />
+            <Route path='/ldap' component={Ldap} />
+            <Route path='/sources' component={Sources} />
+            <Route path='/sourcesHome' component={SourcesHome} />
           </Route>
         </Router>
         <DevTools />

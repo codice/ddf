@@ -25,9 +25,6 @@ import org.codice.ui.admin.wizard.config.ConfiguratorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Transactional handler for persisting bundle configuration file changes.
- */
 public class AdminConfigHandler implements ConfigHandler<Void> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminConfigHandler.class);
 
@@ -37,39 +34,25 @@ public class AdminConfigHandler implements ConfigHandler<Void> {
 
     private final boolean keepIgnored;
 
-    private final ConfigurationAdminMBean cfgAdmMbean;
-
     private Map<String, Object> currentProperties;
 
-    private AdminConfigHandler(String pid, Map<String, String> configs, boolean keepIgnored,
-            ConfigurationAdminMBean cfgAdmMbean) {
+    private AdminConfigHandler(String pid, Map<String, String> configs, boolean keepIgnored) {
         this.pid = pid;
         this.configs = new HashMap<>(configs);
         this.keepIgnored = keepIgnored;
-        this.cfgAdmMbean = cfgAdmMbean;
 
         try {
-            currentProperties = cfgAdmMbean.getProperties(pid);
-        } catch (IOException e) {
+            ConfigurationAdminMBean configAdmin = getConfigAdminMBean();
+            currentProperties = configAdmin.getProperties(pid);
+        } catch (MalformedObjectNameException | IOException e) {
             LOGGER.debug("Error getting current configuration for pid {}", pid, e);
             throw new ConfiguratorException("Internal error");
         }
     }
 
-    /**
-     * Creates a handler for persisting changes to a bundle configuration.
-     *
-     * @param pid                     the configPid of the bundle configuration to be updated
-     * @param configs                 map of key:value pairs to be written to the configuration
-     * @param keepIgnored             if true, any keys in the current config file that are not in the
-     *                                {@code configs} map will be left with their initial values; if false, they
-     *                                will be removed from the file
-     * @param configurationAdminMBean mbean used for updating configuration
-     * @return instance of this class
-     */
     public static AdminConfigHandler instance(String pid, Map<String, String> configs,
-            boolean keepIgnored, ConfigurationAdminMBean configurationAdminMBean) {
-        return new AdminConfigHandler(pid, configs, keepIgnored, configurationAdminMBean);
+            boolean keepIgnored) {
+        return new AdminConfigHandler(pid, configs, keepIgnored);
     }
 
     @Override
@@ -106,6 +89,7 @@ public class AdminConfigHandler implements ConfigHandler<Void> {
 
     private void saveConfigs(Map<String, Object> properties)
             throws MalformedObjectNameException, IOException {
-        cfgAdmMbean.update(pid, properties);
+        ConfigurationAdminMBean configAdmin = getConfigAdminMBean();
+        configAdmin.update(pid, properties);
     }
 }

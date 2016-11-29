@@ -86,16 +86,61 @@ public class SparkServlet extends HttpServlet {
                 }
             };
 
-    private BiFunction<HttpServletRequest, String, HttpServletRequestWrapper> requestSupplier;
-
     private final List<SparkApplication> sparkApplications =
             Collections.synchronizedList(new ArrayList<>());
+
+    private BiFunction<HttpServletRequest, String, HttpServletRequestWrapper> requestSupplier;
 
     private String filterMappingPattern = null;
 
     private String filterPath;
 
     private MatcherFilter matcherFilter;
+
+    private static String getConfigPath(String filterMappingPattern, ServletConfig config) {
+        String result = Optional.ofNullable(filterMappingPattern)
+                .orElse(config.getInitParameter(FILTER_MAPPING_PARAM));
+        if (result == null || result.equals(SLASH_WILDCARD)) {
+            return "";
+        } else if (!result.startsWith(SLASH) || !result.endsWith(SLASH_WILDCARD)) {
+            throw new RuntimeException(String.format(
+                    "The %s must start with '/' and end with '/*'. Instead it is: %s",
+                    FILTER_MAPPING_PARAM,
+                    result));
+        }
+        return result.substring(1, result.length() - 1);
+    }
+
+    private static String getRelativePath(HttpServletRequest request, String filterPath) {
+        String path = request.getRequestURI()
+                .substring(request.getContextPath()
+                        .length());
+
+        if (path.length() > 0) {
+            path = path.substring(1);
+        }
+
+        if (filterPath.equals(path + SLASH)) {
+            path += SLASH;
+        }
+
+        if (path.startsWith(filterPath)) {
+            path = path.substring(filterPath.length());
+        }
+
+        if (!path.startsWith(SLASH)) {
+            path = SLASH + path;
+        }
+
+        try {
+            path = URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException ignore) {
+            // this can't really ever happen
+        }
+
+        LOGGER.debug("Relative path = {}", path);
+        return path;
+    }
 
     public void setRequestSupplier(
             BiFunction<HttpServletRequest, String, HttpServletRequestWrapper> requestSupplier) {
@@ -151,51 +196,6 @@ public class SparkServlet extends HttpServlet {
         }
 
         matcherFilter.doFilter(requestWrapper, resp, null);
-    }
-
-    private static String getConfigPath(String filterMappingPattern, ServletConfig config) {
-        String result = Optional.ofNullable(filterMappingPattern)
-                .orElse(config.getInitParameter(FILTER_MAPPING_PARAM));
-        if (result == null || result.equals(SLASH_WILDCARD)) {
-            return "";
-        } else if (!result.startsWith(SLASH) || !result.endsWith(SLASH_WILDCARD)) {
-            throw new RuntimeException(String.format(
-                    "The %s must start with '/' and end with '/*'. Instead it is: %s",
-                    FILTER_MAPPING_PARAM,
-                    result));
-        }
-        return result.substring(1, result.length() - 1);
-    }
-
-    private static String getRelativePath(HttpServletRequest request, String filterPath) {
-        String path = request.getRequestURI()
-                .substring(request.getContextPath()
-                        .length());
-
-        if (path.length() > 0) {
-            path = path.substring(1);
-        }
-
-        if (filterPath.equals(path + SLASH)) {
-            path += SLASH;
-        }
-
-        if (path.startsWith(filterPath)) {
-            path = path.substring(filterPath.length());
-        }
-
-        if (!path.startsWith(SLASH)) {
-            path = SLASH + path;
-        }
-
-        try {
-            path = URLDecoder.decode(path, "UTF-8");
-        } catch (UnsupportedEncodingException ignore) {
-            // this can't really ever happen
-        }
-
-        LOGGER.debug("Relative path = {}", path);
-        return path;
     }
 
     private void populateWrapperSupplier(ServletConfig config) {

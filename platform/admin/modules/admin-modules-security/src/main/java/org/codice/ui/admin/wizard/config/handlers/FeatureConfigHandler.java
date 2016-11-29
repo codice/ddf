@@ -26,9 +26,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Transactional handler for starting and stopping features.
- */
 public class FeatureConfigHandler implements ConfigHandler<Void> {
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureConfigHandler.class);
 
@@ -36,39 +33,21 @@ public class FeatureConfigHandler implements ConfigHandler<Void> {
 
     private final boolean newState;
 
-    private final BundleContext bundleContext;
-
     private final boolean initActivationState;
 
-    private FeatureConfigHandler(String featureName, boolean newState,
-            BundleContext bundleContext) {
+    private FeatureConfigHandler(String featureName, boolean newState) {
         this.featureName = featureName;
         this.newState = newState;
-        this.bundleContext = bundleContext;
 
         initActivationState = lookupFeatureStatus(getFeaturesService(), featureName);
     }
 
-    /**
-     * Creates a handler that will start a feature as part of a transaction.
-     *
-     * @param featureName   the name of the feature to start
-     * @param bundleContext context needed for OSGi interaction
-     * @return instance of this class
-     */
-    public static FeatureConfigHandler forStart(String featureName, BundleContext bundleContext) {
-        return new FeatureConfigHandler(featureName, true, bundleContext);
+    public static FeatureConfigHandler forStart(String featureName) {
+        return new FeatureConfigHandler(featureName, true);
     }
 
-    /**
-     * Creates a handler that will stop a feature as part of a transaction.
-     *
-     * @param featureName   the name of the feature to stop
-     * @param bundleContext context needed for OSGi interaction
-     * @return instance of this class
-     */
-    public static FeatureConfigHandler forStop(String featureName, BundleContext bundleContext) {
-        return new FeatureConfigHandler(featureName, false, bundleContext);
+    public static FeatureConfigHandler forStop(String featureName) {
+        return new FeatureConfigHandler(featureName, false);
     }
 
     @Override
@@ -110,9 +89,10 @@ public class FeatureConfigHandler implements ConfigHandler<Void> {
     }
 
     private FeaturesService getFeaturesService() {
-        ServiceReference<FeaturesService> serviceReference = bundleContext.getServiceReference(
+        BundleContext context = getBundleContext();
+        ServiceReference<FeaturesService> serviceReference = context.getServiceReference(
                 FeaturesService.class);
-        return bundleContext.getService(serviceReference);
+        return context.getService(serviceReference);
     }
 
     private Boolean lookupFeatureStatus(FeaturesService featuresService, String featureName) {

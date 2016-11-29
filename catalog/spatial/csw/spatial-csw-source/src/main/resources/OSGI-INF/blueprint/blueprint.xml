@@ -154,7 +154,7 @@
                 </bean>
             </property>
             <property name="isCqlForced" value="false"/>
-            <property name="forceSpatialFilter" value=""/>
+            <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
             <property name="securityManager" ref="securityManager"/>

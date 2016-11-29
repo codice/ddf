@@ -3,12 +3,16 @@ import { connect } from 'react-redux'
 
 import { getBackendErrors } from '../reducer'
 
-import { exception, message } from './exceptions.less'
+import * as styles from './exceptions.less'
 
 import { Tabs, Tab } from 'material-ui/Tabs'
 
+import { clearBackendError } from '../actions'
+
 import Http from 'material-ui/svg-icons/action/http'
 import Code from 'material-ui/svg-icons/action/code'
+
+import FloatingActionButton from 'material-ui/FloatingActionButton'
 
 const PrettyStackLine = ({ declaringClass, methodName, fileName, lineNumber }) => (
   <div>
@@ -22,21 +26,31 @@ const PrettyStackTrace = ({ lines }) => (
   </div>
 )
 
-const Exception = ({ cause, stackTrace, method, url, body }) => {
+const Exception = ({ cause, stackTrace, method, url, body, onClear }) => {
   if (cause === undefined && stackTrace === undefined) return null
 
+  const closeStyle = {
+    position: 'absolute',
+    left: 25,
+    top: -25,
+    zIndex: 9001
+  }
+
   return (
-    <div className={exception}>
+    <div className={styles.exception}>
+      <FloatingActionButton style={closeStyle} onClick={onClear} secondary>
+        <span>&times;</span>
+      </FloatingActionButton>
 
       <Tabs>
         <Tab label='Stacktrace' icon={<Code />}>
-          <div className={message}>
+          <div className={styles.message}>
             <div>{cause}</div>
             <PrettyStackTrace lines={stackTrace} />
           </div>
         </Tab>
         <Tab label='Request' icon={<Http />}>
-          <div className={message}>
+          <div className={styles.message}>
             <div>{method} {url}</div>
             <pre>{JSON.stringify(body, null, 2)}</pre>
           </div>
@@ -49,4 +63,4 @@ const Exception = ({ cause, stackTrace, method, url, body }) => {
 
 const mapStateToProps = (state) => getBackendErrors(state)
 
-export default connect(mapStateToProps)(Exception)
+export default connect(mapStateToProps, { onClear: clearBackendError })(Exception)

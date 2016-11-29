@@ -13,85 +13,46 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <!-- LDAP Wizard and Configuration Handler -->
-    <service id="ldapIntroStage" interface="org.codice.ui.admin.wizard.api.StageFactory">
-        <bean class="org.codice.ui.admin.ldap.stage.LdapIntroductionStage"/>
-    </service>
-
-    <service id="ldapNetworkStage" interface="org.codice.ui.admin.wizard.api.StageFactory">
-        <bean class="org.codice.ui.admin.ldap.stage.LdapNetworkSettingsStage"/>
-    </service>
-
-    <service id="ldapBindHostStage" interface="org.codice.ui.admin.wizard.api.StageFactory">
-        <bean class="org.codice.ui.admin.ldap.stage.LdapBindHostSettingsStage"/>
-    </service>
-
-    <service id="ldapDirStage" interface="org.codice.ui.admin.wizard.api.StageFactory">
-        <bean class="org.codice.ui.admin.ldap.stage.LdapDirectorySettingsStage"/>
-    </service>
-
-    <service id="ldapConfirmationStage" interface="org.codice.ui.admin.wizard.api.StageFactory">
-        <bean class="org.codice.ui.admin.ldap.stage.LdapSettingsConfirmationStage"/>
-    </service>
-
-    <service id="ldapSuccessStage" interface="org.codice.ui.admin.wizard.api.StageFactory">
-        <bean class="org.codice.ui.admin.ldap.stage.LdapSuccessStage"/>
-    </service>
-
-    <reference-list id="stages" interface="org.codice.ui.admin.wizard.api.StageFactory"
-                    availability="optional"/>
-
     <service id="ldapConfigurationHandler"
              interface="org.codice.ui.admin.wizard.api.ConfigurationHandler">
         <bean class="org.codice.ui.admin.ldap.config.LdapConfigurationHandler"/>
     </service>
 
-    <reference-list id="configurationHandlers" interface="org.codice.ui.admin.wizard.api.ConfigurationHandler" availability="optional"/>
-
-    <service id="ldapWiz" interface="org.codice.ui.admin.wizard.api.Wizard">
-        <bean class="org.codice.ui.admin.ldap.LdapWizard"/>
+    <service id="cswConfigurationHandler"
+             interface="org.codice.ui.admin.sources.config.SourceConfigurationHandler">
+        <bean class="org.codice.ui.admin.sources.config.csw.CswSourceConfigurationHandler"/>
     </service>
 
-    <!-- Sources Wizard -->
-    <bean id="sourcesInitialStage" class="org.codice.ui.admin.sources.stage.SourceWelcomeStage"/>
-    <bean id="sourcesDiscoverStage" class="org.codice.ui.admin.sources.stage.SourcesDiscoverStage"/>
-    <bean id="sourcesAdvancedStage" class="org.codice.ui.admin.sources.stage.SourcesAdvancedStage"/>
-    <bean id="sourcesResultsStage" class="org.codice.ui.admin.sources.stage.SourcesResultsStage"/>
-    <bean id="sourcesConfirmationPage" class="org.codice.ui.admin.sources.stage.SourcesConfirmationStage"/>
-    <bean id="sourcesPersistedPage" class="org.codice.ui.admin.sources.stage.SourcesPersistedStage"/>
+    <service id="wfsConfigurationHandler"
+             interface="org.codice.ui.admin.sources.config.SourceConfigurationHandler">
+        <bean class="org.codice.ui.admin.sources.config.wfs.WfsSourceConfigurationHandler"/>
+    </service>
 
-
-    <service ref="sourcesInitialStage" interface="org.codice.ui.admin.wizard.api.StageFactory"/>
-    <service ref="sourcesDiscoverStage" interface="org.codice.ui.admin.wizard.api.StageFactory"/>
-    <service ref="sourcesAdvancedStage" interface="org.codice.ui.admin.wizard.api.StageFactory"/>
-    <service ref="sourcesResultsStage" interface="org.codice.ui.admin.wizard.api.StageFactory"/>
-    <service ref="sourcesConfirmationPage" interface="org.codice.ui.admin.wizard.api.StageFactory"/>
-    <service ref="sourcesPersistedPage" interface="org.codice.ui.admin.wizard.api.StageFactory"/>
+    <service id="openSearchConfigurationHandler"
+             interface="org.codice.ui.admin.sources.config.SourceConfigurationHandler">
+        <bean class="org.codice.ui.admin.sources.config.opensearch.OpenSearchSourceConfigurationHandler"/>
+    </service>
 
     <service id="sourcesConfigurationHandler"
              interface="org.codice.ui.admin.wizard.api.ConfigurationHandler">
-        <bean class="org.codice.ui.admin.sources.config.SourceConfigurationHandler"/>
+        <bean class="org.codice.ui.admin.sources.config.SourceConfigurationHandlerImpl">
+            <property name="sourceConfigurationHandlers" ref="sourceConfigurationHandlers"/>
+        </bean>
     </service>
 
-    <bean id="sourcesWiz" class="org.codice.ui.admin.sources.SourcesWizard"/>
+    <reference-list id="sourceConfigurationHandlers" interface="org.codice.ui.admin.sources.config.SourceConfigurationHandler" availability="optional"/>
 
-    <service ref="sourcesWiz" interface="org.codice.ui.admin.wizard.api.Wizard"/>
-
-    <!--Wizard router and Sparklet -->
-    <reference-list id="wizards" interface="org.codice.ui.admin.wizard.api.Wizard"
-                    availability="optional"/>
-
-    <bean id="wizardRouter" class="org.codice.ui.admin.wizard.WizardRouter">
+    <bean id="configurationRouter" class="org.codice.ui.admin.wizard.ConfigurationRouter">
         <property name="contextPath" value="/admin/wizard"/>
-        <property name="stages" ref="stages"/>
-        <property name="wizards" ref="wizards"/>
         <property name="configurationHandlers" ref="configurationHandlers"/>
     </bean>
+
+    <reference-list id="configurationHandlers" interface="org.codice.ui.admin.wizard.api.ConfigurationHandler" availability="optional"/>
 
     <bean id="sparkServlet" class="org.codice.ui.admin.wizard.SparkServlet">
         <property name="sparkApplications">
             <list>
-                <ref component-id="wizardRouter"/>
+                <ref component-id="configurationRouter"/>
             </list>
         </property>
         <property name="filterMappingPattern" value="/admin/wizard/*"/>

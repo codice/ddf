@@ -21,6 +21,29 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ConfigReport {
+    private final Map<String, Result> results = new LinkedHashMap<>();
+
+    public boolean txactSucceeded() {
+        return results.values()
+                .stream()
+                .allMatch(Result::isTxactSucceeded);
+    }
+
+    public Result getResult(String key) {
+        return results.get(key);
+    }
+
+    public List<Result> getFailedResults() {
+        return results.values()
+                .stream()
+                .filter(((Predicate<Result>) Result::isTxactSucceeded).negate())
+                .collect(Collectors.toList());
+    }
+
+    public void putResult(String key, Result result) {
+        results.put(key, result);
+    }
+
     enum Status {
         COMMIT_PASSED, COMMIT_FAILED, SKIPPED, ROLLBACK_PASSED, ROLLBACK_FAILED;
     }
@@ -81,28 +104,5 @@ public class ConfigReport {
         public String getConfigId() {
             return configId;
         }
-    }
-
-    private final Map<String, Result> results = new LinkedHashMap<>();
-
-    public boolean txactSucceeded() {
-        return results.values()
-                .stream()
-                .allMatch(Result::isTxactSucceeded);
-    }
-
-    public Result getResult(String key) {
-        return results.get(key);
-    }
-
-    public List<Result> getFailedResults() {
-        return results.values()
-                .stream()
-                .filter(((Predicate<Result>) Result::isTxactSucceeded).negate())
-                .collect(Collectors.toList());
-    }
-
-    public void putResult(String key, Result result) {
-        results.put(key, result);
     }
 }

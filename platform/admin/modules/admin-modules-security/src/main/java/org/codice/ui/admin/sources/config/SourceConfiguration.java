@@ -1,129 +1,137 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+
 package org.codice.ui.admin.sources.config;
 
-import static org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS.SELECTED_SOURCE;
-import static org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS.SOURCES_CSW_URL;
-import static org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS.SOURCES_DISCOVERED;
-import static org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS.SOURCE_HOSTNAME;
-import static org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS.SOURCE_MANUAL_URL;
-import static org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS.SOURCE_MANUAL_URL_TYPE;
-import static org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS.SOURCE_NAME;
-import static org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS.SOURCE_PASSWORD;
-import static org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS.SOURCE_PORT;
-import static org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS.SOURCE_USERNAME;
-
-import java.util.List;
 import java.util.Map;
 
-import org.codice.ui.admin.ldap.config.LdapConfiguration;
 import org.codice.ui.admin.wizard.config.Configuration;
-import org.codice.ui.admin.sources.config.SourceConfiguration.SOURCE_CONFIG_KEYS;
 
-import com.google.gson.internal.LinkedTreeMap;
+public class SourceConfiguration extends Configuration {
 
-public class SourceConfiguration extends Configuration<SOURCE_CONFIG_KEYS> {
-    public String sourcesPassword() {
-        return getValue(SOURCE_PASSWORD) == null ? null : (String) getValue(SOURCE_PASSWORD);
+    private String sourceHostName;
+
+    private int sourcePort;
+
+    private String sourceUserName;
+
+    private String sourceUserPassword;
+
+    private String endpointUrl;
+
+    private String factoryPid;
+
+    private String sourceName;
+
+    private String displayName;
+
+    private boolean trustedCertAuthority;
+
+    public boolean trustedCertAuthority() {
+        return trustedCertAuthority;
     }
 
-    public String sourcesUsername() {
-        return getValue(SOURCE_USERNAME) == null ? null : (String) getValue(SOURCE_USERNAME);
+    public SourceConfiguration trustedCertAuthority(boolean trustedCertAuthority) {
+        this.trustedCertAuthority = trustedCertAuthority;
+        return this;
     }
 
-    public String sourcesCswUrl() {
-        return getValue(SOURCES_CSW_URL) == null ? null : (String) getValue(SOURCES_CSW_URL);
+    public String displayName() {
+        return displayName;
     }
 
-    public List<SourceInfo> sourcesDiscoveredSources() {
-        return getValue(SOURCES_DISCOVERED) == null ? null : (List<SourceInfo>) getValue(SOURCES_DISCOVERED);
-    }
-
-    public String sourceHostname() {
-        return getValue(SOURCE_HOSTNAME) == null ? null : (String) getValue(SOURCE_HOSTNAME);
-    }
-
-    public int sourcePort() {
-        return getValue(SOURCE_PORT) == null ? null : Integer.valueOf(((Double)getValue(SOURCE_PORT)).intValue());
-    }
-
-    public String sourceManualUrl() {
-        return getValue(SOURCE_MANUAL_URL) == null ? null : (String) getValue(SOURCE_MANUAL_URL);
-    }
-
-    public String sourceManualUrlType() {
-        return getValue(SOURCE_MANUAL_URL_TYPE) == null ? null : (String) getValue(SOURCE_MANUAL_URL_TYPE);
+    public SourceConfiguration displayName(String displayName) {
+        this.displayName = displayName;
+        return this;
     }
 
     public String sourceName() {
-        return getValue(SOURCE_NAME) == null ? null : (String) getValue(SOURCE_NAME);
-    }
-
-    public SourceConfiguration sourcesPassword(String sourcesPassword) {
-        addValue(SOURCE_PASSWORD, sourcesPassword);
-        return this;
-    }
-
-    public SourceConfiguration sourcesUsername(String sourcesUsername) {
-        addValue(SOURCE_USERNAME, sourcesUsername);
-        return this;
-    }
-
-    public SourceConfiguration sourcesCswUrl(String sourcesCswUrl) {
-        addValue(SOURCES_CSW_URL, sourcesCswUrl);
-        return this;
-    }
-
-    public SourceConfiguration sourcesDiscoveredSources(List<SourceInfo> sourcesDiscoveredSources) {
-        addValue(SOURCES_DISCOVERED, sourcesDiscoveredSources);
-        return this;
-    }
-
-    public SourceConfiguration sourceHostname(String sourceHostname) {
-        addValue(SOURCE_HOSTNAME, sourceHostname);
-        return this;
-    }
-
-    public SourceConfiguration sourcePort(int sourcePort) {
-        addValue(SOURCE_PORT, sourcePort);
-        return this;
-    }
-
-    public SourceConfiguration selectedSource(SourceInfo sourceInfo) {
-        addValue(SELECTED_SOURCE, sourceInfo);
-        return this;
-    }
-
-    public SourceConfiguration sourceManualUrl(String sourceManualUrl) {
-        addValue(SOURCE_MANUAL_URL, sourceManualUrl);
-        return this;
-    }
-
-    public SourceConfiguration sourceManualUrlType(String sourceManualUrlType) {
-        addValue(SOURCE_MANUAL_URL, sourceManualUrlType);
-        return this;
-    }
-
-    public SourceInfo selectedSource() {
-        return getValue(SELECTED_SOURCE) == null ? null : getValue(SELECTED_SOURCE) instanceof LinkedTreeMap ?
-                new SourceInfo((LinkedTreeMap<String, String>)getValue(SELECTED_SOURCE)) : (SourceInfo) getValue(SELECTED_SOURCE);
+        return sourceName;
     }
 
     public SourceConfiguration sourceName(String sourceName) {
-        addValue(SOURCE_NAME, sourceName);
+        this.sourceName = sourceName;
         return this;
     }
 
-    @Override
-    public SourceConfiguration copy() {
-        SourceConfiguration newConfig = new SourceConfiguration();
-        for(Map.Entry<SourceConfiguration.SOURCE_CONFIG_KEYS, Object> entry : getValues().entrySet()) {
-            newConfig.addValue(entry.getKey(), entry.getValue());
-        }
-
-        return newConfig;
+    public String factoryPid() {
+        return factoryPid;
     }
 
-    public enum SOURCE_CONFIG_KEYS {
-        SOURCE_PASSWORD, SOURCE_USERNAME, SOURCES_CSW_URL, SOURCES_DISCOVERED, SOURCE_HOSTNAME, SOURCE_PORT,
-        SELECTED_SOURCE, SOURCE_MANUAL_URL, SOURCE_MANUAL_URL_TYPE, SOURCE_NAME
+    public SourceConfiguration factoryPid(String factoryPid) {
+        this.factoryPid = factoryPid;
+        return this;
+    }
+
+    public String sourceUserPassword() {
+        return sourceUserPassword;
+    }
+
+    public SourceConfiguration sourceUserPassword(String sourceUserPassword) {
+        this.sourceUserPassword = sourceUserPassword;
+        return this;
+    }
+
+    public String sourceUserName() {
+        return sourceUserName;
+    }
+
+    public SourceConfiguration sourceUserName(String sourceUserName) {
+        this.sourceUserName = sourceUserName;
+        return this;
+    }
+
+    public String endpointUrl() {
+        return endpointUrl;
+    }
+
+    public SourceConfiguration endpointUrl(String endpointUrl) {
+        this.endpointUrl = endpointUrl;
+        return this;
+    }
+
+    public String sourceHostName() {
+        return sourceHostName;
+    }
+
+    public SourceConfiguration sourceHostName(String sourceHostName) {
+        this.sourceHostName = sourceHostName;
+        return this;
+    }
+
+    public int sourcePort() {
+        return sourcePort;
+    }
+
+    public SourceConfiguration sourcePort(int sourcePort) {
+        this.sourcePort = sourcePort;
+        return this;
+    }
+
+    public Map<String, String> configMap() {
+        return null;
+    }
+
+    // TODO: tbatie - 11/29/16 - Do we need this method still?
+    public SourceConfiguration copy() {
+        return new SourceConfiguration().factoryPid(factoryPid)
+                .sourceUserName(sourceUserName)
+                .sourceUserPassword(sourceUserPassword)
+                .sourceHostName(sourceHostName)
+                .sourcePort(sourcePort)
+                .endpointUrl(endpointUrl)
+                .displayName(displayName)
+                .trustedCertAuthority(trustedCertAuthority);
     }
 }

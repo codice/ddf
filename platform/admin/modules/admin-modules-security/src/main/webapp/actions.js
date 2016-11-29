@@ -36,6 +36,8 @@ export const clearLastErrors = () => ({ type: 'CLEAR_LAST_ERRORS' })
 
 export const backendError = (err) => ({ type: 'BACKEND_ERRORS', err })
 
+export const clearBackendError = () => ({ type: 'CLEAR_BACKEND_ERRORS' })
+
 export const submit = (action) => (dispatch, getState) => {
   const stage = getCurrentStage(getState())
 
@@ -61,4 +63,8 @@ export const submit = (action) => (dispatch, getState) => {
       dispatch(networkError())
     })
 }
+
+export const editConfig = (id, value) => ({ type: 'EDIT_CONFIG', id, value })
+
+export const setDefaults = (values) => ({ type: 'SET_DEFAULTS', values })
 
