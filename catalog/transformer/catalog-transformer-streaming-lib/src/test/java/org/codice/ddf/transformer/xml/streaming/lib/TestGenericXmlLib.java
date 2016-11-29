@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +33,6 @@ import java.util.Set;
 
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
-import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -50,14 +48,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGenericXmlLib {
 
-    MetacardTypeRegister mockMetacardTypeRegister;
-
-    @Before
-    public void setup() {
-        mockMetacardTypeRegister = mock(MetacardTypeRegister.class);
-        doReturn(BasicTypes.BASIC_METACARD).when(mockMetacardTypeRegister).getMetacardType();
-    }
-
     @Test
     public void testNormalTransform() throws FileNotFoundException, CatalogTransformerException {
 
@@ -70,9 +60,7 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        xmlInputTransformer.setDynamicMetacardTypeRegister(mockMetacardTypeRegister);
-        assertThat(xmlInputTransformer.getDynamicMetacardTypeRegister()
-                .getMetacardType(), is(notNullValue()));
+        assertThat(xmlInputTransformer.getMetacardType(), is(notNullValue()));
         Metacard metacard = null;
         try {
             metacard = xmlInputTransformer.transform(inputStream, "test");
@@ -98,7 +86,6 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        xmlInputTransformer.setDynamicMetacardTypeRegister(mockMetacardTypeRegister);
         try {
             xmlInputTransformer.transform(inputStream, "test");
         } catch (IOException e) {
@@ -134,9 +121,7 @@ public class TestGenericXmlLib {
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        xmlInputTransformer.setDynamicMetacardTypeRegister(mockMetacardTypeRegister);
-        MetacardType metacardType = xmlInputTransformer.getDynamicMetacardTypeRegister()
-                .getMetacardType();
+        MetacardType metacardType = xmlInputTransformer.getMetacardType();
         assertThat(metacardType.getAttributeDescriptors(),
                 is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
     }
@@ -146,9 +131,7 @@ public class TestGenericXmlLib {
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(null);
-        xmlInputTransformer.setDynamicMetacardTypeRegister(mockMetacardTypeRegister);
-        MetacardType metacardType = xmlInputTransformer.getDynamicMetacardTypeRegister()
-                .getMetacardType();
+        MetacardType metacardType = xmlInputTransformer.getMetacardType();
         assertThat(metacardType.getAttributeDescriptors(),
                 is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
     }
@@ -187,9 +170,7 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        xmlInputTransformer.setDynamicMetacardTypeRegister(mockMetacardTypeRegister);
-        assertThat(xmlInputTransformer.getDynamicMetacardTypeRegister()
-                .getMetacardType(), is(notNullValue()));
+        assertThat(xmlInputTransformer.getMetacardType(), is(notNullValue()));
         Metacard metacard = null;
         try {
             metacard = xmlInputTransformer.transform(inputStream, "test");
