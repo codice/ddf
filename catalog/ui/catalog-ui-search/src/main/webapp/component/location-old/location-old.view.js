@@ -362,7 +362,8 @@ define([
 
             return _.extend(modelJSON, {
                 type: type,
-                lineWidth: Math.max(modelJSON.lineWidth, 0.000001)
+                lineWidth: Math.max(modelJSON.lineWidth, 0.000001),
+                radius: Math.max(modelJSON.radius, 0.000001)
             });
         },
         onDestroy: function () {
