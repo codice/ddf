@@ -24,20 +24,18 @@ define([
 ], function (Marionette, _, $, template, CustomElements, store, moment) {
 
     function getResultsFound(total, data){
-        var hits = _.reduce(data, function(hits, status) {
+        var hits = data.reduce(function(hits, status){
             return status.hits ? hits + status.hits : hits;
         }, 0);
-        var count = total ? total : 0;
         var searching = _.every(data, function(status) {
             return _.isUndefined(status.successful);
         });
         if (searching && data.length > 0) {
             return 'Searching...';
-        }
-        if (hits === count || count > hits) {
-            return count + ' results';
+        } else if (total >= hits) {
+            return total + ' results';
         } else {
-            return 'Top ' + count + ' of ' + hits + ' results';
+            return 'Top ' + total + ' of ' + hits + ' results';
         }
     }
 
@@ -104,7 +102,7 @@ define([
                 return {
                     query: query,
                     status: status,
-                    resultCount: getResultsFound(this.model.get('result').get('results').state.totalRecords, status),
+                    resultCount: getResultsFound(this.model.get('result').get('results').fullCollection.length, status),
                     pending: getPending(status),
                     failed: getFailed(status),
                     queryStatus: getLastRan(this.model.get('result>initiated'))
