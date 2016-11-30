@@ -37,6 +37,8 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +77,6 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 
 /**
  * Support class for create delegate operations for the {@code CatalogFrameworkImpl}.
@@ -212,7 +212,7 @@ public class CreateOperations {
 
         // Operation populates the metacardMap, contentItems, and tmpContentPaths
         opsMetacardSupport.generateMetacardAndContentItems(streamCreateRequest.getContentItems(),
-                (Subject) streamCreateRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                retrieveSubject(),
                 metacardMap,
                 contentItems,
                 tmpContentPaths);
@@ -678,6 +678,20 @@ public class CreateOperations {
             }
         }
         return createStorageRequest;
+    }
+
+    private ddf.security.Subject retrieveSubject() {
+        ddf.security.Subject subjectToReturn = null;
+        try {
+            Subject subject = SecurityUtils.getSubject();
+            if (subject instanceof ddf.security.Subject) {
+                subjectToReturn = (ddf.security.Subject) subject;
+            }
+        } catch (Exception exception) {
+            LOGGER.debug("No security subject found during metacard generation.");
+        }
+
+        return subjectToReturn;
     }
 
     @SuppressWarnings("unchecked")
