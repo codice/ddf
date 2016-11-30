@@ -110,7 +110,7 @@ public class MetacardApplication implements SparkApplication {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardApplication.class);
 
     private static final String UPDATE_ERROR_MESSAGE =
-            "Workspace is either restricted or not found.";
+            "Item is either restricted or not found.";
 
     private static final Set<Action> CONTENT_ACTIONS = ImmutableSet.of(Action.VERSIONED_CONTENT,
             Action.DELETED_CONTENT);
