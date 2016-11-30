@@ -19,7 +19,7 @@ import org.codice.ui.admin.wizard.config.Configuration;
 
 public interface ConfigurationHandler<S extends Configuration> {
 
-    public static final String CONFIGURATION_HANDLER_ID = "configurationHandler";
+    String CONFIGURATION_HANDLER_ID = "configurationHandler";
 
     /**
      * Used to search the system for information relative to the configuration and type of probing.

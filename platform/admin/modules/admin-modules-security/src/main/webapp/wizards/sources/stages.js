@@ -1,8 +1,9 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { getSourceSelections, getSelectedSource, getSourceName } from './reducer'
-import { changeStage, testConfig, clearConfiguration } from './actions'
+import { getSourceSelections, getConfigurationHandlerId, getSourceName } from './reducer'
+import { getAllConfig } from '../../reducer'
+import { changeStage, discoverSources, clearConfiguration, persistConfig } from './actions'
 
 import Flexbox from 'flexbox-react'
 import { Link } from 'react-router'
@@ -52,7 +53,7 @@ const discoveryStageDefaults = {
   sourceHostName: 'localhost',
   sourcePort: 8993
 }
-const DiscoveryStageView = ({ testConfig, setDefaults }) => (
+const DiscoveryStageView = ({ discoverSources, setDefaults }) => (
   <Mount on={() => setDefaults(discoveryStageDefaults)}>
     <NavPanes backClickTarget='welcomeStage' forwardClickTarget='sourceSelectionStage'>
       <CenteredElements>
@@ -61,12 +62,12 @@ const DiscoveryStageView = ({ testConfig, setDefaults }) => (
         <ConstrainedPortInput id='sourcePort' label='Port' />
         <ConstrainedInput id='sourceUserName' label='Username (optional)' />
         <ConstrainedPasswordInput id='sourceUserPassword' label='Password (optional)' />
-        <Submit label='Check' onClick={() => testConfig('/admin/wizard/probe/sources/discoverSources', 'sourceConfiguration', 'sourceSelectionStage')} />
+        <Submit label='Check' onClick={() => discoverSources('/admin/wizard/probe/sources/discoverSources', 'sourceConfiguration', 'sourceSelectionStage')} />
       </CenteredElements>
     </NavPanes>
   </Mount>
 )
-export const DiscoveryStage = connect(null, { testConfig, setDefaults })(DiscoveryStageView)
+export const DiscoveryStage = connect(null, { discoverSources, setDefaults })(DiscoveryStageView)
 
 // Source Selection Stage
 const sourceSelectionTitle = 'Sources Found!'
@@ -74,15 +75,13 @@ const sourceSelectionSubtitle = 'Choose which source to add'
 const noSourcesFoundTitle = 'No Sources Were Found'
 const noSourcesFoundSubtitle = 'Click below to enter source information manually, or go back to enter a different hostname/port.'
 
-const SourceSelectionStageView = ({sourceSelections = [], changeStage, selectedSource}) => {
+const SourceSelectionStageView = ({sourceSelections = [], changeStage, selectedSourceConfigHandlerId}) => {
   if (sourceSelections.length !== 0) {
     return (<NavPanes backClickTarget='discoveryStage' forwardClickTarget='confirmationStage'>
       <CenteredElements>
         <Info title={sourceSelectionTitle} subtitle={sourceSelectionSubtitle} />
-        <SourceRadioButtons options={sourceSelections}
-          selectedValue={sourceSelections[0]}
-          id='selectedSource' />
-        <Submit label='Next' disabled={selectedSource === undefined} onClick={() => changeStage('confirmationStage')} />
+        <SourceRadioButtons options={sourceSelections} />
+        <Submit label='Next' disabled={selectedSourceConfigHandlerId === undefined} onClick={() => changeStage('confirmationStage')} />
       </CenteredElements>
     </NavPanes>)
   } else {
@@ -94,13 +93,13 @@ const SourceSelectionStageView = ({sourceSelections = [], changeStage, selectedS
     </NavPanes>)
   }
 }
-export const SourceSelectionStage = connect((state) => ({sourceSelections: getSourceSelections(state), selectedSource: getSelectedSource(state)}), { changeStage })(SourceSelectionStageView)
+export const SourceSelectionStage = connect((state) => ({sourceSelections: getSourceSelections(state), selectedSourceConfigHandlerId: getConfigurationHandlerId(state)}), { changeStage })(SourceSelectionStageView)
 
 // Confirmation Stage
 const confirmationTitle = 'Finalize Source Configuration'
 const confirmationSubtitle = 'Name your source, confirm details, and press finish to add source'
 const sourceNameDescription = 'Use something descriptive to distinguish it from your other sources'
-const ConfirmationStageView = ({selectedSource, changeStage, sourceName}) => (
+const ConfirmationStageView = ({selectedSource, persistConfig, sourceName}) => (
   <NavPanes backClickTarget='sourceSelectionStage' forwardClickTarget='completedStage'>
     <CenteredElements>
       <Info title={confirmationTitle} subtitle={confirmationSubtitle} />
@@ -108,11 +107,11 @@ const ConfirmationStageView = ({selectedSource, changeStage, sourceName}) => (
       <ConstrainedSourceInfo label='Source Address' value={selectedSource.endpointUrl} />
       <ConstrainedSourceInfo label='Username' value={selectedSource.sourceUserName || 'none'} />
       <ConstrainedSourceInfo label='Password' value={selectedSource.sourceUserPassword || 'none'} />
-      <Submit label='Finish' disabled={sourceName === undefined || sourceName === ''} onClick={() => changeStage('completedStage')} />
+      <Submit label='Finish' disabled={sourceName === undefined || sourceName === ''} onClick={() => persistConfig('/admin/wizard/persist/' + selectedSource.configurationHandlerId, null, 'completedStage')} />
     </CenteredElements>
   </NavPanes>
 )
-export const ConfirmationStage = connect((state) => ({selectedSource: getSelectedSource(state), sourceName: getSourceName(state)}), { changeStage })(ConfirmationStageView)
+export const ConfirmationStage = connect((state) => ({selectedSource: getAllConfig(state), sourceName: getSourceName(state)}), { persistConfig })(ConfirmationStageView)
 
 // Completed Stage
 const completedTitle = 'All Done!'

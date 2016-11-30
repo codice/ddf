@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux-immutable'
-import { fromJS, Map } from 'immutable'
+import { Map } from 'immutable'
 
 const sourceStage = (state = 'welcomeStage', { type, stage }) => {
   switch (type) {
@@ -46,8 +46,9 @@ const sourceStageProgress = (state = 'welcomeStage', { type, stage }) => {
 
 export const getStagesClean = (state) => state.getIn(['sourceWizard', 'sourceStagesClean'])
 
-export const getConfig = (state, id) => state.getIn(['wizard', 'config'].concat(id), fromJS({})).toJS()
+export const getConfig = (state, id) => state.getIn(['wizard', 'config', id], Map()).toJS()
 
+export const getSelectedSourceDisplayName = (state, id) => state.getIn(['wizard', 'sourceWizard', ''])
 export const getProbeValue = (state) => state.getIn(['probeValue'])
 
 const sourceSelections = (state = Map(), { type, sourceConfigs }) => {
@@ -83,7 +84,7 @@ const isSubmitting = (state = false, { type }) => {
 
 export const getSourceSelections = (state) => state.getIn(['sourceWizard', 'sourceSelections'])
 
-export const getSelectedSource = (state) => state.getIn(['wizard', 'config', 'selectedSource', 'value'])
+export const getConfigurationHandlerId = (state) => state.getIn(['wizard', 'config', 'configurationHandlerId'])
 
 export const getSourceName = (state) => state.getIn(['wizard', 'config', 'sourceName', 'value'])
 

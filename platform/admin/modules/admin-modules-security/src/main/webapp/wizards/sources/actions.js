@@ -16,8 +16,8 @@ export const setMessages = (id, messages) => ({ type: 'SET_MESSAGES', id, messag
 export const clearMessages = (id) => ({ type: 'CLEAR_MESSAGES', id })
 export const startSubmitting = () => ({ type: 'START_SUBMITTING' })
 export const endSubmitting = () => ({ type: 'END_SUBMITTING' })
-
-export const testConfig = (url, configType, nextStageId, id) => (dispatch, getState) => {
+export const setConfigSource = (source) => ({ type: 'SET_CONFIG_SOURCE', value: source })
+export const discoverSources = (url, configType, nextStageId, id) => (dispatch, getState) => {
   dispatch(startSubmitting())
   dispatch(clearMessages(id))
   const config = getAllConfig(getState())
@@ -44,5 +44,26 @@ export const testConfig = (url, configType, nextStageId, id) => (dispatch, getSt
       }
     }, () => {
       dispatch(endSubmitting())
+    })
+}
+
+export const persistConfig = (url, config, nextStageId) => (dispatch, getState) => {
+  const config = getAllConfig(getState())
+
+  const opts = {
+    method: 'POST',
+    body: JSON.stringify(config),
+    credentials: 'same-origin'
+  }
+
+  window.fetch(url, opts)
+    .then((res) => Promise.all([ res.status, res.json() ]))
+    .then(([status, json]) => {
+      if (status === 400) {
+//      TODO dispatch error messages
+//        dispatch(setConfigErrors(json.results))
+      } else if (status === 200) {
+        dispatch(changeStage(nextStageId))
+      }
     })
 }

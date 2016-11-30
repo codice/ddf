@@ -8,6 +8,10 @@ const config = (state = Map(), { type, id, value, values, messages }) => {
   switch (type) {
     case 'EDIT_CONFIG':
       return state.setIn([].concat(id, 'value'), value)
+    case 'SET_CONFIG_SOURCE':
+      var formattedSource = {}
+      Object.keys(value).map((key) => { formattedSource[key] = { value: value[key] } })
+      return fromJS(state).map((stateValue) => fromJS({stateValue})).merge(formattedSource)
     case 'SET_DEFAULTS':
       return fromJS(values).map((value) => fromJS({ value })).merge(state)
     case 'CLEAR_CONFIG':

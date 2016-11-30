@@ -93,6 +93,7 @@ public class ConfigurationRouter implements SparkApplication {
 
         post("/persist/:configHandlerId", (req, res) -> {
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
+            // TODO: tbatie - 11/29/16 - Check if configurationHandler is running before testing
             TestReport results = getConfigurationHandler(configurationHandlers,
                     req.params("configHandlerId")).persist(config);
 

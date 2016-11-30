@@ -13,24 +13,35 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <!--ldap config handler-->
     <service id="ldapConfigurationHandler"
              interface="org.codice.ui.admin.wizard.api.ConfigurationHandler">
         <bean class="org.codice.ui.admin.ldap.config.LdapConfigurationHandler"/>
     </service>
 
-    <service id="cswConfigurationHandler"
-             interface="org.codice.ui.admin.sources.config.SourceConfigurationHandler">
-        <bean class="org.codice.ui.admin.sources.config.csw.CswSourceConfigurationHandler"/>
+    <!--source config handlers-->
+    <bean id="cswConfigurationHandler" class="org.codice.ui.admin.sources.config.csw.CswSourceConfigurationHandler"/>
+    <service ref="cswConfigurationHandler">
+        <interfaces>
+            <value>org.codice.ui.admin.sources.config.SourceConfigurationHandler</value>
+            <value>org.codice.ui.admin.wizard.api.ConfigurationHandler</value>
+        </interfaces>
     </service>
 
-    <service id="wfsConfigurationHandler"
-             interface="org.codice.ui.admin.sources.config.SourceConfigurationHandler">
-        <bean class="org.codice.ui.admin.sources.config.wfs.WfsSourceConfigurationHandler"/>
+    <bean id="wfsConfigurationHandler" class="org.codice.ui.admin.sources.config.wfs.WfsSourceConfigurationHandler"/>
+    <service ref="wfsConfigurationHandler">
+        <interfaces>
+            <value>org.codice.ui.admin.sources.config.SourceConfigurationHandler</value>
+            <value>org.codice.ui.admin.wizard.api.ConfigurationHandler</value>
+        </interfaces>
     </service>
 
-    <service id="openSearchConfigurationHandler"
-             interface="org.codice.ui.admin.sources.config.SourceConfigurationHandler">
-        <bean class="org.codice.ui.admin.sources.config.opensearch.OpenSearchSourceConfigurationHandler"/>
+    <bean id="openSearchConfigurationHandler" class="org.codice.ui.admin.sources.config.opensearch.OpenSearchSourceConfigurationHandler"/>
+    <service ref="openSearchConfigurationHandler">
+        <interfaces>
+            <value>org.codice.ui.admin.sources.config.SourceConfigurationHandler</value>
+            <value>org.codice.ui.admin.wizard.api.ConfigurationHandler</value>
+        </interfaces>
     </service>
 
     <service id="sourcesConfigurationHandler"
@@ -42,11 +53,11 @@
 
     <reference-list id="sourceConfigurationHandlers" interface="org.codice.ui.admin.sources.config.SourceConfigurationHandler" availability="optional"/>
 
+    <!--config handler router-->
     <bean id="configurationRouter" class="org.codice.ui.admin.wizard.ConfigurationRouter">
         <property name="contextPath" value="/admin/wizard"/>
         <property name="configurationHandlers" ref="configurationHandlers"/>
     </bean>
-
     <reference-list id="configurationHandlers" interface="org.codice.ui.admin.wizard.api.ConfigurationHandler" availability="optional"/>
 
     <bean id="sparkServlet" class="org.codice.ui.admin.wizard.SparkServlet">

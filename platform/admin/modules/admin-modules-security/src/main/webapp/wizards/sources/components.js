@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import { getSourceStage, getStagesClean, getConfig, getStageProgress } from './reducer'
-import { setNavStage } from './actions'
+import { setNavStage, setConfigSource } from './actions'
 
 import IconButton from 'material-ui/IconButton'
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton'
@@ -13,7 +13,7 @@ import AlertIcon from 'material-ui/svg-icons/alert/warning'
 import InfoIcon from 'material-ui/svg-icons/action/info'
 import {green500, red500} from 'material-ui/styles/colors'
 import RaisedButton from 'material-ui/RaisedButton'
-import { editConfig } from '../../actions'
+import { editConfigs } from '../../actions'
 
 import LeftIcon from 'material-ui/svg-icons/hardware/keyboard-arrow-left'
 import RightIcon from 'material-ui/svg-icons/hardware/keyboard-arrow-right'
@@ -40,10 +40,13 @@ import {
   Select
 } from '../inputs'
 
-const mapStateToProps = (state, { id }) => getConfig(state, id)
+const mapStateToProps = (key) => (state, { id }) => ({
+  [key]: getConfig(state, key) === undefined ? undefined : getConfig(state, key).value
+})
 
 const mapDispatchToProps = (dispatch, { id }) => ({
-  onEdit: (value) => dispatch(editConfig(id, value))
+  setSource: (source) => dispatch(setConfigSource(source)),
+  onEdits: (values) => dispatch(editConfigs(values))
 })
 
 export const WidthConstraint = ({ children }) => (
@@ -146,19 +149,20 @@ export const SourceInfo = ({ id, label, value }) => (
   </div>
 )
 
-const SourceRadioButtonsView = ({ id, disabled, path, value = { value: { displayName: 'undefined' } }, options = [], onEdit, defaultOption = {} }) => {
+const SourceRadioButtonsView = ({ disabled, options = [], onEdits, displayName, setSource }) => {
   return (
     <div style={{display: 'inline-block', margin: '10px'}}>
       {options.map((item, i) => (
-        <SourceRadioButton key={i} value={item.displayName} disabled={disabled} valueSelected={value.displayName} item={item} onSelect={() => onEdit(options[i])} />
+        <SourceRadioButton key={i} value={item.displayName} disabled={disabled} valueSelected={displayName} item={item} onSelect={() => setSource(options[i])} />
       ))}
     </div>
   )
 }
-export const SourceRadioButtons = connect(mapStateToProps, mapDispatchToProps)(SourceRadioButtonsView)
+export const SourceRadioButtons = connect(mapStateToProps('displayName'), mapDispatchToProps)(SourceRadioButtonsView)
 
 const alertMessage = 'SSL certificate is untrusted and possibly insecure'
-const SourceRadioButton = ({ disabled, value, valueSelected, onSelect, item }) => {
+
+const SourceRadioButton = ({ disabled, value, valueSelected = 'undefined', onSelect, item }) => {
   if (item.trustedCertAuthority) {
     return (
       <div>
