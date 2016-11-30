@@ -56,6 +56,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.apache.tika.detect.DefaultProbDetector;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.metadata.Metadata;
@@ -186,7 +188,6 @@ import ddf.catalog.util.impl.Requests;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
 import ddf.mime.MimeTypeResolutionException;
 import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
@@ -841,8 +842,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         contentItem.getId(),
                         fileName,
                         size,
-                        (Subject) storageRequest.getProperties()
-                                .get(SecurityConstants.SECURITY_SUBJECT),
+                        retrieveSubject(),
                         tmpPath);
                 metacardMap.put(metacard.getId(), metacard);
 
@@ -3507,5 +3507,19 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
 
         return CollectionUtils.containsAny(tags, fanoutTagBlacklist);
+    }
+
+    private ddf.security.Subject retrieveSubject() {
+        ddf.security.Subject subjectToReturn = null;
+        try {
+            Subject subject = SecurityUtils.getSubject();
+            if (subject instanceof ddf.security.Subject) {
+                subjectToReturn = (ddf.security.Subject) subject;
+            }
+        } catch (IllegalStateException exception) {
+            LOGGER.debug("No security subject found during metacard generation.");
+        }
+
+        return subjectToReturn;
     }
 }
