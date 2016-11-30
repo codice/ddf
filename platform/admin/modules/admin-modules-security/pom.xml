@@ -125,6 +125,13 @@
             <version>2.3.14</version>
         </dependency>
 
+        <!--Spock dependencies-->
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>spock-shaded</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
     <build>
@@ -195,22 +202,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.00</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.00</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.00</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.00</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

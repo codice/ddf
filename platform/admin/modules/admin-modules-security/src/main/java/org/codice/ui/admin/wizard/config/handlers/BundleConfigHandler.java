@@ -26,19 +26,26 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Transactional handler for starting and stopping bundles.
+ */
 public class BundleConfigHandler implements ConfigHandler<Void, Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BundleConfigHandler.class);
 
     private final boolean newState;
 
+    private final BundleContext bundleContext;
+
     private final Bundle bundle;
 
     private final boolean initActivationState;
 
-    private BundleConfigHandler(String bundleSymName, boolean activate) {
+    private BundleConfigHandler(String bundleSymName, boolean activate,
+            BundleContext bundleContext) {
         this.newState = activate;
+        this.bundleContext = bundleContext;
 
-        bundle = Arrays.stream(getBundleContext().getBundles())
+        bundle = Arrays.stream(bundleContext.getBundles())
                 .filter(b -> b.getSymbolicName()
                         .equals(bundleSymName))
                 .findFirst()
@@ -48,12 +55,26 @@ public class BundleConfigHandler implements ConfigHandler<Void, Boolean> {
         initActivationState = lookupBundleState();
     }
 
-    public static BundleConfigHandler forStart(String bundleSymName) {
-        return new BundleConfigHandler(bundleSymName, true);
+    /**
+     * Creates a handler that will start a bundle as part of a transaction.
+     *
+     * @param bundleSymName the name of the bundle to start
+     * @param bundleContext context needed for OSGi interaction
+     * @return instance of this class
+     */
+    public static BundleConfigHandler forStart(String bundleSymName, BundleContext bundleContext) {
+        return new BundleConfigHandler(bundleSymName, true, bundleContext);
     }
 
-    public static BundleConfigHandler forStop(String bundleSymName) {
-        return new BundleConfigHandler(bundleSymName, false);
+    /**
+     * Creates a handler that will stop a bundle as part of a transaction.
+     *
+     * @param bundleSymName the name of the bundle to stop
+     * @param bundleContext context needed for OSGi interaction
+     * @return instance of this class
+     */
+    public static BundleConfigHandler forStop(String bundleSymName, BundleContext bundleContext) {
+        return new BundleConfigHandler(bundleSymName, false, bundleContext);
     }
 
     @Override
@@ -98,10 +119,9 @@ public class BundleConfigHandler implements ConfigHandler<Void, Boolean> {
     }
 
     private BundleStateService getBundleStateService() {
-        BundleContext context = getBundleContext();
-        ServiceReference<BundleStateService> serviceReference = context.getServiceReference(
+        ServiceReference<BundleStateService> serviceReference = bundleContext.getServiceReference(
                 BundleStateService.class);
-        return context.getService(serviceReference);
+        return bundleContext.getService(serviceReference);
     }
 
     private boolean lookupBundleState() {

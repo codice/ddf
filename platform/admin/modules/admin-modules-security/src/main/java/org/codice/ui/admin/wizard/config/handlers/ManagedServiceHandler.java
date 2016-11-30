@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.management.MalformedObjectNameException;
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.ui.admin.api.ConfigurationAdmin;
@@ -28,22 +27,28 @@ import org.codice.ui.admin.wizard.config.ConfiguratorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Transactional handler factory for creating and deleting managed services.
+ */
 public abstract class ManagedServiceHandler implements ConfigHandler<String, Void> {
+    /**
+     * Transactional handler for deleting managed services.
+     */
     private static class DeleteHandler extends ManagedServiceHandler {
         private final String configPid;
 
         private Map<String, Object> currentProperties;
 
-        private DeleteHandler(String configPid) {
-            super();
+        private DeleteHandler(String configPid, ConfigurationAdmin configAdmin,
+                ConfigurationAdminMBean cfgAdmMbean) {
+            super(configAdmin, cfgAdmMbean);
 
             this.configPid = configPid;
 
             try {
-                ConfigurationAdminMBean configAdmin = getConfigAdminMBean();
-                factoryPid = configAdmin.getFactoryPid(configPid);
-                currentProperties = configAdmin.getProperties(configPid);
-            } catch (MalformedObjectNameException | IOException e) {
+                factoryPid = cfgAdmMbean.getFactoryPid(configPid);
+                currentProperties = cfgAdmMbean.getProperties(configPid);
+            } catch (IOException e) {
                 ManagedServiceHandler.LOGGER.debug("Error getting current configuration for pid {}",
                         configPid,
                         e);
@@ -63,13 +68,17 @@ public abstract class ManagedServiceHandler implements ConfigHandler<String, Voi
         }
     }
 
+    /**
+     * Transactional handler for creating managed services.
+     */
     private static class CreateHandler extends ManagedServiceHandler {
         private final Map<String, Object> configs;
 
         private String newConfigPid;
 
-        private CreateHandler(String factoryPid, Map<String, Object> configs) {
-            super();
+        private CreateHandler(String factoryPid, Map<String, Object> configs,
+                ConfigurationAdmin configAdmin, ConfigurationAdminMBean cfgAdmMbean) {
+            super(configAdmin, cfgAdmMbean);
 
             this.factoryPid = factoryPid;
             this.configs = new HashMap<>(configs);
@@ -92,13 +101,42 @@ public abstract class ManagedServiceHandler implements ConfigHandler<String, Voi
 
     protected String factoryPid;
 
-    public static ManagedServiceHandler forCreate(String factoryPid,
-            @NotNull Map<String, Object> configs) {
-        return new CreateHandler(factoryPid, configs);
+    protected final ConfigurationAdmin configAdmin;
+
+    protected final ConfigurationAdminMBean cfgAdmMbean;
+
+    private ManagedServiceHandler(ConfigurationAdmin configAdmin,
+            ConfigurationAdminMBean cfgAdmMbean) {
+        this.configAdmin = configAdmin;
+        this.cfgAdmMbean = cfgAdmMbean;
     }
 
-    public static ManagedServiceHandler forDelete(String pid) {
-        return new DeleteHandler(pid);
+    /**
+     * Creates a handler that will create a managed service as part of a transaction.
+     *
+     * @param factoryPid  the PID of the service factory
+     * @param configs     the configuration properties to apply to the service
+     * @param configAdmin service wrapper needed for OSGi interaction
+     * @param cfgAdmMbean mbean needed for saving configuration data
+     * @return
+     */
+    public static ManagedServiceHandler forCreate(String factoryPid,
+            @NotNull Map<String, Object> configs, ConfigurationAdmin configAdmin,
+            ConfigurationAdminMBean cfgAdmMbean) {
+        return new CreateHandler(factoryPid, configs, configAdmin, cfgAdmMbean);
+    }
+
+    /**
+     * Creates a handler that will delete a managed service as part of a transaction.
+     *
+     * @param pid         the PID of the instance to be deleted
+     * @param configAdmin service wrapper needed for OSGi interaction
+     * @param cfgAdmMbean mbean needed for saving configuration data
+     * @return
+     */
+    public static ManagedServiceHandler forDelete(String pid, ConfigurationAdmin configAdmin,
+            ConfigurationAdminMBean cfgAdmMbean) {
+        return new DeleteHandler(pid, configAdmin, cfgAdmMbean);
     }
 
     @Override
@@ -108,8 +146,7 @@ public abstract class ManagedServiceHandler implements ConfigHandler<String, Voi
 
     protected void deleteByPid(String configPid) {
         try {
-            ConfigurationAdmin configAdmin = getConfigAdmin();
-            configAdmin.delete(configPid);
+            cfgAdmMbean.delete(configPid);
         } catch (IOException e) {
             LOGGER.debug("Error deleting managed service with pid {}", configPid, e);
             throw new ConfiguratorException("Internal error");
@@ -117,12 +154,11 @@ public abstract class ManagedServiceHandler implements ConfigHandler<String, Voi
     }
 
     protected String createManagedService(Map<String, Object> properties) {
-        ConfigurationAdmin configAdmin = getConfigAdmin();
         try {
             String configPid = configAdmin.createFactoryConfiguration(factoryPid);
-            getConfigAdminMBean().update(configPid, properties);
+            cfgAdmMbean.update(configPid, properties);
             return configPid;
-        } catch (IOException | MalformedObjectNameException e) {
+        } catch (IOException e) {
             LOGGER.debug("Error creating managed service for factoryPid {}", factoryPid, e);
             throw new ConfiguratorException("Internal error");
         }
