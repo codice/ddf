@@ -84,19 +84,66 @@ define([
             return false;
         }
 
+        // terraformer doesn't offically support Point, MultiPoint, FeatureCollection, or GeometryCollection
+        // terraformer incorrectly supports MultiPolygon, so turn it into a Polygon first
+        function intersects(terraformerObject, value){
+            var intersected = false;
+            switch(value.type){
+                case 'Point':
+                    return terraformerObject.contains(value);
+                case 'MultiPoint':
+                    value.coordinates.forEach(function(coordinate){
+                        intersected = intersected || intersects(terraformerObject, {
+                            type: 'Point',
+                            coordinates: coordinate
+                        });
+                    });
+                    return intersected;
+                case 'LineString':
+                case 'MultiLineString':
+                case 'Polygon':
+                    return terraformerObject.intersects(value);
+                case 'MultiPolygon':
+                    value.coordinates.forEach(function(coordinate){
+                        intersected = intersected || intersects(terraformerObject, {
+                            type: 'Polygon',
+                            coordinates: coordinate
+                        });
+                    });
+                    return intersected;
+                case 'Feature':
+                    return intersects(terraformerObject, value.geometry);
+                case 'FeatureCollection':
+                    value.features.forEach(function(feature){
+                        intersected = intersected || intersects(terraformerObject, feature);
+                    });
+                    return intersected;
+                case 'GeometryCollection':
+                    value.geometries.forEach(function(geometry){
+                        intersected = intersected || intersects(terraformerObject, geometry);
+                    });
+                    return intersected;
+                default:
+                    return intersected;
+            }
+        }
+
         function matchesPOLYGON(value, filter){
             var polygonToCheck = TerraformerWKTParser.parse(filter.value.value);
-            if (polygonToCheck.contains(value)){
+            if (intersects(polygonToCheck, value)){
                 return true;
             }
             return false;
         }
 
         function matchesCIRCLE(value, filter){
+            if (filter.distance <= 0){
+                return false;
+            }
             var points = filter.value.value.substring(6, filter.value.value.length-1).split(' ');
             var circleToCheck = new Terraformer.Circle(points, filter.distance, 64);
             var polygonCircleToCheck = new Terraformer.Polygon(circleToCheck.geometry);
-            if (polygonCircleToCheck.contains(value)){
+            if (intersects(polygonCircleToCheck, value)){
                 return true;
             }
             return false;
@@ -106,6 +153,9 @@ define([
             var pointText = filter.value.value.substring(11);
             pointText = pointText.substring(0, pointText.length - 1);
             var lineWidth = filter.distance || 0;
+            if (lineWidth <= 0){
+                return false;
+            }
             var line = pointText.split(',').map(function (coordinate) {
                 return coordinate.split(' ').map(function (value) {
                     return Number(value);
@@ -117,7 +167,7 @@ define([
                 type: 'Polygon',
                 coordinates: bufferedLine.geometry.coordinates
             });
-            if (polygonToCheck.contains(value)){
+            if (intersects(polygonToCheck, value)){
                 return true;
             }
             return false;
