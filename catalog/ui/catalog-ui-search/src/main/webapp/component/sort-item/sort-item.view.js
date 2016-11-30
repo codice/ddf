@@ -23,7 +23,7 @@ define([
     'component/dropdown/dropdown.view',
 ], function(Marionette, _, $, template, CustomElements, metacardDefinitions, DropdownView) {
 
-    var blacklist = ['metacard-type', 'source-id', 'cached', 'metacard-tags', 'anyText'];
+    var blacklist = ['anyText', 'anyGeo'];
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -40,14 +40,12 @@ define([
             this.model.destroy();
         },
         onBeforeShow: function() {
-            var sortAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function(type) {
-                return type.type === 'STRING' || type.type === 'DATE';
-            }).filter(function(type) {
+            var sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function(type) {
                 return blacklist.indexOf(type.id) === -1;
-            }).map(function(type) {
+            }).map(function(metacardType) {
                 return {
-                    label: type.alias || type.id,
-                    value: type.id
+                    label: metacardType.alias || metacardType.id,
+                    value: metacardType.id
                 };
             });
 
