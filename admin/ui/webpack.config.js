@@ -2,6 +2,8 @@ var webpack = require('webpack')
 var validate = require('webpack-validator')
 var merge = require('webpack-merge')
 var path = require('path')
+var glob = require('glob')
+var HtmlWebpackPlugin = require('html-webpack-plugin')
 
 var config = {
   output: {
@@ -52,25 +54,78 @@ if (process.env.NODE_ENV === 'production') {
       })
     ]
   })
+} else if (process.env.NODE_ENV === 'ci') {
+  config = merge.smart(config, {
+    devtool: 'source-map',
+    node: {
+      __filename: true
+    },
+    output: {
+      publicPath: '',
+      filename: 'bundle.js',
+      path: path.resolve(__dirname, 'target', 'ci')
+    },
+    entry: glob.sync('./src/main/webapp/**/*spec.js')
+        .map(function (spec) { return path.resolve(spec) }),
+    plugins: [new HtmlWebpackPlugin()],
+    module: {
+      loaders: [
+        {
+          test: /spec\.js$/,
+          loaders: [
+            'mocha',
+            path.resolve(__dirname, 'spec-loader.js')
+          ],
+          exclude: /(node_modules|target)/
+        }
+      ]
+    },
+    externals: {
+      'react/addons': true,
+      'react/lib/ExecutionEnvironment': true,
+      'react/lib/ReactContext': true
+    }
+  })
 } else if (process.env.NODE_ENV === 'test') {
   config = merge.smart(config, {
+    devtool: 'source-map',
     output: {
-      publicPath: '/',
+      publicPath: '',
       filename: 'bundle.js',
-      path: path.resolve(__dirname, 'target', 'test')
+      path: path.resolve(__dirname, 'target', 'ci')
     },
     entry: [
-      'source-map-support/register',
-      './src/test/webapp/reducer.js'
+      'stack-source-map/register'
+    ].concat(
+      glob.sync('./src/main/webapp/**/*spec.js')
+          .map(function (spec) { return path.resolve(spec) })
+    ),
+    devServer: {
+      noInfo: true,
+      contentBase: 'src/main/resources/',
+      inline: true,
+      compress: true,
+      hot: true,
+      host: '0.0.0.0',
+      port: 8181
+    },
+    plugins: [
+      new HtmlWebpackPlugin(),
+      new webpack.HotModuleReplacementPlugin()
     ],
-    target: 'node',
-    resolve: {
-      root: [
-        './node_modules',
-        './src/main/webapp/'
-      ].map(function (dir) {
-        return path.resolve(__dirname, dir)
-      })
+    module: {
+      loaders: [
+        {
+          test: /spec\.js$/,
+          loader: 'mocha',
+          exclude: /(node_modules|target)/
+        }
+      ]
+    },
+    externals: {
+      'react/addons': true,
+      'react/lib/ExecutionEnvironment': true,
+      'react/lib/ReactContext': true
     }
   })
 } else {
