@@ -277,6 +277,27 @@ Then change the LDAP Bind User Password in the configurations to use the encrypt
 |ldaps://${org.codice.ddf.system.hostname}:1636
 |yes
 
+|LDAP Bind Method
+|bindMethod
+|String
+|Method to use when binding to the LDAP server. Default is Simple. Some LDAP operations may not work correctly over Simple bind against all LDAP servers. Select the appropriate bind method for the LDAP server being used.
+|Simple
+|yes
+
+|Realm
+|realm
+|String
+|Realm to use during bind. Only applies to GSSAPI and Digest MD5 SASL.
+|
+|no
+
+|KDC Address
+|kdcAddress
+|String
+|KDC address to use during bind. Only applies to GSSAPI SASL.
+|
+|no
+
 |StartTLS
 |startTls
 |Boolean
@@ -347,6 +368,27 @@ Integrators and developers can add more claims handlers that can handle other ty
 |true
 |ldaps://${org.codice.ddf.system.hostname}:1636
 |LDAP or LDAPS server and port
+
+|LDAP Bind Method
+|bindMethod
+|String
+|Method to use when binding to the LDAP server. Default is Simple. Some LDAP operations may not work correctly over Simple bind against all LDAP servers. Select the appropriate bind method for the LDAP server being used.
+|Simple
+|yes
+
+|Realm
+|realm
+|String
+|Realm to use during bind. Only applies to GSSAPI and Digest MD5 SASL.
+|
+|no
+
+|KDC Address
+|kdcAddress
+|String
+|KDC address to use during bind. Only applies to GSSAPI SASL.
+|
+|no
 
 |StartTLS
 |startTls

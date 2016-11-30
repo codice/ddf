@@ -30,6 +30,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
@@ -41,6 +42,10 @@ import org.forgerock.opendj.ldap.LDAPOptions;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
+import org.forgerock.opendj.ldap.requests.BindRequest;
+import org.forgerock.opendj.ldap.requests.DigestMD5SASLBindRequest;
+import org.forgerock.opendj.ldap.requests.GSSAPISASLBindRequest;
+import org.forgerock.opendj.ldap.requests.Requests;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
@@ -78,11 +83,23 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     public static final String SSL_STARTTLS = "ssl.starttls";
 
+    public static final String BIND_METHOD = "bindMethod";
+
+    public static final String REALM = "realm";
+
+    public static final String KDC_ADDRESS = "kdcAddress";
+
     public static final String PROTOCOL = "TLS";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SslLdapLoginModule.class);
 
     private static final String DEFAULT_AUTHENTICATION = "simple";
+
+    private String realm;
+
+    private String kdcAddress;
+
+    private String bindMethod;
 
     private String connectionURL;
 
@@ -158,8 +175,40 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         if (connection != null) {
             try {
                 try {
-                    BindResult bindResult = connection.bind(connectionUsername,
-                            connectionPassword.toCharArray());
+                    BindRequest request;
+                    switch (bindMethod) {
+                    case "Simple":
+                        request = Requests.newSimpleBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        break;
+                    case "SASL":
+                        request = Requests.newPlainSASLBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        break;
+                    case "GSSAPI SASL":
+                        request = Requests.newGSSAPISASLBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        ((GSSAPISASLBindRequest) request).setRealm(realm);
+                        ((GSSAPISASLBindRequest) request).setKDCAddress(kdcAddress);
+                        break;
+                    case "Digest MD5 SASL":
+                        request = Requests.newDigestMD5SASLBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        ((DigestMD5SASLBindRequest) request).setCipher(DigestMD5SASLBindRequest.CIPHER_HIGH);
+                        ((DigestMD5SASLBindRequest) request).getQOPs().clear();
+                        ((DigestMD5SASLBindRequest) request).getQOPs().add(DigestMD5SASLBindRequest.QOP_AUTH_CONF);
+                        ((DigestMD5SASLBindRequest) request).getQOPs().add(DigestMD5SASLBindRequest.QOP_AUTH_INT);
+                        ((DigestMD5SASLBindRequest) request).getQOPs().add(DigestMD5SASLBindRequest.QOP_AUTH);
+                        if (StringUtils.isNotEmpty(realm)) {
+                            ((DigestMD5SASLBindRequest) request).setRealm(realm);
+                        }
+                        break;
+                    default:
+                        request = Requests.newSimpleBindRequest(connectionUsername,
+                                connectionPassword.toCharArray());
+                        break;
+                    }
+                    BindResult bindResult = connection.bind(request);
 
                     if (!bindResult.isSuccess()) {
                         LOGGER.error("Bind failed");
@@ -350,6 +399,9 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE);
             roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE));
             startTls = Boolean.parseBoolean(String.valueOf(options.get(SSL_STARTTLS)));
+            bindMethod = (String) options.get(BIND_METHOD);
+            realm = (String) options.get(REALM);
+            kdcAddress = (String) options.get(KDC_ADDRESS);
 
             if (ldapConnectionFactory != null) {
                 ldapConnectionFactory.close();

@@ -30,6 +30,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
@@ -56,6 +57,12 @@ public class ClaimsHandlerManager {
     public static final String OVERRIDE_CERT_DN = "overrideCertDn";
 
     public static final String LDAP_BIND_USER_DN = "ldapBindUserDn";
+
+    public static final String BIND_METHOD = "bindMethod";
+
+    public static final String REALM = "realm";
+
+    public static final String KDC_ADDRESS = "kdcAddress";
 
     public static final String PASSWORD = "password";
 
@@ -128,12 +135,30 @@ public class ClaimsHandlerManager {
                 ClaimsHandlerManager.MEMBER_USER_ATTRIBUTE);
         String propertyFileLocation = (String) props.get(
                 ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
+        String bindMethod = (String) props.get(ClaimsHandlerManager.BIND_METHOD);
+        String realm = (props.get(ClaimsHandlerManager.REALM) != null) ?
+                (String) props.get(ClaimsHandlerManager.REALM) :
+                "";
+        String kdcAddress = (props.get(ClaimsHandlerManager.KDC_ADDRESS) != null) ?
+                (String) props.get(ClaimsHandlerManager.KDC_ADDRESS) :
+                "";
+        if ("GSSAPI SASL".equals(bindMethod) && (StringUtils.isEmpty(realm) || StringUtils.isEmpty(
+                kdcAddress))) {
+            LOGGER.warn(
+                    "LDAP connection will fail. GSSAPI SASL connection requires Kerberos Realm and KDC Address.");
+        }
         Boolean overrideCertDn;
         if (props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN) instanceof String) {
             overrideCertDn = Boolean.valueOf(
                     (String) props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN));
         } else {
             overrideCertDn = (Boolean) props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN);
+        }
+        if (startTls == null) {
+            startTls = false;
+        }
+        if (overrideCertDn == null) {
+            overrideCertDn = false;
         }
         try {
             if (encryptService != null) {
@@ -143,9 +168,10 @@ public class ClaimsHandlerManager {
             LDAPConnectionFactory connection2 = createLdapConnectionFactory(url, startTls);
             registerRoleClaimsHandler(connection1, propertyFileLocation, userBaseDn,
                     loginUserAttribute, membershipUserAttribute, objectClass, memberNameAttribute,
-                    groupBaseDn, userDn, password, overrideCertDn);
+                    groupBaseDn, userDn, password, overrideCertDn, bindMethod, realm, kdcAddress);
             registerLdapClaimsHandler(connection2, propertyFileLocation, userBaseDn,
-                    loginUserAttribute, userDn, password, overrideCertDn);
+                    loginUserAttribute, userDn, password, overrideCertDn, bindMethod, realm,
+                    kdcAddress);
 
         } catch (Exception e) {
             LOGGER.warn(
@@ -224,7 +250,8 @@ public class ClaimsHandlerManager {
     private void registerRoleClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
             String userBaseDn, String loginUserAttribute, String membershipUserAttribute,
             String objectClass, String memberNameAttribute, String groupBaseDn, String userDn,
-            String password, boolean overrideCertDn) {
+            String password, boolean overrideCertDn, String bindMethod, String realm,
+            String kdcAddress) {
         RoleClaimsHandler roleHandler = new RoleClaimsHandler();
         roleHandler.setLdapConnectionFactory(connection);
         roleHandler.setPropertyFileLocation(propertyFileLoc);
@@ -237,6 +264,9 @@ public class ClaimsHandlerManager {
         roleHandler.setBindUserDN(userDn);
         roleHandler.setBindUserCredentials(password);
         roleHandler.setOverrideCertDn(overrideCertDn);
+        roleHandler.setBindMethod(bindMethod);
+        roleHandler.setKerberosRealm(realm);
+        roleHandler.setKdcAddress(kdcAddress);
         LOGGER.debug("Registering new role claims handler.");
         roleHandlerRegistration = registerClaimsHandler(roleHandler, roleHandlerRegistration);
     }
@@ -251,7 +281,7 @@ public class ClaimsHandlerManager {
      */
     private void registerLdapClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
             String userBaseDn, String userNameAttr, String userDn, String password,
-            boolean overrideCertDn) {
+            boolean overrideCertDn, String bindMethod, String realm, String kdcAddress) {
         LdapClaimsHandler ldapHandler = new LdapClaimsHandler();
         ldapHandler.setLdapConnectionFactory(connection);
         ldapHandler.setPropertyFileLocation(propertyFileLoc);
@@ -260,6 +290,9 @@ public class ClaimsHandlerManager {
         ldapHandler.setBindUserDN(userDn);
         ldapHandler.setBindUserCredentials(password);
         ldapHandler.setOverrideCertDn(overrideCertDn);
+        ldapHandler.setBindMethod(bindMethod);
+        ldapHandler.setKerberosRealm(realm);
+        ldapHandler.setKdcAddress(kdcAddress);
         LOGGER.debug("Registering new ldap claims handler.");
         ldapHandlerRegistration = registerClaimsHandler(ldapHandler, ldapHandlerRegistration);
     }
@@ -357,6 +390,21 @@ public class ClaimsHandlerManager {
     public void setPropertyFileLocation(String propertyFileLocation) {
         LOGGER.trace("Setting propertyFileLocation: {}", propertyFileLocation);
         ldapProperties.put(PROPERTY_FILE_LOCATION, propertyFileLocation);
+    }
+
+    public void setBindMethod(String bindMethod) {
+        LOGGER.trace("Setting bindMethod: {}", bindMethod);
+        ldapProperties.put(BIND_METHOD, bindMethod);
+    }
+
+    public void setRealm(String realm) {
+        LOGGER.trace("Setting realm: {}", realm);
+        ldapProperties.put(REALM, realm);
+    }
+
+    public void setKdcAddress(String kdcAddress) {
+        LOGGER.trace("Setting kdcAddress: {}", kdcAddress);
+        ldapProperties.put(KDC_ADDRESS, kdcAddress);
     }
 
     public void setOverrideCertDn(boolean overrideCertDn) {

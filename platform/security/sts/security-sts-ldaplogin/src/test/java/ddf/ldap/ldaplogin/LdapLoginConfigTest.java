@@ -127,6 +127,9 @@ public class LdapLoginConfigTest {
         ldapConfig.setGroupBaseDn("ou=groups,dc=example,dc=com");
         ldapConfig.setStartTls(false);
         ldapConfig.setUserNameAttribute("uid");
+        ldapConfig.setBindMethod("Simple");
+        ldapConfig.setRealm("");
+        ldapConfig.setKdcAddress("");
         return ldapConfig;
     }
 
@@ -138,6 +141,9 @@ public class LdapLoginConfigTest {
         ldapProps.put(LdapLoginConfig.USER_BASE_DN, "ou=users,dc=example,dc=com");
         ldapProps.put(LdapLoginConfig.GROUP_BASE_DN, "ou=groups,dc=example,dc=com");
         ldapProps.put(LdapLoginConfig.START_TLS, "false");
+        ldapProps.put(LdapLoginConfig.BIND_METHOD, "Simple");
+        ldapProps.put(LdapLoginConfig.KDC_ADDRESS, "");
+        ldapProps.put(LdapLoginConfig.REALM, "");
         return ldapProps;
     }
 
