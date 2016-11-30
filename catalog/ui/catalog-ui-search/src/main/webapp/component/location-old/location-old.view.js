@@ -150,7 +150,7 @@ define([
                 usng: undefined,
                 usngbb: undefined,
                 line: undefined,
-                lineWidth: 0
+                lineWidth: 1
             });
             //wreqr.vent.trigger('search:drawstop');
             wreqr.vent.trigger('search:drawend', this.model);
@@ -360,8 +360,9 @@ define([
                 type = 'LINE';
             }
 
-            return _.extend(this.model.toJSON(), {
-                type: type
+            return _.extend(modelJSON, {
+                type: type,
+                lineWidth: Math.max(modelJSON.lineWidth, 0.000001)
             });
         },
         onDestroy: function () {
