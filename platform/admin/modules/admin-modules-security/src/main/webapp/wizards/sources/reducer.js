@@ -59,11 +59,35 @@ const sourceSelections = (state = Map(), { type, sourceConfigs }) => {
   }
 }
 
+/*
+const selectedSource = (state = Map(), { type, selectedSource }) => {
+  switch (type) {
+    case 'SET_SELECTED_SOURCE':
+      return selectedSource
+    default :
+      return state
+  }
+}
+*/
+
+const isSubmitting = (state = false, { type }) => {
+  switch (type) {
+    case 'START_SUBMITTING':
+      return true
+    case 'END_SUBMITTING':
+      return false
+    default:
+      return state
+  }
+}
+
 export const getSourceSelections = (state) => state.getIn(['sourceWizard', 'sourceSelections'])
 
 export const getSelectedSource = (state) => state.getIn(['wizard', 'config', 'selectedSource', 'value'])
 
 export const getSourceName = (state) => state.getIn(['wizard', 'config', 'sourceName', 'value'])
 
-export default combineReducers({ sourceStage, sourceStagesClean, sourceStageProgress, sourceSelections })
+export const getIsSubmitting = (state) => state.getIn(['sourceWizard', 'isSubmitting'])
+
+export default combineReducers({ sourceStage, sourceStagesClean, sourceStageProgress, sourceSelections, isSubmitting })
 
