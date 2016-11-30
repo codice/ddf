@@ -168,6 +168,7 @@ define([
 
 
             destroyPrimitive: function () {
+                window.cancelAnimationFrame(this.accurateLineId);
                 if (this.primitive) {
                     this.map.removeInteraction(this.primitive);
                 }
@@ -286,9 +287,9 @@ define([
                 var view = this.getViewForModel(model);
                 if (view) {
                     view.stop();
-                    if (this.notificationView) {
-                        this.notificationView.destroy();
-                    }
+                }
+                if (this.notificationView) {
+                    this.notificationView.destroy();
                 }
             },
             destroyView: function (view) {
@@ -297,6 +298,7 @@ define([
                 this.removeView(view);
             },
             destroy: function (model) {
+                this.stop(model);
                 var view = this.getViewForModel(model);
                 if (view) {
                     view.stop();

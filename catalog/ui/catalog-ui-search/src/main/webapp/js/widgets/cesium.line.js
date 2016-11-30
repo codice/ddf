@@ -193,9 +193,9 @@ define([
                 if (this.enabled) {
                     // stop drawing
                     this.options.drawHelper.stopDrawing();
-                    if (this.notificationView) {
-                        this.notificationView.destroy();
-                    }
+                }
+                if (this.notificationView) {
+                    this.notificationView.destroy();
                 }
             },
             destroyView: function(view) {
@@ -203,6 +203,7 @@ define([
                 this.removeView(view);
             },
             destroy: function(model) {
+                this.stop();
                 var view = this.getViewForModel(model);
                 // I don't think we need this method.
                 if (this.notificationView) {
