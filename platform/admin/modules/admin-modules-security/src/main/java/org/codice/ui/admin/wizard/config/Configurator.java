@@ -15,9 +15,11 @@ package org.codice.ui.admin.wizard.config;
 
 import java.nio.file.Path;
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import org.codice.ui.admin.wizard.config.handlers.AdminConfigHandler;
@@ -66,6 +68,11 @@ public class Configurator {
         return registerHandler(BundleConfigHandler.forStop(bundleSymName));
     }
 
+    public boolean isBundleStarted(String bundleSymName) {
+        return BundleConfigHandler.forStart(bundleSymName)
+                .readState();
+    }
+
     public String startFeature(String featureName) {
         return registerHandler(FeatureConfigHandler.forStart(featureName));
     }
@@ -74,18 +81,33 @@ public class Configurator {
         return registerHandler(FeatureConfigHandler.forStop(featureName));
     }
 
+    public boolean isFeatureStarted(String featureName) {
+        return FeatureConfigHandler.forStart(featureName)
+                .readState();
+    }
+
     public String updatePropertyFile(Path propFile, Map<String, String> properties,
             boolean keepIgnored) {
         return registerHandler(PropertyConfigHandler.instance(propFile, properties, keepIgnored));
     }
 
-    public String updateConfigFile(String configPid, Map<String, String> properties,
-            boolean keepIgnored) {
-        return registerHandler(AdminConfigHandler.instance(configPid, properties, keepIgnored));
+    public Properties getProperties(Path propFile) {
+        return PropertyConfigHandler.instance(propFile, Collections.emptyMap(), true)
+                .readState();
     }
 
-    public String createManagedService(String factoryPid, Map<String, String> properties) {
-        return registerHandler(ManagedServiceHandler.forCreate(factoryPid, properties));
+    public String updateConfigFile(String configPid, Map<String, Object> configs,
+            boolean keepIgnored) {
+        return registerHandler(AdminConfigHandler.instance(configPid, configs, keepIgnored));
+    }
+
+    public Map<String, Object> getConfig(String configPid) {
+        return AdminConfigHandler.instance(configPid, Collections.emptyMap(), true)
+                .readState();
+    }
+
+    public String createManagedService(String factoryPid, Map<String, Object> configs) {
+        return registerHandler(ManagedServiceHandler.forCreate(factoryPid, configs));
     }
 
     public String deleteManagedService(String configPid) {

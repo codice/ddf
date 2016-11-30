@@ -119,7 +119,7 @@ public class SourceConfiguration extends Configuration {
         return this;
     }
 
-    public Map<String, String> configMap() {
+    public Map<String, Object> configMap() {
         return null;
     }
 

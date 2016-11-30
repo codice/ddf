@@ -28,12 +28,14 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public interface ConfigHandler<T> {
+public interface ConfigHandler<T, S> {
     Logger LOGGER = LoggerFactory.getLogger(ConfigHandler.class);
 
     T commit() throws ConfiguratorException;
 
     T rollback() throws ConfiguratorException;
+
+    S readState() throws ConfiguratorException;
 
     default BundleContext getBundleContext() throws ConfiguratorException {
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());

@@ -183,7 +183,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     @Override
     public TestReport persist(LdapConfiguration config) {
 
-        Map<String, String> ldapStsConfig = new HashMap<>();
+        Map<String, Object> ldapStsConfig = new HashMap<>();
 
         String ldapUrl = "";
         boolean startTls = false;

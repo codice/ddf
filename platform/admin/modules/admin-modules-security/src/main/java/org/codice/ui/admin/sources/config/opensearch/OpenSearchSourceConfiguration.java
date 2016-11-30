@@ -34,8 +34,8 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
         endpointUrl(baseConfig.endpointUrl());
     }
 
-    public Map<String, String> configMap() {
-        HashMap<String, String> config = new HashMap<>();
+    public Map<String, Object> configMap() {
+        HashMap<String, Object> config = new HashMap<>();
         config.put("id", sourceName());
         config.put("endpointUrl", endpointUrl());
         if (sourceUserName() != null) {

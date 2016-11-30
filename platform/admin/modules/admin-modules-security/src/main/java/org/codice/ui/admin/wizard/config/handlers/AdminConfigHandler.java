@@ -25,18 +25,18 @@ import org.codice.ui.admin.wizard.config.ConfiguratorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AdminConfigHandler implements ConfigHandler<Void> {
+public class AdminConfigHandler implements ConfigHandler<Void, Map<String, Object>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminConfigHandler.class);
 
     private final String pid;
 
-    private final Map<String, String> configs;
+    private final Map<String, Object> configs;
 
     private final boolean keepIgnored;
 
     private Map<String, Object> currentProperties;
 
-    private AdminConfigHandler(String pid, Map<String, String> configs, boolean keepIgnored) {
+    private AdminConfigHandler(String pid, Map<String, Object> configs, boolean keepIgnored) {
         this.pid = pid;
         this.configs = new HashMap<>(configs);
         this.keepIgnored = keepIgnored;
@@ -50,7 +50,7 @@ public class AdminConfigHandler implements ConfigHandler<Void> {
         }
     }
 
-    public static AdminConfigHandler instance(String pid, Map<String, String> configs,
+    public static AdminConfigHandler instance(String pid, Map<String, Object> configs,
             boolean keepIgnored) {
         return new AdminConfigHandler(pid, configs, keepIgnored);
     }
@@ -85,6 +85,16 @@ public class AdminConfigHandler implements ConfigHandler<Void> {
         }
 
         return null;
+    }
+
+    @Override
+    public Map<String, Object> readState() throws ConfiguratorException {
+        try {
+            return getConfigAdminMBean().getProperties(pid);
+        } catch (IOException | MalformedObjectNameException e) {
+            throw new ConfiguratorException(String.format("Unable to find configuration for pid, %s",
+                    pid), e);
+        }
     }
 
     private void saveConfigs(Map<String, Object> properties)

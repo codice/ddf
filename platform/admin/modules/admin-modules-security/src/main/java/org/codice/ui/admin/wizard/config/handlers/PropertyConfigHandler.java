@@ -25,7 +25,7 @@ import java.util.Properties;
 import org.codice.ui.admin.wizard.config.ConfigHandler;
 import org.codice.ui.admin.wizard.config.ConfiguratorException;
 
-public class PropertyConfigHandler implements ConfigHandler<Void> {
+public class PropertyConfigHandler implements ConfigHandler<Void, Properties> {
     private final File configFile;
 
     private final Map<String, String> configs;
@@ -88,6 +88,11 @@ public class PropertyConfigHandler implements ConfigHandler<Void> {
         }
 
         return null;
+    }
+
+    @Override
+    public Properties readState() throws ConfiguratorException {
+        return currentProperties;
     }
 
     private void saveProperties(Properties properties) throws IOException {

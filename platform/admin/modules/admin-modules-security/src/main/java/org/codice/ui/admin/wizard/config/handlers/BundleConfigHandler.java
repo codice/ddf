@@ -26,7 +26,7 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BundleConfigHandler implements ConfigHandler<Void> {
+public class BundleConfigHandler implements ConfigHandler<Void, Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BundleConfigHandler.class);
 
     private final boolean newState;
@@ -90,6 +90,11 @@ public class BundleConfigHandler implements ConfigHandler<Void> {
         }
 
         return null;
+    }
+
+    @Override
+    public Boolean readState() throws ConfiguratorException {
+        return lookupBundleState();
     }
 
     private BundleStateService getBundleStateService() {

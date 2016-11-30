@@ -28,42 +28,7 @@ import org.codice.ui.admin.wizard.config.ConfiguratorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class ManagedServiceHandler implements ConfigHandler<String> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManagedServiceHandler.class);
-
-    protected String factoryPid;
-
-    public static ManagedServiceHandler forCreate(String factoryPid,
-            @NotNull Map<String, String> configs) {
-        return new CreateHandler(factoryPid, configs);
-    }
-
-    public static ManagedServiceHandler forDelete(String pid) {
-        return new DeleteHandler(pid);
-    }
-
-    protected void deleteByPid(String configPid) {
-        try {
-            ConfigurationAdmin configAdmin = getConfigAdmin();
-            configAdmin.delete(configPid);
-        } catch (IOException e) {
-            LOGGER.debug("Error deleting managed service with pid {}", configPid, e);
-            throw new ConfiguratorException("Internal error");
-        }
-    }
-
-    protected String createManagedService(Map<String, Object> properties) {
-        ConfigurationAdmin configAdmin = getConfigAdmin();
-        try {
-            String configPid = configAdmin.createFactoryConfiguration(factoryPid);
-            getConfigAdminMBean().update(configPid, properties);
-            return configPid;
-        } catch (IOException | MalformedObjectNameException e) {
-            LOGGER.debug("Error creating managed service for factoryPid {}", factoryPid, e);
-            throw new ConfiguratorException("Internal error");
-        }
-    }
-
+public abstract class ManagedServiceHandler implements ConfigHandler<String, Void> {
     private static class DeleteHandler extends ManagedServiceHandler {
         private final String configPid;
 
@@ -103,7 +68,7 @@ public abstract class ManagedServiceHandler implements ConfigHandler<String> {
 
         private String newConfigPid;
 
-        private CreateHandler(String factoryPid, Map<String, String> configs) {
+        private CreateHandler(String factoryPid, Map<String, Object> configs) {
             super();
 
             this.factoryPid = factoryPid;
@@ -120,6 +85,46 @@ public abstract class ManagedServiceHandler implements ConfigHandler<String> {
         public String rollback() throws ConfiguratorException {
             deleteByPid(newConfigPid);
             return null;
+        }
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagedServiceHandler.class);
+
+    protected String factoryPid;
+
+    public static ManagedServiceHandler forCreate(String factoryPid,
+            @NotNull Map<String, Object> configs) {
+        return new CreateHandler(factoryPid, configs);
+    }
+
+    public static ManagedServiceHandler forDelete(String pid) {
+        return new DeleteHandler(pid);
+    }
+
+    @Override
+    public Void readState() throws ConfiguratorException {
+        return null;
+    }
+
+    protected void deleteByPid(String configPid) {
+        try {
+            ConfigurationAdmin configAdmin = getConfigAdmin();
+            configAdmin.delete(configPid);
+        } catch (IOException e) {
+            LOGGER.debug("Error deleting managed service with pid {}", configPid, e);
+            throw new ConfiguratorException("Internal error");
+        }
+    }
+
+    protected String createManagedService(Map<String, Object> properties) {
+        ConfigurationAdmin configAdmin = getConfigAdmin();
+        try {
+            String configPid = configAdmin.createFactoryConfiguration(factoryPid);
+            getConfigAdminMBean().update(configPid, properties);
+            return configPid;
+        } catch (IOException | MalformedObjectNameException e) {
+            LOGGER.debug("Error creating managed service for factoryPid {}", factoryPid, e);
+            throw new ConfiguratorException("Internal error");
         }
     }
 }

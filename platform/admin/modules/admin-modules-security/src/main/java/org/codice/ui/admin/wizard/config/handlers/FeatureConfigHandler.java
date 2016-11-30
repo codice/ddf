@@ -17,6 +17,7 @@ import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBund
 
 import java.util.EnumSet;
 
+import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
 import org.codice.ui.admin.wizard.config.ConfigHandler;
@@ -26,7 +27,7 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FeatureConfigHandler implements ConfigHandler<Void> {
+public class FeatureConfigHandler implements ConfigHandler<Void, Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureConfigHandler.class);
 
     private final String featureName;
@@ -35,7 +36,8 @@ public class FeatureConfigHandler implements ConfigHandler<Void> {
 
     private final boolean initActivationState;
 
-    private FeatureConfigHandler(String featureName, boolean newState) {
+    private FeatureConfigHandler(String featureName, boolean newState)
+            throws ConfiguratorException {
         this.featureName = featureName;
         this.newState = newState;
 
@@ -88,6 +90,11 @@ public class FeatureConfigHandler implements ConfigHandler<Void> {
         return null;
     }
 
+    @Override
+    public Boolean readState() throws ConfiguratorException {
+        return lookupFeatureStatus(getFeaturesService(), featureName);
+    }
+
     private FeaturesService getFeaturesService() {
         BundleContext context = getBundleContext();
         ServiceReference<FeaturesService> serviceReference = context.getServiceReference(
@@ -95,7 +102,16 @@ public class FeatureConfigHandler implements ConfigHandler<Void> {
         return context.getService(serviceReference);
     }
 
-    private Boolean lookupFeatureStatus(FeaturesService featuresService, String featureName) {
-        return featuresService.getState(featureName) == FeatureState.Started;
+    private Boolean lookupFeatureStatus(FeaturesService featuresService, String featureName)
+            throws ConfiguratorException {
+        try {
+            Feature feature = featuresService.getFeature(featureName);
+            return featuresService.getState(String.format("%s/%s",
+                    feature.getName(),
+                    feature.getVersion())) == FeatureState.Started;
+        } catch (Exception e) {
+            throw new ConfiguratorException(String.format("No feature found named %s", featureName),
+                    e);
+        }
     }
 }
