@@ -23,7 +23,6 @@ import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configure
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardValidityFilterPlugin;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureShowInvalidMetacards;
-import static org.codice.ddf.itests.common.csw.CswQueryBuilder.AND;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.NOT;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.OR;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
@@ -2131,8 +2130,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         tmpFile.toFile()
                 .deleteOnExit();
         Files.copy(IOUtils.toInputStream(getFileContent(filename)),
-                tmpFile,
-                StandardCopyOption.REPLACE_EXISTING);
+                tmpFile);
         return tmpFile.toFile();
     }
 
@@ -2145,7 +2143,10 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private void uninstallDefinitionJson(File definitionFile, Callable<Void> waitCondition)
             throws Exception {
-        FileUtils.deleteQuietly(definitionFile);
+        boolean success = definitionFile.delete();
+        if (!success) {
+            throw new Exception("Could not delete file(" + definitionFile.getAbsolutePath() + ")");
+        }
         waitCondition.call();
     }
 
@@ -2153,7 +2154,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testMetacardDefinitionJsonFile() throws Exception {
         final String newMetacardTypeName = "new.metacard.type";
         File file = ingestDefinitionJsonWithWaitCondition("definitions.json", () -> {
-            expect("Service to be available: " + MetacardType.class.getName()).within(10,
+            expect("Service to be available: " + MetacardType.class.getName()).within(30,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
                             "(name=" + newMetacardTypeName + ")"), not(empty()));
@@ -2189,7 +2190,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 AttributeRegistry attributeRegistry = getServiceManager().getService(
                         AttributeRegistry.class);
                 expect("Attributes to be unregistered").within(10, TimeUnit.SECONDS)
-                        .until(() -> attributeRegistry.lookup("new-attribute-required-2")
+                        .until(() -> !attributeRegistry.lookup("new-attribute-required-2")
                                 .isPresent());
                 return null;
             });
@@ -2220,7 +2221,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testDefaultValuesCreate() throws Exception {
         final String customMetacardTypeName = "custom";
         File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
-            expect("Service to be available: " + MetacardType.class.getName()).within(10,
+            expect("Service to be available: " + MetacardType.class.getName()).within(30,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
                             "(name=" + customMetacardTypeName + ")"), not(empty()));
@@ -2402,7 +2403,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testInjectAttributesOnUpdate() throws Exception {
         final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
-            expect("Injectable attributes to be registered").within(10, TimeUnit.SECONDS)
+            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(2));
             return null;
