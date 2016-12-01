@@ -35,8 +35,11 @@ public class PersistentItem extends HashMap<String, Object> {
 
     public static final String DATE_SUFFIX = "_tdt";
 
+    public static final String BINARY_SUFFIX = "_bin";
+
     private static final String[] SUFFIXES =
-            new String[] {TEXT_SUFFIX, XML_SUFFIX, INT_SUFFIX, LONG_SUFFIX, DATE_SUFFIX};
+            new String[] {TEXT_SUFFIX, XML_SUFFIX, INT_SUFFIX, LONG_SUFFIX, DATE_SUFFIX,
+                    BINARY_SUFFIX};
 
     private static final long serialVersionUID = 6030726429622527480L;
 
@@ -86,6 +89,10 @@ public class PersistentItem extends HashMap<String, Object> {
         addProperty(name, DATE_SUFFIX, value);
     }
 
+    public void addProperty(String name, byte[] value) {
+        addProperty(name, BINARY_SUFFIX, value);
+    }
+
     public void addProperty(String name, String suffix, Object value) {
         if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(suffix)) {
             if (name.endsWith(suffix)) {
@@ -118,6 +125,10 @@ public class PersistentItem extends HashMap<String, Object> {
 
     public Date getDateProperty(String name) {
         return (Date) getProperty(name + DATE_SUFFIX);
+    }
+
+    public String getBinaryProperty(String name) {
+        return (String) getProperty(name + BINARY_SUFFIX);
     }
 
     public Set<String> getTextSetProperty(String name) {

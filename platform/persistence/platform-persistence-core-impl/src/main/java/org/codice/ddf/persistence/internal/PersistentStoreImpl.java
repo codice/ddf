@@ -214,6 +214,8 @@ public class PersistentStoreImpl implements PersistentStore {
                         result.addProperty(name, (Integer) doc.getFirstValue(name));
                     } else if (name.endsWith(PersistentItem.DATE_SUFFIX)) {
                         result.addProperty(name, (Date) doc.getFirstValue(name));
+                    } else if (name.endsWith(PersistentItem.BINARY_SUFFIX)) {
+                        result.addProperty(name, (byte[]) doc.getFirstValue(name));
                     } else {
                         LOGGER.debug("Not adding field {} because it has invalid suffix", name);
                     }
