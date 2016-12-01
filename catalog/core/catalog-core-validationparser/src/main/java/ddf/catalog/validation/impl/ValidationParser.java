@@ -216,7 +216,7 @@ public class ValidationParser implements ArtifactInstaller {
 
             staged.add(() -> {
                 attributeRegistry.register(descriptor);
-                changeset.attributes.add(descriptor.getName());
+                changeset.attributes.add(descriptor);
                 return true;
             });
         }
@@ -450,7 +450,7 @@ public class ValidationParser implements ArtifactInstaller {
         metacardValidatorServices.forEach(ServiceRegistration::unregister);
     }
 
-    private void undoAttributes(Set<String> attributes) {
+    private void undoAttributes(Set<AttributeDescriptor> attributes) {
         attributes.forEach(attributeRegistry::deregister);
     }
 
@@ -547,7 +547,7 @@ public class ValidationParser implements ArtifactInstaller {
         private final List<ServiceRegistration<MetacardValidator>> metacardValidatorServices =
                 new ArrayList<>();
 
-        private final Set<String> attributes = new HashSet<>();
+        private final Set<AttributeDescriptor> attributes = new HashSet<>();
 
         private final List<Outer.Default> defaults = new ArrayList<>();
 

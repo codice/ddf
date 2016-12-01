@@ -9,6 +9,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.AttributeRegistryImpl
 import ddf.catalog.data.impl.BasicTypes
 import ddf.catalog.data.impl.MetacardTypeImpl
+import ddf.catalog.data.impl.types.CoreAttributes
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
 import org.junit.Rule
@@ -50,10 +51,13 @@ class ValidationParserSpecTest extends Specification {
 
         attributeValidatorRegistry = new AttributeValidatorRegistryImpl()
 
+        attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", Arrays.asList(new CoreAttributes())))
+
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
 
         validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry,
                 defaultAttributeValueRegistry)
+
 
         file = temporaryFolder.newFile("temp.json")
     }
