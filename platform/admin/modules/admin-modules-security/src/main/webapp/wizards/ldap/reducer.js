@@ -4,6 +4,7 @@ import { fromJS, List, Map } from 'immutable'
 export const getConfig = (state, id) => state.getIn(['config'].concat(id), Map()).toJS()
 export const getAllConfig = (state) => state.get('config').map((config) => config.get('value')).toJS()
 
+// TODO: add reducer checks for the wizardClear action to reset the state to defaults
 const config = (state = Map(), { type, id, value, values, messages }) => {
   switch (type) {
     case 'EDIT_CONFIG':

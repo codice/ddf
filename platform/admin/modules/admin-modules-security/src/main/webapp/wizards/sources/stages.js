@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import { getSourceSelections, getConfigurationHandlerId, getSourceName } from './reducer'
 import { getAllConfig } from '../../reducer'
-import { changeStage, discoverSources, clearConfiguration, persistConfig } from './actions'
+import { changeStage, discoverSources, persistConfig, resetSourceWizardState } from './actions'
 
 import Flexbox from 'flexbox-react'
 import { Link } from 'react-router'
@@ -116,21 +116,21 @@ export const ConfirmationStage = connect((state) => ({selectedSource: getAllConf
 // Completed Stage
 const completedTitle = 'All Done!'
 const completedSubtitle = 'Your source has been added successfully'
-const CompletedStageView = ({ changeStage, clearConfiguration }) => (
+const CompletedStageView = ({ resetSourceWizardState }) => (
   <Flexbox className={stageStyle} justifyContent='center' flexDirection='row'>
     <CenteredElements>
       <Info title={completedTitle} subtitle={completedSubtitle} />
       <StatusPage succeeded />
       <ButtonBox>
         <Link to='/'>
-          <Submit label='Go Home' onClick={clearConfiguration} />
+          <Submit label='Go Home' onClick={resetSourceWizardState} />
         </Link>
-        <Submit label='Add Another Source' onClick={() => { clearConfiguration(); changeStage('welcomeStage') }} />
+        <Submit label='Add Another Source' onClick={resetSourceWizardState} />
       </ButtonBox>
     </CenteredElements>
   </Flexbox>
 )
-export const CompletedStage = connect(null, { changeStage, clearConfiguration })(CompletedStageView)
+export const CompletedStage = connect(null, { resetSourceWizardState })(CompletedStageView)
 
 // Manual Entry Page
 const manualEntryTitle = 'Manual Source Entry'

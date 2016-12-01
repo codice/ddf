@@ -1,59 +1,46 @@
 import React from 'react'
-
-import { connect } from 'react-redux'
-import { getProbeValue, getStep, isSubmitting, getMessages } from '../../reducer'
-
-import { setDefaults } from '../../actions'
-
+import {connect} from 'react-redux'
+import {getProbeValue, getStep, isSubmitting, getMessages} from '../../reducer'
+import {setDefaults} from '../../actions'
 import Mount from '../../components/mount'
-
 import Paper from 'material-ui/Paper'
 import RaisedButton from 'material-ui/RaisedButton'
 import FlatButton from 'material-ui/FlatButton'
 import CircularProgress from 'material-ui/CircularProgress'
-
 import Flexbox from 'flexbox-react'
-
-import { List, ListItem } from 'material-ui/List'
-
+import {List, ListItem} from 'material-ui/List'
 import * as styles from './styles.less'
+import {testConfig, probe, next, back} from './actions'
+import {Input, Password, Hostname, Port, Select} from '../inputs'
+import Wizard from '../components/wizard'
 
-import { testConfig, probe, next, back } from './actions'
+const Title = ({children}) => <h1 className={styles.title}>{children}</h1>
+const Description = ({children}) => <p className={styles.description}>{children}</p>
 
-import {
-  Input,
-  Password,
-  Hostname,
-  Port,
-  Select
-} from '../inputs'
-
-const Title = ({ children }) => <h1 className={styles.title}>{children}</h1>
-const Description = ({ children }) => <p className={styles.description}>{children}</p>
-
-const BackView = ({ onBack, disabled }) => (
+const BackView = ({onBack, disabled}) => (
   <FlatButton disabled={disabled} secondary label='back' onClick={onBack} />
 )
 
-const Back = connect(null, { onBack: back })(BackView)
+const Back = connect(null, {onBack: back})(BackView)
 
-const Next = connect(null, (dispatch, { id, url }) => ({
+const Next = connect(null, (dispatch, {id, url}) => ({
   next: () => dispatch(testConfig(id, url))
 }))(
-  ({ next, disabled }) => <RaisedButton label='Next' disabled={disabled} primary onClick={next} />
+  ({next, disabled}) => <RaisedButton label='Next' disabled={disabled} primary onClick={next} />
 )
 
-const Save = connect(null, (dispatch, { id, url }) => ({
+const Save = connect(null, (dispatch, {id, url}) => ({
   saveConfig: () => dispatch(testConfig(id, url))
-}))(({ saveConfig }) => (
+}))(({saveConfig}) => (
   <RaisedButton label='Save' primary onClick={saveConfig} />
 ))
 
-const BeginView = ({ onBegin, disabled }) => <RaisedButton disabled={disabled} primary label='begin' onClick={onBegin} />
+const BeginView = ({onBegin, disabled}) => <RaisedButton disabled={disabled} primary label='begin'
+  onClick={onBegin} />
 
-const Begin = connect(null, { onBegin: next })(BeginView)
+const Begin = connect(null, {onBegin: next})(BeginView)
 
-const Message = ({ type, message }) => (
+const Message = ({type, message}) => (
   <div className={type === 'FAILURE' ? styles.error : styles.success}>{message}</div>
 )
 
@@ -86,19 +73,19 @@ const StageView = (props) => {
   )
 }
 
-const Stage = connect((state, { id }) => ({
+const Stage = connect((state, {id}) => ({
   messages: getMessages(state, id),
   submitting: isSubmitting(state, id)
-}), { setDefaults, testConfig })(StageView)
+}), {setDefaults, testConfig})(StageView)
 
-const StageControls = ({ children, style = {}, ...rest }) => (
+const StageControls = ({children, style = {}, ...rest}) => (
   <Flexbox style={{marginTop: 20, ...style}} justifyContent='space-between' {...rest}>
     {children}
   </Flexbox>
 )
 
-const NetworkSettings = ({ id, disabled }) => (
-  <Stage id={id} defaults={{ port: 1389, encryptionMethod: 'Use LDAPS', hostName: 'localhost' }}>
+const NetworkSettings = ({id, disabled}) => (
+  <Stage id={id} defaults={{port: 1389, encryptionMethod: 'Use LDAPS', hostName: 'localhost'}}>
     <Title>LDAP Network Settings</Title>
     <Description>
       Lets start with the network configurations of your LDAP store.
@@ -109,7 +96,7 @@ const NetworkSettings = ({ id, disabled }) => (
     <Select id='encryptionMethod'
       label='Encryption Method'
       disabled={disabled}
-      options={[ 'No Encryption', 'Use LDAPS', 'Use StartTLS' ]} />
+      options={['No Encryption', 'Use LDAPS', 'Use StartTLS']} />
 
     <StageControls>
       <Back disabled={disabled} />
@@ -118,8 +105,8 @@ const NetworkSettings = ({ id, disabled }) => (
   </Stage>
 )
 
-const BindSettings = ({ id, disabled }) => (
-  <Stage id={id} defaults={{ bindUserDn: 'cn=admin', bindUserPassword: 'secret' }}>
+const BindSettings = ({id, disabled}) => (
+  <Stage id={id} defaults={{bindUserDn: 'cn=admin', bindUserPassword: 'secret'}}>
     <Title>LDAP Bind User Settings</Title>
     <Description>
       Now that we've figured out the network environment, we need to
@@ -137,7 +124,7 @@ const BindSettings = ({ id, disabled }) => (
 )
 
 const QueryResult = (props) => {
-  const { name, uid, cn, ou } = props
+  const {name, uid, cn, ou} = props
 
   return (
     <ListItem
@@ -150,8 +137,14 @@ const QueryResult = (props) => {
   )
 }
 
-const QueryView = ({ probe, probeValue = [], id, disabled }) => (
-  <Stage id={id} defaults={{ query: 'objectClass=*', queryBase: 'dc=example,dc=com', baseUserDn: 'ou=users,dc=example,dc=com', baseGroupDn: 'ou=groups,dc=example,dc=com', userNameAttribute: 'uid' }}>
+const QueryView = ({probe, probeValue = [], id, disabled}) => (
+  <Stage id={id} defaults={{
+    query: 'objectClass=*',
+    queryBase: 'dc=example,dc=com',
+    baseUserDn: 'ou=users,dc=example,dc=com',
+    baseGroupDn: 'ou=groups,dc=example,dc=com',
+    userNameAttribute: 'uid'
+  }}>
 
     <Title>LDAP Query</Title>
 
@@ -164,8 +157,9 @@ const QueryView = ({ probe, probeValue = [], id, disabled }) => (
     <Input id='query' disabled={disabled} label='Query' />
     <Input id='queryBase' disabled={disabled} label='Query Base DN' />
 
-    <div style={{textAlign: 'right', marginTop: 20}} >
-      <FlatButton disabled={disabled} secondary label='run query' onClick={() => probe('/admin/wizard/probe/ldap/ldapQuery')} />
+    <div style={{textAlign: 'right', marginTop: 20}}>
+      <FlatButton disabled={disabled} secondary label='run query'
+        onClick={() => probe('/admin/wizard/probe/ldap/ldapQuery')} />
     </div>
 
     {probeValue.length === 0
@@ -189,11 +183,11 @@ const QueryView = ({ probe, probeValue = [], id, disabled }) => (
 )
 
 const Query = connect(
-  (state) => ({ probeValue: getProbeValue(state) }),
-  { probe }
+  (state) => ({probeValue: getProbeValue(state)}),
+  {probe}
 )(QueryView)
 
-const Confirm = ({ id }) => (
+const Confirm = ({id}) => (
   <Stage id={id}>
     <Title>LDAP Confirm</Title>
 
@@ -209,10 +203,10 @@ const Confirm = ({ id }) => (
   </Stage>
 )
 
-const StepperView = ({ children, step, submitting }) => (
+const StepperView = ({children, step, submitting}) => (
   <div>
     {children.slice(0, step + 1).map((el, key) =>
-      React.cloneElement(el, { key, disabled: key !== step }))}
+      React.cloneElement(el, {key, disabled: key !== step}))}
   </div>
 )
 
@@ -220,7 +214,7 @@ const Stepper = connect((state) => ({
   submitting: isSubmitting(state)
 }))(StepperView)
 
-const IntroductionStage = ({ disabled }) => (
+const IntroductionStage = ({disabled}) => (
   <Stage>
     <Title>Welcome to the LDAP Configuration Wizard</Title>
     <Description>
@@ -236,14 +230,16 @@ const IntroductionStage = ({ disabled }) => (
   </Stage>
 )
 
-const LdapWizardView = ({ step }) => (
-  <Stepper step={step}>
-    <IntroductionStage />
-    <NetworkSettings id='network-settings' />
-    <BindSettings id='bind-settings' />
-    <Query id='ldap-query' />
-    <Confirm id='ldap-save' />
-  </Stepper>
+const LdapWizardView = ({step}) => (
+  <Wizard id='ldap'>
+    <Stepper step={step}>
+      <IntroductionStage />
+      <NetworkSettings id='network-settings' />
+      <BindSettings id='bind-settings' />
+      <Query id='ldap-query' />
+      <Confirm id='ldap-save' />
+    </Stepper>
+  </Wizard>
 )
 
 const LdapWizard = connect((state) => ({

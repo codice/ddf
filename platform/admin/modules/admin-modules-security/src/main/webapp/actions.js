@@ -24,6 +24,7 @@ export const submittingStart = () => ({ type: 'SUBMITTING_START' })
 export const submittingEnd = () => ({ type: 'SUBMITTING_END' })
 export const back = () => ({ type: 'BACK_STAGE' })
 export const changeDisplay = (value) => ({ type: 'CHANGE_DISPLAY_TYPE', value })
+export const clearWizard = () => ({ type: 'CLEAR_WIZARD' })
 
 export const networkError = () => ({
   type: 'ERROR',

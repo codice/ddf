@@ -7,7 +7,7 @@ const sourceStage = (state = 'welcomeStage', { type, stage }) => {
       return stage
     case 'SOURCE_NAV_STAGE':
       return stage
-    case 'SOURCE_RESET_STAGES': // also make clear config info
+    case 'CLEAR_WIZARD': // also make clear config info
       return 'welcomeStage'
     default:
       return state
@@ -26,6 +26,8 @@ const sourceStagesClean = (state = false, { type }) => {
       return false
     case 'SOURCE_CHANGE_STAGE':
       return true
+    case 'CLEAR_WIZARD':
+      return false
     default:
       return state
   }
@@ -39,6 +41,8 @@ const sourceStageProgress = (state = 'welcomeStage', { type, stage }) => {
       return stage
     case 'SOURCE_CHANGE_STAGE':
       return stage
+    case 'CLEAR_WIZARD':
+      return 'welcomeStage'
     default:
       return state
   }
@@ -55,27 +59,20 @@ const sourceSelections = (state = Map(), { type, sourceConfigs }) => {
   switch (type) {
     case 'SET_SOURCE_SELECTIONS':
       return sourceConfigs
+    case 'CLEAR_WIZARD':
+      return Map()
     default :
       return state
   }
 }
-
-/*
-const selectedSource = (state = Map(), { type, selectedSource }) => {
-  switch (type) {
-    case 'SET_SELECTED_SOURCE':
-      return selectedSource
-    default :
-      return state
-  }
-}
-*/
 
 const isSubmitting = (state = false, { type }) => {
   switch (type) {
     case 'START_SUBMITTING':
       return true
     case 'END_SUBMITTING':
+      return false
+    case 'CLEAR_WIZARD':
       return false
     default:
       return state
