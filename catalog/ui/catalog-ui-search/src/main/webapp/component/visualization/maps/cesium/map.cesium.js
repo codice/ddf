@@ -33,7 +33,7 @@ var billboardMarker = require('../billboardMarker.hbs');
 var clusterMarker = require('../clusterMarker.hbs');
 
 var defaultColor = '#3c6dd5';
-var eyeOffset = new Cesium.Cartesian3(0, 0, -1000);
+var eyeOffset = new Cesium.Cartesian3(0, 0, 0);
 
 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
 var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
@@ -580,8 +580,8 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             } else if (geometry.constructor === Cesium.PolylineCollection) {
                 geometry._polylines.forEach(function(polyline) {
                     polyline.material = Cesium.Material.fromType('PolylineOutline', {
-                        color: determineCesiumColor(options.color),
-                        outlineColor: options.isSelected ? Cesium.Color.BLACK : Cesium.Color.WHITE,
+                        color: determineCesiumColor('rgba(0,0,0, .1)'),
+                        outlineColor: determineCesiumColor('rgba(255,255,255, .1)'),
                         outlineWidth: 4
                     });
                 });

@@ -520,13 +520,13 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                     var styles = [
                         new Openlayers.style.Style({
                             stroke: new Openlayers.style.Stroke({
-                                color: options.isSelected ? 'black' : 'white',
+                                color: 'rgba(255,255,255, .1)',
                                 width: 8
                             })
                         }),
                         new Openlayers.style.Style({
                             stroke: new Openlayers.style.Stroke({
-                                color: options.color || defaultColor,
+                                color: 'rgba(0,0,0, .1)',
                                 width: 4
                             })
                         })
