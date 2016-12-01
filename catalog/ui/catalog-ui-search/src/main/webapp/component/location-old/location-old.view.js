@@ -28,6 +28,10 @@ define([
 ], function ($, Backbone, Marionette, _, properties, MetaCard, wreqr, template, maptype,
              store, CustomElements, LocationOldModel, CQLUtils) {
 
+    var minimumDifference = 0.0001;
+    var minimumBuffer = 0.000001;
+    var deltaThreshold = 0.0000001;
+
     return Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('location-old'),
@@ -40,8 +44,8 @@ define([
             'click #usng': 'swapLocationTypeUsng',
             'change #radiusUnits': 'onRadiusUnitsChanged',
             'change #lineUnits': 'onLineUnitsChanged',
-            'keydown input[id=radiusValue]': 'filterNonPositiveNumericValues',
-            'keydown input[id=lineWidthValue]': 'filterNonPositiveNumericValues'
+           // 'keydown input[id=radiusValue]': 'filterNonPositiveNumericValues',
+            //'keydown input[id=lineWidthValue]': 'filterNonPositiveNumericValues'
         },
         initialize: function (options) {
             this.propertyModel = this.model;
@@ -53,6 +57,17 @@ define([
         },
         setupListeners: function () {
             this.listenTo(this.propertyModel.get('property'), 'change:isEditing', this.handleEdit);
+            this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateMaxAndMin);
+            this.listenTo(this.model, 'change', function(attrs){
+                this.modelBinder.copyModelAttributesToView(attrs);
+            }.bind(this));
+        },
+        updateMaxAndMin: function(){
+            this.$el.find('#mapWest').attr('max', parseFloat(this.model.get('mapEast')) - minimumDifference);
+            this.$el.find('#mapEast').attr('min', parseFloat(this.model.get('mapWest')) + minimumDifference);
+            this.$el.find('#mapNorth').attr('min', parseFloat(this.model.get('mapSouth')) + minimumDifference);
+            this.$el.find('#mapSouth').attr('max', parseFloat(this.model.get('mapNorth')) - minimumDifference);
+            this.model.setLatLon();
         },
         handleEdit: function () {
             if (this.propertyModel.get('property').get('isEditing')) {
@@ -144,7 +159,7 @@ define([
                 south: undefined,
                 lat: undefined,
                 lon: undefined,
-                radius: 0,
+                radius: 1,
                 bbox: undefined,
                 polygon: undefined,
                 usng: undefined,
@@ -210,10 +225,9 @@ define([
                     case 'ModelToView':
                         var distanceFromMeters = view.getDistanceFromMeters(view.model.get('radius'), radiusUnitVal);
                         var currentValue = this.boundEls[0].value;
-                        var deltaThreshold = 0.0000001;
                         // same used in cesium.bbox.js
-                        // only update the view's value if it's significantly different from the model's value
-                        return Math.abs(currentValue - distanceFromMeters) > deltaThreshold ? distanceFromMeters : currentValue;
+                        // only update the view's value if it's significantly different from the model's value or is <= minimumBuffer (min for cql)
+                        return (Math.abs((currentValue - distanceFromMeters)) > deltaThreshold) || currentValue <= minimumBuffer ? distanceFromMeters : currentValue;
                 }
             }, lineWidthConverter = function (direction, value) {
                 var lineUnitVal = view.model.get('lineUnits');
@@ -227,10 +241,9 @@ define([
                     case 'ModelToView':
                         var distanceFromMeters = view.getDistanceFromMeters(view.model.get('lineWidth'), lineUnitVal);
                         var currentValue = this.boundEls[0].value;
-                        var deltaThreshold = 0.0000001;
                         // same used in cesium.bbox.js
-                        // only update the view's value if it's significantly different from the model's value
-                        return Math.abs(currentValue - distanceFromMeters) > deltaThreshold ? distanceFromMeters : currentValue;
+                        // only update the view's value if it's significantly different from the model's value or is <= minimumBuffer (min for cql)
+                        return (Math.abs((currentValue - distanceFromMeters)) > deltaThreshold) || currentValue <= minimumBuffer ? distanceFromMeters : currentValue;
                 }
             }, polygonConverter = function (direction, value) {
                 if (value && direction === 'ViewToModel') {
@@ -362,8 +375,8 @@ define([
 
             return _.extend(modelJSON, {
                 type: type,
-                lineWidth: Math.max(modelJSON.lineWidth, 0.000001),
-                radius: Math.max(modelJSON.radius, 0.000001)
+                lineWidth: Math.max(modelJSON.lineWidth, minimumBuffer),
+                radius: Math.max(modelJSON.radius, minimumBuffer)
             });
         },
         onDestroy: function () {

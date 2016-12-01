@@ -13,7 +13,7 @@
  --}}
 <div class="login-container">
     {{#if user.isGuest}}
-        <form class="login-form">
+        <form class="login-form" novalidate>
             <div align="center" id="loginError" class="alert alert-error" style="display: none;">Credentials are invalid.</div>
 
             <input placeholder="Username" type="text" id="username" name="username" />

@@ -15,10 +15,58 @@ define([
     'backbone',
     'wellknown',
     'usngs',
-    'js/store'
-], function (_, Backbone, wellknown, usngs, store) {
+    'js/store',
+    'js/Common'
+], function (_, Backbone, wellknown, usngs, store, Common) {
 
     var converter = new usngs.Converter();
+    var minimumDifference = 0.0001;
+    var minimumBuffer = 0.000001;
+
+    function convertToValid(key, model){
+        if (key.mapSouth !== undefined && (key.mapSouth >= key.mapNorth || key.mapSouth >= model.get('mapNorth'))){
+            key.mapSouth = parseFloat((key.mapNorth || model.get('mapNorth'))) - minimumDifference;
+        }
+        if (key.mapEast !== undefined && (key.mapEast <= key.mapWest || key.mapEast <= model.get('mapWest'))){
+            key.mapEast = parseFloat((key.mapWest || model.get('mapWest'))) + minimumDifference;
+        }
+        if (key.mapWest !== undefined && (key.mapWest >= key.mapEast || key.mapWest >= model.get('mapEast'))){
+            key.mapWest = parseFloat((key.mapEast || model.get('mapEast'))) - minimumDifference;
+        }
+        if (key.mapNorth !== undefined && (key.mapNorth <= key.mapSouth || key.mapNorth <= model.get('mapSouth'))){
+            key.mapNorth = parseFloat((key.mapSouth || model.get('mapSouth'))) + minimumDifference;
+        }
+        if (key.mapNorth !== undefined){
+            key.mapNorth = Math.max(-90 + minimumDifference, key.mapNorth);
+            key.mapNorth = Math.min(90, key.mapNorth);
+        }
+        if (key.mapSouth !== undefined){
+            key.mapSouth = Math.max(-90, key.mapSouth);
+            key.mapSouth = Math.min(90 - minimumDifference, key.mapSouth);
+        }
+        if (key.mapWest !== undefined){
+            key.mapWest = Math.max(-180, key.mapWest);
+            key.mapWest = Math.min(180 - minimumDifference, key.mapWest);
+        }
+        if (key.mapEast !== undefined){
+            key.mapEast = Math.max(-180 + minimumDifference, key.mapEast);
+            key.mapEast = Math.min(180, key.mapEast);
+        }
+        if (key.lat !== undefined){
+            key.lat = Math.max(-90, key.lat);
+            key.lat = Math.min(90, key.lat);
+        }
+        if (key.lon !== undefined){
+            key.lon = Math.max(-180, key.lon);
+            key.lon = Math.min(180, key.lon);
+        }
+        if (key.radius !== undefined){
+            key.radius = Math.max(minimumBuffer, key.radius);
+        }
+        if (key.lineWidth !== undefined){
+            key.lineWidth = Math.max(minimumBuffer, key.lineWidth);
+        }
+    }
 
     return Backbone.AssociatedModel.extend({
         defaults: {
@@ -32,7 +80,7 @@ define([
             mapWest: undefined,
             mapSouth: undefined,
             radiusUnits: 'meters',
-            radius: 0,
+            radius: 1,
             locationType: 'latlon',
             lat: undefined,
             lon: undefined,
@@ -43,6 +91,19 @@ define([
             line: undefined,
             lineWidth: 1,
             lineUnits: 'meters'
+        },
+        set: function(key, value, options){
+            if (!_.isObject(key)){
+                var keyObject = {};
+                keyObject[key] = value;
+                key = keyObject;
+                value = options;
+            }
+            convertToValid(key, this);
+            Backbone.AssociatedModel.prototype.set.call(this, key, value, options);
+            Common.queueExecution(function(){
+                this.trigger('change', Object.keys(key));
+            }.bind(this));
         },
         initialize: function(){
             this.listenTo(this, 'change:north change:south change:east change:west', this.setBBox);
@@ -110,11 +171,15 @@ define([
                 west = this.get('west'),
                 east = this.get('east');
             if (north && south && east && west) {
-                var usngsStr = converter.LLBboxtoUSNG(north, south, east, west);
+                try {
+                    var usngsStr = converter.LLBboxtoUSNG(north, south, east, west);
 
-                this.set('usngbb', usngsStr, {silent: this.get('locationType') !== 'usng'});
-                if (this.get('locationType') === 'usng' && this.drawing) {
-                    this.repositionLatLon();
+                    this.set('usngbb', usngsStr, {silent: this.get('locationType') !== 'usng'});
+                    if (this.get('locationType') === 'usng' && this.drawing) {
+                        this.repositionLatLon();
+                    }
+                } catch(err){
+
                 }
             }
         },
@@ -123,8 +188,12 @@ define([
             var lat = this.get('lat'),
                 lon = this.get('lon');
             if (lat && lon) {
-                var usngsStr = converter.LLtoUSNG(lat, lon, 5);
-                this.set('usng', usngsStr, {silent: true});
+                try {
+                    var usngsStr = converter.LLtoUSNG(lat, lon, 5);
+                    this.set('usng', usngsStr, {silent: true});
+                } catch(err){
+
+                }
             }
         },
 
