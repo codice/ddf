@@ -20,8 +20,6 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +40,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordM
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -85,9 +84,9 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     static {
         factory = XMLInputFactory.newInstance();
-        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
-                Boolean.FALSE);
-        factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
+        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD,
+                Boolean.FALSE); // This disables DTDs entirely for that factory
         factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
     }
 
@@ -353,19 +352,13 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      * Adds the Effective Date and Content Type fields to the new taxonomy metacard for backwards compatibility
      *
      * @param metacardType
-     * @return a new metacard type with the effective date attribute
+     * @return a new metacard type with the effective date and content type attributes
      */
     private MetacardType getMetacardTypeWithBackwardsCompatibility(MetacardType metacardType) {
-        Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
-        attributeDescriptors.add(BasicTypes.BASIC_METACARD.getAttributeDescriptor(Metacard.EFFECTIVE));
-        attributeDescriptors.add(BasicTypes.BASIC_METACARD.getAttributeDescriptor(Metacard.CONTENT_TYPE));
-
-        MetacardType additionalDescriptors = new MetacardTypeImpl(metacardType.getName(),
-                attributeDescriptors);
-        MetacardType newMetacardType = new MetacardTypeImpl(metacardType.getName(), Arrays.asList(
-                metacardType,
-                additionalDescriptors));
-        return newMetacardType;
+        Set<AttributeDescriptor> additionalDescriptors =
+                ImmutableSet.of(BasicTypes.BASIC_METACARD.getAttributeDescriptor(Metacard.EFFECTIVE),
+                        BasicTypes.BASIC_METACARD.getAttributeDescriptor(Metacard.CONTENT_TYPE));
+        return new MetacardTypeImpl(metacardType.getName(), metacardType, additionalDescriptors);
     }
 
     private static MimeType setXmlMimeType() {
