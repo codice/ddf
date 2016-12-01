@@ -16,12 +16,12 @@
 |8021
 |true
 
-| Client Authentication
-| clientAuth
-| String
-| Whether or not client authentication is required or wanted. A value of "Need" requires client auth, a value of "Want" leaves it up to the client.
-| want
-| true
+|Client Authentication
+|clientAuth
+|String
+|Whether or not client authentication is required or wanted. A value of "Need" requires client auth, a value of "Want" leaves it up to the client.
+|want
+|true
 
 |===
 

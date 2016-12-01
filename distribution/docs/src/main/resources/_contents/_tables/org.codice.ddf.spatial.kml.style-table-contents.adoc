@@ -16,19 +16,19 @@
 |null
 |true
 
-| Attribute Value
-| attributeValue
-| String
-| The value of the Metacard Attribute.
-| null
-| true
+|Attribute Value
+|attributeValue
+|String
+|The value of the Metacard Attribute.
+|null
+|true
 
-| Style URL
-| styleUrl
-| String
-| The full qualified URL to the KML Style. e.g. http://example.com/styles#myStyle
-| null
-| true
+|Style URL
+|styleUrl
+|String
+|The full qualified URL to the KML Style. e.g. http://example.com/styles#myStyle
+|null
+|true
 
 |===
 
