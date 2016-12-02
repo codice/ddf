@@ -25,10 +25,11 @@ define([
     'component/property/property',
     'component/dropdown/dropdown',
     'component/dropdown/dropdown.view',
-    'js/CQLUtils'
+    'js/CQLUtils',
+    'properties'
 ], function (Marionette, _, $, template, CustomElements, FilterComparatorDropdownView,
              MultivalueView, metacardDefinitions, PropertyModel, DropdownModel, DropdownView,
-            CQLUtils) {
+            CQLUtils, properties) {
 
     var comparatorToCQL = {
         BEFORE: 'BEFORE',
@@ -65,7 +66,11 @@ define([
         onBeforeShow: function(){
             this._filterDropdownModel = new DropdownModel({value: 'CONTAINS'});
             this.filterAttribute.show(DropdownView.createSimpleDropdown({
-                list: metacardDefinitions.sortedMetacardTypes.map(function(metacardType){
+                list: metacardDefinitions.sortedMetacardTypes.filter(function(metacardType){
+                    return !properties.isHidden(metacardType.id);
+                }).filter(function(metacardType){
+                    return !metacardDefinitions.isHiddenType(metacardType.id);
+                }).map(function(metacardType){
                     return {
                         label: metacardType.alias || metacardType.id,
                         value: metacardType.id

@@ -24,8 +24,9 @@ define([
     'component/property/property',
     'component/property/property.view',
     'component/singletons/metacard-definitions',
-    'js/Common'
-], function (wreqr, $, _, Marionette, CustomElements, template, Plotly, Property, PropertyView, metacardDefinitions, Common) {
+    'js/Common',
+    'properties'
+], function (wreqr, $, _, Marionette, CustomElements, template, Plotly, Property, PropertyView, metacardDefinitions, Common, properties) {
 
     function calculateAvailableAttributes(results){
         var availableAttributes = [];
@@ -34,6 +35,10 @@ define([
         });
         return availableAttributes.filter(function(attribute){
             return metacardDefinitions.metacardTypes[attribute] !== undefined;
+        }).filter(function(attribute){
+            return !metacardDefinitions.isHiddenType(attribute);
+        }).filter(function(attribute){
+            return !properties.isHidden(attribute);
         }).map(function(attribute){
             return {
                 label: metacardDefinitions.metacardTypes[attribute].alias || attribute,

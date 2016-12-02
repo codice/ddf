@@ -209,6 +209,7 @@ define([
             propertyIntersection = _.intersection.apply(_, propertyIntersection);
             propertyIntersection = propertyIntersection.filter(function(property) {
                 return (!properties.isHidden(property)
+                && !metacardDefinitions.isHiddenType(property)
                 && self.blacklist.indexOf(property) === -1
                 && self.hiddenTypes.indexOf(types[0][property].format) === -1
                 && self.bulkHiddenTypes.indexOf(types[0][property].format) === -1);

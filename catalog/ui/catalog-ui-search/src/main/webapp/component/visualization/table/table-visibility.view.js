@@ -22,6 +22,7 @@ var CustomElements = require('js/CustomElements');
 var Common = require('js/Common');
 var user = require('component/singletons/user-instance');
 var properties = require('properties');
+var metacardDefinitions = require('component/singletons/metacard-definitions');
 
 module.exports = Marionette.ItemView.extend({
     template: template,
@@ -49,7 +50,7 @@ module.exports = Marionette.ItemView.extend({
                 label: properties.attributeAliases[property],
                 id: property,
                 hidden: hiddenColumns.indexOf(property) >= 0,
-                notCurrentlyAvailable: (availableAttributes.indexOf(property) === -1) || (properties.isHidden(property))
+                notCurrentlyAvailable: (availableAttributes.indexOf(property) === -1) || (properties.isHidden(property)) || metacardDefinitions.isHiddenType(property)
             };
         });
     },

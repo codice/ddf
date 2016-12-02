@@ -24,6 +24,11 @@ define([
             this.getMetacardTypes();
             this.getDatatypeEnum();
         },
+        isHiddenType: function(id){
+            return this.metacardTypes[id].type === 'XML' ||
+            this.metacardTypes[id].type === 'BINARY' ||
+            this.metacardTypes[id].type === 'OBJECT';
+        },
         getDatatypeEnum: function(){
             $.get( '/search/catalog/internal/enumerations/attribute/datatype').then(function(response){
                 _.extend(this.enums, response);

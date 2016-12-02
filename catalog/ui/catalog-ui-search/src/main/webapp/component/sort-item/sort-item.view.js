@@ -21,7 +21,8 @@ define([
     'js/CustomElements',
     'component/singletons/metacard-definitions',
     'component/dropdown/dropdown.view',
-], function(Marionette, _, $, template, CustomElements, metacardDefinitions, DropdownView) {
+    'properties'
+], function(Marionette, _, $, template, CustomElements, metacardDefinitions, DropdownView, properties) {
 
     var blacklist = ['anyText', 'anyGeo'];
 
@@ -40,7 +41,11 @@ define([
             this.model.destroy();
         },
         onBeforeShow: function() {
-            var sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function(type) {
+            var sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function(type){
+                return !properties.isHidden(type.id);
+            }).filter(function(type){
+                return !metacardDefinitions.isHiddenType(type.id);
+            }).filter(function(type) {
                 return blacklist.indexOf(type.id) === -1;
             }).map(function(metacardType) {
                 return {
