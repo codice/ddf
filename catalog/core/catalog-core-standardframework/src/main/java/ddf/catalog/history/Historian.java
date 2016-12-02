@@ -37,7 +37,7 @@ import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 
 import ddf.catalog.content.StorageException;
@@ -290,12 +290,10 @@ public class Historian {
                 .filter(Objects::nonNull)
                 .map(ReadStorageResponse::getContentItem)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toMap(ContentItem::getId,
-                        ImmutableList::of,
-                        (l, r) -> (List) ImmutableList.builder()
-                                .addAll(l)
-                                .addAll(r)
-                                .build()));
+                .collect(Collectors.toMap(ContentItem::getId, Lists::newArrayList, (l, r) -> {
+                    l.addAll(r);
+                    return l;
+                }));
     }
 
     private List<ReadStorageRequest> getReadStorageRequests(
