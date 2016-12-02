@@ -13,6 +13,7 @@
  */
 package ddf.test.itests.catalog;
 
+import static java.lang.String.format;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
@@ -50,6 +51,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -88,6 +90,7 @@ import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.json.simple.JSONObject;
 import org.junit.After;
@@ -101,7 +104,9 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.service.cm.Configuration;
+import org.w3c.dom.Node;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.jayway.restassured.response.Response;
@@ -236,7 +241,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testMetacardTransformersFromRest() {
-        String id = ingestGeoJson(getFileContent(JSON_RECORD_RESOURCE_PATH  + "/SimpleGeoJsonRecord"));
+        String id = ingestGeoJson(getFileContent(
+                JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"));
 
         String url = REST_PATH.getUrl() + id;
         LOGGER.info("Getting response to {}", url);
@@ -259,17 +265,17 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         // Test xml-format response for an all-query
         ValidatableResponse response = executeOpenSearch("xml", "q=*");
-        response.body(hasXPath(String.format(METACARD_X_PATH, id1)))
-                .body(hasXPath(String.format(METACARD_X_PATH, id2)))
-                .body(hasXPath(String.format(METACARD_X_PATH, id3)))
-                .body(hasXPath(String.format(METACARD_X_PATH, id4)));
+        response.body(hasXPath(format(METACARD_X_PATH, id1)))
+                .body(hasXPath(format(METACARD_X_PATH, id2)))
+                .body(hasXPath(format(METACARD_X_PATH, id3)))
+                .body(hasXPath(format(METACARD_X_PATH, id4)));
 
         // Execute a text search against a value in an indexed field (metadata)
         response = executeOpenSearch("xml", "q=dunder*");
-        response.body(hasXPath(String.format(METACARD_X_PATH, id3)))
-                .body(not(hasXPath(String.format(METACARD_X_PATH, id1))))
-                .body(not(hasXPath(String.format(METACARD_X_PATH, id2))))
-                .body(not(hasXPath(String.format(METACARD_X_PATH, id4))));
+        response.body(hasXPath(format(METACARD_X_PATH, id3)))
+                .body(not(hasXPath(format(METACARD_X_PATH, id1))))
+                .body(not(hasXPath(format(METACARD_X_PATH, id2))))
+                .body(not(hasXPath(format(METACARD_X_PATH, id4))));
 
         // Execute a text search against a value that isn't in any indexed fields
         response = executeOpenSearch("xml", "q=whatisthedealwithairlinefood");
@@ -277,17 +283,17 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         // Execute a geo search that should match a point card
         response = executeOpenSearch("xml", "lat=40.689", "lon=-74.045", "radius=250");
-        response.body(hasXPath(String.format(METACARD_X_PATH, id1)))
-                .body(not(hasXPath(String.format(METACARD_X_PATH, id2))))
-                .body(not(hasXPath(String.format(METACARD_X_PATH, id3))))
-                .body(not(hasXPath(String.format(METACARD_X_PATH, id4))));
+        response.body(hasXPath(format(METACARD_X_PATH, id1)))
+                .body(not(hasXPath(format(METACARD_X_PATH, id2))))
+                .body(not(hasXPath(format(METACARD_X_PATH, id3))))
+                .body(not(hasXPath(format(METACARD_X_PATH, id4))));
 
         // Execute a geo search...this should match two cards, both polygons around the Space Needle
         response = executeOpenSearch("xml", "lat=47.62", "lon=-122.356", "radius=500");
-        response.body(hasXPath(String.format(METACARD_X_PATH, id2)))
-                .body(hasXPath(String.format(METACARD_X_PATH, id4)))
-                .body(not(hasXPath(String.format(METACARD_X_PATH, id1))))
-                .body(not(hasXPath(String.format(METACARD_X_PATH, id3))));
+        response.body(hasXPath(format(METACARD_X_PATH, id2)))
+                .body(hasXPath(format(METACARD_X_PATH, id4)))
+                .body(not(hasXPath(format(METACARD_X_PATH, id1))))
+                .body(not(hasXPath(format(METACARD_X_PATH, id3))));
 
         deleteMetacard(id1);
         deleteMetacard(id2);
@@ -303,7 +309,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         return given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                 .body(getCswInsertRequest("csw:Record",
-                        getFileContent(CSW_RECORD_RESOURCE_PATH + "/CswRecord", ImmutableMap.of("id", uuid))))
+                        getFileContent(CSW_RECORD_RESOURCE_PATH + "/CswRecord",
+                                ImmutableMap.of("id", uuid))))
                 .post(CSW_PATH.getUrl());
     }
 
@@ -477,9 +484,11 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .log()
                 .all()
                 .assertThat()
-                .body(hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-10")),
+                .body(hasXPath("//metacard/dateTime[@name='modified']/value",
+                        startsWith("2015-08-10")),
                         hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
-                        hasXPath("//metacard/string[@name='topic.category']/value", is("Updated Subject")),
+                        hasXPath("//metacard/string[@name='topic.category']/value",
+                                is("Updated Subject")),
                         hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[1]",
                                 is("1.0 2.0")),
@@ -533,7 +542,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest"))
+                .body(getFileContent(
+                        CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest"))
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
@@ -559,7 +569,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 // Check that the updated attributes were changed.
-                .body(hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-25")),
+                .body(hasXPath("//metacard/dateTime[@name='modified']/value",
+                        startsWith("2015-08-25")),
                         hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
                         hasXPath("//metacard/string[@name='media.format']/value", is("")),
                         // Check that an attribute that was not updated was not changed.
@@ -573,7 +584,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 // Check that the updated attributes were changed.
-                .body(hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-25")),
+                .body(hasXPath("//metacard/dateTime[@name='modified']/value",
+                        startsWith("2015-08-25")),
                         hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
                         hasXPath("//metacard/string[@name='media.format']/value", is("")),
                         // Check that an attribute that was not updated was not changed.
@@ -588,7 +600,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testCswUpdateByFilterConstraintNoExistingMetacards() {
         ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest"))
+                .body(getFileContent(
+                        CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest"))
                 .post(CSW_PATH.getUrl())
                 .then();
 
@@ -601,7 +614,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testCswUpdateByFilterConstraintNoMetacardsFound() {
         Response response = ingestCswRecord();
 
-        String updateRequest = getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest");
+        String updateRequest = getFileContent(
+                CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest");
 
         // Change the <Filter> property being searched for so no results will be found.
         updateRequest = updateRequest.replace("title", "subject");
@@ -694,7 +708,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         ValidatableResponse validatableResponse = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateRemoveAttributesByCqlConstraintRequest"))
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH
+                        + "/CswUpdateRemoveAttributesByCqlConstraintRequest"))
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
@@ -742,8 +757,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 + "      </ogc:Filter>\n" + "    </Constraint>\n" + "  </Query>\n"
                 + "</GetRecords>\n";
 
-        given().header(HttpHeaders.CONTENT_TYPE,
-                MediaType.APPLICATION_XML)
+        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                 .body(numericalQuery)
                 .post(CSW_PATH.getUrl())
                 .then()
@@ -792,9 +806,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         final String firstId = getMetacardIdFromCswInsertResponse(firstResponse);
         final String secondId = getMetacardIdFromCswInsertResponse(secondResponse);
 
-        final String requestXml = getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdsQuery").replace(
-                "placeholder_id_1",
-                firstId)
+        final String requestXml = getFileContent(
+                CSW_REQUEST_RESOURCE_PATH + "/CswByIdsQuery").replace("placeholder_id_1", firstId)
                 .replace("placeholder_id_2", secondId);
 
         final ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
@@ -894,10 +907,9 @@ public class TestCatalog extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
-        final String requestXml =
-                getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery").replace(
-                        "placeholder_id_1",
-                        metacardId);
+        final String requestXml = getFileContent(
+                CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery").replace("placeholder_id_1",
+                metacardId);
 
         given().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_XML)
                 .body(requestXml)
@@ -923,10 +935,9 @@ public class TestCatalog extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
-        final String requestXml =
-                getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery").replace(
-                        "placeholder_id_1",
-                        metacardId);
+        final String requestXml = getFileContent(
+                CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery").replace("placeholder_id_1",
+                metacardId);
 
         int offset = 4;
         byte[] sampleDataByteArray = SAMPLE_DATA.getBytes();
@@ -936,7 +947,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         // @formatter:off
         given().headers(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_XML,
-                CswConstants.RANGE_HEADER, String.format("bytes=%s-", offset))
+                CswConstants.RANGE_HEADER, format("bytes=%s-", offset))
                 .body(requestXml)
                 .post(CSW_PATH.getUrl())
                 .then()
@@ -963,10 +974,9 @@ public class TestCatalog extends AbstractIntegrationTest {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
-        final String requestXml =
-                getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery").replace(
-                        "placeholder_id_1",
-                        metacardId);
+        final String requestXml = getFileContent(
+                CSW_REQUEST_RESOURCE_PATH + "/CswByIdQuery").replace("placeholder_id_1",
+                metacardId);
 
         String invalidRange = "100";
 
@@ -1003,11 +1013,11 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         for (String id : ids) {
             // Check that the IDs of the returned records are the IDs we requested.
-            response.body(hasXPath(String.format(xPathValidateId, id)))
+            response.body(hasXPath(format(xPathValidateId, id)))
                     // Check the contents of the returned records.
-                    .body(hasXPath(String.format(xPathValidateTitleWithId, id)))
-                    .body(hasXPath(String.format(xPathValidateBboxLowerWithId, id)))
-                    .body(hasXPath(String.format(xPathValidateBboxUpperWithId, id)));
+                    .body(hasXPath(format(xPathValidateTitleWithId, id)))
+                    .body(hasXPath(format(xPathValidateBboxLowerWithId, id)))
+                    .body(hasXPath(format(xPathValidateBboxUpperWithId, id)));
         }
     }
 
@@ -1016,7 +1026,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
-        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"),
+                getAdminConfig());
 
         //Configure to enforce errors but not warnings
         configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
@@ -1026,7 +1037,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
         String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml", false);
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml",
+                false);
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1059,7 +1071,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
-        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"),
+                getAdminConfig());
 
         //Configure to enforce warnings but not errors
         configureEnforceValidityErrorsAndWarnings("false", "true", getAdminConfig());
@@ -1067,7 +1080,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         //Configure to show invalid metacards to show that invalid metacards were not ingested
         configureShowInvalidMetacards("true", "true", getAdminConfig());
 
-        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml", false);
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml",
+                false);
         String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
         String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
 
@@ -1102,7 +1116,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
-        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"),
+                getAdminConfig());
 
         //Configure to enforce errors and warnings
         configureEnforceValidityErrorsAndWarnings("true", "true", getAdminConfig());
@@ -1110,9 +1125,11 @@ public class TestCatalog extends AbstractIntegrationTest {
         //Configure to show invalid metacards to show that invalid metacards were not ingested
         configureShowInvalidMetacards("true", "true", getAdminConfig());
 
-        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml", false);
+        String id1 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml",
+                false);
         String id2 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
-        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml", false);
+        String id3 = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml",
+                false);
 
         try {
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
@@ -1145,7 +1162,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true, "sample-validator");
 
         //Configure to enforce validator
-        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"),
+                getAdminConfig());
 
         //Configure to enforce neither errors nor warnings
         configureEnforceValidityErrorsAndWarnings("false", "false", getAdminConfig());
@@ -1273,7 +1291,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testFilterPlugin() throws Exception {
         // Ingest the metacard
         String id1 = ingestXmlFromResource("/metacard1.xml");
-        String xPath = String.format(METACARD_X_PATH, id1);
+        String xPath = format(METACARD_X_PATH, id1);
 
         // Test without filtering
         ValidatableResponse response = executeOpenSearch("xml", "q=*");
@@ -1509,8 +1527,9 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testIngestPlugin() throws Exception {
 
         //ingest a data set to make sure we don't have any issues initially
-        String id1 = ingestGeoJson(getFileContent(JSON_RECORD_RESOURCE_PATH  + "/SimpleGeoJsonRecord"));
-        String xPath1 = String.format(METACARD_X_PATH, id1);
+        String id1 = ingestGeoJson(getFileContent(
+                JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"));
+        String xPath1 = format(METACARD_X_PATH, id1);
 
         //verify ingest by querying
         ValidatableResponse response = executeOpenSearch("xml", "q=*");
@@ -1528,7 +1547,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().waitForAllBundles();
 
         //try ingesting again - it should fail this time
-        given().body(getFileContent(JSON_RECORD_RESOURCE_PATH  + "/SimpleGeoJsonRecord"))
+        given().body(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"))
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .expect()
                 .log()
@@ -1548,6 +1567,134 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().waitForAllBundles();
 
         deleteMetacard(id1);
+    }
+
+    @Test
+    public void testMetacardIngestNetworkPlugin() throws Exception {
+
+        /* MATCHERS
+        Used for validation */
+        final Matcher<Node> hasInitialDescription = hasMetacardAttributeXPath("description",
+                "Lombardi");
+        final Matcher<Node> hasInitialMetacardTags = hasMetacardAttributeXPath("metacard-tags",
+                "GAMMA",
+                "DELTA",
+                "FOXTROT",
+                "resource");
+        final Matcher<Node> hasNewDescription = hasMetacardAttributeXPath("description", "None");
+        final Matcher<Node> hasNewMetacardTags = hasMetacardAttributeXPath("metacard-tags",
+                "ALPHA",
+                "BRAVO",
+                "resource");
+        final Matcher<Node> hasNewSecurityAccessGroups = hasMetacardAttributeXPath(
+                "security.access-groups",
+                "FIFA",
+                "NFL");
+
+        /* CONFIG
+        Setup the services that will conditionally add attributes
+        clientIP rule currently broken - not getting what we expect */
+        final String factoryPid =
+                "org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin";
+        final String bundleSymbolicName = "catalog-plugin-metacardingest-network";
+        final String clientIP = "127.0.0.1";
+        final String clientScheme = "https";
+
+        Map<String, Object> networkRule1Properties = new HashMap<>();
+        Map<String, Object> networkRule2Properties = new HashMap<>();
+
+        List<Object> attributeAdjustmentsForRule1 = ImmutableList.of(
+                "security.access-groups = FIFA, NFL");
+
+        List<Object> attributeAdjustmentsForRule2 = ImmutableList.of("description = None",
+                "metacard-tags = ALPHA, BRAVO, resource");
+
+        networkRule1Properties.put("criteriaKey", "remoteAddr");
+        networkRule1Properties.put("expectedValue", clientIP);
+        networkRule1Properties.put("newAttributes", attributeAdjustmentsForRule1);
+
+        networkRule2Properties.put("criteriaKey", "scheme");
+        networkRule2Properties.put("expectedValue", clientScheme);
+        networkRule2Properties.put("newAttributes", attributeAdjustmentsForRule2);
+
+        try {
+
+            /* START SERVICES
+            Add instances of the rules */
+            getServiceManager().startFeature(true, "catalog-metacardingest-network");
+            getServiceManager().createManagedService(factoryPid, networkRule1Properties);
+            getServiceManager().createManagedService(factoryPid, networkRule2Properties);
+            getServiceManager().waitForRequiredBundles(bundleSymbolicName);
+
+            /* INGEST
+            Working with two metacard xml files and one txt file to serve as a tika product */
+            String simpleProductId = ingestMetacardAndGetId("simple-product.txt",
+                    MediaType.TEXT_PLAIN);
+            String card1Id = ingestMetacardAndGetId("modified-metacard-1.xml", MediaType.TEXT_XML);
+            String card2Id = ingestMetacardAndGetId("modified-metacard-2.xml", MediaType.TEXT_XML);
+
+            /* VALIDATION
+            Note only the first validation gets security since it's parsed by tika */
+            getMetacardValidatableResponse(simpleProductId).assertThat()
+                    .body(hasNewDescription)
+                    .body(hasNewMetacardTags)
+                    .body(hasNewSecurityAccessGroups);
+            getMetacardValidatableResponse(card1Id).assertThat()
+                    .body(hasInitialDescription)
+                    .body(hasNewMetacardTags);
+            getMetacardValidatableResponse(card2Id).assertThat()
+                    .body(hasNewDescription)
+                    .body(hasInitialMetacardTags);
+
+        } finally {
+
+            /* CLEAN UP
+            Don't let the conditions spill-over and impact other tests */
+            getServiceManager().stopFeature(true, "catalog-metacardingest-network");
+        }
+    }
+
+    private ValidatableResponse getMetacardValidatableResponse(String metacardId) {
+        return getMetacardValidatableResponse("ddf.distribution", metacardId);
+    }
+
+    private ValidatableResponse getMetacardValidatableResponse(String source, String metacardId) {
+        final String metacardUrlFormat = SERVICE_ROOT.toString() + "/catalog/sources/%s/%s";
+        return given().expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_OK)
+                .when()
+                .get(URI.create(format(metacardUrlFormat, source, metacardId)))
+                .then();
+    }
+
+    private String ingestMetacardAndGetId(String fileName, String contentType) {
+        return given().body(getFileContent(fileName))
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+    }
+
+    private Matcher<Node> hasMetacardAttributeXPath(String attributeName,
+            String... attributeValues) {
+        final String basePathFormat = "/metacard/string[@name=\"%s\"][value=\"%s\"";
+        final String additionalValueFormat = " and value=\"%s\"";
+
+        StringBuilder xPathBuilder = new StringBuilder(format(basePathFormat,
+                attributeName,
+                attributeValues[0]));
+        for (int i = 1; i < attributeValues.length; i++) {
+            xPathBuilder.append(format(additionalValueFormat, attributeValues[i]));
+        }
+        xPathBuilder.append("]");
+
+        return hasXPath(xPathBuilder.toString());
     }
 
     @Test
@@ -1624,7 +1771,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testValidationEnforced() throws Exception {
         getServiceManager().startFeature(true, "sample-validator");
         // Update metacardMarkerPlugin config with enforcedMetacardValidators
-        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
+        configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"),
+                getAdminConfig());
 
         String id1 = ingestXmlFromResource("/metacard1.xml");
         String id2 = ingestXmlFromResource("/metacard2.xml", false);
@@ -1642,10 +1790,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 is in results AND not Metacard2
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -1658,10 +1806,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 is in results AND not Metacard2
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -1680,10 +1828,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 and NOT metacard2 is in results
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -1698,10 +1846,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 and metacard2 are NOT in results
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1))));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
         } finally {
@@ -1733,10 +1881,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 is in results AND not Metacard2
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -1749,10 +1897,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 is in results AND not Metacard2
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -1770,10 +1918,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 AND Metacard2 are in results
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2)));
 
@@ -1788,10 +1936,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard2 is in results AND not Metacard1
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2)));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1))));
 
@@ -1805,10 +1953,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard2 is in results AND not Metacard1
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2)));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1))));
         } finally {
@@ -1827,7 +1975,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         try {
             // Enforce the sample metacard validator
-            configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"), getAdminConfig());
+            configureEnforcedMetacardValidators(Collections.singletonList("sample-validator"),
+                    getAdminConfig());
 
             String metacard2Xml = getFileContent("metacard2.xml");
             given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
@@ -1845,8 +1994,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .assertThat()
                     .statusCode(HttpStatus.SC_OK);
 
-            String metacard1Path = String.format(METACARD_X_PATH, id1);
-            String metacard2Path = String.format(METACARD_X_PATH, id2);
+            String metacard1Path = format(METACARD_X_PATH, id1);
+            String metacard2Path = format(METACARD_X_PATH, id2);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
@@ -1895,8 +2044,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
             configureShowInvalidMetacards("true", "true", getAdminConfig());
 
-            String metacard1Path = String.format(METACARD_X_PATH, id1);
-            String metacard2Path = String.format(METACARD_X_PATH, id2);
+            String metacard1Path = format(METACARD_X_PATH, id1);
+            String metacard2Path = format(METACARD_X_PATH, id2);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
@@ -1962,10 +2111,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard2 is in results AND Metacard1
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2)));
 
@@ -1974,10 +2123,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard2 is in results Metacard1
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -1993,10 +2142,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard2 is in results AND Metacard1
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2)));
 
@@ -2005,10 +2154,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard2 is in results Metacard1
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2)));
 
@@ -2049,10 +2198,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 is in results AND Metacard2 because showInvalidMetacards is true
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body((hasXPath(String.format(
+            response.body((hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -2065,10 +2214,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 is in results AND not Metacard2
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -2086,10 +2235,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 and NOT metacard2 is in results
-            response.body(hasXPath(String.format(
+            response.body(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -2104,10 +2253,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 and metacard2 are NOT in results
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1))));
-            response.body(not(hasXPath(String.format(
+            response.body(not(hasXPath(format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -2169,7 +2318,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         String id = ingest(modifiedMetacardXml, "text/xml");
         configureShowInvalidMetacards("true", "true", getAdminConfig());
         try {
-            String newMetacardXpath = String.format("/metacards/metacard[@id=\"%s\"]", id);
+            String newMetacardXpath = format("/metacards/metacard[@id=\"%s\"]", id);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
@@ -2247,8 +2396,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             final String defaultCustomMetacardDescription = "Default custom description";
             final String defaultExpiration = getDefaultExpirationAsString();
 
-            final String metacard1XPath = String.format(METACARD_X_PATH, id1);
-            final String metacard2XPath = String.format(METACARD_X_PATH, id2);
+            final String metacard1XPath = format(METACARD_X_PATH, id1);
+            final String metacard2XPath = format(METACARD_X_PATH, id2);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
@@ -2321,8 +2470,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             final String defaultCustomMetacardDescription = "Default custom description";
             final String defaultExpiration = getDefaultExpirationAsString();
 
-            final String metacard1XPath = String.format(METACARD_X_PATH, id1);
-            final String metacard2XPath = String.format(METACARD_X_PATH, id2);
+            final String metacard1XPath = format(METACARD_X_PATH, id1);
+            final String metacard2XPath = format(METACARD_X_PATH, id2);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
@@ -2375,8 +2524,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         final String id2 = ingest(otherMetacardXml, MediaType.APPLICATION_XML);
 
         try {
-            final String basicMetacardXpath = String.format(METACARD_X_PATH, id);
-            final String otherMetacardXpath = String.format(METACARD_X_PATH, id2);
+            final String basicMetacardXpath = format(METACARD_X_PATH, id);
+            final String otherMetacardXpath = format(METACARD_X_PATH, id2);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
@@ -2424,8 +2573,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             update(id, updateBasicMetacardXml, MediaType.APPLICATION_XML);
             update(id2, updateOtherMetacardXml, MediaType.APPLICATION_XML);
 
-            final String basicMetacardXpath = String.format(METACARD_X_PATH, id);
-            final String otherMetacardXpath = String.format(METACARD_X_PATH, id2);
+            final String basicMetacardXpath = format(METACARD_X_PATH, id);
+            final String otherMetacardXpath = format(METACARD_X_PATH, id2);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
@@ -2517,8 +2666,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             invalidCardId = ingestXmlFromResource("/metacard-datatype-validation.xml");
 
             configureShowInvalidMetacards("true", "true", getAdminConfig());
-            String newMetacardXpath = String.format("/metacards/metacard[@id=\"%s\"]",
-                    invalidCardId);
+            String newMetacardXpath = format("/metacards/metacard[@id=\"%s\"]", invalidCardId);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()
@@ -2531,8 +2679,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             String modifiedMetacardXml = ddfMetacardXml.replaceFirst("Invalid Type", "Image");
             validCardId = ingest(modifiedMetacardXml, "text/xml");
 
-            String newMetacardXpath2 = String.format("/metacards/metacard[@id=\"%s\"]",
-                    validCardId);
+            String newMetacardXpath2 = format("/metacards/metacard[@id=\"%s\"]", validCardId);
 
             executeOpenSearch("xml", "q=*").log()
                     .all()

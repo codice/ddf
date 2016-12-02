@@ -396,11 +396,18 @@
         <feature>catalog-core</feature>
     </feature>
 
-    <feature name="catalog-metacard-enrichment" install="auto" version="${project.version}"
-             description="Conditional, rule-based enhancement and modification to metacards">
+    <feature name="catalog-client-info" install="auto" version="${project.version}"
+             description="Places client-specific information from the servlet API into request and response properties">
         <feature prerequisite="true">catalog-core-api</feature>
         <feature prerequisite="true">clientinfo-filter</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-clientinfo/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-metacardingest-network" install="auto" version="${project.version}"
+             description="Conditional attribute enhancement to metacards during ingest using client network information">
+        <feature prerequisite="true">catalog-core-api</feature>
+        <feature prerequisite="true">clientinfo-filter</feature>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardingest-network/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-ftp" install="manual" version="${project.version}"

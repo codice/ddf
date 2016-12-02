@@ -154,3 +154,5 @@ Format:
 Example:
 
 `<INSTALL-DIR>/data/product-cache/abc123`
+
+include::{adoc-include}/_plugins/metacardingest-network-contents.adoc[]

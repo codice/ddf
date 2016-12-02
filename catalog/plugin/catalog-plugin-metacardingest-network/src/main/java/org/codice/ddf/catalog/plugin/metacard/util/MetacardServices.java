@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.plugin.metacard.util;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +26,12 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 
 /**
  * Support and bulk operations for {@link Metacard}s. Contains state relevant to the provided
@@ -53,10 +58,11 @@ public class MetacardServices {
     }
 
     /**
-     * Iterates over each {@link Metacard} in the {@param metacards} collection and applies each
-     * attribute in the {@param attributeMap} only if the attribute is not already set on the
+     * Returns a new list of new {@link Metacard}s created from the {@param metacards} collection and
+     * applies each attribute in the {@param attributeMap} only if the attribute is not already set on the
      * {@link Metacard}. That is, the attribute must be {@code null} or not in the {@link Metacard}'s
-     * map.
+     * map. Appropriate {@link AttributeDescriptor}s are injected into a new {@link MetacardType} for
+     * each new {@link Metacard} created.
      *
      * @param metacards        The list of metacards to attempt to add the attributes to. Can be empty.
      * @param attributeMap     The map of attributes to attempt to add. Attributes already set on any
@@ -64,17 +70,49 @@ public class MetacardServices {
      *                         the value string should separate different entities with commas.
      * @param attributeFactory The factory to use to create attributes.
      */
-    public void setAttributesIfAbsent(List<Metacard> metacards, Map<String, String> attributeMap,
-            AttributeFactory attributeFactory) {
+    public List<Metacard> setAttributesIfAbsent(List<Metacard> metacards,
+            Map<String, String> attributeMap, AttributeFactory attributeFactory) {
+
+        notNull(metacards, "The list of metacards cannot be null");
+        notNull(attributeMap, "The map of new attributes cannot be null");
+        notNull(attributeFactory, "The attribute factory cannot be null");
 
         if (metacards.isEmpty() || attributeMap.isEmpty()) {
-            return;
+            return metacards;
         }
 
-        List<MetacardType> systemMetacardTypesCopy = ImmutableList.copyOf(systemMetacardTypes);
+        Map<String, AttributeDescriptor> systemAndMetacardDescriptors =
+                getUniqueSystemAndMetacardDescriptors(metacards);
 
-        Map<String, AttributeDescriptor> systemAndMetacardDescriptors = Stream.concat(
-                systemMetacardTypesCopy.stream()
+        return metacards.stream()
+                .map(metacard -> {
+                    Set<AttributeDescriptor> relevantDescriptors = attributeMap.keySet()
+                            .stream()
+                            .filter(key -> metacard.getAttribute(key) == null)
+                            .map(systemAndMetacardDescriptors::get)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toSet());
+                    return createNewMetacardWithInjectedAttributes(metacard,
+                            relevantDescriptors.stream()
+                                    .map(descriptor -> attributeFactory.createAttribute(descriptor,
+                                            attributeMap.get(descriptor.getName())))
+                                    .collect(Collectors.toList()),
+                            relevantDescriptors);
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Helper method to combine all system-recognized {@link AttributeDescriptor}s with any new
+     * ones on the given list of {@link Metacard}s without repeats.
+     *
+     * @param metacards List of metacards whose attribute descriptors should be added to the map.
+     * @return A map of all system-recognized descriptors plus any new ones introduced by the metacards.
+     */
+    private Map<String, AttributeDescriptor> getUniqueSystemAndMetacardDescriptors(
+            List<Metacard> metacards) {
+        List<MetacardType> systemMetacardTypesCopy = ImmutableList.copyOf(systemMetacardTypes);
+        return Stream.concat(systemMetacardTypesCopy.stream()
                         .map(MetacardType::getAttributeDescriptors)
                         .flatMap(Set::stream)
                         .filter(Objects::nonNull),
@@ -83,18 +121,28 @@ public class MetacardServices {
                         .map(MetacardType::getAttributeDescriptors)
                         .flatMap(Set::stream)
                         .filter(Objects::nonNull))
-
                 .collect(Collectors.toMap(AttributeDescriptor::getName,
                         Function.identity(),
                         (oldValue, newValue) -> oldValue));
+    }
 
-        metacards.forEach(metacard -> attributeMap.keySet()
-                .stream()
-                .filter(key -> metacard.getAttribute(key) == null)
-                .map(systemAndMetacardDescriptors::get)
-                .map(descriptor -> attributeFactory.createAttribute(descriptor,
-                        attributeMap.get(descriptor.getName())))
-                .filter(Objects::nonNull)
-                .forEach(metacard::setAttribute));
+    /**
+     * Creates a new metacard from the original with all original attributes plus the new ones given
+     * in the list. A new metacard type is created for this new metacard using the original type and
+     * the given descriptors.
+     */
+    private Metacard createNewMetacardWithInjectedAttributes(Metacard originalMetacard,
+            List<Attribute> attributes, Set<AttributeDescriptor> descriptors) {
+        MetacardImpl newMetacard;
+        if (descriptors.isEmpty()) {
+            newMetacard = new MetacardImpl(originalMetacard);
+        } else {
+            MetacardTypeImpl injectedAttributeType =
+                    new MetacardTypeImpl(originalMetacard.getMetacardType()
+                            .getName(), originalMetacard.getMetacardType(), descriptors);
+            newMetacard = new MetacardImpl(originalMetacard, injectedAttributeType);
+        }
+        attributes.forEach(newMetacard::setAttribute);
+        return newMetacard;
     }
 }
