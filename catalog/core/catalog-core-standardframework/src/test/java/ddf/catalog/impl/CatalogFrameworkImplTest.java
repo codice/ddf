@@ -418,7 +418,6 @@ public class CatalogFrameworkImplTest {
             }
         };
 
-        createOperations.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
 
@@ -1295,7 +1294,6 @@ public class CatalogFrameworkImplTest {
         historian.setHistoryEnabled(false);
 
         opsStorage.setHistorian(historian);
-        createOperations.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
 

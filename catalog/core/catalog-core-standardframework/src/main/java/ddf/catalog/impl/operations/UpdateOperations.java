@@ -187,7 +187,6 @@ public class UpdateOperations {
 
     public UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
             throws IngestException, SourceUnavailableException {
-        Optional<String> historianTransactionKey = Optional.empty();
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamUpdateRequest.getContentItems()
                 .size());
@@ -195,7 +194,7 @@ public class UpdateOperations {
                 .size());
         UpdateResponse updateResponse = null;
         UpdateStorageRequest updateStorageRequest = null;
-        UpdateStorageResponse updateStorageResponse;
+        UpdateStorageResponse updateStorageResponse = null;
 
         streamUpdateRequest = opsStorageSupport.prepareStorageRequest(streamUpdateRequest,
                 streamUpdateRequest::getContentItems);
@@ -230,10 +229,6 @@ public class UpdateOperations {
                             e);
                 }
 
-                historianTransactionKey = historian.version(streamUpdateRequest,
-                        updateStorageResponse,
-                        tmpContentPaths);
-
                 updateStorageResponse = processPostUpdateStoragePlugins(updateStorageResponse);
 
                 for (ContentItem contentItem : updateStorageResponse.getUpdatedContentItems()) {
@@ -260,7 +255,9 @@ public class UpdateOperations {
                             .collect(Collectors.toList()), String.class),
                             new ArrayList<>(metacardMap.values()));
             updateRequest.setProperties(streamUpdateRequest.getProperties());
+            historian.setSkipFlag(updateRequest);
             updateResponse = update(updateRequest);
+            historian.version(streamUpdateRequest, updateStorageResponse, updateResponse);
         } catch (Exception e) {
             if (updateStorageRequest != null) {
                 try {
@@ -276,9 +273,7 @@ public class UpdateOperations {
                     "Unable to store products for request: " + streamUpdateRequest.getId(), e);
 
         } finally {
-            opsStorageSupport.commitAndCleanup(updateStorageRequest,
-                    historianTransactionKey,
-                    tmpContentPaths);
+            opsStorageSupport.commitAndCleanup(updateStorageRequest, tmpContentPaths);
         }
 
         return updateResponse;

@@ -23,7 +23,6 @@ import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configure
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardValidityFilterPlugin;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureShowInvalidMetacards;
-import static org.codice.ddf.itests.common.csw.CswQueryBuilder.AND;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.NOT;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.OR;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
@@ -2131,8 +2130,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         tmpFile.toFile()
                 .deleteOnExit();
         Files.copy(IOUtils.toInputStream(getFileContent(filename)),
-                tmpFile,
-                StandardCopyOption.REPLACE_EXISTING);
+                tmpFile);
         return tmpFile.toFile();
     }
 
@@ -2145,7 +2143,10 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private void uninstallDefinitionJson(File definitionFile, Callable<Void> waitCondition)
             throws Exception {
-        FileUtils.deleteQuietly(definitionFile);
+        boolean success = definitionFile.delete();
+        if (!success) {
+            throw new Exception("Could not delete file(" + definitionFile.getAbsolutePath() + ")");
+        }
         waitCondition.call();
     }
 
@@ -2153,7 +2154,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testMetacardDefinitionJsonFile() throws Exception {
         final String newMetacardTypeName = "new.metacard.type";
         File file = ingestDefinitionJsonWithWaitCondition("definitions.json", () -> {
-            expect("Service to be available: " + MetacardType.class.getName()).within(10,
+            expect("Service to be available: " + MetacardType.class.getName()).within(30,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
                             "(name=" + newMetacardTypeName + ")"), not(empty()));
@@ -2189,7 +2190,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 AttributeRegistry attributeRegistry = getServiceManager().getService(
                         AttributeRegistry.class);
                 expect("Attributes to be unregistered").within(10, TimeUnit.SECONDS)
-                        .until(() -> attributeRegistry.lookup("new-attribute-required-2")
+                        .until(() -> !attributeRegistry.lookup("new-attribute-required-2")
                                 .isPresent());
                 return null;
             });
@@ -2220,7 +2221,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testDefaultValuesCreate() throws Exception {
         final String customMetacardTypeName = "custom";
         File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
-            expect("Service to be available: " + MetacardType.class.getName()).within(10,
+            expect("Service to be available: " + MetacardType.class.getName()).within(30,
                     TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
                             "(name=" + customMetacardTypeName + ")"), not(empty()));
@@ -2402,7 +2403,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testInjectAttributesOnUpdate() throws Exception {
         final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
-            expect("Injectable attributes to be registered").within(10, TimeUnit.SECONDS)
+            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
                             null), hasSize(2));
             return null;
@@ -2496,83 +2497,6 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .until(() -> pstore.get(PersistentStore.WORKSPACE_TYPE)
                             .size(), equalTo(0));
         }
-    }
-
-    @Test
-    public void testContentVersioning() throws Exception {
-
-        Configuration config = getAdminConfig().getConfiguration("ddf.catalog.history.Historian");
-        config.setBundleLocation(
-                "mvn:ddf.catalog.core/catalog-core-standardframework/" + System.getProperty(
-                        "ddf.version"));
-        Dictionary properties = new Hashtable<>();
-        properties.put("historyEnabled", true);
-        config.update(properties);
-
-        String fileName1 = "testcontent" + ".jpg";
-        File tmpFile1 = createTemporaryFile(fileName1,
-                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
-        String fileName2 = "testcontent2" + ".mp4";
-        File tmpFile2 = createTemporaryFile(fileName2,
-                IOUtils.toInputStream(getFileContent(SAMPLE_MP4)));
-
-        String id = given().multiPart(tmpFile1)
-                .expect()
-                .log()
-                .headers()
-                .statusCode(201)
-                .when()
-                .post(REST_PATH.getUrl())
-                .getHeader("id");
-
-        final String url =
-                REST_PATH.getUrl() + "sources/ddf.distribution/" + id + "?transform=resource";
-
-        byte[] content1 = get(url).thenReturn()
-                .body()
-                .asByteArray();
-
-        String metacardHistoryQuery = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
-                "metacard.version.id",
-                id)
-                .addAttributeFilter(PROPERTY_IS_LIKE, Metacard.TAGS, "revision")
-                .addLogicalOperator(AND)
-                .getQuery("application/xml", "urn:catalog:metacard");
-
-        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                .body(metacardHistoryQuery)
-                .post(CSW_PATH.getUrl())
-                .then()
-                .body(hasXPath("count(/GetRecordsResponse/SearchResults/metacard)", is("1")),
-                        hasXPath(
-                                "/GetRecordsResponse/SearchResults/metacard/string[@name='metacard.version.action']/value[text()=\"Created-Content\"]"));
-
-        given().multiPart(tmpFile2)
-                .expect()
-                .log()
-                .headers()
-                .statusCode(200)
-                .when()
-                .put(REST_PATH.getUrl() + id);
-
-        byte[] content2 = get(url).thenReturn()
-                .body()
-                .asByteArray();
-
-        assertThat("The two content items should be different",
-                Arrays.equals(content1, content2),
-                is(false));
-        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                .body(metacardHistoryQuery)
-                .post(CSW_PATH.getUrl())
-                .then()
-                .body(hasXPath("count(/GetRecordsResponse/SearchResults/metacard)", is("2")),
-                        hasXPath(
-                                "/GetRecordsResponse/SearchResults/metacard/string[@name='metacard.version.action']/value[text()=\"Updated-Content\"]"));
-
-        properties.put("historyEnabled", false);
-        config.update(properties);
-        deleteMetacard(id);
     }
 
     @Test

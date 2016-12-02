@@ -18,50 +18,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>ddf.catalog.plugin</groupId>
-        <artifactId>plugin</artifactId>
+        <groupId>ddf.catalog.core</groupId>
+        <artifactId>catalog-core-versioning</artifactId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
-    <name>DDF :: Catalog :: Plugin :: Versioning</name>
-    <artifactId>catalog-plugin-versioning</artifactId>
     <packaging>bundle</packaging>
+    <artifactId>versioning-api</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>versioning-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>versioning-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <artifactId>catalog-core-api</artifactId>
         </dependency>
     </dependencies>
 
@@ -70,18 +38,11 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            catalog-core-api-impl,
-                            versioning-common,
-                            platform-util,
-                            platform-util-unavailableurls,
-                            ddf-security-common
-                        </Embed-Dependency>
-                        <Export-Package/>
-
+                        <Bundle-Name>${project.name}</Bundle-Name>
                     </instructions>
                 </configuration>
             </plugin>
@@ -129,5 +90,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -11,8 +11,9 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.core.versioning
+package ddf.catalog.core.versioning.impl
 
+import ddf.catalog.core.versioning.MetacardVersion
 import ddf.catalog.data.Metacard
 import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.AttributeImpl
@@ -26,9 +27,9 @@ import spock.lang.Specification
 
 import java.time.Instant
 
-import static MetacardVersion.Action
+import static ddf.catalog.core.versioning.MetacardVersion.Action
 
-class HistoryMetacardImplSpecTest extends Specification {
+class MetacardVersionImplSpec extends Specification {
 
     void setup() {
         ThreadContext.bind(Mock(Subject))
@@ -42,11 +43,11 @@ class HistoryMetacardImplSpecTest extends Specification {
     def "History Metacard Creation"() {
         setup:
         def meta = defaultMetacard()
-        Action action = Action.CREATED
+        Action action = Action.VERSIONED
         Instant start = Instant.now()
 
         when:
-        MetacardVersion history = new MetacardVersion(
+        MetacardVersionImpl history = new MetacardVersionImpl(
                 meta.metacard,
                 action,
                 SecurityUtils.subject)
@@ -62,6 +63,7 @@ class HistoryMetacardImplSpecTest extends Specification {
         history.metadata == meta.metadata
         history.title == meta.title
         history.action == action
+        history.resourceURI == meta.uri
         history.versionTags.containsAll(meta.tags)
 
         Instant finish = Instant.now()
@@ -73,8 +75,8 @@ class HistoryMetacardImplSpecTest extends Specification {
     def "History Metacard back to Basic Metacard"() {
         setup:
         def meta = defaultMetacard()
-        Action action = Action.CREATED
-        MetacardVersion history = new MetacardVersion(
+        Action action = Action.VERSIONED
+        MetacardVersionImpl history = new MetacardVersionImpl(
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject)
@@ -93,10 +95,10 @@ class HistoryMetacardImplSpecTest extends Specification {
     def "Non default metacard type back to type from existing list"() {
         setup:
         def meta = nonBasicMetacard()
-        Action action = Action.CREATED
+        Action action = Action.VERSIONED
 
         when: "History items are created from non basic metacard types"
-        MetacardVersion history = new MetacardVersion(
+        MetacardVersionImpl history = new MetacardVersionImpl(
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject,
@@ -124,10 +126,10 @@ class HistoryMetacardImplSpecTest extends Specification {
     def "Non default metacard type back to type from serialized type"() {
         setup:
         def meta = nonBasicMetacard()
-        Action action = Action.CREATED
+        Action action = Action.VERSIONED
 
         when: "History items are created from non basic metacard types"
-        MetacardVersion history = new MetacardVersion(
+        MetacardVersionImpl history = new MetacardVersionImpl(
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject)
@@ -148,12 +150,14 @@ class HistoryMetacardImplSpecTest extends Specification {
         res.metadata = "<title>blablabla my metadata</title>"
         res.title = "Title"
         res.tags = [Metacard.DEFAULT_TAG]
+        res.uri = URI.create("http://google.com")
 
         MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
         metacard.id = res.id
         metacard.tags = res.tags
         metacard.metadata = res.metadata
         metacard.title = res.title
+        metacard.resourceURI = res.uri
         res.metacard = metacard
         return res
     }
