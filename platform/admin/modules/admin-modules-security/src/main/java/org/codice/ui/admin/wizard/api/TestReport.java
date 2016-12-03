@@ -42,8 +42,9 @@ public class TestReport {
         return messages;
     }
 
-    public void addMessage(ConfigurationMessage result) {
+    public TestReport addMessage(ConfigurationMessage result) {
         this.messages.add(result);
+        return this;
     }
 
     public void addMessages(List<ConfigurationMessage> messages) {

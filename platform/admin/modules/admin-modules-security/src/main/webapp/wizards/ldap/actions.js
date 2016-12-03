@@ -33,12 +33,12 @@ export const probe = (url) => (dispatch, getState) => {
     })
 }
 
-export const testConfig = (id, url) => (dispatch, getState) => {
+export const testConfig = (id, url, configType = 'ldapConfiguration') => (dispatch, getState) => {
   dispatch(clearMessages(id))
   dispatch(submittingStart(id))
 
   const config = getAllConfig(getState())
-  const body = { configurationType: 'ldapConfiguration', ...config }
+  const body = { configurationType: configType, ...config }
   const opts = {
     method: 'POST',
     body: JSON.stringify(body),

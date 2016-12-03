@@ -19,8 +19,6 @@ import java.util.Map;
 
 import org.codice.ui.admin.wizard.config.Configuration;
 
-import com.google.common.collect.ImmutableList;
-
 public class LdapConfiguration extends Configuration {
 
     public static final String LDAPS = "ldaps";
@@ -29,9 +27,7 @@ public class LdapConfiguration extends Configuration {
 
     public static final String NONE = "none";
 
-    public static final ImmutableList<String> LDAP_ENCRYPTION_METHODS = ImmutableList.of(LDAPS,
-            TLS,
-            NONE);
+    static final String[] LDAP_ENCRYPTION_METHODS = new String[] {LDAPS, TLS, NONE};
 
     private String hostName;
 

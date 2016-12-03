@@ -19,6 +19,11 @@
         <bean class="org.codice.ui.admin.ldap.config.LdapConfigurationHandler"/>
     </service>
 
+    <service id="embeddedLdapConfigurationHandler"
+             interface="org.codice.ui.admin.wizard.api.ConfigurationHandler">
+        <bean class="org.codice.ui.admin.ldap.config.EmbeddedLdapConfigurationHandler"/>
+    </service>
+
     <!--source config handlers-->
     <bean id="cswConfigurationHandler" class="org.codice.ui.admin.sources.config.csw.CswSourceConfigurationHandler"/>
     <service ref="cswConfigurationHandler">

@@ -252,7 +252,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
         //Since the test failed, trying other encryption methods
         List<String> encryptionMethodsToTry = new ArrayList<>();
-        Collections.copy(LdapConfiguration.LDAP_ENCRYPTION_METHODS, encryptionMethodsToTry);
+        Collections.copy(Arrays.asList(LdapConfiguration.LDAP_ENCRYPTION_METHODS), encryptionMethodsToTry);
         encryptionMethodsToTry.remove(ldapConfiguration.encryptionMethod());
 
         List<LdapConfiguration> configsToTest = new ArrayList<>();
@@ -378,10 +378,10 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
         try {
             if (ldapConfiguration.encryptionMethod()
-                    .equals(LDAPS)) {
+                    .equalsIgnoreCase(LDAPS)) {
                 ldapOptions.setSSLContext(SSLContext.getDefault());
             } else if (ldapConfiguration.encryptionMethod()
-                    .equals(TLS)) {
+                    .equalsIgnoreCase(TLS)) {
                 ldapOptions.setUseStartTLS(true);
             }
 

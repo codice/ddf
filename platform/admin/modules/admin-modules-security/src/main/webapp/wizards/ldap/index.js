@@ -1,9 +1,12 @@
 import React from 'react'
-import {connect} from 'react-redux'
-import {getProbeValue, getStep, isSubmitting, getMessages} from '../../reducer'
-import {setDefaults} from '../../actions'
+
+import { connect } from 'react-redux'
+import { getProbeValue, getStep, isSubmitting, getMessages } from '../../reducer'
+import { setDefaults } from '../../actions'
+
 import Mount from '../../components/mount'
 import Paper from 'material-ui/Paper'
+import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton'
 import RaisedButton from 'material-ui/RaisedButton'
 import FlatButton from 'material-ui/FlatButton'
 import CircularProgress from 'material-ui/CircularProgress'
@@ -29,9 +32,9 @@ const Next = connect(null, (dispatch, {id, url}) => ({
   ({next, disabled}) => <RaisedButton label='Next' disabled={disabled} primary onClick={next} />
 )
 
-const Save = connect(null, (dispatch, {id, url}) => ({
-  saveConfig: () => dispatch(testConfig(id, url))
-}))(({saveConfig}) => (
+const Save = connect(null, (dispatch, { id, url, configType }) => ({
+  saveConfig: () => dispatch(testConfig(id, url, configType))
+}))(({ saveConfig }) => (
   <RaisedButton label='Save' primary onClick={saveConfig} />
 ))
 
@@ -84,8 +87,104 @@ const StageControls = ({children, style = {}, ...rest}) => (
   </Flexbox>
 )
 
-const NetworkSettings = ({id, disabled}) => (
-  <Stage id={id} defaults={{port: 1389, encryptionMethod: 'Use LDAPS', hostName: 'localhost'}}>
+// TODO update description to described LDAP as a login or credential store
+// TODO Make the value selected from the radio button persist
+const IntroductionStage = ({ disabled }) => (
+  <Stage>
+    <Title>Welcome to the LDAP Configuration Wizard</Title>
+    <Description>
+      This guide will walk through setting up the LDAP as an
+      authentication source for users. To begin, make sure you
+      have the hostname and port of the LDAP you plan to. How do you plan to use LDAP?
+      configure.
+    </Description>
+    <RadioButtonGroup id='ldapUseCase' name='ldapUseCases' defaultSelected='activeDirectory' >
+      <RadioButton
+        value='login'
+        label='Login'
+      />
+      <RadioButton
+        value='credentialStore'
+        label='Credential store'
+      />
+      <RadioButton
+        value='loginAndCredentialStore'
+        label='Login and Credential Store'
+      />
+    </RadioButtonGroup>
+    <StageControls justifyContent='center'>
+      <Begin disabled={disabled} />
+    </StageControls>
+  </Stage>
+)
+
+// TODO Make the value selected from the radio button persist
+const LdapTypeSelection = ({ id, disabled }) => (
+  <Stage id={id}>
+    <Title>LDAP Type Selection</Title>
+    <Description>
+      Select the type of LDAP you plan to connect to.
+    </Description>
+    <RadioButtonGroup id='ldapTypeSelection' name='ldapTypeSelections' defaultSelected='activeDirectory'>
+      <RadioButton
+        value='activeDirectory'
+        label='Active Directory'
+      />
+      <RadioButton
+        value='openDj'
+        label='OpenDJ'
+      />
+      <RadioButton
+        value='openLdap'
+        label='OpenLDAP'
+      />
+      <RadioButton
+        value='embeddedLdap'
+        label='DDF Embedded LDAP'
+      />
+      <RadioButton
+        label='Not Sure/None Of The Above'
+       />
+    </RadioButtonGroup>
+    <StageControls>
+      <Back disabled={disabled} />
+      <Begin disabled={disabled} />
+    </StageControls>
+  </Stage>
+)
+
+const ConfigureEmbeddedLdap = ({ id, disabled }) => (
+  <Stage id={id} defaults={{ embeddedLdapPort: 1389, embeddedLdapsPort: 1636, embeddedLdapAdminPort: 4444, embeddedLdapStorageLocation: 'etc/org.codice.opendj/ldap' }}>
+    <Title>Configure DDF Embedded LDAP</Title>
+    <Port id='embeddedLdapPort' label='LDAP port' disabled={disabled} />
+    <Port id='embeddedLdapsPort' label='LDAPS port' disabled={disabled} />
+    <Port id='embeddedLdapAdminPort' label='Admin port' disabled={disabled} />
+    <div style={{textAlign: 'right', marginTop: 20}} >
+      <Input id='ldifPath' disabled label='LDIF Path' />
+      <RaisedButton disabled={disabled} label='Import Users' />
+    </div>
+    <div style={{textAlign: 'right', marginTop: 20}} >
+      <Input id='embeddedLdapStorageLocation' disabled label='Storage Location' />
+      <RaisedButton disabled={disabled} label='Set LDAP Storage Directory' />
+    </div>
+    <StageControls>
+      <Back disabled={disabled} />
+      <Save id={id} url='/admin/wizard/persist/embeddedLdap' configType='embeddedLdapConfiguration' />
+    </StageControls>
+  </Stage>
+)
+
+const SuccessfullyConfiguredEmbeddedLdap = ({ id, disabled }) => (
+  <Stage id={id}>
+    <Title>DDF Embedded Has Successfully Been Started</Title>
+    <StageControls>
+      <Begin disabled={disabled} label='Continue LDAP Wizard' />
+    </StageControls>
+  </Stage>
+)
+
+const NetworkSettings = ({ id, disabled }) => (
+  <Stage id={id} defaults={{ port: 1636, encryptionMethod: 'LDAPS', hostName: 'localhost' }}>
     <Title>LDAP Network Settings</Title>
     <Description>
       Lets start with the network configurations of your LDAP store.
@@ -96,7 +195,7 @@ const NetworkSettings = ({id, disabled}) => (
     <Select id='encryptionMethod'
       label='Encryption Method'
       disabled={disabled}
-      options={['No Encryption', 'Use LDAPS', 'Use StartTLS']} />
+      options={[ 'None', 'LDAPS', 'StartTLS' ]} />
 
     <StageControls>
       <Back disabled={disabled} />
@@ -203,7 +302,8 @@ const Confirm = ({id}) => (
   </Stage>
 )
 
-const StepperView = ({children, step, submitting}) => (
+//    TODO Add branching logic
+const StepperView = ({ children, step, submitting }) => (
   <div>
     {children.slice(0, step + 1).map((el, key) =>
       React.cloneElement(el, {key, disabled: key !== step}))}
@@ -214,26 +314,13 @@ const Stepper = connect((state) => ({
   submitting: isSubmitting(state)
 }))(StepperView)
 
-const IntroductionStage = ({disabled}) => (
-  <Stage>
-    <Title>Welcome to the LDAP Configuration Wizard</Title>
-    <Description>
-      This guide will walk through setting up the LDAP as an
-      authentication source for users. To begin, make sure you
-      have the hostname and port of the LDAP you plan to
-      configure.
-    </Description>
-
-    <StageControls justifyContent='center'>
-      <Begin disabled={disabled} />
-    </StageControls>
-  </Stage>
-)
-
 const LdapWizardView = ({step}) => (
   <Wizard id='ldap'>
     <Stepper step={step}>
       <IntroductionStage />
+      <LdapTypeSelection id='ldap-type-selection' />
+      <ConfigureEmbeddedLdap id='configure-embedded-ldap' />
+      <SuccessfullyConfiguredEmbeddedLdap id='success-embedded-ldap' />
       <NetworkSettings id='network-settings' />
       <BindSettings id='bind-settings' />
       <Query id='ldap-query' />

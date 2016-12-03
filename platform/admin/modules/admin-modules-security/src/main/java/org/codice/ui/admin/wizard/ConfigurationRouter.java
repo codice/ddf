@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.codice.ui.admin.ldap.config.EmbeddedLdapConfiguration;
 import org.codice.ui.admin.ldap.config.LdapConfiguration;
 import org.codice.ui.admin.sources.config.SourceConfiguration;
 import org.codice.ui.admin.sources.config.csw.CswSourceConfiguration;
@@ -58,6 +59,7 @@ public class ConfigurationRouter implements SparkApplication {
                 .registerSubtype(LdapConfiguration.class, "ldapConfiguration")
                 .registerSubtype(SourceConfiguration.class, "sourceConfiguration")
                 .registerSubtype(CswSourceConfiguration.class, "cswSourceConfiguration")
+                .registerSubtype(EmbeddedLdapConfiguration.class, "embeddedLdapConfiguration")
                 .registerSubtype(OpenSearchSourceConfiguration.class,
                         "openSearchSourceConfiguration")
                 .registerSubtype(WfsSourceConfiguration.class, "wfsSourceConfiguration");
