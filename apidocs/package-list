@@ -132,6 +132,7 @@ ddf.sdk.plugin.prequery
 ddf.sdk.plugin.preresource
 ddf.sdk.plugin.presubscription
 ddf.sdk.plugin.storage
+ddf.sdk.sample.metacardtype
 ddf.security
 ddf.security.assertion
 ddf.security.assertion.impl
