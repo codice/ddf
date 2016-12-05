@@ -81,5 +81,20 @@ const submitting = (state = null, { type, id } = {}) => {
 
 export const isSubmitting = (state, id) => state.get('submitting') === id
 
-export default combineReducers({ config, probeValue, step, submitting, messages })
+const ldapDisplayedStages = (state = ['introductionStage'], { type, stage }) => {
+  switch (type) {
+    case 'LDAP_ADD_STAGE':
+      return [...state, stage]
+    case 'LDAP_REMOVE_STAGE':
+      return state.slice(0, -1)
+    case 'CLEAR_WIZARD':
+      return ['introductionStage']
+    default:
+      return state
+  }
+}
+
+export const getDisplayedLdapStages = (state) => state.getIn(['ldapDisplayedStages'])
+
+export default combineReducers({ config, probeValue, step, submitting, messages, ldapDisplayedStages })
 

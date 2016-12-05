@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { connect } from 'react-redux'
-import { getProbeValue, getStep, isSubmitting, getMessages } from '../../reducer'
+import { getProbeValue, isSubmitting, getMessages, getDisplayedLdapStages } from '../../reducer'
 import { setDefaults } from '../../actions'
 
 import Mount from '../../components/mount'
@@ -13,7 +13,7 @@ import CircularProgress from 'material-ui/CircularProgress'
 import Flexbox from 'flexbox-react'
 import {List, ListItem} from 'material-ui/List'
 import * as styles from './styles.less'
-import {testConfig, probe, next, back} from './actions'
+import {testConfig, probe, nextStage, prevStage} from './actions'
 import {Input, Password, Hostname, Port, Select} from '../inputs'
 import Wizard from '../components/wizard'
 
@@ -24,13 +24,15 @@ const BackView = ({onBack, disabled}) => (
   <FlatButton disabled={disabled} secondary label='back' onClick={onBack} />
 )
 
-const Back = connect(null, {onBack: back})(BackView)
+const Back = connect(null, {onBack: prevStage})(BackView)
 
-const Next = connect(null, (dispatch, {id, url}) => ({
-  next: () => dispatch(testConfig(id, url))
-}))(
-  ({next, disabled}) => <RaisedButton label='Next' disabled={disabled} primary onClick={next} />
-)
+const mapDispatchToPropsNext = (dispatch, {id, url, nextStageId}) => ({
+  next: () => dispatch(testConfig(id, url, nextStageId))
+})
+
+const NextView = ({next, disabled, nextStageId}) => <RaisedButton label='Next' disabled={disabled} primary onClick={next} />
+
+const Next = connect(null, mapDispatchToPropsNext)(NextView)
 
 const Save = connect(null, (dispatch, { id, url, configType }) => ({
   saveConfig: () => dispatch(testConfig(id, url, configType))
@@ -38,10 +40,10 @@ const Save = connect(null, (dispatch, { id, url, configType }) => ({
   <RaisedButton label='Save' primary onClick={saveConfig} />
 ))
 
-const BeginView = ({onBegin, disabled}) => <RaisedButton disabled={disabled} primary label='begin'
-  onClick={onBegin} />
+const BeginView = ({onBegin, disabled, next}) => <RaisedButton disabled={disabled} primary label='begin'
+  onClick={next} />
 
-const Begin = connect(null, {onBegin: next})(BeginView)
+const Begin = connect(null, (dispatch, { nextStageId }) => ({next: () => dispatch(nextStage(nextStageId))}))(BeginView)
 
 const Message = ({type, message}) => (
   <div className={type === 'FAILURE' ? styles.error : styles.success}>{message}</div>
@@ -113,7 +115,7 @@ const IntroductionStage = ({ disabled }) => (
       />
     </RadioButtonGroup>
     <StageControls justifyContent='center'>
-      <Begin disabled={disabled} />
+      <Begin disabled={disabled} nextStageId='ldapTypeSelection' />
     </StageControls>
   </Stage>
 )
@@ -148,7 +150,7 @@ const LdapTypeSelection = ({ id, disabled }) => (
     </RadioButtonGroup>
     <StageControls>
       <Back disabled={disabled} />
-      <Begin disabled={disabled} />
+      <Begin disabled={disabled} nextStageId='networkSettings' />
     </StageControls>
   </Stage>
 )
@@ -169,7 +171,7 @@ const ConfigureEmbeddedLdap = ({ id, disabled }) => (
     </div>
     <StageControls>
       <Back disabled={disabled} />
-      <Save id={id} url='/admin/wizard/persist/embeddedLdap' configType='embeddedLdapConfiguration' />
+      <Save id={id} url='/admin/wizard/persist/embeddedLdap' configType='embeddedLdapConfiguration' nextStageId='successfullyConfiguredEmbeddedLdap' />
     </StageControls>
   </Stage>
 )
@@ -178,7 +180,7 @@ const SuccessfullyConfiguredEmbeddedLdap = ({ id, disabled }) => (
   <Stage id={id}>
     <Title>DDF Embedded Has Successfully Been Started</Title>
     <StageControls>
-      <Begin disabled={disabled} label='Continue LDAP Wizard' />
+      <Begin disabled={disabled} label='Continue LDAP Wizard' nextStageId='networkSettings' />
     </StageControls>
   </Stage>
 )
@@ -199,7 +201,7 @@ const NetworkSettings = ({ id, disabled }) => (
 
     <StageControls>
       <Back disabled={disabled} />
-      <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapConnection' />
+      <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapConnection' nextStageId='bindSettings' />
     </StageControls>
   </Stage>
 )
@@ -217,7 +219,7 @@ const BindSettings = ({id, disabled}) => (
 
     <StageControls>
       <Back disabled={disabled} />
-      <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapBind' />
+      <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapBind' nextStageId='query' />
     </StageControls>
   </Stage>
 )
@@ -276,7 +278,7 @@ const QueryView = ({probe, probeValue = [], id, disabled}) => (
 
     <StageControls>
       <Back disabled={disabled} />
-      <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapDirStruct' />
+      <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapDirStruct' nextStageId='confirm' />
     </StageControls>
   </Stage>
 )
@@ -302,35 +304,29 @@ const Confirm = ({id}) => (
   </Stage>
 )
 
-//    TODO Add branching logic
-const StepperView = ({ children, step, submitting }) => (
-  <div>
-    {children.slice(0, step + 1).map((el, key) =>
-      React.cloneElement(el, {key, disabled: key !== step}))}
-  </div>
-)
+let stageMapper = (stage, key) => {
+  const stageMapping = {
+    introductionStage: <IntroductionStage key={key} />,
+    ldapTypeSelection: <LdapTypeSelection id='ldap-type-selection' key={key} />,
+    configureEmbeddedLdap: <ConfigureEmbeddedLdap id='configure-embedded-ldap' key={key} />,
+    successfullyConfiguredEmbeddedLdap: <SuccessfullyConfiguredEmbeddedLdap id='success-embedded-ldap' key={key} />,
+    networkSettings: <NetworkSettings id='network-settings' key={key} />,
+    bindSettings: <BindSettings id='bind-settings' key={key} />,
+    query: <Query id='ldap-query' key={key} />,
+    confirm: <Confirm id='ldap-save' key={key} />
+  }
+  return (stageMapping[stage] || (<div>Undefined Stage</div>))
+}
 
-const Stepper = connect((state) => ({
-  submitting: isSubmitting(state)
-}))(StepperView)
-
-const LdapWizardView = ({step}) => (
+const LdapWizardView = ({ stages, isSubmitting = false }) => (
   <Wizard id='ldap'>
-    <Stepper step={step}>
-      <IntroductionStage />
-      <LdapTypeSelection id='ldap-type-selection' />
-      <ConfigureEmbeddedLdap id='configure-embedded-ldap' />
-      <SuccessfullyConfiguredEmbeddedLdap id='success-embedded-ldap' />
-      <NetworkSettings id='network-settings' />
-      <BindSettings id='bind-settings' />
-      <Query id='ldap-query' />
-      <Confirm id='ldap-save' />
-    </Stepper>
+    {stages.map((id, key) =>
+      React.cloneElement(stageMapper(id), {key, disabled: key !== stages.length - 1}))}
   </Wizard>
 )
 
 const LdapWizard = connect((state) => ({
-  step: getStep(state)
+  stages: getDisplayedLdapStages(state)
 }))(LdapWizardView)
 
 export default LdapWizard

@@ -22,5 +22,6 @@ export const getProbeValue = (state) => ldap.getProbeValue(state.get('wizard'))
 export const getStep = (state) => ldap.getStep(state.get('wizard'))
 export const isSubmitting = (state, id) => ldap.isSubmitting(state.get('wizard'), id)
 export const getMessages = (state, id) => ldap.getMessages(state.get('wizard'), id)
+export const getDisplayedLdapStages = (state) => ldap.getDisplayedLdapStages(state.get('wizard'))
 
 export default combineReducers({ wizard, backendError, sourceWizard, sourcesHome })

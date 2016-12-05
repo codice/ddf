@@ -12,6 +12,8 @@ export const updateProgress = (id, value) => ({ type: 'UPDATE_PROGRESS', id, val
 export const clearMessages = (id) => ({ type: 'CLEAR_MESSAGES', id })
 export const next = () => ({ type: 'NEXT_STEP' })
 export const back = () => ({ type: 'BACK_STEP' })
+export const nextStage = (stage) => ({ type: 'LDAP_ADD_STAGE', stage })
+export const prevStage = () => ({ type: 'LDAP_REMOVE_STAGE' })
 
 export const probe = (url) => (dispatch, getState) => {
   const config = getAllConfig(getState())
@@ -33,7 +35,7 @@ export const probe = (url) => (dispatch, getState) => {
     })
 }
 
-export const testConfig = (id, url, configType = 'ldapConfiguration') => (dispatch, getState) => {
+export const testConfig = (id, url, nextStageId, configType = 'ldapConfiguration') => (dispatch, getState) => {
   dispatch(clearMessages(id))
   dispatch(submittingStart(id))
 
@@ -53,7 +55,7 @@ export const testConfig = (id, url, configType = 'ldapConfiguration') => (dispat
         dispatch(setMessages(id, json.messages))
       } else if (status === 200) {
         dispatch(setMessages(id, json.messages))
-        dispatch(next())
+        dispatch(nextStage(nextStageId))
       } else if (status === 500) {
         dispatch(backendError({ ...json, url, method: 'POST', body }))
       }
