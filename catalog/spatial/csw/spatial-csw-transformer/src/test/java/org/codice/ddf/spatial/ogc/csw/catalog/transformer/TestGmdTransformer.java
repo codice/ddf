@@ -69,22 +69,33 @@ import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGmdTransformer {
 
-    private static GmdTransformer gmdTransformer;
-
     private static final String XML_DECLARATION =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
 
-    private static MetacardType gmdMetacardType;
+    private static GmdTransformer gmdTransformer;
 
-    private void assertGmdMetacardType(Metacard metacard) {
-        assertThat(metacard.getMetacardType()
-                .getName(), is(gmdMetacardType.getName()));
-    }
+    private static MetacardType gmdMetacardType;
 
     @BeforeClass
     public static void setUp() {
         gmdMetacardType = getGmdMetacardType();
         gmdTransformer = new GmdTransformer(gmdMetacardType);
+    }
+
+    private static MetacardType getGmdMetacardType() {
+        return new MetacardTypeImpl("gmdMetacardType",
+                Arrays.asList(new DateTimeAttributes(),
+                        new ValidationAttributes(),
+                        new ContactAttributes(),
+                        new LocationAttributes(),
+                        new MediaAttributes(),
+                        new TopicAttributes(),
+                        new AssociationsAttributes()));
+    }
+
+    private void assertGmdMetacardType(Metacard metacard) {
+        assertThat(metacard.getMetacardType()
+                .getName(), is(gmdMetacardType.getName()));
     }
 
     @Test(expected = CatalogTransformerException.class)
@@ -114,8 +125,8 @@ public class TestGmdTransformer {
         assertThat(metacard.getContentTypeName(), is("dataset"));
 
         assertThat(metacard.getAttribute(Core.DESCRIPTION)
-                .getValues(), hasItem(
-                "Vector Map: a general purpose database design to support GIS applications"));
+                        .getValues(),
+                hasItem("Vector Map: a general purpose database design to support GIS applications"));
 
         assertThat(metacard.getAttribute(Media.FORMAT)
                 .getValue(), is("gzip"));
@@ -136,13 +147,14 @@ public class TestGmdTransformer {
                 .getValues(), hasItems("Geologie", "World"));
 
         assertThat(metacard.getAttribute(Topic.CATEGORY)
-                .getValues(), hasItems("elevation",
-                "inlandWaters",
-                "oceans",
-                "society",
-                "structure",
-                "transportation",
-                "utilitiesCommunication"));
+                        .getValues(),
+                hasItems("elevation",
+                        "inlandWaters",
+                        "oceans",
+                        "society",
+                        "structure",
+                        "transportation",
+                        "utilitiesCommunication"));
 
         assertThat(metacard.getAttribute(Associations.RELATED)
                 .getValues(), hasItems("00000000-0000-0000-0000-000000000002"));
@@ -152,8 +164,8 @@ public class TestGmdTransformer {
                 .getValue(), is(uri.toString()));
 
         assertThat(metacard.getAttribute(Contact.PUBLISHER_ADDRESS)
-                        .getValues(), hasItem(
-                        "10 Downing Street London Westminster SW1A 2AA United Kingdom"));
+                        .getValues(),
+                hasItem("10 Downing Street London Westminster SW1A 2AA United Kingdom"));
 
         assertThat(metacard.getAttribute(Contact.PUBLISHER_EMAIL)
                 .getValues(), hasItem("theresa.may@gov.uk"));
@@ -188,11 +200,11 @@ public class TestGmdTransformer {
         assertThat(metacard.getContentTypeName(), is("dataset"));
 
         assertThat(metacard.getAttribute(Core.DESCRIPTION)
-                .getValue(), is(
-                "Vector Map: a general purpose database design to support GIS applications"));
+                        .getValue(),
+                is("Vector Map: a general purpose database design to support GIS applications"));
 
-        assertThat(metacard.getLocation(), is(
-                "POLYGON ((6.9 -44.94, 6.9 61.61, 70.35 61.61, 70.35 -44.94, 6.9 -44.94))"));
+        assertThat(metacard.getLocation(),
+                is("POLYGON ((6.9 -44.94, 6.9 61.61, 70.35 61.61, 70.35 -44.94, 6.9 -44.94))"));
 
         List<Serializable> temporals = metacard.getAttribute(DateTime.START)
                 .getValues();
@@ -285,16 +297,6 @@ public class TestGmdTransformer {
 
     private MetacardImpl transform(String path) throws Exception {
         return (MetacardImpl) gmdTransformer.transform(getClass().getResourceAsStream(path));
-    }
-
-    private static MetacardType getGmdMetacardType() {
-        return new MetacardTypeImpl("gmdMetacardType", Arrays.asList(new DateTimeAttributes(),
-                new ValidationAttributes(),
-                new ContactAttributes(),
-                new LocationAttributes(),
-                new MediaAttributes(),
-                new TopicAttributes(),
-                new AssociationsAttributes()));
     }
 
     private String convertDate(Date date) {

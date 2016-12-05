@@ -43,6 +43,9 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.constants.core.DataType;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
@@ -97,7 +100,14 @@ public class VideoInputTransformer implements InputTransformer {
             metadataText = transformToXml(metadataText);
         }
 
-        return MetacardCreator.createMetacard(metadata, id, metadataText, metacardType);
+        Metacard metacard = MetacardCreator.createMetacard(metadata,
+                id,
+                metadataText,
+                metacardType);
+
+        metacard.setAttribute(new AttributeImpl(Core.DATATYPE, DataType.VIDEO.toString()));
+
+        return metacard;
     }
 
     private String transformToXml(String xhtml) {
@@ -117,8 +127,8 @@ public class VideoInputTransformer implements InputTransformer {
             try {
                 Writer xml = new StringWriter();
                 Transformer transformer = templates.newTransformer();
-                transformer.transform(new SAXSource(xmlReader, new InputSource(new StringReader(xhtml))),
-                        new StreamResult(xml));
+                transformer.transform(new SAXSource(xmlReader,
+                        new InputSource(new StringReader(xhtml))), new StreamResult(xml));
                 return xml.toString();
             } catch (TransformerException e) {
                 LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);

@@ -55,6 +55,7 @@ import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Media;
 import ddf.catalog.data.types.Topic;
+import ddf.catalog.data.types.constants.core.DataType;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
@@ -218,7 +219,7 @@ public class PdfInputTransformer implements InputTransformer {
         metacard.setId(id);
         metacard.setContentTypeName(MediaType.PDF.toString());
         metacard.setAttribute(Media.TYPE, MediaType.PDF.toString());
-        metacard.setAttribute(Core.DATATYPE, "Document");
+        metacard.setAttribute(Core.DATATYPE, DataType.DOCUMENT.toString());
 
         return metacard;
     }
