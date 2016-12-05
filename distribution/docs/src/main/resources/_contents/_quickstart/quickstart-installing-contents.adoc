@@ -1,7 +1,6 @@
 
 This quick tutorial will enable install, configuring and using a basic instance of ${branding}.
 
-.QuickStart Uses
 [NOTE]
 ====
 This tutorial is intended for setting up a test, demonstration, or trial installation of ${branding}.
