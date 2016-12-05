@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.NamespaceContext;
 
+import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.ProbeReport;
@@ -133,6 +134,11 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
                 .trustedCertAuthority(false);
 
         return Arrays.asList(sampleSrcConfig);
+    }
+
+    @Override
+    public CapabilitiesReport getCapabilities() {
+        return null;
     }
 
     @Override

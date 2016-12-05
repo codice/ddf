@@ -6,6 +6,7 @@ import { editConfig } from '../actions'
 
 import TextField from 'material-ui/TextField'
 
+import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton'
 import MenuItem from 'material-ui/MenuItem'
 import SelectField from 'material-ui/SelectField'
 import AutoComplete from 'material-ui/AutoComplete'
@@ -84,10 +85,19 @@ const SelectView = ({ value = '', options = [], label = 'Select', onEdit, error,
 
 const Select = connect(mapStateToProps, mapDispatchToProps)(SelectView)
 
+const RadioSelectionView = ({value, options = [], onEdit, ...rest}) => (
+  <RadioButtonGroup selectedValue={value} onChange={(e, value) => onEdit(value)} {...rest}>
+    {options.map((item, i) => <RadioButton key={i} value={item.value} label={item.label} />)}
+  </RadioButtonGroup>
+)
+
+const RadioSelection = connect(mapStateToProps, mapDispatchToProps)(RadioSelectionView)
+
 export {
   Input,
   Password,
   Hostname,
   Port,
-  Select
+  Select,
+  RadioSelection
 }

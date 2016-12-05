@@ -51,7 +51,7 @@ public class EmbeddedLdapConfigurationHandler
                 true);
         ConfigReport report = configurator.commit();
         // TODO: tbatie - 12/2/16 - do something with this key
-        return new TestReport(new ConfigurationMessage(SUCCESS));
+        return new TestReport(new ConfigurationMessage("DDF Embedded Has Successfully Been Started", SUCCESS));
     }
 
     @Override
