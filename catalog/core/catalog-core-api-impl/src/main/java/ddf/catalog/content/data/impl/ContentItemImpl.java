@@ -199,4 +199,19 @@ public class ContentItemImpl implements ContentItem {
     public Metacard getMetacard() {
         return metacard;
     }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "ContentItemImpl{id='%s', uri=%s, filename='%s', mimeTypeRawData='%s', mimeType=%s, byteSource=%s, size=%d, metacard=%s, qualifier='%s'}",
+                id,
+                uri,
+                filename,
+                mimeTypeRawData,
+                mimeType,
+                byteSource,
+                size,
+                metacard,
+                qualifier);
+    }
 }
