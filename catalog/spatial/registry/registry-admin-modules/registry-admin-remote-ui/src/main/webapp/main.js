@@ -95,7 +95,7 @@
         'marionette',
         'icanhaz',
         'js/application',
-        '../../../admin/js/HandlebarsHelpers',
+        'js/HandlebarsHelpers',
         'modelbinder',
         'bootstrap'
     ], function ($, Backbone, Marionette, ich, Application) {
