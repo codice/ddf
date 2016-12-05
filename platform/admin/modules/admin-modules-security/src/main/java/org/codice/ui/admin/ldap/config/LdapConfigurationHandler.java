@@ -40,6 +40,7 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 
 import org.apache.cxf.common.util.StringUtils;
+import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.ProbeReport;
@@ -88,6 +89,11 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
                 .userNameAttribute("User name attribute")
                 .baseGroupDn("Example,Group,DN");
         return Arrays.asList(sampleConfig);
+    }
+
+    @Override
+    public CapabilitiesReport getCapabilities() {
+        return new CapabilitiesReport(LdapConfiguration.class.getSimpleName(), LdapConfiguration.class);
     }
 
     @Override

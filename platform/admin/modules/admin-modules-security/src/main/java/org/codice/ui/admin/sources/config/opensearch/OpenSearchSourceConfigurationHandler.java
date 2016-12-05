@@ -44,6 +44,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.codice.ui.admin.sources.config.SourceConfiguration;
 import org.codice.ui.admin.sources.config.SourceConfigurationHandler;
+import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.ProbeReport;
 import org.codice.ui.admin.wizard.api.TestReport;
@@ -128,6 +129,11 @@ public class OpenSearchSourceConfigurationHandler
         // TODO: tbatie - 11/22/16 - Return configurations based on back end
         throw new UnsupportedOperationException(
                 "The open search getConfigurations is not implemented yet");
+    }
+
+    @Override
+    public CapabilitiesReport getCapabilities() {
+        return new CapabilitiesReport(OpenSearchSourceConfiguration.class.getSimpleName(), OpenSearchSourceConfiguration.class);
     }
 
     @Override

@@ -15,6 +15,7 @@ package org.codice.ui.admin.wizard.api;
 
 import java.util.List;
 
+import org.apache.karaf.bundle.command.Capabilities;
 import org.codice.ui.admin.wizard.config.Configuration;
 
 public interface ConfigurationHandler<S extends Configuration> {
@@ -51,6 +52,8 @@ public interface ConfigurationHandler<S extends Configuration> {
      * Returns configurations previously created from this configuration handler
      */
     List<S> getConfigurations();
+
+    CapabilitiesReport getCapabilities();
 
     /**
      * UUID of this configuration handler

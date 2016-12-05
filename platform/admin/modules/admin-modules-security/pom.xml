@@ -74,7 +74,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -179,7 +178,7 @@
                             *
                         </Import-Package>
                         <Export-Package>
-                            org.codice.ui.admin.wizard.api*
+                            org.codice.ui.admin*
                         </Export-Package>
                     </instructions>
                 </configuration>

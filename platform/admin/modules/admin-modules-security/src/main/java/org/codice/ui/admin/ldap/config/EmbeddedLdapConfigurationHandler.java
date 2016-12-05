@@ -19,6 +19,7 @@ import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SU
 
 import java.util.List;
 
+import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.ProbeReport;
@@ -57,6 +58,11 @@ public class EmbeddedLdapConfigurationHandler
     public List<EmbeddedLdapConfiguration> getConfigurations() {
         // TODO: tbatie - 12/1/16 - Implement embedded LDAP configuring
         return null;
+    }
+
+    @Override
+    public CapabilitiesReport getCapabilities() {
+        return new CapabilitiesReport(EmbeddedLdapConfiguration.class.getSimpleName(), EmbeddedLdapConfiguration.class);
     }
 
     @Override
