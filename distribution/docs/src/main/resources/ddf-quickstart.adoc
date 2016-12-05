@@ -1,5 +1,0 @@
-= ${branding} Quick Start
-include::./_contents/config.adoc[]
-
-== Quick Start
-include::./_contents/quickstart-contents.adoc[]
