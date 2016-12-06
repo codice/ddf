@@ -44,6 +44,12 @@ public class MetacardIdEqualityFilterDelegate extends SimpleFilterDelegate<Set<S
     }
 
     @Override
+    public <S> Set<String> propertyIsNotEqualTo(String propertyName, S literal,
+            Class<S> literalClass, ComparisonPropertyOperation operation) {
+        return Collections.emptySet();
+    }
+
+    @Override
     public Set<String> and(List<Set<String>> operands) {
         return joinIds(operands);
     }
@@ -53,9 +59,15 @@ public class MetacardIdEqualityFilterDelegate extends SimpleFilterDelegate<Set<S
         return joinIds(operands);
     }
 
+    @Override
+    public Set<String> not(Set<String> operand) {
+        return Collections.emptySet();
+    }
+
     private Set<String> joinIds(List<Set<String>> operands) {
         return operands.stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
+
 }

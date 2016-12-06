@@ -1742,27 +1742,35 @@ public class TestSolrProvider extends SolrProviderTestCase {
                     .getId();
 
             MockMetacard updatedMetacard = new MockMetacard(Library.getFlagstaffRecord());
+            updatedMetacard.setContentTypeName("first");
+            UpdateResponse firstUpdateResponse = update(id, updatedMetacard);
 
-            updatedMetacard.setContentTypeName("pendingContentType");
+            updatedMetacard = new MockMetacard(Library.getFlagstaffRecord());
+            updatedMetacard.setContentTypeName("second");
+            UpdateResponse secondUpdateResponse = update(id, updatedMetacard);
 
-            UpdateResponse response = update(id, updatedMetacard);
-
-            Update update = response.getUpdatedMetacards()
-                    .get(0);
-
-            Metacard newMetacard = update.getNewMetacard();
-
-            Metacard oldMetacard = update.getOldMetacard();
-
-            assertThat(response.getUpdatedMetacards()
-                    .size(), is(1));
-
-            assertThat(newMetacard.getContentTypeName(), is("pendingContentType"));
-            assertThat(oldMetacard.getContentTypeName(), is(MockMetacard.DEFAULT_TYPE));
+            verifyContentTypeUpdate(firstUpdateResponse, MockMetacard.DEFAULT_TYPE, "first");
+            verifyContentTypeUpdate(secondUpdateResponse, "first", "second");
         } finally {
             ConfigurationStore.getInstance()
                     .setForceAutoCommit(true);
         }
+    }
+
+    private void verifyContentTypeUpdate(UpdateResponse response, String oldContentType,
+            String newContentType) throws Exception {
+        Update update = response.getUpdatedMetacards()
+                .get(0);
+
+        Metacard newMetacard = update.getNewMetacard();
+
+        Metacard oldMetacard = update.getOldMetacard();
+
+        assertThat(response.getUpdatedMetacards()
+                .size(), is(1));
+
+        assertThat(oldMetacard.getContentTypeName(), is(oldContentType));
+        assertThat(newMetacard.getContentTypeName(), is(newContentType));
     }
 
     @Test

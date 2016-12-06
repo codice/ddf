@@ -21,14 +21,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
@@ -114,7 +115,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
      * near real time index yet.  Cache is checked when ID queries fail from Solr.
      */
     private Cache<String, Metacard> pendingNrtIndex = CacheBuilder.newBuilder()
-            .expireAfterWrite(5, TimeUnit.SECONDS)
+            .expireAfterWrite(NumberUtils.toInt(System.getProperty("solr.provider.pending-nrt-ttl"),
+                    5), TimeUnit.SECONDS)
             .build();
 
     /**
@@ -225,8 +227,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         Set<String> ids = filterAdapter.adapt(request.getQuery(),
                 new MetacardIdEqualityFilterDelegate());
-        if (ids.size() == 0 || ids.size() <= response.getResults()
-                .size()) {
+        if (ids.size() == 0) {
             return;
         }
 
@@ -235,13 +236,14 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                     .getId());
         }
 
-        for (String id : ids) {
-            Metacard metacard = pendingNrtIndex.getIfPresent(id);
-            if (metacard != null) {
-                response.getResults()
-                        .add(new ResultImpl(metacard));
-            }
-        }
+        List<Result> pendingResults = pendingNrtIndex.getAllPresent(ids)
+                .values()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(ResultImpl::new)
+                .collect(Collectors.toList());
+
+        response.getResults().addAll(pendingResults);
     }
 
     @Override
@@ -286,7 +288,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         }
 
         pendingNrtIndex.putAll(output.stream()
-                .collect(Collectors.toMap(Metacard::getId, Function.identity())));
+                .collect(Collectors.toMap(Metacard::getId, m -> copyMetacard(m))));
 
         return new CreateResponseImpl(request, request.getProperties(), output);
     }
@@ -342,8 +344,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         // map of old metacards to be populated
         Map<Serializable, Metacard> idToMetacardMap = new HashMap<>();
 
-
-        // CHECK if we got any results back
+        /* 1c. Populate list of old metacards */
         if (idResults != null && idResults.getResults() != null && idResults.getResults()
                 .size() != 0) {
 
@@ -358,38 +359,37 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                         "Found more metacards than updated metacards provided. Please ensure your attribute values match unique records.");
             }
 
-        } else if (pendingNrtIndex.getAllPresent(identifiers).size() > 0) {
-            Map<String, Metacard> matches = pendingNrtIndex.getAllPresent(identifiers);
-            for (Entry<String, Metacard> match : matches.entrySet()) {
-                idToMetacardMap.put(match.getKey(), match.getValue());
+            for (SolrDocument doc : idResults.getResults()) {
+                Metacard old;
+                try {
+                    old = client.createMetacard(doc);
+                } catch (MetacardCreationException e) {
+                    throw new IngestException("Could not create metacard(s).");
+                }
+
+                if (!idToMetacardMap.containsKey(old.getAttribute(attributeName)
+                        .getValue())) {
+                    idToMetacardMap.put(old.getAttribute(attributeName)
+                            .getValue(), old);
+                } else {
+                    throw new IngestException(
+                            "The attribute value given [" + old.getAttribute(attributeName)
+                                    .getValue()
+                                    + "] matched multiple records. Attribute values must at most match only one unique Metacard.");
+                }
             }
-        } else {
+        }
+
+        if (Metacard.ID.equals(attributeName)) {
+            idToMetacardMap.putAll(pendingNrtIndex.getAllPresent(identifiers));
+        }
+
+        if (idToMetacardMap.size() == 0) {
             LOGGER.debug("No results found for given attribute values.");
 
             // return an empty list
             return new UpdateResponseImpl(updateRequest, null, new ArrayList<Update>());
 
-        }
-
-        /* 1c. Populate list of old metacards */
-        for (SolrDocument doc : idResults.getResults()) {
-            Metacard old;
-            try {
-                old = client.createMetacard(doc);
-            } catch (MetacardCreationException e) {
-                throw new IngestException("Could not create metacard(s).");
-            }
-
-            if (!idToMetacardMap.containsKey(old.getAttribute(attributeName)
-                    .getValue())) {
-                idToMetacardMap.put(old.getAttribute(attributeName)
-                        .getValue(), old);
-            } else {
-                throw new IngestException(
-                        "The attribute value given [" + old.getAttribute(attributeName)
-                                .getValue()
-                                + "] matched multiple records. Attribute values must at most match only one unique Metacard.");
-            }
         }
 
         /* 2. Update the cards */
@@ -425,7 +425,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         pendingNrtIndex.putAll(updateList.stream()
                 .collect(Collectors.toMap(u -> u.getNewMetacard()
-                        .getId(), Update::getNewMetacard)));
+                        .getId(), u -> copyMetacard(u.getNewMetacard()))));
 
         return new UpdateResponseImpl(updateRequest, updateRequest.getProperties(), updateList);
     }
@@ -523,6 +523,12 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             deletedMetacards.forEach(m -> matches.remove(m.getId()));
             deletedMetacards.addAll(matches.values());
         }
+    }
+
+    private Metacard copyMetacard(Metacard original) {
+        MetacardImpl copy = new MetacardImpl(original, original.getMetacardType());
+        copy.setSourceId(original.getSourceId());
+        return copy;
     }
 
     private SolrDocumentList getSolrDocumentList(List<? extends Serializable> identifierPaged,
