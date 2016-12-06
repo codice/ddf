@@ -29,13 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tests the ConfigurationFileProxy
+ * Tests the {@link ConfigurationFileProxy} class.
  */
-public class TestConfigurationFileProxy {
+public class ConfigurationFileProxyTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestConfigurationFileProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileProxyTest.class);
 
-    public static final String TEST_CORE_NAME = "test";
+    private static final String TEST_CORE_NAME = "test";
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();

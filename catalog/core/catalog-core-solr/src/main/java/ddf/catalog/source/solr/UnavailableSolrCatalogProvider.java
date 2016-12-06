@@ -41,7 +41,7 @@ public class UnavailableSolrCatalogProvider implements CatalogProvider {
 
     @Override
     public Set<ContentType> getContentTypes() {
-        throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
+        throw new IllegalStateException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
@@ -56,32 +56,32 @@ public class UnavailableSolrCatalogProvider implements CatalogProvider {
 
     @Override
     public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
-        throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
+        throw new IllegalStateException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
     public String getDescription() {
-        throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
+        throw new IllegalStateException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
     public String getId() {
-        throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
+        throw new IllegalStateException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
     public String getOrganization() {
-        throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
+        throw new IllegalStateException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
     public String getTitle() {
-        throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
+        throw new IllegalStateException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
     public String getVersion() {
-        throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
+        throw new IllegalStateException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
@@ -91,17 +91,17 @@ public class UnavailableSolrCatalogProvider implements CatalogProvider {
 
     @Override
     public CreateResponse create(CreateRequest createRequest) throws IngestException {
-        throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
+        throw new IllegalStateException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
     public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
-        throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
+        throw new IllegalStateException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
     @Override
     public UpdateResponse update(UpdateRequest updateRequest) throws IngestException {
-        throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
+        throw new IllegalStateException(CLIENT_DISCONNECTED_MESSAGE);
     }
 
 }

@@ -30,6 +30,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.lang.StringUtils;
@@ -57,78 +58,111 @@ import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
 /**
- * Factory that creates {@link org.apache.solr.client.solrj.SolrClient} instances.
+ * Factory class used to create new {@link HttpSolrClient} instances.
+ * <br/>
+ * Uses the following system properties when creating an instance:
+ * <ul>
+ * <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored</li>
+ * <li>solr.http.url: Solr server URL</li>
+ * <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size</li>
+ * <li>https.protocols: Secure protocols supported by the Solr server</li>
+ * <li>https.cipherSuites: Cipher suites supported by the Solr server</li>
+ * </ul>
  */
 public class HttpSolrClientFactory implements SolrClientFactory {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
+    public static final List<String> DEFAULT_PROTOCOLS = Collections.unmodifiableList(Arrays.asList(
+            StringUtils.split(System.getProperty("https.protocols", ""), ",")));
 
-    private static ScheduledExecutorService executor = getThreadPool();
-
-    public static final String DEFAULT_CORE_NAME = "core1";
-
-    public static final List<String> DEFAULT_PROTOCOLS = Collections.unmodifiableList(
-            Arrays.asList(StringUtils.split(System.getProperty("https.protocols"), ",")));
-
-    public static final List<String> DEFAULT_CIPHER_SUITES = Collections.unmodifiableList(
-            Arrays.asList(StringUtils.split(System.getProperty("https.cipherSuites"), ",")));
+    public static final List<String> DEFAULT_CIPHER_SUITES =
+            Collections.unmodifiableList(Arrays.asList(StringUtils.split(System.getProperty(
+                    "https.cipherSuites",
+                    ""), ",")));
 
     public static final String DEFAULT_SCHEMA_XML = "schema.xml";
 
     public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
+
+    private static ScheduledExecutorService executor = getThreadPool();
+
+    private static final String DEFAULT_CORE_NAME = "core1";
+
     private static final String THREAD_POOL_DEFAULT_SIZE = "128";
 
-    private static ScheduledExecutorService getThreadPool() throws NumberFormatException {
-        Integer threadPoolSize = Integer.parseInt(
-                System.getProperty("org.codice.ddf.system.threadPoolSize",
-                        THREAD_POOL_DEFAULT_SIZE));
-        return Executors.newScheduledThreadPool(threadPoolSize);
+    @Override
+    public Future<SolrClient> newClient(String core) {
+        String solrUrl = System.getProperty("solr.http.url", getDefaultHttpsAddress());
+        return getHttpSolrClient(solrUrl, core);
     }
 
+    /**
+     * Gets the default Solr server secure HTTP address.
+     *
+     * @return Solr server secure HTTP address
+     */
     public static String getDefaultHttpsAddress() {
         return SystemBaseUrl.constructUrl("https", "/solr");
     }
 
+    /**
+     * Gets the default Solr server HTTP address.
+     *
+     * @return Solr server HTTP address
+     */
     public static String getDefaultHttpAddress() {
         return SystemBaseUrl.constructUrl("http", "/solr");
     }
 
     /**
-     * Creates an {@link org.apache.solr.client.solrj.SolrClient} with the default http address
-     * url.
+     * Creates a new {@link HttpSolrClient} using the URL provided. Uses the default Solr core name
+     * ({@value #DEFAULT_CORE_NAME}) and configuration file ({@value #DEFAULT_SOLRCONFIG_XML}).
      *
-     * @return SolrClient
+     * @param url Solr server URL. If {@code null}, defaults to the system's base URL followed by
+     *            {@code /solr}.
+     * @return {@code Future} used to retrieve the new {@link HttpSolrClient} instance
      */
-    static SolrClient getHttpSolrClient() {
-        return new HttpSolrClient(getDefaultHttpAddress());
-    }
-
-    @Override
-    public Future<SolrClient> newClient(String core) {
-        ConfigurationStore configStore = ConfigurationStore.getInstance();
-        if (System.getProperty("solr.data.dir") != null) {
-            configStore.setDataDirectoryPath(System.getProperty("solr.data.dir"));
-        }
-        String solrUrl = System.getProperty("solr.http.url", getDefaultHttpsAddress());
-        return getHttpSolrClient(solrUrl, core);
-    }
-
-    public static Future<SolrClient> getHttpSolrClient(String url) {
+    public static Future<SolrClient> getHttpSolrClient(@Nullable String url) {
         return getHttpSolrClient(url, DEFAULT_CORE_NAME, null);
     }
 
-    public static Future<SolrClient> getHttpSolrClient(String url, String coreName) {
+    /**
+     * Creates a new {@link HttpSolrClient} using the URL and core name provided. Uses the
+     * default configuration file ({@value #DEFAULT_SOLRCONFIG_XML}).
+     *
+     * @param url      Solr server URL. If {@code null}, defaults to the system's base URL followed
+     *                 by {@code /solr}.
+     * @param coreName name of the Solr core to create
+     * @return {@code Future} used to retrieve the new {@link HttpSolrClient} instance
+     */
+    public static Future<SolrClient> getHttpSolrClient(@Nullable String url, String coreName) {
         return getHttpSolrClient(url, coreName, null);
     }
 
-    public static Future<SolrClient> getHttpSolrClient(String url, String coreName,
-            String configFile) {
+    /**
+     * Creates a new {@link HttpSolrClient} using the URL, core name and configuration file name
+     * provided.
+     *
+     * @param url        Solr server URL. If {@code null}, defaults to the system's base URL
+     *                   followed by {@code /solr}.
+     * @param coreName   name of the Solr core to create
+     * @param configFile configuration file name. If {@code null}, defaults to
+     *                   {@value #DEFAULT_SOLRCONFIG_XML}.
+     * @return {@code Future} used to retrieve the new {@link HttpSolrClient} instance
+     */
+    public static Future<SolrClient> getHttpSolrClient(@Nullable String url, String coreName,
+            @Nullable String configFile) {
         String solrUrl = StringUtils.defaultIfBlank(url, SystemBaseUrl.constructUrl("/solr"));
         String coreUrl = url + "/" + coreName;
 
-        RetryPolicy retryPolicy = new RetryPolicy()
-                .withBackoff(10, TimeUnit.MINUTES.toMillis(1), TimeUnit.MILLISECONDS);
+        if (System.getProperty("solr.data.dir") != null) {
+            ConfigurationStore.getInstance().setDataDirectoryPath(System.getProperty("solr.data.dir"));
+        }
+
+        RetryPolicy retryPolicy = new RetryPolicy().withBackoff(10,
+                TimeUnit.MINUTES.toMillis(1),
+                TimeUnit.MILLISECONDS);
         return Failsafe.with(retryPolicy)
                 .with(executor)
                 .onRetry((c, failure, ctx) -> LOGGER.debug(
@@ -146,12 +180,23 @@ public class HttpSolrClientFactory implements SolrClientFactory {
                 .get(() -> createSolrHttpClient(solrUrl, coreName, configFile, coreUrl));
     }
 
+    static SolrClient getHttpSolrClient() {
+        return new HttpSolrClient(getDefaultHttpAddress());
+    }
+
+    private static ScheduledExecutorService getThreadPool() throws NumberFormatException {
+        Integer threadPoolSize = Integer.parseInt(System.getProperty(
+                "org.codice.ddf.system.threadPoolSize",
+                THREAD_POOL_DEFAULT_SIZE));
+        return Executors.newScheduledThreadPool(threadPoolSize);
+    }
+
     private static SolrClient createSolrHttpClient(String url, String coreName, String configFile,
             String coreUrl) throws IOException, SolrServerException {
         SolrClient client;
         if (StringUtils.startsWith(url, "https")) {
-            createSolrCore(url, coreName, configFile, getHttpClient(false));
-            client = new HttpSolrClient(coreUrl, getHttpClient(true));
+            createSolrCore(url, coreName, configFile, getSecureHttpClient(false));
+            client = new HttpSolrClient(coreUrl, getSecureHttpClient(true));
         } else {
             createSolrCore(url, coreName, configFile, null);
             client = new HttpSolrClient(coreUrl);
@@ -159,9 +204,11 @@ public class HttpSolrClientFactory implements SolrClientFactory {
         return client;
     }
 
-    private static CloseableHttpClient getHttpClient(boolean retryRequestsOnError) {
+    private static CloseableHttpClient getSecureHttpClient(boolean retryRequestsOnError) {
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
-                getSslContext(), getProtocols(), getCipherSuites(),
+                getSslContext(),
+                getProtocols(),
+                getCipherSuites(),
                 SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
         HttpRequestRetryHandler solrRetryHandler = new SolrHttpRequestRetryHandler();
 
@@ -195,9 +242,9 @@ public class HttpSolrClientFactory implements SolrClientFactory {
     }
 
     private static SSLContext getSslContext() {
-        if (System.getProperty("javax.net.ssl.keyStore") == null ||
-                System.getProperty("javax.net.ssl.keyStorePassword") == null ||
-                System.getProperty("javax.net.ssl.trustStore") == null ||
+        if (System.getProperty("javax.net.ssl.keyStore") == null || //
+                System.getProperty("javax.net.ssl.keyStorePassword") == null || //
+                System.getProperty("javax.net.ssl.trustStore") == null || //
                 System.getProperty("javax.net.ssl.trustStorePassword") == null) {
             throw new IllegalArgumentException(
                     "KeyStore and TrustStore system properties must be set.");
@@ -212,13 +259,13 @@ public class HttpSolrClientFactory implements SolrClientFactory {
 
         try {
             sslContext = SSLContexts.custom()
-                    .loadKeyMaterial(keyStore, System.getProperty("javax.net.ssl.keyStorePassword")
-                            .toCharArray())
+                    .loadKeyMaterial(keyStore,
+                            System.getProperty("javax.net.ssl.keyStorePassword")
+                                    .toCharArray())
                     .loadTrustMaterial(trustStore)
                     .useTLS()
                     .build();
-        } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
-                KeyManagementException e) {
+        } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
             throw new IllegalArgumentException(
                     "Unable to use javax.net.ssl.keyStorePassword to load key material to create SSL context for Solr client.");
         }
@@ -238,8 +285,7 @@ public class HttpSolrClientFactory implements SolrClientFactory {
         try (FileInputStream storeStream = new FileInputStream(location)) {
             keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
             keyStore.load(storeStream, password.toCharArray());
-        } catch (CertificateException | IOException
-                | NoSuchAlgorithmException | KeyStoreException e) {
+        } catch (CertificateException | IOException | NoSuchAlgorithmException | KeyStoreException e) {
             LOGGER.warn("Unable to load keystore at {}", location, e);
         }
 
@@ -276,15 +322,19 @@ public class HttpSolrClientFactory implements SolrClientFactory {
                             .toString();
                 }
 
-                String instanceDir = Paths.get(solrDir,
-                        coreName)
+                String instanceDir = Paths.get(solrDir, coreName)
                         .toString();
 
                 String dataDir = Paths.get(instanceDir, "data")
                         .toString();
 
-                CoreAdminRequest.createCore(coreName, instanceDir, client, configFile,
-                        DEFAULT_SCHEMA_XML, dataDir, dataDir);
+                CoreAdminRequest.createCore(coreName,
+                        instanceDir,
+                        client,
+                        configFile,
+                        DEFAULT_SCHEMA_XML,
+                        dataDir,
+                        dataDir);
             } else {
                 LOGGER.debug("Solr core ({}) already exists - reloading it", coreName);
                 CoreAdminRequest.reloadCore(coreName, client);
@@ -301,5 +351,4 @@ public class HttpSolrClientFactory implements SolrClientFactory {
         return response.getCoreStatus(coreName)
                 .get("instanceDir") != null;
     }
-
 }

@@ -26,7 +26,7 @@ import org.opengis.temporal.Period;
 
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 
-public class TestSolrFilterBuilder extends GeotoolsFilterBuilder {
+public class SolrFilterBuilderTest extends GeotoolsFilterBuilder {
 
     private FilterFactory factory = new FilterFactoryImpl();
 

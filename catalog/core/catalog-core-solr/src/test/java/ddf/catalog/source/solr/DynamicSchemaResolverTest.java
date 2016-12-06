@@ -56,7 +56,7 @@ public class DynamicSchemaResolverTest {
         boolean stored = true;
         boolean tokenized = false;
         boolean multiValued = false;
-        addtributeDescriptors.add(new TestAttributeDescriptorImpl(name,
+        addtributeDescriptors.add(new AttributeDescriptorImplTest(name,
                 propertyName,
                 indexed,
                 stored,

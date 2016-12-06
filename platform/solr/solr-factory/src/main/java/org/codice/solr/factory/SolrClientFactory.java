@@ -17,8 +17,22 @@ import java.util.concurrent.Future;
 
 import org.apache.solr.client.solrj.SolrClient;
 
+/**
+ * Interface implemented by factory classes used to create new {@link SolrClient} instances.
+ */
 public interface SolrClientFactory {
 
+    /**
+     * Requests the creation of a new {@code SolrClient} for a specific Solr core name.
+     * <br/>
+     * Note that {@link Future#get()} will return {@code null} if a {@link SolrClient} could not be
+     * created either immediately or after a retry period determined by the implementing class.
+     * Clients of this class should consider implementing retry logic if needed based on
+     * that return value.
+     *
+     * @param core name of the Solr core to create
+     * @return {@code Future} used to retrieve the new {@code SolrClient} created
+     */
     Future<SolrClient> newClient(String core);
 
 }

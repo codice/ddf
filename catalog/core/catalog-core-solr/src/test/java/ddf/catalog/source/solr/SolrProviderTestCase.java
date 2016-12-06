@@ -55,7 +55,7 @@ public abstract class SolrProviderTestCase {
 
     protected static final String MASKED_ID = "scp";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestSolrProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderTest.class);
 
     private static final int TEST_METHOD_NAME_INDEX = 3;
 
@@ -71,7 +71,7 @@ public abstract class SolrProviderTestCase {
 
     private static final String KARAF_ETC = "karaf.etc";
 
-    protected static TestSolrFilterBuilder filterBuilder = new TestSolrFilterBuilder();
+    protected static SolrFilterBuilderTest filterBuilder = new SolrFilterBuilderTest();
 
     protected static SolrCatalogProvider provider = null;
 

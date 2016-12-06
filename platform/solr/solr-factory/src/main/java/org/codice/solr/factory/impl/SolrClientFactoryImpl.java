@@ -13,14 +13,36 @@
  */
 package org.codice.solr.factory.impl;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.util.concurrent.Future;
+import java.util.function.BiFunction;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 
+/**
+ * Factory class used to create the proper {@link SolrClient} based on the current
+ * {@code solr.client} system property.
+ */
 public class SolrClientFactoryImpl implements SolrClientFactory {
 
+    private BiFunction<SolrClientFactory, String, Future<SolrClient>> newClientFunction;
+
+    public SolrClientFactoryImpl() {
+        newClientFunction = (factory, core) -> factory.newClient(core);
+    }
+
+    // Package-private for unit testing.
+    SolrClientFactoryImpl(
+            BiFunction<SolrClientFactory, String, Future<SolrClient>> newClientFunction) {
+        this.newClientFunction = newClientFunction;
+    }
+
+    @Override
     public Future<SolrClient> newClient(String core) {
+        notNull(core, "Solr core name cannot be null");
+
         String clientType = System.getProperty("solr.client", "HttpSolrClient");
         SolrClientFactory factory;
 
@@ -32,7 +54,6 @@ public class SolrClientFactoryImpl implements SolrClientFactory {
             factory = new HttpSolrClientFactory();
         }
 
-        return factory.newClient(core);
+        return newClientFunction.apply(factory, core);
     }
-
 }

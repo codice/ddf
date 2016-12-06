@@ -23,10 +23,19 @@ import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Class used to create the Solr core needed by Banana.
+ */
 public class BananaSolrProvisioner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BananaSolrProvisioner.class);
 
+    /**
+     * Constructor. Uses the {@link SolrClientFactory} to create the appropriate Solr client and
+     * core and then closes the client.
+     *
+     * @param solrClientFactory client factory to use
+     */
     public BananaSolrProvisioner(SolrClientFactory solrClientFactory) {
         CompletableFuture.supplyAsync(() -> bananaClientSupplier(solrClientFactory))
                 .thenAccept(BananaSolrProvisioner::closeSolrClient);
@@ -35,7 +44,8 @@ public class BananaSolrProvisioner {
     private static SolrClient bananaClientSupplier(SolrClientFactory solrClientFactory) {
         SolrClient client = null;
         try {
-            client = solrClientFactory.newClient("banana").get();
+            client = solrClientFactory.newClient("banana")
+                    .get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.debug("Failed to provision Banana Solr core", e);
         }
@@ -51,5 +61,4 @@ public class BananaSolrProvisioner {
             }
         }
     }
-
 }

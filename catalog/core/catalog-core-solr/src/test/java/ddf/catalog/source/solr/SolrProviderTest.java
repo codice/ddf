@@ -106,7 +106,7 @@ import ddf.catalog.source.UnsupportedQueryException;
  * Tests the {@link ddf.catalog.source.solr.SolrCatalogProvider}.
  */
 
-public class TestSolrProvider extends SolrProviderTestCase {
+public class SolrProviderTest extends SolrProviderTestCase {
 
     protected static final String SHOW_LOW_AIRPORT_POINT_WKT =
             "POINT (-110.00540924072266 34.265270233154297)";
@@ -226,7 +226,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
     protected static final int ONE_HIT = 1;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestSolrProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderTest.class);
 
     /**
      * Testing that you cannot instantiate with a null Solr client.

@@ -6,7 +6,7 @@ Some notable features of the Solr Catalog Provider include:
 * Supports extensible metacards
 * Fast, simple contextual searching
 * Indexes XML Attributes as well as CDATA sections and XML text elements
-* Full XPath support.
+* Full XPath support
 * Works with an embedded, local Solr Server (all-in-one Catalog)
 ** No configuration necessary on a single-node distribution
 ** Data directory of Solr indexes are configurable
