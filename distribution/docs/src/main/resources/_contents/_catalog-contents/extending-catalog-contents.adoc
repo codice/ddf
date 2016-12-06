@@ -284,10 +284,10 @@ An OGC Filter is a Open Geospatial Consortium (OGC) standard (
 http://www.opengeospatial.org/standards/filter
 ) that describes a query expression
 in terms of Extensible Markup Language (XML) and key-value pairs (KVP). The ${ddf-catalog} Framework does not use the XML representation of
-the OGC Filter standard. ${branding} instead utilizes the Java implementation provided by Geotools (
+the OGC Filter standard. ${branding} instead utilizes the Java implementation provided by GeoTools (
 http://geotools.org/
-). Geotools provides Java
-equivalent classes for OGC Filter XML elements. Geotools originally provided the standard Java classes for the OGC Filter Encoding 1.0 under the
+). GeoTools provides Java
+equivalent classes for OGC Filter XML elements. GeoTools originally provided the standard Java classes for the OGC Filter Encoding 1.0 under the
 package name 
 `org.opengis.filter`. The same package name is used today and is currently used by ${branding}.  Java developers do not parse or
 view the XML representation of a 
@@ -365,7 +365,7 @@ The OGC Filter Specification has several types of filters that can be combined i
 ===== Units of Measure
 
 According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 09-026r1] and http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 04-095], units of measure can be expressed as a URI.
-To fulfill that requirement, ${branding} utilizes the Geotools class `org.geotools.styling.UomOgcMapping` for spatial filters requiring a standard for units of measure for scalar distances.
+To fulfill that requirement, ${branding} utilizes the GeoTools class `org.geotools.styling.UomOgcMapping` for spatial filters requiring a standard for units of measure for scalar distances.
 Essentially, the `UomOgcMapping` maps the http://www.opengeospatial.org/standards/symbol[OGC Symbology Encoding] standard URIs to Java Units.
 This class provides three options for units of measure: 
 
@@ -377,12 +377,12 @@ ${branding} only supports FOOT and METRE since they are the most applicable to 
 
 ===== Creating Filters
 
-The common way to create a `Filter` is to use the Geotools `FilterFactoryImpl` object, which provides Java implementations for the various types of filters in the Filter Specification.
+The common way to create a `Filter` is to use the GeoTools `FilterFactoryImpl` object, which provides Java implementations for the various types of filters in the Filter Specification.
 Examples are the easiest way to understand how to properly create a `Filter` and a `Query`. 
 
 [NOTE]
 ====
-Refer to the http://docs.geotools.org/latest/javadocs/[Geotools javadoc] for more information on `FilterFactoryImpl`.
+Refer to the http://docs.geotools.org/latest/javadocs/[GeoTools javadoc] for more information on `FilterFactoryImpl`.
 ====
 
 The example below illustrates creating a query, and thus an OGC Filter, that does a case-insensitive search for the phrase "mission" in the entire metacard's text.
@@ -558,7 +558,7 @@ This is the preferred way to handle OGC Filters in a consistent manner.
 
 Alternately, `org.opengis.filter.Filter` implementations can be parsed using implementations of the interface `org.opengis.filter.FilterVisitor`. 
 The `FilterVisitor` uses the http://www.oodesign.com/visitor-pattern.html[Visitor pattern]. Essentially, `FilterVisitor` instances "visit" each part of the `Filter` tree allowing developers to implement logic to handle the filter's operations. 
-Geotools 8 includes implementations of the `FilterVisitor` interface.
+GeoTools 8 includes implementations of the `FilterVisitor` interface.
 The `DefaultFilterVisitor`, as an example, provides only business logic to visit every node in the `Filter` tree.
 The `DefaultFilterVisitor` methods are meant to be overwritten with the correct business logic. 
 The simplest approach when using `FilterVisitor` instances is to build the appropriate query syntax for a target language as each part of the `Filter` is visited.

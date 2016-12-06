@@ -517,3 +517,64 @@ include::{adoc-include}/_plugins/access-plugins-contents.adoc[]
 include::{adoc-include}/_plugins/operation-plugin-contents.adoc[]
 //developing
 include::{adoc-include}/_plugins/developing-plugins-contents.adoc[]
+
+== Operations
+
+include::{adoc-include}/_operations/operations-intro-contents.adoc[]
+
+== Eventing
+
+include::{adoc-include}/_eventing/eventing-intro-contents.adoc[]
+
+include::{adoc-include}/_eventing/subscriptions-contents.adoc[]
+
+== Resources
+
+include::{adoc-include}/_resources/resources-intro-contents.adoc[]
+
+include::{adoc-include}/_resources/retrieving-resources-contents.adoc[]
+
+include::{adoc-include}/_resources/retrieving-resources-options-contents.adoc[]
+
+include::{adoc-include}/_resources/storing-resources-contents.adoc[]
+
+include::{adoc-include}/_resources/resource-components-intro-contents.adoc[]
+//resource readers
+include::{adoc-include}/_resources/resource-readers-intro-contents.adoc[]
+
+include::{adoc-include}/_resources/resource-readers-contents.adoc[]
+
+include::{adoc-include}/_resources/url-resource-reader-contents.adoc[]
+
+include::{adoc-include}/_resources/developing-resource-readers-contents.adoc[]
+//resource writers
+include::{adoc-include}/_resources/resource-writers-intro-contents.adoc[]
+
+include::{adoc-include}/_resources/resource-writers-contents.adoc[]
+
+include::{adoc-include}/_resources/developing-resource-writers-contents.adoc[]
+//registry clients
+include::{adoc-include}/_resources/developing-registry-clients-contents.adoc[]
+//content directory monitor
+include::{adoc-include}/_resources/content-directory-monitor-contents.adoc[]
+
+== Queries
+
+include::{adoc-include}/_queries/queries-intro-contents.adoc[]
+
+include::{adoc-include}/_queries/filter-intro-contents.adoc[]
+
+include::{adoc-include}/_queries/developing-filters-contents.adoc[]
+
+include::{adoc-include}/_queries/query-option-intro-contents.adoc[]
+
+include::{adoc-include}/_queries/developing-query-options-contents.adoc[]
+
+include::{adoc-include}/_queries/developing-ogc-filters-contents.adoc[]
+
+include::{adoc-include}/_queries/developing-filter-delegates-contents.adoc[]
+
+== Console Commands
+
+include::{adoc-include}/_console-commands/developing-console-commands-contents.adoc[]
+
