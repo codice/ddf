@@ -105,10 +105,12 @@ public class TestSolrFilterDelegate {
     @Test
     public void reservedSpecialCharactersIsLike() {
         // given a tokenized text property
-        stub(mockResolver.getField("testProperty", AttributeFormat.STRING, false)).toReturn(
-                "testProperty_txt_index");
-        stub(mockResolver.getCaseSensitiveField("testProperty_txt_index")).toReturn(
-                "testProperty_txt_index_tokenized");
+        stub(mockResolver.getField("testProperty", AttributeFormat.STRING, true)).toReturn(
+                "testProperty_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("testProperty_txt")).toReturn(
+                "testProperty_txt_ws");
+        stub(mockResolver.getCaseSensitiveField("testProperty_txt_ws")).toReturn(
+                "testProperty_txt_ws_tokenized");
 
         // when searching for like reserved characters
         SolrQuery likeQuery = toTest.propertyIsLike("testProperty",
@@ -117,7 +119,7 @@ public class TestSolrFilterDelegate {
 
         // then return escaped special characters in the query
         assertThat(likeQuery.getQuery(),
-                is("testProperty_txt_index_tokenized:(\\+ \\- \\&& \\|| \\! \\( \\) \\{ \\} \\[ \\] \\^ \\\" \\~ \\: \\*?)"));
+                is("(testProperty_txt_ws_tokenized:(\\+ \\- \\&& \\|| \\! \\( \\) \\{ \\} \\[ \\] \\^ \\\" \\~ \\: \\*?))"));
     }
 
     /*

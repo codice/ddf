@@ -65,7 +65,6 @@ import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
@@ -2680,7 +2679,6 @@ public class TestSolrProvider extends SolrProviderTestCase {
      * @throws Exception
      */
     @Test
-    @Ignore
     public void testContextualAnyText() throws Exception {
 
         deleteAllIn(provider);
@@ -2708,6 +2706,69 @@ public class TestSolrProvider extends SolrProviderTestCase {
                         .is()
                         .like()
                         .text(soughtWord));
+    }
+
+    /**
+     * Testing {@link Metacard#ANY_TEXT}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testWhitespaceTokenizedFieldWithWildcardSearch() throws Exception {
+
+        deleteAllIn(provider);
+
+        List<Metacard> list = new ArrayList<Metacard>();
+
+        String title = "AB-12.yz_file";
+
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+
+        metacard1.setTitle(title);
+
+        String searchPhrase1 = "AB*12.yz_file";
+        String searchPhrase2 = "AB-12*yz_file";
+        String searchPhrase3 = "AB-12.yz*file";
+        String searchPhrase4 = "AB-12.*_file";
+        String searchPhrase5 = "Flagstaff Chamb*";
+        String searchPhrase6 = "Flagstaff Cmmerce";
+
+        list.add(metacard1);
+
+        create(list);
+
+        queryAndVerifyCount(1,
+                filterBuilder.attribute(Metacard.TITLE)
+                        .is()
+                        .like()
+                        .text(searchPhrase1));
+        queryAndVerifyCount(1,
+                filterBuilder.attribute(Metacard.TITLE)
+                        .is()
+                        .like()
+                        .text(searchPhrase2));
+        queryAndVerifyCount(1,
+                filterBuilder.attribute(Metacard.TITLE)
+                        .is()
+                        .like()
+                        .text(searchPhrase3));
+        queryAndVerifyCount(1,
+                filterBuilder.attribute(Metacard.TITLE)
+                        .is()
+                        .like()
+                        .text(searchPhrase4));
+        // Matching Phrase with wildcard
+        queryAndVerifyCount(1,
+                filterBuilder.attribute(Metacard.ANY_TEXT)
+                        .is()
+                        .like()
+                        .text(searchPhrase5));
+        // Non-Matching Phrase without wildcard
+        queryAndVerifyCount(0,
+                filterBuilder.attribute(Metacard.ANY_TEXT)
+                        .is()
+                        .like()
+                        .text(searchPhrase6));
     }
 
     /**
