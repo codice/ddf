@@ -20,8 +20,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.validation.constraints.NotNull;
-
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.MigrationException;
@@ -48,6 +46,8 @@ public class PlatformMigratable extends DescribableBean implements Configuration
 
     private static final Path USERS_PROPERTIES = Paths.get("etc", "users.properties");
 
+    private static final Path USERS_ATTRIBUTES = Paths.get("etc", "users.attributes");
+
     private static final Path DDF_METACARD_ATTRIBUTE_RULESET = Paths.get("etc",
             "pdp",
             "ddf-metacard-attribute-ruleset.cfg");
@@ -63,8 +63,7 @@ public class PlatformMigratable extends DescribableBean implements Configuration
 
     private final MigratableUtil migratableUtil;
 
-    public PlatformMigratable(@NotNull DescribableBean info,
-            @NotNull MigratableUtil migratableUtil) {
+    public PlatformMigratable(DescribableBean info, MigratableUtil migratableUtil) {
 
         super(info);
 
@@ -82,13 +81,17 @@ public class PlatformMigratable extends DescribableBean implements Configuration
 
     private void exportSystemFiles(Path exportDirectory,
             Collection<MigrationWarning> migrationWarnings) {
-        LOGGER.debug("Exporting system files: [{}], [{}], and [{}]",
+        LOGGER.debug("Exporting system files: [{}], [{}], [{}], and [{}]",
                 SYSTEM_PROPERTIES.toString(),
                 USERS_PROPERTIES.toString(),
+                USERS_ATTRIBUTES.toString(),
                 APPLICATION_LIST.toString());
+
         migratableUtil.copyFile(SYSTEM_PROPERTIES, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(USERS_PROPERTIES, exportDirectory, migrationWarnings);
+        migratableUtil.copyFile(USERS_ATTRIBUTES, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(APPLICATION_LIST, exportDirectory, migrationWarnings);
+
         migratableUtil.copyFile(DDF_METACARD_ATTRIBUTE_RULESET, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(DDF_USER_ATTRIBUTE_RULESET, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(FIPS_TO_ISO, exportDirectory, migrationWarnings);

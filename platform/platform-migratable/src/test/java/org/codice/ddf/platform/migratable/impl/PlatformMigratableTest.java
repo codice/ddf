@@ -57,6 +57,8 @@ public class PlatformMigratableTest {
 
     private static final Path USERS_PROPERTIES_REL_PATH = Paths.get("etc", "users.properties");
 
+    private static final Path USERS_ATTRIBUTES_REL_PATH = Paths.get("etc", "users.attributes");
+
     private static final Path APPLICATION_LIST = Paths.get("etc",
             "org.codice.ddf.admin.applicationlist.properties");
 
@@ -248,10 +250,13 @@ public class PlatformMigratableTest {
     private void assertSystemPropertiesFilesExport(MigratableUtil mockMigratableUtil) {
         verify(mockMigratableUtil).copyFile(eq(SYSTEM_PROPERTIES_REL_PATH),
                 eq(exportDirectory),
-                Matchers.<Collection<MigrationWarning>>any());
+                Matchers.any());
         verify(mockMigratableUtil).copyFile(eq(USERS_PROPERTIES_REL_PATH),
                 eq(exportDirectory),
-                Matchers.<Collection<MigrationWarning>>any());
+                Matchers.any());
+        verify(mockMigratableUtil).copyFile(eq(USERS_ATTRIBUTES_REL_PATH),
+                eq(exportDirectory),
+                Matchers.any());
     }
 
     private void assertKeystoresExport(MigratableUtil mockMigratableUtil) {
