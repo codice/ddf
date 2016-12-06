@@ -33,8 +33,8 @@ const NextView = ({next, disabled, nextStageId}) => <RaisedButton label='Next' d
 
 const Next = connect(null, mapDispatchToPropsNext)(NextView)
 
-const Save = connect(null, (dispatch, { id, url, configType }) => ({
-  saveConfig: () => dispatch(testConfig(id, url, configType))
+const Save = connect(null, (dispatch, { id, url, nextStageId, configType }) => ({
+  saveConfig: () => dispatch(testConfig(id, url, nextStageId, configType))
 }))(({ saveConfig }) => (
   <RaisedButton label='Save' primary onClick={saveConfig} />
 ))
@@ -109,7 +109,8 @@ const IntroductionStageView = ({id, disabled, ldapUseCase}) => (
     </StageControls>
   </Stage>
 )
-const IntroductionStage = connect((state) => ({ ldapUseCase: getConfig(state, 'ldapUseCase') !== undefined ? getConfig(state, 'ldapUseCase').value : undefined }))(IntroductionStageView)
+const getLdapUseCase = (state) => (getConfig(state, 'ldapUseCase') !== undefined ? getConfig(state, 'ldapUseCase').value : undefined)
+const IntroductionStage = connect((state) => ({ ldapUseCase: getLdapUseCase(state) }))(IntroductionStageView)
 
 // TODO Make the value selected from the radio button persist
 const LdapTypes = [{value: 'activeDirectory', label: 'Active Directory'},
@@ -127,11 +128,12 @@ const LdapTypeSelectionView = ({ id, disabled, ldapType }) => (
     <RadioSelection id='ldapType' options={LdapTypes} name='LDAP Type Selections' />
     <StageControls>
       <Back disabled={disabled} />
-      <Begin disabled={disabled || !ldapType} nextStageId='networkSettings' />
+      <Begin disabled={disabled || !ldapType} nextStageId={ldapType === 'embeddedLdap' ? 'configureEmbeddedLdap' : 'networkSettings'} />
     </StageControls>
   </Stage>
 )
-const LdapTypeSelection = connect((state) => ({ ldapType: getConfig(state, 'ldapType') !== undefined ? getConfig(state, 'ldapType').value : undefined }))(LdapTypeSelectionView)
+const getLdapType = (state) => (getConfig(state, 'ldapType') !== undefined ? getConfig(state, 'ldapType').value : undefined)
+const LdapTypeSelection = connect((state) => ({ldapType: getLdapType(state)}))(LdapTypeSelectionView)
 
 const ConfigureEmbeddedLdap = ({ id, disabled }) => (
   <Stage id={id} defaults={{ embeddedLdapPort: 1389, embeddedLdapsPort: 1636, embeddedLdapAdminPort: 4444, embeddedLdapStorageLocation: 'etc/org.codice.opendj/ldap', ldifPath: 'etc/org.codice.opendj/ldap' }}>
@@ -149,7 +151,7 @@ const ConfigureEmbeddedLdap = ({ id, disabled }) => (
     </div>
     <StageControls>
       <Back disabled={disabled} />
-      <Save id={id} disabled={disabled} url='/admin/wizard/persist/embeddedLdap' configType='embeddedLdapConfiguration' nextStageId='network-settings' />
+      <Save id={id} label='mic check check' disabled={disabled} url='/admin/wizard/persist/embeddedLdap' configType='embeddedLdapConfiguration' nextStageId='networkSettings' />
     </StageControls>
   </Stage>
 )
