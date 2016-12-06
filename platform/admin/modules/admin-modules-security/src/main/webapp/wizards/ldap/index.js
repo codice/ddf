@@ -5,6 +5,7 @@ import { getProbeValue, isSubmitting, getMessages, getConfig, getDisplayedLdapSt
 import { setDefaults } from '../../actions'
 
 import Mount from '../../components/mount'
+import {Card, CardActions, CardHeader} from 'material-ui/Card'
 import Paper from 'material-ui/Paper'
 import RaisedButton from 'material-ui/RaisedButton'
 import FlatButton from 'material-ui/FlatButton'
@@ -221,33 +222,11 @@ const QueryView = ({probe, probeValue = [], id, disabled, ldapUseCase}) => (
     groupObjectClass: 'groupOfNames',
     membershipAttribute: 'member'
   }}>
-
-    <Title>LDAP Query</Title>
-
-    <Description>
-      The search fields below can be used to execute searches to help
-      find the Base User DN, Group User DN and User name attribute
-      required to setup LDAP.
-    </Description>
-
-    <Input id='query' disabled={disabled} label='Query' />
-    <Input id='queryBase' disabled={disabled} label='Query Base DN' />
-
-    <div style={{textAlign: 'right', marginTop: 20}}>
-      <FlatButton disabled={disabled} secondary label='run query'
-        onClick={() => probe('/admin/wizard/probe/ldap/ldapQuery')} />
-    </div>
-
-    {probeValue.length === 0
-      ? null
-      : <div className={styles.queryWindow}>
-        <h2 className={styles.title}>Query Results</h2>
-        <List>
-          {probeValue.map((v, i) => <QueryResult key={i} {...v} />)}
-        </List>
-      </div>}
-
     <Title>LDAP Directory Structure</Title>
+    <Description>
+      Next we need to configure the directories to for users/members and the attributes to use.
+      Below is the LDAP Query Tool, capable of executing queries against the connected LDAP to discover the required field values
+    </Description>
     <Input id='baseUserDn' disabled={disabled} label='Base User DN' />
     <Input id='userNameAttribute' disabled={disabled} label='User Name Attribute' />
     <Input id='baseGroupDn' disabled={disabled} label='Base Group DN' />
@@ -257,6 +236,31 @@ const QueryView = ({probe, probeValue = [], id, disabled, ldapUseCase}) => (
         <Input id='membershipAttribute' disabled={disabled} label='LDAP Membership Attribute' />
       </div>
       : null}
+    <Card >
+      <CardHeader style={{textAlign: 'center', fontSize: '1.1em'}}
+        title='LDAP Query Tool'
+        subtitle='Execute queries against the connected LDAP'
+        actAsExpander
+        showExpandableButton
+      />
+      <CardActions expandable style={{margin: '5px'}}>
+        <Input id='query' disabled={disabled} label='Query' />
+        <Input id='queryBase' disabled={disabled} label='Query Base DN' />
+
+        <div style={{textAlign: 'right', marginTop: 20}}>
+          <FlatButton disabled={disabled} secondary label='run query' onClick={() => probe('/admin/wizard/probe/ldap/ldapQuery')} />
+        </div>
+
+        {probeValue.length === 0
+         ? null
+         : <div className={styles.queryWindow}>
+           <h2 className={styles.title}>Query Results</h2>                         <List>
+             {probeValue.map((v, i) => <QueryResult key={i} {...v} />)}
+           </List>
+         </div>}
+      </CardActions>
+    </Card>
+
     <StageControls>
       <Back disabled={disabled} />
       <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapDirStruct' nextStageId='confirm' />
