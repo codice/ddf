@@ -13,23 +13,83 @@
  */
 package ddf.catalog.data.impl;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeRegistry;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.impl.types.DateTimeAttributes;
+import ddf.catalog.data.types.Core;
 
 public class AttributeRegistryImplTest {
-    private AttributeRegistry registry;
+    private AttributeRegistryImpl registry;
 
     @Before
     public void setup() {
         registry = new AttributeRegistryImpl();
+        registry.registerMetacardType(generateMetacardType());
+    }
+
+    @Test
+    public void testDeregisterMetacardType() {
+        MetacardType metacardType = generateMetacardType();
+        registry.deregisterMetacardType(generateMetacardType());
+        metacardType.getAttributeDescriptors().forEach(attributeDescriptor -> assertThat(registry.lookup(
+                attributeDescriptor.getName())
+                .isPresent(), is(false)));
+    }
+
+    @Test
+    public void testDeregisterMetacardTypeWithDuplicateAttributes() {
+        // Register a MetacardType with the same attributes
+        registry.registerMetacardType(generateMetacardType());
+        // Deregister the second MetacardType
+        registry.deregisterMetacardType(generateMetacardType());
+        // Assert that a duplicated attribute is still present in the registry
+        assertThat(registry.lookup(Core.CREATED)
+                .isPresent(), is(true));
+    }
+
+    @Test
+    public void testDeregisterMetacardTypeWithNulls() {
+        registry = new AttributeRegistryImpl();
+        registry.registerMetacardType(generateMetacardTypeWithNulls());
+        registry.deregisterMetacardType(generateMetacardTypeWithNulls());
+        assertThat(registry.lookup("test")
+                .isPresent(), is(false));
+    }
+
+    @Test
+    public void testRegisterMetacardType() {
+        generateMetacardType().getAttributeDescriptors().forEach(attributeDescriptor -> assertThat(
+                registry.lookup(attributeDescriptor.getName())
+                        .isPresent(),
+                is(true)));
+    }
+
+    @Test
+    public void testRegisterMetacardTypeWithNulls() {
+        registry = new AttributeRegistryImpl();
+        registry.registerMetacardType(generateMetacardTypeWithNulls());
+        assertThat(registry.lookup("test").isPresent(), is(true));
+    }
+
+    @Test
+    public void testNullMetacardType() {
+        registry = new AttributeRegistryImpl();
+        registry.registerMetacardType(null);
+        assertThat(registry.lookup(Core.DATATYPE), is(Optional.empty()));
+        registry.deregisterMetacardType(null);
+        assertThat(registry.lookup(Core.DATATYPE), is(Optional.empty()));
     }
 
     @Test
@@ -41,7 +101,7 @@ public class AttributeRegistryImplTest {
                 true,
                 false,
                 BasicTypes.STRING_TYPE);
-        assertThat(registry.register(descriptor), is(true));
+        registry.register(descriptor);
 
         final Optional<AttributeDescriptor> descriptorOptional = registry.lookup(attributeName);
         assertThat(descriptorOptional.isPresent(), is(true));
@@ -57,14 +117,53 @@ public class AttributeRegistryImplTest {
                 true,
                 false,
                 BasicTypes.STRING_TYPE);
-        assertThat(registry.register(descriptor), is(true));
+        registry.register(descriptor);
 
         Optional<AttributeDescriptor> descriptorOptional = registry.lookup(attributeName);
         assertThat(descriptorOptional.isPresent(), is(true));
 
-        registry.deregister(attributeName);
+        registry.deregister(descriptor);
         descriptorOptional = registry.lookup(attributeName);
         assertThat(descriptorOptional.isPresent(), is(false));
+    }
+
+    @Test
+    public void testRemoveDuplicateAttribute() {
+        final String attributeName = "foo";
+        final AttributeDescriptor descriptor1 = new AttributeDescriptorImpl(attributeName,
+                true,
+                true,
+                true,
+                true,
+                BasicTypes.STRING_TYPE);
+        registry.register(descriptor1);
+        registry.register(descriptor1);
+
+        registry.deregister(descriptor1);
+        final Optional<AttributeDescriptor> descriptorOptional = registry.lookup(attributeName);
+        assertThat(descriptorOptional.isPresent(), is(true));
+        assertThat(descriptorOptional.get(), is(descriptor1));
+
+        registry.deregister(descriptor1);
+        final Optional<AttributeDescriptor> descriptorOptional2 = registry.lookup(attributeName);
+        assertThat(descriptorOptional2.isPresent(), is(false));
+    }
+
+    @Test
+    public void testAddDuplicateAttribute() {
+        final String attributeName = "foo";
+        final AttributeDescriptor descriptor1 = new AttributeDescriptorImpl(attributeName,
+                true,
+                true,
+                true,
+                true,
+                BasicTypes.STRING_TYPE);
+        registry.register(descriptor1);
+        registry.register(descriptor1);
+
+        final Optional<AttributeDescriptor> descriptorOptional = registry.lookup(attributeName);
+        assertThat(descriptorOptional.isPresent(), is(true));
+        assertThat(descriptorOptional.get(), is(descriptor1));
     }
 
     @Test
@@ -76,7 +175,7 @@ public class AttributeRegistryImplTest {
                 true,
                 true,
                 BasicTypes.STRING_TYPE);
-        assertThat(registry.register(descriptor1), is(true));
+        registry.register(descriptor1);
 
         final AttributeDescriptor descriptor2 = new AttributeDescriptorImpl(attributeName,
                 false,
@@ -84,11 +183,34 @@ public class AttributeRegistryImplTest {
                 false,
                 false,
                 BasicTypes.BINARY_TYPE);
-        assertThat(registry.register(descriptor2), is(false));
-
+        registry.register(descriptor2);
         final Optional<AttributeDescriptor> descriptorOptional = registry.lookup(attributeName);
         assertThat(descriptorOptional.isPresent(), is(true));
         assertThat(descriptorOptional.get(), is(descriptor1));
+    }
+
+    @Test
+    public void testAddRemoveAttributeWithSameName() {
+        final String attributeName = "test";
+        final AttributeDescriptor descriptor1 = new AttributeDescriptorImpl(attributeName,
+                true,
+                true,
+                true,
+                true,
+                BasicTypes.STRING_TYPE);
+        final AttributeDescriptor descriptor2 = new AttributeDescriptorImpl(attributeName,
+                false,
+                false,
+                false,
+                false,
+                BasicTypes.STRING_TYPE);
+        registry.register(descriptor1);
+        registry.register(descriptor2);
+        registry.deregister(descriptor1);
+
+        final Optional<AttributeDescriptor> descriptorOptional = registry.lookup(attributeName);
+        assertThat(descriptorOptional.isPresent(), is(true));
+        assertThat(descriptorOptional.get(), is(descriptor2));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -105,5 +227,30 @@ public class AttributeRegistryImplTest {
                 false,
                 BasicTypes.STRING_TYPE);
         registry.register(descriptor);
+    }
+
+    private static MetacardType generateMetacardType() {
+        return new MetacardTypeImpl("testMetacardType", Arrays.asList(new CoreAttributes(),
+                new DateTimeAttributes()));
+    }
+
+    private static MetacardType generateMetacardTypeWithNulls() {
+        Set<AttributeDescriptor> attributeDescriptorSet = new HashSet<>();
+        attributeDescriptorSet.add(new AttributeDescriptorImpl(null,
+                true,
+                true,
+                true,
+                true,
+                BasicTypes.STRING_TYPE));
+        attributeDescriptorSet.add(new AttributeDescriptorImpl("test",
+                true,
+                true,
+                true,
+                true,
+                BasicTypes.STRING_TYPE));
+        attributeDescriptorSet.add(null);
+        MetacardType metacardType = new MetacardTypeImpl("nullAttributeMetacardType",
+                attributeDescriptorSet);
+        return metacardType;
     }
 }

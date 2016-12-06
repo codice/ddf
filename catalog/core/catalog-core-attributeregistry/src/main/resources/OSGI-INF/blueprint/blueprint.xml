@@ -14,7 +14,11 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="attributeRegistry" class="ddf.catalog.data.impl.AttributeRegistryImpl"/>
+    <reference-list id="metacardList" interface="ddf.catalog.data.MetacardType" member-type="service-object">
+        <reference-listener bind-method="registerMetacardType" unbind-method="deregisterMetacardType" ref="attributeRegistry"/>
+    </reference-list>
+
+    <bean id="attributeRegistry" class="ddf.catalog.data.impl.AttributeRegistryImpl" />
 
     <service ref="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
