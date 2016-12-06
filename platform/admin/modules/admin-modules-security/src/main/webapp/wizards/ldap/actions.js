@@ -20,7 +20,7 @@ export const probe = (url) => (dispatch, getState) => {
 
   const opts = {
     method: 'POST',
-    body: JSON.stringify({ configuration: 'ldap', ...config }),
+    body: JSON.stringify({ configurationType: 'ldapConfiguration', ...config }),
     credentials: 'same-origin'
   }
 
@@ -32,6 +32,28 @@ export const probe = (url) => (dispatch, getState) => {
       }
     })
     .catch(() => {
+//    TODO handle probe errors
+    })
+}
+
+export const probeLdapDir = () => (dispatch, getState) => {
+  const config = getAllConfig(getState())
+
+  const opts = {
+    method: 'POST',
+    body: JSON.stringify({ configurationType: 'ldapConfiguration', ...config }),
+    credentials: 'same-origin'
+  }
+
+  window.fetch('/admin/wizard/probe/ldap/directoryStructure', opts)
+    .then((res) => Promise.all([ res.status, res.json() ]))
+    .then(([status, json]) => {
+      if (status === 200) {
+        console.log(json)
+      }
+    })
+    .catch(() => {
+    //    TODO handle probe errors
     })
 }
 

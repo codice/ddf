@@ -49,6 +49,10 @@ public class LdapConfiguration extends Configuration {
 
     private String queryBase;
 
+    private String ldapType;
+
+    private String ldapUseCase;
+
     private List<Map<String, String>> queryResults;
 
     public String hostName() {
@@ -89,6 +93,14 @@ public class LdapConfiguration extends Configuration {
 
     public String queryBase() {
         return queryBase;
+    }
+
+    public String ldapType() {
+        return ldapType;
+    }
+
+    public String ldapUseCase() {
+        return ldapUseCase;
     }
 
     public List<Map<String, String>> queryResults() {
@@ -147,6 +159,16 @@ public class LdapConfiguration extends Configuration {
 
     public LdapConfiguration queryResults(List<Map<String, String>> queryResults) {
         this.queryResults = queryResults;
+        return this;
+    }
+
+    public LdapConfiguration ldapType(String ldapType) {
+        this.ldapType = ldapType;
+        return this;
+    }
+
+    public LdapConfiguration ldapUseCase(String ldapUseCase) {
+        this.ldapUseCase = ldapUseCase;
         return this;
     }
 

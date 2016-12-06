@@ -12,7 +12,7 @@ import CircularProgress from 'material-ui/CircularProgress'
 import Flexbox from 'flexbox-react'
 import {List, ListItem} from 'material-ui/List'
 import * as styles from './styles.less'
-import {testConfig, probe, nextStage, prevStage} from './actions'
+import {testConfig, probe, probeLdapDir, nextStage, prevStage} from './actions'
 import {Input, Password, Hostname, Port, Select, RadioSelection} from '../inputs'
 import Wizard from '../components/wizard'
 
@@ -177,7 +177,7 @@ const NetworkSettings = ({ id, disabled }) => (
   </Stage>
 )
 
-const BindSettings = ({id, disabled}) => (
+const BindSettingsView = ({id, disabled, probeLdapDir}) => (
   <Stage id={id} defaults={{bindUserDn: 'cn=admin', bindUserPassword: 'secret'}}>
     <Title>LDAP Bind User Settings</Title>
     <Description>
@@ -189,11 +189,13 @@ const BindSettings = ({id, disabled}) => (
     <Password id='bindUserPassword' disabled={disabled} label='Bind User Password' />
 
     <StageControls>
+      <RaisedButton label='Lookup LDAP Directory' primary onClick={() => probeLdapDir()} />
       <Back disabled={disabled} />
       <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapBind' nextStageId='query' />
     </StageControls>
   </Stage>
 )
+const BindSettings = connect(null, {probeLdapDir})(BindSettingsView)
 
 const QueryResult = (props) => {
   const {name, uid, cn, ou} = props
@@ -263,7 +265,7 @@ const QueryView = ({probe, probeValue = [], id, disabled, ldapUseCase}) => (
 )
 
 const Query = connect(
-  (state) => ({probeValue: getProbeValue(state), ldapUseCase: getConfig(state, 'ldapUseCase') !== undefined ? getConfig(state, 'ldapUseCase').value : undefined}),
+  (state) => ({probeValue: getProbeValue(state), ldapUseCase: getLdapUseCase(state)}),
   {probe}
 )(QueryView)
 

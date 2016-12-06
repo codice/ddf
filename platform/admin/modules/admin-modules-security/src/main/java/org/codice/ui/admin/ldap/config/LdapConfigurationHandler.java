@@ -68,10 +68,12 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
     public static final String LDAP_DIRECTORY_STRUCT_TEST_ID = "testLdapDirStruct";
 
-    public static final String LDAP_QUERY_RESULTS_ID = "ldapQueryResults";
-
     // Probe Ids
     public static final String LDAP_QUERY_PROBE_ID = "ldapQuery";
+
+    public static final String LDAP_QUERY_RESULTS_ID = "ldapQueryResults";
+
+    public static final String DISCOVER_LDAP_DIR_STRUCT_ID = "directoryStructure";
 
     @Override
     public String getConfigurationHandlerId() {
@@ -99,23 +101,25 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     @Override
     public ProbeReport probe(String probeId, LdapConfiguration configuration) {
 
-        // TODO: 11/14/16 Figure out this crappy map situation
-        Map<String, Object> connectionRequiredFields = new HashMap<>();
-        connectionRequiredFields.put("hostName", configuration.hostName());
-        connectionRequiredFields.put("port", configuration.port());
-        connectionRequiredFields.put("encryptionMethod", configuration.encryptionMethod());
-        connectionRequiredFields.put("bindUserDn", configuration.bindUserDn());
-        connectionRequiredFields.put("bindUserPassword", configuration.bindUserPassword());
-        connectionRequiredFields.put("query", configuration.query());
-        connectionRequiredFields.put("queryBase", configuration.queryBase());
-
-        TestReport nullFields = cannotBeNullFields(connectionRequiredFields);
-        if (nullFields.containsUnsuccessfulMessages()) {
-            return new ProbeReport(nullFields.getMessages());
-        }
-
         switch (probeId) {
+        case DISCOVER_LDAP_DIR_STRUCT_ID:
+            // TODO: 11/14/16 Return directory structure based on config
+            return new ProbeReport();
+
         case LDAP_QUERY_PROBE_ID:
+            Map<String, Object> connectionRequiredFields = new HashMap<>();
+            connectionRequiredFields.put("hostName", configuration.hostName());
+            connectionRequiredFields.put("port", configuration.port());
+            connectionRequiredFields.put("encryptionMethod", configuration.encryptionMethod());
+            connectionRequiredFields.put("bindUserDn", configuration.bindUserDn());
+            connectionRequiredFields.put("bindUserPassword", configuration.bindUserPassword());
+            connectionRequiredFields.put("query", configuration.query());
+            connectionRequiredFields.put("queryBase", configuration.queryBase());
+
+            TestReport nullFields = cannotBeNullFields(connectionRequiredFields);
+            if (nullFields.containsUnsuccessfulMessages()) {
+                return new ProbeReport(nullFields.getMessages());
+            }
             // TODO: 11/14/16 Do checks on the connection
             LdapTestResult<Connection> connectionResult = bindUserToLdapConnection(configuration);
             List<SearchResultEntry> searchResults = getLdapQueryResults(connectionResult.value(),
