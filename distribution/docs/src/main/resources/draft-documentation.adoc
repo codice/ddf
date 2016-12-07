@@ -396,6 +396,8 @@ include::{adoc-include}/_sources/solr-catalog-provider-contents.adoc[]
 
 include::{adoc-include}/_sources/solr-http-catalog-provider-contents.adoc[]
 
+include::{adoc-include}/_sources/solrcloud-contents.adoc[]
+
 //Storage Providers
 include::{adoc-include}/_sources/storage-provider-intro-contents.adoc[]
 
@@ -577,4 +579,3 @@ include::{adoc-include}/_queries/developing-filter-delegates-contents.adoc[]
 == Console Commands
 
 include::{adoc-include}/_console-commands/developing-console-commands-contents.adoc[]
-

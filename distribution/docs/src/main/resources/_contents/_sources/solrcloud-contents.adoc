@@ -1,0 +1,48 @@
+==== SolrCloud
+
+If the ${branding} needs to be accessible for a higher than normal period with low instances of downtime, then SolrCloud should be used.
+
+SolrCloud is a cluster of Solr Server instances that support fault tolerance and high availability.
+Each Solr Server instance in SolrCloud provides a Solr Admin GUI.
+
+Synchronization between Solr Server instances is managed by Zookeeper.
+Zookeeper routes client requests to the proper Solr Server instance in the the SolrCloud cluster.
+
+.SolrCloud Pros and Cons
+[cols="1,4a,2a" options="header"]
+|===
+
+|Feature
+|Pro
+|Con
+
+|Scalability
+a|* Scalable
+* Can run a cluster of Solr Servers
+a|
+
+|Flexibility
+a|* Can be embedded in Java easily.
+* Uses the same interface as the Standalone Solr Server uses under the covers.
+|* Requires HTTP connection.
+* Setup and Installation is complicateed: needs Zookeeper to coordinate configurations between Solr Servers.
+* Synchronous issues on startup; i.e., Zookeeper nodes needs to be up and before SolrCloud is up.
+
+|(Administrative)Tools
+a|* Contains Solr Admin GUI, which allows admins to query, check health, see metrics, see configuration files and preferences, etc.
+a|
+
+|Security
+a|
+a|* SolrCloud is not secure, refer to SolrCloud Hardening Guide
+ 
+|Performance
+a|* Near real-time indexing
+* Can understand complex queries
+a|* Requires HTTP or network overhead
+
+|Backup/Recovery
+a|
+a|* Automatic recovery from failure.
+
+|===

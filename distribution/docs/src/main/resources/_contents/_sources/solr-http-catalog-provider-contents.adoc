@@ -26,6 +26,52 @@ include::{adoc-include}/_tables/ddf.catalog.solr.external.SolrHttpCatalogProvide
 
 Use the Solr External Provider when the Standalone Solr Server is being used on a separate machine.
 Refer to the Standalone Solr Server recommended configuration.
+Use the Solr Catalog External Provider if using the ${branding} in production mode.
+The Solr Catalog External Provider is a standalone Solr Server used on a separate machine.
+The Solr Catalog External Provider provides a Solr Admin GUI or a "REST-like HTTP/XML and JSON API."
+
+.Solr Catalog External Provider Pros and Cons
+[cols="1,4a,2a" options="header"]
+|===
+
+|Feature
+|Pro
+|Con
+
+|Scalability
+a|* Allows the middle-tier to be scaled by pointing various middle-tier instances to one server facade.
+* Possible data tier scalability with Solr Cloud. Solr Cloud allows for "high scale, fault tolerant, distributed indexing and search capabilities.
+a|
+
+|Flexibility
+a|* REST-like HTTP/XML and JSON APIs that make it easy to use from virtually any programming language.
+* Ability to run in separate or same JVM of middle tier.
+a|
+
+|(Administrative)Tools
+a|* Contains Solr Admin GUI, which allows admins to query, check health, see metrics, see configuration files and preferences, etc.
+* JMX metrics reporting is enabled.
+a|
+
+|Security
+a|* Inherits app server security.
+a|* Web Console must be secured and is openly accessible.
+* REST-like HTTP/XML and JSON APIs must be secured.
+* Current Catalog Provider implementation requires sending unsecured messages to Solr. Without a coded solution, requires network or firewall restrictions in order to secure.
+ 
+|Performance
+a|* Near real-time indexing.
+a|* Possible network latency impact.
+* Extra overhead when sent over HTTP.
+* Extra parsing for XML, JSON, or other interface formats.
+* Possible limitations upon requests and queries dependent on HTTP server settings.
+
+|Backup/Recovery
+a|* Built-in recovery tools that allow in-place backups (does not require server shutdown).
+* Backup of Solr indexes can be scripted.
+a|* Recovery is performed as an HTTP request.
+
+|===
 
 ===== Indexing Text with the Solr External Catalog Provider
 
