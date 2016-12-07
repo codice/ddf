@@ -254,7 +254,8 @@ const QueryView = ({probe, probeValue = [], id, disabled, ldapUseCase}) => (
         {probeValue.length === 0
          ? null
          : <div className={styles.queryWindow}>
-           <h2 className={styles.title}>Query Results</h2>                         <List>
+           <h2 className={styles.title}>Query Results</h2>
+           <List>
              {probeValue.map((v, i) => <QueryResult key={i} {...v} />)}
            </List>
          </div>}
