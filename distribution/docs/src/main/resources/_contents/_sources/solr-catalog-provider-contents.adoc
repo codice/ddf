@@ -1,43 +1,25 @@
+=== Solr Catalog Types
+The ${branding} supports 3 Solr Catalog Types:
 
-==== Catalog Solr Embedded Provider
+. Solr Catalog Embedded Provider - included with the ${branding}, useful for testing and demonstration pruposes
+. Solr Catalog External Provider - single Solr Server instance
+. SolrCloud - cluster of standalone Solr Servers
+
+==== Solr Catalog Embedded Provider
 
 The Solr Catalog Embedded Provider is an embedded, local Solr Server instance used in conjunction with an Apache Solr Server data store.
-It is a local instance that is a lightweight Catalog provider solution. However, it does not provide a Solr Admin GUI or a "REST-like HTTP/XML and JSON API." If that is necessary, see Standalone Solr Server.
+It is a local instance that is a lightweight Catalog provider solution.
 
 Use the local, embedded Solr Catalog Provider when only one ${branding} instance is necessary and scalability is not an issue.
 The local, embedded Solr Catalog Provider requires no installation and little to no configuration.
 It is great for demonstrations, training exercises, or for sparse querying and ingesting.
-
-===== Installing Solr Catalog Embedded Provider
-
-The Solr Catalog Embedded Provider is not installed by default with a standard installation.
-
-To install:
-
-. Navigate to the ${ddf-solr} application in the ${admin-console}.
-. Select *Features*.
-. Uninstall the `catalog-solr-external-provider` feature.
-. Install the `catalog-solr-embedded-provider`.
-
-==== Configuring Embedded Solr Server and Solr Catalog Provider
-
-No configuration is necessary for the embedded Solr Server and the Solr Catalog Provider.
-The standard installation described above is sufficient.
-When the `catalog-solr-embedded-provider` feature is installed, it stores the Solr index files to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr` by default.
-A user does not have to specify any parameters and the `catalog-solr-embedded-provider` feature contains all files necessary for Solr to start the server. 
-
-However, this component _can_ be configured to specify the directory to use for data storage. 
-
-The configurable properties for the SCP are accessed from the *Catalog Embedded Solr Catalog Provider* configurations in the ${admin-console}.
 
 [TIP]
 ====
 The Embedded (Local) Solr Catalog Provider works on startup without any configuration because a local embedded Solr Server is automatically started and pre-configured.
 ====
 
-include::{adoc-include}/_tables/ddf.catalog.source.solr.SolrCatalogProvider-table-contents.adoc[]
-
-Some notable features of the Solr Catalog Provider include:
+Some notable features of the Solr Catalog Embedded Provider include:
 
 * Supports extensible metacards
 * Fast, simple contextual searching
@@ -49,7 +31,7 @@ Some notable features of the Solr Catalog Provider include:
 * Works with a standalone Solr Server
 * Works with Solr Cloud
 
-.Embedded Solr Catalog Provider Pros and Cons
+.Solr Catalog Embedded Provider Pros and Cons
 [cols="1,4a,2a" options="header"]
 |===
 
@@ -66,30 +48,128 @@ a|* Does not scale. Only runs one single server instance.
 a|* Can be embedded in Java easily.
 * Requires no HTTP connection.
 * Uses the same interface as the Standalone Solr Server uses under the covers.
-* Allows for full control over the Solr Server. No synchronous issues on startup; i.e., the Solr Server will synchronously start up with the Solr Catalog Provider
-* Runs within the same JVM
+* Allows for full control over the Solr Server. No synchronous issues on startup; i.e., the Solr Server will synchronously start up with the Solr Catalog Provider.
+* Runs within the same JVM.
 * Setup and Installation is simple: unzip and run.
-|* Can only be interfaced using Java
+a|* Can only be interfaced using Java.
 
 |(Administrative)Tools
-a|* External open source tools like Luke will work to allow admins to check index contents
-* JMX metrics reporting is enabled
+a|* External open source tools like Luke will work to allow admins to check index contents.
+* JMX metrics reporting is enabled.
 
 a|* No Web Console. 
 * No easy way to natively access (out of the box) what is in the index files or health of server at the data store level.
 
 |Security
 a|* Does not open any ports which means no ports have to be secured.
-|
+a|
  
 |Performance
-a|* Requires no HTTP or network overhead
-* Near real-time indexing
-* Can understand complex queries
-|
+a|* Requires no HTTP or network overhead.
+* Near real-time indexing.
+* Can understand complex queries.
+a|
 
 |Backup/Recovery
-a|* Can manually or through custom scripts back up the indexes
-a|* Must copy files when server is shutdown
+a|* Can manually or through custom scripts back up the indexes.
+a|* Must copy files when server is shutdown.
+
+|===
+
+==== Solr Catalog External Provider
+
+Use the Solr Catalog External Provider if using the ${branding} in production mode.
+The Solr Catalog External Provider is a standalone Solr Server used on a separate machine.
+The Solr Catalog External Provider provides a Solr Admin GUI or a "REST-like HTTP/XML and JSON API."
+
+.Solr Catalog External Provider Pros and Cons
+[cols="1,4a,2a" options="header"]
+|===
+
+|Feature
+|Pro
+|Con
+
+|Scalability
+a|* Allows the middle-tier to be scaled by pointing various middle-tier instances to one server facade.
+* Possible data tier scalability with Solr Cloud. Solr Cloud allows for "high scale, fault tolerant, distributed indexing and search capabilities.
+a|
+
+|Flexibility
+a|* REST-like HTTP/XML and JSON APIs that make it easy to use from virtually any programming language.
+* Ability to run in separate or same JVM of middle tier.
+a|
+
+|(Administrative)Tools
+a|* Contains Solr Admin GUI, which allows admins to query, check health, see metrics, see configuration files and preferences, etc.
+* JMX metrics reporting is enabled.
+a|
+
+|Security
+a|* Inherits app server security.
+a|* Web Console must be secured and is openly accessible.
+* REST-like HTTP/XML and JSON APIs must be secured.
+* Current Catalog Provider implementation requires sending unsecured messages to Solr. Without a coded solution, requires network or firewall restrictions in order to secure.
+ 
+|Performance
+a|* Near real-time indexing.
+a|* Possible network latency impact.
+* Extra overhead when sent over HTTP.
+* Extra parsing for XML, JSON, or other interface formats.
+* Possible limitations upon requests and queries dependent on HTTP server settings.
+
+|Backup/Recovery
+a|* Built-in recovery tools that allow in-place backups (does not require server shutdown).
+* Backup of Solr indexes can be scripted.
+a|* Recovery is performed as an HTTP request.
+
+|===
+
+==== SolrCloud
+
+If the ${branding} needs to be accessible for a higher than normal period with low instances of downtime, then SolrCloud should be used.
+
+SolrCloud is a cluster of Solr Server instances that support fault tolerance and high availability.
+Each Solr Server instance in SolrCloud provides a Solr Admin GUI.
+
+Synchronization between Solr Server instances is managed by Zookeeper.
+Zookeeper routes client requests to the proper Solr Server instance in the the SolrCloud cluster.
+
+.SolrCloud Pros and Cons
+[cols="1,4a,2a" options="header"]
+|===
+
+|Feature
+|Pro
+|Con
+
+|Scalability
+a|* Scalable
+* Can run a cluster of Solr Servers
+a|
+
+|Flexibility
+a|* Can be embedded in Java easily.
+* Uses the same interface as the Standalone Solr Server uses under the covers.
+|* Requires HTTP connection.
+* Setup and Installation is complicateed: needs Zookeeper to coordinate configurations between Solr Servers.
+* Synchronous issues on startup; i.e., Zookeeper nodes needs to be up and before SolrCloud is up.
+
+|(Administrative)Tools
+a|* Contains Solr Admin GUI, which allows admins to query, check health, see metrics, see configuration files and preferences, etc.
+a|
+
+|Security
+a|
+a|* SolrCloud is not secure, refer to SolrCloud Hardening Guide
+ 
+|Performance
+a|* Near real-time indexing
+* Can understand complex queries
+a|* Requires HTTP or network overhead
+
+|Backup/Recovery
+a|
+a|* Automatic recovery from failure.
 
 |===
