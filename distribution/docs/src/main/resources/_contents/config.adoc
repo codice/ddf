@@ -26,6 +26,6 @@ This page last updated:
 
 <<<
 endif::[]
-
 // workaround to remove "table of contents" blocks from table cells
 :toc!:
+

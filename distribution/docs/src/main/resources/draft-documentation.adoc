@@ -116,6 +116,8 @@ include::{adoc-include}/_running/console-commands-contents.adoc[]
 
 include::{adoc-include}/_running/command-scheduler-contents.adoc[]
 
+include::{adoc-include}/_formats/supported-file-formats-contents.adoc[]
+
 === Handling Data
 
 include::{adoc-include}/_running/ingesting-contents.adoc[]
@@ -578,9 +580,6 @@ include::{adoc-include}/_queries/developing-filter-delegates-contents.adoc[]
 
 include::{adoc-include}/_console-commands/developing-console-commands-contents.adoc[]
 
-= DRAFT Distributed Data Framework Documentation
-include::${project.build.directory}/doc-contents/_contents/config.adoc[]
-
 == Security Framework
 
 include::{adoc-include}/_security-framework/security-framework-intro-contents.adoc[]
@@ -677,3 +676,8 @@ include::{adoc-include}/_web-applications/admin-console-contents.adoc[]
 include::{adoc-include}/_web-applications/landing-page-contents.adoc[]
 
 include::${project.build.directory}/doc-contents/ui-help/standard-${ddf.version}/help-contents.adoc[]
+
+[appendix]
+== All File Formats Supported
+
+include::{adoc-include}/_formats/complete-list-file-types-contents.adoc[]
