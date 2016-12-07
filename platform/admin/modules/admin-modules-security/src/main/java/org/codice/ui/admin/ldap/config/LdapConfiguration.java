@@ -31,6 +31,14 @@ public class LdapConfiguration extends Configuration {
 
     private String pid;
 
+    public static final String LOGIN = "login";
+
+    public static final String CREDENTIAL_STORE = "credentialStore";
+
+    public static final String LOGIN_AND_CREDENTIAL_STORE = "loginAndCredentialStore";
+
+    static final String[] LDAP_USE_CASES = new String[] {LOGIN, CREDENTIAL_STORE, LOGIN_AND_CREDENTIAL_STORE};
+
     private String hostName;
 
     private int port;
@@ -60,6 +68,10 @@ public class LdapConfiguration extends Configuration {
     private String ldapType;
 
     private String ldapUseCase;
+
+    private String groupObjectClass;
+
+    private String membershipAttribute;
 
     private List<Map<String, String>> queryResults;
 
@@ -130,10 +142,17 @@ public class LdapConfiguration extends Configuration {
     public List<Map<String, String>> queryResults() {
         return queryResults;
     }
-
     public LdapConfiguration pid(String pid) {
         this.pid = pid;
         return this;
+    }
+
+    public String groupObjectClass() {
+        return groupObjectClass;
+    }
+
+    public String membershipAttribute() {
+        return membershipAttribute;
     }
 
     public LdapConfiguration hostName(String hostName) {
@@ -216,6 +235,16 @@ public class LdapConfiguration extends Configuration {
         return this;
     }
 
+    public LdapConfiguration groupObjectClass(String groupObjectClass) {
+        this.groupObjectClass = groupObjectClass;
+        return this;
+    }
+
+    public LdapConfiguration membershipAttribute(String membershipAttribute) {
+        this.membershipAttribute = membershipAttribute;
+        return this;
+    }
+
     public LdapConfiguration copy() {
         return new LdapConfiguration().hostName(hostName)
                 .port(port)
@@ -230,6 +259,8 @@ public class LdapConfiguration extends Configuration {
                 .queryBase(queryBase)
                 .baseUserDn(baseUserDn)
                 .baseGroupDn(baseGroupDn)
-                .userNameAttribute(userNameAttribute);
+                .userNameAttribute(userNameAttribute)
+                .groupObjectClass(groupObjectClass)
+                .membershipAttribute(membershipAttribute);
     }
 }

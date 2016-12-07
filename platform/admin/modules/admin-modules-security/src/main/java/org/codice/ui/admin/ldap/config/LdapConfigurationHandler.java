@@ -14,7 +14,11 @@
 
 package org.codice.ui.admin.ldap.config;
 
+import static org.codice.ui.admin.ldap.config.LdapConfiguration.CREDENTIAL_STORE;
 import static org.codice.ui.admin.ldap.config.LdapConfiguration.LDAPS;
+import static org.codice.ui.admin.ldap.config.LdapConfiguration.LDAP_USE_CASES;
+import static org.codice.ui.admin.ldap.config.LdapConfiguration.LOGIN;
+import static org.codice.ui.admin.ldap.config.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ui.admin.ldap.config.LdapConfiguration.NONE;
 import static org.codice.ui.admin.ldap.config.LdapConfiguration.TLS;
 import static org.codice.ui.admin.ldap.config.LdapConfigurationHandler.LdapTestResultType.CANNOT_BIND;
@@ -36,8 +40,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 
@@ -79,6 +85,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
     public static final String LDAP_DIRECTORY_STRUCT_TEST_ID = "testLdapDirStruct";
 
+    public static final String LDAP_ATTRIBUTE_MAPPING_TEST_ID = "testAttributeMapping";
     // Probe Ids
     public static final String LDAP_QUERY_PROBE_ID = "ldapQuery";
 
@@ -87,6 +94,12 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     public static final String DISCOVER_LDAP_DIR_STRUCT_ID = "directoryStructure";
 
     public static final String BIND_USER_EXAMPLE = "bindUserExample";
+
+    public static final String ATTRIBUTE_MAP_ID = "subjectAttributeMap";
+
+    public static final String SUBJECT_CLAIMS_ID = "subjectClaims";
+
+    public static final String LDAP_USER_ATTRIBUTES = "ldapUserAttributes";
 
     @Override
     public String getConfigurationHandlerId() {
@@ -217,7 +230,27 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
             return new ProbeReport(new ArrayList<>()).addProbeResult(LDAP_QUERY_RESULTS_ID,
                     convertedSearchResults);
+
+        case ATTRIBUTE_MAP_ID:
+            // TODO: tbatie - 12/7/16 - Need to also return a default map is embedded ldap and set
+            Object subjectClaims = new Configurator().getConfig("ddf.security.sts.client.configuration").get("claims");
+            // TODO: tbatie - 12/6/16 - Clean up this naming conventions
+            LdapTestResult<Connection> connection = bindUserToLdapConnection(configuration);
+            List<SearchResultEntry> ldapSearchResults = getLdapQueryResults(connection.value(),
+                    "objectClass=*",
+                    configuration.queryBase());
+
+            Set<String> ldapEntryAttributes = new HashSet<>();
+            for (SearchResultEntry entry : ldapSearchResults) {
+                for (Attribute attri : entry.getAllAttributes()) {
+                    ldapEntryAttributes.add(attri.getAttributeDescriptionAsString());
+                }
+            }
+            // TODO: tbatie - 12/6/16 - Probably need to do some filtering at this part on values like objectClass
+            return new ProbeReport(new ArrayList<>()).addProbeResult(SUBJECT_CLAIMS_ID,
+                    subjectClaims).addProbeResult(LDAP_USER_ATTRIBUTES, ldapEntryAttributes);
         }
+
         return new ProbeReport(Arrays.asList(buildMessage(FAILURE, "UNKNOWN PROBE ID")));
     }
 
@@ -266,16 +299,20 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             if (dirFieldsResults.containsUnsuccessfulMessages()) {
                 return dirFieldsResults;
             }
-
             return testLdapDirectoryStructure(ldapConfiguration);
-        }
 
-        return new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
+        case LDAP_ATTRIBUTE_MAPPING_TEST_ID:
+            // TODO: tbatie - 12/7/16 - Test the attribute mappings
+            return new TestReport(buildMessage(SUCCESS, "TODO: Validate me"));
+        default:
+            return new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
+        }
     }
 
     @Override
     public TestReport persist(LdapConfiguration config) {
 
+        // TODO: tbatie - 12/8/16 - Perform validation
         Map<String, Object> ldapStsConfig = new HashMap<>();
 
         String ldapUrl = "";
@@ -306,8 +343,26 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         ldapStsConfig.put("startTls", Boolean.toString(startTls));
 
         Configurator configurator = new Configurator();
-        configurator.startFeature("security-sts-ldaplogin");
-        configurator.createManagedService("Ldap_Login_Config", ldapStsConfig);
+
+        if(!Arrays.asList(LDAP_USE_CASES).contains(config.ldapUseCase())) {
+            return new TestReport(buildMessage(ConfigurationMessage.MessageType.FAILURE,
+                    "No ldap use case specified"));
+        }
+
+        if(config.ldapUseCase().equals(LOGIN) || config.ldapUseCase().equals(LOGIN_AND_CREDENTIAL_STORE)) {
+            configurator.startFeature("security-sts-ldaplogin");
+            configurator.createManagedService("Ldap_Login_Config", ldapStsConfig);
+        }
+
+        if(config.ldapUseCase().equals(CREDENTIAL_STORE) || config.ldapUseCase().equals(LOGIN_AND_CREDENTIAL_STORE)) {
+            // TODO: tbatie - 12/8/16 - Fields do not map directly with the ldap login fields, might want to wait to persist until they are identical
+//            ldapStsConfig.put("groupObjectClass", config.groupObjectClass());
+//            ldapStsConfig.put("membershipAttribute", config.membershipAttribute());
+//            configurator.startFeature("security-sts-ldapclaimshandler");
+//            configurator.createManagedService("Claims_Handler_Manager", ldapStsConfig);
+        }
+
+
         ConfigReport configReport = configurator.commit();
         if (!configReport.getFailedResults()
                 .isEmpty()) {

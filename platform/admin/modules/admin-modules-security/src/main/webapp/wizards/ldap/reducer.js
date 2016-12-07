@@ -8,7 +8,7 @@ export const getAllConfig = (state) => state.get('config').map((config) => confi
 const config = (state = Map(), { type, id, value, values, messages }) => {
   switch (type) {
     case 'EDIT_CONFIG':
-      return state.setIn([].concat(id, 'value'), value)
+      return state.setIn([id, 'value'], value)
     case 'SET_CONFIG_SOURCE':
       var formattedSource = {}
       Object.keys(value).map((key) => { formattedSource[key] = { value: value[key] } })
@@ -51,6 +51,42 @@ const probeValue = (state = [], { type, value }) => {
     return value
   }
   return state
+}
+
+const tableMappings = (state = [], { type, mapping, indexs }) => {
+  switch (type) {
+    case 'ADD_MAPPING':
+      var duplicate = state.find((prev) => prev.subjectClaim === mapping.subjectClaim && prev.userAttribute === mapping.userAttribute)
+      return duplicate === undefined ? state.concat({subjectClaim: mapping.subjectClaim, userAttribute: mapping.userAttribute, selected: false}) : state
+    case 'SELECT_MAPPINGS':
+      state.map((mapping) => (mapping.selected = false))
+      indexs.map((index) => (state[index].selected = true))
+      return state
+    case 'REMOVE_SELECTED_MAPPINGS':
+      return state.filter((mapping) => !mapping.selected)
+    default:
+      return state
+  }
+}
+
+const mappingToAdd = (state = {}, { type, mapping }) => {
+  switch (type) {
+    case 'SET_SELECTED_MAPPING':
+      return {subjectClaim: mapping.subjectClaim === undefined ? state.subjectClaim : mapping.subjectClaim,
+        userAttribute: mapping.userAttribute === undefined ? state.userAttribute : mapping.userAttribute}
+
+    default:
+      return state
+  }
+}
+
+const selectedRemoveAttributeMapping = (state = [], {type, mappings}) => {
+  switch (type) {
+    case 'ADD_REMOVE_SELECTED_MAPPINGS':
+      return state.concat(mappings)
+    default:
+      return state
+  }
 }
 
 export const getProbeValue = (state) => state.getIn(['probeValue'])
@@ -96,5 +132,5 @@ const ldapDisplayedStages = (state = ['introductionStage'], { type, stage }) => 
 
 export const getDisplayedLdapStages = (state) => state.getIn(['ldapDisplayedStages'])
 
-export default combineReducers({ config, probeValue, step, submitting, messages, ldapDisplayedStages })
+export default combineReducers({ config, probeValue, step, submitting, messages, ldapDisplayedStages, mappingToAdd, tableMappings, selectedRemoveAttributeMapping })
 

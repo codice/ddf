@@ -6,14 +6,17 @@ import { setDefaults } from '../../actions'
 
 import Mount from '../../components/mount'
 import {Card, CardActions, CardHeader} from 'material-ui/Card'
+import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 import Paper from 'material-ui/Paper'
 import RaisedButton from 'material-ui/RaisedButton'
 import FlatButton from 'material-ui/FlatButton'
 import CircularProgress from 'material-ui/CircularProgress'
 import Flexbox from 'flexbox-react'
 import {List, ListItem} from 'material-ui/List'
+import SelectField from 'material-ui/SelectField'
+import MenuItem from 'material-ui/MenuItem'
 import * as styles from './styles.less'
-import {testConfig, probe, probeLdapDir, nextStage, prevStage} from './actions'
+import {testConfig, probe, probeLdapDir, nextStage, prevStage, probeAttributeMapping, setMappingToAdd, addMapping, setSelectedMappings, removeSelectedMappings, testAndProbeConfig} from './actions'
 import {Input, Password, Hostname, Port, Select, RadioSelection} from '../inputs'
 import Wizard from '../components/wizard'
 
@@ -34,19 +37,33 @@ const NextView = ({next, disabled, nextStageId}) => <RaisedButton label='Next' d
 
 const Next = connect(null, mapDispatchToPropsNext)(NextView)
 
-const Save = connect(null, (dispatch, { id, url, nextStageId, configType }) => ({
+const mapDispatchToPropsProbeAndNext = (dispatch, {id, url, nextStageId, probe}) => ({
+  nextAndProbe: () => dispatch(testAndProbeConfig(id, url, nextStageId, 'ldapConfiguration', probe))
+})
+const ProbeAndNextView = ({nextAndProbe, disabled, nextStageId}) => <RaisedButton label='Next'
+  disabled={disabled}
+  primary
+  onClick={nextAndProbe} />
+const ProbeAndNext = connect(null, mapDispatchToPropsProbeAndNext)(ProbeAndNextView)
+
+const Save = connect(null, (dispatch, {id, url, nextStageId, configType}) => ({
   saveConfig: () => dispatch(testConfig(id, url, nextStageId, configType))
-}))(({ saveConfig }) => (
+}))(({saveConfig}) => (
   <RaisedButton label='Save' primary onClick={saveConfig} />
 ))
 
-const BeginView = ({onBegin, disabled, next}) => <RaisedButton disabled={disabled} primary label='begin'
+const BeginView = ({onBegin, disabled, next}) => <RaisedButton disabled={disabled} primary
+  label='begin'
   onClick={next} />
 
-const Begin = connect(null, (dispatch, { nextStageId }) => ({next: () => dispatch(nextStage(nextStageId))}))(BeginView)
+const Begin = connect(null, (dispatch, {nextStageId}) => ({next: () => dispatch(nextStage(nextStageId))}))(BeginView)
 
 const Message = ({type, message}) => (
   <div className={type === 'FAILURE' ? styles.error : styles.success}>{message}</div>
+)
+
+export const Submit = ({ label = 'Submit', onClick, disabled = false }) => (
+  <RaisedButton label={label} disabled={disabled} primary onClick={onClick} />
 )
 
 const StageView = (props) => {
@@ -102,7 +119,6 @@ const IntroductionStageView = ({id, disabled, ldapUseCase}) => (
       This guide will walk through setting up the LDAP as an
       authentication source for users. To begin, make sure you
       have the hostname and port of the LDAP you plan to. How do you plan to use LDAP?
-      configure.
     </Description>
     <RadioSelection id='ldapUseCase' options={LdapUseCases} name='LDAP Use Cases' />
     <StageControls justifyContent='center'>
@@ -222,7 +238,7 @@ const QueryResult = (props) => {
   )
 }
 
-const QueryView = ({probe, probeValue = [], id, disabled, ldapUseCase}) => (
+const QueryView = ({probe, probeAttributeMapping, probeValue = [], id, disabled, ldapUseCase}) => (
   <Stage id={id} defaults={{
     query: 'objectClass=*',
     queryBase: 'dc=example,dc=com',
@@ -274,15 +290,125 @@ const QueryView = ({probe, probeValue = [], id, disabled, ldapUseCase}) => (
 
     <StageControls>
       <Back disabled={disabled} />
-      <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapDirStruct' nextStageId='confirm' />
+      {ldapUseCase === 'loginAndCredentialStore' || ldapUseCase === 'credentialStore'
+        ? (<ProbeAndNext id={id}
+          url='/admin/wizard/test/ldap/testLdapDirStruct'
+          probe={() => probeAttributeMapping('/admin/wizard/probe/ldap/subjectAttributeMap', 'attributeMapping')} />)
+        : (<Next id={id}
+          disabled={disabled}
+          url='/admin/wizard/test/ldap/testLdapDirStruct'
+          nextStageId={'confirm'} />)}
     </StageControls>
   </Stage>
 )
 
 const Query = connect(
-  (state) => ({probeValue: getProbeValue(state), ldapUseCase: getLdapUseCase(state)}),
-  {probe}
+    (state) => ({probeValue: getProbeValue(state), ldapUseCase: getLdapUseCase(state)}),
+    {probe, probeAttributeMapping}
 )(QueryView)
+
+const LdapAttributeMappingStageView = (props) => {
+  const {
+    id,
+    disabled,
+    tableMappings = [],
+    subjectClaims = [],
+    userAttributes = [],
+    mappingToadd,
+
+    // actions
+    setMappingToAdd,
+    addMapping,
+    setSelectedMappings,
+    removeSelectedMappings
+  } = props
+
+  return (
+    <Stage id={id}>
+      <Title>LDAP User Attribute Mapping</Title>
+      <Description>
+        In order to authenticate users, the attributes of the users must be mapped to the STS
+        claims.
+        Not all attributes must be mapped but any unmapped attributes will not be used for
+        authentication.
+        Claims can be mapped to 1 or more attributes.
+      </Description>
+      <SelectField floatingLabelText='STS Claim'
+        value={mappingToadd.subjectClaim}
+        style={{width: '100%', clear: 'both'}}
+        onChange={(e, i) => setMappingToAdd({subjectClaim: subjectClaims[i]})}>
+        {subjectClaims.map((claim, i) => <MenuItem key={i} value={claim} primaryText={claim} />)}
+      </SelectField>
+      <SelectField floatingLabelText='LDAP User Attribute'
+        value={mappingToadd.userAttribute}
+        style={{width: '100%', clear: 'both'}}
+        onChange={(e, i) => setMappingToAdd({userAttribute: userAttributes[i]})}>
+        {userAttributes.map((attri, i) => <MenuItem key={i} value={attri}
+          primaryText={attri} />)}
+      </SelectField>
+      <RaisedButton
+        label='Add Mapping'
+        primary
+        disabled={mappingToadd.subjectClaim === undefined || mappingToadd.userAttribute === undefined}
+        style={{margin: '0 auto', marginBottom: '30px', marginTop: '10px', display: 'block'}}
+        onClick={() => addMapping(mappingToadd)} />
+      <Card expanded style={{width: '200%', marginLeft: '-15%'}}>
+        <CardHeader style={{textAlign: 'center'}}
+          title='STS Claims to LDAP Attribute Mapping'
+          subtitle='The mappings below will be saved'
+        />
+        <Table onRowSelection={(indexs) => setSelectedMappings(indexs)}
+          multiSelectable>
+          <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+            <TableRow >
+              <TableHeaderColumn>STS Claim</TableHeaderColumn>
+              <TableHeaderColumn>LDAP User Attribute</TableHeaderColumn>
+            </TableRow>
+          </TableHeader>
+          <TableBody showRowHover deselectOnClickaway={false}>
+            {tableMappings.map((mapping, i) =>
+              <TableRow key={i} selected={mapping.selected}>
+                <TableRowColumn>{mapping.subjectClaim}</TableRowColumn>
+                <TableRowColumn>{mapping.userAttribute}</TableRowColumn>
+              </TableRow>)}
+          </TableBody>
+        </Table>
+        <RaisedButton
+          label='Remove Selected Mappings'
+          primary
+          style={{display: 'block'}}
+          disabled={tableMappings.filter((mapping) => mapping.selected).length === 0}
+          onClick={() => removeSelectedMappings()} />
+      </Card>
+      <StageControls>
+        <Back disabled={disabled} />
+        <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testAttributeMapping'
+          nextStageId='confirm' />
+      </StageControls>
+    </Stage>
+  )
+}
+
+const getSubjectClaims = (state) => (getConfig(state, 'subjectClaims') !== undefined ? getConfig(state, 'subjectClaims').value : undefined)
+const getUserAttributes = (state) => (getConfig(state, 'userAttributes') !== undefined ? getConfig(state, 'userAttributes').value : undefined)
+const getTableMappings = (state) => state.getIn(['wizard', 'tableMappings'])
+const getMappingToAdd = (state) => state.getIn(['wizard', 'mappingToAdd'])
+const LdapAttributeMappingStage = connect(
+  (state) => ({
+    subjectClaims: getSubjectClaims(state),
+    userAttributes: getUserAttributes(state),
+    tableMappings: getTableMappings(state),
+    mappingToadd: getMappingToAdd(state)
+  }),
+
+  {
+    probeAttributeMapping,
+    setMappingToAdd,
+    addMapping,
+    setSelectedMappings,
+    removeSelectedMappings
+  }
+)(LdapAttributeMappingStageView)
 
 const Confirm = ({id}) => (
   <Stage id={id}>
@@ -308,6 +434,7 @@ let stageMapper = (stage, key) => {
     networkSettings: <NetworkSettings id='network-settings' key={key} />,
     bindSettings: <BindSettings id='bind-settings' key={key} />,
     query: <Query id='ldap-query' key={key} />,
+    attributeMapping: <LdapAttributeMappingStage id='attribute-mapping' key={key} />,
     confirm: <Confirm id='ldap-save' key={key} />
   }
   return (stageMapping[stage] || (<div>Undefined Stage</div>))

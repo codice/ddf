@@ -14,11 +14,16 @@
 package org.codice.ui.admin.wizard.config.handlers;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.management.MalformedObjectNameException;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.codice.ui.admin.wizard.config.ConfigHandler;
 import org.codice.ui.admin.wizard.config.ConfiguratorException;
@@ -107,10 +112,33 @@ public class AdminConfigHandler implements ConfigHandler<Void, Map<String, Objec
     @Override
     public Map<String, Object> readState() throws ConfiguratorException {
         try {
-            return getConfigAdminMBean().getProperties(pid);
+            Map<String, Object> configResults = getConfigAdminMBean().getProperties(pid);
+            if (configResults.isEmpty()) {
+                Optional<Map<String, Object>> defaultMetatypeValues =
+                        getConfigAdminMBean().listServices()
+                                .stream()
+                                .filter(service -> service.get("id") != null && service.get("id")
+                                        .equals(pid))
+                                .findFirst();
+
+                List<Map<String, Object>> metatypes = new ArrayList<>();
+                if(defaultMetatypeValues.isPresent()) {
+                    metatypes = (List)defaultMetatypeValues.get().get("metatype");
+                }
+
+                if(metatypes.isEmpty()) {
+                    return new HashMap<>();
+                }
+
+                return metatypes.stream()
+                        .collect(Collectors.toMap(field -> (String) field.get("id"), field -> field.get("defaultValue")));
+            } else {
+                return configResults;
+            }
+            // return getConfigAdminMBean().getProperties(pid);
         } catch (IOException | MalformedObjectNameException e) {
             throw new ConfiguratorException(String.format("Unable to find configuration for pid, %s",
-                    pid), e);
+                pid), e);
         }
     }
 
