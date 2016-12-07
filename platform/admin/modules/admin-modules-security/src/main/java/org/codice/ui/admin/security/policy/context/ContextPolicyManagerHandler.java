@@ -65,7 +65,7 @@ public class ContextPolicyManagerHandler
             // TODO: tbatie - 12/14/16 - Filter the realms based on what is installed in the system
             Object claims = new Configurator().getConfig("ddf.security.sts.client.configuration")
                     .get("claims");
-            return new ProbeReport().addProbeResult("authTypes", authenticationTypes)
+            return new ProbeReport().addProbeResult("authenticationTypes", authenticationTypes)
                     .addProbeResult("realms", realms)
                     .addProbeResult("claims", claims);
         }
@@ -108,8 +108,7 @@ public class ContextPolicyManagerHandler
 //        }
 
         Configurator configurator = new Configurator();
-
-        return null;
+        return new TestReport();
     }
 
     @Override

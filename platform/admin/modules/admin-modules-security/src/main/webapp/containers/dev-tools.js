@@ -11,6 +11,7 @@ import * as actions from '../actions'
 
 const DevTools = createDevTools(
   <DockMonitor
+    defaultIsVisible={false}
     toggleVisibilityKey='ctrl-h'
     changePositionKey='ctrl-q'
     defaultSize={0.35}
