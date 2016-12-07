@@ -58,7 +58,6 @@ import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import com.google.common.collect.ImmutableMap;
 
 public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfiguration> {
-
     public static final String LDAP_CONFIGURATION_HANDLER_ID = "ldap";
 
     // Test Ids
@@ -74,6 +73,8 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     public static final String LDAP_QUERY_RESULTS_ID = "ldapQueryResults";
 
     public static final String DISCOVER_LDAP_DIR_STRUCT_ID = "directoryStructure";
+
+    public static final String BIND_USER_EXAMPLE = "bindUserExample";
 
     @Override
     public String getConfigurationHandlerId() {
@@ -95,7 +96,8 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(LdapConfiguration.class.getSimpleName(), LdapConfiguration.class);
+        return new CapabilitiesReport(LdapConfiguration.class.getSimpleName(),
+                LdapConfiguration.class);
     }
 
     @Override
@@ -103,8 +105,16 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
         switch (probeId) {
         case DISCOVER_LDAP_DIR_STRUCT_ID:
-            // TODO: 11/14/16 Return directory structure based on config
-            return new ProbeReport();
+            return getDefaultDirectoryStructure(configuration);
+        case BIND_USER_EXAMPLE:
+            switch (configuration.ldapType()) {
+            case "activeDirectory":
+                return new ProbeReport(new ArrayList<>()).addProbeResult("bindUserDn",
+                        "user@domain");
+            default:
+                return new ProbeReport(new ArrayList<>()).addProbeResult("bindUserDn", "cn=admin");
+            }
+            // TODO RAP 07 Dec 16:
 
         case LDAP_QUERY_PROBE_ID:
             Map<String, Object> connectionRequiredFields = new HashMap<>();
@@ -262,7 +272,8 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
         //Since the test failed, trying other encryption methods
         List<String> encryptionMethodsToTry = new ArrayList<>();
-        Collections.copy(Arrays.asList(LdapConfiguration.LDAP_ENCRYPTION_METHODS), encryptionMethodsToTry);
+        Collections.copy(Arrays.asList(LdapConfiguration.LDAP_ENCRYPTION_METHODS),
+                encryptionMethodsToTry);
         encryptionMethodsToTry.remove(ldapConfiguration.encryptionMethod());
 
         List<LdapConfiguration> configsToTest = new ArrayList<>();
@@ -478,6 +489,22 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
                         "Field cannot be empty").configId(field.getKey())));
 
         return new TestReport(missingFields);
+    }
+
+    ProbeReport getDefaultDirectoryStructure(LdapConfiguration configuration) {
+        ProbeReport probeReport = new ProbeReport(new ArrayList<>());
+
+        String ldapType = configuration.ldapType();
+        ServerGuesser guesser = ServerGuesser.buildGuesser(ldapType,
+                bindUserToLdapConnection(configuration).value);
+
+        if (guesser != null) {
+            probeReport.addProbeResult("baseUserDn", guesser.getUserBaseChoices());
+            probeReport.addProbeResult("baseGroupDn", guesser.getGroupBaseChoices());
+            probeReport.addProbeResult("userNameAttribute", guesser.getUserNameAttribute());
+        }
+
+        return probeReport;
     }
 
     public enum LdapTestResultType {
