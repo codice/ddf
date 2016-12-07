@@ -14,8 +14,9 @@
 
 package org.codice.ddf.ui.searchui.simple.properties;
 
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.branding.BrandingPlugin;
+import java.util.Optional;
+
+import org.codice.ddf.branding.BrandingRegistry;
 
 /**
  * Stores external configuration properties.
@@ -33,7 +34,7 @@ public class ConfigurationStore {
 
     private String background = "";
 
-    private BrandingPlugin branding;
+    private Optional<BrandingRegistry> branding = Optional.empty();
 
     private ConfigurationStore() {
         header = "";
@@ -87,20 +88,16 @@ public class ConfigurationStore {
     }
 
     public String getProductName() {
-        if (branding != null) {
-            // Remove the version number
-            return StringUtils.substringBeforeLast(branding.getProductName(), " ");
-        } else {
-            return "";
-        }
+        return branding.map(BrandingRegistry::getProductName)
+                .orElse("");
     }
 
-    public BrandingPlugin getBranding() {
-        return branding;
+    public BrandingRegistry getBranding() {
+        return branding.orElse(null);
     }
 
-    public void setBranding(BrandingPlugin branding) {
-        this.branding = branding;
+    public void setBranding(BrandingRegistry branding) {
+        this.branding = Optional.ofNullable(branding);
     }
 
     public Object clone() throws CloneNotSupportedException {

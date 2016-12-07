@@ -15,6 +15,7 @@ package org.codice.admin.ui.configuration;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -25,7 +26,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.ddf.branding.BrandingRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +82,7 @@ public class Configuration {
 
     private String disabledInstallerApps = "";
 
-    private BrandingPlugin branding;
+    private Optional<BrandingRegistry> branding = Optional.empty();
 
     private Configuration() {
         header = "";
@@ -204,20 +205,15 @@ public class Configuration {
     }
 
     public String getProductName() {
-        if (branding != null) {
-            // Remove the version number
-            return branding.getProductName();
-        } else {
-            return "";
-        }
+        return branding.map(BrandingRegistry::getProductName).orElse("");
     }
 
-    public BrandingPlugin getBranding() {
-        return branding;
+    public BrandingRegistry getBranding() {
+        return branding.orElse(null);
     }
 
-    public void setBranding(BrandingPlugin branding) {
-        this.branding = branding;
+    public void setBranding(BrandingRegistry branding) {
+        this.branding = Optional.ofNullable(branding);
     }
 
 }

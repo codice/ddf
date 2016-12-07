@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -42,7 +43,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.ddf.branding.BrandingRegistry;
 import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +112,7 @@ public class ConfigurationStore {
 
     private Boolean isIngest = true;
 
-    private BrandingPlugin branding;
+    private Optional<BrandingRegistry> branding = Optional.empty();
 
     private Integer timeout = 15000;
 
@@ -129,7 +130,7 @@ public class ConfigurationStore {
 
     private Boolean isExternalAuthentication = false;
 
-    private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
+    private Map<String, Set<String>> typeNameMapping = new HashMap<>();
 
     public ConfigurationStore() {
 
@@ -179,29 +180,21 @@ public class ConfigurationStore {
     }
 
     public String getProductName() {
-        if (branding != null) {
-            // Remove the version number
-            return StringUtils.substringBeforeLast(branding.getProductName(), " ");
-        } else {
-            return "";
-        }
+        return branding.map(BrandingRegistry::getProductName)
+                .orElse("");
     }
 
     public String getProductVersion() {
-        if (branding != null) {
-            // Remove the version number
-            return StringUtils.substringAfterLast(branding.getProductName(), " ");
-        } else {
-            return "";
-        }
+        return branding.map(BrandingRegistry::getProductVersion)
+                .orElse("");
     }
 
-    public BrandingPlugin getBranding() {
-        return branding;
+    public BrandingRegistry getBranding() {
+        return branding.orElse(null);
     }
 
-    public void setBranding(BrandingPlugin branding) {
-        this.branding = branding;
+    public void setBranding(BrandingRegistry branding) {
+        this.branding = Optional.ofNullable(branding);
     }
 
     public String getFormat() {
@@ -285,8 +278,9 @@ public class ConfigurationStore {
         proxiedImageryProviders.clear();
         for (Map<String, Object> newImageryProvider : newImageryProviders) {
             HashMap<String, Object> map = new HashMap<>(newImageryProvider);
-            map.put(URL, SERVLET_PATH + "/" + urlToProxyMap.get(newImageryProvider.get(URL)
-                    .toString()));
+            map.put(URL,
+                    SERVLET_PATH + "/" + urlToProxyMap.get(newImageryProvider.get(URL)
+                            .toString()));
             proxiedImageryProviders.add(map);
         }
         imageryProviderMaps = newImageryProviders;

@@ -25,7 +25,7 @@
     <bean id="landingPage" class="org.codice.ddf.landing.LandingPage">
         <cm:managed-properties persistent-id="org.codice.ddf.distribution.landing-page.properties"
                                update-strategy="container-managed"/>
-        <property name="branding" ref="branding"/>
+        <property name="branding" ref="brandingRegistry"/>
         <property name="description"
                   value="As a common data layer, DDF provides secure enterprise-wide data access for both users and systems."/>
         <property name="phone" value=""/>
@@ -50,8 +50,6 @@
         </service-properties>
     </service>
 
-    <!-- The BrandingPlugin gives access to the Product name and version to
-        be displayed on the Landing Page -->
-    <reference id="branding" interface="org.codice.ddf.branding.BrandingPlugin"/>
+    <reference id="brandingRegistry" interface="org.codice.ddf.branding.BrandingRegistry" />
 
 </blueprint>

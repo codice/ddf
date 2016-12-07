@@ -17,15 +17,26 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.ddf.branding.BrandingRegistry;
+import org.codice.ddf.branding.BrandingRegistryImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -47,12 +58,16 @@ public class TestLandingPage {
 
     @BeforeClass
     public static void setupLandingPage() throws IOException {
-        landingPage = new LandingPage();
-        BrandingPlugin branding = mock(BrandingPlugin.class);
-        when(branding.getProductName()).thenReturn(version);
-        when(branding.getBase64FavIcon()).thenReturn("");
-        when(branding.getBase64ProductImage()).thenReturn(Base64.getEncoder()
+        BrandingPlugin brandingPlugin = mock(BrandingPlugin.class);
+        when(brandingPlugin.getBase64FavIcon()).thenReturn("");
+        when(brandingPlugin.getBase64ProductImage()).thenReturn(Base64.getEncoder()
                 .encodeToString(fakeImg.getBytes()));
+        landingPage = new LandingPage();
+        BrandingRegistry branding = mock(BrandingRegistryImpl.class);
+        when(branding.getProductName()).thenReturn(productName);
+        when(branding.getProductVersion()).thenReturn(version);
+        when(branding.getBrandingPlugins()).thenReturn(Collections.singletonList(brandingPlugin));
+        when(branding.getAttributeFromBranding(any())).thenCallRealMethod();
         landingPage.setBranding(branding);
         String firstDateLeadingZeroes = "05/07/20 stuff happened";
         String secondDateNoLeadingZeroes = "4/3/20 old stuff happened";
@@ -65,7 +80,7 @@ public class TestLandingPage {
     }
 
     @Test
-    public void testSetBranding() throws IOException {
+    public void testSetBranding() {
         assertThat(landingPage.getVersion(), is(equalTo(version)));
         assertThat(landingPage.getTitle(), is(equalTo(productName)));
         assertThat(landingPage.getFavicon(), is(equalTo("")));
@@ -88,11 +103,23 @@ public class TestLandingPage {
     }
 
     @Test
-    public void testDefaultTitle() throws IOException {
-        BrandingPlugin brandingPlugin = mock(BrandingPlugin.class);
-        when(brandingPlugin.getProductName()).thenReturn("");
+    public void testDefaultTitle() {
+        BrandingRegistry brandingPlugin = mock(BrandingRegistry.class);
+        when(brandingPlugin.getProductName()).thenReturn("DDF");
         LandingPage landingPage = new LandingPage();
         landingPage.setBranding(brandingPlugin);
         assertThat(landingPage.getTitle(), is(equalTo("DDF")));
+    }
+
+    @Test
+    public void testDoGet() throws IOException, ServletException {
+        String compiledTemplate = landingPage.compileTemplateWithProperties();
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("");
+        PrintWriter writer = mock(PrintWriter.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getWriter()).thenReturn(writer);
+        landingPage.doGet(request, response);
+        verify(writer, times(1)).write(compiledTemplate);
     }
 }

@@ -34,7 +34,7 @@
              ranking="0">
     </service>
 
-    <reference id="webBranding" interface="org.codice.ddf.branding.BrandingPlugin"/>
+    <reference id="brandingRegistry" interface="org.codice.ddf.branding.BrandingRegistry"/>
 
     <bean id="configurationStore"
           class="org.codice.ddf.security.handler.guest.configuration.Configuration"
@@ -42,6 +42,6 @@
         <cm:managed-properties
                 persistent-id="org.codice.ddf.security.handler.guest.configuration"
                 update-strategy="container-managed"/>
-        <property name="branding" ref="webBranding"/>
+        <property name="branding" ref="brandingRegistry"/>
     </bean>
 </blueprint>
