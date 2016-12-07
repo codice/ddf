@@ -40,7 +40,7 @@
         <dependency>
             <groupId>net.jodah</groupId>
             <artifactId>failsafe</artifactId>
-            <version>0.9.3</version>
+            <version>${jodah-failsafe.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -117,8 +117,7 @@
                             catalog-core-api-impl,
                             ddf-security-common,
                             platform-util,
-                            platform-util-unavailableurls,
-                            failsafe
+                            platform-util-unavailableurls
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
