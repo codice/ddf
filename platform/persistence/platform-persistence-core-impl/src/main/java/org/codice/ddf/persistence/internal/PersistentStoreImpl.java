@@ -36,11 +36,11 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
-import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
-import org.codice.solr.factory.impl.HttpSolrClientFactory;
+import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.factory.impl.SolrClientFactoryImpl;
 import org.codice.solr.query.SolrQueryFilterVisitor;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
@@ -52,37 +52,12 @@ public class PersistentStoreImpl implements PersistentStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistentStoreImpl.class);
 
-    private PropertyResolver solrUrl;
+    private SolrClientFactory clientFactory;
 
-    private ConcurrentHashMap<String, SolrClient> coreSolrClients = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Future<SolrClient>> solrFutures = new ConcurrentHashMap<>();
 
-    public PersistentStoreImpl(String solrUrl) {
-        LOGGER.trace("INSIDE: PersistentStoreImpl constructor with solrUrl = {}", solrUrl);
-        setSolrUrl(solrUrl);
-    }
-
-    public void setSolrUrl(String url) {
-
-        LOGGER.debug("Setting solrUrl to {}", url);
-        if (url != null) {
-            if (solrUrl == null || !StringUtils.equalsIgnoreCase(url.trim(),
-                    solrUrl.getResolvedString())) {
-                solrUrl = new PropertyResolver(url.trim());
-
-                List<SolrClient> servers = new ArrayList<>(coreSolrClients.values());
-                coreSolrClients.clear();
-                for (SolrClient server : servers) {
-                    try {
-                        server.close();
-                    } catch (IOException e) {
-                        LOGGER.info("Unable to close Solr client", e);
-                    }
-                }
-            }
-        } else {
-            // sets to null
-            solrUrl = new PropertyResolver(url);
-        }
+    public PersistentStoreImpl(SolrClientFactoryImpl clientFactory) {
+        this.clientFactory = clientFactory;
     }
 
     @Override
@@ -98,9 +73,9 @@ public class PersistentStoreImpl implements PersistentStore {
 
         LOGGER.debug("Adding entry of type {}", type);
 
-        // Set Solr Core name to type and create/connect to Solr Core
-        SolrClient coreSolrClient = getSolrCore(type);
-        if (coreSolrClient == null) {
+        // Set Solr Core name to type and create solr client
+        SolrClient solrClient = getSolrClient(type);
+        if (solrClient == null) {
             return;
         }
 
@@ -116,35 +91,35 @@ public class PersistentStoreImpl implements PersistentStore {
         }
 
         try {
-            UpdateResponse response = coreSolrClient.add(solrInputDocument);
+            UpdateResponse response = solrClient.add(solrInputDocument);
             LOGGER.debug("UpdateResponse from add of SolrInputDocument:  {}", response);
         } catch (SolrServerException e) {
             LOGGER.info("SolrServerException while adding Solr index for persistent type {}",
                     type,
                     e);
-            doRollback(coreSolrClient, type);
+            doRollback(solrClient, type);
             throw new PersistenceException(
                     "SolrServerException while adding Solr index for persistent type " + type,
                     e);
         } catch (IOException e) {
             LOGGER.info("IOException while adding Solr index for persistent type {}", type, e);
-            doRollback(coreSolrClient, type);
+            doRollback(solrClient, type);
             throw new PersistenceException(
                     "IOException while adding Solr index for persistent type " + type,
                     e);
         } catch (RuntimeException e) {
             LOGGER.info("RuntimeException while adding Solr index for persistent type {}", type, e);
-            doRollback(coreSolrClient, type);
+            doRollback(solrClient, type);
             throw new PersistenceException(
                     "RuntimeException while adding Solr index for persistent type " + type,
                     e);
         }
     }
 
-    private void doRollback(SolrClient coreSolrClient, String type) {
+    private void doRollback(SolrClient solrClient, String type) {
         LOGGER.debug("ENTERING: doRollback()");
         try {
-            coreSolrClient.rollback();
+            solrClient.rollback();
         } catch (SolrServerException e) {
             LOGGER.info("SolrServerException while doing rollback for persistent type {}", type, e);
         } catch (IOException e) {
@@ -169,12 +144,12 @@ public class PersistentStoreImpl implements PersistentStore {
         List<Map<String, Object>> results = new ArrayList<>();
 
         // Set Solr Core name to type and create/connect to Solr Core
-        SolrClient coreSolrClient = getSolrCore(type);
-        if (coreSolrClient == null) {
+        SolrClient solrClient = getSolrClient(type);
+        if (solrClient == null) {
             return results;
         }
 
-        SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(coreSolrClient, type);
+        SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(solrClient, type);
 
         try {
             SolrQuery solrQuery;
@@ -185,7 +160,7 @@ public class PersistentStoreImpl implements PersistentStore {
                 Filter filter = CQL.toFilter(cql);
                 solrQuery = (SolrQuery) filter.accept(visitor, null);
             }
-            QueryResponse solrResponse = coreSolrClient.query(solrQuery, METHOD.POST);
+            QueryResponse solrResponse = solrClient.query(solrQuery, METHOD.POST);
             long numResults = solrResponse.getResults()
                     .getNumFound();
             LOGGER.debug("numResults = {}", numResults);
@@ -238,8 +213,8 @@ public class PersistentStoreImpl implements PersistentStore {
     @Override
     public int delete(String type, String cql) throws PersistenceException {
         List<Map<String, Object>> itemsToDelete = this.get(type, cql);
-        SolrClient coreSolrClient = getSolrCore(type);
-        if (coreSolrClient == null) {
+        SolrClient solrClient = getSolrClient(type);
+        if (solrClient == null) {
             return 0;
         }
         List<String> idsToDelete = new ArrayList<>();
@@ -253,13 +228,13 @@ public class PersistentStoreImpl implements PersistentStore {
         if (!idsToDelete.isEmpty()) {
             try {
                 LOGGER.debug("Deleting {} items by ID", idsToDelete.size());
-                coreSolrClient.deleteById(idsToDelete);
+                solrClient.deleteById(idsToDelete);
             } catch (SolrServerException e) {
                 LOGGER.info(
                         "SolrServerException while trying to delete items by ID for persistent type {}",
                         type,
                         e);
-                doRollback(coreSolrClient, type);
+                doRollback(solrClient, type);
                 throw new PersistenceException(
                         "SolrServerException while trying to delete items by ID for persistent type "
                                 + type,
@@ -268,7 +243,7 @@ public class PersistentStoreImpl implements PersistentStore {
                 LOGGER.info("IOException while trying to delete items by ID for persistent type {}",
                         type,
                         e);
-                doRollback(coreSolrClient, type);
+                doRollback(solrClient, type);
                 throw new PersistenceException(
                         "IOException while trying to delete items by ID for persistent type "
                                 + type,
@@ -278,7 +253,7 @@ public class PersistentStoreImpl implements PersistentStore {
                         "RuntimeException while trying to delete items by ID for persistent type {}",
                         type,
                         e);
-                doRollback(coreSolrClient, type);
+                doRollback(solrClient, type);
                 throw new PersistenceException(
                         "RuntimeException while trying to delete items by ID for persistent type "
                                 + type,
@@ -289,26 +264,19 @@ public class PersistentStoreImpl implements PersistentStore {
         return idsToDelete.size();
     }
 
-    private SolrClient getSolrCore(String storeName) {
-        if (coreSolrClients.containsKey(storeName)) {
-            LOGGER.debug("Returning core {} from map of coreSolrClients", storeName);
-            return coreSolrClients.get(storeName);
-        }
+    private SolrClient getSolrClient(String storeName) {
 
-        // Must specify shard in URL so proper core is used
-        SolrClient coreSolrClient = null;
+        SolrClient solrClient = null;
+
+        Future<SolrClient> clientFuture = solrFutures.computeIfAbsent(storeName, clientFactory::newClient);
+
         try {
-            Future<SolrClient> coreSolrClientFuture =
-                    HttpSolrClientFactory.getHttpSolrClient(solrUrl.getResolvedString(), storeName);
-            coreSolrClient = coreSolrClientFuture.get(30, TimeUnit.SECONDS);
-            coreSolrClients.put(storeName, coreSolrClient);
-
-            LOGGER.trace("EXITING: getSolrCore");
+            solrClient = clientFuture.get(5, TimeUnit.SECONDS);
 
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            LOGGER.debug("Error getting solr server from future", e);
+            LOGGER.warn("Error getting solr server from future for core: {}", storeName, e);
         }
-        return coreSolrClient;
+        return solrClient;
     }
 
 }
