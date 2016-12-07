@@ -329,71 +329,9 @@
                                                 <classifier>Documentation</classifier>
                                             </artifact>
                                             <artifact>
-                                                <file>${project.build.directory}/docs/html/ddf-introduction.html</file>
-                                                <type>html</type>
-                                                <classifier>DDFIntroduction</classifier>
-                                            </artifact>
-                                            <artifact>
-                                                <file>${project.build.directory}/docs/html/ddf-quickstart.html</file>
-                                                <type>html</type>
-                                                <classifier>DDFQuickStart</classifier>
-                                            </artifact>
-                                            <artifact>
                                                 <file>${project.build.directory}/docs/pdf/documentation.pdf</file>
                                                 <type>pdf</type>
                                                 <classifier>Documentation</classifier>
-                                            </artifact>
-                                            <artifact>
-                                                <file>${project.build.directory}/docs/pdf/ddf-introduction.pdf</file>
-                                                <type>pdf</type>
-                                                <classifier>DDFIntroduction</classifier>
-                                            </artifact>
-                                            <artifact>
-                                                <file>${project.build.directory}/docs/pdf/ddf-quickstart.pdf</file>
-                                                <type>pdf</type>
-                                                <classifier>DDFQuickStart</classifier>
-                                            </artifact>
-                                            <artifact>
-                                                <file>
-                                                    ${project.build.directory}/docs/html/extending.html
-                                                </file>
-                                                <type>html</type>
-                                                <classifier>Extending</classifier>
-                                            </artifact>
-                                            <artifact>
-                                                <file>
-                                                    ${project.build.directory}/docs/html/integrating.html
-                                                </file>
-                                                <type>html</type>
-                                                <classifier>Integrating</classifier>
-                                            </artifact>
-                                            <artifact>
-                                                <file>
-                                                    ${project.build.directory}/docs/html/managing.html
-                                                </file>
-                                                <type>html</type>
-                                                <classifier>Managing</classifier>
-                                            </artifact>
-                                            <artifact>
-                                                <file>
-                                                    ${project.build.directory}/docs/pdf/extending.pdf
-                                                </file>
-                                                <type>pdf</type>
-                                                <classifier>Extending</classifier>
-                                            </artifact>
-                                            <artifact>
-                                                <file>
-                                                    ${project.build.directory}/docs/pdf/integrating.pdf
-                                                </file>
-                                                <type>pdf</type>
-                                                <classifier>Integrating</classifier>
-                                            </artifact>
-                                            <artifact>
-                                                <file>
-                                                    ${project.build.directory}/docs/pdf/managing.pdf
-                                                </file>
-                                                <type>pdf</type>
-                                                <classifier>Managing</classifier>
                                             </artifact>
                                         </artifacts>
                                     </configuration>

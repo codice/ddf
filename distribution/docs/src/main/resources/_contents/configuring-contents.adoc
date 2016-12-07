@@ -8,37 +8,37 @@ ${branding} can be configured in several ways, depending on need:
 While there are multiple ways to configure ${branding} for use, the recommended method is to use the ${admin-console}.
 ====
 
-* RECOMMENDED: Using the browser and the ${admin-console}. <<configuring_${branding-lowercase}_from_the_admin_console, Configuring ${branding} From the ${admin-console}>>
-* Using a terminal and the ${command-console}. <<configuring_${branding-lowercase}_from_the_command_console, Configuring ${branding} From the ${command-console}>>
-* Editing configuration files. <<configuring_${branding-lowercase}_from_configuration_files, Configuring ${branding} From Configuration Files>>
-* Importing the configurations from an existing ${branding} instance. <<importing_configurations, Importing Configurations>>
+* RECOMMENDED: Using the browser and the ${admin-console}. <<_configuring_${branding-lowercase}_from_the_admin_console, Configuring ${branding} From the ${admin-console}>>
+* Using a terminal and the ${command-console}. <<_configuring_${branding-lowercase}_from_the_command_console, Configuring ${branding} From the ${command-console}>>
+* Editing configuration files. <<_configuring_${branding-lowercase}_from_configuration_files, Configuring ${branding} From Configuration Files>>
+* Importing the configurations from an existing ${branding} instance. <<_importing_configurations, Importing Configurations>>
 
 ////
 ADMIN CONSOLE
 ////
 
-==== [[configuring_${branding-lowercase}_from_the_admin_console]]Configuring ${branding} From the ${admin-console}
+==== Configuring ${branding} From the ${admin-console}
 include::configuring-from-the-admin-console-contents.adoc[]
 
 ////
 COMMAND CONSOLE SECTION
 ////
 
-==== [[configuring_${branding-lowercase}_from_the_command_console]]Configuring ${branding} From the ${command-console}
+==== Configuring ${branding} From the ${command-console}
 include::configuring-from-the-command-console-contents.adoc[]
 
 ////
 CONFIGURATION FILES
 ////
 
-==== [[configuring_${branding-lowercase}_from_configuration_files]]Configuring ${branding} From Configuration Files
+==== Configuring ${branding} From Configuration Files
 include::configuring-from-configuration-files-contents.adoc[]
 
 ////
 IMPORTING / EXPORTING
 ////
 
-==== [[importing_configurations]]Importing Configurations
+==== Importing Configurations
 include::configuring-from-import-contents.adoc[]
 
 ==== Managing Features

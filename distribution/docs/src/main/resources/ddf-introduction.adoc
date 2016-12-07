@@ -1,5 +1,0 @@
-= Introduction to ${branding}
-include::./_contents/config.adoc[]
-
-== Overview
-include::./_contents/introduction-contents.adoc[]
