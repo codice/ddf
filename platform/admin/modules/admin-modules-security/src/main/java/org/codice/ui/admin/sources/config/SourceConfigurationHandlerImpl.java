@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.xml.namespace.NamespaceContext;
@@ -138,12 +139,32 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return null;
+        return new CapabilitiesReport(SourceConfiguration.class.getSimpleName(), SourceConfiguration.class);
     }
 
     @Override
     public String getConfigurationHandlerId() {
         return SOURCE_CONFIGURATION_HANDLER_ID;
+    }
+
+    @Override
+    public Map.Entry<String, Class> getSubtype() {
+        return new Map.Entry<String, Class>() {
+            @Override
+            public String getKey() {
+                return "sources";
+            }
+
+            @Override
+            public Class getValue() {
+                return SourceConfiguration.class;
+            }
+
+            @Override
+            public Class setValue(Class value) {
+                return value;
+            }
+        };
     }
 
     /*********************************************************

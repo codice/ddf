@@ -62,7 +62,7 @@ const DiscoveryStageView = ({ discoverSources, setDefaults }) => (
         <ConstrainedPortInput id='sourcePort' label='Port' />
         <ConstrainedInput id='sourceUserName' label='Username (optional)' />
         <ConstrainedPasswordInput id='sourceUserPassword' label='Password (optional)' />
-        <Submit label='Check' onClick={() => discoverSources('/admin/wizard/probe/sources/discoverSources', 'sourceConfiguration', 'sourceSelectionStage')} />
+        <Submit label='Check' onClick={() => discoverSources('/admin/wizard/probe/sources/discoverSources', 'sources', 'sourceSelectionStage')} />
       </CenteredElements>
     </NavPanes>
   </Mount>

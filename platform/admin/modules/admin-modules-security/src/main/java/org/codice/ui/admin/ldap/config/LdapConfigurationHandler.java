@@ -107,6 +107,26 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     }
 
     @Override
+    public Map.Entry<String, Class> getSubtype() {
+        return new Map.Entry<String, Class>() {
+            @Override
+            public String getKey() {
+                return "ldapConfiguration";
+            }
+
+            @Override
+            public Class getValue() {
+                return LdapConfiguration.class;
+            }
+
+            @Override
+            public Class setValue(Class value) {
+                return null;
+            }
+        };
+    }
+
+    @Override
     public List<LdapConfiguration> getConfigurations() {
         Configurator configurator = new Configurator();
         if (configurator.isFeatureStarted("security-sts-ldaplogin")) {

@@ -32,6 +32,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -149,8 +150,9 @@ public class CswSourceConfigurationHandler
                 configuration.factoryPid(CSW_SPEC_FACTORY_PID);
             }
             return new TestReport(results);
+        default:
+            return new TestReport(buildMessage(FAILURE, "No such test."));
         }
-        return new TestReport(buildMessage(FAILURE, "No such test."));
     }
 
     @Override
@@ -175,6 +177,26 @@ public class CswSourceConfigurationHandler
     @Override
     public String getConfigurationHandlerId() {
         return CSW_SOURCE_CONFIGURATION_HANDLER_ID;
+    }
+
+    @Override
+    public Map.Entry<String, Class> getSubtype() {
+        return new Map.Entry<String, Class>() {
+            @Override
+            public String getKey() {
+                return CSW_SOURCE_CONFIGURATION_HANDLER_ID;
+            }
+
+            @Override
+            public Class getValue() {
+                return CswSourceConfiguration.class;
+            }
+
+            @Override
+            public Class setValue(Class value) {
+                return getValue();
+            }
+        };
     }
 
     private String confirmCswEndpointUrl(CswSourceConfiguration configuration) {

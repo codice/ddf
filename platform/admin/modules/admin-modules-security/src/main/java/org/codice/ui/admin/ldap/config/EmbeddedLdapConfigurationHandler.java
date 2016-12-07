@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.codice.ui.admin.wizard.ConfigurationRouter;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
@@ -89,5 +90,25 @@ public class EmbeddedLdapConfigurationHandler
     @Override
     public String getConfigurationHandlerId() {
         return "embeddedLdap";
+    }
+
+    @Override
+    public Map.Entry<String, Class> getSubtype() {
+        return new Map.Entry<String, Class>() {
+            @Override
+            public String getKey() {
+                return "embeddedLdapConfiguration";
+            }
+
+            @Override
+            public Class getValue() {
+                return EmbeddedLdapConfiguration.class;
+            }
+
+            @Override
+            public Class setValue(Class value) {
+                return null;
+            }
+        };
     }
 }

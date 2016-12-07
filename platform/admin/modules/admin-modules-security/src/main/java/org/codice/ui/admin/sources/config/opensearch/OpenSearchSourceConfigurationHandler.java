@@ -31,6 +31,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
@@ -44,6 +45,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.codice.ui.admin.sources.config.SourceConfiguration;
 import org.codice.ui.admin.sources.config.SourceConfigurationHandler;
+import org.codice.ui.admin.wizard.ConfigurationRouter;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.ProbeReport;
@@ -139,6 +141,26 @@ public class OpenSearchSourceConfigurationHandler
     @Override
     public String getConfigurationHandlerId() {
         return OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID;
+    }
+
+    @Override
+    public Map.Entry<String, Class> getSubtype() {
+        return new Map.Entry<String, Class>() {
+            @Override
+            public String getKey() {
+                return OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID;
+            }
+
+            @Override
+            public Class getValue() {
+                return OpenSearchSourceConfiguration.class;
+            }
+
+            @Override
+            public Class setValue(Class value) {
+                return null;
+            }
+        };
     }
 
     private String confirmOpenSearchEndpointUrl(OpenSearchSourceConfiguration configuration) {

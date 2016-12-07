@@ -24,12 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.codice.ui.admin.ldap.config.EmbeddedLdapConfiguration;
-import org.codice.ui.admin.ldap.config.LdapConfiguration;
-import org.codice.ui.admin.sources.config.SourceConfiguration;
-import org.codice.ui.admin.sources.config.csw.CswSourceConfiguration;
-import org.codice.ui.admin.sources.config.opensearch.OpenSearchSourceConfiguration;
-import org.codice.ui.admin.sources.config.wfs.WfsSourceConfiguration;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 import org.codice.ui.admin.wizard.api.ProbeReport;
 import org.codice.ui.admin.wizard.api.TestReport;
@@ -51,21 +45,17 @@ public class ConfigurationRouter implements SparkApplication {
 
     public static String contextPath;
 
+    private Map<String, Class> subtypesToRegister = new HashMap<>();
+
     private List<ConfigurationHandler> configurationHandlers;
 
-    private static Gson getGsonParser() {
+    private Gson getGsonParser() {
         RuntimeTypeAdapterFactory rtaf = RuntimeTypeAdapterFactory.of(Configuration.class,
-                "configurationType")
-                .registerSubtype(LdapConfiguration.class, "ldapConfiguration")
-                .registerSubtype(SourceConfiguration.class, "sourceConfiguration")
-                .registerSubtype(CswSourceConfiguration.class, "cswSourceConfiguration")
-                .registerSubtype(EmbeddedLdapConfiguration.class, "embeddedLdapConfiguration")
-                .registerSubtype(OpenSearchSourceConfiguration.class,
-                        "openSearchSourceConfiguration")
-                .registerSubtype(WfsSourceConfiguration.class, "wfsSourceConfiguration");
-
-        return new GsonBuilder().registerTypeAdapterFactory(rtaf)
-                .create();
+                "configurationType");
+        for(Map.Entry<String, Class> entry : subtypesToRegister.entrySet()) {
+            rtaf.registerSubtype(entry.getValue(), entry.getKey());
+        }
+        return new GsonBuilder().registerTypeAdapterFactory(rtaf).create();
     }
 
     public static ConfigurationHandler getConfigurationHandler(
@@ -74,7 +64,6 @@ public class ConfigurationRouter implements SparkApplication {
                 .filter(handler -> handler.getConfigurationHandlerId()
                         .equals(configurationId))
                 .findFirst();
-
         return foundConfigHandler.isPresent() ? foundConfigHandler.get() : null;
     }
 
@@ -118,10 +107,13 @@ public class ConfigurationRouter implements SparkApplication {
             return report;
         }, getGsonParser()::toJson);
 
-        get("/configurations/:configHandlerId", (req, res) -> {
-            return getConfigurationHandler(configurationHandlers,
-                    req.params("configHandlerId")).getConfigurations();
-        }, getGsonParser()::toJson);
+        get("/capabilities/:configHandlerId", (req, res) ->
+           getConfigurationHandler(configurationHandlers,
+                   req.params("configHandlerId")).getCapabilities(), getGsonParser()::toJson);
+
+        get("/configurations/:configHandlerId", (req, res) ->
+            getConfigurationHandler(configurationHandlers,
+                    req.params("configHandlerId")).getConfigurations(), getGsonParser()::toJson);
 
         after("/*", (req, res) -> res.type(APPLICATION_JSON));
 
@@ -147,5 +139,11 @@ public class ConfigurationRouter implements SparkApplication {
 
     public void setConfigurationHandlers(List<ConfigurationHandler> configurationHandlers) {
         this.configurationHandlers = configurationHandlers;
+        configurationHandlers.forEach(this::registerConfigType);
     }
+
+    public void registerConfigType(ConfigurationHandler handler){
+            subtypesToRegister.put((String)handler.getSubtype().getKey(), (Class) handler.getSubtype().getValue());
+    }
+
 }
