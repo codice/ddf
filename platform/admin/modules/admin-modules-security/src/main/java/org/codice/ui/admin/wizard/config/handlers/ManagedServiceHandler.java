@@ -15,9 +15,11 @@
 package org.codice.ui.admin.wizard.config.handlers;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.management.MalformedObjectNameException;
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.ui.admin.api.ConfigurationAdmin;
@@ -30,7 +32,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Transactional handler factory for creating and deleting managed services.
  */
-public abstract class ManagedServiceHandler implements ConfigHandler<String, Void> {
+public abstract class ManagedServiceHandler
+        implements ConfigHandler<String, Map<String, Map<String, Object>>> {
     /**
      * Transactional handler for deleting managed services.
      */
@@ -140,8 +143,28 @@ public abstract class ManagedServiceHandler implements ConfigHandler<String, Voi
     }
 
     @Override
-    public Void readState() throws ConfiguratorException {
-        return null;
+    public Map<String, Map<String, Object>> readState() throws ConfiguratorException {
+        try {
+            String[][] configurations = getConfigAdmin().getConfigurations(String.format(
+                    "(service.factoryPid=%s)",
+                    factoryPid));
+            if (configurations == null || configurations.length == 0) {
+                return Collections.emptyMap();
+            }
+
+            HashMap<String, Map<String, Object>> retVal = new HashMap<>();
+            ConfigurationAdminMBean configAdminMBean = getConfigAdminMBean();
+
+            for (String[] configuration : configurations) {
+                String configPid = configuration[0];
+                retVal.put(configPid, configAdminMBean.getProperties(configPid));
+            }
+
+            return retVal;
+        } catch (IOException | MalformedObjectNameException e) {
+            LOGGER.debug("Error retrieving configurations for factoryPid, {}", factoryPid, e);
+            throw new ConfiguratorException("Error retrieving configurations");
+        }
     }
 
     protected void deleteByPid(String configPid) {

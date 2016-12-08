@@ -30,6 +30,8 @@ import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.WA
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,6 +42,7 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 
 import org.apache.cxf.common.util.StringUtils;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
@@ -47,6 +50,7 @@ import org.codice.ui.admin.wizard.api.ProbeReport;
 import org.codice.ui.admin.wizard.api.TestReport;
 import org.codice.ui.admin.wizard.config.ConfigReport;
 import org.codice.ui.admin.wizard.config.Configurator;
+import org.codice.ui.admin.wizard.config.ConfiguratorException;
 import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
@@ -54,10 +58,14 @@ import org.forgerock.opendj.ldap.LDAPOptions;
 import org.forgerock.opendj.ldap.SearchScope;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
 public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfiguration> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LdapConfigurationHandler.class);
+
     public static final String LDAP_CONFIGURATION_HANDLER_ID = "ldap";
 
     // Test Ids
@@ -83,15 +91,66 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
     @Override
     public List<LdapConfiguration> getConfigurations() {
-        LdapConfiguration sampleConfig = new LdapConfiguration();
-        sampleConfig.hostName("localhost")
+        Configurator configurator = new Configurator();
+        if (configurator.isFeatureStarted("security-sts-ldaplogin")) {
+            try {
+                Map<String, Map<String, Object>> configs = configurator.getManagedServiceConfigs(
+                        "Ldap_Login_Config");
+                if (!configs.isEmpty()) {
+                    ArrayList<LdapConfiguration> configurations = new ArrayList<>(configs.size());
+                    for (Map.Entry<String, Map<String, Object>> row : configs.entrySet()) {
+                        LdapConfiguration config = new LdapConfiguration();
+                        Map<String, Object> props = row.getValue();
+
+                        config.pid(row.getKey())
+                                .bindUserDn((String) props.get("ldapBindUserDn"))
+                                .bindUserPassword((String) props.get("ldapBindUserPass"))
+                                .userNameAttribute((String) props.get("userNameAttribute"))
+                                .baseUserDn((String) props.get("userBaseDn"))
+                                .baseGroupDn((String) props.get("groupBaseDn"));
+                        URI ldapUri = getUriFromProperty((String) props.get("ldapUrl"));
+                        config.encryptionMethod(ldapUri.getScheme());
+                        config.hostName(ldapUri.getHost());
+                        config.port(ldapUri.getPort());
+                        if ((Boolean) props.get("startTls")) {
+                            config.encryptionMethod(TLS);
+                        }
+
+                        configurations.add(config);
+                    }
+                    return configurations;
+                } else {
+                    return getDefaultConfiguration();
+                }
+            } catch (ConfiguratorException | MalformedURLException e) {
+                LOGGER.info("Error retrieving factory configurations", e);
+                return getDefaultConfiguration();
+            }
+        } else {
+            return getDefaultConfiguration();
+        }
+    }
+
+    private URI getUriFromProperty(String ldapUrl) throws MalformedURLException {
+        ldapUrl = PropertyResolver.resolveProperties(ldapUrl);
+        if (!ldapUrl.matches("\\w*://.*")) {
+            ldapUrl = "ldap://" + ldapUrl;
+        }
+
+        return URI.create(ldapUrl);
+    }
+
+    private List<LdapConfiguration> getDefaultConfiguration() {
+        LdapConfiguration config = new LdapConfiguration();
+        config.hostName("localhost")
                 .port(1389)
                 .encryptionMethod(LdapConfiguration.NONE)
                 .bindUserDn("Example,Bind,User,DN")
                 .bindUserPassword("*******")
                 .userNameAttribute("User name attribute")
                 .baseGroupDn("Example,Group,DN");
-        return Arrays.asList(sampleConfig);
+
+        return Collections.singletonList(config);
     }
 
     @Override
@@ -213,7 +272,9 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         ldapStsConfig.put("userBaseDn", config.baseUserDn());
         ldapStsConfig.put("groupBaseDn", config.baseGroupDn());
 
-        switch (config.encryptionMethod()) {
+        // TODO RAP 08 Dec 16: This is brittle
+        switch (config.encryptionMethod()
+                .toLowerCase()) {
         case LDAPS:
             ldapUrl = "ldaps://";
             break;

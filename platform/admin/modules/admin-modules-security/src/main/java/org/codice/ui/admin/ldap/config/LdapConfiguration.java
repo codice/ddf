@@ -29,6 +29,8 @@ public class LdapConfiguration extends Configuration {
 
     static final String[] LDAP_ENCRYPTION_METHODS = new String[] {LDAPS, TLS, NONE};
 
+    private String pid;
+
     private String hostName;
 
     private int port;
@@ -54,6 +56,10 @@ public class LdapConfiguration extends Configuration {
     private String ldapUseCase;
 
     private List<Map<String, String>> queryResults;
+
+    public String pid() {
+        return pid;
+    }
 
     public String hostName() {
         return hostName;
@@ -105,6 +111,11 @@ public class LdapConfiguration extends Configuration {
 
     public List<Map<String, String>> queryResults() {
         return queryResults;
+    }
+
+    public LdapConfiguration pid(String pid) {
+        this.pid = pid;
+        return this;
     }
 
     public LdapConfiguration hostName(String hostName) {

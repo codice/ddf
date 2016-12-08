@@ -253,6 +253,14 @@ public class Configurator {
                 getConfigAdminMBean()));
     }
 
+    public Map<String, Map<String, Object>> getManagedServiceConfigs(String factoryPid) {
+        return ManagedServiceHandler.forCreate(factoryPid,
+                Collections.emptyMap(),
+                getConfigAdmin(),
+                getConfigAdminMBean())
+                .readState();
+    }
+
     private String registerHandler(ConfigHandler handler) {
         String key = UUID.randomUUID()
                 .toString();

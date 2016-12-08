@@ -17,7 +17,9 @@ package org.codice.ui.admin.ldap.config;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.NO_TEST_FOUND;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
@@ -26,9 +28,15 @@ import org.codice.ui.admin.wizard.api.ProbeReport;
 import org.codice.ui.admin.wizard.api.TestReport;
 import org.codice.ui.admin.wizard.config.ConfigReport;
 import org.codice.ui.admin.wizard.config.Configurator;
+import org.codice.ui.admin.wizard.config.ConfiguratorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EmbeddedLdapConfigurationHandler
         implements ConfigurationHandler<EmbeddedLdapConfiguration> {
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(EmbeddedLdapConfigurationHandler.class);
+
     @Override
     public ProbeReport probe(String probeId, EmbeddedLdapConfiguration configuration) {
         // TODO: tbatie - 12/1/16 - Implement embedded LDAP probe
@@ -51,18 +59,31 @@ public class EmbeddedLdapConfigurationHandler
                 true);
         ConfigReport report = configurator.commit();
         // TODO: tbatie - 12/2/16 - do something with this key
-        return new TestReport(new ConfigurationMessage("DDF Embedded Has Successfully Been Started", SUCCESS));
+        return new TestReport(new ConfigurationMessage("DDF Embedded Has Successfully Been Started",
+                SUCCESS));
     }
 
     @Override
     public List<EmbeddedLdapConfiguration> getConfigurations() {
-        // TODO: tbatie - 12/1/16 - Implement embedded LDAP configuring
-        return null;
+        Configurator configurator = new Configurator();
+        try {
+            if (configurator.isFeatureStarted("opendj-embedded")) {
+                Map<String, Object> props = configurator.getConfig(
+                        "org.codice.opendj.embedded.server.LDAPManager");
+                return Collections.singletonList(EmbeddedLdapConfiguration.fromProperties(props));
+            } else {
+                return Collections.emptyList();
+            }
+        } catch (ConfiguratorException e) {
+            LOGGER.info("Error retrieving configuration", e);
+            return Collections.emptyList();
+        }
     }
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(EmbeddedLdapConfiguration.class.getSimpleName(), EmbeddedLdapConfiguration.class);
+        return new CapabilitiesReport(EmbeddedLdapConfiguration.class.getSimpleName(),
+                EmbeddedLdapConfiguration.class);
     }
 
     @Override

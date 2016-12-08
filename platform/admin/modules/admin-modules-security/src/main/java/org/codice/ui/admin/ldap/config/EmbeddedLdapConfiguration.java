@@ -20,7 +20,6 @@ import java.util.Map;
 import org.codice.ui.admin.wizard.config.Configuration;
 
 public class EmbeddedLdapConfiguration extends Configuration {
-
     private int embeddedLdapPort;
 
     private int embeddedLdapsPort;
@@ -31,8 +30,19 @@ public class EmbeddedLdapConfiguration extends Configuration {
 
     private String embeddedLdapStorageLocation;
 
+    public static EmbeddedLdapConfiguration fromProperties(Map<String, Object> props) {
+        EmbeddedLdapConfiguration config = new EmbeddedLdapConfiguration();
+        config.embeddedLdapPort = (int) props.get("embeddedLdapPort");
+        config.embeddedLdapsPort = (int) props.get("embeddedLdapsPort");
+        config.embeddedLdapAdminPort = (int) props.get("embeddedLdapAdminPort");
+        config.ldifPath = (String) props.get("ldifPath");
+        config.embeddedLdapStorageLocation = (String) props.get("embeddedLdapStorageLocation");
+
+        return config;
+    }
+
     public Map<String, Object> toPropertiesMap() {
-        Map props = new HashMap<>();
+        Map<String, Object> props = new HashMap<>();
         props.put("embeddedLdapPort", embeddedLdapPort);
         props.put("embeddedLdapsPort", embeddedLdapsPort);
         props.put("embeddedLdapAdminPort", embeddedLdapAdminPort);
@@ -40,5 +50,4 @@ public class EmbeddedLdapConfiguration extends Configuration {
         props.put("embeddedLdapStorageLocation", embeddedLdapStorageLocation);
         return props;
     }
-
 }
