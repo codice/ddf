@@ -14,13 +14,22 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="resourceSecurityPlugin" class="org.codice.ddf.catalog.security.ResourceUriPolicy">
-        <cm:managed-properties persistent-id="org.codice.ddf.catalog.security.ResourceUriPolicy"
-                               update-strategy="container-managed"/>
-        <property name="permitResourceUriOnCreation" value="false"/>
-        <property name="permitResourceUriOnUpdate" value="false"/>
-        <property name="permitDuplicateUris" value="false"/>
-    </bean>
+    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
-    <service ref="resourceSecurityPlugin" auto-export="interfaces" ranking="100"/>
+
+    <bean id="resourceUriSecurityPlugin" class="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy">
+        <cm:managed-properties persistent-id="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy"/>
+        <property name="catalogFramework" ref="catalogFramework"/>
+        <property name="filterBuilder" ref="filterBuilder"/>
+        <property name="updateResourceUriPermissions">
+            <array>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin</value>
+            </array>
+        </property>
+    </bean>
+    <service ref="resourceUriSecurityPlugin" auto-export="interfaces" ranking="100"/>
+
+
+
 </blueprint>

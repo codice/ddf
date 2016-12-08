@@ -14,46 +14,110 @@
 package org.codice.ddf.catalog.security;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.codice.ddf.platform.util.XMLUtils;
+import org.opengis.filter.Filter;
+
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Restricts how resource URIs are updated and created.
  * There are security risk to allowing users to update URIs as well as allowing users to
  * pass in a URI when the metacard is created.
  */
-public class ResourceUriPolicy implements PolicyPlugin {
+public class ResourceUriSecurityPolicy implements PolicyPlugin {
 
-    private String[] updatePermissions;
+    private String[] updateResourceUriPermissions;
 
+    private CatalogFramework catalogFramework;
+
+    private FilterBuilder filterBuilder;
 
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
-
-
         return new PolicyResponseImpl();
+    }
+
+    private String getResourceUriValueFor(String id) {
+        Filter filter = filterBuilder.attribute(Metacard.ID)
+                .is()
+                .equalTo()
+                .text(id);
+        Query query = new QueryImpl(filter);
+        QueryRequest queryRequest = new QueryRequestImpl(query);
+        QueryResponse queryResponse;
+        try {
+            queryResponse = catalogFramework.query(queryRequest);
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+            throw new RuntimeException(e);
+        }
+        Result queryResult = queryResponse.getResults()
+                .get(0);
+        Metacard metacard = queryResult.getMetacard();
+
+
+        return null;
+//        return XMLUtils.processElements(xml, (resultHolder, xmlStreamReader) -> {
+//            String localName = xmlStreamReader.getLocalName();
+//            if (localName.equals("p")) {
+//                try {
+//                    resultHolder.set(xmlStreamReader.getElementText());
+//                } catch (XMLStreamException e) {
+//                    e.printStackTrace();
+//                }
+//                return false;
+//            }
+//            return true;
+//        });
     }
 
     @Override
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
-        // If incomming metacard has resource URI different than current URI in the catalog,
-        // add ______ to the _______ collection in the policy reponse.
+        if (input.getResourceURI() != null) {
+            URI inputUri = input.getResourceURI();
+        } else {
+            return new PolicyResponseImpl();
+        }
 
-        PolicyResponse
+
+//        String existingUri = null;
+//        existingUri = getResourceUriValueFor(input.getId());
+//        int x = 8;
+        //        if (!inputUri.equals(existingUri)) {
+        //
+        //            Map<String, Set<String>> map = new HashMap();
+        //            Set<String> permissions = new HashSet<>();
+        //            permissions.add("admin");
+        //            map.put("role", permissions);
+        //            return new PolicyResponseImpl(null, map);
+        //        }
 
         return new PolicyResponseImpl();
     }
@@ -97,6 +161,29 @@ public class ResourceUriPolicy implements PolicyPlugin {
         return new PolicyResponseImpl();
     }
 
+    public CatalogFramework getCatalogFramework() {
+        return catalogFramework;
+    }
 
+    public void setCatalogFramework(CatalogFramework catalogFramework) {
+        this.catalogFramework = catalogFramework;
+    }
+
+    public String[] getUpdateResourceUriPermissions() {
+        return updateResourceUriPermissions == null ? null : updateResourceUriPermissions.clone();
+    }
+
+    public void setUpdateResourceUriPermissions(String[] updateResourceUriPermissions) {
+        this.updateResourceUriPermissions =
+                updateResourceUriPermissions == null ? null : updateResourceUriPermissions.clone();
+    }
+
+    public FilterBuilder getFilterBuilder() {
+        return filterBuilder;
+    }
+
+    public void setFilterBuilder(FilterBuilder filterBuilder) {
+        this.filterBuilder = filterBuilder;
     }
 }
+
