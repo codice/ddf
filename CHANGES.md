@@ -29,8 +29,33 @@ replace with next unreleased version
 	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Unresolved%20AND%20affectedVersion%20%3D%20{VERSION-NUMBER}%20ORDER%20BY%20createdDate) affecting this version.
  -->
 
+## 2.9.5
+    Release Build Date: pending
+
+### NOTES
+
+ - None in this version.
+
+### NEW FEATURES
+
+ - None in this version.
+
+### API CHANGES
+
+ - None in this version.
+
+### BUG FIXES
+
+ - Bugs fixed in this version.
+ 	- [Jira view of all issues resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20fixVersion%20%3D%202.9.5%20ORDER%20BY%20resolutiondate) in this version.
+
+### KNOWN ISSUES
+
+ - Open bugs affecting this version.
+ 	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Unresolved%20AND%20affectedVersion%20%3D%202.9.5%20ORDER%20BY%20createdDate) affecting this version.
+
 ## 2.9.4
-    Release Date: `unreleased`
+    Release Build Date: 2016-12-1
 
 ### NOTES
 
