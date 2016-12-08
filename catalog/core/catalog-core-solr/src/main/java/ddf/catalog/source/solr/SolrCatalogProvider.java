@@ -98,7 +98,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 DESCRIBABLE_PROPERTIES_FILE)) {
             describableProperties.load(propertiesStream);
         } catch (IOException e) {
-            LOGGER.info("IO exception loading describable properties", e);
+            LOGGER.info("Failed to load describable properties", e);
         }
     }
 
@@ -175,7 +175,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
              * if we get any type of exception, whether declared by Solr or not, we do not want to
              * fail, we just want to return false
              */
-            LOGGER.info("Solr ping request/response failed.", e);
+            LOGGER.debug("Solr ping failed.", e);
+            LOGGER.warn("Solr ping request/response failed while checking availability. Verify Solr is available and correctly configured.");
         }
 
         return false;
@@ -283,8 +284,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         try {
             client.add(output, isForcedAutoCommit());
         } catch (SolrServerException | SolrException | IOException | MetacardCreationException e) {
-            LOGGER.debug("Solr could not ingest metacard(s).", e);
-            throw new IngestException("Solr could not ingest metacard(s).");
+            LOGGER.info("Solr could not ingest metacard(s) during create.", e);
+            throw new IngestException("Could not ingest metacard(s).");
         }
 
         pendingNrtIndex.putAll(output.stream()
@@ -338,7 +339,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         try {
             idResults = solr.query(query, METHOD.POST);
         } catch (SolrServerException | IOException e) {
-            LOGGER.info("Solr exception during query", e);
+            LOGGER.info("Failed to query for metacard(s) before update.", e);
         }
 
         // map of old metacards to be populated
@@ -364,6 +365,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 try {
                     old = client.createMetacard(doc);
                 } catch (MetacardCreationException e) {
+                    LOGGER.info("Unable to create metacard(s) from Solr responses during update.", e);
                     throw new IngestException("Could not create metacard(s).");
                 }
 
@@ -420,7 +422,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         try {
             client.add(newMetacards, isForcedAutoCommit());
         } catch (SolrServerException | SolrException | IOException | MetacardCreationException e) {
-            throw new IngestException("Solr could not ingest metacard(s).");
+            LOGGER.info("Failed to update metacard(s) with Solr.", e);
+            throw new IngestException("Failed to update metacard(s).");
         }
 
         pendingNrtIndex.putAll(updateList.stream()
@@ -491,6 +494,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             // so we force the commit
             client.deleteByIds(fieldName, identifiers, true);
         } catch (SolrServerException | IOException e) {
+            LOGGER.info("Failed to delete metacards by ID(s).", e);
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
     }
@@ -508,7 +512,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 deletedMetacards.add(client.createMetacard(doc));
             } catch (MetacardCreationException e) {
                 LOGGER.info("Metacard creation exception creating metacards during delete", e);
-                throw new IngestException("Could not create metacard(s).");
+                throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
             }
         }
     }
@@ -540,7 +544,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         try {
             solrResponse = solr.query(query, METHOD.POST);
         } catch (SolrServerException | IOException e) {
-            LOGGER.info("Solr exception deleting request message", e);
+            LOGGER.info("Failed to get list of Solr documents for delete.", e);
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
         return solrResponse.getResults();
@@ -594,7 +598,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         try {
             solr.close();
         } catch (IOException e) {
-            LOGGER.info("Failed to close Solr client.", e);
+            LOGGER.info("Failed to close Solr client during shutdown.", e);
         }
     }
 
