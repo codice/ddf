@@ -1,0 +1,116 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package ddf.catalog.cache.solr.impl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrInputDocument;
+
+import com.google.common.collect.Lists;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.source.solr.DynamicSchemaResolver;
+import ddf.catalog.source.solr.SchemaFields;
+import ddf.catalog.source.solr.SolrFilterDelegate;
+import ddf.catalog.source.solr.SolrFilterDelegateFactory;
+import ddf.catalog.source.solr.SolrMetacardClientImpl;
+
+/**
+ * {@link SolrCache} specific implementation of {@link SolrMetacardClientImpl}.
+ */
+class CacheSolrMetacardClient extends SolrMetacardClientImpl {
+
+    public CacheSolrMetacardClient(SolrClient client, FilterAdapter catalogFilterAdapter,
+            SolrFilterDelegateFactory solrFilterDelegateFactory) {
+        super(client, catalogFilterAdapter, solrFilterDelegateFactory, new DynamicSchemaResolver());
+    }
+
+    @Override
+    public MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
+        MetacardImpl metacard = super.createMetacard(doc);
+
+        metacard.setSourceId(getMetacardSource(doc));
+        metacard.setId(getMetacardId(doc));
+
+        return metacard;
+    }
+
+    public UpdateResponse delete(String query) throws IOException, SolrServerException {
+        return getClient().deleteByQuery(query);
+    }
+
+    @Override
+    protected SolrQuery postAdapt(QueryRequest request, SolrFilterDelegate filterDelegate,
+            SolrQuery query) throws UnsupportedQueryException {
+        if (request.getSourceIds() != null) {
+            List<SolrQuery> sourceQueries = new ArrayList<>();
+            for (String source : request.getSourceIds()) {
+                sourceQueries.add(filterDelegate.propertyIsEqualTo(StringUtils.removeEnd(SolrCache.METACARD_SOURCE_NAME,
+                        SchemaFields.TEXT_SUFFIX), source, true));
+            }
+            if (sourceQueries.size() > 0) {
+                SolrQuery allSourcesQuery;
+                if (sourceQueries.size() > 1) {
+                    allSourcesQuery = filterDelegate.or(sourceQueries);
+                } else {
+                    allSourcesQuery = sourceQueries.get(0);
+                }
+                query = filterDelegate.and(Lists.newArrayList(query, allSourcesQuery));
+            }
+        }
+
+        return super.postAdapt(request, filterDelegate, query);
+    }
+
+    @Override
+    protected SolrInputDocument getSolrInputDocument(Metacard metacard)
+            throws MetacardCreationException {
+        SolrInputDocument solrInputDocument = super.getSolrInputDocument(metacard);
+
+        solrInputDocument.addField(SolrCache.CACHED_DATE, new Date());
+
+        if (StringUtils.isNotBlank(metacard.getSourceId())) {
+            solrInputDocument.addField(SolrCache.METACARD_SOURCE_NAME, metacard.getSourceId());
+            solrInputDocument.setField(SolrCache.METACARD_UNIQUE_ID_NAME,
+                    metacard.getSourceId() + metacard.getId());
+            solrInputDocument.addField(SolrCache.METACARD_ID_NAME, metacard.getId());
+        }
+
+        return solrInputDocument;
+    }
+
+    private String getMetacardId(SolrDocument doc) {
+        return doc.getFirstValue(SolrCache.METACARD_ID_NAME)
+                .toString();
+    }
+
+    private String getMetacardSource(SolrDocument doc) {
+        return doc.getFirstValue(SolrCache.METACARD_SOURCE_NAME)
+                .toString();
+    }
+}

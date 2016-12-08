@@ -24,9 +24,12 @@
         <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
     </bean>
 
+    <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl"/>
+
     <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"
           destroy-method="shutdown">
         <argument ref="filterAdapter"/>
+        <argument ref="solrClientFactory"/>
         <argument>
             <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
         </argument>

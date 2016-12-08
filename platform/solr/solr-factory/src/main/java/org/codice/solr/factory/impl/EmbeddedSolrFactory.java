@@ -46,7 +46,7 @@ import com.google.common.util.concurrent.Futures;
  * <br/>
  * Uses the following system properties when creating an instance:
  * <ul>
- *     <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored</li>
+ * <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored</li>
  * </ul>
  */
 public class EmbeddedSolrFactory implements SolrClientFactory {
@@ -173,8 +173,9 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
                     .isInMemory()) {
                 File dataDir = configProxy.getDataDirectory();
                 if (dataDir != null) {
-                    LOGGER.debug("Using data directory [{}]", dataDir);
-                    dataDirPath = dataDir.getAbsolutePath();
+                    dataDirPath = Paths.get(dataDir.getAbsolutePath(), coreName, "data")
+                            .toString();
+                    LOGGER.debug("Using data directory [{}]", dataDirPath);
                 }
             } else {
                 PluginInfo info = solrConfig.getPluginInfo(DirectoryFactory.class.getName());

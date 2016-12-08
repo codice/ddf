@@ -106,7 +106,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     private SolrClient solr;
 
-    private SolrMetacardClient client;
+    private SolrMetacardClientImpl client;
 
     private FilterAdapter filterAdapter;
 
@@ -602,7 +602,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         }
     }
 
-    private class ProviderSolrMetacardClient extends SolrMetacardClient {
+    private class ProviderSolrMetacardClient extends SolrMetacardClientImpl {
 
         public ProviderSolrMetacardClient(SolrClient client, FilterAdapter catalogFilterAdapter,
                 SolrFilterDelegateFactory solrFilterDelegateFactory,

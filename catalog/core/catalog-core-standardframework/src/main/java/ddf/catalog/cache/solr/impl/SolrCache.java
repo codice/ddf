@@ -13,16 +13,16 @@
  */
 package ddf.catalog.cache.solr.impl;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,27 +36,18 @@ import javax.management.StandardMBean;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.UpdateResponse;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
-import org.apache.solr.common.SolrInputDocument;
-import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.solr.factory.impl.HttpSolrClientFactory;
+import org.codice.solr.factory.SolrClientFactory;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.QueryRequest;
@@ -64,11 +55,8 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.SchemaFields;
-import ddf.catalog.source.solr.SolrFilterDelegate;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
-import ddf.catalog.source.solr.SolrMetacardClient;
 
 /**
  * Catalog cache implementation using Apache Solr
@@ -81,24 +69,16 @@ public class SolrCache implements SolrCacheMBean {
 
     public static final String METACARD_ID_NAME = "original_id" + SchemaFields.TEXT_SUFFIX;
 
-    // the unique id field used in the platform solr standalone server
+    // the unique id field used in the platform solr standalone solrClientAdaptor
     public static final String METACARD_UNIQUE_ID_NAME = "id" + SchemaFields.TEXT_SUFFIX;
 
     public static final String CACHED_DATE = "cached" + SchemaFields.DATE_SUFFIX;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrCache.class);
 
-    private FilterAdapter filterAdapter;
-
     private ObjectName objectName;
 
-    private String url = HttpSolrClientFactory.getDefaultHttpsAddress();
-
-    private SolrClient server;
-
-    private SolrFilterDelegateFactory solrFilterDelegateFactory;
-
-    private SolrMetacardClient client;
+    private final SolrClientAdaptor solrClientAdaptor;
 
     private AtomicBoolean dirty = new AtomicBoolean(false);
 
@@ -108,31 +88,38 @@ public class SolrCache implements SolrCacheMBean {
 
     private long expirationAgeInMinutes = TimeUnit.DAYS.toMinutes(7);
 
-    private MBeanServer mbeanServer;
-
     /**
-     * Convenience constructor that creates a the Solr server
+     * Constructor.
      *
-     * @param adapter injected implementation of FilterAdapter
+     * @param adapter                   injected implementation of {@link FilterAdapter}
+     * @param solrClientFactory         factory used to create new
+     *                                  {@link org.apache.solr.client.solrj.SolrClient} instances
+     * @param solrFilterDelegateFactory factory used to create new
+     *                                  {@link ddf.catalog.source.solr.SolrFilterDelegate} instances
      */
-    public SolrCache(FilterAdapter adapter, SolrFilterDelegateFactory solrFilterDelegateFactory) {
-        this.filterAdapter = adapter;
-        this.solrFilterDelegateFactory = solrFilterDelegateFactory;
-        this.url = SystemBaseUrl.constructUrl("/solr");
-        this.updateServer(this.url);
+    public SolrCache(FilterAdapter adapter, SolrClientFactory solrClientFactory,
+            SolrFilterDelegateFactory solrFilterDelegateFactory) {
+        this.solrClientAdaptor = new SolrClientAdaptor(METACARD_CACHE_CORE_NAME,
+                adapter,
+                solrClientFactory,
+                solrFilterDelegateFactory);
+        this.solrClientAdaptor.init();
+
         configureCacheExpirationScheduler();
 
-        try {
-            objectName = new ObjectName(SolrCacheMBean.OBJECTNAME);
-        } catch (MalformedObjectNameException e) {
-            LOGGER.info("Could not create object name", e);
-        }
+        configureMBean();
+    }
+
+    //For unit testing purposes.
+    SolrCache(SolrClientAdaptor solrClientAdaptor) {
+        this.solrClientAdaptor = solrClientAdaptor;
 
         configureMBean();
     }
 
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-        return client.query(request);
+        return solrClientAdaptor.getSolrMetacardClient()
+                .query(request);
     }
 
     public void create(Collection<Metacard> metacards) {
@@ -153,10 +140,11 @@ public class SolrCache implements SolrCacheMBean {
         }
 
         try {
-            client.add(updatedMetacards, false);
+            solrClientAdaptor.getSolrMetacardClient()
+                    .add(updatedMetacards, false);
             dirty.set(true);
         } catch (SolrServerException | SolrException | IOException | MetacardCreationException e) {
-            LOGGER.info("Solr server exception caching metacard(s)", e);
+            LOGGER.info("Solr solrClientAdaptor exception caching metacard(s)", e);
         }
     }
 
@@ -177,10 +165,11 @@ public class SolrCache implements SolrCacheMBean {
         }
 
         try {
-            client.deleteByIds(fieldName, deleteRequest.getAttributeValues(), false);
+            solrClientAdaptor.getSolrMetacardClient()
+                    .deleteByIds(fieldName, deleteRequest.getAttributeValues(), false);
             dirty.set(true);
         } catch (SolrServerException | IOException e) {
-            LOGGER.info("Solr server exception while deleting from cache", e);
+            LOGGER.info("Solr solrClientAdaptor exception while deleting from cache", e);
         }
     }
 
@@ -207,7 +196,13 @@ public class SolrCache implements SolrCacheMBean {
 
     private void configureMBean() {
         LOGGER.debug("Registering Cache Manager Service MBean");
-        mbeanServer = ManagementFactory.getPlatformMBeanServer();
+        MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+
+        try {
+            objectName = new ObjectName(SolrCacheMBean.OBJECTNAME);
+        } catch (MalformedObjectNameException e) {
+            LOGGER.info("Could not create object name", e);
+        }
 
         try {
             try {
@@ -231,10 +226,10 @@ public class SolrCache implements SolrCacheMBean {
             scheduler.shutdown();
             try {
                 // Wait up to 60 seconds existing tasks to terminate
-                if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                if (!scheduler.awaitTermination(60, SECONDS)) {
                     scheduler.shutdownNow();
                     // Wait up to 60 seconds for tasks to respond to being cancelled
-                    if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                    if (!scheduler.awaitTermination(60, SECONDS)) {
                         LOGGER.debug("Cache expiration scheduler did not terminate.");
                     }
                 }
@@ -250,92 +245,52 @@ public class SolrCache implements SolrCacheMBean {
         }
     }
 
-    public void updateServer(String newUrl) {
-        LOGGER.debug("New url {}", newUrl);
-
-        if (newUrl != null) {
-            if (!StringUtils.equalsIgnoreCase(newUrl.trim(), url) || server == null) {
-
-                this.url = newUrl.trim();
-
-                if (server != null) {
-                    LOGGER.debug(
-                            "Shutting down the connection manager to the Solr Server and releasing allocated resources.");
-                    try {
-                        server.close();
-                        LOGGER.debug("Shutdown complete.");
-                    } catch (IOException e) {
-                        LOGGER.info("Failed to shutdown Solr server.", e);
-                    }
-                }
-
-                try {
-                    server = HttpSolrClientFactory.getHttpSolrClient(url, METACARD_CACHE_CORE_NAME)
-                            .get();
-                } catch (InterruptedException | ExecutionException e) {
-                    LOGGER.info("Failed to get solr server from future", e);
-                }
-                client = new CacheSolrMetacardClient(this.server,
-                        filterAdapter,
-                        solrFilterDelegateFactory);
-            }
-        } else {
-            this.url = null;
-        }
-    }
-
     public void forceCommit() {
         try {
             if (dirty.compareAndSet(true, false)) {
-                server.commit();
+                solrClientAdaptor.commit();
             }
         } catch (SolrServerException | IOException e) {
             LOGGER.info("Unable to commit changes to cache.", e);
         }
     }
 
-    public String getMetacardId(SolrDocument doc) {
-        return doc.getFirstValue(METACARD_ID_NAME)
-                .toString();
-    }
-
-    public String getMetacardSource(SolrDocument doc) {
-        return doc.getFirstValue(METACARD_SOURCE_NAME)
-                .toString();
-    }
-
     public void shutdown() {
         LOGGER.debug("Shutting down cache expiration scheduler.");
         shutdownCacheExpirationScheduler();
-        LOGGER.debug("Shutting down Solr server.");
+        LOGGER.debug("Shutting down Solr solrClientAdaptor.");
         try {
-            server.close();
+            solrClientAdaptor.close();
         } catch (IOException e) {
-            LOGGER.info("Failed to shutdown Solr server.", e);
+            LOGGER.info("Failed to shutdown Solr solrClientAdaptor.", e);
         }
     }
 
     @Override
     public void removeAll() throws IOException, SolrServerException {
-        client.deleteByQuery("*:*");
+        solrClientAdaptor.getSolrMetacardClient()
+                .deleteByQuery("*:*");
     }
 
     @Override
     public void removeById(String[] ids) throws IOException, SolrServerException {
         List<String> idList = Arrays.asList(ids);
-        client.deleteByIds(METACARD_ID_NAME, idList, false);
+        solrClientAdaptor.getSolrMetacardClient()
+                .deleteByIds(METACARD_ID_NAME, idList, false);
     }
 
     @Override
     public List<Metacard> query(Filter filter) throws UnsupportedQueryException {
         QueryRequest queryRequest = new QueryRequestImpl(new QueryImpl(filter), true);
 
-        SourceResponse response = client.query(queryRequest);
+        SourceResponse response = solrClientAdaptor.getSolrMetacardClient()
+                .query(queryRequest);
         return getMetacardsFromResponse(response);
     }
 
     Set<ContentType> getContentTypes() {
-        return client.getContentTypes();
+        return solrClientAdaptor.getSolrMetacardClient()
+                .getContentTypes();
     }
 
     private List<Metacard> getMetacardsFromResponse(SourceResponse sourceResponse) {
@@ -356,77 +311,11 @@ public class SolrCache implements SolrCacheMBean {
         public void run() {
             try {
                 LOGGER.debug("Expiring cache.");
-                server.deleteByQuery(
+                solrClientAdaptor.deleteByQuery(
                         CACHED_DATE + ":[* TO NOW-" + expirationAgeInMinutes + "MINUTES]");
             } catch (SolrServerException | IOException e) {
                 LOGGER.info("Unable to expire cache.", e);
             }
-        }
-    }
-
-    private class CacheSolrMetacardClient extends SolrMetacardClient {
-
-        public CacheSolrMetacardClient(SolrClient client, FilterAdapter catalogFilterAdapter,
-                SolrFilterDelegateFactory solrFilterDelegateFactory) {
-            super(client,
-                    catalogFilterAdapter,
-                    solrFilterDelegateFactory,
-                    new DynamicSchemaResolver());
-        }
-
-        @Override
-        public MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
-            MetacardImpl metacard = super.createMetacard(doc);
-
-            metacard.setSourceId(getMetacardSource(doc));
-            metacard.setId(getMetacardId(doc));
-
-            return metacard;
-        }
-
-        public UpdateResponse delete(String query) throws IOException, SolrServerException {
-            return server.deleteByQuery(query);
-        }
-
-        @Override
-        protected SolrQuery postAdapt(QueryRequest request, SolrFilterDelegate filterDelegate,
-                SolrQuery query) throws UnsupportedQueryException {
-            if (request.getSourceIds() != null) {
-                List<SolrQuery> sourceQueries = new ArrayList<>();
-                for (String source : request.getSourceIds()) {
-                    sourceQueries.add(filterDelegate.propertyIsEqualTo(StringUtils.removeEnd(
-                            METACARD_SOURCE_NAME,
-                            SchemaFields.TEXT_SUFFIX), source, true));
-                }
-                if (sourceQueries.size() > 0) {
-                    SolrQuery allSourcesQuery;
-                    if (sourceQueries.size() > 1) {
-                        allSourcesQuery = filterDelegate.or(sourceQueries);
-                    } else {
-                        allSourcesQuery = sourceQueries.get(0);
-                    }
-                    query = filterDelegate.and(Lists.newArrayList(query, allSourcesQuery));
-                }
-            }
-
-            return super.postAdapt(request, filterDelegate, query);
-        }
-
-        @Override
-        protected SolrInputDocument getSolrInputDocument(Metacard metacard)
-                throws MetacardCreationException {
-            SolrInputDocument solrInputDocument = super.getSolrInputDocument(metacard);
-
-            solrInputDocument.addField(CACHED_DATE, new Date());
-
-            if (StringUtils.isNotBlank(metacard.getSourceId())) {
-                solrInputDocument.addField(METACARD_SOURCE_NAME, metacard.getSourceId());
-                solrInputDocument.setField(METACARD_UNIQUE_ID_NAME,
-                        metacard.getSourceId() + metacard.getId());
-                solrInputDocument.addField(METACARD_ID_NAME, metacard.getId());
-            }
-
-            return solrInputDocument;
         }
     }
 }

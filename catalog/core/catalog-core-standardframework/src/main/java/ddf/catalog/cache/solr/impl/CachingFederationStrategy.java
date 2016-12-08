@@ -32,7 +32,6 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.configuration.SystemInfo;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -436,10 +435,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             LOGGER.debug("Invalid max start index input. Reset to default value: {}",
                     this.maxStartIndex);
         }
-    }
-
-    public void setUrl(String url) {
-        cache.updateServer(PropertyResolver.resolveProperties(url));
     }
 
     public void setExpirationIntervalInMinutes(long expirationIntervalInMinutes) {
