@@ -56,6 +56,10 @@ import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LDAPOptions;
 import org.forgerock.opendj.ldap.SearchScope;
+import org.forgerock.opendj.ldap.requests.BindRequest;
+import org.forgerock.opendj.ldap.requests.DigestMD5SASLBindRequest;
+import org.forgerock.opendj.ldap.requests.GSSAPISASLBindRequest;
+import org.forgerock.opendj.ldap.requests.Requests;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.slf4j.Logger;
@@ -105,6 +109,9 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
                         config.pid(row.getKey())
                                 .bindUserDn((String) props.get("ldapBindUserDn"))
                                 .bindUserPassword((String) props.get("ldapBindUserPass"))
+                                .bindUserMethod((String) props.get("bindMethod"))
+                                .bindKdcAddress((String) props.get("kdcAddress"))
+                                .bindRealm((String) props.get("realm"))
                                 .userNameAttribute((String) props.get("userNameAttribute"))
                                 .baseUserDn((String) props.get("userBaseDn"))
                                 .baseGroupDn((String) props.get("groupBaseDn"));
@@ -226,6 +233,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         Map<String, Object> bindRequiredFields = new HashMap<>(connectionRequiredFields);
         bindRequiredFields.put("bindUserDn", ldapConfiguration.bindUserDn());
         bindRequiredFields.put("bindUserPassword", ldapConfiguration.bindUserPassword());
+        bindRequiredFields.put("bindMethod", ldapConfiguration.bindUserMethod());
 
         Map<String, Object> dirRequiredFields = new HashMap<>(bindRequiredFields);
         dirRequiredFields.put("baseUserDn", ldapConfiguration.baseUserDn());
@@ -241,10 +249,16 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             return testLdapConnection(ldapConfiguration);
 
         case LDAP_BIND_TEST_ID:
+            // TODO: tbatie - 12/7/16 - Add the bind user method types here
             TestReport bindFieldsResults = cannotBeNullFields(bindRequiredFields);
             if (bindFieldsResults.containsUnsuccessfulMessages()) {
                 return bindFieldsResults;
             }
+            bindFieldsResults = testConditionalBindFields(ldapConfiguration);
+            if (bindFieldsResults.containsUnsuccessfulMessages()) {
+                return bindFieldsResults;
+            }
+
             return testLdapBind(ldapConfiguration);
 
         case LDAP_DIRECTORY_STRUCT_TEST_ID:
@@ -268,6 +282,10 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         boolean startTls = false;
         ldapStsConfig.put("ldapBindUserDn", config.bindUserDn());
         ldapStsConfig.put("ldapBindUserPass", config.bindUserPassword());
+        ldapStsConfig.put("bindMethod", config.bindUserMethod());
+        ldapStsConfig.put("kdcAddress", config.bindKdcAddress());
+        ldapStsConfig.put("realm", config.bindRealm());
+
         ldapStsConfig.put("userNameAttribute", config.userNameAttribute());
         ldapStsConfig.put("userBaseDn", config.baseUserDn());
         ldapStsConfig.put("groupBaseDn", config.baseGroupDn());
@@ -503,9 +521,12 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         Connection connection = ldapConnectionResult.value();
 
         try {
-            connection.bind(ldapConfiguration.bindUserDn(),
-                    ldapConfiguration.bindUserPassword()
-                            .toCharArray());
+            BindRequest bindRequest = selectBindMethod(ldapConfiguration.bindUserMethod(),
+                    ldapConfiguration.bindUserDn(),
+                    ldapConfiguration.bindUserPassword(),
+                    ldapConfiguration.bindRealm(),
+                    ldapConfiguration.bindKdcAddress());
+            connection.bind(bindRequest);
         } catch (Exception e) {
             return new LdapTestResult<>(CANNOT_BIND);
         }
@@ -552,6 +573,28 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         return new TestReport(missingFields);
     }
 
+    private TestReport testConditionalBindFields(LdapConfiguration ldapConfiguration) {
+        List<ConfigurationMessage> missingFields = new ArrayList<>();
+
+        // TODO RAP 08 Dec 16: So many magic strings
+        // TODO RAP 08 Dec 16: StringUtils
+        String bindMethod = ldapConfiguration.bindUserMethod();
+        if (bindMethod.equals("GSSAPI SASL")) {
+            if (ldapConfiguration.bindKdcAddress() == null || ldapConfiguration.bindKdcAddress()
+                    .equals("")) {
+                missingFields.add(buildMessage(REQUIRED_FIELDS,
+                        "Field cannot be empty for GSSAPI SASL bind type").configId("bindKdcAddress"));
+            }
+            if (ldapConfiguration.bindRealm() == null || ldapConfiguration.bindRealm()
+                    .equals("")) {
+                missingFields.add(buildMessage(REQUIRED_FIELDS,
+                        "Field cannot be empty for GSSAPI SASL bind type").configId("bindRealm"));
+            }
+        }
+
+        return new TestReport(missingFields);
+    }
+
     ProbeReport getDefaultDirectoryStructure(LdapConfiguration configuration) {
         ProbeReport probeReport = new ProbeReport(new ArrayList<>());
 
@@ -566,6 +609,50 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         }
 
         return probeReport;
+    }
+
+    // TODO RAP 08 Dec 16: Refactor to common location...this functionality is in BindMethodChooser
+    // and SslLdapLoginModule as well
+    private static BindRequest selectBindMethod(String bindMethod, String bindUserDN,
+            String bindUserCredentials, String realm, String kdcAddress) {
+        BindRequest request;
+        switch (bindMethod) {
+        case "Simple":
+            request = Requests.newSimpleBindRequest(bindUserDN, bindUserCredentials.toCharArray());
+            break;
+        case "SASL":
+            request = Requests.newPlainSASLBindRequest(bindUserDN,
+                    bindUserCredentials.toCharArray());
+            break;
+        case "GSSAPI SASL":
+            request = Requests.newGSSAPISASLBindRequest(bindUserDN,
+                    bindUserCredentials.toCharArray());
+            ((GSSAPISASLBindRequest) request).setRealm(realm);
+            ((GSSAPISASLBindRequest) request).setKDCAddress(kdcAddress);
+            break;
+        case "Digest MD5 SASL":
+            request = Requests.newDigestMD5SASLBindRequest(bindUserDN,
+                    bindUserCredentials.toCharArray());
+            ((DigestMD5SASLBindRequest) request).setCipher(DigestMD5SASLBindRequest.CIPHER_HIGH);
+            ((DigestMD5SASLBindRequest) request).getQOPs()
+                    .clear();
+            ((DigestMD5SASLBindRequest) request).getQOPs()
+                    .add(DigestMD5SASLBindRequest.QOP_AUTH_CONF);
+            ((DigestMD5SASLBindRequest) request).getQOPs()
+                    .add(DigestMD5SASLBindRequest.QOP_AUTH_INT);
+            ((DigestMD5SASLBindRequest) request).getQOPs()
+                    .add(DigestMD5SASLBindRequest.QOP_AUTH);
+            if (realm != null && !realm.equals("")) {
+                //            if (StringUtils.isNotEmpty(realm)) {
+                ((DigestMD5SASLBindRequest) request).setRealm(realm);
+            }
+            break;
+        default:
+            request = Requests.newSimpleBindRequest(bindUserDN, bindUserCredentials.toCharArray());
+            break;
+        }
+
+        return request;
     }
 
     public enum LdapTestResultType {

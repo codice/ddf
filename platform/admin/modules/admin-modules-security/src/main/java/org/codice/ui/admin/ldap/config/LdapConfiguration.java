@@ -41,6 +41,12 @@ public class LdapConfiguration extends Configuration {
 
     private String bindUserPassword;
 
+    private String bindUserMethod;
+
+    private String bindKdcAddress;
+
+    private String bindRealm;
+
     private String userNameAttribute;
 
     private String baseGroupDn;
@@ -79,6 +85,18 @@ public class LdapConfiguration extends Configuration {
 
     public String bindUserPassword() {
         return bindUserPassword;
+    }
+
+    public String bindUserMethod() {
+        return bindUserMethod;
+    }
+
+    public String bindKdcAddress() {
+        return bindKdcAddress;
+    }
+
+    public String bindRealm() {
+        return bindRealm;
     }
 
     public String userNameAttribute() {
@@ -143,6 +161,21 @@ public class LdapConfiguration extends Configuration {
         return this;
     }
 
+    public LdapConfiguration bindUserMethod(String bindUserMethod) {
+        this.bindUserMethod = bindUserMethod;
+        return this;
+    }
+
+    public LdapConfiguration bindKdcAddress(String bindKdcAddress) {
+        this.bindKdcAddress = bindKdcAddress;
+        return this;
+    }
+
+    public LdapConfiguration bindRealm(String bindRealm) {
+        this.bindRealm = bindRealm;
+        return this;
+    }
+
     public LdapConfiguration userNameAttribute(String userNameAttribute) {
         this.userNameAttribute = userNameAttribute;
         return this;
@@ -190,6 +223,9 @@ public class LdapConfiguration extends Configuration {
                 .encryptionMethod(encryptionMethod)
                 .bindUserDn(bindUserDn)
                 .bindUserPassword(bindUserPassword)
+                .bindUserMethod(bindUserMethod)
+                .bindKdcAddress(bindKdcAddress)
+                .bindRealm(bindRealm)
                 .query(query)
                 .queryBase(queryBase)
                 .baseUserDn(baseUserDn)

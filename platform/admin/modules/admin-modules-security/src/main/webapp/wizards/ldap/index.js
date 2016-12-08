@@ -179,7 +179,7 @@ const NetworkSettings = ({ id, disabled }) => (
 )
 
 const BindSettingsView = ({id, disabled, probeLdapDir}) => (
-  <Stage id={id} defaults={{bindUserDn: 'cn=admin', bindUserPassword: 'secret'}}>
+  <Stage id={id} defaults={{bindUserDn: 'cn=admin', bindUserPassword: 'secret', bindUserMethod: 'Simple'}}>
     <Title>LDAP Bind User Settings</Title>
     <Description>
       Now that we've figured out the network environment, we need to
@@ -188,6 +188,16 @@ const BindSettingsView = ({id, disabled, probeLdapDir}) => (
 
     <Input id='bindUserDn' disabled={disabled} label='Bind User DN' />
     <Password id='bindUserPassword' disabled={disabled} label='Bind User Password' />
+    <Select id='bindUserMethod'
+      label='Bind User Method'
+      disabled={disabled}
+      options={[ 'Simple', 'SASL', 'GSSAPI SASL', 'Digest MD5 SASL' ]} />
+
+    {/* TODO GSSAPI SASL only */}
+    <Input id='bindKdcAddress' disabled={disabled} label='KDC Address (for Kerberos authentication)' />
+
+    {/* TODO GSSAPI and Digest MD5 SASL only */}
+    <Input id='bindRealm' disabled={disabled} label='Realm (for Kerberos and Digest MD5 authentication)' />
 
     <StageControls>
       <RaisedButton label='Lookup LDAP Directory' primary onClick={() => probeLdapDir()} />
