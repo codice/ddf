@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ui.admin.wizard.ConfigurationRouter;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;

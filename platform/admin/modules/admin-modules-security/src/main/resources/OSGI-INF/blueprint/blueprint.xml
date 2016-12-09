@@ -58,7 +58,7 @@
 
     <!--config handler router-->
 
-    <reference-list id="configurationHandlers" interface="org.codice.ui.admin.wizard.api.ConfigurationHandler">
+    <reference-list id="configurationHandlers" interface="org.codice.ui.admin.wizard.api.ConfigurationHandler" availability="optional">
         <reference-listener bind-method="registerConfigType" ref="configurationRouter"/>
     </reference-list>
 

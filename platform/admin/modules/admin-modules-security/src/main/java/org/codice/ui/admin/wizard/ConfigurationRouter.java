@@ -107,13 +107,15 @@ public class ConfigurationRouter implements SparkApplication {
             return report;
         }, getGsonParser()::toJson);
 
-        get("/capabilities/:configHandlerId", (req, res) ->
-           getConfigurationHandler(configurationHandlers,
-                   req.params("configHandlerId")).getCapabilities(), getGsonParser()::toJson);
+        get("/capabilities/:configHandlerId",
+                (req, res) -> getConfigurationHandler(configurationHandlers,
+                        req.params("configHandlerId")).getCapabilities(),
+                getGsonParser()::toJson);
 
-        get("/configurations/:configHandlerId", (req, res) ->
-            getConfigurationHandler(configurationHandlers,
-                    req.params("configHandlerId")).getConfigurations(), getGsonParser()::toJson);
+        get("/configurations/:configHandlerId",
+                (req, res) -> getConfigurationHandler(configurationHandlers,
+                        req.params("configHandlerId")).getConfigurations(),
+                getGsonParser()::toJson);
 
         after("/*", (req, res) -> res.type(APPLICATION_JSON));
 
@@ -142,8 +144,11 @@ public class ConfigurationRouter implements SparkApplication {
         configurationHandlers.forEach(this::registerConfigType);
     }
 
-    public void registerConfigType(ConfigurationHandler handler){
-            subtypesToRegister.put((String)handler.getSubtype().getKey(), (Class) handler.getSubtype().getValue());
+    public void registerConfigType(ConfigurationHandler handler) {
+        subtypesToRegister.put((String) handler.getSubtype()
+                        .getKey(),
+                (Class) handler.getSubtype()
+                        .getValue());
     }
 
 }
