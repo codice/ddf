@@ -57,22 +57,56 @@ public class ResourceUriSecurityPolicyTest {
     }
 
     @Test
-    public void testInputUriEmptyButCatalogUriNotEmpty() {
+    public void testInputUriEmptyButCatalogUriNotEmpty()
+            throws URISyntaxException, StopProcessingException {
+        Metacard input = mock(MetacardImpl.class);
+        URI catalogUri = new URI("sampleURI");
+        when(input.getId()).thenReturn("id");
+        when(input.getResourceURI()).thenReturn(new URI(""));
+        ResourceUriSecurityPolicy policyPlugin = new ResourceUriSecurityPolicy() {
+            protected URI getResourceUriValueFor(String id) {
+                return catalogUri;
+            }
+        };
+
+        // need to add permissions to ensure data integrity
+        policyPlugin.setCreatePermissions(new String[] {"role=admin", "fizzle=bang"});
+        PolicyResponse response = policyPlugin.processPreUpdate(input, null);
+        assertEmptyResponse(
+                "If update has no resource URI, should have policy applied to prevent overwriting of existing metacard URI",
+                response);
+    }
+
+    @Test
+    public void testInputUriNotEmptyButCatalogUriEmpty() {
+        // should add policy
 
     }
 
     @Test
-    public void testInputUriNotEmtpyButCatalogUriEmpty() {
+    public void testInputUriNotEmptyAndMatchesCatalogUri()
+            throws URISyntaxException, StopProcessingException {
+        // doesn't need policy
+        Metacard input = mock(MetacardImpl.class);
+        final URI catalogUri = new URI("sampleURI");
+        when(input.getId()).thenReturn("id");
+        when(input.getResourceURI()).thenReturn(new URI("sampleURI"));
+        ResourceUriSecurityPolicy policyPlugin = new ResourceUriSecurityPolicy() {
+            protected URI getResourceUriValueFor(String id) {
+                return catalogUri;
+            }
+        };
 
-    }
-
-    @Test
-    public void testInputUriNotEmptyAndSameAsCatalogUri() {
-
+        policyPlugin.setCreatePermissions(new String[] {"role=admin", "fizzle=bang"});
+        PolicyResponse response = policyPlugin.processPreUpdate(input, null);
+        assertEmptyResponse(
+                "If metacard and update have matching resource URIs, no policy is needed",
+                response);
     }
 
     @Test
     public void testInputUriNotEmptyAndDifferentThanCatalogUri() {
+        // should add policy
 
     }
 
