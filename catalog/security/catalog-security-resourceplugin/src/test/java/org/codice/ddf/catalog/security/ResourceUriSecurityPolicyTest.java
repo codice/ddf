@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.catalog.security;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -26,12 +39,13 @@ public class ResourceUriSecurityPolicyTest {
     @Test
     public void testTwoEmptyUris() throws URISyntaxException, StopProcessingException {
         Metacard input = mock(MetacardImpl.class);
-        final URI catalogUri = new URI("");
+        Metacard catalogMetacard = mock(MetacardImpl.class);
+        when(catalogMetacard.getResourceURI()).thenReturn(new URI(""));
         when(input.getId()).thenReturn("id");
         when(input.getResourceURI()).thenReturn(new URI(""));
         ResourceUriSecurityPolicy policyPlugin = new ResourceUriSecurityPolicy() {
-            protected URI getResourceUriValueFor(String id) {
-                return catalogUri;
+            protected Metacard getMetacardFromCatalog(String id) {
+                return catalogMetacard;
             }
         };
 
