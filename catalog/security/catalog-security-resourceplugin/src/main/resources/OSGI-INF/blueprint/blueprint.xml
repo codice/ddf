@@ -14,9 +14,10 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
-    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
-
+    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"
+               availability="optional"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"
+               availability="optional"/>
 
     <bean id="resourceUriSecurityPlugin"
           class="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy">

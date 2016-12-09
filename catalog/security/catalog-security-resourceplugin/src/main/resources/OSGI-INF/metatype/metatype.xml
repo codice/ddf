@@ -12,6 +12,7 @@
  **/
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
     <OCD description="Resource URI Security Policy Plugin"
          name="Resource URI Security Policy Plugin"
          id="org.codice.ddf.catalog.security.ResourceUriPolicy">
@@ -26,6 +27,7 @@
             type="String" cardinality="1000"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"/>/>
     </OCD>
+
     <Designate pid="org.codice.ddf.catalog.security.ResourceUriPolicy">
         <Object ocdref="org.codice.ddf.catalog.security.ResourceUriPolicy"/>
     </Designate>
