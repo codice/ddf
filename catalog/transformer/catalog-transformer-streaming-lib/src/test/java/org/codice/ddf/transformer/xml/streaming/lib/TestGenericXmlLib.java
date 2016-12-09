@@ -60,7 +60,7 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        assertThat(xmlInputTransformer.getMetacardType(), is(notNullValue()));
+        assertThat(xmlInputTransformer.getMetacardType(), notNullValue());
         Metacard metacard = null;
         try {
             metacard = xmlInputTransformer.transform(inputStream, "test");
@@ -68,7 +68,7 @@ public class TestGenericXmlLib {
             fail();
         }
         assertThat(metacard.getAttribute(Metacard.METADATA)
-                .getValue(), is(notNullValue()));
+                .getValue(), notNullValue());
         assertThat(metacard.getAttribute(Metacard.ID)
                 .getValue(), is("test"));
 
@@ -170,7 +170,7 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        assertThat(xmlInputTransformer.getMetacardType(), is(notNullValue()));
+        assertThat(xmlInputTransformer.getMetacardType(), notNullValue());
         Metacard metacard = null;
         try {
             metacard = xmlInputTransformer.transform(inputStream, "test");
@@ -178,7 +178,7 @@ public class TestGenericXmlLib {
             fail();
         }
         assertThat(metacard.getAttribute(Metacard.METADATA)
-                .getValue(), is(notNullValue()));
+                .getValue(), notNullValue());
         assertThat(metacard.getAttribute(Metacard.ID)
                 .getValue(), is("test"));
     }
@@ -210,7 +210,7 @@ public class TestGenericXmlLib {
         DynamicMetacardType dynamicMetacardType = new DynamicMetacardType(attributeDescriptors,
                 "Foo");
         assertThat(dynamicMetacardType.getName(), is("Foo.metacard"));
-        assertThat(dynamicMetacardType.getAttributeDescriptor(Metacard.TITLE), is(notNullValue()));
+        assertThat(dynamicMetacardType.getAttributeDescriptor(Metacard.TITLE), notNullValue());
         assertThat(dynamicMetacardType.getAttributeDescriptors()
                 .equals(attributeDescriptors), is(true));
     }
