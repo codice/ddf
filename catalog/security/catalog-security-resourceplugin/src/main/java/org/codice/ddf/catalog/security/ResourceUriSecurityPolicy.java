@@ -70,7 +70,7 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
     }
 
     @Override
-    //Additional permission are necessarwy to overwrite and existing resource URI with an new value
+    //Additional permission are necessary to overwrite and existing resource URI with an new value
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
