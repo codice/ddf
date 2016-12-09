@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import javax.management.MalformedObjectNameException;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.codice.ui.admin.wizard.config.ConfigHandler;
 import org.codice.ui.admin.wizard.config.ConfiguratorException;
