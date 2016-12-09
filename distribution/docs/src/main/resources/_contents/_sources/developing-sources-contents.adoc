@@ -3,6 +3,39 @@
 Sources are components that enable ${branding} to talk to back-end services.
 They let ${branding} perform query and ingest operations on catalog stores and query operations on federated sources.
 
+.Source Architecture
+[ditaa, sources_architecture, png, ${image-width}]
+....
++----------------------------------------------------------------------------------------------+
+|                /-------------------\            /-----------------------------\    +-=------+|
+|                |cDEFEndpoints      |            |c369   Remote Sources        |    |External||
+|                +------------+------+            | /-------------------------\ |    | Data{s}||
+|                |cDEF        |cDEF  |            | |c369Federated Sources    |-+--->|Holdings||
+|                | Operations | Data |            | +-------------------------+ |    +--------+|
+|/---------------+------------+------+------------+ |c369Connected Sources    |-+--->          |
+||cDEF           |cDEF               |cDEF        | +-------------------------+ |    +-=------+|
+||               |                   |            | |c369 Catalog Stores      |-+--->|External||
+||  Transformers |                   | Federation | \-------------------------/ |    | Data{s}||
+|+---------------+ Catalog Framework +------------+-----------------------------+    |Holdings||
+||cDEF           |                   |cDEF           Eventing                   |    +--------+|
+||   Catalog     |                   +------------------------------------------+              |
+||   Plugins     |                   |cDEF           Resources                  |              |
+|\---------------+-------------------+------------------------------------------/              |
+|                |c369               |                                                         |
+|                | Catalog Provider  |              cCCC                                       |
+|                +-------------------+                                                         |
+|                |cDEF               |                                                         |
+|                | Storage Provider  |                                                         |
+|                \-------------------/                                                         |
+|                          |                                                                   |
+|                          v                                                                   |
+|                  +-=-------------+                                                           |
+|                  |               |                                                           |
+|                  |{s}Data Store  |                                                           |
+|                  +---------------+                                                           |
++----------------------------------------------------------------------------------------------+
+....
+
 ==== Implement a Source Interface
 
 There are three types of sources that can be created.

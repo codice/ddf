@@ -4,40 +4,6 @@ A *source* is a system consisting of a catalog containing Metacards.
 Catalog sources are used to connect Catalog components to data sources, local and remote.
 Sources act as proxies to the actual external data sources, e.g., a RDBMS database or a NoSQL database.
 
-.Source Architecture
-[ditaa, sources_architecture, png, ${image-width}]
-....
-+----------------------------------------------------------------------------------------------+
-|                /-------------------\            /-----------------------------\    +-=------+|
-|                |cDEFEndpoints      |            |c369   Remote Sources        |    |External||
-|                +------------+------+            | /-------------------------\ |    | Data{s}||
-|                |cDEF        |cDEF  |            | |c369Federated Sources    |-+--->|Holdings||
-|                | Operations | Data |            | +-------------------------+ |    +--------+|
-|/---------------+------------+------+------------+ |c369Connected Sources    |-+--->          |
-||cDEF           |cDEF               |cDEF        | +-------------------------+ |    +-=------+|
-||               |                   |            | |c369 Catalog Stores      |-+--->|External||
-||  Transformers |                   | Federation | \-------------------------/ |    | Data{s}||
-|+---------------+ Catalog Framework +------------+-----------------------------+    |Holdings||
-||cDEF           |                   |cDEF           Eventing                   |    +--------+|
-||   Catalog     |                   +------------------------------------------+              |
-||   Plugins     |                   |cDEF           Resources                  |              |
-|\---------------+-------------------+------------------------------------------/              |
-|                |c369               |                                                         |
-|                | Catalog Provider  |              cCCC                                       |
-|                +-------------------+                                                         |
-|                |cDEF               |                                                         |
-|                | Storage Provider  |                                                         |
-|                \-------------------/                                                         |
-|                          |                                                                   |
-|                          v                                                                   |
-|                  +-=-------------+                                                           |
-|                  |               |                                                           |
-|                  |{s}Data Store  |                                                           |
-|                  +---------------+                                                           |
-+----------------------------------------------------------------------------------------------+
-....
-
-
 === Types of Sources
 
 Remote Source:: Read-only data sources that support query operations but cannot be used to create, update, or delete metacards.

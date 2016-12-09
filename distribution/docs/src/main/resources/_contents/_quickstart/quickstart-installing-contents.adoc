@@ -4,7 +4,7 @@ This quick tutorial will enable install, configuring and using a basic instance 
 [NOTE]
 ====
 This tutorial is intended for setting up a test, demonstration, or trial installation of ${branding}.
-For more complete installation and configuration steps, see <<_installing_${branding},Installing ${branding}>>.
+For more complete installation and configuration steps, see <<_installing,Installing>>.
 ====
 
 These steps will demonstrate:
@@ -13,7 +13,7 @@ These steps will demonstrate:
 - [*] <<_quick_install_of_${branding-lowercase},Quick Install of ${branding}>>.
 - [*] <<_ingesting_sample_data,Ingesting Data>>.
 
-=== ${branding} Quick Install Prerequisites
+=== Quick Install Prerequisites
 
 These are the basic requirements to set up the environment to run a ${branding}.
 
