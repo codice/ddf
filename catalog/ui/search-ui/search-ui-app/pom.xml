@@ -122,10 +122,5 @@
             <artifactId>search-endpoint</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>catalog-ui-search</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 </project>
