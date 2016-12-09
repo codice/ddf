@@ -113,6 +113,12 @@ public class MediaAttributes implements Media, MetacardType {
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.INTEGER_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(DURATION,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.DOUBLE_TYPE));
         DESCRIPTORS = Collections.unmodifiableSet(descriptors);
     }
 

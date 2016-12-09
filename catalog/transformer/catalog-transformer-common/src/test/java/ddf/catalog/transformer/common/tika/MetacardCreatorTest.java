@@ -21,11 +21,13 @@ import static org.junit.Assert.assertThat;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TIFF;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.junit.Test;
 
@@ -36,6 +38,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Media;
 
 public class MetacardCreatorTest {
     @Test
@@ -59,13 +62,126 @@ public class MetacardCreatorTest {
 
     @Test
     public void testBasicMetacard() {
-        Metacard metacard = testMetacard(null);
+        Metacard metacard = createTestMetacard(null);
         assertThat(metacard.getMetacardType(), is(BasicTypes.BASIC_METACARD));
     }
 
     @Test
+    public void testValidDoubleAttribute() {
+
+        Set<AttributeDescriptor> extraAttributes = new HashSet<>();
+        extraAttributes.add(new AttributeDescriptorImpl(Media.DURATION,
+                false,
+                false,
+                false,
+                false,
+                BasicTypes.DOUBLE_TYPE));
+        final Metadata metadata = new Metadata();
+        String durationValue = "14.88";
+        metadata.add(MetacardCreator.DURATION_METDATA_KEY, durationValue);
+        MetacardTypeImpl extendedMetacardType =
+                new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
+                        BasicTypes.BASIC_METACARD,
+                        extraAttributes);
+        final String id = "id";
+        final String metadataXml = "<xml>test</xml>";
+
+        Metacard metacard = MetacardCreator.createMetacard(metadata,
+                id,
+                metadataXml,
+                extendedMetacardType);
+        assertThat(metacard.getMetadata(), is(metadataXml));
+        assertThat(metacard.getAttribute(Media.DURATION)
+                .getValue(), is(Double.valueOf(durationValue)));
+    }
+
+    @Test
+    public void testNullIntAttribute() {
+
+        Set<AttributeDescriptor> extraAttributes = new HashSet<>();
+        extraAttributes.add(new AttributeDescriptorImpl(Media.DURATION,
+                false,
+                false,
+                false,
+                false,
+                BasicTypes.INTEGER_TYPE));
+        final Metadata metadata = new Metadata();
+        metadata.add(MetacardCreator.COMPRESSION_TYPE_METADATA_KEY, null);
+        MetacardTypeImpl extendedMetacardType =
+                new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
+                        BasicTypes.BASIC_METACARD,
+                        extraAttributes);
+        final String id = "id";
+        final String metadataXml = "<xml>test</xml>";
+
+        Metacard metacard = MetacardCreator.createMetacard(metadata,
+                id,
+                metadataXml,
+                extendedMetacardType);
+        assertThat(metacard.getMetadata(), is(metadataXml));
+        assertThat(metacard.getAttribute(Media.COMPRESSION), is(nullValue()));
+    }
+
+    @Test
+    public void testDoubleAttributeWithNumberFormatException() {
+
+        Set<AttributeDescriptor> extraAttributes = new HashSet<>();
+        extraAttributes.add(new AttributeDescriptorImpl(Media.DURATION,
+                false,
+                false,
+                false,
+                false,
+                BasicTypes.DOUBLE_TYPE));
+        final Metadata metadata = new Metadata();
+        String durationValue = "Not actually a double";
+        metadata.add(MetacardCreator.DURATION_METDATA_KEY, durationValue);
+        MetacardTypeImpl extendedMetacardType =
+                new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
+                        BasicTypes.BASIC_METACARD,
+                        extraAttributes);
+        final String id = "id";
+        final String metadataXml = "<xml>test</xml>";
+
+        Metacard metacard = MetacardCreator.createMetacard(metadata,
+                id,
+                metadataXml,
+                extendedMetacardType);
+        assertThat(metacard.getMetadata(), is(metadataXml));
+        assertThat(metacard.getAttribute(Media.DURATION), is(nullValue()));
+    }
+
+    @Test
+    public void testIntAttribute() {
+
+        Set<AttributeDescriptor> extraAttributes = new HashSet<>();
+        extraAttributes.add(new AttributeDescriptorImpl(Media.DURATION,
+                false,
+                false,
+                false,
+                false,
+                BasicTypes.INTEGER_TYPE));
+        final Metadata metadata = new Metadata();
+        String imageLength = "14";
+        metadata.add(TIFF.IMAGE_LENGTH, imageLength);
+        MetacardTypeImpl extendedMetacardType =
+                new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
+                        BasicTypes.BASIC_METACARD,
+                        extraAttributes);
+        final String id = "id";
+        final String metadataXml = "<xml>test</xml>";
+
+        Metacard metacard = MetacardCreator.createMetacard(metadata,
+                id,
+                metadataXml,
+                extendedMetacardType);
+        assertThat(metacard.getMetadata(), is(metadataXml));
+        assertThat(metacard.getAttribute(Media.HEIGHT)
+                .getValue(), is(Integer.valueOf(imageLength)));
+    }
+
+    @Test
     public void testMetacardExtended() {
-        Metacard metacard = testMetacard(ImmutableSet.of(createObjectAttr("attr1"),
+        Metacard metacard = createTestMetacard(ImmutableSet.of(createObjectAttr("attr1"),
                 createObjectAttr("attr2")));
         assertThat(metacard.getMetacardType()
                 .getName(), is(BasicTypes.BASIC_METACARD.getName()));
@@ -89,7 +205,7 @@ public class MetacardCreatorTest {
                 BasicTypes.OBJECT_TYPE);
     }
 
-    private Metacard testMetacard(Set<AttributeDescriptor> extraAttributes) {
+    private Metacard createTestMetacard(Set<AttributeDescriptor> extraAttributes) {
         final Metadata metadata = new Metadata();
 
         final String title = "title";

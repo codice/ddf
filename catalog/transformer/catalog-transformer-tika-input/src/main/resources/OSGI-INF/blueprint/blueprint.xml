@@ -14,9 +14,18 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
     <!-- The tika input transformer programmatically registers itself as a service -->
-    <bean id="tikaTransformer" class="ddf.catalog.transformer.input.tika.TikaInputTransformer">
+    <bean id="tikaTransformer" class="ddf.catalog.transformer.input.tika.TikaInputTransformer"
+          init-method="populateMimeTypeMap">
         <argument ref="blueprintBundleContext"/>
-        <argument ref="commonMetacardType"/>
+        <argument ref="commonTikaMetacardType"/>
+        <property name="fallbackJpegMetacardType" ref="fallbackJpegMetacardType"/>
+        <property name="fallbackExcelMetacardType" ref="fallbackExcelMetacardType"/>
+        <property name="commonTikaMetacardType" ref="commonTikaMetacardType"/>
+        <property name="fallbackMp4MetacardType" ref="fallbackMp4MetacardType"/>
+        <property name="fallbackMpegMetacardType" ref="fallbackMpegMetacardType"/>
+        <property name="fallbackOfficeDocMetacardType" ref="fallbackOfficeDocMetacardType"/>
+        <property name="fallbackPdfMetacardType" ref="fallbackPdfMetacardType"/>
+        <property name="fallbackPowerpointMetacardType" ref="fallbackPowerpointMetacardType"/>
     </bean>
 
     <reference id="commonMetacardType" interface="ddf.catalog.data.MetacardType"
@@ -30,4 +39,126 @@
                             unbind-method="removeContentMetadataExtractor"
                             ref="tikaTransformer"/>
     </reference-list>
+
+    <bean id="commonTikaMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="fallback.common"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+    <bean id="fallbackExcelMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="fallback.excel"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+
+    <bean id="fallbackJpegMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="fallback.jpeg"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+
+    <bean id="fallbackMp4MetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="fallback.mp4"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+
+    <bean id="fallbackMpegMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="fallback.mpeg"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+
+    <bean id="fallbackOfficeDocMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="fallback.doc"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+
+    <bean id="fallbackPdfMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="fallback.pdf"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+
+    <bean id="fallbackPowerpointMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="fallback.powerpoint"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+
+    <service ref="commonMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="tika"/>
+        </service-properties>
+    </service>
+
+    <!-- Register the Transformers -->
+    <service auto-export="interfaces" ref="tikaTransformer"/>
+
+
 </blueprint>

@@ -96,4 +96,11 @@ public interface Media {
      */
     String WIDTH = "media.width-pixels";
 
+    /**
+     * {@link ddf.catalog.data.Attribute} name for accessing the duration in seconds of a {@link ddf.catalog.resource.Resource}
+     * of a {@link Metacard}. <br/>
+     */
+    String DURATION = "media.duration";
+
+
 }
