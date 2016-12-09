@@ -22,11 +22,17 @@ import spock.lang.Specification
 class PropertyConfigHandlerTest extends Specification {
     @Rule
     TemporaryFolder tempFolder
+
+    @Shared
+    File workFolder
+
     @Shared
     File file
 
     def setup() {
-        file = tempFolder.newFile('test.properties')
+        workFolder = tempFolder.newFolder()
+        file = new File(workFolder, 'test.properties')
+
         def initProps = new Properties()
         initProps.put('key1', 'val1')
         initProps.put('key2', 'val2')
@@ -36,13 +42,70 @@ class PropertyConfigHandlerTest extends Specification {
         }
     }
 
-    def 'test write properties to an unknown file fails'() {
+    def 'test write properties to a new file'() {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
-        def badFile = new File(file, "doesnotexist")
+        def newFile = new File(workFolder, "doesnotexistyet.properties")
+        def props = new Properties()
+        def handler = PropertyConfigHandler.forCreate(newFile.toPath(), configs)
 
         when:
-        def handler = PropertyConfigHandler.instance(badFile.toPath(), configs, true)
+        handler.commit()
+        newFile.newReader().with {
+            props.load(it)
+        }
+
+        then:
+        props.getProperty('key1') == 'newVal1'
+        props.getProperty('key4') == 'val4'
+        props.getProperty('key5') == 'val5'
+    }
+
+    def 'test rollback new properties file causes delete'() {
+        setup:
+        def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
+        def newFile = new File(workFolder, "doesnotexistyet.properties")
+        def handler = PropertyConfigHandler.forCreate(newFile.toPath(), configs)
+
+        when:
+        handler.commit()
+        handler.rollback()
+
+        then:
+        !newFile.exists()
+    }
+
+    def 'test delete and rollback'() {
+        setup:
+        def handler = PropertyConfigHandler.forDelete(file.toPath())
+        def props = new Properties()
+
+        when:
+        handler.commit()
+
+        then:
+        !file.exists()
+
+        when:
+        handler.rollback()
+        file.newReader().with {
+            props.load(it)
+        }
+
+        then:
+        file.exists()
+        props.getProperty('key1') == 'val1'
+        props.getProperty('key2') == 'val2'
+        props.getProperty('key3') == 'val3'
+    }
+
+    def 'test update properties to an unknown file fails'() {
+        setup:
+        def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
+        def badFile = new File(workFolder, "doesnotexist")
+
+        when:
+        def handler = PropertyConfigHandler.forUpdate(badFile.toPath(), configs, true)
 
         then:
         thrown(ConfiguratorException)
@@ -51,7 +114,7 @@ class PropertyConfigHandlerTest extends Specification {
     def 'test write new properties and keep old properties'() {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
-        def handler = PropertyConfigHandler.instance(file.toPath(), configs, true)
+        def handler = PropertyConfigHandler.forUpdate(file.toPath(), configs, true)
         def props = new Properties()
 
         when:
@@ -71,7 +134,7 @@ class PropertyConfigHandlerTest extends Specification {
     def 'test write new properties and remove old properties'() {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
-        def handler = PropertyConfigHandler.instance(file.toPath(), configs, false)
+        def handler = PropertyConfigHandler.forUpdate(file.toPath(), configs, false)
         def props = new Properties()
 
         when:
@@ -89,7 +152,7 @@ class PropertyConfigHandlerTest extends Specification {
     def 'test rollback'() {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
-        def handler = PropertyConfigHandler.instance(file.toPath(), configs, false)
+        def handler = PropertyConfigHandler.forUpdate(file.toPath(), configs, false)
         def props = new Properties()
 
         when:

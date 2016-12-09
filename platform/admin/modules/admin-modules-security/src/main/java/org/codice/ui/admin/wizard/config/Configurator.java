@@ -164,6 +164,29 @@ public class Configurator {
     }
 
     /**
+     * Creates a property file in the system with the given set of new key:value pairs.
+     *
+     * @param propFile    the property file to create
+     * @param properties  the set of key:value pairs to save to the property file
+     * @return a lookup key that can be used to correlate this operation in the
+     * final {@link ConfigReport}
+     */
+    public String createPropertyFile(Path propFile, Map<String, String> properties) {
+        return registerHandler(PropertyConfigHandler.forCreate(propFile, properties));
+    }
+
+    /**
+     * Deletes a property file in the system.
+     *
+     * @param propFile    the property file to delete
+     * @return a lookup key that can be used to correlate this operation in the
+     * final {@link ConfigReport}
+     */
+    public String deletePropertyFile(Path propFile) {
+        return registerHandler(PropertyConfigHandler.forDelete(propFile));
+    }
+
+    /**
      * Updates a property file in the system with the given set of new key:value pairs.
      *
      * @param propFile    the property file to update
@@ -177,7 +200,7 @@ public class Configurator {
      */
     public String updatePropertyFile(Path propFile, Map<String, String> properties,
             boolean keepIgnored) {
-        return registerHandler(PropertyConfigHandler.instance(propFile, properties, keepIgnored));
+        return registerHandler(PropertyConfigHandler.forUpdate(propFile, properties, keepIgnored));
     }
 
     /**
@@ -187,7 +210,7 @@ public class Configurator {
      * @return the current set of key:value pairs
      */
     public Properties getProperties(Path propFile) {
-        return PropertyConfigHandler.instance(propFile, Collections.emptyMap(), true)
+        return PropertyConfigHandler.forUpdate(propFile, Collections.emptyMap(), true)
                 .readState();
     }
 
