@@ -302,25 +302,18 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-plugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-security-policyplugin" install="auto" version="${project.version}"
+    <feature name="catalog-security-resourceplugin" install="auto" version="${project.version}"
              description="DDF Catalog Resource URI Policy Plugins">
         <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-resourceplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-security-resourceplugin" install="auto" version="${project.version}"
+    <feature name="catalog-security-policyplugin" install="auto" version="${project.version}"
              description="DDF Catalog Policy Plugins">
         <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-policyplugin/${project.version}</bundle>
-    </feature>
-
-    <feature name="catalog-security-resourceplugin" install="auto" version="${project.version}"
-             description="DDF Catalog Resource URI Policy Plugins">
-        <feature prerequisite="true">catalog-app</feature>
-        <feature prerequisite="true">security-pdp-authz</feature>
-        <bundle>mvn:ddf.catalog.security/catalog-security-resourceplugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-security-metacardattributeplugin" install="auto"
