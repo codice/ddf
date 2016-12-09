@@ -8,6 +8,9 @@
     "backbone",
     "express"
   ],
+  "scripts": {
+    "start": "grunt"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/codice/ddf.git"
