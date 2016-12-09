@@ -49,7 +49,7 @@ public class ExperimentalEnumerationExtractor {
     public Map<String, Set<String>> getAttributeEnumerations(String attribute) {
         return attributeValidatorRegistry.getValidators(attribute)
                 .stream()
-                .map(av -> av.validate(new AttributeImpl(attribute, (Serializable) null)))
+                .map(av -> av.validate(new AttributeImpl(attribute, "null")))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .filter(avr -> !avr.getSuggestedValues()
@@ -83,7 +83,7 @@ public class ExperimentalEnumerationExtractor {
                 .flatMap(ad -> attributeValidatorRegistry.getValidators(ad.getName())
                         .stream()
                         .map(av -> av.validate(new AttributeImpl(ad.getName(),
-                                (Serializable) null))))
+                                "null"))))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .filter(avr -> !avr.getSuggestedValues()
