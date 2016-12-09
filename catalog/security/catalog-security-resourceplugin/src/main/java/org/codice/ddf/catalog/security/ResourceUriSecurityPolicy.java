@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.security;
 
 import java.io.Serializable;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
@@ -57,28 +57,32 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
     private FilterBuilder filterBuilder;
 
     @Override
+    //Additional permissions are necessary to create a metacard with a resource URI
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
-        return new PolicyResponseImpl();
+        if (includesResourceUriAttribute(input)) {
+            return new PolicyResponseImpl(null,
+                    Permissions.parsePermissionsFromString(getCreatePermissions()));
+        } else {
+            return new PolicyResponseImpl();
+        }
     }
 
     @Override
+    //Additional permission are necessarwy to overwrite and existing resource URI with an new value
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
-        URI inputUri = input.getResourceURI();
-        if (notEmpty(inputUri)) {
-            URI catalogUri = getResourceUriValueFor(input.getId());
-            if (notEmpty(catalogUri) && inputUri.equals(catalogUri)) {
+        if (includesResourceUriAttribute(input)) {
+            Metacard catalogMetacard = getMetacardFromCatalog(input.getId());
+            if (input.getResourceURI()
+                    .equals(catalogMetacard.getResourceURI())) {
                 return new PolicyResponseImpl();
-
             } else {
                 return new PolicyResponseImpl(null,
                         Permissions.parsePermissionsFromString(getUpdatePermissions()));
-
             }
-
         } else {
             return new PolicyResponseImpl();
         }
@@ -148,14 +152,14 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
     }
 
     public String[] getUpdatePermissions() {
-        return updatePermissions;
+        return updatePermissions == null ? null : updatePermissions.clone();
     }
 
     public void setUpdatePermissions(String[] updatePermissions) {
         this.updatePermissions = updatePermissions == null ? null : updatePermissions.clone();
     }
 
-    protected URI getResourceUriValueFor(String id) {
+    protected Metacard getMetacardFromCatalog(String id) {
         Filter filter = filterBuilder.attribute(Metacard.ID)
                 .is()
                 .equalTo()
@@ -170,12 +174,13 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
         }
         Result queryResult = queryResponse.getResults()
                 .get(0);
-        Metacard metacard = queryResult.getMetacard();
-        return metacard.getResourceURI();
+        return queryResult.getMetacard();
     }
 
-    private boolean notEmpty(URI uri) {
-        return uri != null && StringUtils.isNotEmpty(uri.toString());
+    private boolean includesResourceUriAttribute(Metacard metacard) {
+        Attribute resourceUri = metacard.getAttribute(Metacard.RESOURCE_URI);
+        return resourceUri != null && StringUtils.isNotEmpty((String) resourceUri.getValue());
     }
+
 }
 
