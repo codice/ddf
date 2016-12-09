@@ -59,9 +59,13 @@ const tableMappings = (state = [], { type, mapping, indexs }) => {
       var duplicate = state.find((prev) => prev.subjectClaim === mapping.subjectClaim && prev.userAttribute === mapping.userAttribute)
       return duplicate === undefined ? state.concat({subjectClaim: mapping.subjectClaim, userAttribute: mapping.userAttribute, selected: false}) : state
     case 'SELECT_MAPPINGS':
-      state.map((mapping) => (mapping.selected = false))
-      indexs.map((index) => (state[index].selected = true))
-      return state
+      return state.map((mapping, i) => {
+        if (indexs.indexOf(i) !== -1) {
+          return { ...mapping, selected: true }
+        } else {
+          return { ...mapping, selected: false }
+        }
+      })
     case 'REMOVE_SELECTED_MAPPINGS':
       return state.filter((mapping) => !mapping.selected)
     default:
