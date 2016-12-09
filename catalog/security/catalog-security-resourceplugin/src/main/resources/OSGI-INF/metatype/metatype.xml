@@ -12,23 +12,19 @@
  **/
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
-
     <OCD description="Resource URI Security Policy Plugin"
          name="Resource URI Security Policy Plugin"
          id="org.codice.ddf.catalog.security.ResourceUriPolicy">
 
         <AD description="Allow users to provide a URI when creating a metacard"
             name="Permit Resource URI on Creation" id="permitResourceUriOnCreation" required="true"
-            type="Boolean" default="false"/>
+            type="String" cardinality="1000"
+            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"/>/>
 
         <AD description="Allow users to provide a URI when updating a metacard"
             name="Permit Resource URI on Update" id="permitResourceUriOnUpdate" required="true"
-            type="Boolean"
-            default="false"/>
-
-        <AD description="Allow more than one metacard to have the same resource URI"
-            name="Permit Duplicate URIs" id="permitDuplicateUris" required="true" type="Boolean"
-            default="false"/>
+            type="String" cardinality="1000"
+            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"/>/>
     </OCD>
     <Designate pid="org.codice.ddf.catalog.security.ResourceUriPolicy">
         <Object ocdref="org.codice.ddf.catalog.security.ResourceUriPolicy"/>

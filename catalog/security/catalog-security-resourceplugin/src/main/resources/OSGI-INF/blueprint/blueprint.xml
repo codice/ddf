@@ -18,18 +18,24 @@
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
 
-    <bean id="resourceUriSecurityPlugin" class="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy">
-        <cm:managed-properties persistent-id="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy"/>
+    <bean id="resourceUriSecurityPlugin"
+          class="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy"/>
         <property name="catalogFramework" ref="catalogFramework"/>
         <property name="filterBuilder" ref="filterBuilder"/>
-        <property name="updateResourceUriPermissions">
+        <property name="createPermissions">
+            <array>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin</value>
+            </array>
+        </property>
+        <property name="updatePermissions">
             <array>
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin</value>
             </array>
         </property>
     </bean>
     <service ref="resourceUriSecurityPlugin" auto-export="interfaces" ranking="100"/>
-
 
 
 </blueprint>
