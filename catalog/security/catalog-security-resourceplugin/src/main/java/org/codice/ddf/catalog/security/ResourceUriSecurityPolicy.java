@@ -15,13 +15,14 @@ package org.codice.ddf.catalog.security;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.stream.XMLStreamException;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codice.ddf.platform.util.XMLUtils;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.CatalogFramework;
@@ -63,7 +64,7 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
         return new PolicyResponseImpl();
     }
 
-    private String getResourceUriValueFor(String id) {
+    protected URI getResourceUriValueFor(String id)  {
         Filter filter = filterBuilder.attribute(Metacard.ID)
                 .is()
                 .equalTo()
@@ -79,47 +80,37 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
         Result queryResult = queryResponse.getResults()
                 .get(0);
         Metacard metacard = queryResult.getMetacard();
-
-
-        return null;
-//        return XMLUtils.processElements(xml, (resultHolder, xmlStreamReader) -> {
-//            String localName = xmlStreamReader.getLocalName();
-//            if (localName.equals("p")) {
-//                try {
-//                    resultHolder.set(xmlStreamReader.getElementText());
-//                } catch (XMLStreamException e) {
-//                    e.printStackTrace();
-//                }
-//                return false;
-//            }
-//            return true;
-//        });
+        return metacard.getResourceURI();
     }
 
     @Override
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
-        if (input.getResourceURI() != null) {
-            URI inputUri = input.getResourceURI();
+        URI inputUri = input.getResourceURI();
+        if (inputUri != null && StringUtils.isNotEmpty(inputUri.toString())) {
+            URI catalogUri = getResourceUriValueFor(input.getId());
+
+            if (catalogUri == null) {
+                return new PolicyResponseImpl();
+
+            } else {
+                if (input.getResourceURI()
+                        .equals(catalogUri)) {
+                    return new PolicyResponseImpl();
+                } else {
+                    // come back here and add correct logic
+                    Map<String, Set<String>> map = new HashMap();
+                    Set<String> permissions = new HashSet<>();
+                    permissions.add("admin");
+                    map.put("role", permissions);
+                    return new PolicyResponseImpl(null, map);
+                }
+            }
+
         } else {
             return new PolicyResponseImpl();
         }
-
-
-//        String existingUri = null;
-//        existingUri = getResourceUriValueFor(input.getId());
-//        int x = 8;
-        //        if (!inputUri.equals(existingUri)) {
-        //
-        //            Map<String, Set<String>> map = new HashMap();
-        //            Set<String> permissions = new HashSet<>();
-        //            permissions.add("admin");
-        //            map.put("role", permissions);
-        //            return new PolicyResponseImpl(null, map);
-        //        }
-
-        return new PolicyResponseImpl();
     }
 
     @Override
