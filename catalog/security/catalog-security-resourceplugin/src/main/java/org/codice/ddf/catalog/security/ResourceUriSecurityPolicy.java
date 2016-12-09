@@ -15,12 +15,8 @@ package org.codice.ddf.catalog.security;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opengis.filter.Filter;
@@ -43,6 +39,7 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.permission.Permissions;
 
 /**
  * Restricts how resource URIs are updated and created.
@@ -51,7 +48,9 @@ import ddf.catalog.source.UnsupportedQueryException;
  */
 public class ResourceUriSecurityPolicy implements PolicyPlugin {
 
-    private String[] updateResourceUriPermissions;
+    private String[] createPermissions;
+
+    private String[] updatePermissions;
 
     private CatalogFramework catalogFramework;
 
@@ -64,48 +63,20 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
         return new PolicyResponseImpl();
     }
 
-    protected URI getResourceUriValueFor(String id)  {
-        Filter filter = filterBuilder.attribute(Metacard.ID)
-                .is()
-                .equalTo()
-                .text(id);
-        Query query = new QueryImpl(filter);
-        QueryRequest queryRequest = new QueryRequestImpl(query);
-        QueryResponse queryResponse;
-        try {
-            queryResponse = catalogFramework.query(queryRequest);
-        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
-            throw new RuntimeException(e);
-        }
-        Result queryResult = queryResponse.getResults()
-                .get(0);
-        Metacard metacard = queryResult.getMetacard();
-        return metacard.getResourceURI();
-    }
-
     @Override
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
         URI inputUri = input.getResourceURI();
-        if (inputUri != null && StringUtils.isNotEmpty(inputUri.toString())) {
+        if (notEmpty(inputUri)) {
             URI catalogUri = getResourceUriValueFor(input.getId());
-
-            if (catalogUri == null) {
+            if (notEmpty(catalogUri) && inputUri.equals(catalogUri)) {
                 return new PolicyResponseImpl();
 
             } else {
-                if (input.getResourceURI()
-                        .equals(catalogUri)) {
-                    return new PolicyResponseImpl();
-                } else {
-                    // come back here and add correct logic
-                    Map<String, Set<String>> map = new HashMap();
-                    Set<String> permissions = new HashSet<>();
-                    permissions.add("admin");
-                    map.put("role", permissions);
-                    return new PolicyResponseImpl(null, map);
-                }
+                return new PolicyResponseImpl(null,
+                        Permissions.parsePermissionsFromString(getUpdatePermissions()));
+
             }
 
         } else {
@@ -160,13 +131,12 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
         this.catalogFramework = catalogFramework;
     }
 
-    public String[] getUpdateResourceUriPermissions() {
-        return updateResourceUriPermissions == null ? null : updateResourceUriPermissions.clone();
+    public String[] getCreatePermissions() {
+        return createPermissions == null ? null : createPermissions.clone();
     }
 
-    public void setUpdateResourceUriPermissions(String[] updateResourceUriPermissions) {
-        this.updateResourceUriPermissions =
-                updateResourceUriPermissions == null ? null : updateResourceUriPermissions.clone();
+    public void setCreatePermissions(String[] createPermissions) {
+        this.createPermissions = createPermissions == null ? null : createPermissions.clone();
     }
 
     public FilterBuilder getFilterBuilder() {
@@ -175,6 +145,37 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
 
     public void setFilterBuilder(FilterBuilder filterBuilder) {
         this.filterBuilder = filterBuilder;
+    }
+
+    public String[] getUpdatePermissions() {
+        return updatePermissions;
+    }
+
+    public void setUpdatePermissions(String[] updatePermissions) {
+        this.updatePermissions = updatePermissions == null ? null : updatePermissions.clone();
+    }
+
+    protected URI getResourceUriValueFor(String id) {
+        Filter filter = filterBuilder.attribute(Metacard.ID)
+                .is()
+                .equalTo()
+                .text(id);
+        Query query = new QueryImpl(filter);
+        QueryRequest queryRequest = new QueryRequestImpl(query);
+        QueryResponse queryResponse;
+        try {
+            queryResponse = catalogFramework.query(queryRequest);
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+            throw new RuntimeException(e);
+        }
+        Result queryResult = queryResponse.getResults()
+                .get(0);
+        Metacard metacard = queryResult.getMetacard();
+        return metacard.getResourceURI();
+    }
+
+    private boolean notEmpty(URI uri) {
+        return uri != null && StringUtils.isNotEmpty(uri.toString());
     }
 }
 
