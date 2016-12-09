@@ -22,11 +22,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import javax.activation.MimeType;
-
 import org.apache.commons.collections.MapUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -81,7 +80,7 @@ public class AbstractGmdTransformer implements MetacardTransformer {
         ByteArrayInputStream bais = new ByteArrayInputStream(stringWriter.toString()
                 .getBytes(StandardCharsets.UTF_8));
 
-        return new BinaryContentImpl(bais, new MimeType());
+        return new BinaryContentImpl(bais, CswRecordConverter.XML_MIME_TYPE);
     }
 
     private void copyArgumentsToContext(MarshallingContext context,

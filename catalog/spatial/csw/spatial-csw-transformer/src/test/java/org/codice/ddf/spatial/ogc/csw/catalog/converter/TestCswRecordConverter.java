@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.activation.MimeTypeParseException;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -144,6 +145,11 @@ public class TestCswRecordConverter {
 
         cswRecordXml = IOUtils.toString(TestCswRecordConverter.class.getResourceAsStream(
                 "/Csw_Record_Text.xml"));
+    }
+
+    @Test
+    public void testMimeType() throws MimeTypeParseException {
+        assertThat(converter.XML_MIME_TYPE.match(com.google.common.net.MediaType.APPLICATION_XML_UTF_8.toString()), is(true));
     }
 
     @Test
@@ -563,8 +569,7 @@ public class TestCswRecordConverter {
     }
 
     private MetacardImpl getTestMetacard() {
-        MetacardImpl metacard =
-                new MetacardImpl(getCswMetacardType());
+        MetacardImpl metacard = new MetacardImpl(getCswMetacardType());
         metacard.setContentTypeName("I have some content type");
         metacard.setAttribute(new AttributeImpl(Media.FORMAT, "I have some format type"));
         metacard.setContentTypeVersion("1.0.0");
@@ -631,8 +636,7 @@ public class TestCswRecordConverter {
                 + ACTION_URL + "</dc:source>\n" + "  <dc:title>This is my title</dc:title>\n"
                 + "  <dct:alternative>This is my title</dct:alternative>\n"
                 + "  <dc:format>I have some format type</dc:format>\n"
-                + "  <dc:type>I have some content type</dc:type> "
-                + "  <dct:dateAccepted>"
+                + "  <dc:type>I have some content type</dc:type> " + "  <dct:dateAccepted>"
                 + effective + "</dct:dateAccepted>\n" + "  <dct:dateCopyrighted>" + effective
                 + "</dct:dateCopyrighted>\n" + "  <dc:creator>steve</dc:creator>\n"
                 + "  <dc:publisher>bob</dc:publisher>\n"
@@ -726,10 +730,11 @@ public class TestCswRecordConverter {
     }
 
     public static MetacardType getCswMetacardType() {
-        return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME, Arrays.asList(new ContactAttributes(),
-                new LocationAttributes(),
-                new MediaAttributes(),
-                new TopicAttributes(),
-                new AssociationsAttributes()));
+        return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
+                Arrays.asList(new ContactAttributes(),
+                        new LocationAttributes(),
+                        new MediaAttributes(),
+                        new TopicAttributes(),
+                        new AssociationsAttributes()));
     }
 }

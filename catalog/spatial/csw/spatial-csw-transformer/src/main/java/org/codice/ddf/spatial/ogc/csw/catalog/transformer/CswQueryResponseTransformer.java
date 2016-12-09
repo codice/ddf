@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.activation.MimeType;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -53,6 +52,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
@@ -162,7 +162,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             bais = new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8));
         }
 
-        BinaryContent transformedContent = new BinaryContentImpl(bais, new MimeType());
+        BinaryContent transformedContent = new BinaryContentImpl(bais, CswRecordConverter.XML_MIME_TYPE);
         return transformedContent;
     }
 
