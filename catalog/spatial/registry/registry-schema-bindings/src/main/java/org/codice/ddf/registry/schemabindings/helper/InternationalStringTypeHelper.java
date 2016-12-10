@@ -32,6 +32,7 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.LocalizedStringType;
  */
 public class InternationalStringTypeHelper {
     private Locale locale;
+    private boolean findNearestMatch = false;
     private static final String DEFAULT_LANG = "en-US";
 
     public InternationalStringTypeHelper() {
@@ -40,6 +41,11 @@ public class InternationalStringTypeHelper {
 
     InternationalStringTypeHelper(Locale locale) {
         setLocale(locale);
+    }
+    
+    InternationalStringTypeHelper(Locale locale, boolean findNearestMatch) {
+        setLocale(locale);
+        setNearestMatch(findNearestMatch);
     }
 
     /**
@@ -85,6 +91,10 @@ public class InternationalStringTypeHelper {
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
+    
+    public void setNearestMatch(boolean findNearestMatch) {
+        this.findNearestMatch = findNearestMatch;        
+    }
 
     private Optional<String> getLocalizedString(List<LocalizedStringType> localizedStrings) {
         Optional<String> optionalLocalString = localizedStrings.stream()
@@ -92,6 +102,26 @@ public class InternationalStringTypeHelper {
                         .equals(localizedString.getLang()))
                 .findFirst()
                 .map(LocalizedStringType::getValue);
+        
+        //If an exact match has not been found then look at the base language e.g. if en-GB 
+        //has not been found then try to find the first one in the list of localizedStrings 
+        //that has the same language e.g. en-US. The behaviour of this will vary depending
+        //on the order that the localized strings are loaded
+        if (!optionalLocalString.isPresent() && findNearestMatch)
+        {
+            String currentLang = getLangfromLocale(this.locale);
+            optionalLocalString = localizedStrings.stream()
+                    .filter(localizedString -> localizedString.getLang().startsWith(currentLang))
+                    .findFirst()
+                    .map(LocalizedStringType::getValue);
+        }
+        
         return optionalLocalString;
     }
+    
+    private String getLangfromLocale(Locale language) {
+        String[] localeStrings = (language.getLanguage().split("[-_]+"));
+        return localeStrings[0];
+    }
+
 }

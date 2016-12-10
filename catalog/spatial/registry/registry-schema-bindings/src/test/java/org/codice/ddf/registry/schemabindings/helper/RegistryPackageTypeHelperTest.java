@@ -518,6 +518,9 @@ public class RegistryPackageTypeHelperTest {
     }
 
     private void assertIst(InternationalStringType actual, String expectedName) {
+        //If build machine is not in an English speaking region, this won't work
+        //as the default locale is en-US
+        istHelper.setNearestMatch(true); 
         assertThat(istHelper.getString(actual), is(equalTo(expectedName)));
     }
 
