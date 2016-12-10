@@ -26,7 +26,10 @@ import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.parser.xml.XmlParser;
+<<<<<<< HEAD
+=======
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+>>>>>>> master
 import org.codice.ddf.registry.schemabindings.EbrimConstants;
 import org.codice.ddf.registry.transformer.RegistryTransformer;
 import org.jsoup.Jsoup;
@@ -52,7 +55,10 @@ public class RegistryReportBuilderTest {
         parser = new XmlParser();
         registryTransformer = spy(new RegistryTransformer());
         registryTransformer.setParser(parser);
+<<<<<<< HEAD
+=======
         registryTransformer.setRegistryMetacardType(new RegistryObjectMetacardType());
+>>>>>>> master
         configurator = parser.configureParser(Arrays.asList(RegistryObjectType.class.getPackage()
                         .getName(),
                 EbrimConstants.OGC_FACTORY.getClass()

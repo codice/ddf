@@ -29,6 +29,43 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
  */
 public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
+<<<<<<< HEAD
+    public static final String REGISTRY_METACARD_TYPE_NAME = "registry";
+
+    public static final String METACARD_TYPE = "metacard-type";
+
+    public static final String ORGANIZATION_NAME = "organization-name";
+
+    public static final String ORGANIZATION_ADDRESS = "organization-address";
+
+    public static final String ORGANIZATION_PHONE_NUMBER = "organization-phone-number";
+
+    public static final String ORGANIZATION_EMAIL = "organization-email";
+
+    public static final String ENTRY_TYPE = "entry-type";
+
+    public static final String SECURITY_LEVEL = "security-level";
+
+    public static final String LIVE_DATE = "live-date";
+
+    public static final String DATA_START_DATE = "data-start-date";
+
+    public static final String DATA_END_DATE = "data-end-date";
+
+    public static final String LINKS = "registry.links";
+
+    public static final String REGION = "registry.region";
+
+    public static final String DATA_SOURCES = "registry.input-data-sources";
+
+    public static final String DATA_TYPES = "data-types";
+
+    //list of all the service binding ids
+    public static final String SERVICE_BINDINGS = "registry.service-bindings";
+
+    //list of bindingType fields from all the service bindings
+    public static final String SERVICE_BINDING_TYPES = "registry.service-binding-types";
+=======
     public static final String DATA_SOURCES = "registry.input-data-sources";
 
     public static final String LAST_PUBLISHED = "registry.local.last-published";
@@ -40,11 +77,25 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
     public static final String REGION = "registry.region";
 
     public static final String REGISTRY_BASE_URL = "registry.registry-base-url";
+>>>>>>> master
 
     public static final String REGISTRY_ID = "registry.registry-id";
 
     public static final String REGISTRY_IDENTITY_NODE = "registry.local.registry-identity-node";
 
+<<<<<<< HEAD
+    public static final String PUBLISHED_LOCATIONS = "registry.local.published-locations";
+
+    public static final String LAST_PUBLISHED = "registry.local.last-published";
+
+    public static final String REGISTRY_BASE_URL = "registry.registry-base-url";
+
+    public static final String REGISTRY_LOCAL_NODE = "registry.local.registry-local-node";
+
+    public static final String REMOTE_REGISTRY_ID = "registry.local.remote-registry-id";
+
+    public static final String REMOTE_METACARD_ID = "registry.local.remote-metacard-id";
+=======
     public static final String REGISTRY_LOCAL_NODE = "registry.local.registry-local-node";
 
     public static final String REGISTRY_METACARD_TYPE_NAME = "registry";
@@ -60,6 +111,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     //list of all the service binding ids
     public static final String SERVICE_BINDINGS = "registry.service-bindings";
+>>>>>>> master
 
     public static final Set<String> TRANSIENT_ATTRIBUTES;
 
@@ -84,6 +136,43 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
     }
 
     private void addRegistryAttributes() {
+<<<<<<< HEAD
+        addQueryableString(Metacard.TAGS, true);
+        addQueryableString(Metacard.ID, false);
+        addQueryableString(Metacard.CONTENT_TYPE, false);
+        addXml(Metacard.METADATA, true);
+        addQueryableDate(Metacard.CREATED);
+        addQueryableDate(Metacard.MODIFIED);
+        addQueryableString(Metacard.TITLE, false); //name
+        addQueryableString(Metacard.DESCRIPTION, false);
+        addQueryableString(SECURITY_LEVEL, true); //securityLevel
+        addQueryableString(METACARD_TYPE, false);
+        addQueryableString(ENTRY_TYPE, false);  //objectType
+        addQueryableString(Metacard.CONTENT_TYPE_VERSION, false); // version
+        addQueryableString(ORGANIZATION_NAME, false);
+        addQueryableString(ORGANIZATION_ADDRESS, false);
+        addQueryableString(ORGANIZATION_PHONE_NUMBER, true);
+        addQueryableString(ORGANIZATION_EMAIL, true);
+        addQueryableString(Metacard.POINT_OF_CONTACT, false);
+        addQueryableDate(LIVE_DATE);
+        addQueryableDate(DATA_START_DATE);
+        addQueryableDate(DATA_END_DATE);
+        addQueryableString(LINKS, true);
+        addQueryableGeo(Metacard.GEOGRAPHY, false);
+        addQueryableString(REGION, false);
+        addQueryableString(DATA_SOURCES, true);
+        addQueryableString(DATA_TYPES, true);
+        addQueryableString(SERVICE_BINDINGS, true);
+        addQueryableString(SERVICE_BINDING_TYPES, true);
+        addQueryableString(REGISTRY_ID, false);
+        addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
+        addQueryableBoolean(REGISTRY_LOCAL_NODE, false);
+        addQueryableString(REGISTRY_BASE_URL, false);
+        addQueryableString(PUBLISHED_LOCATIONS, true);
+        addQueryableDate(LAST_PUBLISHED);
+        addQueryableString(REMOTE_REGISTRY_ID, false);
+        addQueryableString(REMOTE_METACARD_ID, false);
+=======
         descriptors.add(BasicTypes.BASIC_METACARD.getAttributeDescriptor(Metacard.POINT_OF_CONTACT));
         addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
         addQueryableBoolean(REGISTRY_LOCAL_NODE, false);
@@ -99,6 +188,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
         addQueryableString(SECURITY_LEVEL, true);
         addQueryableString(SERVICE_BINDING_TYPES, true);
         addQueryableString(SERVICE_BINDINGS, true);
+>>>>>>> master
     }
 
     /**

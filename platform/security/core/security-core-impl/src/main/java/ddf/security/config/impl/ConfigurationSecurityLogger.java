@@ -62,7 +62,11 @@ public class ConfigurationSecurityLogger implements SynchronousConfigurationList
                         updatedConfiguration);
             }
         } catch (Throwable e) {
+<<<<<<< HEAD
+            LOGGER.error("Error auditing config update for " + event.getPid(), e);
+=======
             LOGGER.error("Error auditing config update for {}", event.getPid(), e);
+>>>>>>> master
             SecurityLogger.audit("Error auditing config update for {}", event.getPid());
         }
 

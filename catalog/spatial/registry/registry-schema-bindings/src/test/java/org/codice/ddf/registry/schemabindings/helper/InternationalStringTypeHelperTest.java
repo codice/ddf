@@ -50,6 +50,10 @@ public class InternationalStringTypeHelperTest {
     public void testGetString() throws Exception {
         InternationalStringType ist = getTestInternationalStringType();
 
+<<<<<<< HEAD
+        istHelper.setLocale(Locale.US);
+=======
+>>>>>>> master
         String istString = istHelper.getString(ist);
         assertThat(istString, is(equalTo(US)));
 
@@ -73,12 +77,44 @@ public class InternationalStringTypeHelperTest {
     @Test
     public void testGetStringWithNoMatchingLocale() throws Exception {
         InternationalStringType ist = getTestInternationalStringType();
+<<<<<<< HEAD
+        
+        istHelper.setLocale(Locale.CHINA);
+        String istString = istHelper.getString(ist);
+        assertThat(istString, is(equalTo(EMPTY_STRING)));
+        
+        istHelper.setLocale(Locale.UK);
+        istString = istHelper.getString(ist);
+        assertThat(istString, is(equalTo(EMPTY_STRING)));
+    }
+    
+    @Test
+    public void testGetStringWithWithNearestMatch() throws Exception {
+        InternationalStringType ist = getTestInternationalStringType();
+        
+        istHelper.setNearestMatch(true);
+        
+        istHelper.setLocale(Locale.CHINA);
+        String istString = istHelper.getString(ist);
+        assertThat(istString, is(equalTo(EMPTY_STRING)));
+        
+        istHelper.setLocale(Locale.UK);
+        istString = istHelper.getString(ist);
+        //Expect US as this is loaded into the TestInternationalString first and is also the default
+        assertThat(istString, is(equalTo(US)));
+        
+        istHelper.setNearestMatch(false);
+
+    }
+    
+=======
         istHelper.setLocale(Locale.CHINA);
 
         String istString = istHelper.getString(ist);
         assertThat(istString, is(equalTo(EMPTY_STRING)));
     }
 
+>>>>>>> master
     @Test
     public void testCreate() throws Exception {
         int expectedSize = 1;

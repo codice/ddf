@@ -250,6 +250,97 @@ public class SolrMetacardClient {
         return finalSet;
     }
 
+    public Set<ContentType> getContentTypes() {
+        Set<ContentType> finalSet = new HashSet<>();
+
+        String contentTypeField = resolver.getField(Metacard.CONTENT_TYPE,
+                AttributeType.AttributeFormat.STRING,
+                true);
+        String contentTypeVersionField = resolver.getField(Metacard.CONTENT_TYPE_VERSION,
+                AttributeType.AttributeFormat.STRING,
+                true);
+
+        /*
+         * If we didn't find the field, it most likely means it does not exist. If it does not
+         * exist, then we can safely say that no content types are in this catalog provider
+         */
+        if (contentTypeField == null || contentTypeVersionField == null) {
+            return finalSet;
+        }
+
+        SolrQuery query = new SolrQuery(contentTypeField + ":[* TO *]");
+        query.setFacet(true);
+        query.addFacetField(contentTypeField);
+        query.addFacetPivotField(contentTypeField + "," + contentTypeVersionField);
+
+        try {
+            QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
+            List<FacetField> facetFields = solrResponse.getFacetFields();
+            for (Map.Entry<String, List<PivotField>> entry : solrResponse.getFacetPivot()) {
+
+                // if no content types have an associated version, the list of pivot fields will be
+                // empty.
+                // however, the content type names can still be obtained via the facet fields.
+                if (CollectionUtils.isEmpty(entry.getValue())) {
+                    LOGGER.debug(
+                            "No content type versions found associated with any available content types.");
+
+                    if (CollectionUtils.isNotEmpty(facetFields)) {
+                        // Only one facet field was added. That facet field may contain multiple
+                        // values (content type names).
+                        for (FacetField.Count currContentType : facetFields.get(0)
+                                .getValues()) {
+                            // unknown version, so setting it to null
+                            ContentTypeImpl contentType =
+                                    new ContentTypeImpl(currContentType.getName(), null);
+
+                            finalSet.add(contentType);
+                        }
+                    }
+                } else {
+                    for (PivotField pf : entry.getValue()) {
+
+                        String contentTypeName = pf.getValue()
+                                .toString();
+                        LOGGER.debug("contentTypeName:{}", contentTypeName);
+
+                        if (CollectionUtils.isEmpty(pf.getPivot())) {
+                            // if there are no sub-pivots, that means that there are no content type
+                            // versions
+                            // associated with this content type name
+                            LOGGER.debug(
+                                    "Content type does not have associated contentTypeVersion: {}",
+                                    contentTypeName);
+                            ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName,
+                                    null);
+
+                            finalSet.add(contentType);
+
+                        } else {
+                            for (PivotField innerPf : pf.getPivot()) {
+
+                                LOGGER.debug("contentTypeVersion:{}. For contentTypeName: {}",
+                                        innerPf.getValue(),
+                                        contentTypeName);
+
+                                ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName,
+                                        innerPf.getValue()
+                                                .toString());
+
+                                finalSet.add(contentType);
+                            }
+                        }
+                    }
+                }
+            }
+
+        } catch (SolrServerException | IOException e) {
+            LOGGER.info("Solr exception getting content types", e);
+        }
+
+        return finalSet;
+    }
+
     protected SolrQuery getSolrQuery(QueryRequest request, SolrFilterDelegate solrFilterDelegate)
             throws UnsupportedQueryException {
         solrFilterDelegate.setSortPolicy(request.getQuery()

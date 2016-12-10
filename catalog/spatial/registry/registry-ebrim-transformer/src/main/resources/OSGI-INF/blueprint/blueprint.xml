@@ -17,6 +17,8 @@
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                availability="mandatory"/>
 
+<<<<<<< HEAD
+=======
     <bean id="registryObjectMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
         <argument value="registry"/>
         <argument>
@@ -37,6 +39,7 @@
         </service-properties>
     </service>
 
+>>>>>>> master
     <!-- Register the Transformers -->
     <service auto-export="interfaces">
         <service-properties>
@@ -46,7 +49,10 @@
         </service-properties>
         <bean class="org.codice.ddf.registry.transformer.RegistryTransformer">
             <property name="parser" ref="xmlParser"/>
+<<<<<<< HEAD
+=======
             <property name="registryMetacardType" ref="registryObjectMetacardType"/>
+>>>>>>> master
         </bean>
     </service>
 

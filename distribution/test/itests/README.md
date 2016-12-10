@@ -35,6 +35,9 @@ The runtime folder used during the test will be available under `target/exam/<GU
 
 ## Adjusting the Log Level
 By default, itests are run at a log level of `warn` for increased performance. If you want to change the logging level, use the flag `-DitestLogLevel=<level>`. Valid levels are defined by the [SLF4J API](http://www.slf4j.org/api/org/apache/commons/logging/Log.html).
+<<<<<<< HEAD
+=======
 
 ## Run unstable tests
 By default, all tests that include a call to `unstableTest` will not be run. To include them as part of a build, add the `-DincludeUnstableTests=true` property to the Maven command.
+>>>>>>> master

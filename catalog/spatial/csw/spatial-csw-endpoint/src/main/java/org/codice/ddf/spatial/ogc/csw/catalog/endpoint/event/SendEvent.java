@@ -170,7 +170,11 @@ public class SendEvent implements DeliveryMethod, Pingable {
             InetAddress address = InetAddress.getByName(callbackUrl.getHost());
             ip = address.getHostAddress();
         } catch (UnknownHostException e) {
+<<<<<<< HEAD
+            LOGGER.error("Unable to resolve callback address", e);
+=======
             LOGGER.debug("Unable to resolve callback address", e);
+>>>>>>> master
         }
         ping();
     }
@@ -238,7 +242,11 @@ public class SendEvent implements DeliveryMethod, Pingable {
             retryCount.set(0);
             return true;
         } catch (Exception e) {
+<<<<<<< HEAD
+            LOGGER.error("Error contacting event callback url " + callbackUrl, e);
+=======
             LOGGER.debug("Error contacting event callback url {}", callbackUrl, e);
+>>>>>>> master
             lastPing = System.currentTimeMillis();
             retryCount.incrementAndGet();
         }

@@ -247,7 +247,11 @@ public class Security {
         try {
             subject = getSecurityManager().getSubject(token);
         } catch (SecurityServiceException sse) {
+<<<<<<< HEAD
+            LOGGER.warn("Unable to request subject for guest user.", sse);
+=======
             LOGGER.info("Unable to request subject for guest user.", sse);
+>>>>>>> master
         }
 
         return subject;
@@ -344,7 +348,11 @@ public class Security {
             keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
 
         } catch (KeyStoreException e) {
+<<<<<<< HEAD
+            LOGGER.error("Unable to create keystore instance of type {}",
+=======
             LOGGER.warn("Unable to create keystore instance of type {}",
+>>>>>>> master
                     System.getProperty("javax.net.ssl.keyStoreType"),
                     e);
             return null;

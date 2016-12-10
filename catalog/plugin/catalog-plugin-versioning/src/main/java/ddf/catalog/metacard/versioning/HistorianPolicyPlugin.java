@@ -20,7 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+<<<<<<< HEAD
+=======
 import ddf.catalog.core.versioning.DeletedMetacard;
+>>>>>>> master
 import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -47,6 +50,12 @@ public class HistorianPolicyPlugin implements PolicyPlugin {
             (tags) -> tags != null && tags.getTags() != null && tags.getTags()
                     .contains(MetacardVersion.VERSION_TAG);
 
+<<<<<<< HEAD
+    @Override
+    public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        if (!isMetacardHistory.test(input)) {
+=======
     private final Predicate<Metacard> isDeletedMetacard =
             (tags) -> tags != null && tags.getTags() != null && tags.getTags()
                     .contains(DeletedMetacard.DELETED_TAG);
@@ -57,6 +66,7 @@ public class HistorianPolicyPlugin implements PolicyPlugin {
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
         if (!isHistoryOrDeleted.test(input)) {
+>>>>>>> master
             /* not modifying history, proceed */
             return new PolicyResponseImpl();
         }
@@ -68,7 +78,11 @@ public class HistorianPolicyPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreUpdate(Metacard newMetacard,
             Map<String, Serializable> properties) throws StopProcessingException {
+<<<<<<< HEAD
+        if (!isMetacardHistory.test(newMetacard)) {
+=======
         if (!isHistoryOrDeleted.test(newMetacard)) {
+>>>>>>> master
             /* not modifying history, proceed */
             return new PolicyResponseImpl();
         }
@@ -80,7 +94,11 @@ public class HistorianPolicyPlugin implements PolicyPlugin {
     public PolicyResponse processPreDelete(List<Metacard> metacards,
             Map<String, Serializable> properties) throws StopProcessingException {
         if (!metacards.stream()
+<<<<<<< HEAD
+                .anyMatch(isMetacardHistory)) {
+=======
                 .anyMatch(isHistoryOrDeleted)) {
+>>>>>>> master
             /* not modifying history, proceed */
             return new PolicyResponseImpl();
         }

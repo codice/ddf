@@ -1,0 +1,68 @@
+= Extending ${branding}
+include::./_contents/config.adoc[]
+
+== Overview
+
+=== Building ${branding}
+include::./_contents/building-ddf-contents.adoc[]
+
+=== Developing for ${branding}
+include::./_contents/extending-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-admin}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_admin-contents/extending-admin-contents.adoc[]
+
+<<<
+
+
+== Extending ${ddf-catalog}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/extending-catalog-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-platform}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_platform-contents/extending-platform-contents.adoc[]
+
+<<<
+////
+Uncomment & remove this comment upon completing DDF-2156
+== Extending ${ddf-registry}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_registry-contents/extending-registry-contents.adoc[]
+
+<<<
+////
+== Extending ${ddf-security}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_security-contents/extending-security-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-solr}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_solr-contents/extending-solr-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-spatial}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_spatial-contents/extending-spatial-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-ui}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_ui-contents/extending-ui-contents.adoc[]

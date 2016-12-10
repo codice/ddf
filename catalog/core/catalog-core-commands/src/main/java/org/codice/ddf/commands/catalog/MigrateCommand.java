@@ -18,12 +18,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+<<<<<<< HEAD
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import org.apache.felix.gogo.commands.Command;
+=======
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+>>>>>>> master
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Provider;
 import org.opengis.filter.Filter;
@@ -108,6 +121,44 @@ public class MigrateCommand extends DuplicateCommands {
         console.println("TO Provider ID: " + toProvider.getClass()
                 .getSimpleName());
 
+<<<<<<< HEAD
+        console.println("Starting migration for " + totalPossible + " Records");
+
+        if (multithreaded > 1 && totalPossible > batchSize) {
+            BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(multithreaded);
+            RejectedExecutionHandler rejectedExecutionHandler =
+                    new ThreadPoolExecutor.CallerRunsPolicy();
+            final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
+                    multithreaded,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    blockingQueue,
+                    rejectedExecutionHandler);
+            console.printf("Running %d threads during replication.%n", multithreaded);
+
+            do {
+                LOGGER.debug("In loop at iteration {}", queryIndex.get());
+                executorService.submit(() -> {
+                    int count = queryAndIngest(framework, ingestProvider, queryIndex.get(), filter);
+                    printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
+                });
+            } while (queryIndex.addAndGet(batchSize) <= totalPossible);
+            executorService.shutdown();
+
+            while (!executorService.isTerminated()) {
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+            }
+        } else {
+            do {
+                int count = queryAndIngest(framework, ingestProvider, queryIndex.get(), filter);
+                printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
+            } while (queryIndex.addAndGet(batchSize) <= totalPossible);
+        }
+=======
         CatalogFacade queryProvider = new Provider(fromProvider);
         CatalogFacade ingestProvider = new Provider(toProvider);
 
@@ -116,6 +167,7 @@ public class MigrateCommand extends DuplicateCommands {
         console.println("Starting migration.");
 
         duplicateInBatches(queryProvider, ingestProvider, getFilter());
+>>>>>>> master
 
         console.println();
         long end = System.currentTimeMillis();
@@ -182,8 +234,15 @@ public class MigrateCommand extends DuplicateCommands {
             }
             return null;
         }
+<<<<<<< HEAD
+        return response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .collect(Collectors.toList());
+=======
 
         return response;
+>>>>>>> master
     }
 
     private List<CatalogProvider> getCatalogProviders() {

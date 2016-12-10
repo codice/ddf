@@ -1254,8 +1254,14 @@ public class TestCswCqlFilter {
 
     @Test
     public void testFeatureId() throws UnsupportedQueryException {
+<<<<<<< HEAD
+        FilterType filter = cswFilterDelegate.propertyIsEqualTo(Metacard.ID,
+                String.valueOf(CSW_RECORD_ID),
+                false);
+=======
         FilterType filter = cswFilterDelegate.propertyIsEqualTo(Core.ID, String.valueOf(
                 CSW_RECORD_ID), false);
+>>>>>>> master
 
         String cqlText = CswCqlTextFilter.getInstance()
                 .getCqlText(filter);
@@ -1514,11 +1520,20 @@ public class TestCswCqlFilter {
             }
         }
 
+<<<<<<< HEAD
+        CswFilterDelegate localCswFilterDelegate =
+                new CswFilterDelegate(getOperation(),
+                        getMockFilterCapabilities(),
+                        outputFormatValues,
+                        resultTypesValues,
+                        cswSourceConfiguration);
+=======
         CswFilterDelegate localCswFilterDelegate = new CswFilterDelegate(getOperation(),
                 getMockFilterCapabilities(),
                 outputFormatValues,
                 resultTypesValues,
                 cswSourceConfiguration);
+>>>>>>> master
         return localCswFilterDelegate;
     }
 

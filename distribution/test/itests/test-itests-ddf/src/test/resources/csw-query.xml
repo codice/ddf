@@ -1,0 +1,31 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<csw:GetRecords resultType="results" outputFormat="$outputFormat$"
+        $outputSchema$ startPosition="1" maxRecords="10"
+        service="CSW" version="2.0.2" xmlns:ns2="http://www.opengis.net/ogc"
+        xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+        >
+    <ns10:Query typeNames="csw:Record" xmlns="" xmlns:ns10="http://www.opengis.net/cat/csw/2.0.2">
+        <ns10:ElementSetName>full</ns10:ElementSetName>
+            <ns10:Constraint version="1.1.0">
+                <ns2:Filter>
+                    <ns2:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
+                        <ns2:PropertyName>$propertyName$</ns2:PropertyName>
+                        <ns2:Literal>$literal$</ns2:Literal>
+                    </ns2:PropertyIsLike>
+            </ns2:Filter>
+        </ns10:Constraint>
+    </ns10:Query>
+</csw:GetRecords>

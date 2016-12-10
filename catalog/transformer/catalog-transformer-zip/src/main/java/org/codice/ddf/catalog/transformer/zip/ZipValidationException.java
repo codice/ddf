@@ -25,4 +25,17 @@ public class ZipValidationException extends Exception {
     public ZipValidationException(final String message) {
         super(message);
     }
+<<<<<<< HEAD
+
+    /**
+     * Instantiates a new exception with the provided message and {@link Throwable}.
+     *
+     * @param message   the message
+     * @param throwable the throwable
+     */
+    public ZipValidationException(final String message, final Throwable throwable) {
+        super(message, throwable);
+    }
+=======
+>>>>>>> master
 }

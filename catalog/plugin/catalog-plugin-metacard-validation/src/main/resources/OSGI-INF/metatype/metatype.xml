@@ -39,6 +39,8 @@
                 name="Enforced Validators" id="enforcedMetacardValidators" required="false"
                 type="String"
                 default="" cardinality="100"/>
+<<<<<<< HEAD
+=======
         <AD
                 description="Sets whether validation errors are enforced"
                 name="Enforce errors" id="enforceErrors" required="true" type="Boolean"
@@ -47,6 +49,7 @@
                 description="Sets whether validation warnings are enforced"
                 name="Enforce warnings" id="enforceWarnings" required="true" type="Boolean"
                 default="true"/>
+>>>>>>> master
     </OCD>
 
     <Designate

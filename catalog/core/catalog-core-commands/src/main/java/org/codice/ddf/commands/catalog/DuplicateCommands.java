@@ -287,7 +287,11 @@ public abstract class DuplicateCommands extends CqlCommands {
         return result;
     }
 
+<<<<<<< HEAD
+    protected void writeFailedMetacards(List<Metacard> failedMetacards) throws IOException {
+=======
     protected void writeFailedMetacards(Set<Metacard> failedMetacardsToWrite) throws IOException {
+>>>>>>> master
         File directory = new File(failedDir);
         if (!directory.exists()) {
             if (!directory.mkdirs()) {

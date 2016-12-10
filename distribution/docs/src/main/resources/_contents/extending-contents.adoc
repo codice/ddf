@@ -734,7 +734,7 @@ All bundles are then packaged into the KAR archive.
 	            <resourcesDir>${variable-prefix}project.build.directory}/doesNotExist</resourcesDir>
 
 	            <!--
-	            Location of the features.xml file. If it references properties that need to be filtered, e.g., ${project.version}, it will need to be
+	            Location of the features.xml file. If it references properties that need to be filtered, e.g., ${variable-prefix}project.version}, it will need to be
 	            filtered by the maven-resources-plugin.
 	            -->
 	            <featuresFile>${variable-prefix}basedir}/target/classes/features.xml</featuresFile>

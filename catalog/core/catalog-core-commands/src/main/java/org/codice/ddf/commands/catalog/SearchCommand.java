@@ -32,9 +32,14 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.util.XPathHelper;
 
+<<<<<<< HEAD
+@Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the catalog provider.")
+public class SearchCommand extends CatalogCommands {
+=======
 @Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the Catalog Provider.")
 public class SearchCommand extends CqlCommands {
+>>>>>>> master
 
     private static final String ID = "ID ";
 
@@ -164,11 +169,8 @@ public class SearchCommand extends CqlCommands {
                         .getTime()).toString(DATETIME_FORMATTER);
             }
 
-            console.printf(formatString,
-                    metacard.getId(),
-                    modifiedDate,
-                    title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)),
-                    excerpt);
+            console.printf(formatString, metacard.getId(), modifiedDate, title.substring(0,
+                    Math.min(title.length(), TITLE_MAX_LENGTH)), excerpt);
         }
 
         return null;
@@ -199,10 +201,8 @@ public class SearchCommand extends CqlCommands {
                 modifiedDate = dt.toString(DATETIME_FORMATTER);
             }
 
-            console.printf(formatString,
-                    metacard.getId(),
-                    modifiedDate,
-                    title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)));
+            console.printf(formatString, metacard.getId(), modifiedDate, title.substring(0,
+                    Math.min(title.length(), TITLE_MAX_LENGTH)));
         }
 
         return null;

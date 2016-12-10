@@ -57,7 +57,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.types.Core;
+>>>>>>> master
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.Subject;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
@@ -98,7 +101,10 @@ public class IdentityNodeInitializationTest {
         registryTransformer = spy(new RegistryTransformer());
         metacardMarshaller = spy(new MetacardMarshaller(parser));
         registryTransformer.setParser(parser);
+<<<<<<< HEAD
+=======
         registryTransformer.setRegistryMetacardType(new RegistryObjectMetacardType());
+>>>>>>> master
         identityNodeInitialization.setRegistryTransformer(registryTransformer);
         identityNodeInitialization.setMetacardMarshaller(metacardMarshaller);
         identityNodeInitialization.setFederationAdminService(federationAdminService);
@@ -116,8 +122,13 @@ public class IdentityNodeInitializationTest {
         identityNodeInitialization.init();
         verify(federationAdminService).addRegistryEntry(captor.capture());
         Metacard metacard = captor.getValue();
+<<<<<<< HEAD
+        assertThat(metacard.getAttribute(Metacard.MODIFIED), notNullValue());
+        assertThat(metacard.getAttribute(Metacard.CREATED), notNullValue());
+=======
         assertThat(metacard.getAttribute(Core.MODIFIED), notNullValue());
         assertThat(metacard.getAttribute(Core.CREATED), notNullValue());
+>>>>>>> master
         assertThat(metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE)
                 .getValue(), equalTo(true));
         assertThat(metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE)

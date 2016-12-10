@@ -43,9 +43,12 @@ import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+<<<<<<< HEAD
+=======
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+>>>>>>> master
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
@@ -287,10 +290,13 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             LOGGER.info("Solr could not ingest metacard(s) during create.", e);
             throw new IngestException("Could not ingest metacard(s).");
         }
+<<<<<<< HEAD
+=======
 
         pendingNrtIndex.putAll(output.stream()
                 .collect(Collectors.toMap(Metacard::getId, m -> copyMetacard(m))));
 
+>>>>>>> master
         return new CreateResponseImpl(request, request.getProperties(), output);
     }
 
@@ -426,10 +432,13 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             throw new IngestException("Failed to update metacard(s).");
         }
 
+<<<<<<< HEAD
+=======
         pendingNrtIndex.putAll(updateList.stream()
                 .collect(Collectors.toMap(u -> u.getNewMetacard()
                         .getId(), u -> copyMetacard(u.getNewMetacard()))));
 
+>>>>>>> master
         return new UpdateResponseImpl(updateRequest, updateRequest.getProperties(), updateList);
     }
 

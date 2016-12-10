@@ -60,6 +60,8 @@ public class SaxEventToXmlElementConverter {
 
     private Deque<NamespaceMapping> namespaceStack = new ArrayDeque<>();
 
+    private Deque<NamespaceMapping> namespaceStack = new ArrayDeque<>();
+
     public SaxEventToXmlElementConverter() throws UnsupportedEncodingException, XMLStreamException {
 
         outputStream = new ByteArrayOutputStream();
@@ -85,10 +87,15 @@ public class SaxEventToXmlElementConverter {
 
     private SaxEventToXmlElementConverter startConstructingElement(String uri, String localName,
             Attributes atts) throws XMLStreamException {
+<<<<<<< HEAD
+
+        Map<String, String> addedNamespaces = new HashMap<>();
+=======
         Multimap<String, String> addedNamespaces = ArrayListMultimap.create();
         if (scopeOfNamespacesAdded.peek() != null) {
             addedNamespaces.putAll(scopeOfNamespacesAdded.peek());
         }
+>>>>>>> master
         scopeOfNamespacesAdded.push(addedNamespaces);
         // URI to prefix
         Map<String, String> scopedNamespaces = new HashMap<>();
@@ -104,7 +111,11 @@ public class SaxEventToXmlElementConverter {
          * Use the uri to look up the namespace prefix and append it and the localName to the start tag
          */
         out.writeStartElement(scopedNamespaces.get(uri), localName, uri);
+<<<<<<< HEAD
+        if (!checkNamespaceAdded(uri)) {
+=======
         if (!checkNamespaceAdded(uri, scopedNamespaces)) {
+>>>>>>> master
             out.writeNamespace(scopedNamespaces.get(uri), uri);
             addedNamespaces.put(uri, scopedNamespaces.get(uri));
         }
@@ -120,6 +131,16 @@ public class SaxEventToXmlElementConverter {
             } else {
                 String attUri = atts.getURI(i);
 
+<<<<<<< HEAD
+                if (!checkNamespaceAdded(attUri)) {
+                    out.writeNamespace(scopedNamespaces.get(attUri), attUri);
+                    addedNamespaces.put(attUri, scopedNamespaces.get(attUri));
+                }
+                out.writeAttribute(scopedNamespaces.get(attUri),
+                        attUri,
+                        atts.getLocalName(i),
+                        atts.getValue(i));
+=======
                 if (!checkNamespaceAdded(attUri, scopedNamespaces)) {
                     out.writeNamespace(scopedNamespaces.get(attUri), attUri);
                     addedNamespaces.put(attUri, scopedNamespaces.get(attUri));
@@ -148,6 +169,7 @@ public class SaxEventToXmlElementConverter {
                     addedNamespaces.put(attUri, altNS);
                     out.writeAttribute(altNS, attUri, atts.getLocalName(i), atts.getValue(i));
                 }
+>>>>>>> master
             }
         }
 
@@ -252,12 +274,35 @@ public class SaxEventToXmlElementConverter {
             }
         }
 
+<<<<<<< HEAD
+=======
     }
 
     private boolean checkNamespaceAdded(String uri, Map<String, String> scopedNamespaces) {
 
         return scopeOfNamespacesAdded.peek()
                 .containsKey(uri) && scopeOfNamespacesAdded.peek().get(uri).contains(scopedNamespaces.get(uri));
+>>>>>>> master
+    }
+
+    private static class NamespaceMapping {
+
+        private String prefix;
+
+        private String uri;
+
+        NamespaceMapping(String prefix, String uri) {
+            this.prefix = prefix;
+            this.uri = uri;
+        }
+
+        String getPrefix() {
+            return prefix;
+        }
+
+        String getUri() {
+            return uri;
+        }
     }
 
     private static class NamespaceMapping {

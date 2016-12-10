@@ -337,6 +337,15 @@ public class BasicTypes {
                 false /* tokenized */,
                 true /* multivalued */,
                 STRING_TYPE));
+<<<<<<< HEAD
+        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_CACHE_STATUS,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BOOLEAN_TYPE));
+        return descriptors;
+=======
         descriptors.add(new AttributeDescriptorImpl(Validation.FAILED_VALIDATORS_WARNINGS,
                 true /* indexed */,
                 true /* stored */,
@@ -379,6 +388,7 @@ public class BasicTypes {
 
     private static Set<AttributeDescriptor> getBasicAttributeDescriptors() {
         return DESCRIPTORS;
+>>>>>>> master
     }
 
     public static AttributeType getAttributeType(String type) {

@@ -5003,6 +5003,19 @@ public class TestSolrProvider extends SolrProviderTestCase {
         if (attribute.equals(Metacard.GEOGRAPHY)) {
             metacard = new MockMetacard(Library.getFlagstaffRecord());
         } else {
+<<<<<<< HEAD
+            HashSet<AttributeDescriptor> attributes = new HashSet<>();
+            attributes.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+            attributes.add(new AttributeDescriptorImpl(attribute,
+                    true,
+                    true,
+                    true,
+                    true,
+                    BasicTypes.GEO_TYPE));
+            metacard = new MockMetacard(Library.getFlagstaffRecord(),
+                    new MetacardTypeImpl("distanceTest",
+                            attributes));
+=======
             metacard = new MockMetacard(Library.getFlagstaffRecord(),
                     new MetacardTypeImpl("distanceTest",
                             BasicTypes.BASIC_METACARD,
@@ -5013,6 +5026,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
                                     true,
                                     BasicTypes.GEO_TYPE))));
 
+>>>>>>> master
         }
 
         metacard.setAttribute(attribute, LAS_VEGAS_POINT_WKT);

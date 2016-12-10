@@ -107,19 +107,27 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.impl.AttributeRegistryImpl;
+>>>>>>> master
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.data.inject.AttributeInjectorImpl;
+>>>>>>> master
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
+<<<<<<< HEAD
+=======
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
 import ddf.catalog.impl.operations.MetacardFactory;
@@ -132,6 +140,7 @@ import ddf.catalog.impl.operations.ResourceOperations;
 import ddf.catalog.impl.operations.SourceOperations;
 import ddf.catalog.impl.operations.TransformOperations;
 import ddf.catalog.impl.operations.UpdateOperations;
+>>>>>>> master
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
@@ -224,9 +233,13 @@ public class CatalogFrameworkImplTest {
 
     List<FederatedSource> federatedSources;
 
+<<<<<<< HEAD
+    DefaultAttributeValueRegistry registry;
+=======
     DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
     AttributeInjector attributeInjector;
+>>>>>>> master
 
     FederationStrategy mockFederationStrategy;
 
@@ -304,11 +317,19 @@ public class CatalogFrameworkImplTest {
         postIngestPlugins.add(eventAdmin);
 
         mockFederationStrategy = mock(FederationStrategy.class);
+<<<<<<< HEAD
+        Result result = mock(Result.class);
+        when(result.getMetacard()).thenReturn(new MetacardImpl());
+        when(mockFederationStrategy.federate(anyList(),
+                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+                Collections.singletonList(result),
+=======
         Result mockFederationResult = mock(Result.class);
         when(mockFederationResult.getMetacard()).thenReturn(new MetacardImpl());
         when(mockFederationStrategy.federate(anyList(),
                 anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
                 Collections.singletonList(mockFederationResult),
+>>>>>>> master
                 1));
 
         federatedSources = createDefaultFederatedSourceList(true);
@@ -342,7 +363,10 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
         frameworkProperties.setValidationQueryFactory(new ValidationQueryFactory(new GeotoolsFilterAdapterImpl(),
                 new GeotoolsFilterBuilder()));
+<<<<<<< HEAD
+=======
 
+>>>>>>> master
         Map<String, FederatedSource> federatedSourceMap = new HashMap<>();
         if (federatedSources != null) {
             for (FederatedSource source : federatedSources) {
@@ -350,6 +374,15 @@ public class CatalogFrameworkImplTest {
             }
         }
         frameworkProperties.setFederatedSources(federatedSourceMap);
+<<<<<<< HEAD
+
+        registry = new DefaultAttributeValueRegistryImpl();
+        frameworkProperties.setDefaultAttributeValueRegistry(registry);
+
+        framework = new CatalogFrameworkImpl(frameworkProperties);
+        resourceFramework = new CatalogFrameworkImpl(frameworkProperties) {
+=======
+>>>>>>> master
 
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl();
         frameworkProperties.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
@@ -417,6 +450,14 @@ public class CatalogFrameworkImplTest {
                 return new ResourceInfo(metacard, uri);
             }
         };
+<<<<<<< HEAD
+        framework.bind(provider);
+        framework.bind(storageProvider);
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+        framework.setHistorian(historian);
+        resourceFramework.setHistorian(historian);
+=======
 
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
@@ -446,6 +487,7 @@ public class CatalogFrameworkImplTest {
             sourceOperations.bind(provider);
         }
         sourceOperations.bind(storageProvider);
+>>>>>>> master
 
         ThreadContext.bind(mock(Subject.class));
     }
@@ -523,6 +565,88 @@ public class CatalogFrameworkImplTest {
                 DEFAULT_TITLE_CUSTOM);
         defaultAttributeValueRegistry.setDefaultValue(Metacard.EXPIRATION, DEFAULT_EXPIRATION);
         defaultAttributeValueRegistry.setDefaultValue(CUSTOM_METACARD_TYPE_NAME,
+                Metacard.EXPIRATION,
+                DEFAULT_EXPIRATION_CUSTOM);
+    }
+
+    private List<Metacard> getMetacards(String title, Date expiration) {
+        List<Metacard> metacards = new ArrayList<>();
+
+        MetacardImpl basicMetacardHasBoth = new MetacardImpl(BasicTypes.BASIC_METACARD);
+        basicMetacardHasBoth.setId("1");
+        basicMetacardHasBoth.setTitle(title);
+        basicMetacardHasBoth.setExpirationDate(expiration);
+        metacards.add(basicMetacardHasBoth);
+
+        MetacardImpl basicMetacardHasTitle = new MetacardImpl(BasicTypes.BASIC_METACARD);
+        basicMetacardHasTitle.setId("2");
+        basicMetacardHasTitle.setTitle(title);
+        metacards.add(basicMetacardHasTitle);
+
+        MetacardImpl basicMetacardHasExpiration = new MetacardImpl(BasicTypes.BASIC_METACARD);
+        basicMetacardHasExpiration.setId("3");
+        basicMetacardHasExpiration.setExpirationDate(expiration);
+        metacards.add(basicMetacardHasExpiration);
+
+        MetacardImpl basicMetacardHasNeither = new MetacardImpl(BasicTypes.BASIC_METACARD);
+        basicMetacardHasNeither.setId("4");
+        metacards.add(basicMetacardHasNeither);
+
+        MetacardType customMetacardType = new MetacardTypeImpl(CUSTOM_METACARD_TYPE_NAME,
+                BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+        MetacardImpl customMetacardHasNeither = new MetacardImpl(customMetacardType);
+        customMetacardHasNeither.setId("5");
+        metacards.add(customMetacardHasNeither);
+
+        return metacards;
+    }
+
+    private void verifyDefaults(List<Metacard> metacards, String originalTitle,
+            Date originalExpiration, String expectedDefaultTitle, Date expectedDefaultExpiration,
+            String expectedDefaultTitleCustom, Date expectedDefaultDateCustom) {
+        Metacard neitherDefault = metacards.get(0);
+        assertThat(neitherDefault.getTitle(), is(originalTitle));
+        assertThat(neitherDefault.getExpirationDate(), is(originalExpiration));
+
+        Metacard expirationDefault = metacards.get(1);
+        assertThat(expirationDefault.getTitle(), is(originalTitle));
+        assertThat(expirationDefault.getExpirationDate(), is(expectedDefaultExpiration));
+
+        Metacard titleDefault = metacards.get(2);
+        assertThat(titleDefault.getTitle(), is(expectedDefaultTitle));
+        assertThat(titleDefault.getExpirationDate(), is(originalExpiration));
+
+        Metacard basicBothDefault = metacards.get(3);
+        assertThat(basicBothDefault.getTitle(), is(expectedDefaultTitle));
+        assertThat(basicBothDefault.getExpirationDate(), is(expectedDefaultExpiration));
+
+        Metacard customBothDefault = metacards.get(4);
+        assertThat(customBothDefault.getTitle(), is(expectedDefaultTitleCustom));
+        assertThat(customBothDefault.getExpirationDate(), is(expectedDefaultDateCustom));
+    }
+
+    @Test
+    public void testCreateWithDefaultValues() throws IngestException, SourceUnavailableException {
+        registerDefaults();
+
+        final String title = "some title";
+        final Date expiration = new Date();
+        CreateRequest createRequest = new CreateRequestImpl(getMetacards(title, expiration));
+        CreateResponse createResponse = framework.create(createRequest);
+        verifyDefaults(createResponse.getCreatedMetacards(),
+                title,
+                expiration,
+                DEFAULT_TITLE,
+                DEFAULT_EXPIRATION,
+                DEFAULT_TITLE_CUSTOM,
+                DEFAULT_EXPIRATION_CUSTOM);
+    }
+
+    private void registerDefaults() {
+        registry.setDefaultValue(Metacard.TITLE, DEFAULT_TITLE);
+        registry.setDefaultValue(CUSTOM_METACARD_TYPE_NAME, Metacard.TITLE, DEFAULT_TITLE_CUSTOM);
+        registry.setDefaultValue(Metacard.EXPIRATION, DEFAULT_EXPIRATION);
+        registry.setDefaultValue(CUSTOM_METACARD_TYPE_NAME,
                 Metacard.EXPIRATION,
                 DEFAULT_EXPIRATION_CUSTOM);
     }
@@ -809,6 +933,13 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<Entry<Serializable, Metacard>>();
         updatedEntries.add(new SimpleEntry<Serializable, Metacard>(insertedCard.getId(),
                 insertedCard));
+
+        Result mockFederationResult = mock(Result.class);
+        when(mockFederationResult.getMetacard()).thenReturn(insertedCard);
+        when(mockFederationStrategy.federate(anyList(),
+                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+                Collections.singletonList(mockFederationResult),
+                1));
         UpdateRequest request = new UpdateRequestImpl(updatedEntries, Metacard.ID, null);
         // send update to framework
         List<Update> returnedCards = framework.update(request)
@@ -820,6 +951,11 @@ public class CatalogFrameworkImplTest {
 
         // make sure that the event was posted correctly
         assertTrue(eventAdmin.wasEventPosted());
+<<<<<<< HEAD
+        assertEquals(eventAdmin.getLastEvent(),
+                returnedCards.get(returnedCards.size() - 1)
+                        .getOldMetacard());
+=======
         assertEquals(eventAdmin.getLastEvent()
                 .getId(), returnedCards.get(returnedCards.size() - 1)
                 .getOldMetacard()
@@ -835,6 +971,7 @@ public class CatalogFrameworkImplTest {
 
         CreateRequest createRequest = new CreateRequestImpl(metacards);
         CreateResponse createResponse = framework.create(createRequest);
+>>>>>>> master
 
         verifyDefaults(createResponse.getCreatedMetacards(),
                 title,
@@ -934,9 +1071,59 @@ public class CatalogFrameworkImplTest {
                 .getValue(), is(injectAttributeValue));
     }
 
+    @Test
+    public void testUpdateWithDefaults() throws Exception {
+        final String title = "some title";
+        final Date expiration = new Date();
+        List<Metacard> metacards = getMetacards(title, expiration);
+
+        CreateRequest createRequest = new CreateRequestImpl(metacards);
+        CreateResponse createResponse = framework.create(createRequest);
+
+        verifyDefaults(createResponse.getCreatedMetacards(),
+                title,
+                expiration,
+                null,
+                null,
+                null,
+                null);
+
+        registerDefaults();
+
+        UpdateRequest updateRequest = new UpdateRequestImpl(new String[] {"1", "2", "3", "4", "5"},
+                createResponse.getCreatedMetacards());
+
+        List<Result> mockFederationResults = metacards.stream()
+                .map(m -> {
+                    Result mockResult = mock(Result.class);
+                    when(mockResult.getMetacard()).thenReturn(m);
+                    return mockResult;
+                })
+                .collect(Collectors.toList());
+
+        when(mockFederationStrategy.federate(anyList(),
+                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+                mockFederationResults,
+                1));
+        UpdateResponse updateResponse = framework.update(updateRequest);
+
+        List<Metacard> updatedMetacards = updateResponse.getUpdatedMetacards()
+                .stream()
+                .map(Update::getNewMetacard)
+                .collect(Collectors.toList());
+        verifyDefaults(updatedMetacards,
+                title,
+                expiration,
+                DEFAULT_TITLE,
+                DEFAULT_EXPIRATION,
+                DEFAULT_TITLE_CUSTOM,
+                DEFAULT_EXPIRATION_CUSTOM);
+    }
+
     /**
      * Tests that the framework properly passes an update request to the local provider.
      */
+    @Ignore // TODO (DDF-2436) -
     @Test
     public void testUpdateStorage() throws Exception {
         List<ContentItem> contentItems = new ArrayList<>();
@@ -1013,6 +1200,19 @@ public class CatalogFrameworkImplTest {
         String[] ids = new String[1];
         ids[0] = insertedCard.getId();
 
+<<<<<<< HEAD
+        List<Result> mockFederationResults = Stream.of(insertedCard)
+                .map(m -> {
+                    Result mockResult = mock(Result.class);
+                    when(mockResult.getMetacard()).thenReturn(m);
+                    return mockResult;
+                })
+                .collect(Collectors.toList());
+
+        when(mockFederationStrategy.federate(anyList(),
+                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+                mockFederationResults,
+=======
         Result mockFederationResult = mock(Result.class);
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId(ids[0]);
@@ -1020,6 +1220,7 @@ public class CatalogFrameworkImplTest {
         when(mockFederationStrategy.federate(anyList(),
                 anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
                 Collections.singletonList(mockFederationResult),
+>>>>>>> master
                 1));
 
         // send delete to framework
@@ -1112,7 +1313,10 @@ public class CatalogFrameworkImplTest {
 
         UpdateRequest request = new UpdateRequestImpl((URI[]) list.toArray(new URI[list.size()]),
                 insertedCards);
+<<<<<<< HEAD
+=======
 
+>>>>>>> master
         List<Result> mockFederationResults = metacards.stream()
                 .map(m -> {
                     Result mockResult = mock(Result.class);
@@ -1125,7 +1329,10 @@ public class CatalogFrameworkImplTest {
                 anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
                 mockFederationResults,
                 1));
+<<<<<<< HEAD
+=======
 
+>>>>>>> master
         // send update to framework
         UpdateResponse updateResponse = framework.update(request);
         List<Update> returnedCards = updateResponse.getUpdatedMetacards();
@@ -1136,9 +1343,17 @@ public class CatalogFrameworkImplTest {
         // make sure that the event was posted correctly
         assertTrue(eventAdmin.wasEventPosted());
         assertEquals(eventAdmin.getLastEvent()
+<<<<<<< HEAD
+                .toString()
+                .trim(), returnedCards.get(returnedCards.size() - 1)
+                .getOldMetacard()
+                .toString()
+                .trim());
+=======
                 .getId(), returnedCards.get(returnedCards.size() - 1)
                 .getOldMetacard()
                 .getId());
+>>>>>>> master
     }
 
     /**
@@ -2970,9 +3185,23 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setFilterBuilder(new GeotoolsFilterBuilder());
         frameworkProperties.setValidationQueryFactory(new ValidationQueryFactory(new GeotoolsFilterAdapterImpl(),
                 new GeotoolsFilterBuilder()));
+<<<<<<< HEAD
+        registry = new DefaultAttributeValueRegistryImpl();
+        frameworkProperties.setDefaultAttributeValueRegistry(registry);
+
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
+        framework.bind(provider);
+        framework.bind(storageProvider);
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+        framework.setHistorian(historian);
+        return framework;
+
+=======
         frameworkProperties.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
 
         return createFramework(frameworkProperties);
+>>>>>>> master
     }
 
     private CatalogFramework createDummyCatalogFramework(CatalogProvider provider,
@@ -2999,7 +3228,12 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setStorageProviders(Collections.singletonList(storageProvider));
         frameworkProperties.setSourcePoller(mockPoller);
         frameworkProperties.setBundleContext(context);
+<<<<<<< HEAD
+        registry = new DefaultAttributeValueRegistryImpl();
+        frameworkProperties.setDefaultAttributeValueRegistry(registry);
+=======
         frameworkProperties.setDefaultAttributeValueRegistry(defaultAttributeValueRegistry);
+>>>>>>> master
 
         return createFramework(frameworkProperties);
     }

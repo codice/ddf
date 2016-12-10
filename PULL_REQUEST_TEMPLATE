@@ -32,6 +32,10 @@
 #### Screenshots (if appropriate)
 #### Checklist:
 - [ ] Documentation Updated
+<<<<<<< HEAD
+	- [ ] Change log Updated
+=======
 - [ ] Change Log Updated
+>>>>>>> master
 - [ ] Update / Add Unit Tests
 - [ ] Update / Add Integration Tests

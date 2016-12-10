@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<metacards xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml">
+    <metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml"
+              gml:id="metacardId">
+        <type>ddf.metacard</type>
+        <source>openSearchStubSource</source>
+        <dateTime name="created">
+            <value>2013-04-18T17:50:27.371+00:00</value>
+        </dateTime>
+        <string name="resource-download-url">
+            <value>
+                https://localhost:{{port}}/services/catalog/sources/openSearchStubSource/metacardId?transform=resource
+            </value>
+        </string>
+        <geometry xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml"
+                  name="location">
+            <value>
+                <ns2:Point>
+                    <ns2:pos>30.0 10.0</ns2:pos>
+                </ns2:Point>
+            </value>
+        </geometry>
+        <dateTime name="modified">
+            <value>2013-04-18T17:50:27.371+00:00</value>
+        </dateTime>
+        <string name="metadata-content-type-version">
+            <value>myVersion</value>
+        </string>
+        <string name="metadata-content-type">
+            <value>myType</value>
+        </string>
+        <stringxml name="metadata">
+            <value>
+                <xml xmlns="urn:catalog:metacard">text</xml>
+            </value>
+        </stringxml>
+        <string name="metacard-tags">
+            <value>resource</value>
+        </string>
+        <dateTime name="effective">
+            <value>2016-06-06T22:23:54.930+00:00</value>
+        </dateTime>
+        <base64Binary name="thumbnail">
+            <value>
+                /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAALAAgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAJBAAAAQFAwUAAAAAAAAAAAAAABETFAEDBBIVAgUGISJRYZP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBf/EABkRAAMAAwAAAAAAAAAAAAAAAAABAwISIv/aAAwDAQACEQMRAD8A3fRvVTHmTS+RjkUfbolC+fUBDhR0zXMN5WUyibqyClrhMj8WdoAtynSGLfJ//9k=
+            </value>
+        </base64Binary>
+        <string name="title">
+            <value>myXmlTitle</value>
+        </string>
+    </metacard>
+</metacards>

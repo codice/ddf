@@ -1388,10 +1388,17 @@ public class TestCswFilterDelegate {
 
         // Setup
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
+<<<<<<< HEAD
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID, APISO_IDENTIFIER);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.MODIFIED, APISO_MODIFIED);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, APISO_TYPE);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.TITLE, APISO_TITLE);
+=======
         cswSourceConfiguration.putMetacardCswMapping(Core.ID, APISO_IDENTIFIER);
         cswSourceConfiguration.putMetacardCswMapping(Core.MODIFIED, APISO_MODIFIED);
         cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, APISO_TYPE);
         cswSourceConfiguration.putMetacardCswMapping(Core.TITLE, APISO_TITLE);
+>>>>>>> master
         cswSourceConfiguration.putMetacardCswMapping(CswConstants.ANY_TEXT, APISO_ANYTEXT);
 
         cswSourceConfiguration.setCswAxisOrder(CswAxisOrder.LAT_LON);
@@ -2597,7 +2604,11 @@ public class TestCswFilterDelegate {
         FilterType filterType = localCswFilterDelegate.intersects(propName, polygonWkt);
         Diff diff = XMLUnit.compareXML(bboxXmlPropertyOwsBoundingBox,
                 getXmlFromMarshaller(filterType));
+<<<<<<< HEAD
+        assertThat("XML Similar", diff.similar(), is(true));
+=======
         assertThat(diff.similar(), is(true));
+>>>>>>> master
     }
 
     @Test

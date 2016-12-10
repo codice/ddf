@@ -157,7 +157,12 @@ public class TestCswSourceBase {
                     + "    xmlns:ogc=\"http://www.opengis.net/ogc\">"
                     + "    <Query typeNames=\"csw:Record\">"
                     + "        <ElementSetName>full</ElementSetName>"
+<<<<<<< HEAD
+                    + "        <Constraint version=\"1.1.0\">" // Line break
+                    + "            <ogc:Filter>"
+=======
                     + "        <Constraint version=\"1.1.0\">" + "            <ogc:Filter>"
+>>>>>>> master
                     + "                <ogc:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\" matchCase=\"false\">"
                     + "                    <ogc:PropertyName>" + CswConstants.ANY_TEXT
                     + "                    </ogc:PropertyName>"
@@ -198,8 +203,13 @@ public class TestCswSourceBase {
                     + "        <csw:Constraint version=\"1.1.0\">\n" + "            <ogc:Filter>\n"
                     + "                <ogc:And>\n"
                     + "                    <ogc:PropertyIsEqualTo matchCase=\"true\">\n"
+<<<<<<< HEAD
+                    + "                        <ogc:PropertyName>"
+                    + CswRecordMetacardType.CSW_FORMAT + "</ogc:PropertyName>\n"
+=======
                     + "                        <ogc:PropertyName>" + CswConstants.CSW_FORMAT
                     + "</ogc:PropertyName>\n"
+>>>>>>> master
                     + "                        <ogc:Literal>myContentType</ogc:Literal>\n"
                     + "                    </ogc:PropertyIsEqualTo>\n"
                     + "                    <ogc:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\" matchCase=\"false\">\n"

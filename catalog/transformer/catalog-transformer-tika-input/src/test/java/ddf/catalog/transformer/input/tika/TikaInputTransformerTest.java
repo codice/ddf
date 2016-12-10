@@ -43,6 +43,10 @@ import com.google.common.collect.ImmutableSet;
 import ddf.catalog.content.operation.ContentMetadataExtractor;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+<<<<<<< HEAD
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
+=======
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
@@ -52,6 +56,7 @@ import ddf.catalog.data.impl.types.ContactAttributes;
 import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
+>>>>>>> master
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
@@ -98,8 +103,12 @@ public class TikaInputTransformerTest {
                                 BasicTypes.OBJECT_TYPE));
         when(cme.getMetacardAttributes()).thenReturn(attributeDescriptors);
 
+<<<<<<< HEAD
+        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx) {
+=======
         TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx,
                 getCommonMetacardType()) {
+>>>>>>> master
             @Override
             Bundle getBundle() {
                 return bundleMock;
@@ -109,7 +118,11 @@ public class TikaInputTransformerTest {
         Metacard metacard = tikaInputTransformer.transform(stream);
 
         assertThat(metacard.getMetacardType()
+<<<<<<< HEAD
+                .getName(), is(BasicTypes.BASIC_METACARD.getName()));
+=======
                 .getName(), is(COMMON_METACARDTYPE));
+>>>>>>> master
         int matchedAttrs = (int) metacard.getMetacardType()
                 .getAttributeDescriptors()
                 .stream()
@@ -147,8 +160,12 @@ public class TikaInputTransformerTest {
                                 BasicTypes.OBJECT_TYPE));
         when(cme.getMetacardAttributes()).thenReturn(attributeDescriptors);
 
+<<<<<<< HEAD
+        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx) {
+=======
         TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx,
                 getCommonMetacardType()) {
+>>>>>>> master
             @Override
             Bundle getBundle() {
                 return bundleMock;
@@ -159,7 +176,11 @@ public class TikaInputTransformerTest {
         Metacard metacard = tikaInputTransformer.transform(stream);
 
         assertThat(metacard.getMetacardType()
+<<<<<<< HEAD
+                .getName(), is(BasicTypes.BASIC_METACARD.getName()));
+=======
                 .getName(), is(COMMON_METACARDTYPE));
+>>>>>>> master
         int matchedAttrs = (int) metacard.getMetacardType()
                 .getAttributeDescriptors()
                 .stream()

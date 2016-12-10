@@ -39,8 +39,11 @@ import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.Metacard;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.types.Core;
 
+>>>>>>> master
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
@@ -776,6 +779,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
             return cswFilterFactory.buildPropertyIsLikeFilter(propertyName,
                     pattern,
                     isCaseSensitive);
+<<<<<<< HEAD
+=======
         } else {
             return new FilterType();
         }
@@ -787,6 +792,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsFuzzyFilter(propertyName, pattern);
+>>>>>>> master
         } else {
             return new FilterType();
         }
@@ -1363,7 +1369,11 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         spatialOps = new ConcurrentHashMap<>(new EnumMap<>(SpatialOperatorNameType.class));
         logicalOps = true;
         if (null == filterCapabilities) {
+<<<<<<< HEAD
+            LOGGER.debug("CSW Service doesn't support any filters");
+=======
             LOGGER.info("CSW Service doesn't support any filters");
+>>>>>>> master
             return;
         }
 

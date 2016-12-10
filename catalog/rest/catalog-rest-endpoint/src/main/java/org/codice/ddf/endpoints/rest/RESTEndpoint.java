@@ -180,8 +180,11 @@ public class RESTEndpoint implements RESTService {
 
     }
 
+<<<<<<< HEAD
+=======
     private List<MetacardType> metacardTypes;
 
+>>>>>>> master
     private MimeTypeMapper mimeTypeMapper;
 
     private FilterBuilder filterBuilder;

@@ -291,6 +291,7 @@ public class ConfigurationStore {
         }
         imageryProviderMaps = newImageryProviders;
     }
+<<<<<<< HEAD
 
     private void findDifferences(List<Map<String, Object>> innerList,
             List<Map<String, Object>> outerList, List<Map<String, Object>> differences) {
@@ -298,13 +299,26 @@ public class ConfigurationStore {
         differences.removeIf(innerList::contains);
     }
 
+=======
+
+    private void findDifferences(List<Map<String, Object>> innerList,
+            List<Map<String, Object>> outerList, List<Map<String, Object>> differences) {
+        differences.addAll(outerList);
+        differences.removeIf(innerList::contains);
+    }
+
+>>>>>>> master
     private void stopImageryEndpoints(List<String> imageryEndpointsToStop) {
         for (String endpoint : imageryEndpointsToStop) {
             try {
                 httpProxy.stop(endpoint);
                 imageryEndpoints.remove(endpoint);
             } catch (Exception e) {
+<<<<<<< HEAD
+                LOGGER.error("Unable to stop proxy endpoint: {}", endpoint, e);
+=======
                 LOGGER.info("Unable to stop proxy endpoint: {}", endpoint, e);
+>>>>>>> master
             }
         }
     }
@@ -319,7 +333,11 @@ public class ConfigurationStore {
                 urlToProxyMap.put(url, endpointName);
                 imageryEndpoints.add(endpointName);
             } catch (Exception e) {
+<<<<<<< HEAD
+                LOGGER.error("Unable to configure proxy for: {}", url, e);
+=======
                 LOGGER.info("Unable to configure proxy for: {}", url, e);
+>>>>>>> master
             }
         }
     }
@@ -356,7 +374,11 @@ public class ConfigurationStore {
                 terrainEndpoint = endpointName;
                 config.put(URL, SERVLET_PATH + "/" + endpointName);
             } catch (Exception e) {
+<<<<<<< HEAD
+                LOGGER.error("Unable to configure proxy for: {}", url, e);
+=======
                 LOGGER.info("Unable to configure proxy for: {}", url, e);
+>>>>>>> master
             }
         }
 

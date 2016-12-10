@@ -73,6 +73,8 @@ import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.types.AssociationsAttributes;
@@ -81,6 +83,7 @@ import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.types.Core;
+>>>>>>> master
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -214,7 +217,11 @@ public class CswQueryFactoryTest {
 
         metacardTypeList = new ArrayList<>();
 
+<<<<<<< HEAD
+        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter, new CswRecordMetacardType(),
+=======
         queryFactory = new CswQueryFactory(filterBuilder, filterAdapter, getCswMetacardType(),
+>>>>>>> master
                 metacardTypeList);
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
@@ -290,7 +297,11 @@ public class CswQueryFactoryTest {
 
         query.setConstraint(constraint);
 
+<<<<<<< HEAD
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
+=======
         JAXBElement<QueryType> jaxbQuery = new JAXBElement(cswQnameOutPutSchema,
+>>>>>>> master
                 QueryType.class,
                 query);
         grr.setAbstractQuery(jaxbQuery);
@@ -326,8 +337,8 @@ public class CswQueryFactoryTest {
         assertThat(frameworkQuery.getFilter(), instanceOf(PropertyIsLike.class));
         PropertyIsLike like = (PropertyIsLike) frameworkQuery.getFilter();
         assertThat(like.getLiteral(), is(CQL_CONTEXTUAL_PATTERN));
-        assertThat(((AttributeExpressionImpl) like.getExpression()).getPropertyName(),
-                is(CQL_FRAMEWORK_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) like.getExpression()).getPropertyName(), is(
+                CQL_FRAMEWORK_TEST_ATTRIBUTE));
     }
 
     @Test
@@ -730,8 +741,8 @@ public class CswQueryFactoryTest {
         N spatial = (N) frameworkQuery.getFilter();
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
-        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
-                is(SPATIAL_TEST_ATTRIBUTE));
+        assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(), is(
+                SPATIAL_TEST_ATTRIBUTE));
 
         assertThat(spatial.getDistanceUnits(), is(UomOgcMapping.METRE.name()));
         assertThat(spatial.getDistance(), is(EXPECTED_GEO_DISTANCE));
@@ -1049,7 +1060,11 @@ public class CswQueryFactoryTest {
         constraint.setCqlText(cqlSpatialDwithinQuery);
 
         query.setConstraint(constraint);
+<<<<<<< HEAD
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
+=======
         JAXBElement<QueryType> jaxbQuery = new JAXBElement(cswQnameOutPutSchema,
+>>>>>>> master
                 QueryType.class,
                 query);
 

@@ -31,6 +31,150 @@ define([
     'text!templates/installer/guestClaimsTable.handlebars'
 ], function (Marionette, ich, _, Backbone, Service, wreqr, $, Modal, guestClaimsTemplate, guestClaimProfiles, guestClaimsListHeader, guestClaimsList, guestWarningModal, guestClaimsHanlderTable) {
 
+<<<<<<< HEAD
+    ich.addTemplate('guestClaimsTemplate', guestClaimsTemplate);
+    ich.addTemplate('guestClaimProfiles', guestClaimProfiles);
+    ich.addTemplate('guestClaimsListHeader', guestClaimsListHeader);
+    ich.addTemplate('guestClaimsList', guestClaimsList);
+    ich.addTemplate('guestWarningModal', guestWarningModal);
+    ich.addTemplate('guestClaimsTable', guestClaimsHanlderTable);
+
+    var serviceModelResponse = new Service.Response();
+
+    serviceModelResponse.fetch({
+        url: '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.sts.guestclaims)'
+    });
+
+    var GuestClaimsView = Marionette.Layout.extend({
+        template: 'guestClaimsTemplate',
+        className: 'full-height',
+        model: serviceModelResponse,
+        regions: {
+            guestClaimProfiles: '#claims-profiles',
+            guestClaimsItems: '#config-div',
+            guestClaimsModal: '#warning-container'
+        },
+        events: {
+            "click .claimsContinue": "proceed",
+            "click .claimsCancel": "cancel"
+        },
+        initialize: function (options) {
+            this.navigationModel = options.navigationModel;
+            this.listenTo(this.navigationModel, 'next', this.next);
+            this.listenTo(this.navigationModel, 'previous', this.previous);
+            this.listenTo(wreqr.vent, 'showWarnings', this.verifyContinue);
+            this.listenTo(wreqr.vent, 'saveClaimData', this.saveData);
+
+            this.checkConfig();
+
+            this.valObj = this.model.get('value').at(0);
+            this.configObj = this.valObj.get('configurations').at(0);
+            this.configObj.set("ignoreWarnings", false);
+
+            //setup default profile if it doesn't exist
+            if (!this.valObj.get("profiles").availableProfiles.Default) {
+                this.valObj.get("profiles").profileNames = this.valObj.get("profiles").profileNames.sort();
+                this.valObj.get("profiles").profileNames.unshift("Default");
+                this.valObj.get("profiles").availableProfiles.Default = this.valObj.get('metatype').at(0).get('defaultValue');
+            }
+
+            if(!_.contains(this.valObj.get("claims").availableClaims,"Add Custom Attribute...")) {
+                this.valObj.get("claims").availableClaims = this.valObj.get("claims").availableClaims.sort();
+                this.valObj.get("claims").availableClaims.push("Add Custom Attribute...");
+            }
+        },
+        checkConfig: function() {
+            if(this.model.get('value').at(0).get('configurations').length === 0) {
+                var configuration = new Service.Configuration();
+                configuration.initializeFromService(this.model.get('value').at(0));
+                configuration.get('properties').set('service.pid',this.model.get('value').at(0).id);
+                this.model.get('value').at(0).get('configurations').add(configuration);
+            }
+        },
+        onRender: function () {
+            var view = this;
+            this.guestClaimProfiles.show(new GuestClaimProfiles({
+                model: new Backbone.Model(this.valObj.get('profiles')),
+                configuration: this.configObj
+            }));
+            this.guestClaimsItems.show(new GuestClaimsMultiValuedLayout({
+                model: new Backbone.Model(this.valObj.get('claims')),
+                configuration: this.configObj
+            }));
+            _.defer(function () {
+                view.$('.scroll-area').perfectScrollbar({useKeyboard: false});
+            });
+        },
+        onClose: function () {
+            this.stopListening(this.navigationModel);
+            this.$('.scroll-area').perfectScrollbar('destroy');
+        },
+        next: function () {
+            var view = this;
+            this.configObj.set("ignoreWarnings", false);
+            this.listenTo(this.configObj, 'invalid', function (model, errors) {
+                this.configObj.get('validatedFields').forEach(function (fieldId) {
+                    view.$('[name=' + fieldId + 'Error]').hide();
+                });
+                errors.forEach(function (errorItem) {
+                    if (errorItem.name) {
+                        view.$('[name=' + errorItem.name + 'Error]').show().html(errorItem.message);
+                    }
+                });
+            });
+
+            this.configObj.validate = this.validate;
+            this.submitData();
+
+            //save the config
+            this.saveData();
+        },
+        previous: function () {
+            //this is your hook to perform any teardown that must be done before going to the previous step
+            this.navigationModel.previousStep();
+        },
+        submitData: function () {
+            wreqr.vent.trigger('beforesave');
+            this.model.save();
+        },
+        saveData: function () {
+            //save the config
+            var view = this;
+            var saved = this.configObj.save();
+            if (saved) {
+                saved.done(function () {
+                    view.navigationModel.nextStep('', 100);
+                }).fail(function () {
+                    view.navigationModel.nextStep('Unable to Save Configuration: check logs', 0);
+                });
+            }
+        },
+        validate: function () {
+            var errors = this.get('validationErrors');
+            var warnings = this.get('validationWarnings');
+            var ignoreWarnings = this.get('ignoreWarnings');
+            var results = errors;
+            if (!errors && warnings && !ignoreWarnings) {
+                wreqr.vent.trigger('showWarnings');
+                results = warnings;
+            }
+            return results;
+        },
+        verifyContinue: function () {
+            var modal = new GuestWarningModal({model: new Backbone.Model(this.configObj.get('validationWarnings'))});
+            this.guestClaimsModal.show(modal);
+        },
+        proceed: function () {
+            this.configObj.set("ignoreWarnings", true);
+            this.$('#warning-container').on('hidden.bs.modal', function () {
+                wreqr.vent.trigger('saveClaimData');
+            });
+
+        }
+    });
+
+=======
+>>>>>>> master
     var GuestClaimProfiles = Marionette.ItemView.extend({
         template: 'guestClaimProfiles',
         events: {

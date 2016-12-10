@@ -14,6 +14,10 @@
 
 package org.codice.ddf.registry.federationadmin.service.impl;
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> master
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
 
 import java.io.IOException;
@@ -53,6 +57,10 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.VersionInfoType;
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> master
 /**
  * Creates a registry identity node when DDF Registry is first instantiated.
  * If a previous registry node is not already found, then a registry identity metacard and its
@@ -102,7 +110,11 @@ public class IdentityNodeInitialization {
                 return null;
             });
         } catch (PrivilegedActionException e) {
+<<<<<<< HEAD
+            LOGGER.warn("Error checking for local registry identity node. Will try again later");
+=======
             LOGGER.debug("Error checking for local registry identity node. Will try again later");
+>>>>>>> master
             executorService.schedule(this::init, RETRY_INTERVAL, TimeUnit.SECONDS);
         }
     }
@@ -199,7 +211,11 @@ public class IdentityNodeInitialization {
             System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, registryPackageId);
             federationAdminService.addRegistryEntry(identityMetacard);
         }
+<<<<<<< HEAD
+        LOGGER.info("Successfully created registry identity node: {}", registryPackageId);
+=======
         LOGGER.debug("Successfully created registry identity node: {}", registryPackageId);
+>>>>>>> master
     }
 
     private Metacard getRegistryMetacardFromRegistryPackage(RegistryPackageType registryPackage)
@@ -212,7 +228,11 @@ public class IdentityNodeInitialization {
 
         } catch (IOException | CatalogTransformerException | ParserException e) {
             String message = "Error creating metacard from registry package.";
+<<<<<<< HEAD
+            LOGGER.error("{} Registry id: {}", message, registryPackage.getId());
+=======
             LOGGER.debug("{} Registry id: {}", message, registryPackage.getId());
+>>>>>>> master
             throw new FederationAdminException(message, e);
         }
 

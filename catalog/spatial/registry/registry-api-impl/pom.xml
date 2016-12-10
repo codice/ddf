@@ -12,6 +12,13 @@
  *
  **/
 -->
+<<<<<<< HEAD
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>registry</artifactId>
+        <groupId>org.codice.ddf.registry</groupId>
+        <version>2.9.4</version>
+=======
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -19,6 +26,7 @@
         <artifactId>registry</artifactId>
         <groupId>org.codice.ddf.registry</groupId>
         <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -180,10 +188,13 @@
             <artifactId>registry-federation-admin-service</artifactId>
             <version>${project.version}</version>
         </dependency>
+<<<<<<< HEAD
+=======
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+>>>>>>> master
     </dependencies>
 
     <build>
@@ -211,7 +222,11 @@
                             *
                         </Import-Package>
                         <!-- Don't Export Anything -->
+<<<<<<< HEAD
+                        <Export-Package />
+=======
                         <Export-Package/>
+>>>>>>> master
                         <Embed-Dependency>
                             registry-common,
                             spatial-csw-source-common,
@@ -226,8 +241,12 @@
                             ddf-security-common,
                             platform-util,
                             platform-util-unavailableurls,
+<<<<<<< HEAD
+                            jaxb2-basics-runtime
+=======
                             jaxb2-basics-runtime,
                             commons-lang3
+>>>>>>> master
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
@@ -251,22 +270,38 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
+<<<<<<< HEAD
+                                            <minimum>0.85</minimum>
+=======
                                             <minimum>0.86</minimum>
+>>>>>>> master
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
+<<<<<<< HEAD
+                                            <minimum>0.72</minimum>
+=======
                                             <minimum>0.70</minimum>
+>>>>>>> master
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
+<<<<<<< HEAD
+                                            <minimum>0.65</minimum>
+=======
                                             <minimum>0.64</minimum>
+>>>>>>> master
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
+<<<<<<< HEAD
+                                            <minimum>0.87</minimum>
+=======
                                             <minimum>0.86</minimum>
+>>>>>>> master
                                         </limit>
                                     </limits>
                                 </rule>

@@ -273,4 +273,8 @@ public class RegistryPublicationManagerTest {
         eventProperties.put(METACARD_PROPERTY, mcard);
         return new Event(topic, eventProperties);
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> master

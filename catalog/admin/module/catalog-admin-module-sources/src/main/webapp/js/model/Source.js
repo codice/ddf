@@ -38,8 +38,12 @@ define([
                 this.set('disabledConfigurations', new Source.ConfigurationList());
             },
             addDisabledConfiguration: function (configuration) {
+<<<<<<< HEAD
+                if (this.get("disabledConfigurations") && !this.get("disabledConfigurations").contains(configuration)) {
+=======
                 if (this.get("disabledConfigurations") &&
                     !this.get("disabledConfigurations").findWhere({ fpid: configuration.get('fpid') })) {
+>>>>>>> master
                     this.get("disabledConfigurations").add(configuration);
                 }
             },

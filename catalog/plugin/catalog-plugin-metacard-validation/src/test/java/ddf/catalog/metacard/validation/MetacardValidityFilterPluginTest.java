@@ -17,6 +17,11 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+<<<<<<< HEAD
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
+=======
+>>>>>>> master
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -193,6 +198,20 @@ public class MetacardValidityFilterPluginTest {
         return returnMetacard;
     }
 
+<<<<<<< HEAD
+    @Test
+    public void testResetAttributeMappingEmptyList() {
+        metacardValidityFilterPlugin.setAttributeMap(new ArrayList<String>());
+        assertThat(metacardValidityFilterPlugin.getAttributeMap(),
+                is(new HashMap<String, List<String>>()));
+    }
+
+    @Test
+    public void testResetAttributeMappingEmptyString() {
+        metacardValidityFilterPlugin.setAttributeMap(Arrays.asList(""));
+        assertThat(metacardValidityFilterPlugin.getAttributeMap(),
+                is(new HashMap<String, List<String>>()));
+=======
     private PolicyResponse filterPluginResponseHelper(Result result, Metacard metacard,
             boolean filterErrors, boolean filterWarnings) throws Exception {
         List<String> attributeMapping = Collections.singletonList("sample=test1,test2");
@@ -207,6 +226,7 @@ public class MetacardValidityFilterPluginTest {
         PolicyResponse response = metacardValidityFilterPlugin.processPostQuery(result,
                 new HashMap<>());
         return response;
+>>>>>>> master
     }
 }
 

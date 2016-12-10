@@ -63,9 +63,12 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.FuzzyFunction;
+>>>>>>> master
 
 public class TestCswRecordMapperFilterVisitor {
 
@@ -95,7 +98,11 @@ public class TestCswRecordMapperFilterVisitor {
                 new AttributeExpressionImpl(new NameImpl(new QName(CswConstants.DUBLIN_CORE_SCHEMA,
                         Core.CREATED,
                         CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
+<<<<<<< HEAD
+        metacardType = new CswRecordMetacardType();
+=======
         metacardType = CswQueryFactoryTest.getCswMetacardType();
+>>>>>>> master
 
         mockMetacardTypeList = new ArrayList<>();
         mockMetacardTypeList.add(metacardType);
@@ -223,6 +230,8 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(duplicate.getExpression1(), is(attrExpr));
         assertThat(duplicate.getExpression2(), is(val));
         assertThat(duplicate.isMatchingCase(), is(true));
+<<<<<<< HEAD
+=======
     }
 
     @Test
@@ -241,6 +250,7 @@ public class TestCswRecordMapperFilterVisitor {
 
         assertThat(visitedFilter.getExpression(), is(instanceOf(FuzzyFunction.class)));
         assertThat(visitedFilter.getLiteral(), is(val2.toString()));
+>>>>>>> master
     }
 
     @Test
@@ -386,6 +396,12 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(obj, instanceOf(Or.class));
         Or duplicate = (Or) obj;
 
+<<<<<<< HEAD
+        List<Class<? extends BinaryTemporalOperator>> classes =
+                new ArrayList<>();
+
+=======
+>>>>>>> master
         for (Filter child : duplicate.getChildren()) {
             BinaryTemporalOperator binary = (BinaryTemporalOperator) child;
             assertThat(binary, anyOf(instanceOf(TEquals.class), instanceOf(Before.class)));

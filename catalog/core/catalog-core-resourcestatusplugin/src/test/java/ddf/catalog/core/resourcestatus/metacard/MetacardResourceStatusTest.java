@@ -19,8 +19,11 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
+<<<<<<< HEAD
+=======
 import java.net.URI;
 import java.net.URISyntaxException;
+>>>>>>> master
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +43,14 @@ import ddf.catalog.resource.data.ReliableResource;
 
 public class MetacardResourceStatusTest {
 
+<<<<<<< HEAD
+    @Mock
+    private ResourceCacheInterface cache;
+    @Mock
+    private ReliableResource cachedResource;
+    @Mock
+    private QueryResponse queryResponse;
+=======
     private static final String INTERNAL_LOCAL_RESOURCE = "internal.local-resource";
 
     private static final String LOCAL_SITE_NAME = "local-ddf";
@@ -63,6 +74,7 @@ public class MetacardResourceStatusTest {
     @Mock
     private QueryResponse queryResponse;
 
+>>>>>>> master
     @Mock
     private MetacardImpl basicMetacard;
 
@@ -71,6 +83,56 @@ public class MetacardResourceStatusTest {
         MockitoAnnotations.initMocks(this);
     }
 
+<<<<<<< HEAD
+    @Test
+    public void testMetacardDisplaysCachedProduct() throws Exception {
+
+        setupCachedMock(getBasicMetacard());
+
+        MetacardResourceStatus plugin = new MetacardResourceStatus(cache);
+
+        Attribute resourceStatusAttribute = getReourceStatusAttribute(plugin.process(queryResponse));
+
+        assertThat(resourceStatusAttribute.getValue(), is(true));
+    }
+
+    @Test
+    public void testMetacardDisplaysNonCachedProduct() throws Exception {
+        setupNonCachedMock(getBasicMetacard());
+
+        MetacardResourceStatus plugin = new MetacardResourceStatus(cache);
+        QueryResponse queryResponse = plugin.process(this.queryResponse);
+
+        Attribute resourceStatusAttribute = getReourceStatusAttribute(plugin.process(queryResponse));
+
+        assertThat(resourceStatusAttribute.getValue(), is(false));
+    }
+
+    private MetacardImpl getBasicMetacard() {
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setId("abc123");
+        metacard.setSourceId("ddf-1");
+        metacard.setResourceSize("N/A");
+
+        return metacard;
+    }
+
+    private void setupCachedMock(MetacardImpl metacard) {
+        when(cachedResource.getSize()).thenReturn(999L);
+        when(cachedResource.hasProduct()).thenReturn(true);
+        when(cache.getValid(anyString(), anyObject())).thenReturn(cachedResource);
+
+        setupSingleResultResponseMock(metacard);
+    }
+
+    private void setupNonCachedMock(MetacardImpl metacard) {
+
+        when(cachedResource.getSize()).thenReturn(0L);
+        when(cachedResource.hasProduct()).thenReturn(false);
+        when(cache.getValid(anyString(), anyObject())).thenReturn(null);
+
+        setupSingleResultResponseMock(metacard);
+=======
     /**
      * Metacard source id is local, Metacard contains no resource uri, Metacard resource is not cached
      */
@@ -228,6 +290,7 @@ public class MetacardResourceStatusTest {
         } else {
             when(cache.getValid(anyString(), anyObject())).thenReturn(null);
         }
+>>>>>>> master
     }
 
     private void setupSingleResultResponseMock(MetacardImpl metacard) {
@@ -238,10 +301,18 @@ public class MetacardResourceStatusTest {
         when(queryResponse.getResults()).thenReturn(results);
     }
 
+<<<<<<< HEAD
+    private Attribute getReourceStatusAttribute(QueryResponse queryResponse) {
+        Metacard resultMetacard = queryResponse.getResults()
+                .get(0)
+                .getMetacard();
+        return resultMetacard.getAttribute(Metacard.RESOURCE_CACHE_STATUS);
+=======
     private Attribute getInternalLocalResurceAttribute(QueryResponse queryResponse) {
         Metacard resultMetacard = queryResponse.getResults()
                 .get(0)
                 .getMetacard();
         return resultMetacard.getAttribute(INTERNAL_LOCAL_RESOURCE);
+>>>>>>> master
     }
 }

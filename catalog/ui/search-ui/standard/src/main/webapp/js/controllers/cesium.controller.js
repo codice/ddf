@@ -23,10 +23,16 @@ define(['application',
         'jquery',
         'drawHelper',
         'js/controllers/cesium.layerCollection.controller',
+<<<<<<< HEAD
+        'js/model/user'
+    ], function (Application, _, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $, DrawHelper,
+                 LayerCollectionController, User) {
+=======
         'js/model/user',
         'js/widgets/cesium.mapclustering'
     ], function (Application, _, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $, DrawHelper,
                  LayerCollectionController, User, MapClustering) {
+>>>>>>> master
         "use strict";
 
         var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;

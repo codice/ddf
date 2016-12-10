@@ -957,7 +957,11 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                     .runWithSubjectOrElevate(() -> SecurityUtils.getSubject()
                             .isPermitted(serviceToCheck));
         } catch (SecurityServiceException | InvocationTargetException e) {
+<<<<<<< HEAD
+            LOGGER.error("Failed to elevate subject", e);
+=======
             LOGGER.warn("Failed to elevate subject", e);
+>>>>>>> master
             return false;
         }
     }

@@ -14,14 +14,20 @@
 package org.codice.ddf.registry.api.impl;
 
 import java.io.IOException;
+<<<<<<< HEAD
+=======
 import java.net.URI;
 import java.net.URISyntaxException;
+>>>>>>> master
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
+<<<<<<< HEAD
+=======
 import java.util.Locale;
+>>>>>>> master
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -38,6 +44,11 @@ import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.AbstractCswStore;
 import org.opengis.filter.Filter;
+<<<<<<< HEAD
+import org.osgi.framework.BundleContext;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+=======
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -45,6 +56,7 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
+>>>>>>> master
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +94,15 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryStoreImpl.class);
 
+<<<<<<< HEAD
+    private static final String PUSH_ALLOWED_PROPERTY = "pushAllowed";
+
+    private static final String PULL_ALLOWED_PROPERTY = "pullAllowed";
+
+    private static final String REMOTE_NAME = "remoteName";
+
+    private static final String AUTO_PUSH = "autoPush";
+=======
     public static final String PUSH_ALLOWED_PROPERTY = "pushAllowed";
 
     public static final String PULL_ALLOWED_PROPERTY = "pullAllowed";
@@ -93,6 +114,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
     public static final String ID = "id";
 
     private static int noPortFound = -1;
+>>>>>>> master
 
     private boolean pushAllowed = true;
 
@@ -102,12 +124,20 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
 
     private String registryId = "";
 
+<<<<<<< HEAD
+    private String remoteName = "";
+
+=======
+>>>>>>> master
     private MetacardMarshaller metacardMarshaller;
 
     private ConfigurationAdmin configAdmin;
 
+<<<<<<< HEAD
+=======
     private MetaTypeService metaTypeService;
 
+>>>>>>> master
     public RegistryStoreImpl(BundleContext context, CswSourceConfiguration cswSourceConfiguration,
             Converter provider, SecureCxfClientFactory factory,
             EncryptionService encryptionService) {
@@ -121,12 +151,19 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
     @Override
     protected Map<String, Consumer<Object>> getAdditionalConsumers() {
         Map<String, Consumer<Object>> map = new HashMap<>();
+<<<<<<< HEAD
+        map.put(AUTO_PUSH, value -> setAutoPush((Boolean) value));
+        map.put(REMOTE_NAME, value -> setRemoteName((String) value));
+        map.put(PUSH_ALLOWED_PROPERTY, value -> setPushAllowed((Boolean) value));
+        map.put(PULL_ALLOWED_PROPERTY, value -> setPullAllowed((Boolean) value));
+=======
         map.put(REGISTRY_URL, value -> setRegistryUrl((String) value));
         map.put(AUTO_PUSH, value -> setAutoPush((Boolean) value));
         map.put(ID, value -> setId((String) value));
         map.put(PUSH_ALLOWED_PROPERTY, value -> setPushAllowed((Boolean) value));
         map.put(PULL_ALLOWED_PROPERTY, value -> setPullAllowed((Boolean) value));
 
+>>>>>>> master
         map.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 value -> setRegistryId((String) value));
         return map;
@@ -199,10 +236,13 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         return super.create(request);
     }
 
+<<<<<<< HEAD
+=======
     public void setRegistryUrl(String registryUrl) {
         setCswUrl(registryUrl);
     }
 
+>>>>>>> master
     @Override
     public UpdateResponse update(UpdateRequest request) throws IngestException {
 
@@ -265,10 +305,16 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
             if (registryId.equals(RegistryUtility.getRegistryId(singleResult.getMetacard()))) {
                 String metacardTitle = singleResult.getMetacard()
                         .getTitle();
+<<<<<<< HEAD
+                if (metacardTitle != null && !remoteName.equals(metacardTitle)) {
+                    remoteName = metacardTitle;
+                    updateConfiguration();
+=======
 
                 if (metacardTitle != null && getId() != null && !getId().equals(metacardTitle)) {
                     setId(metacardTitle);
                     updateConfiguration(metacardTitle);
+>>>>>>> master
                 }
                 break;
             }
@@ -292,6 +338,13 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         this.registryId = registryId;
     }
 
+<<<<<<< HEAD
+    public void setRemoteName(String remoteName) {
+        this.remoteName = remoteName;
+    }
+
+=======
+>>>>>>> master
     private void setMetacardExtID(Metacard metacard, String newId) throws ParserException {
 
         RegistryPackageType registryPackage = metacardMarshaller.getRegistryPackageFromMetacard(
@@ -320,7 +373,11 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
                 try {
                     registryInfoQuery();
                 } catch (UnsupportedQueryException e) {
+<<<<<<< HEAD
+                    LOGGER.error("Unable to query registry configurations, ", e);
+=======
                     LOGGER.debug("Unable to query registry configurations, ", e);
+>>>>>>> master
                 }
             }
 
@@ -347,6 +404,20 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         SourceResponse identityMetacard = query(queryRequest);
         if (identityMetacard.getResults()
                 .size() > 0) {
+<<<<<<< HEAD
+            remoteName = identityMetacard.getResults()
+                    .get(0)
+                    .getMetacard()
+                    .getTitle();
+            registryId = RegistryUtility.getRegistryId(identityMetacard.getResults()
+                    .get(0)
+                    .getMetacard());
+        }
+        updateConfiguration();
+    }
+
+    private void updateConfiguration() {
+=======
             String metacardTitle = identityMetacard.getResults()
                     .get(0)
                     .getMetacard()
@@ -391,10 +462,19 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
             LOGGER.debug("Unable to update registry configurations. No metacard title.");
             return;
         }
+>>>>>>> master
         String currentPid = getConfigurationPid();
         try {
             Configuration currentConfig = configAdmin.getConfiguration(currentPid);
             Dictionary<String, Object> currentProperties = currentConfig.getProperties();
+<<<<<<< HEAD
+            currentProperties.put(REMOTE_NAME, remoteName);
+            currentProperties.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY, registryId);
+            currentConfig.update(currentProperties);
+        } catch (IOException e) {
+            LOGGER.error("Unable to update registry configurations, ", e);
+        }
+=======
             URI uri;
             String registryUrl = (String) currentProperties.get(REGISTRY_URL);
             try {
@@ -427,6 +507,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
     BundleContext getBundleContext() {
         return FrameworkUtil.getBundle(this.getClass())
                 .getBundleContext();
+>>>>>>> master
     }
 
     public void setConfigAdmin(ConfigurationAdmin config) {
@@ -438,4 +519,10 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         return registryId;
     }
 
+<<<<<<< HEAD
+    public String getRemoteName() {
+        return remoteName;
+    }
+=======
+>>>>>>> master
 }

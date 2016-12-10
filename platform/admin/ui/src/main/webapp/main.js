@@ -128,13 +128,20 @@
         'js/models/Alerts.js',
         'js/views/Alerts.view',
         'properties',
+<<<<<<< HEAD
+=======
         'js/util/SessionRefresherUtil',
+>>>>>>> master
         'icanhaz',
         'js/HandlebarsHelpers',
         'modelbinder',
         'bootstrap',
         'templateConfig'
+<<<<<<< HEAD
+    ], function ($, Backbone, Marionette, Application, ModuleView, AlertsModel, AlertsView, Properties) {
+=======
     ], function ($, Backbone, Marionette, Application, ModuleView, AlertsModel, AlertsView, Properties, SessionRefresherUtil) {
+>>>>>>> master
 
         var app = Application.App;
 

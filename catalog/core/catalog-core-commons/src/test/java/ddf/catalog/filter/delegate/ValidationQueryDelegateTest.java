@@ -1,10 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
+<<<<<<< HEAD
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+=======
  * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
  * <p/>
+>>>>>>> master
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,6 +25,11 @@ package ddf.catalog.filter.delegate;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+<<<<<<< HEAD
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
+=======
+>>>>>>> master
 
 import java.util.Arrays;
 import java.util.Date;
@@ -24,7 +37,10 @@ import java.util.Date;
 import org.junit.Test;
 
 import ddf.catalog.data.Metacard;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.types.Validation;
+>>>>>>> master
 import ddf.catalog.source.UnsupportedQueryException;
 
 public class ValidationQueryDelegateTest {
@@ -436,14 +452,22 @@ public class ValidationQueryDelegateTest {
 
     @Test
     public void testPropertyIsNullTrueValidationErrors() throws UnsupportedQueryException {
+<<<<<<< HEAD
+        assertThat(testValidationQueryDelegate.propertyIsNull(VALIDATION_ERRORS), is(true));
+=======
         assertThat(testValidationQueryDelegate.propertyIsNull(Validation.VALIDATION_ERRORS),
                 is(true));
+>>>>>>> master
     }
 
     @Test
     public void testPropertyIsNullTrueValidationWarnings() throws UnsupportedQueryException {
+<<<<<<< HEAD
+        assertThat(testValidationQueryDelegate.propertyIsNull(VALIDATION_WARNINGS), is(true));
+=======
         assertThat(testValidationQueryDelegate.propertyIsNull(Validation.VALIDATION_WARNINGS),
                 is(true));
+>>>>>>> master
     }
 
     @Test
@@ -460,14 +484,22 @@ public class ValidationQueryDelegateTest {
 
     @Test
     public void testPropertyIsLikeTrueErrors() {
+<<<<<<< HEAD
+        assertThat(testValidationQueryDelegate.propertyIsLike(VALIDATION_ERRORS,
+=======
         assertThat(testValidationQueryDelegate.propertyIsLike(Validation.VALIDATION_ERRORS,
+>>>>>>> master
                 "sample-validator",
                 true), is(true));
     }
 
     @Test
     public void testPropertyIsLikeTrueWarnings() {
+<<<<<<< HEAD
+        assertThat(testValidationQueryDelegate.propertyIsLike(VALIDATION_WARNINGS,
+=======
         assertThat(testValidationQueryDelegate.propertyIsLike(Validation.VALIDATION_WARNINGS,
+>>>>>>> master
                 "sample-validator",
                 true), is(true));
     }

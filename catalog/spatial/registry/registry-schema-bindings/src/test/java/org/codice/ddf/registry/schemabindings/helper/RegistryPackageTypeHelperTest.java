@@ -76,7 +76,11 @@ public class RegistryPackageTypeHelperTest {
                         .getPackage()
                         .getName()), RegistryPackageTypeHelperTest.class.getClassLoader());
 
+<<<<<<< HEAD
+        registryObject = getRegistryObjectFromResource("/csw-registry-package-smaller.xml");
+=======
         registryObject = getRegistryObjectFromResource("/csw-full-registry-package.xml");
+>>>>>>> master
 
         rptHelper = new RegistryPackageTypeHelper((RegistryPackageType) registryObject);
     }
@@ -253,6 +257,11 @@ public class RegistryPackageTypeHelperTest {
         assertThat(associations, is(empty()));
     }
 
+<<<<<<< HEAD
+    private void assertBindings(List<ServiceBindingType> bindings) {
+        // Values from xml file
+        int expectedSize = 1;
+=======
     @Test
     public void testGetAssociatedObjectWithNullId() throws Exception {
         List<OrganizationType> organizations = rptHelper.getAssociatedObjects(null, OrganizationType.class);
@@ -348,6 +357,7 @@ public class RegistryPackageTypeHelperTest {
     private void assertBindings(List<ServiceBindingType> bindings) {
         // Values from xml file
         int expectedSize = 2;
+>>>>>>> master
         int numberOfSlots = 4;
         String expectedName = "CSW Federation Method";
         String expectedDescription = "This is the CSW federation method.";
@@ -404,8 +414,13 @@ public class RegistryPackageTypeHelperTest {
 
     private void assertExtrinsicObjects(List<ExtrinsicObjectType> extrinsicObjects) {
         // Values from xml file
+<<<<<<< HEAD
+        int expectedSize = 1;
+        int numberOfSlots = 6;
+=======
         int expectedSize = 4;
         int numberOfSlots = 10;
+>>>>>>> master
         String expectedName = "Node Name";
         String expectedDescription =
                 "A little something describing this node in less than 1024 characters";
@@ -471,7 +486,10 @@ public class RegistryPackageTypeHelperTest {
     private void assertOrganizations(List<OrganizationType> organizations) {
         // Values from xml file
         int expectedSize = 1;
+<<<<<<< HEAD
+=======
         int expectedOrganizationsSize = 2;
+>>>>>>> master
         String expectedName = "Codice";
         String expectedCity = "Phoenix";
         String expectedCountry = "USA";
@@ -490,7 +508,11 @@ public class RegistryPackageTypeHelperTest {
         String expectedParent = "urn:uuid:2014ca7f59ac46f495e32b4a67a51276";
         String expectedPrimaryContact = "somePrimaryContact";
 
+<<<<<<< HEAD
+        assertThat(organizations, hasSize(expectedSize));
+=======
         assertThat(organizations, hasSize(expectedOrganizationsSize));
+>>>>>>> master
         OrganizationType organization = organizations.get(0);
 
         assertThat(organization.isSetName(), is(true));
@@ -531,7 +553,10 @@ public class RegistryPackageTypeHelperTest {
 
     private void assertPersons(List<PersonType> persons) {
         // Values from xml file
+<<<<<<< HEAD
+=======
         int expectedPersonsSize = 3;
+>>>>>>> master
         int expectedSize = 1;
         String expectedFirstName = "john";
         String expectedMiddleName = "middleName";
@@ -551,7 +576,11 @@ public class RegistryPackageTypeHelperTest {
 
         String expectedEmail = "emailaddress@something.com";
 
+<<<<<<< HEAD
+        assertThat(persons, hasSize(expectedSize));
+=======
         assertThat(persons, hasSize(expectedPersonsSize));
+>>>>>>> master
         PersonType person = persons.get(0);
 
         assertThat(person.isSetPersonName(), is(true));
@@ -589,8 +618,13 @@ public class RegistryPackageTypeHelperTest {
 
     private void assertAssociations(List<AssociationType1> associations) {
         // Values from xml file
+<<<<<<< HEAD
+        int expectedSize = 1;
+        String expectedId = "urn:assoication:1";
+=======
         int expectedSize = 13;
         String expectedId = "urn:association:1";
+>>>>>>> master
         String expectedAssociationType = "RelatedTo";
         String expectedSourceObject = "urn:registry:node";
         String expectedTargetObject = "urn:contact:id0";
@@ -612,6 +646,12 @@ public class RegistryPackageTypeHelperTest {
     }
 
     private void assertIst(InternationalStringType actual, String expectedName) {
+<<<<<<< HEAD
+        //If build machine is not in an English speaking region, this won't work
+        //as the default locale is en-US
+        istHelper.setNearestMatch(true); 
+=======
+>>>>>>> master
         assertThat(istHelper.getString(actual), is(equalTo(expectedName)));
     }
 

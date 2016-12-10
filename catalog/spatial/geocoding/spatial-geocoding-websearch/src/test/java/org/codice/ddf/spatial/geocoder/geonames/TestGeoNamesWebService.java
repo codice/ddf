@@ -1,10 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
+<<<<<<< HEAD
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+=======
  * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
  * <p/>
+>>>>>>> master
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,10 +24,15 @@ package org.codice.ddf.spatial.geocoder.geonames;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+<<<<<<< HEAD
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.notNullValue;
+=======
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+>>>>>>> master
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -27,6 +40,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+<<<<<<< HEAD
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.spatial4j.core.shape.Point;
+
+public class TestGeoNamesWebService {
+    private static final String QUERY_TEST_RESPONSE =
+=======
 import java.io.IOException;
 import java.util.Optional;
 
@@ -40,6 +64,7 @@ import org.locationtech.spatial4j.shape.Point;
 
 public class TestGeoNamesWebService {
     private static final String NEARBY_CITY_QUERY_TEST_RESPONSE =
+>>>>>>> master
             "{ \"geonames\": [ " + "              { \"countryId\": \"357994\", "
                     + "                \"adminCode1\": \"16\", "
                     + "                \"countryName\": \"Egypt\", "
@@ -58,9 +83,12 @@ public class TestGeoNamesWebService {
                     + "                \"population\": 0 " + "              } " + "           ] "
                     + "} ";
 
+<<<<<<< HEAD
+=======
     private static final String COUNRTY_CODE_QUERY_TEST_RESPONSE =
             "{\"languages\":\"ca\",\"distance\":\"0\",\"countryCode\":\"AD\",\"countryName\":\"Andorra\"}";
 
+>>>>>>> master
     private static final String QUERY_TEST_LOCATION = "POINT(32 25)";
 
     private static final String CREATE_POINT_FROM_WKT_POINT = "POINT(-1.0 22)";
@@ -96,6 +124,15 @@ public class TestGeoNamesWebService {
     }
 
     @Test
+<<<<<<< HEAD
+    public void testGetNearbyCity() {
+        WebClient webClientMock = mock(WebClient.class);
+        when(webClientMock.acceptEncoding(anyString())).thenReturn(webClientMock);
+        when(webClientMock.accept(anyString())).thenReturn(webClientMock);
+        when(webClientMock.get(String.class)).thenReturn(QUERY_TEST_RESPONSE);
+        doReturn(webClientMock).when(webServiceSpy)
+                .createWebClient(anyString());
+=======
     public void testCreateGeoPointFromWktParseException() {
         String pointWkt = "i am not well known";
 
@@ -119,6 +156,7 @@ public class TestGeoNamesWebService {
     public void testGetNearbyCity() {
         WebClient webClientMock = mock(WebClient.class);
         prepareWebClient(webClientMock, NEARBY_CITY_QUERY_TEST_RESPONSE);
+>>>>>>> master
 
         NearbyLocation nearbyLocation = webServiceSpy.getNearbyCity(QUERY_TEST_LOCATION);
         assertThat(nearbyLocation.getCardinalDirection(), equalTo("W"));
@@ -126,6 +164,8 @@ public class TestGeoNamesWebService {
         assertThat(nearbyLocation.getDistance(), lessThan(15.0));
         assertThat(nearbyLocation.getName(), equalTo("Qaryat Wādī ‘Abbādī 2"));
     }
+<<<<<<< HEAD
+=======
 
     @Test
     public void testGetCountryCode() {
@@ -151,4 +191,5 @@ public class TestGeoNamesWebService {
         doReturn(mockedWebClient).when(webServiceSpy)
                 .createWebClient(anyString());
     }
+>>>>>>> master
 }

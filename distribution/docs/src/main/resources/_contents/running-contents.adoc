@@ -1428,6 +1428,10 @@ http://wiki.eclipse.org/Jetty/Tutorial/RequestLog[Jetty Request Log Tutorial]
 
 Monitor system logs with the *LogViewer*, a convenient "viewing portal" for incoming logs.
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> master
 * Navigate to the LogViewer at \${secure_url}/admin/logviewer
 
 The LogViewer displays the most recent 500 log messages by default, but will grow to a maximum of 5000 messages.
@@ -1437,7 +1441,11 @@ The top left button labeled LIVE/PAUSED will toggle live retrieval of incoming l
 Log events can be filtered by:
 
 * Log level (`ERROR`, `WARNING`, etc).
+<<<<<<< HEAD
+** The LogViewer will display at the currently configured log level for the System logs.
+=======
 ** The LogViewer will display at the currently configured log level for the Karaf logs.
+>>>>>>> master
 *** See <<controlling_log_level, Controlling Log Level>> to change log level.
 * Log message text.
 * Bundle generating the message.

@@ -47,7 +47,14 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+<<<<<<< HEAD
+import ddf.common.test.BeforeExam;
+import ddf.common.test.KarafConsole;
 import ddf.security.common.util.Security;
+import ddf.test.itests.AbstractIntegrationTest;
+=======
+import ddf.security.common.util.Security;
+>>>>>>> master
 
 /**
  * Note: Tests prefixed with aRunFirst NEED to run before any other tests.  For this reason, we

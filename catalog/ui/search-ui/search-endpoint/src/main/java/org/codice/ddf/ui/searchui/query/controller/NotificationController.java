@@ -112,12 +112,23 @@ public class NotificationController extends AbstractEventController {
 
         String sessionId = (String) event.getProperty(Notification.NOTIFICATION_KEY_SESSION_ID);
         String userId = (String) event.getProperty(Notification.NOTIFICATION_KEY_USER_ID);
+<<<<<<< HEAD
+
+        if (StringUtils.isBlank(userId) && StringUtils.isBlank(sessionId)) {
+            throw new IllegalArgumentException("No user information was provided in the event object. userId and sessionId properties were null");
+        }
+
+        ServerSession recipient = null;
+        LOGGER.debug("Getting ServerSession for userId/sessionId {}", userId);
+        recipient = getSessionById(userId, sessionId);
+=======
 
         if (StringUtils.isBlank(userId) && StringUtils.isBlank(sessionId)) {
             String message =
                     "No user information was provided in the event object. userId and sessionId properties were null";
             throw new IllegalArgumentException(message);
         }
+>>>>>>> master
 
         ServerSession recipient;
 

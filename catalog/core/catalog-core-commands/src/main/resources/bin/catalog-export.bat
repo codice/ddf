@@ -19,6 +19,26 @@ set HOST=127.0.0.1
 
 :GETOPTS
 if %1 == -d (
+<<<<<<< HEAD
+	setlocal
+	set DIR=%~2& shift
+)
+if %1 == -z (
+	setlocal
+	set FILENAME=%~2& shift
+)
+if %1 == -k (
+	setlocal
+	set KEYSTORE=%~2& shift
+)
+if %1 == -a (
+	setlocal
+	set ALIAS=%~2& shift
+)
+if %1 == -h (
+	setlocal
+	set HOST=%~2& shift
+=======
     setlocal
     set DIR=%~2& shift
 )
@@ -41,6 +61,7 @@ if %1 == -h (
 if %1 == -c (
     setlocal
     set CQL=%~2& shift
+>>>>>>> master
 )
 shift
 if not (%1)==() goto GETOPTS
@@ -49,6 +70,17 @@ if "%FILENAME%"=="" goto USAGE
 if "%KEYSTORE%"=="" goto USAGE
 
 echo Connecting to running DDF and exporting catalog to %FILENAME%...
+<<<<<<< HEAD
+call client.bat -h %HOST% "catalog:dump --include-content=%FILENAME% %DIR% "
+
+where %JARSIGNER% >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+	echo Unable to find %JARSIGNER%, ensure that $JAVA_HOME and $JAVA_HOME/bin are set on the path.
+	exit /b 1
+) else (
+	echo Running %JARSIGNER% on %FILENAME%, which will prompt you to enter the keystore password to sign the zip file...
+	call %JARSIGNER% -keystore %KEYSTORE% %DIR%/%FILENAME% %ALIAS% -signedJar %DIR%signed%FILENAME%
+=======
 
 if "%CQL%"=="" (
     echo Calling client with command:  catalog:dump --include-content %FILENAME% %DIR%
@@ -65,10 +97,14 @@ if %ERRORLEVEL% NEQ 0 (
 ) else (
     echo Running %JARSIGNER% on %FILENAME%, which will prompt you to enter the keystore password to sign the zip file...
     call %JARSIGNER% -keystore %KEYSTORE% %DIR%/%FILENAME% %ALIAS% -signedJar %DIR%signed%FILENAME%
+>>>>>>> master
 )
 goto :eof
 
 :USAGE
+<<<<<<< HEAD
+echo Usage: ^<-d directory^> ^<-z zipname^> ^<-k keystore location^> [-a alias] [-h hostname]
+=======
 echo SYNTAX
 echo    ^<-d directory^> ^<-z zipname^> ^<-k keystore location^> [-a alias] [-h hostname] [-c cql-expr]
 
@@ -88,3 +124,4 @@ echo                   CQL Examples:
 echo                   {Textual}  -c "title like 'some text'"
 echo                   {Temporal} -c "modified before 2012-09-01T12:30:00Z"
 echo                   {Spatial}  -c "DWITHIN(location, POINT (1 2) , 10, kilometers)"
+>>>>>>> master

@@ -19,7 +19,11 @@
     <parent>
         <groupId>ddf.ui.search</groupId>
         <artifactId>search-ui</artifactId>
+<<<<<<< HEAD
+        <version>2.9.4</version>
+=======
         <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <artifactId>standard</artifactId>
     <name>DDF :: UI :: Search UI :: Standard Search</name>
@@ -196,10 +200,127 @@
                             !com.sun.management,
                             *
                         </Import-Package>
-                        <Export-Package/>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>
+<<<<<<< HEAD
+            <!-- After the doc directory is more consistent across all repositories
+                 there should not be a need for the gem-maven-plugin and
+                 maven-antrun-plugin in this pom file to generate docs -->
+            <plugin>
+                <groupId>de.saumya.mojo</groupId>
+                <artifactId>gem-maven-plugin</artifactId>
+                <version>1.0.5</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>1.5.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-pdf</artifactId>
+                        <version>1.5.0-alpha.6</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>generate-help-html</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/doc</sourceDirectory>
+                            <outputDirectory>target/webapp</outputDirectory>
+                            <backend>html</backend>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-help-pdf</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/doc</sourceDirectory>
+                            <outputDirectory>target/webapp</outputDirectory>
+                            <backend>pdf</backend>
+                            <attributes>
+                                <pagenums />
+                                <toc />
+                                <idprefix />
+                                <idseparator>-</idseparator>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>include-help-adocs</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptor>${project.basedir}/src/assembly/asciidocs.xml</descriptor>
+                            <outputDirectory>${project.build.directory}/adoc-files
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>include-help-images</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptor>${project.basedir}/src/assembly/images.xml</descriptor>
+                            <outputDirectory>${project.build.directory}/images
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>attach-help-page</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/webapp/help.html</file>
+                                    <type>html</type>
+                                    <classifier>Help</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/webapp/help.pdf</file>
+                                    <type>pdf</type>
+                                    <classifier>Help</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+=======
+>>>>>>> master
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

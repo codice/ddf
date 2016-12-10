@@ -23,10 +23,13 @@
 |ddf.catalog.CatalogFrameworkImpl
 |Configure settings for product retrieval through Catalog Standard Framework
 
+<<<<<<< HEAD
+=======
 |<<expiration_date_pre-ingest_plugin, Expiration Date Pre-Ingest Plugin>>
 |org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin
 |Configure settings for the expiration date pre-ingest plugin
 
+>>>>>>> master
 |<<metacard_attribute_security_policy_plugin, Metacard Attribute Security Policy Plugin>>
 |org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin
 |Configure settings for Metacard security attributes.
@@ -258,6 +261,8 @@
 
 |===
 
+<<<<<<< HEAD
+=======
 .[[expiration_date_pre-ingest_plugin]]Expiration Date Pre-Ingest Plugin
 [cols="1,1m,1,2,1,1" options="header"]
 |===
@@ -291,6 +296,7 @@
 
 |===
 
+>>>>>>> master
 .[[metacard_attribute_security_policy_plugin]]Metacard Attribute Security Policy Plugin
 [cols="1,1m,1,2,1,1" options="header"]
 |===

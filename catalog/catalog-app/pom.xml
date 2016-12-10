@@ -12,14 +12,22 @@
  *
  **/
 -->
+<<<<<<< HEAD
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+=======
 <project
     xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+>>>>>>> master
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.catalog</groupId>
         <artifactId>catalog</artifactId>
+<<<<<<< HEAD
+        <version>2.9.4</version>
+=======
         <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <artifactId>catalog-app</artifactId>
     <packaging>pom</packaging>
@@ -461,22 +469,28 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+<<<<<<< HEAD
+=======
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-injectattribute</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
+>>>>>>> master
             <groupId>org.codice.ddf.validator</groupId>
             <artifactId>catalog-validator-metacardduplication</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
+<<<<<<< HEAD
+=======
             <artifactId>catalog-transformer-overlay</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
+>>>>>>> master
             <artifactId>catalog-transformer-attribute</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -486,16 +500,23 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+<<<<<<< HEAD
+=======
             <groupId>ddf.catalog</groupId>
             <artifactId>ftp</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
+>>>>>>> master
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-tagsfilterplugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
+<<<<<<< HEAD
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-content-uri</artifactId>
+=======
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-expirationdate</artifactId>
             <version>${project.version}</version>
@@ -528,6 +549,7 @@
         <dependency>
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-metacardingest-network</artifactId>
+>>>>>>> master
             <version>${project.version}</version>
         </dependency>
     </dependencies>

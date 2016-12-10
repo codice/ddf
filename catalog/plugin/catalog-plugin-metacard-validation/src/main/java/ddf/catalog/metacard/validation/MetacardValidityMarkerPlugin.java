@@ -13,6 +13,9 @@
  */
 package ddf.catalog.metacard.validation;
 
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +35,10 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.types.Validation;
+>>>>>>> master
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.UpdateRequest;
@@ -53,15 +59,52 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
     private final Predicate<Object> didNotFailEnforcedValidator = Objects::nonNull;
+<<<<<<< HEAD
+=======
 
     static final String INVALID_TAG = "INVALID";
 
     static final String VALID_TAG = "VALID";
+>>>>>>> master
 
     private List<String> enforcedMetacardValidators;
 
     private List<MetacardValidator> metacardValidators;
 
+<<<<<<< HEAD
+    @Override
+    public CreateRequest process(CreateRequest input)
+            throws PluginExecutionException, StopProcessingException {
+        List<Metacard> validatedMetacards = validateList(input.getMetacards(), Function.identity());
+        return new CreateRequestImpl(validatedMetacards,
+                input.getProperties(),
+                input.getStoreIds());
+    }
+
+    @Override
+    public UpdateRequest process(UpdateRequest input)
+            throws PluginExecutionException, StopProcessingException {
+        List<Map.Entry<Serializable, Metacard>> validatedUpdates = validateList(input.getUpdates(),
+                Map.Entry::getValue);
+        return new UpdateRequestImpl(validatedUpdates,
+                input.getAttributeName(),
+                input.getProperties(),
+                input.getStoreIds());
+    }
+
+    private <T> List<T> validateList(List<T> requestItems, Function<T, Metacard> itemToMetacard) {
+        Map<String, Integer> counter = new HashMap<>();
+
+        List<T> validated = requestItems.stream()
+                .map(item -> validate(item, itemToMetacard, counter))
+                .filter(didNotFailEnforcedValidator)
+                .collect(Collectors.toList());
+
+        INGEST_LOGGER.info("Validation results: {} had warnings and {} had errors.",
+                counter.getOrDefault(VALIDATION_WARNINGS, 0),
+                counter.getOrDefault(VALIDATION_ERRORS, 0));
+
+=======
     private boolean enforceErrors = true;
 
     private boolean enforceWarnings = true;
@@ -98,6 +141,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 counter.getOrDefault(Validation.VALIDATION_WARNINGS, 0),
                 counter.getOrDefault(Validation.VALIDATION_ERRORS, 0));
 
+>>>>>>> master
         return validated;
     }
 
@@ -105,6 +149,10 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             Map<String, Integer> counter) {
         Set<String> errors = new HashSet<>();
         Set<String> warnings = new HashSet<>();
+<<<<<<< HEAD
+
+        Metacard metacard = itemToMetacard.apply(item);
+=======
         Set<String> errorValidators = new HashSet<>();
         Set<String> warningValidators = new HashSet<>();
 
@@ -115,11 +163,17 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
 
         String valid = VALID_TAG;
 
+>>>>>>> master
         for (MetacardValidator validator : metacardValidators) {
             try {
                 validator.validate(metacard);
             } catch (ValidationException e) {
                 String validatorName = getValidatorName(validator);
+<<<<<<< HEAD
+
+                if (isValidatorEnforced(validatorName)) {
+                    INGEST_LOGGER.info(
+=======
                 boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
                 boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
                 valid = INVALID_TAG;
@@ -128,11 +182,15 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                         || isValidatorEnforced(validatorName) && validationWarningsExist
                         && enforceWarnings) {
                     INGEST_LOGGER.debug(
+>>>>>>> master
                             "The metacard with id={} is being removed from the operation because it failed the enforced validator [{}].",
                             metacard.getId(),
                             validatorName);
                     return null;
                 } else {
+<<<<<<< HEAD
+                    getValidationProblems(validatorName, e, errors, warnings, counter);
+=======
                     getValidationProblems(validatorName,
                             e,
                             errors,
@@ -140,10 +198,17 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                             errorValidators,
                             warningValidators,
                             counter);
+>>>>>>> master
                 }
             }
         }
 
+<<<<<<< HEAD
+        metacard.setAttribute(new AttributeImpl(VALIDATION_ERRORS,
+                (List<Serializable>) new ArrayList<Serializable>(errors)));
+        metacard.setAttribute(new AttributeImpl(VALIDATION_WARNINGS,
+                (List<Serializable>) new ArrayList<Serializable>(warnings)));
+=======
         tags.add(valid);
         metacard.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
 
@@ -155,18 +220,33 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 (List<Serializable>) new ArrayList<Serializable>(warningValidators)));
         metacard.setAttribute(new AttributeImpl(Validation.FAILED_VALIDATORS_ERRORS,
                 (List<Serializable>) new ArrayList<Serializable>(errorValidators)));
+>>>>>>> master
 
         return item;
     }
 
     private void getValidationProblems(String validatorName, ValidationException e,
+<<<<<<< HEAD
+            Set<String> errors, Set<String> warnings, Map<String, Integer> counter) {
+=======
             Set<String> errors, Set<String> warnings, Set<String> errorValidators,
             Set<String> warningValidators, Map<String, Integer> counter) {
+>>>>>>> master
         boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
         boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
         if (validationErrorsExist || validationWarningsExist) {
             if (validationErrorsExist) {
                 errors.addAll(e.getErrors());
+<<<<<<< HEAD
+                counter.merge(VALIDATION_ERRORS, 1, Integer::sum);
+            }
+            if (validationWarningsExist) {
+                warnings.addAll(e.getWarnings());
+                counter.merge(VALIDATION_WARNINGS, 1, Integer::sum);
+            }
+        } else {
+            LOGGER.warn(
+=======
                 errorValidators.add(validatorName);
                 counter.merge(Validation.VALIDATION_ERRORS, 1, Integer::sum);
             }
@@ -177,6 +257,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             }
         } else {
             LOGGER.debug(
+>>>>>>> master
                     "Metacard validator {} did not have any warnings or errors but it threw a validation exception."
                             + " There is likely something wrong with your implementation. This will result in the metacard not"
                             + " being properly marked as invalid.",
@@ -198,12 +279,33 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
         this.enforcedMetacardValidators = enforcedMetacardValidators;
     }
 
+<<<<<<< HEAD
+    public List<String> getEnforcedMetacardValidators() {
+        return enforcedMetacardValidators;
+=======
     public List<MetacardValidator> getMetacardValidators() {
         return metacardValidators;
+>>>>>>> master
     }
 
     public void setMetacardValidators(List<MetacardValidator> metacardValidators) {
         this.metacardValidators = metacardValidators;
+<<<<<<< HEAD
+
+        List<String> validatorsNoDescribable = metacardValidators.stream()
+                .filter(validator -> !(validator instanceof Describable))
+                .map(this::getValidatorName)
+                .collect(Collectors.toList());
+
+        if (validatorsNoDescribable.size() > 0) {
+            LOGGER.warn("Metacard validators SHOULD implement Describable. Validators in error: {}",
+                    validatorsNoDescribable);
+        }
+    }
+
+    public List<MetacardValidator> getMetacardValidators() {
+        return metacardValidators;
+=======
 
         List<String> validatorsNoDescribable = metacardValidators.stream()
                 .filter(validator -> !(validator instanceof Describable))
@@ -214,6 +316,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             LOGGER.debug("Metacard validators SHOULD implement Describable. Validators in error: {}",
                     validatorsNoDescribable);
         }
+>>>>>>> master
     }
 
     private boolean isValidatorEnforced(String validatorName) {

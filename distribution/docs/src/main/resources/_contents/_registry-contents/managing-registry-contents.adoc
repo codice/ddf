@@ -16,7 +16,10 @@ To use the ${ddf-registry}, the following apps/features must be installed:
 
 === Configuring ${ddf-registry}
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> master
 .Registry Configuration Tab
 [cols="1,1m,1" options="header"]
 |===
@@ -223,6 +226,8 @@ To use the ${ddf-registry}, the following apps/features must be installed:
 
 |===
 
+<<<<<<< HEAD
+=======
 === Customizing ${ddf-registry} Fields
 
 All the fields that appear in a registry node are customizable. This is done through a JSON configuration file located at ``<${branding}_HOME>/etc/registry/registry-custom-slots.json`` that defines the registry fields. In this file there are JSON objects that relate to each part of the edit registry modal.
@@ -295,6 +300,7 @@ Each of the objects listed above is a JSON array of field objects that can be mo
 |===
 
 
+>>>>>>> master
 === Using ${ddf-registry}
 
 The *Local Registry Nodes* and *Remote Registries* tabs appear in both the ${ddf-registry} application and the ${ddf-catalog} application.

@@ -44,9 +44,15 @@ define([
         RegistryView.RegistryPage = Marionette.Layout.extend({
             template: 'registryPage',
             events: {
+<<<<<<< HEAD
+                'click .add-node-link' : 'showAddNode',
+                'click .refresh-button' : 'addDeleteNode',
+                'click .regenerate-sources' : 'regenerateSources'
+=======
                 'click .add-node-link': 'showAddNode',
                 'click .refresh-button': 'addDeleteNode',
                 'click .regenerate-sources': 'regenerateSources'
+>>>>>>> master
             },
             modelEvents: {
                 "add": "render",
@@ -78,7 +84,11 @@ define([
                     $('.regenerate-sources').prop("disabled",true);
                 }
             },
+<<<<<<< HEAD
+            showEditNode: function(node) {
+=======
             showEditNode: function (node) {
+>>>>>>> master
                 wreqr.vent.trigger("showModal",
                     new NodeModal.View({
                         model: node,
@@ -86,8 +96,13 @@ define([
                     })
                 );
             },
+<<<<<<< HEAD
+            showAddNode: function() {
+                if(this.model) {
+=======
             showAddNode: function () {
                 if (this.model) {
+>>>>>>> master
                     wreqr.vent.trigger("showModal",
                         new NodeModal.View({
                             model: new Node.Model(),
@@ -96,8 +111,13 @@ define([
                     );
                 }
             },
+<<<<<<< HEAD
+            showReadOnlyNode: function(node) {
+                if(this.model) {
+=======
             showReadOnlyNode: function (node) {
                 if (this.model) {
+>>>>>>> master
                     wreqr.vent.trigger("showModal",
                         new NodeModal.View({
                             model: node,
@@ -110,7 +130,11 @@ define([
             addDeleteNode: function () {
                 var view = this;
                 var button = view.$('.refresh-button');
+<<<<<<< HEAD
+                if(!button.hasClass('fa-spin')) {
+=======
                 if (!button.hasClass('fa-spin')) {
+>>>>>>> master
                     button.addClass('fa-spin');
                 }
                 this.model.fetch({
@@ -120,7 +144,11 @@ define([
                     }
                 });
             },
+<<<<<<< HEAD
+            fetchComplete: function(view){
+=======
             fetchComplete: function (view) {
+>>>>>>> master
                 var button = view.$('.refresh-button');
                 button.removeClass('fa-spin');
                 view.render();
@@ -146,7 +174,11 @@ define([
                 this.application = options.application;
                 this.listenTo(wreqr.vent, "showModal", this.showModal);
             },
+<<<<<<< HEAD
+            showModal: function(modalView) {
+=======
             showModal: function (modalView) {
+>>>>>>> master
 
                 var region = this.application.getRegion('modalRegion');
                 var iFrameModalDOM = $('#IframeModalDOM');
@@ -169,15 +201,26 @@ define([
         });
 
 
+<<<<<<< HEAD
+        RegistryView.NodeRow= Marionette.ItemView.extend({
+=======
         RegistryView.NodeRow = Marionette.ItemView.extend({
+>>>>>>> master
             template: "nodeRow",
             tagName: "tr",
             className: "highlight-on-hover",
             events: {
+<<<<<<< HEAD
+                'click td' : 'editNode',
+                'click .remove-node-link': 'removeNode'
+            },
+            editNode: function(evt) {
+=======
                 'click td': 'editNode',
                 'click .remove-node-link': 'removeNode'
             },
             editNode: function (evt) {
+>>>>>>> master
                 evt.stopPropagation();
                 var node = this.model;
                 if (this.options.readOnly) {
@@ -186,6 +229,16 @@ define([
                     wreqr.vent.trigger('editNode', node);
                 }
             },
+<<<<<<< HEAD
+            removeNode: function(evt) {
+                evt.stopPropagation();
+                wreqr.vent.trigger('deleteNodes', this.model);
+            },
+            serializeData: function(){
+                var data = {};
+
+                if(this.model) {
+=======
             removeNode: function (evt) {
                 evt.stopPropagation();
                 wreqr.vent.trigger('deleteNodes', this.model);
@@ -194,11 +247,16 @@ define([
                 var data = {};
 
                 if (this.model) {
+>>>>>>> master
                     data = this.model.toJSON();
                 }
 
                 var extrinsicData = this.model.getObjectOfType('urn:registry:federation:node');
+<<<<<<< HEAD
+                if(extrinsicData.length === 1) {
+=======
                 if (extrinsicData.length === 1) {
+>>>>>>> master
                     data.name = extrinsicData[0].Name;
                     data.slots = extrinsicData[0].Slot;
                     data.slots.forEach(function (slotValue) {
@@ -220,10 +278,17 @@ define([
             template: 'nodeList',
             itemView: RegistryView.NodeRow,
             itemViewContainer: 'tbody',
+<<<<<<< HEAD
+            serializeData: function(){
+                var data = {};
+
+                if(this.model) {
+=======
             serializeData: function () {
                 var data = {};
 
                 if (this.model) {
+>>>>>>> master
                     data = this.model.toJSON();
                 }
                 data.multiValued = this.options.multiValued;

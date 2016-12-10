@@ -8,6 +8,13 @@
 # See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
 # <http://www.gnu.org/licenses/lgpl.html>.
 
+<<<<<<< HEAD
+usage() { echo "Usage: $0 <-d directory> <-z zipname> <-k keystore location> [-a alias]" 1>&2; exit 1; }
+
+JARSIGNER='jarsigner'
+
+while getopts ":d:z:k:a:" o; do
+=======
 usage() {
 	echo "SYNTAX ";
 	echo "\t$0 <-d directory> <-z zipname> <-k keystore> [-a alias] [-c cql-expr]" 1>&2;
@@ -38,6 +45,7 @@ usage() {
 JARSIGNER='jarsigner'
 
 while getopts "d:z:k:a:c:" o; do
+>>>>>>> master
     case "${o}" in
         d)
             d=${OPTARG}
@@ -51,9 +59,12 @@ while getopts "d:z:k:a:c:" o; do
         a)
             a=${OPTARG}
             ;;
+<<<<<<< HEAD
+=======
         c)
             c=${OPTARG}
             ;;
+>>>>>>> master
         *)
             usage
             ;;
@@ -70,6 +81,12 @@ if [ -z "${d}" ] || [ -z "${z}" ] || [ -z "${k}" ]; then
 fi
 
 echo "Connecting to running DDF and exporting catalog to ${z}..."
+<<<<<<< HEAD
+./client "catalog:dump --include-content=${z} ${d}"
+if which ${JARSIGNER} >/dev/null; then
+        echo "Running  ${JARSIGNER} on ${z}, which will prompt you to enter the keystore password to sign the zip file..."
+         ${JARSIGNER} -keystore ${k} ${d}/${z} ${a}
+=======
 
 if [ -z "${c}" ]; then
     echo Executing command: ./client catalog:dump --include-content ${z} ${d}
@@ -82,6 +99,7 @@ fi
 if which ${JARSIGNER} >/dev/null; then
     echo "Running  ${JARSIGNER} on ${z}, which will prompt you to enter the keystore password to sign the zip file..."
     ${JARSIGNER} -keystore ${k} ${d}/${z} ${a}
+>>>>>>> master
 else
     echo "Unable to find ${JARSIGNER}, ensure that $JAVA_HOME and $JAVA_HOME/bin are set on the path."
     exit 1

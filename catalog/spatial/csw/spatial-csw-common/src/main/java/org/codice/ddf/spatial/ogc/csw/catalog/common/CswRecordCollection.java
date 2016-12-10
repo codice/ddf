@@ -199,11 +199,19 @@ public class CswRecordCollection {
         return resource;
     }
 
+<<<<<<< HEAD
+    public void setResourceProperties(Map<String, Serializable> resourceProperties){
+        this.resourceProperties = resourceProperties;
+    }
+
+    public Map<String, Serializable> getResourceProperties(){
+=======
     public void setResourceProperties(Map<String, Serializable> resourceProperties) {
         this.resourceProperties = resourceProperties;
     }
 
     public Map<String, Serializable> getResourceProperties() {
+>>>>>>> master
         return this.resourceProperties;
     }
 }

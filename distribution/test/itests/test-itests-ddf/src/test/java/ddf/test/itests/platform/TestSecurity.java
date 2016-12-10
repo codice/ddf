@@ -47,7 +47,10 @@ import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+<<<<<<< HEAD
+=======
 import java.util.Map;
+>>>>>>> master
 import java.util.TimeZone;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;

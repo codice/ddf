@@ -70,6 +70,12 @@ public class RangeCommand extends CatalogCommands {
         console.printf(formatString, "", "", "", "");
         printHeaderMessage(String.format(formatString, NUMBER, ID, attributeName, TITLE));
 
+<<<<<<< HEAD
+        CatalogFacade catalogProvider = getCatalog();
+        FilterBuilder builder = getFilterBuilder();
+
+=======
+>>>>>>> master
         Filter filter;
 
         Date wayInTheFuture = new DateTime().plusYears(5000)

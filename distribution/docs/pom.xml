@@ -17,13 +17,20 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>distribution</artifactId>
+<<<<<<< HEAD
+        <version>2.9.4</version>
+=======
         <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <artifactId>docs</artifactId>
     <name>DDF DOCS</name>
     <properties>
         <skipTests>true</skipTests>
+<<<<<<< HEAD
+=======
         <ddf.version>${project.version}</ddf.version>
+>>>>>>> master
     </properties>
     <build>
         <plugins>
@@ -250,10 +257,17 @@
                                         </requires>
                                         <!-- WARNING callout bullets don't yet work with CodeRay -->
                                         <attributes>
+<<<<<<< HEAD
+                                            <pagenums />
+                                            <toc />
+                                            <idprefix />
+                                            <idseparator>-</idseparator>
+=======
                                             <pagenums/>
                                             <toc/>
                                             <idprefix>_</idprefix>
                                             <idseparator>_</idseparator>
+>>>>>>> master
                                         </attributes>
                                         <imagesDir>images</imagesDir>
                                     </configuration>

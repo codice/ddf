@@ -52,7 +52,11 @@ import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGeoJsonExtensible {
 
+<<<<<<< HEAD
+    private GeoJsonInputTransformer transformer = new GeoJsonInputTransformer();
+=======
     private GeoJsonInputTransformer transformer;
+>>>>>>> master
 
     public static final String DEFAULT_TITLE = "myTitle";
 
@@ -112,7 +116,11 @@ public class TestGeoJsonExtensible {
 
     private static final String sampleJsonExtensibleA() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
+<<<<<<< HEAD
+                + "        \"multi-string\":[\"foo\", \"bar\"],"
+=======
                 + "        \"multi-string\":[\"foo\", \"bar\"]," + "\"temperature\":\"101.5\","
+>>>>>>> master
                 + "        \"frequency\":\"14000000\"," + "        \"min-frequency\":\"10000000\","
                 + "        \"max-frequency\":\"20000000\"," + "        \"angle\":\"180\","
                 + "        \"id\":\"myId\"," + "        \"metacard-type\":\"MetacardTypeA\""
@@ -212,6 +220,10 @@ public class TestGeoJsonExtensible {
     }
 
     @Before
+<<<<<<< HEAD
+    public void setup() {
+        transformer.setMetacardTypes(prepareMetacardTypes());
+=======
     public void setUp() {
         transformer = new GeoJsonInputTransformer();
         transformer.setMetacardTypes(prepareMetacardTypes());
@@ -225,6 +237,7 @@ public class TestGeoJsonExtensible {
                 DOUBLE_TYPE));
 
         transformer.setAttributeRegistry(attributeRegistry);
+>>>>>>> master
     }
 
     @Test
@@ -417,15 +430,26 @@ public class TestGeoJsonExtensible {
     @Test
     public void testBasicMetacardTypeNoMetacardType()
             throws IOException, CatalogTransformerException, ParseException {
+<<<<<<< HEAD
+        ByteArrayInputStream geoJsonInput =
+                new ByteArrayInputStream(sampleBasicMetacardNoMetacard().getBytes());
+=======
         ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
                 sampleBasicMetacardNoMetacardType().getBytes());
+>>>>>>> master
         Metacard metacard = transformer.transform(geoJsonInput);
 
         verifyBasics(metacard);
     }
 
     private List<MetacardType> prepareMetacardTypes() {
+<<<<<<< HEAD
+        return Arrays.asList(sampleMetacardTypeA(),
+                sampleMetacardTypeB(),
+                BasicTypes.BASIC_METACARD);
+=======
         return Arrays.asList(sampleMetacardTypeA(), sampleMetacardTypeB(), BASIC_METACARD);
+>>>>>>> master
     }
 
     private void verifyBasics(Metacard metacard) throws ParseException {

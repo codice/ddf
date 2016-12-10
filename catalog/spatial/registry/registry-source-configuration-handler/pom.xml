@@ -12,6 +12,13 @@
  *
  **/
 -->
+<<<<<<< HEAD
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>registry</artifactId>
+        <groupId>org.codice.ddf.registry</groupId>
+        <version>2.9.4</version>
+=======
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -19,6 +26,7 @@
         <artifactId>registry</artifactId>
         <groupId>org.codice.ddf.registry</groupId>
         <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -87,7 +95,11 @@
                             !org.codice.ddf.platform.util,
                             *
                         </Import-Package>
+<<<<<<< HEAD
+                        <Export-Package />
+=======
                         <Export-Package/>
+>>>>>>> master
                     </instructions>
                 </configuration>
             </plugin>
@@ -136,4 +148,8 @@
         </plugins>
     </build>
 
+<<<<<<< HEAD
 </project>
+=======
+</project>
+>>>>>>> master

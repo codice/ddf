@@ -14,10 +14,14 @@
 package ddf.catalog.core.resourcestatus.metacard;
 
 import java.util.List;
+<<<<<<< HEAD
+
+=======
 import java.util.Objects;
 import java.util.Optional;
 
 import org.codice.ddf.configuration.SystemInfo;
+>>>>>>> master
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +47,13 @@ public class MetacardResourceStatus implements PostQueryPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardResourceStatus.class);
 
+<<<<<<< HEAD
+=======
     private static final String INTERNAL_LOCAL_RESOURCE = "internal.local-resource";
 
     private static final String LOCAL_CONTENT_SCHEME = "content:";
 
+>>>>>>> master
     private ResourceCacheInterface cache;
 
     public MetacardResourceStatus(ResourceCacheInterface cache) {
@@ -60,12 +67,32 @@ public class MetacardResourceStatus implements PostQueryPlugin {
 
         results.stream()
                 .map(Result::getMetacard)
+<<<<<<< HEAD
+                .filter(metacard -> metacard != null)
+                .forEach(this::addResourceCachedAttribute);
+=======
                 .filter(Objects::nonNull)
                 .forEach(this::addResourceLocalAttribute);
+>>>>>>> master
 
         return input;
     }
 
+<<<<<<< HEAD
+    private void addResourceCachedAttribute(Metacard metacard) {
+        metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_CACHE_STATUS,
+                isResourceCached(metacard, new ResourceRequestById(metacard.getId()))));
+    }
+
+    private boolean isResourceCached(Metacard metacard, ResourceRequest resourceRequest) {
+        String key = getCacheKey(metacard, resourceRequest);
+
+        ReliableResource cachedResource = (ReliableResource) cache.getValid(key, metacard);
+        if (cachedResource != null) {
+            return true;
+        }
+        return false;
+=======
     private void addResourceLocalAttribute(Metacard metacard) {
         boolean isResourceLocal = false;
         if (!hasResourceUri(metacard)) {
@@ -113,15 +140,19 @@ public class MetacardResourceStatus implements PostQueryPlugin {
                     metacard.getId());
             return false;
         }
+>>>>>>> master
     }
 
     private String getCacheKey(Metacard metacard, ResourceRequest resourceRequest) {
         CacheKey cacheKey = new CacheKey(metacard, resourceRequest);
         return cacheKey.generateKey();
     }
+<<<<<<< HEAD
+=======
 
     String getLocalSiteName() {
         return SystemInfo.getSiteName()
                 .toLowerCase();
     }
+>>>>>>> master
 }

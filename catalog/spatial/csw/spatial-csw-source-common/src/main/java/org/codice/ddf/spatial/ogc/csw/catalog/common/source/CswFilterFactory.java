@@ -193,6 +193,10 @@ public class CswFilterFactory {
 
     public FilterType buildPropertyIsLikeFilter(String propertyName, Object literal,
             boolean isCaseSensitive) {
+<<<<<<< HEAD
+        FilterType filter = new FilterType();
+        filter.setComparisonOps(createPropertyIsLike(propertyName, literal, isCaseSensitive));
+=======
         FilterType filter = new FilterType();
         filter.setComparisonOps(createPropertyIsLike(propertyName, literal, isCaseSensitive));
         return filter;
@@ -201,6 +205,7 @@ public class CswFilterFactory {
     public FilterType buildPropertyIsFuzzyFilter(String propertyName, Object literal) {
         FilterType filter = new FilterType();
         filter.setComparisonOps(createPropertyIsFuzzy(propertyName, literal));
+>>>>>>> master
         return filter;
     }
 

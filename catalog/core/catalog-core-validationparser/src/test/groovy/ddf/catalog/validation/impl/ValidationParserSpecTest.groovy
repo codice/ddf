@@ -1,5 +1,15 @@
 package ddf.catalog.validation.impl
 
+<<<<<<< HEAD
+import static org.mockito.Mockito.when
+import static org.powermock.api.mockito.PowerMockito.mockStatic
+
+import ddf.catalog.data.AttributeRegistry
+import ddf.catalog.data.DefaultAttributeValueRegistry
+import ddf.catalog.data.MetacardType
+import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
+import ddf.catalog.data.impl.AttributeRegistryImpl
+=======
 import ddf.catalog.data.AttributeRegistry
 import ddf.catalog.data.DefaultAttributeValueRegistry
 import ddf.catalog.data.InjectableAttribute
@@ -10,6 +20,7 @@ import ddf.catalog.data.impl.AttributeRegistryImpl
 import ddf.catalog.data.impl.BasicTypes
 import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.CoreAttributes
+>>>>>>> master
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
 import org.junit.Rule
@@ -17,7 +28,10 @@ import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.FrameworkUtil
+<<<<<<< HEAD
+=======
 import org.osgi.framework.ServiceRegistration
+>>>>>>> master
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.rule.PowerMockRule
 import spock.lang.Specification
@@ -25,9 +39,12 @@ import spock.lang.Specification
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
+<<<<<<< HEAD
+=======
 import static org.mockito.Mockito.when
 import static org.powermock.api.mockito.PowerMockito.mockStatic
 
+>>>>>>> master
 @PrepareForTest(FrameworkUtil.class)
 class ValidationParserSpecTest extends Specification {
     @Rule
@@ -51,6 +68,11 @@ class ValidationParserSpecTest extends Specification {
 
         attributeValidatorRegistry = new AttributeValidatorRegistryImpl()
 
+<<<<<<< HEAD
+        defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
+
+        validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry, defaultAttributeValueRegistry)
+=======
         attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", Arrays.asList(new CoreAttributes())))
 
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
@@ -58,11 +80,16 @@ class ValidationParserSpecTest extends Specification {
         validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry,
                 defaultAttributeValueRegistry)
 
+>>>>>>> master
 
         file = temporaryFolder.newFile("temp.json")
     }
 
+<<<<<<< HEAD
+    def "Test Blank File"() {
+=======
     def "test blank file"() {
+>>>>>>> master
         when: "Blank file installed should be noop"
         validationParser.install(file)
 
@@ -92,11 +119,40 @@ class ValidationParserSpecTest extends Specification {
         thrown(IllegalArgumentException)
     }
 
+<<<<<<< HEAD
+    def "test valid file"() {
+=======
     def "test valid file install then uninstall"() {
+>>>>>>> master
         setup:
         file.withPrintWriter { it.write(valid) }
 
         mockStatic(FrameworkUtil.class)
+<<<<<<< HEAD
+        Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        when:
+        validationParser.install(file)
+
+        then:
+        attributeRegistry.getAttributeDescriptor("cool-attribute").isPresent()
+        attributeRegistry.getAttributeDescriptor("geospatial-goodness").isPresent()
+
+        def validators = attributeValidatorRegistry.getValidators("cool-attribute")
+        validators.size() == 2
+
+        1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
+            it.get("name") == "my-metacard-type"
+        })
+        1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
+            it.get("name") == "another-useful-type"
+        })
+        1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, null)
+=======
         def Bundle mockBundle = Mock(Bundle)
         when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
 
@@ -289,6 +345,7 @@ class ValidationParserSpecTest extends Specification {
         1 * mockBundleContext.registerService(InjectableAttribute.class, {
             it.attribute() == updatedAttribute2Name
         }, null)
+>>>>>>> master
     }
 
     def "test default values"() {
@@ -346,6 +403,10 @@ class ValidationParserSpecTest extends Specification {
 
         then:
         thrown(IllegalArgumentException)
+<<<<<<< HEAD
+        attributeRegistry.getAttributeDescriptor("cool-attribute").isPresent()
+        attributeValidatorRegistry.getValidators("cool-attribute").size() == 0
+=======
         attributeRegistry.lookup("attribute1").isPresent()
         attributeValidatorRegistry.getValidators("attribute1").size() == 0
     }
@@ -409,49 +470,90 @@ class ValidationParserSpecTest extends Specification {
             it == new MetacardTypeImpl(type2Name, BasicTypes.BASIC_METACARD,
                     [expectedAttribute1] as Set)
         }, { it.get("name") == type2Name })
+>>>>>>> master
     }
 
     String valid = '''
 {
     "metacardTypes": [
         {
+<<<<<<< HEAD
+            "type": "my-metacard-type",
+            "attributes": {
+                "cool-attribute": {
+                    "required": true
+                },
+                "geospatial-goodness": {
+=======
             "type": "type1",
             "attributes": {
                 "attribute1": {
                     "required": true
                 },
                 "attribute2": {
+>>>>>>> master
                     "required": false
                 }
             }
         },
         {
+<<<<<<< HEAD
+            "type": "another-useful-type",
+            "attributes": {
+                "cool-attribute": {
+                    "required": false
+                },
+                "useful-attribute": {
+=======
             "type": "type2",
             "attributes": {
                 "attribute1": {
+>>>>>>> master
                     "required": false
                 }
             }
         }
     ],
     "attributeTypes": {
+<<<<<<< HEAD
+        "cool-attribute": {
+=======
         "attribute1": {
+>>>>>>> master
             "type": "STRING_TYPE",
             "stored": true,
             "indexed": true,
             "tokenized": false,
             "multivalued": false
         },
+<<<<<<< HEAD
+        "geospatial-goodness": {
+=======
         "attribute2": {
+>>>>>>> master
             "type": "XML_TYPE",
             "stored": true,
             "indexed": true,
             "tokenized": false,
             "multivalued": true
+<<<<<<< HEAD
+        },
+        "useful-attribute": {
+            "type": "BOOLEAN_TYPE",
+            "stored": true,
+            "indexed": false,
+            "tokenized": true,
+            "multivalued": false
+        }
+    },
+    "validators": {
+        "cool-attribute": [
+=======
         }
     },
     "validators": {
         "attribute1": [
+>>>>>>> master
             {
                 "validator": "size",
                 "arguments": ["0", "128"]
@@ -459,6 +561,11 @@ class ValidationParserSpecTest extends Specification {
             {
                 "validator": "pattern",
                 "arguments": ["(hi)+\\d"]
+<<<<<<< HEAD
+            }
+        ]
+    }
+=======
             },
             {
                 "validator": "iso3_country",
@@ -488,6 +595,7 @@ class ValidationParserSpecTest extends Specification {
             "metacardTypes": ["other.type.1", "other.type.2"]
         }
     ]
+>>>>>>> master
 }
 '''
 
@@ -591,6 +699,11 @@ class ValidationParserSpecTest extends Specification {
             }
         ]
     }
+<<<<<<< HEAD
+}'''
+
+=======
 }
 '''
+>>>>>>> master
 }

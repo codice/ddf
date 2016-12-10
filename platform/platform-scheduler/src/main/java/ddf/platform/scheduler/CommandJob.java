@@ -64,7 +64,11 @@ public class CommandJob implements Job {
                     return null;
                 });
             } else {
+<<<<<<< HEAD
+                LOGGER.warn("Could not execute command. Could not get subject to run command");
+=======
                 LOGGER.debug("Could not execute command. Could not get subject to run command");
+>>>>>>> master
             }
 
             return null;
@@ -78,6 +82,10 @@ public class CommandJob implements Job {
     protected SessionFactory getSessionFactory() {
         BundleContext bundleContext = getBundle().getBundleContext();
         if (bundleContext == null) {
+<<<<<<< HEAD
+            LOGGER.warn("unable to get the bundle context");
+=======
+>>>>>>> master
             return null;
         }
         return bundleContext.getService(bundleContext.getServiceReference(SessionFactory.class));
@@ -89,14 +97,22 @@ public class CommandJob implements Job {
         try {
             commandInput = checkInput(context);
         } catch (CommandException e) {
+<<<<<<< HEAD
+            LOGGER.warn("unable to get command from job execution context", e);
+=======
             LOGGER.debug("unable to get command from job execution context", e);
+>>>>>>> master
             return;
         }
 
         SessionFactory sessionFactory = getSessionFactory();
 
         if (sessionFactory == null) {
+<<<<<<< HEAD
+            LOGGER.warn("unable to create session factory: command=[{}]", commandInput);
+=======
             LOGGER.debug("unable to create session factory: command=[{}]", commandInput);
+>>>>>>> master
             return;
         }
 
@@ -108,15 +124,25 @@ public class CommandJob implements Job {
             session = sessionFactory.create(null, output, output);
 
             if (session == null) {
+<<<<<<< HEAD
+                LOGGER.warn("unable to create session: command=[{}]", commandInput);
+=======
                 LOGGER.debug("unable to create session: command=[{}]", commandInput);
+>>>>>>> master
                 return;
             }
 
             if (commandInput != null) {
                 try {
+<<<<<<< HEAD
+                    LOGGER.info("Executing command [{}]", commandInput);
+                    session.execute(commandInput);
+                    LOGGER.info("Execution Output: {}",
+=======
                     LOGGER.trace("Executing command [{}]", commandInput);
                     session.execute(commandInput);
                     LOGGER.trace("Execution Output: {}",
+>>>>>>> master
                             byteArrayOutputStream.toString(StandardCharsets.UTF_8.name()));
                 } catch (CommandNotFoundException e) {
                     LOGGER.info(

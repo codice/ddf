@@ -51,6 +51,21 @@ public class GeoNamesWebService implements GeoCoder {
 
     //geonames requires an application username, this is the default name for DDF
     private static final String USERNAME = "ddf_ui";
+<<<<<<< HEAD
+
+    private static final String GEONAMES_API_ADDRESS = "api.geonames.org";
+
+    private static final String GEONAMES_PROTOCOL = "http";
+
+    private static final String GEONAMES_KEY = "geonames";
+
+    private static final String LAT_KEY = "lat";
+
+    private static final String LON_KEY = "lng";
+
+    private static final String POPULATION_KEY = "population";
+
+=======
 
     private static final String GEONAMES_API_ADDRESS = "api.geonames.org";
 
@@ -66,6 +81,7 @@ public class GeoNamesWebService implements GeoCoder {
 
     private static final String POPULATION_KEY = "population";
 
+>>>>>>> master
     private static final String ADMIN_CODE_KEY = "fcode";
 
     private static final String PLACENAME_KEY = "name";

@@ -103,10 +103,17 @@ public class EncryptionServiceImpl implements EncryptionService {
         String encryptedValue = unwrapEncryptedValue(wrappedEncryptedValue);
 
         if (wrappedEncryptedValue == null) {
+<<<<<<< HEAD
+            LOGGER.error("A null password was provided.");
+            decryptedValue = null;
+        } else if (wrappedEncryptedValue.isEmpty()) {
+            LOGGER.warn("A blank password was provided in the configuration.");
+=======
             LOGGER.debug("A null password was provided.");
             decryptedValue = null;
         } else if (wrappedEncryptedValue.isEmpty()) {
             LOGGER.debug("A blank password was provided in the configuration.");
+>>>>>>> master
             decryptedValue = "";
         } else if (!wrappedEncryptedValue.equals(encryptedValue)) {
             LOGGER.debug("Unwrapped encrypted password is now being decrypted");

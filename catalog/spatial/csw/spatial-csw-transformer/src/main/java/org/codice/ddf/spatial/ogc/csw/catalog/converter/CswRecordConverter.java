@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -78,6 +78,12 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     private XStream xstream;
 
+<<<<<<< HEAD
+    private static XMLInputFactory factory = XMLInputFactory.newInstance();
+
+    public CswRecordConverter() {
+
+=======
     private static XMLInputFactory factory;
 
     private static MetacardType metacardType;
@@ -91,6 +97,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     }
 
     public CswRecordConverter(MetacardType metacardType) {
+>>>>>>> master
         xstream = new XStream(new Xpp3Driver());
         xstream.setClassLoader(this.getClass()
                 .getClassLoader());
@@ -235,7 +242,11 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                                 && StringUtils.equals(CswConstants.CSW_OUTPUT_SCHEMA,
                                 name.getNamespaceURI())) {
                             return new BinaryContentImpl(IOUtils.toInputStream(metacard.getMetadata()),
+<<<<<<< HEAD
+                                    new MimeType());
+=======
                                     XML_MIME_TYPE);
+>>>>>>> master
                         }
                     }
                 }

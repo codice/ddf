@@ -67,8 +67,11 @@ public class GeoJsonInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonInputTransformer.class);
 
     private List<MetacardType> metacardTypes;
+<<<<<<< HEAD
+=======
 
     private AttributeRegistry attributeRegistry;
+>>>>>>> master
 
     /**
      * Transforms GeoJson (http://www.geojson.org/) into a {@link Metacard}
@@ -103,9 +106,15 @@ public class GeoJsonInputTransformer implements InputTransformer {
         }
 
         final String propertyTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
+<<<<<<< HEAD
+        MetacardImpl metacard = null;
+
+        if (propertyTypeName == null || propertyTypeName.isEmpty() || metacardTypes == null) {
+=======
         MetacardImpl metacard;
 
         if (isEmpty(propertyTypeName) || metacardTypes == null) {
+>>>>>>> master
             LOGGER.debug(
                     "MetacardType specified in input is null or empty.  Assuming default MetacardType");
             metacard = new MetacardImpl();
@@ -123,6 +132,10 @@ public class GeoJsonInputTransformer implements InputTransformer {
         }
 
         MetacardType metacardType = metacard.getMetacardType();
+<<<<<<< HEAD
+        String metacardTypeName = metacardType.getName();
+=======
+>>>>>>> master
         LOGGER.debug("Metacard type name: {}", metacardType.getName());
 
         // retrieve geometry
@@ -131,8 +144,13 @@ public class GeoJsonInputTransformer implements InputTransformer {
         CompositeGeometry geoJsonGeometry = null;
         if (geometryJson != null) {
             if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null && (geometryJson.get(
+<<<<<<< HEAD
+                    CompositeGeometry.COORDINATES_KEY) != null || geometryJson.get(
+                    CompositeGeometry.GEOMETRIES_KEY) != null)) {
+=======
                     CompositeGeometry.COORDINATES_KEY) != null
                     || geometryJson.get(CompositeGeometry.GEOMETRIES_KEY) != null)) {
+>>>>>>> master
 
                 String geometryTypeJson = geometryJson.get(CompositeGeometry.TYPE_KEY)
                         .toString();
@@ -172,6 +190,12 @@ public class GeoJsonInputTransformer implements InputTransformer {
             final String key = entry.getKey();
             final Object value = entry.getValue();
             try {
+<<<<<<< HEAD
+                if (properties.containsKey(ad.getName())) {
+                    Object attributeValue = properties.get(ad.getName());
+                    if (attributeValue != null) {
+                        metacard.setAttribute(ad.getName(), convertProperty(attributeValue, ad));
+=======
                 if (attributeDescriptorMap.containsKey(key)) {
                     AttributeDescriptor ad = attributeDescriptorMap.get(key);
                     metacard.setAttribute(key, convertProperty(value, ad));
@@ -179,6 +203,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
                     Optional<AttributeDescriptor> optional = attributeRegistry.lookup(key);
                     if (optional.isPresent()) {
                         metacard.setAttribute(key, convertProperty(value, optional.get()));
+>>>>>>> master
                     }
                 }
             } catch (NumberFormatException | ParseException e) {
@@ -204,10 +229,13 @@ public class GeoJsonInputTransformer implements InputTransformer {
         this.metacardTypes = metacardTypes;
     }
 
+<<<<<<< HEAD
+=======
     public void setAttributeRegistry(AttributeRegistry attributeRegistry) {
         this.attributeRegistry = attributeRegistry;
     }
 
+>>>>>>> master
     @Override
     public String toString() {
         return "InputTransformer {Impl=" + this.getClass()
@@ -215,7 +243,11 @@ public class GeoJsonInputTransformer implements InputTransformer {
     }
 
     private Serializable convertProperty(Object property, AttributeDescriptor descriptor)
+<<<<<<< HEAD
+            throws CatalogTransformerException {
+=======
             throws ParseException {
+>>>>>>> master
         AttributeFormat format = descriptor.getType()
                 .getAttributeFormat();
         if (descriptor.isMultiValued() && property instanceof List) {
@@ -229,7 +261,12 @@ public class GeoJsonInputTransformer implements InputTransformer {
         }
     }
 
+<<<<<<< HEAD
+    private Serializable convertValue(Object value, AttributeFormat format)
+            throws CatalogTransformerException {
+=======
     private Serializable convertValue(Object value, AttributeFormat format) throws ParseException {
+>>>>>>> master
         if (value == null) {
             return null;
         }
@@ -238,9 +275,20 @@ public class GeoJsonInputTransformer implements InputTransformer {
         case BINARY:
             return DatatypeConverter.parseBase64Binary(value.toString());
         case DATE:
+<<<<<<< HEAD
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                return dateFormat.parse(value.toString());
+            } catch (ParseException e) {
+                throw new CatalogTransformerException("Could not parse Date:" + value.toString(),
+                        e);
+            }
+=======
             SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             return dateFormat.parse(value.toString());
+>>>>>>> master
         case GEOMETRY:
         case STRING:
         case XML:
@@ -261,4 +309,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
             return null;
         }
     }
+<<<<<<< HEAD
+
+=======
+>>>>>>> master
 }

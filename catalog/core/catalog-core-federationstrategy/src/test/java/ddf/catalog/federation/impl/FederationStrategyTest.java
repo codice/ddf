@@ -154,6 +154,13 @@ public class FederationStrategyTest {
         props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
+<<<<<<< HEAD
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
+        framework.bind(provider);
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+        framework.setHistorian(historian);
+=======
 
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
         MetacardFactory metacardFactory =
@@ -209,6 +216,7 @@ public class FederationStrategyTest {
                 null,
                 null);
         sourceOperations.bind(provider);
+>>>>>>> master
 
         List<Metacard> metacards = new ArrayList<Metacard>();
 

@@ -247,8 +247,11 @@ public class WfsSource extends MaskableImpl
 
     private String forcedFeatureType;
 
+<<<<<<< HEAD
+=======
     private String srsName;
 
+>>>>>>> master
     public WfsSource(FilterAdapter filterAdapter, BundleContext context, AvailabilityTask task,
             SecureCxfClientFactory factory, EncryptionService encryptionService)
             throws SecurityServiceException {
@@ -562,6 +565,7 @@ public class WfsSource extends MaskableImpl
                 LOGGER.debug(handleWebApplicationException(wae), wae);
             }
         }
+
 
         registerFeatureMetacardTypes(mcTypeRegs);
 

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,8 +17,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+<<<<<<< HEAD
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+=======
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
+>>>>>>> master
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
@@ -76,7 +81,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transformer.api.PrintWriter;
 import ddf.catalog.transformer.api.PrintWriterProvider;
-
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
@@ -349,6 +353,8 @@ public class TestCswQueryResponseTransformer {
     }
 
     @Test
+<<<<<<< HEAD
+=======
     public void testMarshalAcknowledgementWithFailedTransforms()
             throws WebApplicationException, IOException, JAXBException,
             CatalogTransformerException {
@@ -398,6 +404,7 @@ public class TestCswQueryResponseTransformer {
     }
 
     @Test
+>>>>>>> master
     public void verifyResultOrderIsMaintained() throws CatalogTransformerException, IOException {
         // when
         when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(mockPrintWriter);
@@ -420,7 +427,11 @@ public class TestCswQueryResponseTransformer {
 
         // given
         transformer.init();
+<<<<<<< HEAD
+        BinaryContent bc = transformer.transform(mockSourceResponse, mockArguments);
+=======
         transformer.transform(mockSourceResponse, mockArguments);
+>>>>>>> master
         transformer.destroy();
 
         // then

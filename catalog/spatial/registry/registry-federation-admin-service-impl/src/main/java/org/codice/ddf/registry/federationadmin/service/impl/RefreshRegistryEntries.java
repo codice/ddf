@@ -45,7 +45,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.Result;
+>>>>>>> master
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.PropertyNameImpl;
 import ddf.catalog.operation.Query;
@@ -228,7 +231,11 @@ public class RefreshRegistryEntries {
                         store.query(new QueryRequestImpl(getBasicRegistryQuery()));
                 Map<String, Metacard> results = response.getResults()
                         .stream()
+<<<<<<< HEAD
+                        .map(e -> e.getMetacard())
+=======
                         .map(Result::getMetacard)
+>>>>>>> master
                         .filter(e -> !localMetacardRegIds.contains(RegistryUtility.getRegistryId(e)))
                         .collect(Collectors.toMap(Metacard::getId, Function.identity()));
                 return new RemoteResult(store.getRegistryId(), results);
@@ -289,7 +296,11 @@ public class RefreshRegistryEntries {
             });
         } catch (PrivilegedActionException e) {
             String message = "Error writing remote updates.";
+<<<<<<< HEAD
+            LOGGER.error("{} Metacard IDs: {}", message, remoteMetacardsToUpdate);
+=======
             LOGGER.debug("{} Metacard IDs: {}", message, remoteMetacardsToUpdate);
+>>>>>>> master
             throw new FederationAdminException(message, e);
         }
     }

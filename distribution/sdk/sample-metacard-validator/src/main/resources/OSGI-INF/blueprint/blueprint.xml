@@ -19,6 +19,8 @@
             <property name="validWords">
                 <set value-type="java.lang.String">
                     <value>Metacard-1</value>
+<<<<<<< HEAD
+=======
                     <value>clean</value>
                 </set>
             </property>
@@ -30,6 +32,7 @@
             <property name="errorWords">
                 <set value-type="java.lang.String">
                     <value>error</value>
+>>>>>>> master
                 </set>
             </property>
         </bean>

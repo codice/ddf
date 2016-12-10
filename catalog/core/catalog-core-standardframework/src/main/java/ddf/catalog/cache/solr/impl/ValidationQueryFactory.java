@@ -1,10 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
+<<<<<<< HEAD
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+=======
  * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
  * <p/>
+>>>>>>> master
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -20,7 +28,11 @@ import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+<<<<<<< HEAD
+import ddf.catalog.data.impl.BasicTypes;
+=======
 import ddf.catalog.data.types.Validation;
+>>>>>>> master
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
@@ -33,12 +45,20 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public class ValidationQueryFactory {
 
+<<<<<<< HEAD
+=======
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidationQueryFactory.class);
 
+>>>>>>> master
     private FilterAdapter adapter;
 
     private FilterBuilder builder;
 
+<<<<<<< HEAD
+    private static final Logger LOGGER = LoggerFactory.getLogger(ValidationQueryFactory.class);
+
+=======
+>>>>>>> master
     public ValidationQueryFactory(FilterAdapter filterAdapter, FilterBuilder filterBuilder) {
         adapter = filterAdapter;
         builder = filterBuilder;
@@ -54,16 +74,28 @@ public class ValidationQueryFactory {
             }
 
         } catch (UnsupportedQueryException e) {
+<<<<<<< HEAD
+            LOGGER.warn("This attribute filter is not supported by ValidationQueryDelegate.", e);
+        }
+        List<Filter> filters = new ArrayList<>();
+        if (!showErrors) {
+            filters.add(builder.attribute(BasicTypes.VALIDATION_ERRORS)
+=======
             LOGGER.info("This attribute filter is not supported by ValidationQueryDelegate.", e);
         }
         List<Filter> filters = new ArrayList<>();
         if (!showErrors) {
             filters.add(builder.attribute(Validation.VALIDATION_ERRORS)
+>>>>>>> master
                     .is()
                     .empty());
         }
         if (!showWarnings) {
+<<<<<<< HEAD
+            filters.add(builder.attribute(BasicTypes.VALIDATION_WARNINGS)
+=======
             filters.add(builder.attribute(Validation.VALIDATION_WARNINGS)
+>>>>>>> master
                     .is()
                     .empty());
         }
@@ -80,6 +112,19 @@ public class ValidationQueryFactory {
     }
 
     public Filter getFilterWithValidationFilter() {
+<<<<<<< HEAD
+        return builder.anyOf(builder.attribute(BasicTypes.VALIDATION_ERRORS)
+                        .is()
+                        .like()
+                        .text(FilterDelegate.WILDCARD_CHAR),
+                builder.attribute(BasicTypes.VALIDATION_ERRORS)
+                        .empty(),
+                builder.attribute(BasicTypes.VALIDATION_WARNINGS)
+                        .is()
+                        .like()
+                        .text(FilterDelegate.WILDCARD_CHAR),
+                builder.attribute(BasicTypes.VALIDATION_WARNINGS)
+=======
         return builder.anyOf(builder.attribute(Validation.VALIDATION_ERRORS)
                         .is()
                         .like()
@@ -91,6 +136,7 @@ public class ValidationQueryFactory {
                         .like()
                         .text(FilterDelegate.WILDCARD_CHAR),
                 builder.attribute(Validation.VALIDATION_WARNINGS)
+>>>>>>> master
                         .empty());
     }
 

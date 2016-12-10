@@ -23,25 +23,42 @@
                 default="false"
         />
         <AD
+<<<<<<< HEAD
+                description="A title for the system usage message when the application is opened"
+=======
                 description="A title for the system usage message when the application is opened."
+>>>>>>> master
                 name="System Usage Message Title" id="systemUsageTitle" required="true"
                 type="String"
                 default=""
         />
         <AD
+<<<<<<< HEAD
+                description="A system usage message to be displayed to the user each time the user opens the application"
+=======
                 description="A system usage message to be displayed to the user each time the user opens the application."
+>>>>>>> master
                 name="System Usage Message" id="systemUsageMessage" required="true" type="String"
                 default=""
         />
         <AD
+<<<<<<< HEAD
+                description="With this selected, the system usage message will be shown once for each browser session.  Uncheck this to have the usage message appear every time the admin page is opened or refreshed."
+                name="Show System Usage Message once per session" id="systemUsageOncePerSession"
+=======
                 description="With this selected, the system usage message will be shown once for each browser session. Uncheck this to have the usage message appear every time the admin page is opened or refreshed."
                 name="Show System Usage Message once per session" id="systemUsageOncePerSession."
+>>>>>>> master
                 required="true" type="Boolean"
                 default="true"
         />
 
         <AD
+<<<<<<< HEAD
+                description="Specifies the header text to be rendered on the Administrator Console"
+=======
                 description="Specifies the header text to be rendered on the Administrator Console."
+>>>>>>> master
                 name="Header" id="header" required="true" type="String"
                 default=""
                 />

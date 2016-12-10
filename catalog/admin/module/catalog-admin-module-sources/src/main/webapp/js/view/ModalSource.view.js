@@ -20,6 +20,10 @@ define([
     'marionette',
     'backbone',
     'js/model/Organization.js',
+<<<<<<< HEAD
+    'js/view/AccordionCollectionView.js',
+=======
+>>>>>>> master
     'js/view/ConfigurationEdit.view.js',
     'js/view/Organization.view.js',
     'js/model/Service.js',
@@ -30,9 +34,16 @@ define([
     'text!templates/sourceModal.handlebars',
     'text!templates/optionListType.handlebars',
     'text!templates/textType.handlebars',
+<<<<<<< HEAD
+    'text!templates/sourceOrganization.hbs',
+    'text!templates/optionLabelType.hbs'
+
+], function (ich, Marionette, Backbone, Organization, AccordionCollectionView, ConfigurationEdit, OrganizationView, Service, Utils, wreqr, _, $, sourceModal, optionListType, textType, sourceOrganization, optionLabelType) {
+=======
     'text!templates/sourceOrganization.hbs'
 
 ], function (ich, Marionette, Backbone, Organization, ConfigurationEdit, OrganizationView, Service, Utils, wreqr, _, $, sourceModal, optionListType, textType, sourceOrganization) {
+>>>>>>> master
 
     if (!ich.sourceOrganization) {
         ich.addTemplate('sourceOrganization', sourceOrganization);
@@ -45,6 +56,9 @@ define([
     }
     if (!ich.textType) {
         ich.addTemplate('textType', textType);
+    }
+    if (!ich.optionLabelType) {
+        ich.addTemplate('optionLabelType', optionLabelType);
     }
 
     var ModalSource = {};
@@ -62,6 +76,7 @@ define([
         regions: {
             organizationInfo: '.modal-organization',
             details: '.modal-details',
+            accordions: '.modal-accordions',
             buttons: '.source-buttons'
         },
         serializeData: function () {
@@ -97,6 +112,23 @@ define([
                 this.rebind(properties);
             }
         },
+<<<<<<< HEAD
+        initRadioButtonUI: function (boundModel) {
+            var $radios = this.$el.find('input[type=radio]');
+            var view = this;
+
+            _.each($radios, function (radio) {
+                var $radio = view.$(radio);
+                var $label = $radio.closest('label.btn');
+                if (boundModel.get($radio.attr('name')) === $radio.attr('value')) {
+                    $label.addClass('active');
+                } else {
+                    $label.removeClass('active');
+                }
+            });
+        },
+=======
+>>>>>>> master
         /**
          * Renders editable name field.
          */
@@ -325,6 +357,42 @@ define([
         renderDetails: function (configuration) {
             var service = configuration.get('service');
             if (!_.isUndefined(service)) {
+<<<<<<< HEAD
+                // Make an accordionCollection to hold the accordions. Uses AccordionView as it's itemView
+                var accordionCollection = new Backbone.Collection();
+                var configsWithServices = this.model.getAllConfigsWithServices();
+                // For each configuration, make an accordion consisting of a ConfigurationEdit.ConfigurationCollection that
+                // is populated with ConfigurationEdit.ConfigurationItem's
+                configsWithServices.forEach(function (curConfig) {
+                    var accordionFieldsToDisplay;
+                    // Use the curConfig's service to gather all fields to display in the accordion
+                    var curConfigService = curConfig.get('service');
+                    if (!_.isUndefined(curConfigService)) {
+                        accordionFieldsToDisplay = curConfigService.get('metatype').filter(function (mt) {
+                            return !_.contains(['shortname', 'id'], mt.get('id'));
+                        });
+                    }
+
+                    var collectionToDisplay = new Service.MetatypeList(accordionFieldsToDisplay);
+                    var nameToDisplay = curConfig.get('name');
+                    // Check if name is in fpid format and if so, clean up the nameToDisplay
+                    if (nameToDisplay.indexOf('_disabled') > 0) {
+                        nameToDisplay = nameToDisplay.substring(0, nameToDisplay.indexOf('_disabled'));
+                        nameToDisplay = nameToDisplay.replace(/_/g, ' ');
+                    }
+                    accordionCollection.add({
+                        title: nameToDisplay,
+                        contentView: new ConfigurationEdit.ConfigurationCollection({
+                            collection: collectionToDisplay,
+                            service: curConfigService,
+                            configuration: curConfig
+                        })
+                    });
+                }.bind(this));
+                // Add the accordions to the accordions region of the modal
+                this.accordions.show(new AccordionCollectionView({
+                    collection: accordionCollection
+=======
                 var toDisplay = service.get('metatype').filter(function (mt) {
                     return !_.contains(['shortname', 'id'], mt.get('id'));
                 });
@@ -332,6 +400,7 @@ define([
                     collection: new Service.MetatypeList(toDisplay),
                     service: service,
                     configuration: configuration
+>>>>>>> master
                 }));
             } else {
                 this.$(this.organizationInfo.el).html('');

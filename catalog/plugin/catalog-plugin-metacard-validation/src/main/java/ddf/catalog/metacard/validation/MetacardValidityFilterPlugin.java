@@ -13,6 +13,12 @@
  */
 package ddf.catalog.metacard.validation;
 
+<<<<<<< HEAD
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
+
+=======
+>>>>>>> master
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;

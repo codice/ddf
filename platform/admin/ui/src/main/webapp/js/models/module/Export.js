@@ -67,6 +67,21 @@ define([
         model.set('errors', []);
     }
 
+<<<<<<< HEAD
+    function addError(model, message) {
+        var errors = model.get('errors');
+        model.set('errors', errors.concat([message]));
+    }
+
+    function addWarning(model, message) {
+        var warnings = model.get('warnings');
+        model.set('warnings', warnings.concat([message]));
+    }
+
+    var url = '/admin/jolokia/exec/org.codice.ddf.configuration.migration.ConfigurationMigrationManager:service=configuration-migration/export/';
+
+=======
+>>>>>>> master
     var ExportModel = Backbone.Model.extend({
         defaults: {
             path: 'etc/exported',

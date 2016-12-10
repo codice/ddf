@@ -83,7 +83,11 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
     @Override
     public int compare(OperationResourceInfo oper1, OperationResourceInfo oper2, Message message) {
         if (null == oper1 || null == oper2 || null == message) {
+<<<<<<< HEAD
+            LOGGER.warn("Found NULL parameters in the compare method.");
+=======
             LOGGER.debug("Found NULL parameters in the compare method.");
+>>>>>>> master
             return -1;
         }
         String httpMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
@@ -151,7 +155,11 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
             }
 
         } else {
+<<<<<<< HEAD
+            LOGGER.warn("Got unknown HTTP Method {}", httpMethod);
+=======
             LOGGER.info("Got unknown HTTP Method {}", httpMethod);
+>>>>>>> master
             return -1;
         }
 

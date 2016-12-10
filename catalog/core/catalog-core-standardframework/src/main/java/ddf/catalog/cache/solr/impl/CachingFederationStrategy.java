@@ -402,7 +402,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             return input;
         }
 
+<<<<<<< HEAD
+        logger.debug("Deleting metacard(s) in cache.");
+=======
         LOGGER.debug("Deleting metacard(s) in cache.");
+>>>>>>> master
         cache.delete(input.getRequest());
         LOGGER.debug("Deletion of metacard(s) in cache complete.");
 

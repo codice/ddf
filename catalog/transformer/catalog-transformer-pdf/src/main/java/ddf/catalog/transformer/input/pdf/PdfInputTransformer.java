@@ -21,7 +21,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+<<<<<<< HEAD
+=======
 import java.util.Optional;
+>>>>>>> master
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -31,11 +34,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
+<<<<<<< HEAD
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+=======
+>>>>>>> master
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.ToTextContentHandler;
+<<<<<<< HEAD
+=======
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
+>>>>>>> master
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -43,11 +55,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 
+<<<<<<< HEAD
+import com.google.common.collect.Sets;
+import com.google.common.html.HtmlEscapers;
+import com.google.common.io.FileBackedOutputStream;
+=======
+>>>>>>> master
 import com.google.common.net.MediaType;
 
 import ddf.catalog.content.operation.ContentMetadataExtractor;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+<<<<<<< HEAD
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+=======
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -55,6 +78,7 @@ import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Media;
 import ddf.catalog.data.types.Topic;
+>>>>>>> master
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
@@ -132,6 +156,28 @@ public class PdfInputTransformer implements InputTransformer {
         contentMetadataExtractors.remove(contentMetadataExtractorRef);
     }
 
+    private Map<ServiceReference, ContentMetadataExtractor> contentMetadataExtractors =
+            Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
+
+    public void addContentMetadataExtractors(
+            ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
+        Bundle bundle = getBundle();
+        if (bundle != null) {
+            ContentMetadataExtractor cme = bundle.getBundleContext()
+                    .getService(contentMetadataExtractorRef);
+            contentMetadataExtractors.put(contentMetadataExtractorRef, cme);
+        }
+    }
+
+    Bundle getBundle() {
+        return FrameworkUtil.getBundle(PdfInputTransformer.class);
+    }
+
+    public void removeContentMetadataExtractor(
+            ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
+        contentMetadataExtractors.remove(contentMetadataExtractorRef);
+    }
+
     @Override
     public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
         return transform(input, null);
@@ -148,7 +194,11 @@ public class PdfInputTransformer implements InputTransformer {
     }
 
     private Metacard transformWithoutExtractors(InputStream input, String id) throws IOException {
+<<<<<<< HEAD
+        try (PDDocument pdfDocument = PDDocument.load(input)) {
+=======
         try (PDDocument pdfDocument = pdDocumentGenerator.apply(input)) {
+>>>>>>> master
             return transformPdf(id, pdfDocument);
         } catch (InvalidPasswordException e) {
             LOGGER.debug("Cannot transform encrypted pdf", e);
@@ -158,7 +208,11 @@ public class PdfInputTransformer implements InputTransformer {
 
     private Metacard transformWithExtractors(InputStream input, String id)
             throws IOException, CatalogTransformerException {
+<<<<<<< HEAD
+        try (FileBackedOutputStream fbos = new FileBackedOutputStream(1000000)) {
+=======
         try (TemporaryFileBackedOutputStream fbos = new TemporaryFileBackedOutputStream()) {
+>>>>>>> master
             try {
                 IOUtils.copy(input, fbos);
             } catch (IOException e) {
@@ -180,11 +234,20 @@ public class PdfInputTransformer implements InputTransformer {
             }
 
             try (InputStream isCopy = fbos.asByteSource()
+<<<<<<< HEAD
+                    .openStream();
+                    PDDocument pdfDocument = PDDocument.load(isCopy)) {
+
+                return transformPdf(id, pdfDocument, plainText);
+            } catch (InvalidPasswordException e) {
+                LOGGER.warn("Cannot transform encrypted pdf", e);
+=======
                     .openStream(); PDDocument pdfDocument = pdDocumentGenerator.apply(isCopy)) {
 
                 return transformPdf(id, pdfDocument, plainText);
             } catch (InvalidPasswordException e) {
                 LOGGER.debug("Cannot transform encrypted pdf", e);
+>>>>>>> master
                 return initializeMetacard(id);
             }
         }
@@ -204,15 +267,24 @@ public class PdfInputTransformer implements InputTransformer {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
 
+<<<<<<< HEAD
+            metacard = new MetacardImpl(new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
+                    Sets.union(BasicTypes.BASIC_METACARD.getAttributeDescriptors(), attributes)));
+=======
             metacard = new MetacardImpl(new MetacardTypeImpl(metacardType.getName(),
                     metacardType,
                     attributes));
 
+>>>>>>> master
             for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
                 contentMetadataExtractor.process(contentInput, metacard);
             }
         } else {
+<<<<<<< HEAD
+            metacard = new MetacardImpl();
+=======
             metacard = new MetacardImpl(metacardType);
+>>>>>>> master
         }
 
         metacard.setId(id);
@@ -255,9 +327,25 @@ public class PdfInputTransformer implements InputTransformer {
 
         PDDocumentInformation documentInformation = pdfDocument.getDocumentInformation();
 
+<<<<<<< HEAD
+        Calendar creationDate = documentInformation.getCreationDate();
+        if (creationDate != null) {
+            metacard.setCreatedDate(creationDate.getTime());
+            addXmlElement("creationDate", DATE_FORMAT.format(creationDate), metadataField);
+            LOGGER.debug("PDF Creation date was: {}", DATE_FORMAT.format(creationDate));
+        }
+
+        Calendar modificationDate = documentInformation.getModificationDate();
+        if (modificationDate != null) {
+            metacard.setModifiedDate(modificationDate.getTime());
+            addXmlElement("modificationDate", DATE_FORMAT.format(modificationDate), metadataField);
+            LOGGER.debug("PDF Modification date was: {}", DATE_FORMAT.format(modificationDate));
+        }
+=======
         setDateIfNotNull(documentInformation.getCreationDate(), metacard, Metacard.CREATED);
 
         setDateIfNotNull(documentInformation.getModificationDate(), metacard, Metacard.MODIFIED);
+>>>>>>> master
 
         if (usePdfTitleAsTitle) {
             setIfNotBlank(documentInformation.getTitle(), metacard, Metacard.TITLE);

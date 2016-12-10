@@ -16,6 +16,12 @@
 
     <bean id="transformer"
           class="ddf.catalog.transformer.input.geojson.GeoJsonInputTransformer">
+<<<<<<< HEAD
+		<property name="metacardTypes">
+			<reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
+		</property>
+	</bean>
+=======
         <property name="metacardTypes">
             <reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
         </property>
@@ -23,17 +29,27 @@
             <reference interface="ddf.catalog.data.AttributeRegistry"/>
         </property>
     </bean>
+>>>>>>> master
 
     <service ref="transformer" interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
             <entry key="id" value="geojson"/>
             <!-- List of mime types this InputTransformer supports -->
             <entry key="mime-type">
+<<<<<<< HEAD
+				<list>
+				    <value>application/json</value>
+				</list>
+			</entry>
+		</service-properties>
+	</service>
+=======
                 <list>
                     <value>application/json</value>
                 </list>
             </entry>
         </service-properties>
     </service>
+>>>>>>> master
 
 </blueprint>

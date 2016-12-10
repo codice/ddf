@@ -12,14 +12,16 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
+<<<<<<< HEAD
+        <version>2.9.4</version>
+=======
         <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <groupId>ddf.catalog.transformer</groupId>
     <artifactId>catalog-transformer-streaming-lib</artifactId>
@@ -75,12 +77,16 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.72</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
+<<<<<<< HEAD
+                                            <minimum>0.76</minimum>
+=======
                                             <minimum>0.77</minimum>
+>>>>>>> master
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>

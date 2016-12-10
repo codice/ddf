@@ -50,8 +50,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+<<<<<<< HEAD
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+=======
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
+>>>>>>> master
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
@@ -241,17 +246,27 @@ public class CswQueryFactory {
         }
 
         if (!DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+<<<<<<< HEAD
+                                .getPropertyName(),
+                        sortBy.getPropertyName()
+                                .getNamespaceContext())) {
+=======
                         .getPropertyName(),
                 sortBy.getPropertyName()
                         .getNamespaceContext())) {
+>>>>>>> master
             throw new CswException("Property " + sortBy.getPropertyName()
                     .getPropertyName() + " is not a valid SortBy Field",
                     CswConstants.INVALID_PARAMETER_VALUE,
                     "SortProperty");
         }
 
+<<<<<<< HEAD
+        String name = DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+=======
         String name =
                 DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+>>>>>>> master
                                 .getPropertyName(),
                         sortBy.getPropertyName()
                                 .getNamespaceContext());

@@ -226,11 +226,18 @@ public class TestGetRecordsMessageBodyReader {
         ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data);
         MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
         httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
+<<<<<<< HEAD
+        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
+                String.format("inline; filename=ResourceName"));
+        httpHeaders.add(HttpHeaders.CONTENT_RANGE,
+                String.format("bytes 1-%d/%d", sampleData.length() - 1, sampleData.length()));
+=======
         httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, String.format(
                 "inline; filename=ResourceName"));
         httpHeaders.add(HttpHeaders.CONTENT_RANGE, String.format("bytes 1-%d/%d",
                 sampleData.length() - 1,
                 sampleData.length()));
+>>>>>>> master
         MediaType mediaType = new MediaType("text", "plain");
 
         CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
@@ -243,8 +250,56 @@ public class TestGetRecordsMessageBodyReader {
         Resource resource = cswRecords.getResource();
 
         // assert that the CswRecordCollection properly extracted the bytes skipped from the Partial Content response
+<<<<<<< HEAD
+        assertThat(cswRecords.getResourceProperties().get(GetRecordsMessageBodyReader.BYTES_SKIPPED), is(equalTo(1L)));
+
+        // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has the number
+        // of bytes that was attempted to be skipped, the stream must be aligned there instead.
+        assertThat(resource.getByteArray(), is(data));
+    }
+
+    @Test
+    public void testPartialContentNotSupportedHandling() throws Exception {
+        CswSourceConfiguration config = new CswSourceConfiguration(encryptionService);
+        config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
+        config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+        GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
+
+        String sampleData = "SampleData";
+        byte[] data = sampleData.getBytes();
+        ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data);
+        MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+        httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
+        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
+                String.format("inline; filename=ResourceName"));
+        MediaType mediaType = new MediaType("text", "plain");
+
+        CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
+                null,
+                null,
+                mediaType,
+                httpHeaders,
+                dataInputStream);
+
+        Resource resource = cswRecords.getResource();
+
+        // assert that the CswRecordCollection property is not set if the server does not support Partial Content responses
+        assertThat(cswRecords.getResourceProperties().get(GetRecordsMessageBodyReader.BYTES_SKIPPED), is(nullValue()));
+
+        // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has the number
+        // of bytes that was attempted to be skipped, the stream must be aligned there instead.
+        assertThat(resource.getByteArray(), is(data));
+    }
+
+    private void assertListStringAttribute(Metacard mc, String attrName, String[] expectedValues) {
+        List<?> values = mc.getAttribute(attrName)
+                .getValues();
+        assertThat(values, not(nullValue()));
+        assertThat(values.size(), equalTo(expectedValues.length));
+=======
         assertThat(cswRecords.getResourceProperties()
                 .get(GetRecordsMessageBodyReader.BYTES_SKIPPED), is(1L));
+>>>>>>> master
 
         // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has the number
         // of bytes that was attempted to be skipped, the stream must be aligned there instead.

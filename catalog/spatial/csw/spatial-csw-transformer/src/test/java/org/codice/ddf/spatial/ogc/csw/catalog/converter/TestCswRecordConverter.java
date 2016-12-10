@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -141,7 +141,11 @@ public class TestCswRecordConverter {
         created = XSD_FACTORY.newXMLGregorianCalendar(CREATED_DATE)
                 .toXMLFormat();
 
+<<<<<<< HEAD
+        converter = new CswRecordConverter();
+=======
         converter = new CswRecordConverter(getCswMetacardType());
+>>>>>>> master
 
         cswRecordXml = IOUtils.toString(TestCswRecordConverter.class.getResourceAsStream(
                 "/Csw_Record_Text.xml"));
@@ -502,7 +506,12 @@ public class TestCswRecordConverter {
         BinaryContent content = converter.transform(metacard, args);
 
         String xml = IOUtils.toString(content.getInputStream());
+<<<<<<< HEAD
+        assertThat(xml,
+                containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+=======
         assertThat(xml, containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+>>>>>>> master
         XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(cswRecordXml, xml);
     }
@@ -602,6 +611,31 @@ public class TestCswRecordConverter {
         MetacardImpl metacard = getTestMetacard();
         metacard.setMetadata(cswRecordXml);
         return metacard;
+<<<<<<< HEAD
+    }
+
+    private void assertListStringAttribute(Metacard mc, String attrName, String[] expectedValues) {
+        List<?> values = (List<?>) mc.getAttribute(attrName)
+                .getValues();
+        assertThat(values, not(nullValue()));
+        assertThat(values.size(), equalTo(expectedValues.length));
+
+        List<String> valuesList = new ArrayList<String>();
+        valuesList.addAll((List<? extends String>) values);
+        LOGGER.debug("valuesList: {}", valuesList);
+        assertThat(valuesList, hasItems(expectedValues));
+    }
+
+    private void assertDates(String metacardAttribute, String cswAttribute, Metacard mc) {
+        Date date = (Date) mc.getAttribute(metacardAttribute)
+                .getValue();
+        String expectedDateStr = (String) mc.getAttribute(cswAttribute)
+                .getValue();
+        Date expectedDate = dateFormatter.parseDateTime(expectedDateStr)
+                .toDate();
+        assertThat(date.getTime(), equalTo(expectedDate.getTime()));
+=======
+>>>>>>> master
     }
 
     private void assertDateConversion(Serializable ser, Calendar expectedDate) {

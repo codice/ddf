@@ -94,6 +94,15 @@ public class RemoveCommand extends CqlCommands {
 
             SourceResponse queryResponse = catalogProvider.query(new QueryRequestImpl(query,
                     properties));
+<<<<<<< HEAD
+
+            if (queryResponse.getResults()
+                    .isEmpty()) {
+                printErrorMessage("No records found using CQL expression.");
+                return null;
+            }
+=======
+>>>>>>> master
 
             final List<String> idsFromFilteredQuery = queryResponse.getResults()
                     .stream()

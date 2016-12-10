@@ -46,6 +46,8 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
+<<<<<<< HEAD
+=======
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
 import ddf.catalog.impl.operations.MetacardFactory;
@@ -58,6 +60,7 @@ import ddf.catalog.impl.operations.ResourceOperations;
 import ddf.catalog.impl.operations.SourceOperations;
 import ddf.catalog.impl.operations.TransformOperations;
 import ddf.catalog.impl.operations.UpdateOperations;
+>>>>>>> master
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -102,6 +105,13 @@ public class CatalogFrameworkQueryTest {
         props.setSourcePoller(mockPoller);
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
+<<<<<<< HEAD
+        framework = new CatalogFrameworkImpl(props);
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+        framework.setHistorian(historian);
+        framework.bind(provider);
+=======
 
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
         MetacardFactory metacardFactory =
@@ -157,6 +167,7 @@ public class CatalogFrameworkQueryTest {
                 sourceOperations,
                 transformOperations);
         sourceOperations.bind(provider);
+>>>>>>> master
     }
 
     @Test

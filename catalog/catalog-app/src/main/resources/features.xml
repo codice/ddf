@@ -72,8 +72,36 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-defaultvalues/${project.version}</bundle>
+<<<<<<< HEAD
+
+        <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
+        <configfile finalname="/bin/catalog-export">
+            mvn:ddf.catalog.core/catalog-core-commands/${project.version}/bin/export
+        </configfile>
+        <configfile finalname="/bin/catalog-export.bat">
+            mvn:ddf.catalog.core/catalog-core-commands/${project.version}/bin/batexport
+        </configfile>
+=======
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardtype/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/versioning-api/${project.version}</bundle>
+>>>>>>> master
     </feature>
 
     <feature name="catalog-core-content" install="auto" version="${project.version}"
@@ -352,7 +380,11 @@
         <feature>catalog-plugin-metacard-validation</feature>
     </feature>
 
+<<<<<<< HEAD
+    <feature name="catalog-core-validationparser" install="manual" version="${project.version}"
+=======
     <feature name="catalog-core-validationparser" install="auto" version="${project.version}"
+>>>>>>> master
              description="Provides the ability to define new metacard types, attributes, attribute validators, and default values via JSON files">
         <feature prerequisite="true">catalog-core-validator</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-validationparser/${project.version}</bundle>
@@ -380,12 +412,15 @@
              description="DDF Metacard Duplicate Validator">
         <feature prerequisite="true">catalog-core</feature>
         <bundle>mvn:org.codice.ddf.validator/catalog-validator-metacardduplication/${project.version}</bundle>
+<<<<<<< HEAD
+=======
     </feature>
 
     <feature name="catalog-transformer-overlay" install="auto" version="${project.version}"
              description="Transforms a metacard into a geographically aligned image suitable for overlaying on a map">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-overlay/${project.version}</bundle>
+>>>>>>> master
     </feature>
 
     <feature name="catalog-app" install="auto" version="${project.version}"

@@ -26,11 +26,15 @@ import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
 
 public class SampleMetacardValidator implements MetacardValidator, Describable {
+<<<<<<< HEAD
+    private Set<String> validWords = Sets.newHashSet("test", "default", "sample");
+=======
     private Set<String> validWords = Sets.newHashSet("clean", "test", "default", "sample");
 
     private Set<String> warningWords = Sets.newHashSet("warning");
 
     private Set<String> errorWords = Sets.newHashSet("error");
+>>>>>>> master
 
     private String id = "sample-validator";
 
@@ -65,6 +69,22 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
 
     @Override
     public void validate(Metacard metacard) throws ValidationException {
+<<<<<<< HEAD
+        if (!checkMetacard(metacard.getTitle())) {
+            ValidationExceptionImpl validationException = new ValidationExceptionImpl(
+                    "Metacard title does not contain any of: " + validWords);
+            validationException.setErrors(Collections.singletonList("sampleError"));
+            validationException.setWarnings(Collections.singletonList("sampleWarnings"));
+            throw validationException;
+        }
+    }
+
+    private boolean checkMetacard(String title) {
+        return validWords.stream()
+                .anyMatch(title::contains);
+    }
+
+=======
         if (checkMetacardForWarningWords(metacard.getTitle())) {
             ValidationExceptionImpl validationException = new ValidationExceptionImpl(
                     "Metacard title contains one of the warning words: " + warningWords);
@@ -101,12 +121,17 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
                 .anyMatch(title::contains);
     }
 
+>>>>>>> master
     public void setValidWords(Set<String> validWords) {
         if (validWords != null) {
             this.validWords = validWords;
         }
     }
 
+<<<<<<< HEAD
+    public Set<String> getValidWords() {
+        return validWords;
+=======
     public void setWarningWords(Set<String> warningWords) {
         if (warningWords != null) {
             this.warningWords = warningWords;
@@ -129,5 +154,6 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
 
     public Set<String> getErrorWords() {
         return errorWords;
+>>>>>>> master
     }
 }

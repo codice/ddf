@@ -936,6 +936,13 @@ public abstract class AbstractCswSource extends MaskableImpl
                 if (resource != null) {
 
                     long responseBytesSkipped = 0L;
+<<<<<<< HEAD
+                    if (recordCollection.getResourceProperties().get(BYTES_SKIPPED) != null) {
+                        responseBytesSkipped = (Long) recordCollection.getResourceProperties()
+                                .get(BYTES_SKIPPED);
+                    }
+                    alignStream(resource.getInputStream(), requestedBytesToSkip, responseBytesSkipped);
+=======
                     if (recordCollection.getResourceProperties()
                             .get(BYTES_SKIPPED) != null) {
                         responseBytesSkipped = (Long) recordCollection.getResourceProperties()
@@ -944,6 +951,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                     alignStream(resource.getInputStream(),
                             requestedBytesToSkip,
                             responseBytesSkipped);
+>>>>>>> master
 
                     return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(
                             resource.getInputStream()),
@@ -971,7 +979,11 @@ public abstract class AbstractCswSource extends MaskableImpl
 
         try {
             if (requestedBytesToSkip > responseBytesSkipped) {
+<<<<<<< HEAD
+                LOGGER.warn("Server returned incorrect byte range, skipping first [{}] bytes",
+=======
                 LOGGER.debug("Server returned incorrect byte range, skipping first [{}] bytes",
+>>>>>>> master
                         misalignment);
                 if (in.skip(misalignment) != misalignment) {
                     throw new IOException(String.format(
@@ -1519,9 +1531,15 @@ public abstract class AbstractCswSource extends MaskableImpl
      * @param resultTypesValues
      * @param cswSourceConfiguration
      */
+<<<<<<< HEAD
+    protected void setFilterDelegate(Operation getRecordsOp,
+            FilterCapabilities filterCapabilities, DomainType outputFormatValues,
+            DomainType resultTypesValues, CswSourceConfiguration cswSourceConfiguration) {
+=======
     protected void setFilterDelegate(Operation getRecordsOp, FilterCapabilities filterCapabilities,
             DomainType outputFormatValues, DomainType resultTypesValues,
             CswSourceConfiguration cswSourceConfiguration) {
+>>>>>>> master
         LOGGER.trace("Setting cswFilterDelegate to default CswFilterDelegate");
 
         cswFilterDelegate = new CswFilterDelegate(getRecordsOp,

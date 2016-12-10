@@ -35,7 +35,10 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.impl.MetacardTypeImpl;
+>>>>>>> master
 
 public class MetacardCreatorTest {
     @Test
@@ -111,6 +114,14 @@ public class MetacardCreatorTest {
 
         final Metacard metacard;
         if (CollectionUtils.isEmpty(extraAttributes)) {
+<<<<<<< HEAD
+            metacard = MetacardCreator.createBasicMetacard(metadata, id, metadataXml);
+        } else {
+            metacard = MetacardCreator.createEnhancedMetacard(metadata,
+                    id,
+                    metadataXml,
+                    extraAttributes);
+=======
             metacard = MetacardCreator.createMetacard(metadata,
                     id,
                     metadataXml,
@@ -124,6 +135,7 @@ public class MetacardCreatorTest {
                     id,
                     metadataXml,
                     extendedMetacardType);
+>>>>>>> master
         }
 
         assertThat(metacard, notNullValue());

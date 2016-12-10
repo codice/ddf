@@ -53,6 +53,11 @@ import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 
+import com.google.common.collect.Sets;
+
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
+
 public class ConfigurationAdminExt {
 
     static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
@@ -271,6 +276,11 @@ public class ConfigurationAdminExt {
             LOGGER.info("Provided LDAP filter is incorrect: {}", serviceFilter, e);
         }
 
+<<<<<<< HEAD
+        return serviceList.stream()
+                .filter(service -> isPermittedToViewService((String) service.get("id")))
+                .collect(Collectors.toList());
+=======
         if (serviceList != null) {
             return serviceList.stream()
                     .filter(service -> isPermittedToViewService((String) service.get("id")))
@@ -278,6 +288,7 @@ public class ConfigurationAdminExt {
         } else {
             return new ArrayList<>();
         }
+>>>>>>> master
     }
 
     private void addConfigurationData(Map<String, Object> service, Configuration[] configs) {
@@ -688,8 +699,12 @@ public class ConfigurationAdminExt {
         KeyValueCollectionPermission serviceToCheck = new KeyValueCollectionPermission(
                 "view-service.pid",
                 new KeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
+<<<<<<< HEAD
+        return SecurityUtils.getSubject().isPermitted(serviceToCheck);
+=======
         return SecurityUtils.getSubject()
                 .isPermitted(serviceToCheck);
+>>>>>>> master
     }
 
     /**

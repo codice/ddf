@@ -15,11 +15,16 @@ package ddf.catalog.transformer.input.pdf
 
 import ddf.catalog.content.operation.ContentMetadataExtractor
 import ddf.catalog.data.Metacard
+<<<<<<< HEAD
+import ddf.catalog.data.impl.AttributeDescriptorImpl
+import ddf.catalog.data.impl.BasicTypes
+=======
 import ddf.catalog.data.MetacardType
 import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.BasicTypes
 import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.*
+>>>>>>> master
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
@@ -47,6 +52,11 @@ class PdfInputTransformerSpecTest extends Specification {
     }
 
     void setup() {
+<<<<<<< HEAD
+        bundleMock = Mock(Bundle)
+
+        pdfInputTransformer = new PdfInputTransformer() {
+=======
         metacardType = new MetacardTypeImpl("pdf", [
                 new AssociationsAttributes(),
                 new ContactAttributes(),
@@ -58,6 +68,7 @@ class PdfInputTransformerSpecTest extends Specification {
         bundleMock = Mock(Bundle)
 
         pdfInputTransformer = new PdfInputTransformer(metacardType, false, new PDDocumentGeneratorImpl(), new GeoPdfParserImpl(), new PdfThumbnailGeneratorImpl()) {
+>>>>>>> master
             @Override
             def Bundle getBundle() {
                 return bundleMock
@@ -171,7 +182,11 @@ class PdfInputTransformerSpecTest extends Specification {
                 [new AttributeDescriptorImpl('attr1', false, false, false, false, BasicTypes.OBJECT_TYPE),
                  new AttributeDescriptorImpl('attr2', false, false, false, false, BasicTypes.OBJECT_TYPE)]
 
+<<<<<<< HEAD
+        metacard.metacardType.name == BasicTypes.BASIC_METACARD.name
+=======
         metacard.metacardType.name == metacardType.name
+>>>>>>> master
         def attrNames = metacard.metacardType.attributeDescriptors*.name
         attrNames.containsAll(['attr1', 'attr2'])
     }
@@ -193,7 +208,11 @@ class PdfInputTransformerSpecTest extends Specification {
                 [new AttributeDescriptorImpl('attr1', false, false, false, false, BasicTypes.OBJECT_TYPE),
                  new AttributeDescriptorImpl('attr2', false, false, false, false, BasicTypes.OBJECT_TYPE)]
 
+<<<<<<< HEAD
+        metacard.metacardType == BasicTypes.BASIC_METACARD
+=======
         metacard.metacardType == metacardType
+>>>>>>> master
         def attrNames = metacard.metacardType.attributeDescriptors*.name
         !attrNames.containsAll(['attr1', 'attr2'])
     }
@@ -219,5 +238,8 @@ class PdfInputTransformerSpecTest extends Specification {
         def attrNames = metacard.metacardType.attributeDescriptors*.name
         !attrNames.containsAll(['attr1', 'attr2'])
     }
+<<<<<<< HEAD
+=======
 
+>>>>>>> master
 }

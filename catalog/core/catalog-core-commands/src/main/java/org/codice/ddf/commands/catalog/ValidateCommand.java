@@ -69,6 +69,25 @@ public class ValidateCommand extends CqlCommands {
     @Reference
     List<MetacardValidator> validators;
 
+<<<<<<< HEAD
+    // These constants are to help in trying to make the output
+    // both uniform and readable.
+    private static final String INDENT = "|   ";
+
+    private static final String LAST_INDENT = "    ";
+
+    private static final String ELEMENT = "+-- ";
+
+    private static final String LAST_ELEMENT = "`-- ";
+
+    private static final String WARNING_TITLE = "Warnings";
+
+    private static final String ERROR_TITLE = "Errors";
+
+    private static final String WARNING_COLOR = COLOR_CYAN;
+
+    private static final String ERROR_COLOR = COLOR_RED;
+=======
     private ValidatePrinter printer;
 
     public ValidateCommand() {
@@ -78,6 +97,7 @@ public class ValidateCommand extends CqlCommands {
     public ValidateCommand(ValidatePrinter printer) {
         this.printer = printer;
     }
+>>>>>>> master
 
     @Override
     public Object executeWithSubject() throws Exception {
@@ -126,9 +146,27 @@ public class ValidateCommand extends CqlCommands {
     private List<Metacard> getMetacardsFromCatalog() throws Exception {
         List<Metacard> results = new ArrayList<>();
 
+<<<<<<< HEAD
+    private Metacard createMetacard() {
+
+        // Although we are given XML, we need to put it in a metacard to work with the validators.
+        MetacardImpl metacard = null;
+        try {
+            String metadata = IOUtils.toString(new File(filename).toURI());
+            metacard = new MetacardImpl();
+            metacard.setMetadata(metadata);
+        } catch (IOException e) {
+            console.println(ERROR_COLOR + "Error reading file. Check the log for the stacktrace"
+                    + COLOR_DEFAULT);
+            LOGGER.error("Error trying to read file {}", filename, e);
+        }
+        return metacard;
+    }
+=======
         QueryImpl query = new QueryImpl(getFilter());
         ThreadContext.bind(Security.getInstance()
                 .getSystemSubject());
+>>>>>>> master
 
         SourceResponse response = getCatalog().query(new QueryRequestImpl(query));
         List<Result> resultList = response.getResults();
@@ -139,11 +177,40 @@ public class ValidateCommand extends CqlCommands {
                     .collect(Collectors.toList()));
         }
 
+<<<<<<< HEAD
+    private void printValidator(MetacardValidator validator, String prefix) {
+        String name = validator.getClass()
+                .getName();
+        if (validator instanceof Describable && ((Describable) validator).getId() != null) {
+            name = ((Describable) validator).getId();
+        }
+        prettyPrint(prefix, name);
+    }
+
+    private void printErrorsAndWarnings(MetacardValidator validator, Metacard metacard,
+            String prefix) {
+        try {
+            validator.validate(metacard);
+            prettyPrint(prefix + LAST_ELEMENT, "No errors or warnings");
+        } catch (ValidationException e) {
+
+            // The seemingly unnecessary complexity here is because we want the end result
+            // on the console to look good. We know that errors will come before warnings,
+            // so the whole error block uses the "indent" prefix. Further, we print
+            // errors and warnings with different
+            prettyPrint(prefix + ELEMENT, ERROR_TITLE);
+            if (e.getErrors() == null) {
+                prettyPrint(prefix + INDENT + LAST_ELEMENT, "None");
+            } else {
+                printList(prefix + INDENT, e.getErrors(), ERROR_COLOR);
+            }
+=======
         return results;
     }
 
     private Collection<File> getFiles() throws FileNotFoundException {
         File file = new File(path);
+>>>>>>> master
 
         if (!file.exists()) {
             printer.printError("File not found.");

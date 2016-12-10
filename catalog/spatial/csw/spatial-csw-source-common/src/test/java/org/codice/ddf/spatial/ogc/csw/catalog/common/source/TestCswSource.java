@@ -1420,7 +1420,11 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setResourceReader(reader);
 
         Map<String, Serializable> props = new HashMap<>();
+<<<<<<< HEAD
+        props.put(Metacard.ID, "ID");
+=======
         props.put(Core.ID, "ID");
+>>>>>>> master
         cswSource.retrieveResource(new URI("http://example.com/resource"), props);
         // Verify
         verify(csw, times(1)).getRecordById(any(GetRecordByIdRequest.class), any(String.class));
@@ -1506,7 +1510,10 @@ public class TestCswSource extends TestCswSourceBase {
                 mockProvider,
                 mockFactory,
                 encryptionService);
+<<<<<<< HEAD
+=======
         setMetacardType(cswSource);
+>>>>>>> master
         cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
         cswSource.setFilterBuilder(builder);
         cswSource.setContext(context);

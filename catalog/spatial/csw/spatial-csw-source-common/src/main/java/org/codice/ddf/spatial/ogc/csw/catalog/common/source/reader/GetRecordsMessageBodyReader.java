@@ -107,9 +107,13 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
         // Check if the server returned a Partial Content response (hopefully in response to a range header)
         String contentRangeHeader = httpHeaders.getFirst(HttpHeaders.CONTENT_RANGE);
         if (StringUtils.isNotBlank(contentRangeHeader)) {
+<<<<<<< HEAD
+            contentRangeHeader = StringUtils.substringBetween(contentRangeHeader.toLowerCase(), "bytes ", "-");
+=======
             contentRangeHeader = StringUtils.substringBetween(contentRangeHeader.toLowerCase(),
                     "bytes ",
                     "-");
+>>>>>>> master
             long bytesSkipped = Long.parseLong(contentRangeHeader);
             resourceProperties.put(BYTES_SKIPPED, Long.valueOf(bytesSkipped));
         }

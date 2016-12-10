@@ -18,7 +18,11 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
+<<<<<<< HEAD
+        <version>2.9.4</version>
+=======
         <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>catalog-core-solr</artifactId>
@@ -162,7 +166,7 @@
                         </filter>
                     </filters>
                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                     </transformers>
                 </configuration>
                 <executions>
@@ -239,7 +243,11 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
+<<<<<<< HEAD
+                                            <minimum>0.70</minimum>
+=======
                                             <minimum>0.68</minimum>
+>>>>>>> master
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>

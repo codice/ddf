@@ -93,8 +93,12 @@ public interface RESTService {
     @PUT
     @Path("/{id}")
     Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
+<<<<<<< HEAD
+            @Context HttpServletRequest httpRequest, InputStream message);
+=======
             @Context HttpServletRequest httpRequest,
             @QueryParam("transform") String transformerParam, InputStream message);
+>>>>>>> master
 
     /**
      * REST Put. Updates the specified metadata entry with the provided metadata.
@@ -117,8 +121,12 @@ public interface RESTService {
      */
     @POST
     Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
+<<<<<<< HEAD
+            @Context HttpServletRequest httpRequest, InputStream message);
+=======
             @Context HttpServletRequest httpRequest,
             @QueryParam("transform") String transformerParam, InputStream message);
+>>>>>>> master
 
     /**
      * REST Post. Creates a new metadata entry in the catalog.

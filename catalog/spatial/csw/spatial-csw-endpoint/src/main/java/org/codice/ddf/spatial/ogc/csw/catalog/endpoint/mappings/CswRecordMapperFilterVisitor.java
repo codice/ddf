@@ -59,8 +59,12 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+<<<<<<< HEAD
+import ddf.catalog.data.impl.BasicTypes;
+=======
 import ddf.catalog.data.types.Core;
 import ddf.catalog.impl.filter.FuzzyFunction;
+>>>>>>> master
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
 
@@ -149,8 +153,14 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         String propertyName = expression.getPropertyName();
         String name;
 
+<<<<<<< HEAD
+        if (CswConstants.BBOX_PROP.equals(propertyName)
+                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName)
+                || GmdMetacardType.APISO_BOUNDING_BOX.equals(propertyName)) {
+=======
         if (CswConstants.BBOX_PROP.equals(propertyName) || CswConstants.OWS_BOUNDING_BOX.equals(
                 propertyName) || GmdConstants.APISO_BOUNDING_BOX.equals(propertyName)) {
+>>>>>>> master
             name = Metacard.ANY_GEO;
         } else {
             NamespaceSupport namespaceSupport = expression.getNamespaceContext();
@@ -160,9 +170,13 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
             if (SPATIAL_QUERY_TAG.equals(extraData)) {
                 AttributeDescriptor attrDesc = metacardType.getAttributeDescriptor(name);
+<<<<<<< HEAD
+                if (attrDesc != null && !BasicTypes.GEO_TYPE.equals(attrDesc.getType())) {
+=======
                 if (attrDesc != null
                         && !AttributeType.AttributeFormat.GEOMETRY.equals(attrDesc.getType()
                         .getAttributeFormat())) {
+>>>>>>> master
                     throw new UnsupportedOperationException(
                             "Attempted a spatial query on a non-geometry-valued attribute ("
                                     + propertyName + ")");
@@ -370,7 +384,11 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     }
 
     private void setExpressionType(AttributeType type, LiteralExpressionImpl typedExpression) {
+<<<<<<< HEAD
+        if (type != null && typedExpression != null) {
+=======
         if (type != null) {
+>>>>>>> master
             if (type.getBinding() == Short.class) {
                 typedExpression.setValue(Short.valueOf((String) typedExpression.getValue()));
             } else if (type.getBinding() == Integer.class) {

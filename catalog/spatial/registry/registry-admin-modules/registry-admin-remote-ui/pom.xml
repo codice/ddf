@@ -12,6 +12,13 @@
  *
  **/
  -->
+<<<<<<< HEAD
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>registry-admin-modules</artifactId>
+        <groupId>org.codice.ddf.registry</groupId>
+        <version>2.9.4</version>
+=======
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -19,6 +26,7 @@
         <artifactId>registry-admin-modules</artifactId>
         <groupId>org.codice.ddf.registry</groupId>
         <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
 
     <artifactId>registry-admin-remote-ui</artifactId>
@@ -69,7 +77,11 @@
                         <Web-ContextPath>/admin/registry/remote</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+<<<<<<< HEAD
+                        <Export-Package />
+=======
                         <Export-Package/>
+>>>>>>> master
                     </instructions>
                 </configuration>
             </plugin>

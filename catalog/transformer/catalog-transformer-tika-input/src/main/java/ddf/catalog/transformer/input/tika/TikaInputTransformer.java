@@ -66,11 +66,14 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
+<<<<<<< HEAD
+=======
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.helpers.XMLReaderFactory;
+>>>>>>> master
 
 import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
 import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
@@ -95,8 +98,11 @@ public class TikaInputTransformer implements InputTransformer {
     private Map<ServiceReference, ContentMetadataExtractor> contentMetadataExtractors =
             Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
 
+<<<<<<< HEAD
+=======
     private MetacardType metacardType = null;
 
+>>>>>>> master
     public void addContentMetadataExtractors(
             ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
         Bundle bundle = getBundle();
@@ -116,10 +122,14 @@ public class TikaInputTransformer implements InputTransformer {
         contentMetadataExtractors.remove(contentMetadataExtractorRef);
     }
 
+<<<<<<< HEAD
+    public TikaInputTransformer(BundleContext bundleContext) {
+=======
     public TikaInputTransformer(BundleContext bundleContext, MetacardType metacardType) {
 
         this.metacardType = metacardType;
 
+>>>>>>> master
         ClassLoader tccl = Thread.currentThread()
                 .getContextClassLoader();
         try {
@@ -206,6 +216,13 @@ public class TikaInputTransformer implements InputTransformer {
                         .map(ContentMetadataExtractor::getMetacardAttributes)
                         .flatMap(Collection::stream)
                         .collect(Collectors.toSet());
+<<<<<<< HEAD
+
+                metacard = MetacardCreator.createEnhancedMetacard(metadata,
+                        id,
+                        metadataText,
+                        attributes);
+=======
                 MetacardTypeImpl extendedMetacardType = new MetacardTypeImpl(metacardType.getName(),
                         metacardType,
                         attributes);
@@ -215,11 +232,16 @@ public class TikaInputTransformer implements InputTransformer {
                         metadataText,
                         extendedMetacardType);
 
+>>>>>>> master
                 for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
                     contentMetadataExtractor.process(plainText, metacard);
                 }
             } else {
+<<<<<<< HEAD
+                metacard = MetacardCreator.createBasicMetacard(metadata, id, metadataText);
+=======
                 metacard = MetacardCreator.createMetacard(metadata, id, metadataText, metacardType);
+>>>>>>> master
             }
 
             String metacardContentType = metacard.getContentTypeName();

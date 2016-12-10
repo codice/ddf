@@ -831,7 +831,11 @@ The response is returned as a data map that contains an internal map with the fo
 |GeoJson-formatted value
 |This format is defined by the GeoJSON Metacard Transformer.
 
+<<<<<<< HEAD
+|results/metacard/properties/resource.cached
+=======
 |results/metacard/is-resource-local
+>>>>>>> master
 |A property indicating whether a metacard's associated resource is cached
 |Boolean
 |true, false
@@ -892,6 +896,64 @@ The response is returned as a data map that contains an internal map with the fo
 [source,json,xml]
 ----
 {
+<<<<<<< HEAD
+    "data": {
+        "hits": 1,
+        "metacard-types": {
+            "ddf.metacard": {...}
+        },
+        "id": "857f76c0-da8c-72f5-09cd-536b69e427af",
+        "results": [
+           {
+                "metacard": {
+                    "cached": "2016-06-09T22:46:57.258+0000",
+                    "geometry": {
+                        "coordinates": [
+                            -97.03125,
+                            35.173808
+                        ],
+                        "type": "Point"
+                    },
+                    "type": "Feature",
+                    "actions": [ ... ],
+                    "properties": {
+                        "thumbnail": "..."
+                        "metadata": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><metadata> ... </metadata>",
+                        "resource-size": "92314",
+                        "created": "2016-06-09T22:46:37.707+0000",
+                        "metacard-tags": [
+                            "resource"
+                        ],
+                        "resource-uri": "content:1a83781dd56a4050afc420016d078e22",
+                        "checksum-algorithm": "Adler32",
+                        "metadata-content-type": "image/jpeg",
+                        "metacard-type": "ddf.metacard",
+                        "title": "fixTheBugs_geotagged.jpg",
+                        "resource-download-url": "${secure_url}services/catalog/sources/ddf.distribution/1a83781dd56a4050afc420016d078e22?transform=resource",
+                        "source-id": "ddf.distribution",
+                        "effective": "2016-06-09T22:46:37.707+0000",
+                        "point-of-contact": "",
+                        "checksum": "edfa1836",
+                        "modified": "2016-06-09T22:46:37.707+0000",
+                        "id": "1a83781dd56a4050afc420016d078e22"
+                    }
+                }
+            }
+        ],
+        "status": [
+           {
+                "hits": 1,
+                "elapsed": 432,
+                "reasons": [],
+                "id": "ddf.distribution",
+                "state": "SUCCEEDED",
+                "results": 1
+            }
+        ],
+        "successful": true
+    },
+    "channel": "/857f76c0-da8c-72f5-09cd-536b69e427af"
+=======
    "data": {
       "hits": 1,
       "metacard-types": {
@@ -957,5 +1019,6 @@ The response is returned as a data map that contains an internal map with the fo
    "channel": "/service/query",
    "id": "142",
    "successful": true
+>>>>>>> master
 }
 ----

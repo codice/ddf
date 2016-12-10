@@ -17,7 +17,11 @@
     <parent>
         <artifactId>sdk</artifactId>
         <groupId>ddf.distribution</groupId>
+<<<<<<< HEAD
+        <version>2.9.4</version>
+=======
         <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <artifactId>sample-metrics</artifactId>
     <name>DDF :: SDK :: Metrics :: SampleMetrics</name>
@@ -73,7 +77,7 @@
                             <!-- END: imports specific for embedding rrd4j -->
                             *
                         </Import-Package>
-                        <Export-Package/>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

@@ -57,6 +57,8 @@ import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+<<<<<<< HEAD
+=======
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
 import ddf.catalog.impl.operations.MetacardFactory;
@@ -69,6 +71,7 @@ import ddf.catalog.impl.operations.ResourceOperations;
 import ddf.catalog.impl.operations.SourceOperations;
 import ddf.catalog.impl.operations.TransformOperations;
 import ddf.catalog.impl.operations.UpdateOperations;
+>>>>>>> master
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.Query;
@@ -433,6 +436,12 @@ public class FanoutCatalogFrameworkTest {
         frameworkProperties.setFederationStrategy(strategy);
         frameworkProperties.setQueryResponsePostProcessor(queryResponsePostProcessor);
 
+<<<<<<< HEAD
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
+        framework.bind(catalogProvider);
+        framework.bind(storageProvider);
+
+=======
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
         MetacardFactory metacardFactory =
                 new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
@@ -469,6 +478,7 @@ public class FanoutCatalogFrameworkTest {
                 resourceOperations,
                 sourceOperations,
                 transformOperations);
+>>>>>>> master
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
         framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));
@@ -503,6 +513,8 @@ public class FanoutCatalogFrameworkTest {
         frameworkProperties.setMimeTypeMapper(mimeTypeMapper);
         frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
 
+<<<<<<< HEAD
+=======
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
         MetacardFactory metacardFactory =
                 new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
@@ -530,11 +542,17 @@ public class FanoutCatalogFrameworkTest {
         OperationsMetacardSupport opsMetacardSupport = new OperationsMetacardSupport(
                 frameworkProperties,
                 metacardFactory);
+>>>>>>> master
         // Need to set these for InputValidation to work
         System.setProperty("bad.files", "none");
         System.setProperty("bad.file.extensions", "none");
         System.setProperty("bad.mime.types", "none");
 
+<<<<<<< HEAD
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
+        framework.bind(catalogProvider);
+        framework.bind(storageProvider);
+=======
         CreateOperations createOperations = new CreateOperations(frameworkProperties,
                 queryOperations,
                 sourceOperations,
@@ -550,6 +568,7 @@ public class FanoutCatalogFrameworkTest {
                 resourceOperations,
                 sourceOperations,
                 transformOperations);
+>>>>>>> master
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
         framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));

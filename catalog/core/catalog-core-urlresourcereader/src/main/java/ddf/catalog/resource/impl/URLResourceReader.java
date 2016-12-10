@@ -84,6 +84,10 @@ public class URLResourceReader implements ResourceReader {
 
     private static final String BYTES_TO_SKIP = "BytesToSkip";
 
+    private static final String USERNAME = "username";
+
+    private static final String PASSWORD = "password";
+
     private static final Set<String> QUALIFIER_SET = ImmutableSet.of(URL_HTTP_SCHEME,
             URL_HTTPS_SCHEME,
             URL_FILE_SCHEME);
@@ -332,7 +336,7 @@ public class URLResourceReader implements ResourceReader {
         try {
             LOGGER.debug("Opening connection to: {}", resourceURI.toString());
 
-            WebClient client = getWebClient(resourceURI.toString());
+            WebClient client = getWebClient(resourceURI.toString(), properties);
 
             Object subjectObj = properties.get(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj != null) {
@@ -487,7 +491,11 @@ public class URLResourceReader implements ResourceReader {
 
         try {
             if (requestedBytesToSkip > responseBytesSkipped) {
+<<<<<<< HEAD
+                LOGGER.warn("Server returned incorrect byte range, skipping first [{}] bytes",
+=======
                 LOGGER.debug("Server returned incorrect byte range, skipping first [{}] bytes",
+>>>>>>> master
                         misalignment);
                 if (in.skip(misalignment) != misalignment) {
                     throw new IOException(String.format(
@@ -548,8 +556,17 @@ public class URLResourceReader implements ResourceReader {
         return false;
     }
 
-    protected WebClient getWebClient(String uri) {
-        WebClient client = WebClient.create(uri);
+    protected WebClient getWebClient(String uri, Map<String, Serializable> properties) {
+        WebClient client;
+        if (properties.get(USERNAME) != null && properties.get(PASSWORD) != null) {
+            client = WebClient.create(uri,
+                    (String) properties.get(USERNAME),
+                    (String) properties.get(PASSWORD),
+                    null);
+        } else {
+            client = WebClient.create(uri);
+        }
+
         WebClient.getConfig(client).getHttpConduit().getClient()
                 .setAutoRedirect(getFollowRedirects());
         return client;

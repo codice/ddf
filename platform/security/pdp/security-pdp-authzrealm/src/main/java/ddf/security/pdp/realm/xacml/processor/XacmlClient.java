@@ -120,7 +120,11 @@ public class XacmlClient {
             // functionality should be re-evaluated
             FileUtils.forceMkdir(xacmlPoliciesDirectory);
         } catch (IOException e) {
+<<<<<<< HEAD
+            LOGGER.error("Unable to create directory: {}",
+=======
             LOGGER.warn("Unable to create directory: {}",
+>>>>>>> master
                     xacmlPoliciesDirectory.getAbsolutePath());
         }
         checkXacmlPoliciesDirectory(xacmlPoliciesDirectory);
@@ -252,12 +256,16 @@ public class XacmlClient {
         XMLReader xmlReader = null;
 
         try {
+<<<<<<< HEAD
+            xmlReader = new XMLFilterImpl(XMLReaderFactory.createXMLReader()) {
+=======
             XMLReader xmlParser = XMLReaderFactory.createXMLReader();
             xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
             xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
             xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
                     false);
             xmlReader = new XMLFilterImpl(xmlParser) {
+>>>>>>> master
                 @Override
                 public void startElement(String uri, String localName, String qName,
                         Attributes attributes) throws SAXException {
@@ -275,7 +283,11 @@ public class XacmlClient {
             };
         } catch (SAXException e) {
             String message = "Unable to read XACML response:\n" + xacmlResponse;
+<<<<<<< HEAD
+            LOGGER.error(message);
+=======
             LOGGER.info(message);
+>>>>>>> master
             throw new PdpException(message, e);
         }
 
@@ -294,7 +306,11 @@ public class XacmlClient {
                     new InputSource(new StringReader(xacmlResponse))), domResult);
         } catch (TransformerException e) {
             String message = "Unable to transform XACML response:\n" + xacmlResponse;
+<<<<<<< HEAD
+            LOGGER.error(message);
+=======
             LOGGER.info(message);
+>>>>>>> master
             throw new PdpException(message, e);
         } finally {
             Thread.currentThread()
@@ -328,7 +344,11 @@ public class XacmlClient {
             xacmlRequest = os.toString("UTF-8");
         } catch (ParserException | UnsupportedEncodingException e) {
             String message = "Unable to marshal XACML request.";
+<<<<<<< HEAD
+            LOGGER.error(message, e);
+=======
             LOGGER.info(message, e);
+>>>>>>> master
             throw new PdpException(message, e);
         }
 
@@ -364,7 +384,11 @@ public class XacmlClient {
 
         } catch (ParserException e) {
             String message = "Unable to unmarshal XACML response.";
+<<<<<<< HEAD
+            LOGGER.error(message);
+=======
             LOGGER.info(message);
+>>>>>>> master
             throw new PdpException(message, e);
         }
     }

@@ -335,7 +335,11 @@ The following table shows the format to use for each property type supported.
 
 |Lists of Strings
 |`name = [ "value1", "value2", ... ]`
+<<<<<<< HEAD
+|`authenticationTypes = [ "/\=SAML\|GUEST", "/admin\=SAML\|basic", "/system\=basic", "/solr\=SAML\|PKI\|basic", "/sources\=SAML\|basic", "/security-config\=SAML\|basic" ]`
+=======
 |`complexStringArray = [ "{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\ {\"VERSION\"\ \"1.1\|1.2\"\ \"image/png\"}\ \"beta\"\ 1}", "{\"url\"\ \"http://test.sample.com"\ 0.5}", "/solr\=SAML\|PKI\|basic", "/security-config\=SAML\|basic" ]`
+>>>>>>> master
 
 |Lists of Integers
 |`name = I[ "value1", "value1", ... ]`

@@ -25,8 +25,11 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZonedDateTime;
+<<<<<<< HEAD
+=======
 import java.util.ArrayList;
 import java.util.Arrays;
+>>>>>>> master
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +49,10 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 import ddf.catalog.data.Metacard;
+<<<<<<< HEAD
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+=======
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -59,6 +66,7 @@ import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.DateTime;
 import ddf.catalog.data.types.Topic;
+>>>>>>> master
 import ddf.catalog.transform.CatalogTransformerException;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
@@ -69,10 +77,13 @@ public class RegistryTransformerTest {
 
     private Parser parser;
 
+<<<<<<< HEAD
+=======
     private MetacardType metacardType;
 
     private List<MetacardType> metacardTypes;
 
+>>>>>>> master
     private void assertRegistryMetacard(Metacard meta) {
         assertThat(meta.getTags(), contains(RegistryConstants.REGISTRY_TAG));
     }
@@ -81,6 +92,10 @@ public class RegistryTransformerTest {
     public void setUp() {
         registryTransformer = new RegistryTransformer();
         parser = new XmlParser();
+<<<<<<< HEAD
+        registryTransformer.setParser(parser);
+        System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, "identityRegistryId");
+=======
         metacardTypes = new ArrayList<>();
         metacardTypes.addAll(Arrays.asList(new RegistryObjectMetacardType(),
                 new TopicAttributes(),
@@ -93,6 +108,7 @@ public class RegistryTransformerTest {
         registryTransformer.setRegistryMetacardType(metacardType);
         System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, "identityRegistryId");
 
+>>>>>>> master
     }
 
     @Test(expected = CatalogTransformerException.class)
@@ -159,6 +175,19 @@ public class RegistryTransformerTest {
         assertRegistryMetacard(metacard);
 
         assertThat(RegistryUtility.getStringAttribute(metacard,
+<<<<<<< HEAD
+                RegistryObjectMetacardType.ORGANIZATION_NAME,
+                null), is("Codice"));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_ADDRESS),
+                hasItem("1234 Some Street, Phoenix, AZ 85037, USA"));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER),
+                hasItem("(555) 555-5555 ext 1234"));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_EMAIL),
+                hasItem("emailaddress@something.com"));
+=======
                 Contact.POINT_OF_CONTACT_NAME,
                 null), is("Codice"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
@@ -168,6 +197,7 @@ public class RegistryTransformerTest {
                 Contact.POINT_OF_CONTACT_PHONE), hasItem("(555) 555-5555 ext 1234"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
                 Contact.POINT_OF_CONTACT_EMAIL), hasItem("emailaddress@something.com"));
+>>>>>>> master
     }
 
     @Test
@@ -176,6 +206,21 @@ public class RegistryTransformerTest {
         assertRegistryMetacard(metacard);
 
         assertThat(RegistryUtility.getStringAttribute(metacard,
+<<<<<<< HEAD
+                RegistryObjectMetacardType.ORGANIZATION_NAME,
+                null), is("Codice"));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_ADDRESS),
+                hasItem("1234 Some Street, AZ 85037, USA"));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER),
+                hasItem("555-5555 ext 1234"));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER), hasItem("123-4567"));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_EMAIL),
+                hasItem("emailaddress@something.com"));
+=======
                 Contact.POINT_OF_CONTACT_NAME,
                 null), is("Codice"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
@@ -186,6 +231,7 @@ public class RegistryTransformerTest {
                 Contact.POINT_OF_CONTACT_PHONE), hasItem("123-4567"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
                 Contact.POINT_OF_CONTACT_EMAIL), hasItem("emailaddress@something.com"));
+>>>>>>> master
     }
 
     @Test(expected = CatalogTransformerException.class)
@@ -302,6 +348,27 @@ public class RegistryTransformerTest {
 
         Date date = Date.from(ZonedDateTime.parse("2015-11-01T06:15:30-07:00")
                 .toInstant());
+<<<<<<< HEAD
+        assertThat(RegistryUtility.getStringAttribute(metacard,
+                RegistryObjectMetacardType.LIVE_DATE,
+                null), is(date.toString()));
+
+        date = Date.from(ZonedDateTime.parse("2015-11-01T13:15:30Z")
+                .toInstant());
+        assertThat(RegistryUtility.getStringAttribute(metacard,
+                RegistryObjectMetacardType.DATA_START_DATE,
+                null), is(date.toString()));
+
+        date = Date.from(ZonedDateTime.parse("2015-12-01T23:01:40Z")
+                .toInstant());
+        assertThat(RegistryUtility.getStringAttribute(metacard,
+                RegistryObjectMetacardType.DATA_END_DATE,
+                null), is(date.toString()));
+
+        date = Date.from(ZonedDateTime.parse("2016-01-26T17:16:34.996Z")
+                .toInstant());
+        assertThat(RegistryUtility.getStringAttribute(metacard, Metacard.MODIFIED, null),
+=======
         assertThat(RegistryUtility.getStringAttribute(metacard, Core.CREATED, null),
                 is(date.toString()));
 
@@ -318,13 +385,18 @@ public class RegistryTransformerTest {
         date = Date.from(ZonedDateTime.parse("2016-01-26T17:16:34.996Z")
                 .toInstant());
         assertThat(RegistryUtility.getStringAttribute(metacard, Core.MODIFIED, null),
+>>>>>>> master
                 is(date.toString()));
 
         assertThat(RegistryUtility.getStringAttribute(metacard,
                 RegistryObjectMetacardType.LINKS,
                 null), is("https://some/link/to/my/repo"));
 
+<<<<<<< HEAD
+        assertThat(RegistryUtility.getStringAttribute(metacard, Metacard.GEOGRAPHY, null),
+=======
         assertThat(RegistryUtility.getStringAttribute(metacard, Core.LOCATION, null),
+>>>>>>> master
                 is("POINT (112.267472 33.467944)"));
         assertThat(RegistryUtility.getStringAttribute(metacard,
                 RegistryObjectMetacardType.REGION,
@@ -336,7 +408,12 @@ public class RegistryTransformerTest {
         assertThat(attributeValuesList, hasItem("youtube"));
         assertThat(attributeValuesList, hasItem("myCamera"));
 
+<<<<<<< HEAD
+        attributeValuesList = RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.DATA_TYPES);
+=======
         attributeValuesList = RegistryUtility.getListOfStringAttribute(metacard, Topic.KEYWORD);
+>>>>>>> master
         assertThat(attributeValuesList.size(), is(2));
         assertThat(attributeValuesList, hasItem("video"));
         assertThat(attributeValuesList, hasItem("sensor"));
@@ -365,6 +442,19 @@ public class RegistryTransformerTest {
         assertThat(attributeValuesList, hasItem("SOAP"));
 
         assertThat(RegistryUtility.getStringAttribute(metacard,
+<<<<<<< HEAD
+                RegistryObjectMetacardType.ORGANIZATION_NAME,
+                null), is("Codice"));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_ADDRESS),
+                hasItem("1234 Some Street, Phoenix, AZ 85037, USA"));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER),
+                hasItem("(555) 555-5555 ext 1234"));
+        assertThat(RegistryUtility.getListOfStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_EMAIL),
+                hasItem("emailaddress@something.com"));
+=======
                 Contact.POINT_OF_CONTACT_NAME,
                 null), is("Codice"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
@@ -374,6 +464,7 @@ public class RegistryTransformerTest {
                 Contact.POINT_OF_CONTACT_PHONE), hasItem("(555) 555-5555 ext 1234"));
         assertThat(RegistryUtility.getListOfStringAttribute(metacard,
                 Contact.POINT_OF_CONTACT_EMAIL), hasItem("emailaddress@something.com"));
+>>>>>>> master
         assertThat(RegistryUtility.getStringAttribute(metacard, Metacard.POINT_OF_CONTACT, null),
                 is("john doe, (111) 111-1111 ext 1234, emailaddress@something.com"));
     }
@@ -384,6 +475,18 @@ public class RegistryTransformerTest {
         assertRegistryMetacard(metacard);
 
         assertThat(RegistryUtility.getStringAttribute(metacard,
+<<<<<<< HEAD
+                RegistryObjectMetacardType.ORGANIZATION_NAME,
+                null), is(nullValue()));
+        assertThat(RegistryUtility.getStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_ADDRESS,
+                null), is(nullValue()));
+        assertThat(RegistryUtility.getStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER,
+                null), is(nullValue()));
+        assertThat(RegistryUtility.getStringAttribute(metacard,
+                RegistryObjectMetacardType.ORGANIZATION_EMAIL,
+=======
                 Contact.POINT_OF_CONTACT_NAME,
                 null), is(nullValue()));
         assertThat(RegistryUtility.getStringAttribute(metacard,
@@ -394,6 +497,7 @@ public class RegistryTransformerTest {
                 null), is(nullValue()));
         assertThat(RegistryUtility.getStringAttribute(metacard,
                 Contact.POINT_OF_CONTACT_EMAIL,
+>>>>>>> master
                 null), is(nullValue()));
     }
 

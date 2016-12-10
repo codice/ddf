@@ -27,7 +27,10 @@ import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
+<<<<<<< HEAD
+=======
 import ddf.catalog.data.AttributeInjector;
+>>>>>>> master
 import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationStrategy;
@@ -119,8 +122,11 @@ public class FrameworkProperties {
 
     private DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
+<<<<<<< HEAD
+=======
     private List<AttributeInjector> attributeInjectors = new ArrayList<>();
 
+>>>>>>> master
     public List<CatalogProvider> getCatalogProviders() {
         return catalogProviders;
     }
@@ -375,6 +381,8 @@ public class FrameworkProperties {
     public DefaultAttributeValueRegistry getDefaultAttributeValueRegistry() {
         return defaultAttributeValueRegistry;
     }
+<<<<<<< HEAD
+=======
 
     public void setAttributeInjectors(List<AttributeInjector> attributeInjectors) {
         this.attributeInjectors = attributeInjectors;
@@ -383,4 +391,5 @@ public class FrameworkProperties {
     public List<AttributeInjector> getAttributeInjectors() {
         return attributeInjectors;
     }
+>>>>>>> master
 }

@@ -69,7 +69,11 @@ public class ResourceCacheImplSizeLimitTest {
 
     @AfterClass
     public static void oneTimeTeardown() {
+<<<<<<< HEAD
+        LOGGER.debug("instances still remaining" + Hazelcast.getAllHazelcastInstances()
+=======
         LOGGER.debug("instances still remaining{}", Hazelcast.getAllHazelcastInstances()
+>>>>>>> master
                 .size());
     }
 
@@ -309,7 +313,11 @@ public class ResourceCacheImplSizeLimitTest {
                 fileName,
                 new MetacardImpl());
         rr.setSize(rrCachedFile.length());
+<<<<<<< HEAD
+        LOGGER.debug("adding entry to cache: " + key);
+=======
         LOGGER.debug("adding entry to cache: {}", key);
+>>>>>>> master
         cacheMap.put(key, rr);
         listener.entryAdded(new EntryEvent<Object, Object>(destFileName,
                 null,
