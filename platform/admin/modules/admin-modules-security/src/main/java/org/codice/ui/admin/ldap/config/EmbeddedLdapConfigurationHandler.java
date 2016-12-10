@@ -37,6 +37,9 @@ public class EmbeddedLdapConfigurationHandler
     private static final Logger LOGGER =
             LoggerFactory.getLogger(EmbeddedLdapConfigurationHandler.class);
 
+    private static final String EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID =
+            "embeddedLdapConfigurationHandler";
+
     @Override
     public ProbeReport probe(String probeId, EmbeddedLdapConfiguration configuration) {
         // TODO: tbatie - 12/1/16 - Implement embedded LDAP probe
@@ -88,26 +91,11 @@ public class EmbeddedLdapConfigurationHandler
 
     @Override
     public String getConfigurationHandlerId() {
-        return "embeddedLdap";
+        return EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID;
     }
 
     @Override
-    public Map.Entry<String, Class> getSubtype() {
-        return new Map.Entry<String, Class>() {
-            @Override
-            public String getKey() {
-                return "embeddedLdapConfiguration";
-            }
-
-            @Override
-            public Class getValue() {
-                return EmbeddedLdapConfiguration.class;
-            }
-
-            @Override
-            public Class setValue(Class value) {
-                return null;
-            }
-        };
+    public Class getConfigClass() {
+        return EmbeddedLdapConfiguration.class;
     }
 }

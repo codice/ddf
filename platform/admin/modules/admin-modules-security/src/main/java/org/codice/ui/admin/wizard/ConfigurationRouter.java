@@ -19,6 +19,7 @@ import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,17 +46,14 @@ public class ConfigurationRouter implements SparkApplication {
 
     public static String contextPath;
 
-    private Map<String, Class> subtypesToRegister = new HashMap<>();
-
-    private List<ConfigurationHandler> configurationHandlers;
+    private Map<String, ConfigurationHandler> handlers = new HashMap<>();
 
     private Gson getGsonParser() {
         RuntimeTypeAdapterFactory rtaf = RuntimeTypeAdapterFactory.of(Configuration.class,
                 "configurationType");
-        for(Map.Entry<String, Class> entry : subtypesToRegister.entrySet()) {
-            rtaf.registerSubtype(entry.getValue(), entry.getKey());
-        }
-        return new GsonBuilder().registerTypeAdapterFactory(rtaf).create();
+        handlers.keySet().forEach(key -> rtaf.registerSubtype(handlers.get(key).getConfigClass(), key));
+        return new GsonBuilder().registerTypeAdapterFactory(rtaf)
+                .create();
     }
 
     public static ConfigurationHandler getConfigurationHandler(
@@ -67,12 +65,16 @@ public class ConfigurationRouter implements SparkApplication {
         return foundConfigHandler.isPresent() ? foundConfigHandler.get() : null;
     }
 
+    private String toJson(Object body) {
+        return getGsonParser().toJson(body);
+    }
+
     @Override
     public void init() {
 
         post("/test/:configHandlerId/:testId", (req, res) -> {
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
-            TestReport testResults = getConfigurationHandler(configurationHandlers,
+            TestReport testResults = getConfigurationHandler(new ArrayList<>(handlers.values()),
                     req.params("configHandlerId")).test(req.params("testId"), config);
 
             if (testResults.containsUnsuccessfulMessages()) {
@@ -80,12 +82,12 @@ public class ConfigurationRouter implements SparkApplication {
             }
 
             return testResults;
-        }, json -> getGsonParser().toJson(json));
+        }, this::toJson);
 
         post("/persist/:configHandlerId", (req, res) -> {
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
             // TODO: tbatie - 11/29/16 - Check if configurationHandler is running before testing
-            TestReport results = getConfigurationHandler(configurationHandlers,
+            TestReport results = getConfigurationHandler(new ArrayList<>(handlers.values()),
                     req.params("configHandlerId")).persist(config);
 
             if (results.containsUnsuccessfulMessages()) {
@@ -93,11 +95,11 @@ public class ConfigurationRouter implements SparkApplication {
             }
 
             return results;
-        }, json -> getGsonParser().toJson(json));
+        }, this::toJson);
 
         post("/probe/:configHandlerId/:probeId", (req, res) -> {
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
-            ProbeReport report = getConfigurationHandler(configurationHandlers,
+            ProbeReport report = getConfigurationHandler(new ArrayList<>(handlers.values()),
                     req.params("configHandlerId")).probe(req.params("probeId"), config);
 
             if (report.containsUnsuccessfulMessages()) {
@@ -105,17 +107,17 @@ public class ConfigurationRouter implements SparkApplication {
             }
 
             return report;
-        }, json -> getGsonParser().toJson(json));
+        }, this::toJson);
 
         get("/capabilities/:configHandlerId",
-                (req, res) -> getConfigurationHandler(configurationHandlers,
+                (req, res) -> getConfigurationHandler(new ArrayList<>(handlers.values()),
                         req.params("configHandlerId")).getCapabilities(),
-                json -> getGsonParser().toJson(json));
+                this::toJson);
 
         get("/configurations/:configHandlerId",
-                (req, res) -> getConfigurationHandler(configurationHandlers,
+                (req, res) -> getConfigurationHandler(new ArrayList<>(handlers.values()),
                         req.params("configHandlerId")).getConfigurations(),
-                json -> getGsonParser().toJson(json));
+                this::toJson);
 
         after("/*", (req, res) -> res.type(APPLICATION_JSON));
 
@@ -140,15 +142,11 @@ public class ConfigurationRouter implements SparkApplication {
     }
 
     public void setConfigurationHandlers(List<ConfigurationHandler> configurationHandlers) {
-        this.configurationHandlers = configurationHandlers;
-        configurationHandlers.forEach(this::registerConfigType);
+        configurationHandlers.forEach(handler -> handlers.put(handler.getConfigurationHandlerId(), handler));
     }
 
     public void registerConfigType(ConfigurationHandler handler) {
-        subtypesToRegister.put((String) handler.getSubtype()
-                        .getKey(),
-                (Class) handler.getSubtype()
-                        .getValue());
+        handlers.put(handler.getConfigurationHandlerId(), handler);
     }
 
 }

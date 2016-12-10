@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.xml.namespace.NamespaceContext;
@@ -49,7 +48,7 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
     public static final String NONE_FOUND = "None found";
 
-    public static final int PING_TIMEOUT = 200;
+    public static final int PING_TIMEOUT = 2000;
 
     /*********************************************************
      * NamespaceContext for Xpath queries
@@ -148,23 +147,8 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
     }
 
     @Override
-    public Map.Entry<String, Class> getSubtype() {
-        return new Map.Entry<String, Class>() {
-            @Override
-            public String getKey() {
-                return "sources";
-            }
-
-            @Override
-            public Class getValue() {
-                return SourceConfiguration.class;
-            }
-
-            @Override
-            public Class setValue(Class value) {
-                return value;
-            }
-        };
+    public Class getConfigClass() {
+        return SourceConfiguration.class;
     }
 
     /*********************************************************

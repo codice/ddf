@@ -32,7 +32,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -180,23 +179,8 @@ public class CswSourceConfigurationHandler
     }
 
     @Override
-    public Map.Entry<String, Class> getSubtype() {
-        return new Map.Entry<String, Class>() {
-            @Override
-            public String getKey() {
-                return CSW_SOURCE_CONFIGURATION_HANDLER_ID;
-            }
-
-            @Override
-            public Class getValue() {
-                return CswSourceConfiguration.class;
-            }
-
-            @Override
-            public Class setValue(Class value) {
-                return getValue();
-            }
-        };
+    public Class getConfigClass() {
+        return CswSourceConfiguration.class;
     }
 
     private String confirmCswEndpointUrl(CswSourceConfiguration configuration) {

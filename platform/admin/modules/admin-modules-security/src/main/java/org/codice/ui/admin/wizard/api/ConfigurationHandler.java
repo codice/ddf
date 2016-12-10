@@ -14,7 +14,6 @@
 package org.codice.ui.admin.wizard.api;
 
 import java.util.List;
-import java.util.Map;
 
 import org.codice.ui.admin.wizard.config.Configuration;
 
@@ -62,5 +61,5 @@ public interface ConfigurationHandler<S extends Configuration> {
      */
     String getConfigurationHandlerId();
 
-    Map.Entry<String, Class> getSubtype();
+    Class getConfigClass();
 }
