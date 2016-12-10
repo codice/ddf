@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 
 /**
  *  Maps Metacard Attributes to WFS Feature Properties. 
@@ -106,17 +107,17 @@ public class MetacardMapperImpl implements MetacardMapper {
 
     public void setTitleMapping(String featureProperty) {
         LOGGER.debug("Setting title mapping to: {}", featureProperty);
-        bidiMap.put(Metacard.TITLE, featureProperty);
+        bidiMap.put(Core.TITLE, featureProperty);
     }
 
     public void setCreatedDateMapping(String featureProperty) {
         LOGGER.debug("Setting created date mapping to: {}", featureProperty);
-        bidiMap.put(Metacard.CREATED, featureProperty);
+        bidiMap.put(Core.CREATED, featureProperty);
     }
 
     public void setModifiedDateMapping(String featureProperty) {
         LOGGER.debug("Setting modified date mapping to: {}", featureProperty);
-        bidiMap.put(Metacard.MODIFIED, featureProperty);
+        bidiMap.put(Core.MODIFIED, featureProperty);
     }
 
     public void setEffectiveDateMapping(String featureProperty) {
@@ -126,17 +127,17 @@ public class MetacardMapperImpl implements MetacardMapper {
 
     public void setExpirationDateMapping(String featureProperty) {
         LOGGER.debug("Setting expiration date mapping to: {}", featureProperty);
-        bidiMap.put(Metacard.EXPIRATION, featureProperty);
+        bidiMap.put(Core.EXPIRATION, featureProperty);
     }
 
     public void setResourceUriMapping(String featureProperty) {
         LOGGER.debug("Setting resource uri mapping to: {}", featureProperty);
-        bidiMap.put(Metacard.RESOURCE_URI, featureProperty);
+        bidiMap.put(Core.RESOURCE_URI, featureProperty);
     }
 
     public void setResourceSizeMapping(String featureProperty) {
         LOGGER.debug("Setting resource size mapping to: {}", featureProperty);
-        bidiMap.put(Metacard.RESOURCE_SIZE, featureProperty);
+        bidiMap.put(Core.RESOURCE_SIZE, featureProperty);
     }
 
     @Override
@@ -151,11 +152,11 @@ public class MetacardMapperImpl implements MetacardMapper {
 
     public void setGeographyMapping(String featureProperty) {
         LOGGER.debug("Setting geography mapping to: {}", featureProperty);
-        bidiMap.put(Metacard.GEOGRAPHY, featureProperty);
+        bidiMap.put(Core.LOCATION, featureProperty);
     }
 
     public void setThumbnailMapping(String featureProperty) {
         LOGGER.debug("Setting thumbnail mapping to: {}", featureProperty);
-        bidiMap.put(Metacard.THUMBNAIL, featureProperty);
+        bidiMap.put(Core.THUMBNAIL, featureProperty);
     }
 }

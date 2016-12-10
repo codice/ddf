@@ -16,8 +16,8 @@ package ddf.catalog.util.impl;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.util.Maskable;
 
@@ -30,7 +30,7 @@ import ddf.catalog.util.Maskable;
  */
 public class Masker {
 
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(Masker.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(Masker.class);
 
     protected List<Maskable> maskees;
 
@@ -60,8 +60,7 @@ public class Masker {
             for (Maskable masked : maskees) {
                 masked.maskId(id);
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Updating id for " + masked.getClass()
-                            .getName() + " from " + masked.getId() + " to " + this.mask);
+                    LOGGER.debug("Updating id for {} from {} to {}", masked.getClass().getName(), masked.getId(), this.mask);
                 }
             }
         }
@@ -78,8 +77,8 @@ public class Masker {
         synchronized (this) {
             if (maskSet) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Updating id for " + masked.getClass()
-                            .getName() + " from " + masked.getId() + " to " + this.mask);
+                    LOGGER.debug("Updating id for {} from {} to {}", masked.getClass().getName(), masked.getId(), this.mask);
+
                 }
                 masked.maskId(this.mask);
             }

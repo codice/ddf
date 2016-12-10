@@ -66,7 +66,7 @@ public class DeliveryProcessor {
                         subscription.getDeliveryMethod()
                                 .created(entry);
                     } catch (StopProcessingException e) {
-                        LOGGER.error("Pre-delivery plugin determined entry cannot be delivered", e);
+                        LOGGER.info("Pre-delivery plugin determined entry cannot be delivered", e);
                     }
                 } else if (operation.equalsIgnoreCase(PubSubConstants.UPDATE)) {
                     // TODO: Handle hit or miss
@@ -86,7 +86,7 @@ public class DeliveryProcessor {
                         subscription.getDeliveryMethod()
                                 .updatedHit(entry, entry);
                     } catch (StopProcessingException e) {
-                        LOGGER.error("Pre-delivery plugin determined entry cannot be delivered", e);
+                        LOGGER.info("Pre-delivery plugin determined entry cannot be delivered", e);
                     }
                 } else if (operation.equalsIgnoreCase(PubSubConstants.DELETE)) {
 
@@ -104,16 +104,16 @@ public class DeliveryProcessor {
                         subscription.getDeliveryMethod()
                                 .deleted(entry);
                     } catch (StopProcessingException e) {
-                        LOGGER.error("Pre-delivery plugin determined entry cannot be delivered", e);
+                        LOGGER.info("Pre-delivery plugin determined entry cannot be delivered", e);
                     }
                 } else {
-                    LOGGER.warn("Could not deliver hit for subscription.");
+                    LOGGER.debug("Could not deliver hit for subscription.");
                 }
             } else {
-                LOGGER.warn("Could not deliver hit for subscription. Catalog entry is null.");
+                LOGGER.debug("Could not deliver hit for subscription. Catalog entry is null.");
             }
         } else {
-            LOGGER.warn("Could not deliver hit for subscription. Subscription is null.");
+            LOGGER.debug("Could not deliver hit for subscription. Subscription is null.");
         }
 
         LOGGER.debug("EXITING: {}", methodName);

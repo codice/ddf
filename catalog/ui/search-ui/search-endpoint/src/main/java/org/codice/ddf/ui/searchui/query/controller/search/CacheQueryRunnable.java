@@ -58,7 +58,7 @@ public class CacheQueryRunnable extends QueryRunnable {
                     search.transform(request.getId()),
                     session);
         } catch (CatalogTransformerException e) {
-            LOGGER.error("Failed to transform cached search results.", e);
+            LOGGER.debug("Failed to transform cached search results.", e);
         }
 
         addResults(response.getResults());
@@ -71,9 +71,9 @@ public class CacheQueryRunnable extends QueryRunnable {
                 solrIndexFuture.get(FUTURE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                         .add(response.getResults());
             } catch (InterruptedException | IngestException e) {
-                LOGGER.error("Failed adding cached search results.", e);
+                LOGGER.info("Failed adding cached search results.", e);
             } catch (ExecutionException | TimeoutException e) {
-                LOGGER.error("Failed to create index.", e);
+                LOGGER.info("Failed to create index.", e);
             }
         }
     }

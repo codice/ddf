@@ -1,0 +1,4 @@
+|<<org.codice.ddf.security.interceptor.GuestInterceptor,Security SOAP Guest Interceptor>>
+|org.codice.ddf.security.interceptor.GuestInterceptor
+|Security SOAP Guest Interceptor
+

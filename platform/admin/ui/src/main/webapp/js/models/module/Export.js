@@ -19,12 +19,24 @@ define([
     'jquery'
 ], function (_, Backbone, $) {
 
+    var url = '/admin/jolokia/exec/org.codice.ddf.configuration.migration.ConfigurationMigrationManager:service=configuration-migration/export/';
+
+    function getEscapedPath(model) {
+        return model.get('path').split('/').join('!/');
+    }
+
     function getConstructedUrl(model) {
         return url + getEscapedPath(model);
     }
 
-    function getEscapedPath(model) {
-        return model.get('path').split('/').join('!/');
+    function addError(model, message) {
+        var errors = model.get('errors');
+        model.set('errors', errors.concat([message]));
+    }
+
+    function addWarning(model, message) {
+        var warnings = model.get('warnings');
+        model.set('warnings', warnings.concat([message]));
     }
 
     function handleSuccess(model, response) {
@@ -55,6 +67,7 @@ define([
         model.set('errors', []);
     }
 
+<<<<<<< HEAD
     function addError(model, message) {
         var errors = model.get('errors');
         model.set('errors', errors.concat([message]));
@@ -67,6 +80,8 @@ define([
 
     var url = '/admin/jolokia/exec/org.codice.ddf.configuration.migration.ConfigurationMigrationManager:service=configuration-migration/export/';
 
+=======
+>>>>>>> master
     var ExportModel = Backbone.Model.extend({
         defaults: {
             path: 'etc/exported',

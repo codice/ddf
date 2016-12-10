@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -28,17 +29,16 @@ import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneIndexer;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.shape.Shape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.shape.Shape;
-
 public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex {
-    private String indexLocation;
-
     private static final Logger LOGGER =
             LoggerFactory.getLogger(GeoNamesQueryLuceneDirectoryIndex.class);
+
+    private String indexLocation;
 
     public void setIndexLocation(final String indexLocation) {
         this.indexLocation = indexLocation;
@@ -56,8 +56,9 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
             directory = openDirectory();
             if (!indexExists(directory)) {
                 directory.close();
-                LOGGER.warn("There is no index at " + indexLocation
-                        + ". Load a Geonames file into the offline gazetteer");
+                LOGGER.debug(
+                        "There is no index at {}. Load a Geonames file into the offline gazetteer",
+                        indexLocation);
                 return null;
             }
 
@@ -101,5 +102,16 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
         final Directory directory = openDirectoryAndCheckForIndex();
 
         return doGetNearestCities(shape, radiusInKm, maxResults, directory);
+    }
+
+    @Override
+    public Optional<String> getCountryCode(String wktLocation, int radius)
+            throws GeoEntryQueryException, ParseException {
+        final Directory directory = openDirectoryAndCheckForIndex();
+
+        Shape shape = SpatialContext.GEO.readShapeFromWkt(wktLocation);
+        String countryCode = doGetCountryCode(shape, radius, directory);
+
+        return Optional.ofNullable(countryCode);
     }
 }

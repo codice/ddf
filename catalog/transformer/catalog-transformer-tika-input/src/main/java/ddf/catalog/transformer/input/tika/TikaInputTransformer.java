@@ -40,6 +40,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -65,6 +66,14 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
+<<<<<<< HEAD
+=======
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
+import org.xml.sax.helpers.XMLReaderFactory;
+>>>>>>> master
 
 import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
 import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
@@ -72,7 +81,9 @@ import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
 import ddf.catalog.content.operation.ContentMetadataExtractor;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
@@ -87,6 +98,11 @@ public class TikaInputTransformer implements InputTransformer {
     private Map<ServiceReference, ContentMetadataExtractor> contentMetadataExtractors =
             Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
 
+<<<<<<< HEAD
+=======
+    private MetacardType metacardType = null;
+
+>>>>>>> master
     public void addContentMetadataExtractors(
             ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
         Bundle bundle = getBundle();
@@ -106,7 +122,14 @@ public class TikaInputTransformer implements InputTransformer {
         contentMetadataExtractors.remove(contentMetadataExtractorRef);
     }
 
+<<<<<<< HEAD
     public TikaInputTransformer(BundleContext bundleContext) {
+=======
+    public TikaInputTransformer(BundleContext bundleContext, MetacardType metacardType) {
+
+        this.metacardType = metacardType;
+
+>>>>>>> master
         ClassLoader tccl = Thread.currentThread()
                 .getContextClassLoader();
         try {
@@ -118,14 +141,14 @@ public class TikaInputTransformer implements InputTransformer {
                             .newTemplates(new StreamSource(TikaMetadataExtractor.class.getResourceAsStream(
                                     "/metadata.xslt")));
         } catch (TransformerConfigurationException e) {
-            LOGGER.warn("Couldn't create XML transformer", e);
+            LOGGER.debug("Couldn't create XML transformer", e);
         } finally {
             Thread.currentThread()
                     .setContextClassLoader(tccl);
         }
 
         if (bundleContext == null) {
-            LOGGER.error("Bundle context is null. Unable to register {} as an osgi service.",
+            LOGGER.info("Bundle context is null. Unable to register {} as an osgi service.",
                     TikaInputTransformer.class.getSimpleName());
             return;
         }
@@ -193,16 +216,32 @@ public class TikaInputTransformer implements InputTransformer {
                         .map(ContentMetadataExtractor::getMetacardAttributes)
                         .flatMap(Collection::stream)
                         .collect(Collectors.toSet());
+<<<<<<< HEAD
 
                 metacard = MetacardCreator.createEnhancedMetacard(metadata,
                         id,
                         metadataText,
                         attributes);
+=======
+                MetacardTypeImpl extendedMetacardType = new MetacardTypeImpl(metacardType.getName(),
+                        metacardType,
+                        attributes);
+
+                metacard = MetacardCreator.createMetacard(metadata,
+                        id,
+                        metadataText,
+                        extendedMetacardType);
+
+>>>>>>> master
                 for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
                     contentMetadataExtractor.process(plainText, metacard);
                 }
             } else {
+<<<<<<< HEAD
                 metacard = MetacardCreator.createBasicMetacard(metadata, id, metadataText);
+=======
+                metacard = MetacardCreator.createMetacard(metadata, id, metadataText, metacardType);
+>>>>>>> master
             }
 
             String metacardContentType = metacard.getContentTypeName();
@@ -280,23 +319,39 @@ public class TikaInputTransformer implements InputTransformer {
                     metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbBytes));
                 }
             } else {
-                LOGGER.warn("Unable to read image from input stream to create thumbnail.");
+                LOGGER.debug("Unable to read image from input stream to create thumbnail.");
             }
         } catch (Exception e) {
-            LOGGER.warn("Unable to read image from input stream to create thumbnail.", e);
+            LOGGER.debug("Unable to read image from input stream to create thumbnail.", e);
         }
     }
 
     private String transformToXml(String xhtml) {
         LOGGER.debug("Transforming xhtml to xml.");
+
+        XMLReader xmlReader = null;
         try {
-            Writer xml = new StringWriter();
-            Transformer transformer = templates.newTransformer();
-            transformer.transform(new StreamSource(new StringReader(xhtml)), new StreamResult(xml));
-            return xml.toString();
-        } catch (TransformerException e) {
-            LOGGER.warn("Unable to transform metadata from XHTML to XML.", e);
-            return xhtml;
+            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
+            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
+            xmlReader = new XMLFilterImpl(xmlParser);
+        } catch (SAXException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
+        if (xmlReader != null) {
+            try {
+                Writer xml = new StringWriter();
+                Transformer transformer = templates.newTransformer();
+                transformer.transform(
+                        new SAXSource(xmlReader, new InputSource(new StringReader(xhtml))),
+                        new StreamResult(xml));
+                return xml.toString();
+            } catch (TransformerException e) {
+                LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);
+            }
+        }
+        return xhtml;
     }
 }

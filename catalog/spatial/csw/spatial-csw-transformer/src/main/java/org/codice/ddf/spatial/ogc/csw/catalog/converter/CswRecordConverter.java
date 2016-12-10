@@ -22,8 +22,10 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -34,11 +36,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -51,12 +53,17 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
@@ -64,23 +71,40 @@ import ddf.catalog.transform.MetacardTransformer;
 /**
  * Converts CSW Record to a Metacard.
  */
-
 public class CswRecordConverter implements Converter, MetacardTransformer, InputTransformer {
+    public static final MimeType XML_MIME_TYPE = setXmlMimeType();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswRecordConverter.class);
 
     private XStream xstream;
 
+<<<<<<< HEAD
     private static XMLInputFactory factory = XMLInputFactory.newInstance();
 
     public CswRecordConverter() {
 
+=======
+    private static XMLInputFactory factory;
+
+    private static MetacardType metacardType;
+
+    static {
+        factory = XMLInputFactory.newInstance();
+        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD,
+                Boolean.FALSE); // This disables DTDs entirely for that factory
+        factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+    }
+
+    public CswRecordConverter(MetacardType metacardType) {
+>>>>>>> master
         xstream = new XStream(new Xpp3Driver());
         xstream.setClassLoader(this.getClass()
                 .getClassLoader());
         xstream.registerConverter(this);
         xstream.alias(CswConstants.CSW_RECORD_LOCAL_NAME, Metacard.class);
         xstream.alias(CswConstants.CSW_RECORD, Metacard.class);
+        this.metacardType = getMetacardTypeWithBackwardsCompatibility(metacardType);
     }
 
     @Override
@@ -92,7 +116,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     public void marshal(Object source, HierarchicalStreamWriter writer,
             MarshallingContext context) {
         if (source == null || !(source instanceof Metacard)) {
-            LOGGER.warn("Failed to marshal Metacard: {}", source);
+            LOGGER.debug("Failed to marshal Metacard: {}", source);
             return;
         }
 
@@ -107,31 +131,18 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         MetacardImpl metacard = new MetacardImpl((Metacard) source);
 
         List<QName> fieldsToWrite = (List<QName>) arguments.get(CswConstants.ELEMENT_NAMES);
-
         if (fieldsToWrite != null) {
             CswMarshallHelper.writeFields(writer, context, metacard, fieldsToWrite);
         } else { // write all fields
             CswMarshallHelper.writeAllFields(writer, context, metacard);
         }
 
-        if ((fieldsToWrite == null
-                || fieldsToWrite.contains(CswRecordMetacardType.CSW_TEMPORAL_QNAME))
+        if ((fieldsToWrite == null || fieldsToWrite.contains(CswConstants.CSW_TEMPORAL_QNAME))
                 && metacard.getEffectiveDate() != null && metacard.getExpirationDate() != null) {
             CswMarshallHelper.writeTemporalData(writer, context, metacard);
         }
 
-        if ((fieldsToWrite == null
-                || fieldsToWrite.contains(CswRecordMetacardType.CSW_SOURCE_QNAME))
-                && metacard.getSourceId() != null) {
-            CswMarshallHelper.writeValue(writer,
-                    context,
-                    null,
-                    CswRecordMetacardType.CSW_PUBLISHER_QNAME,
-                    metacard.getSourceId());
-        }
-
-        if (fieldsToWrite == null
-                || fieldsToWrite.contains(CswRecordMetacardType.OWS_BOUNDING_BOX_QNAME)) {
+        if (fieldsToWrite == null || fieldsToWrite.contains(CswConstants.OWS_BOUNDING_BOX_QNAME)) {
             CswMarshallHelper.writeBoundingBox(writer, context, metacard);
         }
 
@@ -150,14 +161,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                     (Map<String, String>) mappingObj);
         }
 
-        String resourceUriMapping = (isString(context.get(Metacard.RESOURCE_URI))) ?
-                (String) context.get(Metacard.RESOURCE_URI) :
-                null;
-
-        String thumbnailMapping = (isString(context.get(Metacard.THUMBNAIL))) ?
-                (String) context.get(Metacard.THUMBNAIL) :
-                null;
-
         CswAxisOrder cswAxisOrder = CswAxisOrder.LON_LAT;
         Object cswAxisOrderObject = context.get(CswConstants.AXIS_ORDER_PROPERTY);
 
@@ -174,24 +177,18 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             namespaceMap = (Map<String, String>) namespaceObj;
         }
 
-        Metacard metacard = CswUnmarshallHelper.createMetacardFromCswRecord(reader,
-                cswAttrMap,
-                resourceUriMapping,
-                thumbnailMapping,
+        Metacard metacard = CswUnmarshallHelper.createMetacardFromCswRecord(metacardType,
+                reader,
                 cswAxisOrder,
                 namespaceMap);
 
-        Object sourceIdObj = context.get(Metacard.SOURCE_ID);
+        Object sourceIdObj = context.get(Core.SOURCE_ID);
 
         if (sourceIdObj instanceof String) {
             metacard.setSourceId((String) sourceIdObj);
         }
 
         return metacard;
-    }
-
-    private boolean isString(Object object) {
-        return object instanceof String;
     }
 
     @Override
@@ -209,7 +206,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             metacard = (Metacard) xstream.fromXML(inputStream);
 
             if (StringUtils.isNotEmpty(id)) {
-                metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
+                metacard.setAttribute(new AttributeImpl(Core.ID, id));
             }
         } catch (XStreamException e) {
             throw new CatalogTransformerException("Unable to transform from CSW Record to Metacard.",
@@ -245,7 +242,11 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                                 && StringUtils.equals(CswConstants.CSW_OUTPUT_SCHEMA,
                                 name.getNamespaceURI())) {
                             return new BinaryContentImpl(IOUtils.toInputStream(metacard.getMetadata()),
+<<<<<<< HEAD
                                     new MimeType());
+=======
+                                    XML_MIME_TYPE);
+>>>>>>> master
                         }
                     }
                 }
@@ -254,8 +255,11 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             }
         }
         StringWriter stringWriter = new StringWriter();
-        Boolean omitXmlDec = (Boolean) arguments.get(CswConstants.OMIT_XML_DECLARATION);
 
+        Boolean omitXmlDec = null;
+        if (arguments != null) {
+            omitXmlDec = (Boolean) arguments.get(CswConstants.OMIT_XML_DECLARATION);
+        }
         if (omitXmlDec == null || !omitXmlDec) {
             stringWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
         }
@@ -267,11 +271,11 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
         this.marshal(metacard, writer, context);
 
-        BinaryContent transformedContent = null;
+        BinaryContent transformedContent;
 
-        ByteArrayInputStream bais = new ByteArrayInputStream(stringWriter.toString()
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(stringWriter.toString()
                 .getBytes(StandardCharsets.UTF_8));
-        transformedContent = new BinaryContentImpl(bais, new MimeType());
+        transformedContent = new BinaryContentImpl(byteArrayInputStream, XML_MIME_TYPE);
         return transformedContent;
     }
 
@@ -306,19 +310,22 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      * Converts the CSW record property {@code reader} is currently at to the specified Metacard
      * attribute format.
      *
-     * @param attributeFormat the {@link AttributeType.AttributeFormat} corresponding to the type that the value
-     *                        in {@code reader} should be converted to
-     * @param reader          the reader at the element whose value you want to convert
-     * @param cswAxisOrder    the order of the coordinates in the XML being read by {@code reader}
+     * @param attributeName the String corresponding to the type that the value
+     *                      in {@code reader} should be converted to
+     * @param reader        the reader at the element whose value you want to convert
+     * @param cswAxisOrder  the order of the coordinates in the XML being read by {@code reader}
      * @return the value that was extracted from {@code reader} and is of the type described by
      * {@code attributeFormat}
      */
-    public static Serializable convertRecordPropertyToMetacardAttribute(
-            AttributeType.AttributeFormat attributeFormat, HierarchicalStreamReader reader,
-            CswAxisOrder cswAxisOrder) {
-        return CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(attributeFormat,
-                reader,
-                cswAxisOrder);
+    public static Serializable convertRecordPropertyToMetacardAttribute(String attributeName,
+            HierarchicalStreamReader reader, CswAxisOrder cswAxisOrder) {
+        AttributeDescriptor attributeDescriptor =
+                metacardType.getAttributeDescriptor(attributeName);
+        if (attributeDescriptor != null) {
+            return CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(attributeDescriptor.getType()
+                    .getAttributeFormat(), reader, cswAxisOrder);
+        }
+        return null;
     }
 
     /**
@@ -336,7 +343,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      */
     public static Attribute getMetacardAttributeFromCswAttribute(String cswAttributeName,
             Serializable cswAttributeValue, String metacardAttributeName) {
-        return CswUnmarshallHelper.getMetacardAttributeFromCswAttribute(cswAttributeName,
+        return CswUnmarshallHelper.getMetacardAttributeFromCswAttribute(metacardType,
+                cswAttributeName,
                 cswAttributeValue,
                 metacardAttributeName);
     }
@@ -349,5 +357,26 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      */
     public static String getCswAttributeFromAttributeName(String attributeName) {
         return CswUnmarshallHelper.getCswAttributeFromAttributeName(attributeName);
+    }
+
+    /**
+     * Adds the Effective Date and Content Type fields to the new taxonomy metacard for backwards compatibility
+     *
+     * @param metacardType
+     * @return a new metacard type with the effective date and content type attributes
+     */
+    private MetacardType getMetacardTypeWithBackwardsCompatibility(MetacardType metacardType) {
+        Set<AttributeDescriptor> additionalDescriptors =
+                ImmutableSet.of(BasicTypes.BASIC_METACARD.getAttributeDescriptor(Metacard.EFFECTIVE),
+                        BasicTypes.BASIC_METACARD.getAttributeDescriptor(Metacard.CONTENT_TYPE));
+        return new MetacardTypeImpl(metacardType.getName(), metacardType, additionalDescriptors);
+    }
+
+    private static MimeType setXmlMimeType() {
+        try {
+            return new MimeType(com.google.common.net.MediaType.APPLICATION_XML_UTF_8.toString());
+        } catch (MimeTypeParseException e) {
+            return new MimeType();
+        }
     }
 }

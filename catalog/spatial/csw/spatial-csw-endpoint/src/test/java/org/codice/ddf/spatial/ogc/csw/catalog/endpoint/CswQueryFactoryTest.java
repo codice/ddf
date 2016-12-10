@@ -27,6 +27,8 @@ import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -35,7 +37,6 @@ import javax.xml.namespace.QName;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
@@ -69,8 +70,20 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+<<<<<<< HEAD
+=======
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.TopicAttributes;
+import ddf.catalog.data.types.Core;
+>>>>>>> master
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -204,7 +217,11 @@ public class CswQueryFactoryTest {
 
         metacardTypeList = new ArrayList<>();
 
+<<<<<<< HEAD
         queryFactory = new CswQueryFactory(filterBuilder, filterAdapter, new CswRecordMetacardType(),
+=======
+        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter, getCswMetacardType(),
+>>>>>>> master
                 metacardTypeList);
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
@@ -280,7 +297,11 @@ public class CswQueryFactoryTest {
 
         query.setConstraint(constraint);
 
+<<<<<<< HEAD
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
+=======
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement(cswQnameOutPutSchema,
+>>>>>>> master
                 QueryType.class,
                 query);
         grr.setAbstractQuery(jaxbQuery);
@@ -527,7 +548,7 @@ public class CswQueryFactoryTest {
             FederationException {
         BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
                 TIMESTAMP);
-        ogcTemporalQuery(Metacard.CREATED,
+        ogcTemporalQuery(Core.CREATED,
                 filterObjectFactory.createPropertyIsLessThan(op),
                 Before.class);
     }
@@ -551,7 +572,7 @@ public class CswQueryFactoryTest {
             FederationException {
         BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
                 TIMESTAMP);
-        ogcTemporalQuery(Metacard.CREATED,
+        ogcTemporalQuery(Core.CREATED,
                 filterObjectFactory.createPropertyIsGreaterThan(op),
                 After.class);
     }
@@ -573,9 +594,10 @@ public class CswQueryFactoryTest {
             throws CswException, UnsupportedQueryException, SourceUnavailableException,
             FederationException {
 
-        String[] cqlTextValues = new String[] {CswConstants.CSW_CREATED, CQL_BEFORE, TIMESTAMP};
+        String[] cqlTextValues =
+                new String[] {CswConstants.CSW_NO_PREFIX_CREATED, CQL_BEFORE, TIMESTAMP};
         String cqlText = StringUtils.join(cqlTextValues, " ");
-        cqlTemporalQuery(Metacard.CREATED, cqlText, new Class[] {Before.class});
+        cqlTemporalQuery(Core.CREATED, cqlText, new Class[] {Before.class});
     }
 
     @SuppressWarnings("unchecked")
@@ -584,10 +606,9 @@ public class CswQueryFactoryTest {
             throws CswException, UnsupportedQueryException, SourceUnavailableException,
             FederationException {
 
-        String[] cqlTextValues =
-                new String[] {CswRecordMetacardType.CSW_ISSUED, CQL_AFTER, TIMESTAMP};
+        String[] cqlTextValues = new String[] {CswConstants.CSW_ISSUED, CQL_AFTER, TIMESTAMP};
         String cqlText = StringUtils.join(cqlTextValues, " ");
-        cqlTemporalQuery(Metacard.MODIFIED, cqlText, new Class[] {After.class});
+        cqlTemporalQuery(Core.MODIFIED, cqlText, new Class[] {After.class});
     }
 
     @SuppressWarnings("unchecked")
@@ -597,8 +618,7 @@ public class CswQueryFactoryTest {
             FederationException {
 
         String[] cqlTextValues =
-                new String[] {CswRecordMetacardType.CSW_DATE_ACCEPTED, CQL_DURING, TIMESTAMP, "/",
-                        DURATION};
+                new String[] {CswConstants.CSW_DATE_ACCEPTED, CQL_DURING, TIMESTAMP, "/", DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.EFFECTIVE, cqlText, new Class[] {During.class});
     }
@@ -610,10 +630,10 @@ public class CswQueryFactoryTest {
             FederationException {
 
         String[] cqlTextValues =
-                new String[] {CswRecordMetacardType.CSW_DATE, CQL_BEFORE_OR_DURING, TIMESTAMP, "/",
+                new String[] {CswConstants.CSW_DATE, CQL_BEFORE_OR_DURING, TIMESTAMP, "/",
                         DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
-        cqlTemporalQuery(Metacard.MODIFIED, cqlText, new Class[] {Before.class, During.class});
+        cqlTemporalQuery(Core.MODIFIED, cqlText, new Class[] {Before.class, During.class});
     }
 
     @SuppressWarnings("unchecked")
@@ -623,10 +643,10 @@ public class CswQueryFactoryTest {
             FederationException {
 
         String[] cqlTextValues =
-                new String[] {CswRecordMetacardType.CSW_VALID, CQL_DURING_OR_AFTER, TIMESTAMP, "/",
+                new String[] {CswConstants.CSW_VALID, CQL_DURING_OR_AFTER, TIMESTAMP, "/",
                         DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
-        cqlTemporalQuery(Metacard.EXPIRATION, cqlText, new Class[] {During.class, After.class});
+        cqlTemporalQuery(Core.EXPIRATION, cqlText, new Class[] {During.class, After.class});
     }
 
     @Test
@@ -1040,7 +1060,11 @@ public class CswQueryFactoryTest {
         constraint.setCqlText(cqlSpatialDwithinQuery);
 
         query.setConstraint(constraint);
+<<<<<<< HEAD
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
+=======
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement(cswQnameOutPutSchema,
+>>>>>>> master
                 QueryType.class,
                 query);
 
@@ -1114,6 +1138,32 @@ public class CswQueryFactoryTest {
                 query);
         grr.setAbstractQuery(jaxbQuery);
         return grr;
+    }
+
+    public static MetacardType getCswMetacardType() {
+        return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
+                Arrays.asList(new ContactAttributes(),
+                        new LocationAttributes(),
+                        new MediaAttributes(),
+                        new TopicAttributes(),
+                        new AssociationsAttributes(),
+                        new MetacardTypeImpl("TestDate",
+                                Collections.singleton(new AttributeDescriptorImpl("TestDate",
+                                        true,
+                                        true,
+                                        true,
+                                        false,
+                                        new AttributeType<Date>() {
+                                            @Override
+                                            public Class<Date> getBinding() {
+                                                return Date.class;
+                                            }
+
+                                            @Override
+                                            public AttributeFormat getAttributeFormat() {
+                                                return AttributeFormat.DATE;
+                                            }
+                                        })))));
     }
 
 }

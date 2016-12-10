@@ -15,15 +15,16 @@ package ddf.catalog.source.solr;
 
 import static org.junit.Assert.assertEquals;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.codice.solr.factory.ConfigurationFileProxy;
-import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.EmbeddedSolrFactory;
+import org.codice.solr.factory.impl.ConfigurationFileProxy;
+import org.codice.solr.factory.impl.ConfigurationStore;
+import org.codice.solr.factory.impl.EmbeddedSolrFactory;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -89,6 +90,7 @@ public abstract class SolrProviderTestCase {
         System.setProperty("https.protocols", "TLSv1.1, TLSv1.2");
         threadPoolSize = System.getProperty("org.codice.ddf.system.threadPoolSize");
         System.setProperty("org.codice.ddf.system.threadPoolSize", "128");
+        System.setProperty("ddf.home", Paths.get("target/surefire/solr").toString());
         LOGGER.info("RUNNING one-time setup.");
         ConfigurationStore.getInstance()
                 .setInMemory(true);
@@ -98,6 +100,7 @@ public abstract class SolrProviderTestCase {
                 ConfigurationStore.getInstance());
 
         provider = new SolrCatalogProvider(EmbeddedSolrFactory.getEmbeddedSolrServer(
+                "catalog",
                 "solrconfig-inmemory.xml",
                 "schema.xml",
                 configurationFileProxy),

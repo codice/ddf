@@ -66,6 +66,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 
 public abstract class AbstractFeatureConverter implements FeatureConverter {
 
@@ -75,6 +76,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             "Error parsing Geometry from feature xml.";
 
     protected static final String UTF8_ENCODING = "UTF-8";
+
+    protected static final String EXT_PREFIX = "ext.";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureConverter.class);
 
@@ -123,7 +126,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     public void setMetacardType(MetacardType metacardType) {
         this.metacardType = metacardType;
-        this.prefix = metacardType.getName() + ".";
+        this.prefix = EXT_PREFIX + metacardType.getName() + ".";
     }
 
     public void setCoordinateOrder(String coordinateOrder) {
@@ -141,7 +144,6 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     protected Metacard createMetacardFromFeature(HierarchicalStreamReader hreader,
             MetacardType metacardType) {
-        String propertyPrefix = metacardType.getName() + ".";
         StringWriter metadataWriter = new StringWriter();
         HierarchicalStreamReader reader = copyXml(hreader, metadataWriter);
         MetacardImpl mc = new MetacardImpl(metacardType);
@@ -150,7 +152,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
-            String featureProperty = propertyPrefix + reader.getNodeName();
+            String featureProperty = prefix + reader.getNodeName();
             AttributeDescriptor attributeDescriptor = metacardType.getAttributeDescriptor(
                     featureProperty);
 
@@ -174,7 +176,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                     .equals(attributeDescriptor.getType()
                             .getAttributeFormat()))) {
                 if (StringUtils.isNotBlank(mappedMetacardAttribute)) {
-                    if (StringUtils.equals(mappedMetacardAttribute, Metacard.RESOURCE_SIZE)) {
+                    if (StringUtils.equals(mappedMetacardAttribute, Core.RESOURCE_SIZE)) {
                         String sizeBeforeConversion = reader.getValue();
                         String bytes = convertToBytes(reader, metacardMapper.getDataUnit());
                         if (StringUtils.isNotBlank(bytes)) {
@@ -239,7 +241,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                 mc.setTargetNamespace(namespaceUri);
             }
         } catch (URISyntaxException e) {
-            LOGGER.error("Error setting target namespace uri on metacard.  Exception {}", e);
+            LOGGER.debug("Error setting target namespace uri on metacard.", e);
         }
 
         return mc;
@@ -279,12 +281,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             Geometry geo = null;
             try {
                 geo = gmlReader.read(xml, null);
-            } catch (SAXException e) {
-                LOGGER.warn(ERROR_PARSING_MESSAGE, e);
-            } catch (IOException e) {
-                LOGGER.warn(ERROR_PARSING_MESSAGE, e);
-            } catch (ParserConfigurationException e) {
-                LOGGER.warn(ERROR_PARSING_MESSAGE, e);
+            } catch (SAXException | IOException | ParserConfigurationException e) {
+                LOGGER.debug(ERROR_PARSING_MESSAGE, e);
             }
             if (geo != null) {
                 WKTWriter wktWriter = new WKTWriter();
@@ -296,7 +294,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                 ser = reader.getValue()
                         .getBytes(UTF8_ENCODING);
             } catch (UnsupportedEncodingException e) {
-                LOGGER.warn("Error encoding the binary value into the metacard.", e);
+                LOGGER.debug("Error encoding the binary value into the metacard.", e);
             }
             break;
         case DATE:

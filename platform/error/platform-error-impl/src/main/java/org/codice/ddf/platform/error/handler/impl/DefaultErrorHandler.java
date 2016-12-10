@@ -51,10 +51,10 @@ public class DefaultErrorHandler implements ErrorHandler {
                     indexHtml = IOUtils.toString(bundle.getEntry("/index.html")
                             .openStream());
                 } catch (Exception e) {
-                    LOGGER.error("Unable to read/parse index.html.", e);
+                    LOGGER.debug("Unable to read/parse index.html.", e);
                 }
             } else {
-                LOGGER.error("Unable to retrieve Bundle");
+                LOGGER.debug("Unable to retrieve Bundle");
             }
         }
     }
@@ -85,7 +85,7 @@ public class DefaultErrorHandler implements ErrorHandler {
             writer.flush();
             writer.writeTo(response.getOutputStream());
         } catch (IOException e) {
-            LOGGER.error("Unable to write error html data to client.");
+            LOGGER.debug("Unable to write error html data to client.");
         }
     }
 

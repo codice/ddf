@@ -70,7 +70,7 @@ public class ReportingMetacardValidatorImplTest {
                 Sets.newHashSet(FutureDateValidator.getInstance()));
         final EnumerationValidator enumerationValidator = new EnumerationValidator(Sets.newHashSet(
                 "application/xml",
-                "text/xml"));
+                "text/xml"), false);
         registry.registerValidators(Metacard.CONTENT_TYPE, Sets.newHashSet(enumerationValidator));
     }
 

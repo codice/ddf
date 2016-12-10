@@ -27,6 +27,14 @@
         <AD name="Fanout tag blacklist" id="fanoutTagBlacklist" required="true" type="String"
             cardinality="100"
             description="Ingest operations with tags in this list will be rejected."/>
+<<<<<<< HEAD
+=======
+
+    </OCD>
+
+    <OCD name="Query Operations"
+         id="ddf.catalog.impl.operations.QueryOperations">
+>>>>>>> master
         <AD name="Fanout proxy tag blacklist" id="fanoutProxyTagBlacklist" required="true"
             type="String" cardinality="100"
             default="registry,registry-remote"
@@ -38,6 +46,15 @@
         <AD name="Enable Versioning" id="historyEnabled" required="true" type="Boolean"
             default="true"
             description="Enables versioning of both metacards and content."/>
+<<<<<<< HEAD
+=======
+    </OCD>
+
+    <OCD name="Source Poller" id="ddf.catalog.util.impl.SourcePoller">
+        <AD name="Interval" id="interval" required="true" type="Integer"
+            default="1"
+            description="The interval (in minutes) at which to execute successive source polling. Must be a positive, nonzero integer."/>
+>>>>>>> master
     </OCD>
 
     <Designate
@@ -50,5 +67,18 @@
         <Object ocdref="ddf.catalog.history.Historian"/>
     </Designate>
 
+<<<<<<< HEAD
 
 </metatype:MetaData>
+=======
+    <Designate pid="ddf.catalog.util.impl.SourcePoller">
+        <Object ocdref="ddf.catalog.util.impl.SourcePoller"/>
+    </Designate>
+
+    <Designate pid="ddf.catalog.impl.operations.QueryOperations">
+        <Object ocdref="ddf.catalog.impl.operations.QueryOperations"></Object>
+    </Designate>
+
+
+</metatype:MetaData>
+>>>>>>> master

@@ -21,7 +21,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,6 +71,12 @@ public class LandingPage extends HttpServlet {
     private String externalUrl;
 
     private List<String> announcements;
+
+    private String linksTitle;
+
+    private List<String> links;
+
+    private Map<String, String> parsedLinks;
 
     private static final String LANDING_PAGE_FILE = "index";
 
@@ -170,6 +178,33 @@ public class LandingPage extends HttpServlet {
         sortAnnouncementsByDate();
     }
 
+    public void setLinks(List<String> links) {
+        this.links = links;
+        parseLinks();
+    }
+
+    public Map<String, String> getParsedLinks() {
+        return parsedLinks;
+    }
+
+    private void parseLinks() {
+        parsedLinks = new HashMap<>();
+        for (String link : links) {
+            if (StringUtils.countMatches(link, ",") != 1) {
+                LOGGER.warn("Unable to parse link (" + link + "). Links should have exactly one comma.");
+                continue;
+            }
+            String[] parts = link.split(",");
+            String text = parts[0].trim();
+            String url = parts[1].trim();
+            if (text.isEmpty() || url.isEmpty()) {
+                LOGGER.warn("Unable to parse link (" + link + "). Neither the text nor the URL can be empty.");
+                continue;
+            }
+            parsedLinks.put(text, url);
+        }
+    }
+
     public void setBackground(String background) {
         this.background = background;
     }
@@ -180,6 +215,14 @@ public class LandingPage extends HttpServlet {
 
     public void setLogo(String logo) {
         this.logo = logo;
+    }
+
+    public String getLinksTitle() {
+        return linksTitle;
+    }
+
+    public void setLinksTitle(String linksTitle) {
+        this.linksTitle = linksTitle.trim();
     }
 
     private void sortAnnouncementsByDate() {
@@ -243,7 +286,7 @@ public class LandingPage extends HttpServlet {
             final Template template = handlebars.compile(LANDING_PAGE_FILE);
             landingPageHtml = template.apply(context);
         } catch (IOException e) {
-            LOGGER.info("Unable to compile template.", e);
+            LOGGER.info("Unable to compile Landing Page template.", e);
             landingPageHtml =
                     "<p>We are experiencing some issues. Please contact an administrator.</p>";
         }

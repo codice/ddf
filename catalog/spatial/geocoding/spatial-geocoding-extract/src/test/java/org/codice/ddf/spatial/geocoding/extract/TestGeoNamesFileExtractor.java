@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -88,15 +88,24 @@ public class TestGeoNamesFileExtractor extends TestBase {
                 -114.05301,
                 "PPLA2",
                 28068,
-                "IGM,Kingman,Kingmen,Kingmun");
+                "IGM,Kingman,Kingmen,Kingmun",
+                "US");
         verifyGeoEntry(geoEntryList.get(1),
                 "Lake Havasu City",
                 34.4839,
                 -114.32245,
                 "PPL",
                 52527,
-                "HII,Lejk Khavasu Siti,Lejk-Gavasu-Siti");
-        verifyGeoEntry(geoEntryList.get(2), "Marana", 32.43674, -111.22538, "PPL", 34961, "MZJ");
+                "HII,Lejk Khavasu Siti,Lejk-Gavasu-Siti",
+                "US");
+        verifyGeoEntry(geoEntryList.get(2),
+                "Marana",
+                32.43674,
+                -111.22538,
+                "PPL",
+                34961,
+                "MZJ",
+                "US");
     }
 
     private void testFileExtractionAllAtOnce(final String fileLocation,

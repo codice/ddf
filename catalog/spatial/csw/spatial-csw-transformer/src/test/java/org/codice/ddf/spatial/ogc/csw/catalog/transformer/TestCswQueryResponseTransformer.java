@@ -13,10 +13,17 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+<<<<<<< HEAD
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+=======
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
+>>>>>>> master
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
@@ -35,6 +42,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.activation.MimeType;
 import javax.ws.rs.WebApplicationException;
@@ -54,8 +62,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -78,10 +86,6 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 public class TestCswQueryResponseTransformer {
-
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(TestCswQueryResponseTransformer.class);
-
     private CswQueryResponseTransformer transformer;
 
     private Filter filter = mock(Filter.class);
@@ -94,8 +98,6 @@ public class TestCswQueryResponseTransformer {
 
     private MetacardTransformer mockMetacardTransformer;
 
-    private BinaryContent mockBinaryContent;
-
     private Query mockQuery;
 
     private SourceResponse mockSourceResponse;
@@ -105,8 +107,6 @@ public class TestCswQueryResponseTransformer {
     private Map<String, Serializable> mockArguments;
 
     private List<Result> mockResults;
-
-    private Serializable mockSerializable;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -122,12 +122,8 @@ public class TestCswQueryResponseTransformer {
         mockQueryRequest = mock(QueryRequest.class);
         mockArguments = mock(Map.class);
         mockResults = mock(List.class);
-        mockSerializable = mock(Serializable.class);
-        mockBinaryContent = mock(BinaryContent.class);
-
         transformer = new CswQueryResponseTransformer(mockTransformerManager,
                 mockPrintWriterProvider);
-
     }
 
     @Test
@@ -199,7 +195,7 @@ public class TestCswQueryResponseTransformer {
         when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(mockPrintWriter);
         when(mockPrintWriter.makeString()).thenReturn(new String());
 
-        when(mockSourceResponse.getResults()).thenReturn(Collections.<Result>emptyList());
+        when(mockSourceResponse.getResults()).thenReturn(Collections.emptyList());
         when(mockSourceResponse.getRequest()).thenReturn(mockQueryRequest);
         when(mockQueryRequest.getQuery()).thenReturn(mockQuery);
         when(mockArguments.get(CswConstants.RESULT_TYPE_PARAMETER)).thenReturn(ResultType.RESULTS);
@@ -217,9 +213,8 @@ public class TestCswQueryResponseTransformer {
         verify(mockPrintWriter, times(1)).startNode(strArgCaptor.capture());
 
         List<String> values = strArgCaptor.getAllValues();
-        assertThat("Missing root GetRecordByIdResponse node.",
-                values.get(0),
-                is(CswQueryResponseTransformer.RECORD_BY_ID_RESPONSE_QNAME));
+        assertThat("Missing root GetRecordByIdResponse node.", values.get(0), is(
+                CswQueryResponseTransformer.RECORD_BY_ID_RESPONSE_QNAME));
 
     }
 
@@ -237,7 +232,7 @@ public class TestCswQueryResponseTransformer {
 
         // given
         transformer.init();
-        BinaryContent bc = transformer.transform(mockSourceResponse, mockArguments);
+        transformer.transform(mockSourceResponse, mockArguments);
         transformer.destroy();
 
         // then
@@ -269,7 +264,7 @@ public class TestCswQueryResponseTransformer {
         // when
         when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(mockPrintWriter);
         when(mockPrintWriter.makeString()).thenReturn(new String());
-        when(mockSourceResponse.getResults()).thenReturn(Collections.<Result>emptyList());
+        when(mockSourceResponse.getResults()).thenReturn(Collections.emptyList());
         when(mockSourceResponse.getRequest()).thenReturn(mockQueryRequest);
         when(mockQueryRequest.getQuery()).thenReturn(mockQuery);
         when(mockArguments.get(CswConstants.RESULT_TYPE_PARAMETER)).thenReturn(ResultType.RESULTS);
@@ -278,7 +273,7 @@ public class TestCswQueryResponseTransformer {
 
         // given
         transformer.init();
-        BinaryContent bc = transformer.transform(mockSourceResponse, mockArguments);
+        transformer.transform(mockSourceResponse, mockArguments);
         transformer.destroy();
 
         // then
@@ -297,7 +292,7 @@ public class TestCswQueryResponseTransformer {
         // when
         when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(mockPrintWriter);
         when(mockPrintWriter.makeString()).thenReturn(new String());
-        when(mockSourceResponse.getResults()).thenReturn(Collections.<Result>emptyList());
+        when(mockSourceResponse.getResults()).thenReturn(Collections.emptyList());
         when(mockSourceResponse.getRequest()).thenReturn(mockQueryRequest);
         when(mockQueryRequest.getQuery()).thenReturn(mockQuery);
         when(mockArguments.get(CswConstants.RESULT_TYPE_PARAMETER)).thenReturn(ResultType.RESULTS);
@@ -306,14 +301,13 @@ public class TestCswQueryResponseTransformer {
 
         // given
         transformer.init();
-        BinaryContent bc = transformer.transform(mockSourceResponse, mockArguments);
+        transformer.transform(mockSourceResponse, mockArguments);
         transformer.destroy();
 
         // then
         ArgumentCaptor<String> pwCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockPrintWriter, times(3)).startNode(pwCaptor.capture());
 
-        //LOGGER.info("[" + StringUtils.join(strArgCaptor.getAllValues(), ", ") + "]");
         List<String> values = pwCaptor.getAllValues();
         assertThat("Missing XML node.",
                 values.get(0),
@@ -338,7 +332,7 @@ public class TestCswQueryResponseTransformer {
         query.setStartPosition(BigInteger.valueOf(4));
         SourceResponse sourceResponse = createSourceResponse(query, 22);
 
-        Map<String, Serializable> args = new HashMap<String, Serializable>();
+        Map<String, Serializable> args = new HashMap<>();
         args.put(CswConstants.RESULT_TYPE_PARAMETER, ResultType.VALIDATE);
         args.put(CswConstants.GET_RECORDS, query);
 
@@ -359,6 +353,58 @@ public class TestCswQueryResponseTransformer {
     }
 
     @Test
+<<<<<<< HEAD
+=======
+    public void testMarshalAcknowledgementWithFailedTransforms()
+            throws WebApplicationException, IOException, JAXBException,
+            CatalogTransformerException {
+
+        GetRecordsType query = new GetRecordsType();
+        query.setResultType(ResultType.RESULTS);
+        query.setMaxRecords(BigInteger.valueOf(6));
+        query.setStartPosition(BigInteger.valueOf(0));
+        SourceResponse sourceResponse = createSourceResponse(query, 6);
+
+        Map<String, Serializable> args = new HashMap<>();
+        args.put(CswConstants.RESULT_TYPE_PARAMETER, ResultType.RESULTS);
+        args.put(CswConstants.GET_RECORDS, query);
+
+        PrintWriter printWriter = getSimplePrintWriter();
+        MetacardTransformer mockMetacardTransformer = mock(MetacardTransformer.class);
+
+        final AtomicLong atomicLong = new AtomicLong(0);
+        when(mockMetacardTransformer.transform(any(Metacard.class), anyMap())).then(invocationOnMock -> {
+            if (atomicLong.incrementAndGet() == 2) {
+                throw new CatalogTransformerException("");
+            }
+
+            Metacard metacard = (Metacard) invocationOnMock.getArguments()[0];
+            BinaryContentImpl bci = new BinaryContentImpl(IOUtils.toInputStream(
+                    metacard.getId() + ","), new MimeType("application/xml"));
+            return bci;
+        });
+
+        when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(printWriter);
+        when(mockTransformerManager.getTransformerBySchema(anyString())).thenReturn(
+                mockMetacardTransformer);
+
+        CswQueryResponseTransformer cswQueryResponseTransformer = new CswQueryResponseTransformer(
+                mockTransformerManager,
+                mockPrintWriterProvider);
+        cswQueryResponseTransformer.init();
+        BinaryContent content = cswQueryResponseTransformer.transform(sourceResponse, args);
+        cswQueryResponseTransformer.destroy();
+
+        String xml = new String(content.getByteArray());
+        assertThat(xml, containsString(
+                CswQueryResponseTransformer.NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE + " 6"));
+        assertThat(xml, containsString(
+                CswQueryResponseTransformer.NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE + " 5"));
+        assertThat(xml, containsString(CswQueryResponseTransformer.NEXT_RECORD_ATTRIBUTE + " 0"));
+    }
+
+    @Test
+>>>>>>> master
     public void verifyResultOrderIsMaintained() throws CatalogTransformerException, IOException {
         // when
         when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(mockPrintWriter);
@@ -381,7 +427,11 @@ public class TestCswQueryResponseTransformer {
 
         // given
         transformer.init();
+<<<<<<< HEAD
         BinaryContent bc = transformer.transform(mockSourceResponse, mockArguments);
+=======
+        transformer.transform(mockSourceResponse, mockArguments);
+>>>>>>> master
         transformer.destroy();
 
         // then
@@ -417,11 +467,8 @@ public class TestCswQueryResponseTransformer {
             last = next - 1;
             if (last >= resultCount) {
                 last = resultCount;
-                next = 0;
             }
         }
-        int returned = last - first + 1;
-
         QueryImpl query = new QueryImpl(filter, first, max, null, true, 0);
         SourceResponseImpl sourceResponse = new SourceResponseImpl(new QueryRequestImpl(query),
                 createResults(first, last));
@@ -430,7 +477,7 @@ public class TestCswQueryResponseTransformer {
     }
 
     private List<Result> createResults(int start, int finish) {
-        List<Result> list = new LinkedList<Result>();
+        List<Result> list = new LinkedList<>();
 
         for (int i = start; i <= finish; i++) {
             MetacardImpl metacard = new MetacardImpl();
@@ -446,7 +493,7 @@ public class TestCswQueryResponseTransformer {
     }
 
     private JAXBContext getJaxBContext() throws JAXBException {
-        JAXBContext context = null;
+        JAXBContext context;
         String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
                 CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
                 CswConstants.OGC_OWS_PACKAGE}, ":");
@@ -455,5 +502,63 @@ public class TestCswQueryResponseTransformer {
                 CswJAXBElementProvider.class.getClassLoader());
 
         return context;
+    }
+
+    private PrintWriter getSimplePrintWriter() {
+        return new PrintWriter() {
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            @Override
+            public void setRawValue(String s) {
+                stringBuilder.append(s);
+            }
+
+            @Override
+            public String makeString() {
+                return stringBuilder.toString();
+            }
+
+            @Override
+            public void startNode(String s, Class aClass) {
+                stringBuilder.append(s);
+            }
+
+            @Override
+            public void startNode(String s) {
+                stringBuilder.append(s);
+            }
+
+            @Override
+            public void addAttribute(String s, String s1) {
+                stringBuilder.append(s);
+                stringBuilder.append(" ");
+                stringBuilder.append(s1);
+            }
+
+            @Override
+            public void setValue(String s) {
+                stringBuilder.append(s);
+            }
+
+            @Override
+            public void endNode() {
+            }
+
+            @Override
+            public void flush() {
+
+            }
+
+            @Override
+            public void close() {
+
+            }
+
+            @Override
+            public HierarchicalStreamWriter underlyingWriter() {
+                return null;
+            }
+        };
     }
 }

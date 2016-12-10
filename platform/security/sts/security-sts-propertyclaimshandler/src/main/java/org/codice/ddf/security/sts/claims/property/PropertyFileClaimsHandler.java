@@ -77,7 +77,7 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
         }
         String user = getUser(principal);
         if (user == null) {
-            LOGGER.warn(
+            LOGGER.info(
                     "Could not determine user name, possible authentication error. Returning no claims.");
             return claimsColl;
         }

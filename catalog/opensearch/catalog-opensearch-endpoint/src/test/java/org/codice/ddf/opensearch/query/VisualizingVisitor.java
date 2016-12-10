@@ -26,15 +26,14 @@ import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 public class VisualizingVisitor extends DefaultFilterVisitor {
 
     public static final String SEPARATOR = " - ";
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(VisualizingVisitor.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(VisualizingVisitor.class);
 
     private int indent = 0;
 

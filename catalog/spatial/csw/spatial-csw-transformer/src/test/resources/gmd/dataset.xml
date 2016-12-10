@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- VMAP 0 gmd based instance document -->
-<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.isotc211.org/2005/gmd ../../../../../../iso/19139/20060504/gmd/gmd.xsd" id="VMAP0">
+<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.isotc211.org/2005/gmd ../../../../../../iso/19139/20060504/gmd/gmd.xsd">
 	<!-- apiso:identifier -->
 	<fileIdentifier>
 		<gco:CharacterString>550e8400-e29b-41d4-a716-48957441234</gco:CharacterString>
@@ -18,16 +18,49 @@
 	<contact>
 		<CI_ResponsibleParty>
 			<organisationName>
-				<gco:CharacterString>example organization</gco:CharacterString>
+				<gco:CharacterString>Codice Foundation</gco:CharacterString>
 			</organisationName>
+			<positionName>
+				<gco:CharacterString>Prime Minister</gco:CharacterString>
+			</positionName>
 			<contactInfo>
 				<CI_Contact>
-					<address xlink:href="#ID00003"/>
-					<onlineResource xlink:href="#ID00009"/>
+					<phone>
+						<CI_Telephone>
+							<voice>
+								<gco:CharacterString>12345</gco:CharacterString>
+							</voice>
+							<voice>
+								<gco:CharacterString>56789</gco:CharacterString>
+							</voice>
+						</CI_Telephone>
+					</phone>
+					<address>
+						<CI_Address>
+							<deliveryPoint>
+								<gco:CharacterString>10 Downing Street</gco:CharacterString>
+							</deliveryPoint>
+							<city>
+								<gco:CharacterString>London</gco:CharacterString>
+							</city>
+							<administrativeArea>
+								<gco:CharacterString>Westminster</gco:CharacterString>
+							</administrativeArea>
+							<postalCode>
+								<gco:CharacterString>SW1A 2AA</gco:CharacterString>
+							</postalCode>
+							<country>
+								<gco:CharacterString>United Kingdom</gco:CharacterString>
+							</country>
+							<electronicMailAddress>
+								<gco:CharacterString>theresa.may@gov.uk</gco:CharacterString>
+							</electronicMailAddress>
+						</CI_Address>
+					</address>
 				</CI_Contact>
 			</contactInfo>
 			<role>
-				<CI_RoleCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode" codeListValue="publisher"/>
+				<CI_RoleCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode" codeListValue="pointOfContact">Point of Contact</CI_RoleCode>
 			</role>
 		</CI_ResponsibleParty>
 	</contact>
@@ -60,6 +93,18 @@
 				</RS_Identifier>
 			</referenceSystemIdentifier>
 		</MD_ReferenceSystem>
+        <MD_ReferenceSystem>
+            <referenceSystemIdentifier>
+                <RS_Identifier>
+                    <code>
+                        <gco:CharacterString>4326</gco:CharacterString>
+                    </code>
+                    <codeSpace>
+                        <gco:CharacterString>EPSG</gco:CharacterString>
+                    </codeSpace>
+                </RS_Identifier>
+            </referenceSystemIdentifier>
+        </MD_ReferenceSystem>
 	</referenceSystemInfo>
 	<!-- END REFERENCE SYSTEM INFORMATION -->
 	<!-- IDENTIFICATION INFORMATION -->
@@ -74,10 +119,40 @@
 					<date>
 						<CI_Date>
 							<date>
-								<gco:Date>2000-09-03</gco:Date>
+								<gco:DateTime>2004-03-14T12:00:00Z</gco:DateTime>
 							</date>
 							<dateType>
-								<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="publication"/>
+								<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="revision">Revision</CI_DateTypeCode>
+							</dateType>
+						</CI_Date>
+					</date>
+					<date>
+						<CI_Date>
+							<date>
+								<gco:Date>2004-03-04</gco:Date>
+							</date>
+							<dateType>
+								<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="expiry">Expiry</CI_DateTypeCode>
+							</dateType>
+						</CI_Date>
+					</date>
+					<date>
+						<CI_Date>
+							<date>
+								<gco:Date>2004-03-10</gco:Date>
+							</date>
+							<dateType>
+								<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="creation">Creation</CI_DateTypeCode>
+							</dateType>
+						</CI_Date>
+					</date>
+					<date>
+						<CI_Date>
+							<date>
+								<gco:Date>2004-03-01</gco:Date>
+							</date>
+							<dateType>
+								<CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="publication">Publication</CI_DateTypeCode>
 							</dateType>
 						</CI_Date>
 					</date>
@@ -101,7 +176,7 @@
 					</presentationForm>
 				</CI_Citation>
 			</citation>
-			<!-- apisoLabstract -->
+			<!-- apiso:abstract -->
 			<abstract>
 				<gco:CharacterString>Vector Map: a general purpose database design to support GIS applications</gco:CharacterString>
 			</abstract>
@@ -118,6 +193,16 @@
 					</positionName>
 					<contactInfo>
 						<CI_Contact id="ID00002">
+                            <phone>
+                                <CI_Telephone>
+                                    <voice>
+                                        <gco:CharacterString>12345</gco:CharacterString>
+                                    </voice>
+                                    <voice>
+                                        <gco:CharacterString>56789</gco:CharacterString>
+                                    </voice>
+                                </CI_Telephone>
+                            </phone>
 							<address>
 								<CI_Address id="ID00003">
 									<deliveryPoint>
@@ -135,6 +220,9 @@
 									<country>
 										<gco:CharacterString>United States</gco:CharacterString>
 									</country>
+                                    <electronicMailAddress>
+                                        <gco:CharacterString>example@email.com</gco:CharacterString>
+                                    </electronicMailAddress>
 								</CI_Address>
 							</address>
 							<onlineResource>
@@ -221,16 +309,6 @@
 					</type>
 				</MD_Keywords>
 			</descriptiveKeywords>
-			<resourceConstraints>
-				<MD_SecurityConstraints>
-					<classification>
-						<MD_ClassificationCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ClassificationCode" codeListValue="unclassified"/>
-					</classification>
-					<handlingDescription>
-						<gco:CharacterString>RELEASABILITY - unrestricted</gco:CharacterString>
-					</handlingDescription>
-				</MD_SecurityConstraints>
-			</resourceConstraints>
 			<spatialRepresentationType>
 				<MD_SpatialRepresentationTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_SpatialRepresentationTypeCode" codeListValue="vector"/>
 			</spatialRepresentationType>
@@ -248,7 +326,7 @@
 			<language>
 				<gco:CharacterString>eng</gco:CharacterString>
 			</language>
-			<!-- apiso: subject -->
+			<!-- apiso:subject -->
 			<topicCategory>
 				<MD_TopicCategoryCode>boundaries</MD_TopicCategoryCode>
 			</topicCategory>
@@ -280,21 +358,42 @@
 			<!-- LEVEL OF THIS METADATA IS "DATASET" -->
 			<extent>
 				<EX_Extent>
+                    <verticalElement>
+                        <EX_VerticalExtent>
+                            <minimumValue gco:nilReason="inapplicable"/>
+                            <maximumValue>
+                                <gco:Real>312</gco:Real>
+                            </maximumValue>
+                            <verticalCRS xlink:href="http://ww.opengis.net/def/crs/EPSG/0/5701" xlink:title="Newlyn Height"/>
+                        </EX_VerticalExtent>
+                    </verticalElement>
 					<geographicElement>
 						<!-- apiso:BoundingBox -->
+                        <EX_GeographicDescription>
+                            <geographicIdentifier>
+                                <RS_Identifier>
+                                    <code>
+                                        <gco:CharacterString>FRA</gco:CharacterString>
+                                    </code>
+                                    <codeSpace>
+                                        <gco:CharacterString>ISO3166-1-a3</gco:CharacterString>
+                                    </codeSpace>
+                                </RS_Identifier>
+                            </geographicIdentifier>
+                        </EX_GeographicDescription>
 						<EX_GeographicBoundingBox>
-                                                        <westBoundLongitude>
-                                                                <gco:Decimal>6.90</gco:Decimal>
-                                                        </westBoundLongitude>
-                                                        <eastBoundLongitude>
-                                                                <gco:Decimal>70.35</gco:Decimal>
-                                                        </eastBoundLongitude>
-                                                        <southBoundLatitude>
-                                                                <gco:Decimal>-44.94</gco:Decimal>
-                                                        </southBoundLatitude>
-                                                        <northBoundLatitude>
-                                                                <gco:Decimal>61.61</gco:Decimal>
-                                                        </northBoundLatitude>
+                            <westBoundLongitude>
+                                <gco:Decimal>6.90</gco:Decimal>
+                            </westBoundLongitude>
+                            <eastBoundLongitude>
+                                <gco:Decimal>70.35</gco:Decimal>
+                            </eastBoundLongitude>
+                            <southBoundLatitude>
+                                <gco:Decimal>-44.94</gco:Decimal>
+                            </southBoundLatitude>
+                            <northBoundLatitude>
+                                <gco:Decimal>61.61</gco:Decimal>
+                            </northBoundLatitude>
 						</EX_GeographicBoundingBox>
 					</geographicElement>
 				</EX_Extent>
@@ -315,6 +414,7 @@
 			<!-- system information when using this method -->
 			<extent>
 				<EX_Extent>
+
 					<geographicElement>
 						<EX_BoundingPolygon>
 							<polygon>
@@ -332,9 +432,33 @@
 							</polygon>
 						</EX_BoundingPolygon>
 					</geographicElement>
+					<temporalElement>
+						<EX_TemporalExtent>
+							<extent>
+								<gml:TimePeriod gml:id="ID00006">
+									<gml:beginPosition>2000-01-01</gml:beginPosition>
+									<gml:endPosition>2007-05-07</gml:endPosition>
+								</gml:TimePeriod>
+							</extent>
+						</EX_TemporalExtent>
+					</temporalElement>
 				</EX_Extent>
 			</extent>
-		</MD_DataIdentification>
+            <aggregationInfo>
+                <MD_AggregateInformation>
+                    <aggregateDataSetIdentifier>
+                        <RS_Identifier>
+                            <code>
+                                <gco:CharacterString>00000000-0000-0000-0000-000000000002</gco:CharacterString>
+                            </code>
+                            <codeSpace>
+                                <gco:CharacterString>UUID</gco:CharacterString>
+                            </codeSpace>
+                        </RS_Identifier>
+                    </aggregateDataSetIdentifier>
+                </MD_AggregateInformation>
+            </aggregationInfo>
+        </MD_DataIdentification>
 	</identificationInfo>
 	<!-- END OF IDENTIFICATION INFORMATION -->
 	<distributionInfo>

@@ -14,20 +14,35 @@
 package org.codice.ddf.registry.api.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+<<<<<<< HEAD
+=======
+import static org.hamcrest.Matchers.nullValue;
+>>>>>>> master
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+<<<<<<< HEAD
 import static org.mockito.Mockito.times;
+=======
+>>>>>>> master
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
+<<<<<<< HEAD
+=======
+import java.io.IOException;
+>>>>>>> master
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+<<<<<<< HEAD
+=======
+import java.util.Dictionary;
+>>>>>>> master
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -37,6 +52,10 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 import org.codice.ddf.cxf.SecureCxfClientFactory;
+<<<<<<< HEAD
+=======
+import org.codice.ddf.parser.Parser;
+>>>>>>> master
 import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
@@ -93,15 +112,27 @@ import net.opengis.filter.v_1_1_0.FilterType;
 
 public class TestRegistryStore {
 
+<<<<<<< HEAD
     private MetacardMarshaller marshaller;
 
     private RegistryStoreImpl registryStore;
+=======
+    private RegistryStoreImpl registryStore;
+
+    private MetacardMarshaller marshaller;
+
+    private Parser parser;
+>>>>>>> master
 
     private BundleContext context;
 
     private Converter provider;
 
+<<<<<<< HEAD
     private CswSourceConfiguration configuration;
+=======
+    private CswSourceConfiguration cswSourceConfiguration;
+>>>>>>> master
 
     private SecureCxfClientFactory factory;
 
@@ -113,26 +144,49 @@ public class TestRegistryStore {
 
     private FilterBuilder filterBuilder = spy(new GeotoolsFilterBuilder());
 
+<<<<<<< HEAD
     private Configuration config;
+=======
+    private Configuration configuration;
+>>>>>>> master
 
     private EncryptionService encryptionService;
 
     private List<Result> queryResults;
 
+<<<<<<< HEAD
     @Before
     public void setup() throws Exception {
         marshaller = new MetacardMarshaller(new XmlParser());
         context = mock(BundleContext.class);
         provider = mock(Converter.class);
         configuration = mock(CswSourceConfiguration.class);
+=======
+    private Dictionary<String, Object> properties;
+
+    @Before
+    public void setup() throws Exception {
+        parser = new XmlParser();
+        marshaller = new MetacardMarshaller(new XmlParser());
+        context = mock(BundleContext.class);
+        provider = mock(Converter.class);
+        cswSourceConfiguration = mock(CswSourceConfiguration.class);
+>>>>>>> master
         factory = mock(SecureCxfClientFactory.class);
         transformer = mock(TransformerManager.class);
         encryptionService = mock(EncryptionService.class);
         configAdmin = mock(ConfigurationAdmin.class);
+<<<<<<< HEAD
         config = mock(Configuration.class);
         queryResults = new ArrayList<>();
         registryStore = spy(new RegistryStoreImpl(context,
                 configuration,
+=======
+        configuration = mock(Configuration.class);
+        queryResults = new ArrayList<>();
+        registryStore = spy(new RegistryStoreImpl(context,
+                cswSourceConfiguration,
+>>>>>>> master
                 provider,
                 factory,
                 encryptionService) {
@@ -153,17 +207,39 @@ public class TestRegistryStore {
             protected CapabilitiesType getCapabilities() {
                 return mock(CapabilitiesType.class);
             }
+<<<<<<< HEAD
+=======
+
+            @Override
+            BundleContext getBundleContext() {
+                return context;
+            }
+>>>>>>> master
         });
 
         registryStore.setFilterBuilder(filterBuilder);
         registryStore.setFilterAdapter(filterAdapter);
         registryStore.setConfigAdmin(configAdmin);
+<<<<<<< HEAD
         registryStore.setSchemaTransformerManager(transformer);
         registryStore.setAutoPush(true);
         registryStore.setMetacardMarshaller(marshaller);
 
         when(configAdmin.getConfiguration(any())).thenReturn(config);
         when(config.getProperties()).thenReturn(new Hashtable<>());
+=======
+        registryStore.setMetacardMarshaller(new MetacardMarshaller(parser));
+        registryStore.setSchemaTransformerManager(transformer);
+        registryStore.setAutoPush(true);
+        properties = new Hashtable<>();
+        properties.put(RegistryStoreImpl.ID, "registryId");
+        properties.put(RegistryStoreImpl.REGISTRY_URL, "http://test.url:0101/example");
+        registryStore.setMetacardMarshaller(marshaller);
+
+        when(configAdmin.getConfiguration(any())).thenReturn(configuration);
+        when(configuration.getProperties()).thenReturn(properties);
+
+>>>>>>> master
     }
 
     @Test(expected = IngestException.class)
@@ -246,24 +322,64 @@ public class TestRegistryStore {
     @Test
     public void registryInfoQuery() throws Exception {
         assertThat(registryStore.getRegistryId(), is(""));
+<<<<<<< HEAD
         assertThat(registryStore.getRemoteName(), is(""));
+=======
+>>>>>>> master
 
         queryResults.add(new ResultImpl(getDefaultMetacard()));
         registryStore.registryInfoQuery();
 
         assertThat(registryStore.getRegistryId(), is("registryId"));
+<<<<<<< HEAD
         assertThat(registryStore.getRemoteName(), is("testRegistryMetacard"));
+=======
+    }
+
+    @Test
+    public void testUpdateConfigurationIOException() throws Exception {
+        assertThat(registryStore.getRegistryId(), is(""));
+        when(configAdmin.getConfiguration(any())).thenThrow(new IOException());
+        queryResults.add(new ResultImpl(getDefaultMetacard()));
+        registryStore.registryInfoQuery();
+    }
+
+    @Test
+    public void testUpdateConfigurationURISyntaxException() throws Exception {
+        assertThat(registryStore.getRegistryId(), is(""));
+        properties.put("registryUrl", "^invalid^^^^uri^^");
+        queryResults.add(new ResultImpl(getDefaultMetacard()));
+        registryStore.registryInfoQuery();
+        String registryId = (String) properties.get(RegistryObjectMetacardType.REGISTRY_ID);
+        assertThat(registryId, is(nullValue()));
+    }
+
+    @Test
+    public void testUpdateConfigurationUriNoPort() throws Exception {
+        assertThat(registryStore.getRegistryId(), is(""));
+
+        queryResults.add(new ResultImpl(getDefaultMetacard()));
+        properties.put("registryUrl", "http://testurl/example");
+        registryStore.registryInfoQuery();
+        assertThat(registryStore.getRegistryId(), is("registryId"));
+>>>>>>> master
     }
 
     @Test
     public void registryInfoQueryNoIdentityMetacard() throws Exception {
         assertThat(registryStore.getRegistryId(), is(""));
+<<<<<<< HEAD
         assertThat(registryStore.getRemoteName(), is(""));
+=======
+>>>>>>> master
 
         registryStore.registryInfoQuery();
 
         assertThat(registryStore.getRegistryId(), is(""));
+<<<<<<< HEAD
         assertThat(registryStore.getRemoteName(), is(""));
+=======
+>>>>>>> master
     }
 
     @Test
@@ -295,16 +411,21 @@ public class TestRegistryStore {
     }
 
     @Test
+<<<<<<< HEAD
     public void testRegistryQueryUpdateRemoteName() throws Exception {
 
         assertThat(registryStore.getRemoteName(), is(""));
 
+=======
+    public void testRegistryQueryNullGetId() throws Exception {
+>>>>>>> master
         Filter filter = filterBuilder.attribute(Metacard.TAGS)
                 .is()
                 .like()
                 .text(RegistryConstants.REGISTRY_TAG);
         queryResults.add(new ResultImpl(getDefaultMetacard()));
         QueryRequest testRequest = new QueryRequestImpl(new QueryImpl(filter));
+<<<<<<< HEAD
         registryStore.setRegistryId("registryId");
         registryStore.query(testRequest);
 
@@ -315,18 +436,38 @@ public class TestRegistryStore {
     @Test
     public void testRegistryQueryUpdateRemoteNameIsTheSame() throws Exception {
 
+=======
+
+        registryStore.setRegistryId("registryId");
+        SourceResponse answer = registryStore.query(testRequest);
+        List<Result> testResults = answer.getResults();
+        assertThat(testResults.size(), is(1));
+    }
+
+    @Test
+    public void testRegistryGetIdNotNull() throws Exception {
+>>>>>>> master
         Filter filter = filterBuilder.attribute(Metacard.TAGS)
                 .is()
                 .like()
                 .text(RegistryConstants.REGISTRY_TAG);
         queryResults.add(new ResultImpl(getDefaultMetacard()));
         QueryRequest testRequest = new QueryRequestImpl(new QueryImpl(filter));
+<<<<<<< HEAD
         registryStore.setRegistryId("registryId");
         registryStore.setRemoteName("testRegistryMetacard");
         registryStore.query(testRequest);
 
         verify(registryStore, times(0)).getConfigurationPid();
 
+=======
+
+        registryStore.setRegistryId("registryId");
+        registryStore.setId("d");
+        SourceResponse answer = registryStore.query(testRequest);
+        List<Result> testResults = answer.getResults();
+        assertThat(testResults.size(), is(1));
+>>>>>>> master
     }
 
     @Test
@@ -338,6 +479,10 @@ public class TestRegistryStore {
         when(transResponse.getTransactionSummary()).thenReturn(transSummary);
         when(transSummary.getTotalDeleted()).thenReturn(new BigInteger("1"));
         when(csw.transaction(any(CswTransactionRequest.class))).thenReturn(transResponse);
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
         when(factory.getClientForSubject(any())).thenReturn(csw);
         when(transformer.getTransformerIdForSchema(any())).thenReturn(null);
         FilterAdapter mockAdaptor = mock(FilterAdapter.class);
@@ -366,11 +511,18 @@ public class TestRegistryStore {
     public void testInit() throws Exception {
         Csw csw = mock(Csw.class);
         when(factory.getClientForSubject(any())).thenReturn(csw);
+<<<<<<< HEAD
         when(configuration.getCswUrl()).thenReturn("https://localhost");
         queryResults.add(new ResultImpl(getDefaultMetacard()));
         registryStore.init();
         assertThat(registryStore.getRegistryId(), is("registryId"));
         assertThat(registryStore.getRemoteName(), is("testRegistryMetacard"));
+=======
+        when(cswSourceConfiguration.getCswUrl()).thenReturn("https://localhost");
+        queryResults.add(new ResultImpl(getDefaultMetacard()));
+        registryStore.init();
+        assertThat(registryStore.getRegistryId(), is("registryId"));
+>>>>>>> master
     }
 
     private MetacardImpl getDefaultMetacard() {

@@ -1,0 +1,53 @@
+
+==== Compression Services
+
+${branding} supports compression of outgoing and incoming messages through the Compression Services.
+These compression services are based on http://cxf.apache.org/[CXF] message encoding.
+
+The formats supported in ${branding} are:
+
+gzip:: Adds GZip compression to messages through CXF components. Code comes with CXF.
+
+exi:: Adds http://www.w3.org/XML/EXI/[Efficient XML Interchange (EXI)] support to outgoing responses. EXI is an W3C standard for XML encoding that shrinks xml to a smaller size than normal GZip compression.
+
+===== Installing a Compression Service
+
+The compression services are not installed by default with a standard installation.
+
+To Install:
+
+* Navigate to ${admin-console}.
+* Select the *${ddf-platform} Application*.
+* Select the *Features* Tab.
+* Start the service for the desired compression format:
+** `compression-exi`
+** `compression-gzip`
+
+[WARNING]
+====
+The compression services either need to be installed BEFORE the desired CXF service is started or the CXF service needs to be refreshed / restarted after the compression service is installed.
+====
+
+===== Configuring Compression Services
+
+None.
+
+.Compression Imported Services
+None.
+
+.Compression Exported Services
+[cols="2,3,2,1" options="header"]
+|===
+|Registered Interface
+|Implemented Class(es)
+|Service Property
+|Value
+
+|`org.apache.cxf.feature.Feature`
+|`ddf.compression.exi.EXIFeature`
+
+`org.apache.cxf.transport.common.gzip.GZIPFeature`
+|N/A
+|N/A
+
+|===

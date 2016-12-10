@@ -27,7 +27,7 @@
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
 
-        <AD description="Coordinate order that remote source expects and returns spatial data in"
+        <AD description="Coordinate order expected and returned by remote source"
             name="Coordinate Order" id="coordinateOrder" required="true"
             type="String" default="LAT_LON">
             <Option label="Lat/Lon" value="LAT_LON"/>
@@ -78,6 +78,13 @@
             name="Receive Timeout" id="receiveTimeout"
             required="true" type="Integer" default="60000"/>
 
+<<<<<<< HEAD
+=======
+        <AD description="SRS Name to use in outbound GetFeature requests.  The SRS Name parameter is used to assert the specific CRS transformation to be applied to the geometries of the features returned in a response document."
+            name="SRS Name" id="srsName"
+            required="false" type="String" default="EPSG:4326"/>
+
+>>>>>>> master
     </OCD>
 
     <Designate pid="Wfs_v2_0_0_Federated_Source" factoryPid="Wfs_v2_0_0_Federated_Source">

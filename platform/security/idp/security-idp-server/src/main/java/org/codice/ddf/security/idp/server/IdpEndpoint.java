@@ -166,7 +166,7 @@ public class IdpEndpoint implements Idp {
             submitForm = IOUtils.toString(submitFormStream);
             redirectPage = IOUtils.toString(redirectPageStream);
         } catch (Exception e) {
-            LOGGER.error("Unable to load index page for IDP.", e);
+            LOGGER.info("Unable to load index page for IDP.", e);
         }
 
         OpenSAMLUtil.initSamlEngine();
@@ -191,7 +191,7 @@ public class IdpEndpoint implements Idp {
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
             } catch (IOException e) {
-                LOGGER.error("Unable to parse SP metadata configuration.", e);
+                LOGGER.warn("Unable to parse SP metadata configuration. Check the configuration for SP metadata.", e);
             }
         }
     }
@@ -266,19 +266,19 @@ public class IdpEndpoint implements Idp {
                             hasCookie);
                     LOGGER.debug("Passive & PKI AuthnRequest logged in successfully.");
                 } catch (SecurityServiceException e) {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.debug(e.getMessage(), e);
                     return getErrorResponse(relayState,
                             authnRequest,
                             StatusCode.AUTHN_FAILED,
                             binding);
                 } catch (WSSecurityException e) {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.debug(e.getMessage(), e);
                     return getErrorResponse(relayState,
                             authnRequest,
                             StatusCode.REQUEST_DENIED,
                             binding);
                 } catch (SimpleSign.SignatureException | ConstraintViolationException e) {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.debug(e.getMessage(), e);
                     return getErrorResponse(relayState,
                             authnRequest,
                             StatusCode.REQUEST_UNSUPPORTED,
@@ -333,7 +333,7 @@ public class IdpEndpoint implements Idp {
             return Response.ok(responseStr)
                     .build();
         } catch (IllegalArgumentException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
             if (authnRequest != null) {
                 try {
                     return getErrorResponse(relayState,
@@ -341,11 +341,11 @@ public class IdpEndpoint implements Idp {
                             StatusCode.REQUEST_UNSUPPORTED,
                             binding);
                 } catch (IOException | SimpleSign.SignatureException e1) {
-                    LOGGER.error(e1.getMessage(), e1);
+                    LOGGER.debug(e1.getMessage(), e1);
                 }
             }
         } catch (UnsupportedOperationException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
             if (authnRequest != null) {
                 try {
                     return getErrorResponse(relayState,
@@ -353,15 +353,15 @@ public class IdpEndpoint implements Idp {
                             StatusCode.UNSUPPORTED_BINDING,
                             binding);
                 } catch (IOException | SimpleSign.SignatureException e1) {
-                    LOGGER.error(e1.getMessage(), e1);
+                    LOGGER.debug(e1.getMessage(), e1);
                 }
             }
         } catch (SimpleSign.SignatureException e) {
-            LOGGER.error("Unable to validate AuthRequest Signature", e);
+            LOGGER.debug("Unable to validate AuthRequest Signature", e);
         } catch (IOException e) {
-            LOGGER.error("Unable to decode AuthRequest", e);
+            LOGGER.debug("Unable to decode AuthRequest", e);
         } catch (ValidationException e) {
-            LOGGER.error("AuthnRequest schema validation failed.", e);
+            LOGGER.debug("AuthnRequest schema validation failed.", e);
         }
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -465,25 +465,25 @@ public class IdpEndpoint implements Idp {
 
             return response;
         } catch (SecurityServiceException e) {
-            LOGGER.warn("Unable to retrieve subject for user.", e);
+            LOGGER.info("Unable to retrieve subject for user.", e);
             return Response.status(Response.Status.UNAUTHORIZED)
                     .build();
         } catch (WSSecurityException e) {
-            LOGGER.error("Unable to encode SAMLP response.", e);
+            LOGGER.info("Unable to encode SAMLP response.", e);
         } catch (SimpleSign.SignatureException e) {
-            LOGGER.error("Unable to sign SAML response.", e);
+            LOGGER.info("Unable to sign SAML response.", e);
         } catch (IllegalArgumentException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
             return Response.status(Response.Status.BAD_REQUEST)
                     .build();
         } catch (ValidationException e) {
-            LOGGER.error("AuthnRequest schema validation failed.", e);
+            LOGGER.info("AuthnRequest schema validation failed.", e);
             return Response.status(Response.Status.BAD_REQUEST)
                     .build();
         } catch (IOException e) {
-            LOGGER.error("Unable to create SAML Response.", e);
+            LOGGER.info("Unable to create SAML Response.", e);
         } catch (IdpException e) {
-            LOGGER.error("", e);
+            LOGGER.info(e.getMessage(), e);
             return Response.status(Response.Status.BAD_REQUEST)
                     .build();
         }
@@ -513,7 +513,7 @@ public class IdpEndpoint implements Idp {
                     token = handlerResult.getToken();
                 }
             } catch (ServletException e) {
-                LOGGER.warn("Encountered an exception while checking for PKI auth info.", e);
+                LOGGER.info("Encountered an exception while checking for PKI auth info.", e);
             }
         } else if (USER_PASS.equals(authMethod)) {
             LOGGER.debug("Logging user in via BASIC auth.");
@@ -649,7 +649,7 @@ public class IdpEndpoint implements Idp {
                             -1,
                             true);
                 } catch (MalformedURLException e) {
-                    LOGGER.warn("Unable to create session cookie. Client will need to log in again.",
+                    LOGGER.info("Unable to create session cookie. Client will need to log in again.",
                             e);
                 }
             }
@@ -890,7 +890,7 @@ public class IdpEndpoint implements Idp {
             LogoutRequest logoutRequest, SamlProtocol.Binding incomingBinding, String relayState)
             throws IdpException {
         if (logoutState != null) {
-            LOGGER.warn("Received logout request and already have a logout state (in progress)");
+            LOGGER.info("Received logout request and already have a logout state (in progress)");
             return Response.ok("Logout already in progress")
                     .build();
         }
@@ -957,7 +957,7 @@ public class IdpEndpoint implements Idp {
             EntityInformation.ServiceInfo entityServiceInfo = serviceProviders.get(entityId)
                     .getLogoutService(incomingBinding);
             if (entityServiceInfo == null) {
-                LOGGER.warn("Could not find entity service info for {}");
+                LOGGER.info("Could not find entity service info for {}", entityId);
                 return continueLogout(logoutState, cookie, incomingBinding);
             }
             switch (entityServiceInfo.getBinding()) {
@@ -978,7 +978,7 @@ public class IdpEndpoint implements Idp {
             }
 
         } catch (WSSecurityException | SimpleSign.SignatureException | IOException e) {
-            LOGGER.error("Error while processing logout", e);
+            LOGGER.debug("Error while processing logout", e);
         }
 
         throw new IdpException("Server error while processing logout");

@@ -17,7 +17,11 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf</artifactId>
+<<<<<<< HEAD
         <version>2.9.4</version>
+=======
+        <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <groupId>ddf.lib</groupId>
     <artifactId>lib</artifactId>
@@ -37,5 +41,7 @@
         <module>klv</module>
         <module>mpeg-transport-stream</module>
         <module>geospatial</module>
+        <module>owasp-diff-runner</module>
+        <module>spock-shaded</module>
     </modules>
 </project>

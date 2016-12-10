@@ -355,7 +355,7 @@ public class ConfigurationManager {
                 LOGGER.debug("configurationAdmin is NULL");
             }
         } catch (IOException e) {
-            LOGGER.warn("Exception while getting configuration value.", e);
+            LOGGER.info("Exception while getting configuration value.", e);
         }
 
         LOGGER.debug("EXITING: {}    value = [{}]", methodName, value);

@@ -43,7 +43,7 @@ public class PKIAuthenticationTokenFactory {
                     PKIAuthenticationTokenFactory.class.getClassLoader(),
                     null);
         } catch (WSSecurityException | IOException e) {
-            LOGGER.error("Unable to read merlin properties file.", e);
+            LOGGER.warn("Unable to read merlin properties file. Unable to validate certificates.", e);
         }
         Init.init();
     }
@@ -68,7 +68,7 @@ public class PKIAuthenticationTokenFactory {
             X509Certificate[] certs = merlin.getCertificatesFromBytes(certBytes);
             token = new PKIAuthenticationToken(certs[0].getSubjectDN(), certBytes, realm);
         } catch (WSSecurityException e) {
-            LOGGER.error("Unable to extract certificates from bytes: {}", e.getMessage(), e);
+            LOGGER.debug("Unable to extract certificates from bytes: {}", e.getMessage(), e);
         }
         return token;
     }
@@ -80,7 +80,7 @@ public class PKIAuthenticationTokenFactory {
             try {
                 certBytes = getCertBytes(certs);
             } catch (WSSecurityException e) {
-                LOGGER.error("Unable to convert PKI certs to byte array.", e);
+                LOGGER.debug("Unable to convert PKI certs to byte array.", e);
             }
             if (certBytes != null) {
                 token = new PKIAuthenticationToken(certs[0].getSubjectDN(), certBytes, realm);

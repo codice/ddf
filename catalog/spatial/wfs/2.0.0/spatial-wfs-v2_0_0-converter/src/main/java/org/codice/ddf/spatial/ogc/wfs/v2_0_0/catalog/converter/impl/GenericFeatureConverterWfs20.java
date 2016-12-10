@@ -223,7 +223,7 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
         if (StringUtils.isNotBlank(id)) {
             mc.setId(id);
         } else {
-            LOGGER.warn("Feature id is blank.  Unable to set metacard id.");
+            LOGGER.debug("Feature id is blank.  Unable to set metacard id.");
         }
 
         mc.setSourceId(sourceId);
@@ -249,7 +249,7 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
             mc.setTargetNamespace(new URI(
                     WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
         } catch (URISyntaxException e) {
-            LOGGER.warn("Unable to set Target Namespace on metacard: {}, Exception {}",
+            LOGGER.debug("Unable to set Target Namespace on metacard: {}, Exception {}",
                     WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName(),
                     e);
         }

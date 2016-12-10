@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,6 +13,8 @@
  */
 package ddf.catalog.metacard.validation;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
@@ -26,8 +28,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
+<<<<<<< HEAD
 import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
 import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
+=======
+>>>>>>> master
 
 import java.io.Serializable;
 import java.util.AbstractMap;
@@ -50,7 +55,9 @@ import com.google.common.collect.Sets;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.Request;
@@ -75,6 +82,13 @@ public class MetacardValidityMarkerPluginTest {
 
     private static final String SECOND = "second";
 
+<<<<<<< HEAD
+=======
+    private static final String VALID_TAG = "VALID";
+
+    private static final String INVALID_TAG = "INVALID";
+
+>>>>>>> master
     private static final Map<String, Serializable> PROPERTIES = Collections.singletonMap("foo",
             "bar");
 
@@ -116,32 +130,65 @@ public class MetacardValidityMarkerPluginTest {
     }
 
     private void verifyCreate(CreateRequest originalRequest, Consumer<Attribute> errorExpectation,
+<<<<<<< HEAD
             Consumer<Attribute> warningExpectation)
+=======
+            Consumer<Attribute> warningExpectation, String expectedTag)
+>>>>>>> master
             throws PluginExecutionException, StopProcessingException {
         CreateRequest filteredRequest = plugin.process(originalRequest);
         List<Metacard> filteredMetacards = filteredRequest.getMetacards();
 
+<<<<<<< HEAD
         verifyMetacardErrorsAndWarnings(filteredMetacards, errorExpectation, warningExpectation);
+=======
+        verifyMetacardErrorsAndWarnings(filteredMetacards,
+                errorExpectation,
+                warningExpectation,
+                expectedTag);
+>>>>>>> master
         verifyRequestPropertiesUnchanged(originalRequest, filteredRequest);
     }
 
     private void verifyUpdate(UpdateRequest originalRequest, Consumer<Attribute> errorExpectation,
+<<<<<<< HEAD
             Consumer<Attribute> warningExpectation)
+=======
+            Consumer<Attribute> warningExpectation, String expectedTag)
+>>>>>>> master
             throws PluginExecutionException, StopProcessingException {
         UpdateRequest filteredRequest = plugin.process(originalRequest);
         List<Metacard> filteredMetacards = getUpdatedMetacards(filteredRequest);
 
+<<<<<<< HEAD
         verifyMetacardErrorsAndWarnings(filteredMetacards, errorExpectation, warningExpectation);
+=======
+        verifyMetacardErrorsAndWarnings(filteredMetacards,
+                errorExpectation,
+                warningExpectation,
+                expectedTag);
+>>>>>>> master
         verifyRequestPropertiesUnchanged(originalRequest, filteredRequest);
     }
 
     private void verifyMetacardErrorsAndWarnings(List<Metacard> filteredMetacards,
+<<<<<<< HEAD
             Consumer<Attribute> errorExpectation, Consumer<Attribute> warningExpectation) {
         assertThat(filteredMetacards, hasSize(2));
 
         filteredMetacards.forEach(metacard -> {
             errorExpectation.accept(metacard.getAttribute(VALIDATION_ERRORS));
             warningExpectation.accept(metacard.getAttribute(VALIDATION_WARNINGS));
+=======
+            Consumer<Attribute> errorExpectation, Consumer<Attribute> warningExpectation,
+            String expectedTag) {
+        assertThat(filteredMetacards, hasSize(2));
+
+        filteredMetacards.forEach(metacard -> {
+            errorExpectation.accept(metacard.getAttribute(Validation.VALIDATION_ERRORS));
+            warningExpectation.accept(metacard.getAttribute(Validation.VALIDATION_WARNINGS));
+            assertThat(metacard.getTags(), hasItem(expectedTag));
+>>>>>>> master
         });
     }
 
@@ -151,34 +198,88 @@ public class MetacardValidityMarkerPluginTest {
     }
 
     @Test
+<<<<<<< HEAD
     public void testMarkMetacardValid() throws StopProcessingException, PluginExecutionException {
         metacardValidators.add(getMockPassingValidator());
         verifyCreate(getMockCreateRequest(), expectNone, expectNone);
         verifyUpdate(getMockUpdateRequest(), expectNone, expectNone);
+=======
+    public void testMultipleValidationTagsValid()
+            throws StopProcessingException, PluginExecutionException {
+        metacardValidators.add(getMockPassingValidator());
+        CreateRequest request = getMockCreateRequest();
+        Metacard m1 = request.getMetacards().get(0);
+
+        Set<String> tags = m1.getTags();
+        tags.add(INVALID_TAG);
+        m1.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+
+        CreateRequest filteredRequest = plugin.process(request);
+        assertThat(filteredRequest.getMetacards().get(0).getTags(), hasItem(VALID_TAG));
+        assertThat(filteredRequest.getMetacards().get(0).getTags(), not(hasItem(INVALID_TAG)));
+    }
+
+    @Test
+    public void testMultipleValidationTagsInvalid()
+            throws StopProcessingException, PluginExecutionException, ValidationException {
+        metacardValidators.add(getMockFailingValidatorWithErrorsAndWarnings());
+        CreateRequest request = getMockCreateRequest();
+        Metacard m1 = request.getMetacards().get(0);
+
+        Set<String> tags = m1.getTags();
+        tags.add(VALID_TAG);
+        m1.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+
+        CreateRequest filteredRequest = plugin.process(request);
+        assertThat(filteredRequest.getMetacards().get(0).getTags(), hasItem(INVALID_TAG));
+        assertThat(filteredRequest.getMetacards().get(0).getTags(), not(hasItem(VALID_TAG)));
+    }
+
+    @Test
+    public void testMarkMetacardValid() throws StopProcessingException, PluginExecutionException {
+        metacardValidators.add(getMockPassingValidator());
+        verifyCreate(getMockCreateRequest(), expectNone, expectNone, VALID_TAG);
+        verifyUpdate(getMockUpdateRequest(), expectNone, expectNone, VALID_TAG);
+>>>>>>> master
     }
 
     @Test
     public void testMarkMetacardInvalidErrors()
             throws ValidationException, StopProcessingException, PluginExecutionException {
         metacardValidators.add(getMockFailingValidatorWithErrors());
+<<<<<<< HEAD
         verifyCreate(getMockCreateRequest(), expectError, expectNone);
         verifyUpdate(getMockUpdateRequest(), expectError, expectNone);
+=======
+        verifyCreate(getMockCreateRequest(), expectError, expectNone, INVALID_TAG);
+        verifyUpdate(getMockUpdateRequest(), expectError, expectNone, INVALID_TAG);
+>>>>>>> master
     }
 
     @Test
     public void testMarkMetacardInvalidWarnings()
             throws ValidationException, StopProcessingException, PluginExecutionException {
         metacardValidators.add(getMockFailingValidatorWithWarnings());
+<<<<<<< HEAD
         verifyCreate(getMockCreateRequest(), expectNone, expectWarning);
         verifyUpdate(getMockUpdateRequest(), expectNone, expectWarning);
+=======
+        verifyCreate(getMockCreateRequest(), expectNone, expectWarning, INVALID_TAG);
+        verifyUpdate(getMockUpdateRequest(), expectNone, expectWarning, INVALID_TAG);
+>>>>>>> master
     }
 
     @Test
     public void testMarkMetacardInvalidErrorsAndWarnings()
             throws ValidationException, StopProcessingException, PluginExecutionException {
         metacardValidators.add(getMockFailingValidatorWithErrorsAndWarnings());
+<<<<<<< HEAD
         verifyCreate(getMockCreateRequest(), expectError, expectWarning);
         verifyUpdate(getMockUpdateRequest(), expectError, expectWarning);
+=======
+        verifyCreate(getMockCreateRequest(), expectError, expectWarning, INVALID_TAG);
+        verifyUpdate(getMockUpdateRequest(), expectError, expectWarning, INVALID_TAG);
+>>>>>>> master
     }
 
     @Test
@@ -272,11 +373,19 @@ public class MetacardValidityMarkerPluginTest {
         metacardValidators.add(mockValidator);
         enforcedMetacardValidators.add(mockValidator.getClass()
                 .getCanonicalName());
+<<<<<<< HEAD
 
         CreateRequest createRequest = getMockCreateRequest();
         List<Metacard> createdMetacards = createRequest.getMetacards();
         verifyEnforcedCreate(createRequest, createdMetacards.subList(1, createdMetacards.size()));
 
+=======
+
+        CreateRequest createRequest = getMockCreateRequest();
+        List<Metacard> createdMetacards = createRequest.getMetacards();
+        verifyEnforcedCreate(createRequest, createdMetacards.subList(1, createdMetacards.size()));
+
+>>>>>>> master
         UpdateRequest updateRequest = getMockUpdateRequest();
         List<Metacard> updatedMetacards = getUpdatedMetacards(updateRequest);
         verifyEnforcedUpdate(updateRequest, updatedMetacards.subList(1, updatedMetacards.size()));
@@ -288,6 +397,71 @@ public class MetacardValidityMarkerPluginTest {
         assertThat(plugin.getEnforcedMetacardValidators(), is(empty()));
     }
 
+<<<<<<< HEAD
+=======
+    @Test
+    public void testEnforceWarningsOnly() throws Exception {
+        markerPluginResponseHelper(getMockFailingValidatorWithWarnings(), false, true, 0);
+        markerPluginResponseHelper(getMockFailingValidatorWithErrors(), false, true, 2);
+    }
+
+    @Test
+    public void testEnforceErrorsOnly() throws Exception {
+        markerPluginResponseHelper(getMockFailingValidatorWithErrors(), true, false, 0);
+        markerPluginResponseHelper(getMockFailingValidatorWithWarnings(), true, false, 2);
+    }
+
+    @Test
+    public void testEnforceErrorsAndWarnings() throws Exception {
+        markerPluginResponseHelper(getMockFailingValidatorWithErrorsAndWarnings(), true, true, 0);
+    }
+
+    @Test
+    public void testNoEnforcement() throws Exception {
+        markerPluginResponseHelper(getMockFailingValidatorWithErrorsAndWarnings(), false, false, 2);
+        markerPluginResponseHelper(getMockFailingValidatorWithWarnings(), false, false, 2);
+        markerPluginResponseHelper(getMockFailingValidatorWithErrors(), false, false, 2);
+    }
+
+    @Test
+    public void testTrackingErrors() throws Exception {
+        testTrackingHelper(getMockFailingValidatorWithErrors(), true, false);
+
+    }
+
+    @Test
+    public void testTrackingWarnings() throws Exception {
+        testTrackingHelper(getMockFailingValidatorWithWarnings(), false, true);
+    }
+
+    @Test
+    public void testTrackingErrorsAndWarnings() throws Exception {
+        testTrackingHelper(getMockFailingValidatorWithErrorsAndWarnings(), true, true);
+    }
+
+    @Test
+    public void testTrackingClean() throws Exception {
+        testTrackingHelper(getMockPassingValidator(), false, false);
+    }
+
+    private void testTrackingHelper(MetacardValidator validator, boolean expectErrors,
+            boolean expectWarnings) throws Exception {
+        List<Metacard> metacards = markerPluginResponseHelper(validator, false, false, 2);
+        for (Metacard m : metacards) {
+            if (expectErrors) {
+                assertThat(m.getAttribute(Validation.FAILED_VALIDATORS_ERRORS)
+                        .getValues()
+                        .isEmpty(), is(false));
+            }
+            if (expectWarnings) {
+                assertThat(m.getAttribute(Validation.FAILED_VALIDATORS_WARNINGS)
+                        .getValues()
+                        .isEmpty(), is(false));
+            }
+        }
+    }
+
+>>>>>>> master
     private Metacard metacardWithTitle(String title) {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setTitle(title);
@@ -298,6 +472,7 @@ public class MetacardValidityMarkerPluginTest {
         List<Metacard> listMetacards = Lists.newArrayList(metacardWithTitle(FIRST),
                 metacardWithTitle(SECOND));
         return new CreateRequestImpl(listMetacards, PROPERTIES, DESTINATIONS);
+<<<<<<< HEAD
     }
 
     private UpdateRequest getMockUpdateRequest() {
@@ -311,6 +486,23 @@ public class MetacardValidityMarkerPluginTest {
         return mock(MetacardValidator.class, withSettings().extraInterfaces(Describable.class));
     }
 
+=======
+    }
+
+    private UpdateRequest getMockUpdateRequest() {
+        List<Map.Entry<Serializable, Metacard>> updates = new ArrayList<>();
+        updates.add(new AbstractMap.SimpleEntry<>(FIRST, metacardWithTitle(FIRST)));
+        updates.add(new AbstractMap.SimpleEntry<>(SECOND, metacardWithTitle(SECOND)));
+        return new UpdateRequestImpl(updates, Metacard.TITLE, PROPERTIES, DESTINATIONS);
+    }
+
+    private MetacardValidator getMockPassingValidator() {
+        MetacardValidator mockValidator = mock(MetacardValidator.class,
+                withSettings().extraInterfaces(Describable.class));
+        return mockValidator;
+    }
+
+>>>>>>> master
     private MetacardValidator getMockFailingValidatorWithErrors() throws ValidationException {
         ValidationException validationException = mock(ValidationException.class);
         when(validationException.getErrors()).thenReturn(Collections.singletonList(SAMPLE_ERROR));
@@ -318,6 +510,7 @@ public class MetacardValidityMarkerPluginTest {
                 withSettings().extraInterfaces(Describable.class));
         doThrow(validationException).when(metacardValidator)
                 .validate(any(Metacard.class));
+        when(((Describable) metacardValidator).getId()).thenReturn(ID);
         return metacardValidator;
     }
 
@@ -328,6 +521,7 @@ public class MetacardValidityMarkerPluginTest {
                 withSettings().extraInterfaces(Describable.class));
         doThrow(validationException).when(metacardValidator)
                 .validate(any(Metacard.class));
+        when(((Describable) metacardValidator).getId()).thenReturn(ID);
         return metacardValidator;
     }
 
@@ -340,6 +534,7 @@ public class MetacardValidityMarkerPluginTest {
                 withSettings().extraInterfaces(Describable.class));
         doThrow(validationException).when(metacardValidator)
                 .validate(any(Metacard.class));
+        when(((Describable) metacardValidator).getId()).thenReturn(ID);
         return metacardValidator;
     }
 
@@ -352,11 +547,57 @@ public class MetacardValidityMarkerPluginTest {
 
     private MetacardValidator getMockEnforcedFailingValidatorWithId(String id)
             throws ValidationException {
+<<<<<<< HEAD
         MetacardValidator metacardValidator = mock(MetacardValidator.class,
                 withSettings().extraInterfaces(Describable.class));
         doThrow(mock(ValidationException.class)).when(metacardValidator)
+=======
+        ValidationException validationException = mock(ValidationException.class);
+        when(validationException.getErrors()).thenReturn(Collections.singletonList(SAMPLE_ERROR));
+        MetacardValidator metacardValidator = mock(MetacardValidator.class,
+                withSettings().extraInterfaces(Describable.class));
+        doThrow(validationException).when(metacardValidator)
+>>>>>>> master
                 .validate(argThat(isMetacardWithTitle(FIRST)));
         when(((Describable) metacardValidator).getId()).thenReturn(id);
+        return metacardValidator;
+    }
+
+<<<<<<< HEAD
+    private class IsMetacardWithTitle extends ArgumentMatcher<Metacard> {
+        private final String title;
+
+        private IsMetacardWithTitle(String title) {
+            this.title = title;
+        }
+
+        @Override
+        public boolean matches(Object o) {
+            return ((Metacard) o).getTitle()
+                    .equals(title);
+        }
+    }
+
+=======
+>>>>>>> master
+    private IsMetacardWithTitle isMetacardWithTitle(String title) {
+        return new IsMetacardWithTitle(title);
+    }
+
+    private MetacardValidator getMockPassingValidatorNoDescribable() {
+        return mock(MetacardValidator.class);
+    }
+
+    private MetacardValidator getMockFailingValidatorNoDescribable() throws ValidationException {
+        MetacardValidator metacardValidator = mock(MetacardValidator.class);
+<<<<<<< HEAD
+        doThrow(mock(ValidationException.class)).when(metacardValidator)
+=======
+        ValidationException validationException = mock(ValidationException.class);
+        when(validationException.getErrors()).thenReturn(Collections.singletonList(SAMPLE_ERROR));
+        doThrow(validationException).when(metacardValidator)
+>>>>>>> master
+                .validate(argThat(isMetacardWithTitle(FIRST)));
         return metacardValidator;
     }
 
@@ -374,18 +615,29 @@ public class MetacardValidityMarkerPluginTest {
         }
     }
 
-    private IsMetacardWithTitle isMetacardWithTitle(String title) {
-        return new IsMetacardWithTitle(title);
-    }
+    private List<Metacard> markerPluginResponseHelper(MetacardValidator validator,
+            boolean enforceErrors, boolean enforceWarnings, int numNotFiltered) throws Exception {
+        String validatorName = plugin.getValidatorName(validator);
 
-    private MetacardValidator getMockPassingValidatorNoDescribable() {
-        return mock(MetacardValidator.class);
-    }
+        metacardValidators.add(validator);
+        enforcedMetacardValidators.add(validatorName);
 
-    private MetacardValidator getMockFailingValidatorNoDescribable() throws ValidationException {
-        MetacardValidator metacardValidator = mock(MetacardValidator.class);
-        doThrow(mock(ValidationException.class)).when(metacardValidator)
-                .validate(argThat(isMetacardWithTitle(FIRST)));
-        return metacardValidator;
+        plugin.setMetacardValidators(metacardValidators);
+        plugin.setEnforcedMetacardValidators(enforcedMetacardValidators);
+
+        plugin.setEnforceErrors(enforceErrors);
+        plugin.setEnforceWarnings(enforceWarnings);
+
+        CreateRequest createRequest = plugin.process(getMockCreateRequest());
+        List<Metacard> createdMetacards = createRequest.getMetacards();
+        assertThat(createdMetacards.size(), is(numNotFiltered));
+
+        //reset
+        metacardValidators.remove(validator);
+        enforcedMetacardValidators.remove(validatorName);
+        plugin.setEnforceErrors(true);
+        plugin.setEnforceWarnings(false);
+
+        return createdMetacards;
     }
 }

@@ -33,14 +33,20 @@ public class AbsolutePathResolverTest {
     @Test
     public void ddfHomeNotSet() {
         System.clearProperty("ddf.home");
+<<<<<<< HEAD
         assertThat(new AbsolutePathResolver(Paths.get("test", "path")
                         .toString()).getPath(),
                 equalTo(Paths.get(System.getProperty("user.dir"), "test", "path")
                         .toString()));
+=======
+        assertThat(new AbsolutePathResolver(Paths.get("test", "path").toString()).getPath(),
+                equalTo(Paths.get(System.getProperty("user.dir"), "test", "path").toString()));
+>>>>>>> master
     }
 
     @Test
     public void testTransformedPath() {
+<<<<<<< HEAD
         System.setProperty("ddf.home",
                 Paths.get(System.getProperty("user.dir"), "testTransformedPath")
                         .toString());
@@ -51,10 +57,16 @@ public class AbsolutePathResolverTest {
                         "test",
                         "path")
                         .toString()));
+=======
+        System.setProperty("ddf.home", Paths.get(System.getProperty("user.dir"), "testTransformedPath").toString());
+        assertThat(new AbsolutePathResolver(Paths.get("test", "path").toString()).getPath(),
+                equalTo(Paths.get(System.getProperty("user.dir"), "testTransformedPath", "test", "path").toString()));
+>>>>>>> master
     }
 
     @Test
     public void trailingFileSeparator() {
+<<<<<<< HEAD
         System.setProperty("ddf.home",
                 Paths.get(System.getProperty("user.dir"), "trailingFileSeparator")
                         .toString() + File.separator);
@@ -65,6 +77,11 @@ public class AbsolutePathResolverTest {
                         "test",
                         "path")
                         .toString() + File.separator));
+=======
+        System.setProperty("ddf.home", Paths.get(System.getProperty("user.dir"), "trailingFileSeparator").toString() + File.separator);
+        assertThat(new AbsolutePathResolver("test" + File.separator + "path" + File.separator).getPath(),
+                equalTo(Paths.get(System.getProperty("user.dir"), "trailingFileSeparator", "test", "path").toString() + File.separator));
+>>>>>>> master
 
     }
 }

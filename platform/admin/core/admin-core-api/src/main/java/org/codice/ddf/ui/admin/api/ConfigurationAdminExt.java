@@ -45,8 +45,13 @@ import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
+
+import com.google.common.collect.Sets;
+
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 
 import com.google.common.collect.Sets;
 
@@ -117,8 +122,7 @@ public class ConfigurationAdminExt {
         }
     };
 
-    private final XLogger logger =
-            new XLogger(LoggerFactory.getLogger(ConfigurationAdminExt.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminExt.class);
 
     private final ConfigurationAdmin configurationAdmin;
 
@@ -169,9 +173,9 @@ public class ConfigurationAdminExt {
                     return configs[0];
                 }
             } catch (InvalidSyntaxException ise) {
-                logger.error("Invalid LDAP filter", ise);
+                LOGGER.info("Invalid LDAP filter", ise);
             } catch (IOException ioe) {
-                logger.error("Unable to retrieve list of configurations.", ioe);
+                LOGGER.info("Unable to retrieve list of configurations.", ioe);
             }
         }
 
@@ -266,15 +270,25 @@ public class ConfigurationAdminExt {
 
             serviceList.addAll(serviceFactoryList);
         } catch (IOException e) {
-            logger.error("Unable to obtain list of Configuration objects from ConfigurationAdmin.",
+            LOGGER.warn("Unable to obtain list of Configuration objects from ConfigurationAdmin.",
                     e);
         } catch (InvalidSyntaxException e) {
-            logger.error("Provided LDAP filter is incorrect: " + serviceFilter, e);
+            LOGGER.info("Provided LDAP filter is incorrect: {}", serviceFilter, e);
         }
 
+<<<<<<< HEAD
         return serviceList.stream()
                 .filter(service -> isPermittedToViewService((String) service.get("id")))
                 .collect(Collectors.toList());
+=======
+        if (serviceList != null) {
+            return serviceList.stream()
+                    .filter(service -> isPermittedToViewService((String) service.get("id")))
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+>>>>>>> master
     }
 
     private void addConfigurationData(Map<String, Object> service, Configuration[] configs) {
@@ -685,7 +699,12 @@ public class ConfigurationAdminExt {
         KeyValueCollectionPermission serviceToCheck = new KeyValueCollectionPermission(
                 "view-service.pid",
                 new KeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
+<<<<<<< HEAD
         return SecurityUtils.getSubject().isPermitted(serviceToCheck);
+=======
+        return SecurityUtils.getSubject()
+                .isPermitted(serviceToCheck);
+>>>>>>> master
     }
 
     /**

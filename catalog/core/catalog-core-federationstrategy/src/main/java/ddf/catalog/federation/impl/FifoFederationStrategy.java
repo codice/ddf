@@ -25,8 +25,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationStrategy;
@@ -56,8 +56,8 @@ import ddf.catalog.source.Source;
 @Deprecated
 public class FifoFederationStrategy implements FederationStrategy {
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(FifoFederationStrategy.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(FifoFederationStrategy.class);
 
     private static final int DEFAULT_MAX_START_INDEX = 50000;
 
@@ -127,11 +127,11 @@ public class FifoFederationStrategy implements FederationStrategy {
                 try {
                     queryResponse = service.process(queryResponse);
                 } catch (PluginExecutionException e) {
-                    LOGGER.warn("Error executing PostFederatedQueryPlugin: " + e.getMessage(), e);
+                    LOGGER.info("Error executing PostFederatedQueryPlugin: ", e);
                 }
             }
         } catch (StopProcessingException e) {
-            LOGGER.warn("Plugin stopped processing: ", e);
+            LOGGER.info("Plugin stopped processing: ", e);
         }
         return queryResponse;
     }
@@ -148,20 +148,19 @@ public class FifoFederationStrategy implements FederationStrategy {
                                 modifiedQueryRequest = service.process(source,
                                         modifiedQueryRequest);
                             } catch (PluginExecutionException e) {
-                                LOGGER.warn("Error executing PreFederatedQueryPlugin: "
-                                        + e.getMessage(), e);
+                                LOGGER.info("Error executing PreFederatedQueryPlugin: ", e);
                             }
                         }
                     } catch (StopProcessingException e) {
-                        LOGGER.warn("Plugin stopped processing: ", e);
+                        LOGGER.info("Plugin stopped processing: ", e);
                     }
                     futures.put(source,
                             queryExecutorService.submit(new CallableSourceResponse(source,
                                     modifiedQueryRequest.getQuery(),
                                     modifiedQueryRequest.getProperties())));
                 } else {
-                    LOGGER.warn("Duplicate source found with name " + source.getId()
-                            + ". Ignoring second one.");
+                    LOGGER.info("Duplicate source found with name {}. Ignoring second one.",
+                            source.getId());
                 }
             }
         }
@@ -315,7 +314,7 @@ public class FifoFederationStrategy implements FederationStrategy {
                             TimeUnit.MILLISECONDS);
                     sourceResponse = curFuture.get();
                 } catch (Exception e) {
-                    LOGGER.warn("Federated query returned exception " + e.getMessage());
+                    LOGGER.info("Federated query returned exception {}", e.getMessage());
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 }
                 long sourceHits = 0;

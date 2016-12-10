@@ -1,0 +1,3 @@
+Hello. I am a simple product that can be ingested.
+I should have more than one line so I am interpreted as plain text.
+Ingest me to trigger the Tika transformer.

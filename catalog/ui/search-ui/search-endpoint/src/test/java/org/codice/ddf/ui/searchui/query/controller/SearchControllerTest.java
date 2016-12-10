@@ -154,9 +154,20 @@ public class SearchControllerTest {
         when(mockSearchRequest.getSourceIds()).thenReturn(new HashSet<>(Arrays.asList(SOURCE_ID_LIST)));
         when(mockSearchRequest.getQuery()).thenReturn(mockQuery);
         when(mockQuery.getSortBy()).thenReturn(SortBy.NATURAL_ORDER);
+<<<<<<< HEAD
 
         when(mockBayeuxServer.getChannel(anyString())).thenReturn(mockServerChannel);
         when(mockExecutor.submit(any(Runnable.class))).thenReturn(mockFuture);
+=======
+        when(mockBayeuxServer.getChannel(anyString())).thenReturn(mockServerChannel);
+        when(mockExecutor.submit(any(Runnable.class))).thenAnswer(
+                (args) -> {
+                    Runnable runnable = (Runnable) args.getArguments()[0];
+                    runnable.run();
+                    return mockFuture;
+                }
+        );
+>>>>>>> master
     }
 
     @Test
@@ -530,7 +541,11 @@ public class SearchControllerTest {
                 ServerMessage.Mutable.class);
         when(mockFuture.get(anyLong(), any(TimeUnit.class))).thenThrow(exception);
         searchController.executeQuery(mockSearchRequest, mockServerSession, null);
+<<<<<<< HEAD
         verify(mockServerChannel, times(1)).publish(any(ServerSession.class),
+=======
+        verify(mockServerChannel, times(3)).publish(any(ServerSession.class),
+>>>>>>> master
                 serverMessageCaptor.capture());
         validateReasonMessageInJson(serverMessageCaptor.getValue(), expectedReasonMessage);
     }

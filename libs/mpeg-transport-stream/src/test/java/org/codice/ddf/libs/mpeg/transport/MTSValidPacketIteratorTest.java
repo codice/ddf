@@ -22,7 +22,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+<<<<<<< HEAD
 import org.junit.After;
+=======
+>>>>>>> master
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,11 +61,14 @@ public class MTSValidPacketIteratorTest {
         validPackets = mockedValidPackets.iterator();
     }
 
+<<<<<<< HEAD
     @After
     public void destroy() throws Exception {
         mockedValidPackets.clear();
     }
 
+=======
+>>>>>>> master
     @Test
     public void testBadPacketsAtBeginning() throws Exception {
         when(mockSource.nextPacket()).thenThrow(Exception.class)

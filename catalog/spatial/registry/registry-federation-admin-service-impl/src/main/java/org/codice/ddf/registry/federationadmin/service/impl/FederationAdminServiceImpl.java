@@ -241,7 +241,11 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             }
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error updating registry entry.";
+<<<<<<< HEAD
             LOGGER.error("{} Metacard ID: {}", message, updateMetacard.getId());
+=======
+            LOGGER.debug("{} Metacard ID: {}", message, updateMetacard.getId());
+>>>>>>> master
             throw new FederationAdminException(message, e);
         }
 
@@ -305,7 +309,11 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             }
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error deleting registry entries by registry id.";
+<<<<<<< HEAD
             LOGGER.error("{} Registry Ids provided: {}", message, registryIds);
+=======
+            LOGGER.debug("{} Registry Ids provided: {}", message, registryIds);
+>>>>>>> master
             throw new FederationAdminException(message, e);
         }
     }
@@ -340,7 +348,11 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             }
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error deleting registry entries by metacard ids.";
+<<<<<<< HEAD
             LOGGER.error("{} Metacard Ids provided: {}", message, metacardIds);
+=======
+            LOGGER.debug("{} Metacard Ids provided: {}", message, metacardIds);
+>>>>>>> master
             throw new FederationAdminException(message, e);
         }
     }
@@ -484,7 +496,11 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         if (metacards.size() > 1) {
             String message =
                     "Error getting registry object by metacard id. More than one metacards were returned.";
+<<<<<<< HEAD
             LOGGER.error("{} For metacard ID: {}, optional sources: {}",
+=======
+            LOGGER.debug("{} For metacard ID: {}, optional sources: {}",
+>>>>>>> master
                     message,
                     registryId,
                     sourceIds);
@@ -509,7 +525,11 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             if (identityMetacards.size() > 1) {
                 String message =
                         "Error getting registry identity metacard. More than one result found.";
+<<<<<<< HEAD
                 LOGGER.error("{} Found these: {}", message, identityMetacards);
+=======
+                LOGGER.debug("{} Found these: {}", message, identityMetacards);
+>>>>>>> master
                 throw new FederationAdminException(message);
             }
 
@@ -558,7 +578,10 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             throw new FederationAdminException(
                     "Error getting registry metacards. Null filter provided.");
         }
+<<<<<<< HEAD
         List<Metacard> registryMetacards = new ArrayList<>();
+=======
+>>>>>>> master
         PropertyName propertyName = new PropertyNameImpl(Metacard.MODIFIED);
         SortBy sortBy = new SortByImpl(propertyName, SortOrder.ASCENDING);
         QueryImpl query = new QueryImpl(filter);
@@ -569,17 +592,28 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         try {
             QueryResponse queryResponse =
                     security.runWithSubjectOrElevate(() -> catalogFramework.query(queryRequest));
+<<<<<<< HEAD
             List<Result> results = queryResponse.getResults();
             registryMetacards = results.stream()
+=======
+            return queryResponse.getResults()
+                    .stream()
+>>>>>>> master
                     .map(Result::getMetacard)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error querying for registry metacards.";
+<<<<<<< HEAD
             LOGGER.error("{} For Filter: {}", message, filter);
             throw new FederationAdminException(message, e);
         }
         return registryMetacards;
+=======
+            LOGGER.debug("{} For Filter: {}", message, filter);
+            throw new FederationAdminException(message, e);
+        }
+>>>>>>> master
     }
 
     private Metacard getRegistryMetacardFromString(String xml) throws FederationAdminException {
@@ -593,7 +627,11 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             metacard = registryTransformer.transform(IOUtils.toInputStream(xml));
         } catch (IOException | CatalogTransformerException e) {
             String message = "Error transforming xml string to metacard.";
+<<<<<<< HEAD
             LOGGER.error("{}. XML: {}", message, xml);
+=======
+            LOGGER.debug("{}. XML: {}", message, xml);
+>>>>>>> master
             throw new FederationAdminException(message);
         }
 

@@ -42,7 +42,7 @@ public abstract class SolrCommands extends OsgiCommandSupport {
     protected abstract Object doExecute() throws Exception;
 
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        LOGGER.info("setConfigurationAdmin: {}", configurationAdmin);
+        LOGGER.debug("setConfigurationAdmin: {}", configurationAdmin);
         this.configurationAdmin = configurationAdmin;
     }
 

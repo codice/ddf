@@ -1,0 +1,7 @@
+<GetRecordById xmlns="http://www.opengis.net/cat/csw/2.0.2"
+xmlns:ogc="http://www.opengis.net/ogc"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+service="CSW" version="2.0.2" outputFormat="application/octet-stream"
+outputSchema="http://www.iana.org/assignments/media-types/application/octet-stream">
+  <Id>placeholder_id_1</Id>
+</GetRecordById>

@@ -18,8 +18,6 @@ import ddf.catalog.event.EventProcessor;
 
 /**
  * The Constants class is used to capture key values that can be re-used throughout DDF.
- *
- * @author ddf.isgs@lmco.com
  */
 public final class Constants {
 
@@ -166,4 +164,6 @@ public final class Constants {
     public static final String CONTENT_PATHS = "content-paths";
 
     public static final String ATTRIBUTE_OVERRIDES_KEY = "attributeOverrides";
+
+    public static final String ATTRIBUTE_UPDATE_MAP_KEY = "attributeUpdateMap";
 }

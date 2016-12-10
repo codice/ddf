@@ -13,6 +13,9 @@
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
+import java.util.Set;
+
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
@@ -25,7 +28,8 @@ public class MockMetacardType extends MetacardTypeImpl {
     private static final long serialVersionUID = 1L;
 
     public MockMetacardType() {
-        super(NAME, null);
+        super(NAME, (Set<AttributeDescriptor>)
+                null);
 
         descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
 

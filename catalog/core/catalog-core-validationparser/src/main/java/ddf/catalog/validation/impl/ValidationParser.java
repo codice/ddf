@@ -13,6 +13,12 @@
  */
 package ddf.catalog.validation.impl;
 
+<<<<<<< HEAD
+=======
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+>>>>>>> master
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -30,6 +36,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+<<<<<<< HEAD
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +44,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+=======
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
+
+import org.apache.commons.collections.CollectionUtils;
+>>>>>>> master
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.fileinstall.ArtifactInstaller;
@@ -45,6 +61,7 @@ import org.boon.json.annotations.JsonIgnore;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+<<<<<<< HEAD
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,12 +71,32 @@ import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+=======
+import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
+
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
+import ddf.catalog.data.DefaultAttributeValueRegistry;
+import ddf.catalog.data.InjectableAttribute;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.InjectableAttributeImpl;
+>>>>>>> master
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.validation.AttributeValidator;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.impl.validator.EnumerationValidator;
 import ddf.catalog.validation.impl.validator.FutureDateValidator;
+<<<<<<< HEAD
+=======
+import ddf.catalog.validation.impl.validator.ISO3CountryCodeValidator;
+>>>>>>> master
 import ddf.catalog.validation.impl.validator.PastDateValidator;
 import ddf.catalog.validation.impl.validator.PatternValidator;
 import ddf.catalog.validation.impl.validator.RangeValidator;
@@ -71,15 +108,24 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class ValidationParser implements ArtifactInstaller {
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
 
+<<<<<<< HEAD
+=======
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_INSTANT;
+
+>>>>>>> master
     private final AttributeRegistry attributeRegistry;
 
     private final AttributeValidatorRegistry attributeValidatorRegistry;
 
     private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
+<<<<<<< HEAD
     private static Map<String, Outer> sourceMap = new ConcurrentHashMap<>();
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_INSTANT;
+=======
+    private final Map<String, Changeset> changesetsByFile = new ConcurrentHashMap<>();
+>>>>>>> master
 
     public ValidationParser(AttributeRegistry attributeRegistry,
             AttributeValidatorRegistry attributeValidatorRegistry,
@@ -91,13 +137,41 @@ public class ValidationParser implements ArtifactInstaller {
 
     @Override
     public void install(File file) throws Exception {
+<<<<<<< HEAD
+=======
+        apply(file);
+    }
+
+    @Override
+    public void update(File file) throws Exception {
+        undo(file);
+        apply(file);
+    }
+
+    @Override
+    public void uninstall(File file) throws Exception {
+        undo(file);
+    }
+
+    @Override
+    public boolean canHandle(File file) {
+        return file.getName()
+                .endsWith(".json");
+    }
+
+    private void apply(File file) throws Exception {
+>>>>>>> master
         String data;
         try (InputStream input = new FileInputStream(file)) {
             data = IOUtils.toString(input, StandardCharsets.UTF_8.name());
             LOGGER.debug("Installing file [{}]. Contents:\n{}", file.getAbsolutePath(), data);
         }
         if (StringUtils.isEmpty(data)) {
+<<<<<<< HEAD
             LOGGER.warn("File is empty [{}]", file.getAbsolutePath());
+=======
+            LOGGER.debug("File is empty [{}]. Nothing to install.", file.getAbsolutePath());
+>>>>>>> master
             return; /* nothing to install */
         }
 
@@ -116,6 +190,7 @@ public class ValidationParser implements ArtifactInstaller {
                 .parseMap(data);
         parseValidators(root, outer);
 
+<<<<<<< HEAD
         sourceMap.put(file.getName(), outer);
 
         handleSection("Attribute Types", outer.attributeTypes, this::parseAttributeTypes);
@@ -130,6 +205,28 @@ public class ValidationParser implements ArtifactInstaller {
             List<Callable<Boolean>> stagedAdds;
             try {
                 stagedAdds = parser.apply(sectionData);
+=======
+        final String filename = file.getName();
+        final Changeset changeset = new Changeset();
+        changesetsByFile.put(filename, changeset);
+
+        handleSection(changeset,
+                "Attribute Types",
+                outer.attributeTypes,
+                this::parseAttributeTypes);
+        handleSection(changeset, "Metacard Types", outer.metacardTypes, this::parseMetacardTypes);
+        handleSection(changeset, "Validators", outer.validators, this::parseValidators);
+        handleSection(changeset, "Defaults", outer.defaults, this::parseDefaults);
+        handleSection(changeset, "Injections", outer.inject, this::parseInjections);
+    }
+
+    private <T> void handleSection(Changeset changeset, String sectionName, T sectionData,
+            BiFunction<Changeset, T, List<Callable<Boolean>>> parser) throws Exception {
+        if (sectionData != null) {
+            List<Callable<Boolean>> stagedAdds;
+            try {
+                stagedAdds = parser.apply(changeset, sectionData);
+>>>>>>> master
             } catch (Exception e) {
                 throw new IllegalArgumentException(String.format("Could not parse %s section.",
                         sectionName), e);
@@ -145,11 +242,16 @@ public class ValidationParser implements ArtifactInstaller {
             try {
                 staged.call();
             } catch (RuntimeException e) {
+<<<<<<< HEAD
                 LOGGER.warn("Error adding staged item {}", staged, e);
+=======
+                LOGGER.debug("Error adding staged item {}", staged, e);
+>>>>>>> master
             }
         }
     }
 
+<<<<<<< HEAD
     @Override
     public void update(File file) throws Exception {
     }
@@ -164,6 +266,8 @@ public class ValidationParser implements ArtifactInstaller {
                 .endsWith(".json");
     }
 
+=======
+>>>>>>> master
     @SuppressWarnings("unchecked")
     private void parseValidators(Map<String, Object> root, Outer outer) {
         if (root == null || root.get("validators") == null) {
@@ -181,7 +285,11 @@ public class ValidationParser implements ArtifactInstaller {
         outer.validators = validators;
     }
 
+<<<<<<< HEAD
     private List<Callable<Boolean>> parseAttributeTypes(
+=======
+    private List<Callable<Boolean>> parseAttributeTypes(Changeset changeset,
+>>>>>>> master
             Map<String, Outer.AttributeType> attributeTypes) {
         List<Callable<Boolean>> staged = new ArrayList<>();
         for (Map.Entry<String, Outer.AttributeType> entry : attributeTypes.entrySet()) {
@@ -192,11 +300,20 @@ public class ValidationParser implements ArtifactInstaller {
                     entry.getValue().multivalued,
                     BasicTypes.getAttributeType(entry.getValue().type));
 
+<<<<<<< HEAD
             staged.add(() -> attributeRegistry.registerAttribute(descriptor));
+=======
+            staged.add(() -> {
+                attributeRegistry.register(descriptor);
+                changeset.attributes.add(descriptor);
+                return true;
+            });
+>>>>>>> master
         }
         return staged;
     }
 
+<<<<<<< HEAD
     private List<Callable<Boolean>> parseMetacardTypes(List<Outer.MetacardType> metacardTypes) {
         List<Callable<Boolean>> staged = new ArrayList<>();
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
@@ -207,14 +324,24 @@ public class ValidationParser implements ArtifactInstaller {
             return new ArrayList<>();
         }
         BundleContext context = bundle.getBundleContext();
+=======
+    private List<Callable<Boolean>> parseMetacardTypes(Changeset changeset,
+            List<Outer.MetacardType> metacardTypes) {
+        List<Callable<Boolean>> staged = new ArrayList<>();
+        BundleContext context = getBundleContext();
+>>>>>>> master
         for (Outer.MetacardType metacardType : metacardTypes) {
             Set<AttributeDescriptor> attributeDescriptors =
                     new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
             Set<String> requiredAttributes = new HashSet<>();
 
             metacardType.attributes.forEach((attributeName, attribute) -> {
+<<<<<<< HEAD
                 AttributeDescriptor descriptor = attributeRegistry.getAttributeDescriptor(
                         attributeName)
+=======
+                AttributeDescriptor descriptor = attributeRegistry.lookup(attributeName)
+>>>>>>> master
                         .orElseThrow(() -> new IllegalStateException(String.format(
                                 "Metacard type [%s] includes the attribute [%s], but that attribute is not in the attribute registry.",
                                 metacardType.type,
@@ -229,24 +356,58 @@ public class ValidationParser implements ArtifactInstaller {
                 final MetacardValidator validator = new RequiredAttributesMetacardValidator(
                         metacardType.type,
                         requiredAttributes);
+<<<<<<< HEAD
                 staged.add(() -> context.registerService(MetacardValidator.class, validator, null)
                         != null);
+=======
+                staged.add(() -> {
+                    ServiceRegistration<MetacardValidator> registration = context.registerService(
+                            MetacardValidator.class,
+                            validator,
+                            null);
+                    changeset.metacardValidatorServices.add(registration);
+                    return registration != null;
+                });
+>>>>>>> master
             }
 
             Dictionary<String, Object> properties = new Hashtable<>();
             properties.put("name", metacardType.type);
             MetacardType type = new MetacardTypeImpl(metacardType.type, attributeDescriptors);
+<<<<<<< HEAD
             staged.add(() -> context.registerService(MetacardType.class, type, properties) != null);
+=======
+            staged.add(() -> {
+                ServiceRegistration<MetacardType> registration = context.registerService(
+                        MetacardType.class,
+                        type,
+                        properties);
+                changeset.metacardTypeServices.add(registration);
+                return registration != null;
+            });
+>>>>>>> master
         }
         return staged;
     }
 
+<<<<<<< HEAD
     private List<Callable<Boolean>> parseValidators(Map<String, List<Outer.Validator>> validators) {
         List<Callable<Boolean>> staged = new ArrayList<>();
         for (Map.Entry<String, List<Outer.Validator>> entry : validators.entrySet()) {
             Set<AttributeValidator> attributeValidators = validatorFactory(entry.getValue());
             staged.add(() -> {
                 attributeValidatorRegistry.registerValidators(entry.getKey(), attributeValidators);
+=======
+    private List<Callable<Boolean>> parseValidators(Changeset changeset,
+            Map<String, List<Outer.Validator>> validators) {
+        List<Callable<Boolean>> staged = new ArrayList<>();
+        for (Map.Entry<String, List<Outer.Validator>> entry : validators.entrySet()) {
+            Set<AttributeValidator> attributeValidators = validatorFactory(entry.getValue());
+            String attributeName = entry.getKey();
+            staged.add(() -> {
+                attributeValidatorRegistry.registerValidators(attributeName, attributeValidators);
+                changeset.attributeValidators.put(attributeName, attributeValidators);
+>>>>>>> master
                 return true;
             });
         }
@@ -258,7 +419,11 @@ public class ValidationParser implements ArtifactInstaller {
                 .filter(Objects::nonNull)
                 .filter(v -> StringUtils.isNotBlank(v.validator))
                 .map(this::getValidator)
+<<<<<<< HEAD
                 .collect(Collectors.toSet());
+=======
+                .collect(toSet());
+>>>>>>> master
     }
 
     private AttributeValidator getValidator(Outer.Validator validator) {
@@ -280,7 +445,15 @@ public class ValidationParser implements ArtifactInstaller {
         }
         case "enumeration": {
             Set<String> values = new HashSet<>(validator.arguments);
+<<<<<<< HEAD
             return new EnumerationValidator(values);
+=======
+            return new EnumerationValidator(values, false);
+        }
+        case "enumerationignorecase": {
+            Set<String> values = new HashSet<>(validator.arguments);
+            return new EnumerationValidator(values, true);
+>>>>>>> master
         }
         case "range": {
             BigDecimal min = new BigDecimal(validator.arguments.get(0));
@@ -291,6 +464,15 @@ public class ValidationParser implements ArtifactInstaller {
             }
             return new RangeValidator(min, max);
         }
+<<<<<<< HEAD
+=======
+        case "iso3_country": {
+            return new ISO3CountryCodeValidator(false);
+        }
+        case "iso3_countryignorecase": {
+            return new ISO3CountryCodeValidator(true);
+        }
+>>>>>>> master
         default:
             throw new IllegalStateException(
                     "Validator does not exist. (" + validator.validator + ")");
@@ -321,17 +503,27 @@ public class ValidationParser implements ArtifactInstaller {
         }
     }
 
+<<<<<<< HEAD
     private List<Callable<Boolean>> parseDefaults(List<Outer.Default> defaults) {
         return defaults.stream()
                 .flatMap(defaultObj -> {
                     String attribute = defaultObj.attribute;
                     AttributeDescriptor descriptor = attributeRegistry.getAttributeDescriptor(
                             attribute)
+=======
+    private List<Callable<Boolean>> parseDefaults(Changeset changeset,
+            List<Outer.Default> defaults) {
+        return defaults.stream()
+                .map(defaultObj -> {
+                    String attribute = defaultObj.attribute;
+                    AttributeDescriptor descriptor = attributeRegistry.lookup(attribute)
+>>>>>>> master
                             .orElseThrow(() -> new IllegalStateException(String.format(
                                     "The default value for the attribute [%s] cannot be parsed because that attribute has not been registered in the attribute registry",
                                     attribute)));
                     Serializable defaultValue = parseDefaultValue(descriptor, defaultObj.value);
                     List<String> metacardTypes = defaultObj.metacardTypes;
+<<<<<<< HEAD
                     if (metacardTypes == null || metacardTypes.isEmpty()) {
                         return Stream.of(() -> {
                             defaultAttributeValueRegistry.setDefaultValue(attribute, defaultValue);
@@ -352,6 +544,118 @@ public class ValidationParser implements ArtifactInstaller {
 
     private class Outer {
         List<MetacardType> metacardTypes;
+=======
+                    if (CollectionUtils.isEmpty(metacardTypes)) {
+                        return (Callable<Boolean>) () -> {
+                            defaultAttributeValueRegistry.setDefaultValue(attribute, defaultValue);
+                            changeset.defaults.add(defaultObj);
+                            return true;
+                        };
+                    } else {
+                        return (Callable<Boolean>) () -> {
+                            metacardTypes.forEach(metacardType -> {
+                                defaultAttributeValueRegistry.setDefaultValue(metacardType,
+                                        attribute,
+                                        defaultValue);
+                            });
+                            changeset.defaults.add(defaultObj);
+                            return true;
+                        };
+                    }
+                })
+                .collect(toList());
+    }
+
+    private List<Callable<Boolean>> parseInjections(Changeset changeset,
+            List<Outer.Injection> injections) {
+        BundleContext context = getBundleContext();
+        return injections.stream()
+                .map(injection -> (Callable<Boolean>) () -> {
+                    String attribute = injection.attribute;
+                    InjectableAttribute injectableAttribute = new InjectableAttributeImpl(attribute,
+                            injection.metacardTypes);
+                    ServiceRegistration<InjectableAttribute> injectableAttributeService =
+                            context.registerService(InjectableAttribute.class,
+                                    injectableAttribute,
+                                    null);
+                    changeset.injectableAttributeServices.add(injectableAttributeService);
+                    return true;
+                })
+                .collect(toList());
+    }
+
+    private BundleContext getBundleContext() {
+        return Optional.of(FrameworkUtil.getBundle(getClass()))
+                .map(Bundle::getBundleContext)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Could not get the bundle for " + getClass().getName()));
+    }
+
+    private void undo(File file) {
+        final String filename = file.getName();
+
+        LOGGER.debug("Reversing the changes applied by file [{}].", filename);
+
+        final Changeset changeset = changesetsByFile.get(filename);
+        if (changeset != null) {
+            undoMetacardTypes(changeset.metacardTypeServices);
+            undoMetacardValidators(changeset.metacardValidatorServices);
+            undoAttributes(changeset.attributes);
+            undoDefaults(changeset.defaults);
+            undoAttributeValidators(changeset.attributeValidators);
+            undoInjectableAttributes(changeset.injectableAttributeServices);
+
+            changesetsByFile.remove(filename);
+        }
+    }
+
+    private void undoMetacardTypes(List<ServiceRegistration<MetacardType>> metacardTypeServices) {
+        metacardTypeServices.forEach(ServiceRegistration::unregister);
+    }
+
+    private void undoMetacardValidators(
+            List<ServiceRegistration<MetacardValidator>> metacardValidatorServices) {
+        metacardValidatorServices.forEach(ServiceRegistration::unregister);
+    }
+
+    private void undoAttributes(Set<AttributeDescriptor> attributes) {
+        attributes.forEach(attributeRegistry::deregister);
+    }
+
+    private void undoDefaults(List<Outer.Default> defaults) {
+        defaults.forEach(theDefault -> {
+            if (CollectionUtils.isEmpty(theDefault.metacardTypes)) {
+                defaultAttributeValueRegistry.removeDefaultValue(theDefault.attribute);
+            } else {
+                theDefault.metacardTypes.forEach(type -> {
+                    defaultAttributeValueRegistry.removeDefaultValue(type, theDefault.attribute);
+                });
+            }
+        });
+    }
+
+    private void undoAttributeValidators(Map<String, Set<AttributeValidator>> attributeValidators) {
+        attributeValidators.forEach((attributeName, validatorsToRemove) -> {
+            Set<AttributeValidator> currentValidators = attributeValidatorRegistry.getValidators(
+                    attributeName);
+            Set<AttributeValidator> resultingValidators = Sets.difference(currentValidators,
+                    validatorsToRemove);
+            attributeValidatorRegistry.deregisterValidators(attributeName);
+
+            if (!resultingValidators.isEmpty()) {
+                attributeValidatorRegistry.registerValidators(attributeName, resultingValidators);
+            }
+        });
+    }
+
+    private void undoInjectableAttributes(
+            List<ServiceRegistration<InjectableAttribute>> injectableAttributeServices) {
+        injectableAttributeServices.forEach(ServiceRegistration::unregister);
+    }
+
+    private class Outer {
+        List<Outer.MetacardType> metacardTypes;
+>>>>>>> master
 
         Map<String, AttributeType> attributeTypes;
 
@@ -360,6 +664,11 @@ public class ValidationParser implements ArtifactInstaller {
 
         List<Default> defaults;
 
+<<<<<<< HEAD
+=======
+        List<Injection> inject;
+
+>>>>>>> master
         class MetacardType {
             String type;
 
@@ -395,5 +704,31 @@ public class ValidationParser implements ArtifactInstaller {
 
             List<String> metacardTypes;
         }
+<<<<<<< HEAD
+=======
+
+        class Injection {
+            String attribute;
+
+            List<String> metacardTypes;
+        }
+    }
+
+    private class Changeset {
+        private final List<ServiceRegistration<MetacardType>> metacardTypeServices =
+                new ArrayList<>();
+
+        private final List<ServiceRegistration<MetacardValidator>> metacardValidatorServices =
+                new ArrayList<>();
+
+        private final Set<AttributeDescriptor> attributes = new HashSet<>();
+
+        private final List<Outer.Default> defaults = new ArrayList<>();
+
+        private final Map<String, Set<AttributeValidator>> attributeValidators = new HashMap<>();
+
+        private final List<ServiceRegistration<InjectableAttribute>> injectableAttributeServices =
+                new ArrayList<>();
+>>>>>>> master
     }
 }

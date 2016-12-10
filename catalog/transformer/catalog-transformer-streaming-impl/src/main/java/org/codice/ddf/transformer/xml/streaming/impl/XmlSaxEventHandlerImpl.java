@@ -18,10 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
+import org.codice.ddf.transformer.xml.streaming.AbstractSaxEventHandler;
 import org.xml.sax.Attributes;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -32,7 +30,7 @@ import ddf.catalog.data.impl.AttributeImpl;
  * These defaults can be overridden by passing a different {@link Map} in {@link XmlSaxEventHandlerImpl#setXmlToMetacard(Map)}
  * {@inheritDoc}
  */
-public class XmlSaxEventHandlerImpl implements SaxEventHandler {
+public class XmlSaxEventHandlerImpl extends AbstractSaxEventHandler {
 
     /*
      * A list of Attributes that is populated during parsing and then returned by getAttributes
@@ -59,11 +57,6 @@ public class XmlSaxEventHandlerImpl implements SaxEventHandler {
         return attributes;
     }
 
-    @Override
-    public void setDocumentLocator(Locator locator) {
-
-    }
-
     protected XmlSaxEventHandlerImpl() {
         xmlToMetacard = new HashMap<>();
         /*
@@ -83,22 +76,6 @@ public class XmlSaxEventHandlerImpl implements SaxEventHandler {
     public void startDocument() {
         textDataOfElement = new StringBuilder();
         attributes = new ArrayList<>();
-
-    }
-
-    @Override
-    public void endDocument() throws SAXException {
-
-    }
-
-    @Override
-    public void startPrefixMapping(String prefix, String uri) throws SAXException {
-
-    }
-
-    @Override
-    public void endPrefixMapping(String prefix) throws SAXException {
-
     }
 
     /**
@@ -171,21 +148,6 @@ public class XmlSaxEventHandlerImpl implements SaxEventHandler {
         if (elementBeingRead != null) {
             textDataOfElement.append(new String(ch, start, length));
         }
-
-    }
-
-    @Override
-    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
-
-    }
-
-    @Override
-    public void processingInstruction(String target, String data) throws SAXException {
-
-    }
-
-    @Override
-    public void skippedEntity(String name) throws SAXException {
 
     }
 }

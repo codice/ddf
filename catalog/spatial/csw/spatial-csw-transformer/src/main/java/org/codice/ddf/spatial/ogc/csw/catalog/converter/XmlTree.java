@@ -17,7 +17,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-class XmlTree {
+public class XmlTree {
 
     private final Set<XmlTree> children = new LinkedHashSet<>();
 

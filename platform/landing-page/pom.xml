@@ -12,12 +12,18 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.platform</groupId>
         <artifactId>platform</artifactId>
+<<<<<<< HEAD
         <version>2.9.4</version>
+=======
+        <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <artifactId>landing-page</artifactId>
     <name>DDF :: Platform :: Landing Page</name>
@@ -57,6 +63,11 @@
             <version>3.3.2</version>
         </dependency>
         <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>spock-shaded</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.jknack</groupId>
             <artifactId>handlebars</artifactId>
             <version>${handlebars.version}</version>
@@ -87,6 +98,7 @@
                     <instructions>
                         <Import-Package>
                             !org.abego.treelayout.*,
+                            org.codice.ddf.branding;version="[2,3)",
                             *
                         </Import-Package>
                         <Export-Package />

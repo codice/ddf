@@ -284,10 +284,10 @@ An OGC Filter is a Open Geospatial Consortium (OGC) standard (
 http://www.opengeospatial.org/standards/filter
 ) that describes a query expression
 in terms of Extensible Markup Language (XML) and key-value pairs (KVP). The ${ddf-catalog} Framework does not use the XML representation of
-the OGC Filter standard. ${branding} instead utilizes the Java implementation provided by Geotools (
+the OGC Filter standard. ${branding} instead utilizes the Java implementation provided by GeoTools (
 http://geotools.org/
-). Geotools provides Java
-equivalent classes for OGC Filter XML elements. Geotools originally provided the standard Java classes for the OGC Filter Encoding 1.0 under the
+). GeoTools provides Java
+equivalent classes for OGC Filter XML elements. GeoTools originally provided the standard Java classes for the OGC Filter Encoding 1.0 under the
 package name 
 `org.opengis.filter`. The same package name is used today and is currently used by ${branding}.  Java developers do not parse or
 view the XML representation of a 
@@ -365,7 +365,7 @@ The OGC Filter Specification has several types of filters that can be combined i
 ===== Units of Measure
 
 According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 09-026r1] and http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 04-095], units of measure can be expressed as a URI.
-To fulfill that requirement, ${branding} utilizes the Geotools class `org.geotools.styling.UomOgcMapping` for spatial filters requiring a standard for units of measure for scalar distances.
+To fulfill that requirement, ${branding} utilizes the GeoTools class `org.geotools.styling.UomOgcMapping` for spatial filters requiring a standard for units of measure for scalar distances.
 Essentially, the `UomOgcMapping` maps the http://www.opengeospatial.org/standards/symbol[OGC Symbology Encoding] standard URIs to Java Units.
 This class provides three options for units of measure: 
 
@@ -377,12 +377,12 @@ ${branding} only supports FOOT and METRE since they are the most applicable to 
 
 ===== Creating Filters
 
-The common way to create a `Filter` is to use the Geotools `FilterFactoryImpl` object, which provides Java implementations for the various types of filters in the Filter Specification.
+The common way to create a `Filter` is to use the GeoTools `FilterFactoryImpl` object, which provides Java implementations for the various types of filters in the Filter Specification.
 Examples are the easiest way to understand how to properly create a `Filter` and a `Query`. 
 
 [NOTE]
 ====
-Refer to the http://docs.geotools.org/latest/javadocs/[Geotools javadoc] for more information on `FilterFactoryImpl`.
+Refer to the http://docs.geotools.org/latest/javadocs/[GeoTools javadoc] for more information on `FilterFactoryImpl`.
 ====
 
 The example below illustrates creating a query, and thus an OGC Filter, that does a case-insensitive search for the phrase "mission" in the entire metacard's text.
@@ -558,7 +558,7 @@ This is the preferred way to handle OGC Filters in a consistent manner.
 
 Alternately, `org.opengis.filter.Filter` implementations can be parsed using implementations of the interface `org.opengis.filter.FilterVisitor`. 
 The `FilterVisitor` uses the http://www.oodesign.com/visitor-pattern.html[Visitor pattern]. Essentially, `FilterVisitor` instances "visit" each part of the `Filter` tree allowing developers to implement logic to handle the filter's operations. 
-Geotools 8 includes implementations of the `FilterVisitor` interface.
+GeoTools 8 includes implementations of the `FilterVisitor` interface.
 The `DefaultFilterVisitor`, as an example, provides only business logic to visit every node in the `Filter` tree.
 The `DefaultFilterVisitor` methods are meant to be overwritten with the correct business logic. 
 The simplest approach when using `FilterVisitor` instances is to build the appropriate query syntax for a target language as each part of the `Filter` is visited.
@@ -1177,7 +1177,8 @@ The Catalog Framework calls Catalog Plugins to process requests and responses a
 
 ===== Using
 
-Pre-Ingest plugins are invoked before an ingest operation is sent to a Source. 
+Pre-Ingest plugins are invoked before an ingest operation is sent to the catalog.
+They are not run on a query.
 This is an opportunity to take any action on the ingest request, including but not limited to:
 
 * validation
@@ -1226,6 +1227,43 @@ No configuration is necessary for this plugin. 
 ====== Using
 
 Use this pre-ingest plugin as a convenience to apply basic rules for your metacards. 
+
+====== Known Issues
+
+None
+
+===== Metacard Validity Marker
+
+The Metacard Validity Marker Pre-Ingest plugin modifies the metacards contained in `CreateRequest`s and `UpdateRequest`s.
+
+The plugin runs each metacard in the `CreateRequest` and `UpdateRequest` against each registered `MetacardValidator` service.
+
+[NOTE]
+====
+This plugin can make it seem like ingested products are not successfully ingested.
+If after ingesting, the ingest did not fail and there are no errors in the ingest log, but the expected results do not show up after a query,
+verify either that the ingested data is valid or that the <<catalogFederationStrategy, Catalog Federation Strategy>> is configured to show warnings and/or errors.
+====
+
+
+====== Installing and Uninstalling
+
+This plugin can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
+
+====== Configuring
+
+No configuration is necessary for this plugin. 
+By default, it will mark metacards with validation errors and warnings as they are reported by each metacard validator and then allow the ingest.
+To prevent the ingest of certain invalid metacards, the `Metacard Validity Marker` plugin can be configured to "enforce" one or more validators.
+The `Metacard Validity Marker` plugin can also be configured to enforce validator errors, warnings, or both.
+
+If errors are enforced, then any validation errors from an enforced validator will result in the metacard being rejected.
+If warnings are enforced, then any validation warnings from an enforced validator will result in the metacard being rejected.
+In all other cases, metacards will be ingested and marked with any errors or warnings that may occur during validation.
+
+====== Using
+
+Use this pre-ingest plugin to validate metacards against metacard validators, which can check schemas, schematron, or any other logic. 
 
 ====== Known Issues
 
@@ -3886,11 +3924,19 @@ Does not handle multiple geometries yet.
 
 If the transformer will transform XML, (as opposed to JSON or a Word document, for example) there is a simpler solution than fully implementing a MetacardValidator.
 DDF includes an extensible, configurable `XmlInputTransformer`. This transformer can be instantiated via blueprint as a managed service factory and configured via metatype.
+<<<<<<< HEAD
 The `XmlInputTransformer` takes a configuration of `SaxEventHandler`s.
 A `SaxEventHandler` is a class that handles SAX Events (a very fast XML parser) to parse metadata and create metacards.
 As many `SaxEventHandler`s as needed can be implemented and included in the `XmlInputTransformer` configuration. See the `catalog-transformer-streaming-impl` bundle for examples (`XmlSaxEventHandlerImpl` which parses the DDF Metacard XML Metadata and the `GmlHandler` which parses GML 2.0)
 Each `SaxEventHandler` implementation has a `SaxEventHandlerFactory` associated with it.
 The `SaxEventHandlerFactory` is responsible for instantiating new `SaxEventHandlers` - each transform request gets a new instance of `XmlInputTransformer` and set of `SaxEventHandler`s to be thread- and state-safe.
+=======
+The `XmlInputTransformer` takes a configuration of `SaxEventHandlers`.
+A `SaxEventHandler` is a class that handles SAX Events (a very fast XML parser) to parse metadata and create metacards.
+As many `SaxEventHandlers` as needed can be implemented and included in the `XmlInputTransformer` configuration. See the `catalog-transformer-streaming-impl` bundle for examples (`XmlSaxEventHandlerImpl` which parses the DDF Metacard XML Metadata and the `GmlHandler` which parses GML 2.0)
+Each `SaxEventHandler` implementation has a `SaxEventHandlerFactory` associated with it.
+The `SaxEventHandlerFactory` is responsible for instantiating new `SaxEventHandlers` - each transform request gets a new instance of `XmlInputTransformer` and set of `SaxEventHandlers` to be thread- and state-safe.
+>>>>>>> master
 
 The following diagrams intend to clarify implementation details:
 
@@ -5183,7 +5229,7 @@ For example, implementations can choose to block until all results return then p
 An endpoint can optionally specify the federation strategy to use when it invokes the query operation.
 Otherwise, the Catalog provides a default federation strategy that will be used.
 
-===== Catalog Federation Strategy
+===== Catalog Federation Strategy [[catalogFederationStrategy]]
 
 The Catalog Federation Strategy is the default federation strategy and is based on sorting metacards by the sorting parameter specified in the federated query.
 

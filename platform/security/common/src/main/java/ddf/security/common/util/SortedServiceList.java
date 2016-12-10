@@ -27,8 +27,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 /**
  * <p>
@@ -58,8 +58,7 @@ public class SortedServiceList<T> implements List<T> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(SortedServiceList.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortedServiceList.class);
 
     private Map<ServiceReference, T> serviceMap =
             Collections.synchronizedMap(new TreeMap<ServiceReference, T>(new ServiceComparator() {
@@ -116,7 +115,7 @@ public class SortedServiceList<T> implements List<T> {
      */
     public void unbindPlugin(ServiceReference ref) {
 
-        LOGGER.debug("Unbinding " + ref);
+        LOGGER.debug("Unbinding {}", ref);
 
         serviceMap.remove(ref);
 
@@ -178,7 +177,7 @@ public class SortedServiceList<T> implements List<T> {
 
     @Override
     public T get(int arg0) {
-        LOGGER.debug("GET called on : " + arg0);
+        LOGGER.debug("GET called on : {}", arg0);
         if (serviceMap.values() != null) {
             ArrayList<T> list = new ArrayList<T>(serviceMap.values());
             return list.get(arg0);

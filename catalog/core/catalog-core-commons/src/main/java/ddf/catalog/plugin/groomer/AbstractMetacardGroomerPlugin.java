@@ -76,7 +76,7 @@ public abstract class AbstractMetacardGroomerPlugin implements PreIngestPlugin {
 
             if (singleUpdate == null || singleUpdate.getKey() == null
                     || singleUpdate.getValue() == null) {
-                LOGGER.info(
+                LOGGER.debug(
                         "Either the single ddf.catalog.operation.Update, the Update's identifier, or the Update's value is null, skipping preparation. No preparation necessary.");
                 continue;
             }

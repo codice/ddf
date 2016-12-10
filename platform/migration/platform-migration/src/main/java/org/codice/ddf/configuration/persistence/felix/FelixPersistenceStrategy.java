@@ -63,7 +63,7 @@ public class FelixPersistenceStrategy implements PersistenceStrategy {
                     ConfigurationHandler.read(new ByteArrayInputStream(filteredOutput.toString()
                             .getBytes(StandardCharsets.UTF_8)));
         } catch (RuntimeException e) {
-            LOGGER.error("ConfigurationHandler failed to read configuration from file", e);
+            LOGGER.info("ConfigurationHandler failed to read configuration from file", e);
             throw new ConfigurationFileException("Failed to read configuration from file", e);
         }
 
@@ -97,7 +97,7 @@ public class FelixPersistenceStrategy implements PersistenceStrategy {
             @SuppressWarnings("unchecked")
             Set<String> propertyNames = new HashSet<>(Collections.list(properties.keys()));
 
-            LOGGER.error("Unable to convert all config file properties. One of [{}] is invalid",
+            LOGGER.info("Unable to convert all config file properties. One of [{}] is invalid",
                     expectedPropertyName.removeAll(propertyNames));
             throw new ConfigurationFileException("Unable to convert all config file properties.");
         }

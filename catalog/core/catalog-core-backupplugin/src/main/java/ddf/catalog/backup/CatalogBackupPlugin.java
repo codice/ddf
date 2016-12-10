@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +191,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 TEMP_FILE_EXTENSION));
         boolean success = source.renameTo(destination);
         if (!success) {
-            LOGGER.warn("Failed to move {} to {}.",
+            LOGGER.debug("Failed to move {} to {}.",
                     source.getAbsolutePath(),
                     destination.getAbsolutePath());
         }
@@ -284,7 +285,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      */
     public void setRootBackupDir(String dir) {
 
-        rootBackupDir = dir;
+        rootBackupDir = new AbsolutePathResolver(dir).getPath();
         rootDirOjbect = null;
     }
 

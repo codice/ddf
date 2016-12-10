@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class FileSystemPersistenceProvider
 
     private static final String SER_REGEX = "\\.ser";
 
-    private static final String PERSISTENCE_PATH = "data/";
+    private static final String PERSISTENCE_PATH = new AbsolutePathResolver("data/").getPath();
 
     private String mapName = "default";
 
@@ -64,7 +65,7 @@ public class FileSystemPersistenceProvider
         if (!dir.exists()) {
             boolean success = dir.mkdir();
             if (!success) {
-                LOGGER.error("Could not make directory: {}", dir.getAbsolutePath());
+                LOGGER.info("Could not make directory: {}", dir.getAbsolutePath());
             }
         }
     }
@@ -89,7 +90,7 @@ public class FileSystemPersistenceProvider
             if (!dir.exists()) {
                 boolean success = dir.mkdir();
                 if (!success) {
-                    LOGGER.error("Could not make directory: {}", dir.getAbsolutePath());
+                    LOGGER.info("Could not make directory: {}", dir.getAbsolutePath());
                 }
             }
             LOGGER.debug("file name: {}{}{}", getMapStorePath(), key, SER);
@@ -125,7 +126,7 @@ public class FileSystemPersistenceProvider
         if (file.exists()) {
             boolean success = file.delete();
             if (!success) {
-                LOGGER.error("Could not delete file {}", file.getAbsolutePath());
+                LOGGER.info("Could not delete file {}", file.getAbsolutePath());
             }
         }
     }
@@ -159,9 +160,9 @@ public class FileSystemPersistenceProvider
                 return input.readObject();
             }
         } catch (IOException e) {
-            LOGGER.info("IOException", e);
+            LOGGER.info("Unable to read object.", e);
         } catch (ClassNotFoundException e) {
-            LOGGER.info("ClassNotFoundException", e);
+            LOGGER.info("Class for object being read from stream does not exist.", e);
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
@@ -218,7 +219,7 @@ public class FileSystemPersistenceProvider
             for (File file : files) {
                 boolean success = file.delete();
                 if (!success) {
-                    LOGGER.error("Could not delete file {}", file.getAbsolutePath());
+                    LOGGER.info("Could not delete file {}", file.getAbsolutePath());
                 }
             }
         }

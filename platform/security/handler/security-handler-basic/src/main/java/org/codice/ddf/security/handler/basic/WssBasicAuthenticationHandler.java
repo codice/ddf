@@ -84,7 +84,7 @@ public class WssBasicAuthenticationHandler extends AbstractBasicAuthenticationHa
             parser.marshal(configurator, tokenType, os);
             usernameToken = os.toString("UTF-8");
         } catch (ParserException | UnsupportedEncodingException ex) {
-            LOGGER.warn("", ex);
+            LOGGER.info("Unable to parse username token.", ex);
         }
 
         BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null,

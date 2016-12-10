@@ -23,15 +23,15 @@ import java.util.Set;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 /**
  * This class currently relies on JScience 4.3.1 to perform all distance conversions.
  */
 public final class Distance {
 
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(Distance.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(Distance.class);
 
     private double distanceInMeters = 0.0;
 
@@ -126,7 +126,7 @@ public final class Distance {
                     .convert(distanceInMeters);
             break;
         default:
-            LOGGER.warn("Could not convert distance units, assuming distance is in meters.");
+            LOGGER.debug("Could not convert distance units, assuming distance is in meters.");
             result = distanceInMeters;
             break;
         }

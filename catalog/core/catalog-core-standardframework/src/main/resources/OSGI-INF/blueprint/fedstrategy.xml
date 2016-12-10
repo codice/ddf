@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint
+        xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <bean id="queryThreadPool" class="java.util.concurrent.Executors"
+          factory-method="newCachedThreadPool"/>
+
+    <bean id="cacheThreadPool" class="java.util.concurrent.Executors"
+          factory-method="newFixedThreadPool">
+        <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
+    </bean>
+
+    <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"
+          destroy-method="shutdown">
+        <argument ref="filterAdapter"/>
+        <argument>
+            <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
+        </argument>
+    </bean>
+
+    <bean id="validationQueryFactory" class="ddf.catalog.cache.solr.impl.ValidationQueryFactory">
+        <argument ref="filterAdapter"/>
+        <argument ref="filterBuilder"/>
+    </bean>
+
+    <bean id="federationStrategy" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
+          destroy-method="shutdown">
+        <cm:managed-properties
+                persistent-id="ddf.catalog.federation.impl.CachingFederationStrategy"
+                update-strategy="container-managed"/>
+        <argument ref="queryThreadPool"/>
+        <argument ref="preFederatedQuerySortedList"/>
+        <argument ref="postFederatedQuerySortedList"/>
+        <argument ref="solrCatalogCache"/>
+        <argument ref="cacheThreadPool"/>
+        <argument ref="validationQueryFactory"/>
+        <property name="maxStartIndex" value="50000"/>
+    </bean>
+
+    <service ref="federationStrategy" interface="ddf.catalog.federation.FederationStrategy"
+             ranking="100">
+        <service-properties>
+            <entry key="shortname" value="federationStrategy"/>
+        </service-properties>
+    </service>
+
+    <service ref="federationStrategy" interface="ddf.catalog.plugin.PostIngestPlugin"/>
+
+</blueprint>

@@ -110,6 +110,12 @@ public class LoginFilter implements Filter {
             try {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 factory.setNamespaceAware(true);
+                try {
+                    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+                    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                } catch (ParserConfigurationException e) {
+                    LOGGER.debug("Unable to configure features on document builder.", e);
+                }
                 return factory.newDocumentBuilder();
             } catch (ParserConfigurationException ex) {
                 // This exception should not happen
@@ -360,7 +366,7 @@ public class LoginFilter implements Filter {
                 }
                 if (token.isReference()) {
                     String msg = "Missing or invalid SAML assertion for provided reference.";
-                    LOGGER.error(msg);
+                    LOGGER.debug(msg);
                     throw new InvalidSAMLReceivedException(msg);
                 }
             }
@@ -443,10 +449,10 @@ public class LoginFilter implements Filter {
                 addSamlToSession(httpRequest, token.getRealm(), securityToken);
             }
         } catch (SecurityServiceException e) {
-            LOGGER.error("Unable to get subject from SAML request.", e);
+            LOGGER.debug("Unable to get subject from SAML request.", e);
             throw new ServletException(e);
         } catch (WSSecurityException e) {
-            LOGGER.error("Unable to read/validate security token from request.", e);
+            LOGGER.debug("Unable to read/validate security token from request.", e);
             throw new ServletException(e);
         }
         return subject;
@@ -578,9 +584,7 @@ public class LoginFilter implements Filter {
             long timeoutMillis = (afterMil - System.currentTimeMillis());
 
             if (timeoutMillis <= 0) {
-                String msg = "SAML assertion has expired.";
-                LOGGER.info(msg);
-                throw new InvalidSAMLReceivedException(msg);
+                throw new InvalidSAMLReceivedException("SAML assertion has expired.");
             }
 
             if (timeoutMillis <= 60000) { // within 60 seconds
@@ -615,12 +619,12 @@ public class LoginFilter implements Filter {
                     }
 
                 } catch (SecurityServiceException e) {
-                    LOGGER.warn(
+                    LOGGER.debug(
                             "Unable to refresh user's SAML assertion. User will log out prematurely.",
                             e);
                     session.invalidate();
                 } catch (Exception e) {
-                    LOGGER.warn("Unhandled exception occurred.", e);
+                    LOGGER.info("Unhandled exception occurred.", e);
                     session.invalidate();
                 }
             }
@@ -661,7 +665,7 @@ public class LoginFilter implements Filter {
                     }
                 }
             } catch (SecurityServiceException e) {
-                LOGGER.error("Unable to get subject from auth request.", e);
+                LOGGER.debug("Unable to get subject from auth request.", e);
                 throw new ServletException(e);
             }
         } else {
@@ -676,7 +680,7 @@ public class LoginFilter implements Filter {
 
     private SecurityToken getSecurityToken(HttpSession session, String realm) {
         if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
-            LOGGER.error(
+            LOGGER.debug(
                     "Security token holder missing from session. New session created improperly.");
             return null;
         }
@@ -757,7 +761,7 @@ public class LoginFilter implements Filter {
 
     @Override
     public void destroy() {
-        LOGGER.info("Destroying log in filter");
+        LOGGER.debug("Destroying log in filter");
         BUILDER.remove();
     }
 

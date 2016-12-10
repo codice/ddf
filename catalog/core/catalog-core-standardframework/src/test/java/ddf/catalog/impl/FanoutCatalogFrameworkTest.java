@@ -57,6 +57,21 @@ import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+<<<<<<< HEAD
+=======
+import ddf.catalog.impl.operations.CreateOperations;
+import ddf.catalog.impl.operations.DeleteOperations;
+import ddf.catalog.impl.operations.MetacardFactory;
+import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
+import ddf.catalog.impl.operations.OperationsMetacardSupport;
+import ddf.catalog.impl.operations.OperationsSecuritySupport;
+import ddf.catalog.impl.operations.OperationsStorageSupport;
+import ddf.catalog.impl.operations.QueryOperations;
+import ddf.catalog.impl.operations.ResourceOperations;
+import ddf.catalog.impl.operations.SourceOperations;
+import ddf.catalog.impl.operations.TransformOperations;
+import ddf.catalog.impl.operations.UpdateOperations;
+>>>>>>> master
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.Query;
@@ -106,9 +121,62 @@ public class FanoutCatalogFrameworkTest {
         frameworkProperties.setSourcePoller(poller);
         frameworkProperties.setFederationStrategy(new MockFederationStrategy());
         frameworkProperties.setPostIngest(postIngestPlugins);
-        framework = new CatalogFrameworkImpl(frameworkProperties);
+
+        framework = createCatalogFramework(frameworkProperties);
+    }
+
+    private CatalogFrameworkImpl createCatalogFramework(FrameworkProperties frameworkProperties) {
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        MetacardFactory metacardFactory =
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
+                metacardFactory);
+        SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+        TransformOperations transformOperations = new TransformOperations(frameworkProperties);
+        QueryOperations queryOperations = new QueryOperations(frameworkProperties,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(
+                frameworkProperties,
+                sourceOperations);
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(sourceOperations,
+                queryOperations);
+        ResourceOperations resourceOperations = new ResourceOperations(frameworkProperties,
+                queryOperations,
+                opsSecurity);
+        CreateOperations createOperations = new CreateOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                null,
+                opsCatStore,
+                opsStorage);
+        UpdateOperations updateOperations = new UpdateOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                null,
+                opsCatStore,
+                opsStorage);
+        DeleteOperations deleteOperations = new DeleteOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                null,
+                opsCatStore);
+
+        framework = new CatalogFrameworkImpl(createOperations,
+                updateOperations,
+                deleteOperations,
+                queryOperations,
+                resourceOperations,
+                sourceOperations,
+                transformOperations);
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
+
+        return framework;
     }
 
     @Test
@@ -131,7 +199,8 @@ public class FanoutCatalogFrameworkTest {
 
         QueryResponse response = new QueryResponseImpl(request, results, 2);
 
-        QueryResponse newResponse = framework.replaceSourceId(response);
+        QueryResponse newResponse = framework.getQueryOperations()
+                .replaceSourceId(response);
         assertNotNull(newResponse);
 
         List<Result> newResults = newResponse.getResults();
@@ -202,7 +271,8 @@ public class FanoutCatalogFrameworkTest {
 
         QueryResponse response = new QueryResponseImpl(request, results, 2);
 
-        QueryResponse newResponse = framework.replaceSourceId(response);
+        QueryResponse newResponse = framework.getQueryOperations()
+                .replaceSourceId(response);
         assertNotNull(newResponse);
 
         List<Result> newResults = newResponse.getResults();
@@ -241,7 +311,8 @@ public class FanoutCatalogFrameworkTest {
 
         QueryResponse response = new QueryResponseImpl(request, results, 2);
 
-        QueryResponse newResponse = framework.replaceSourceId(response);
+        QueryResponse newResponse = framework.getQueryOperations()
+                .replaceSourceId(response);
         assertNotNull(newResponse);
         List<Result> newResults = newResponse.getResults();
         assertNotNull(newResults);
@@ -300,9 +371,7 @@ public class FanoutCatalogFrameworkTest {
         }
         frameworkProperties.setFederatedSources(sourceMap);
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
-        framework.setId(NEW_SOURCE_ID);
-        framework.setFanoutEnabled(true);
+        CatalogFrameworkImpl framework = createCatalogFramework(frameworkProperties);
 
         // Assert not null simply to prove that we returned an object.
         assertNotNull(framework.getSourceInfo(request));
@@ -367,10 +436,49 @@ public class FanoutCatalogFrameworkTest {
         frameworkProperties.setFederationStrategy(strategy);
         frameworkProperties.setQueryResponsePostProcessor(queryResponsePostProcessor);
 
+<<<<<<< HEAD
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
         framework.bind(catalogProvider);
         framework.bind(storageProvider);
 
+=======
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        MetacardFactory metacardFactory =
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
+                metacardFactory);
+        SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+        sourceOperations.bind(catalogProvider);
+        sourceOperations.bind(storageProvider);
+
+        TransformOperations transformOperations = new TransformOperations(frameworkProperties);
+
+        QueryOperations queryOperations = new QueryOperations(frameworkProperties,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(
+                frameworkProperties,
+                sourceOperations);
+        ResourceOperations resourceOperations = new ResourceOperations(frameworkProperties,
+                queryOperations,
+                opsSecurity);
+
+        DeleteOperations deleteOperations = new DeleteOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                null,
+                opsCatStore);
+
+        framework = new CatalogFrameworkImpl(null,
+                null,
+                deleteOperations,
+                queryOperations,
+                resourceOperations,
+                sourceOperations,
+                transformOperations);
+>>>>>>> master
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
         framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));
@@ -405,14 +513,62 @@ public class FanoutCatalogFrameworkTest {
         frameworkProperties.setMimeTypeMapper(mimeTypeMapper);
         frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
 
+<<<<<<< HEAD
+=======
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        MetacardFactory metacardFactory =
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
+                metacardFactory);
+        SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+        sourceOperations.bind(catalogProvider);
+        sourceOperations.bind(storageProvider);
+
+        TransformOperations transformOperations = new TransformOperations(frameworkProperties);
+
+        QueryOperations queryOperations = new QueryOperations(frameworkProperties,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(
+                frameworkProperties,
+                sourceOperations);
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(sourceOperations,
+                queryOperations);
+        ResourceOperations resourceOperations = new ResourceOperations(frameworkProperties,
+                queryOperations,
+                opsSecurity);
+
+        OperationsMetacardSupport opsMetacardSupport = new OperationsMetacardSupport(
+                frameworkProperties,
+                metacardFactory);
+>>>>>>> master
         // Need to set these for InputValidation to work
         System.setProperty("bad.files", "none");
         System.setProperty("bad.file.extensions", "none");
         System.setProperty("bad.mime.types", "none");
 
+<<<<<<< HEAD
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
         framework.bind(catalogProvider);
         framework.bind(storageProvider);
+=======
+        CreateOperations createOperations = new CreateOperations(frameworkProperties,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacardSupport,
+                opsCatStore,
+                opsStorage);
+
+        framework = new CatalogFrameworkImpl(createOperations,
+                null,
+                null,
+                queryOperations,
+                resourceOperations,
+                sourceOperations,
+                transformOperations);
+>>>>>>> master
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
         framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));

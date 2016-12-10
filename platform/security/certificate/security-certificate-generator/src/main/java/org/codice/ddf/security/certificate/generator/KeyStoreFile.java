@@ -152,7 +152,7 @@ public class KeyStoreFile {
         try {
             keyStore.deleteEntry(alias);
         } catch (KeyStoreException e) {
-            LOGGER.info("Attempted to remove key named {} from keyStore. No such such key", alias);
+            LOGGER.info("Attempted to remove key named {} from keyStore. No such key", alias);
         }
         return isKey(alias);
     }

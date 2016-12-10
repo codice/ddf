@@ -78,7 +78,7 @@ public class FeatureCollectionMessageBodyReaderWfs10
     public boolean isReadable(Class<?> clazz, Type type, Annotation[] annotations,
             MediaType mediaType) {
         if (!WfsFeatureCollection.class.isAssignableFrom(clazz)) {
-            LOGGER.warn("{} class is not readable", clazz);
+            LOGGER.debug("{} class is not readable", clazz);
         }
         return WfsFeatureCollection.class.isAssignableFrom(clazz);
     }
@@ -111,7 +111,7 @@ public class FeatureCollectionMessageBodyReaderWfs10
             // (with the ExceptionReport) and rethrowing it as a WebApplicationException,
             // which CXF will wrap as a ClientException that the WfsSource catches, converts
             // to a WfsException, and logs.
-            LOGGER.error("Exception unmarshalling {}", e);
+            LOGGER.debug("Exception unmarshalling", e);
             ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes(
                     StandardCharsets.UTF_8));
             ResponseBuilder responseBuilder = Response.ok(bis);

@@ -45,7 +45,7 @@ public class DummyValidationPostQueryPlugin implements PostQueryPlugin {
     public QueryResponse process(QueryResponse input)
             throws PluginExecutionException, StopProcessingException {
         String methodName = "process()";
-        LOGGER.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         if (input != null) {
             List<Result> cards = input.getResults();
@@ -67,7 +67,7 @@ public class DummyValidationPostQueryPlugin implements PostQueryPlugin {
             }
         }
 
-        LOGGER.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
 
         return input;
     }

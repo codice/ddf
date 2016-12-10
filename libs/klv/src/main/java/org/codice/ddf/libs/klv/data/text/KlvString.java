@@ -59,7 +59,7 @@ public class KlvString extends KlvDataElement<String> {
         try {
             value = klv.getValueAsString(encoding);
         } catch (UnsupportedEncodingException e1) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "Couldn't retrieve string value from KLV using encoding {}. Attempting to use the platform's default charset.",
                     encoding,
                     e1);
@@ -68,7 +68,7 @@ public class KlvString extends KlvDataElement<String> {
                         .name());
             } catch (UnsupportedEncodingException e2) {
                 value = null;
-                LOGGER.warn(
+                LOGGER.debug(
                         "Couldn't retrieve string value from KLV using the platform's default encoding {}. Setting this KlvString's (name: {}) value to null.",
                         Charset.defaultCharset()
                                 .name(),

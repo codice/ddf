@@ -70,8 +70,6 @@ public class ApplicationUploadEndpointTest {
 
     private static final String USING_DEFAULT = "Filename not found, using default.";
 
-    private Logger logger = LoggerFactory.getLogger(ApplicationUploadEndpoint.class);
-
     private ApplicationService testAppService;
 
     private MultipartBody testMultipartBody;
@@ -234,6 +232,7 @@ public class ApplicationUploadEndpointTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testApplicationUploadEndpointCreateInvalidType() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -277,6 +276,7 @@ public class ApplicationUploadEndpointTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testApplicationUploadEndpointCreateIOException() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -301,7 +301,7 @@ public class ApplicationUploadEndpointTest {
             @Override
             public boolean matches(final Object argument) {
                 return ((LoggingEvent) argument).getFormattedMessage()
-                        .contains(IOEX_STRING);
+                        .contains("ddf.home");
             }
         }));
     }
@@ -312,6 +312,7 @@ public class ApplicationUploadEndpointTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testApplicationUploadEndpointCreateFileNotFound() throws Exception {
         ch.qos.logback.classic.Logger root =
@@ -351,6 +352,7 @@ public class ApplicationUploadEndpointTest {
      *
      * @throws Exception
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testApplicationUploadEndpointCreateEmptyFilename() throws Exception {
         ch.qos.logback.classic.Logger root =

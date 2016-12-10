@@ -120,7 +120,7 @@ public class SortedServiceList<T> implements List<T> {
      */
     public void unbindPlugin(ServiceReference ref) {
 
-        LOGGER.debug("Unbinding " + ref);
+        LOGGER.debug("Unbinding {}", ref);
 
         serviceMap.remove(ref);
 
@@ -182,7 +182,7 @@ public class SortedServiceList<T> implements List<T> {
 
     @Override
     public T get(int arg0) {
-        LOGGER.debug("GET called on : " + arg0);
+        LOGGER.debug("GET called on : {}", arg0);
         if (serviceMap.values() != null) {
             ArrayList<T> list = new ArrayList<T>(serviceMap.values());
             return list.get(arg0);

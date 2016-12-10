@@ -22,15 +22,34 @@
                 description="Mapping of Metacard SECURITY attribute to user attribute."
                 name="Attribute map" id="attributeMap" required="false" type="String"
                 default="invalid-state=system-admin" cardinality="100"/>
+        <AD
+                description="Sets whether metacards with validation errors are filtered."
+                name="Filter errors" id="filterErrors" required="true" type="Boolean"
+                default="true"/>
+        <AD
+                description="Sets whether metacards with validation warnings are filtered."
+                name="Filter warnings" id="filterWarnings" required="true" type="Boolean"
+                default="true"/>
     </OCD>
 
     <OCD name="Metacard Validation Marker Plugin"
          id="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin">
         <AD
-                description="ID of Metacard Validator to enforce."
+                description="ID of Metacard Validator to enforce. Metacards that fail these validators will NOT be ingested."
                 name="Enforced Validators" id="enforcedMetacardValidators" required="false"
                 type="String"
                 default="" cardinality="100"/>
+<<<<<<< HEAD
+=======
+        <AD
+                description="Sets whether validation errors are enforced"
+                name="Enforce errors" id="enforceErrors" required="true" type="Boolean"
+                default="true"/>
+        <AD
+                description="Sets whether validation warnings are enforced"
+                name="Enforce warnings" id="enforceWarnings" required="true" type="Boolean"
+                default="true"/>
+>>>>>>> master
     </OCD>
 
     <Designate

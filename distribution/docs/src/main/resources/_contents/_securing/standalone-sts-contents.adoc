@@ -1,0 +1,13 @@
+
+==== Standalone Security Token Service (STS) Installation
+
+To run a STS-only ${branding} installation, uninstall the catalog components that are not being used.
+The following list displays the features that can be uninstalled to minimize the runtime size of ${branding} in an STS-only mode.
+This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.
+
+.Unnecessary Features
+* `catalog-core-standardframework`
+* `catalog-solr-embedded-provider`
+* `catalog-opensearch-endpoint`
+* `catalog-opensearch-souce`
+* `catalog-rest-endpoint`

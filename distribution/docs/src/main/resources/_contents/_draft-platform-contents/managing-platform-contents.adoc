@@ -1,0 +1,44 @@
+
+The ${ddf-platform} application is considered to be a core application of the distribution.
+The Platform application provides the fundamental building blocks that the distribution needs to run.
+These building blocks include subsets of:
+
+* http://karaf.apache.org/[Karaf] 
+* http://cxf.apache.org/CXF[CXF] 
+* http://camel.apache.org/[Camel] 
+
+A Command Scheduler is also included as part of the Platform application.
+The Command Scheduler allows users to schedule Command Line Shell Commands to run at certain specified intervals for the convenience of a "platform independent" method of running certain commands, such as backing up data or logging settings.
+
+==== ${ddf-platform} Application Prerequisites
+
+None.
+
+==== Installing ${ddf-platform}
+
+The ${ddf-platform} application is installed by default with a standard installation.
+
+==== Configuring ${ddf-platform}
+
+.${ddf-platform} Available Configurations
+[cols="1,1,2" options="header"]
+|===
+|Configuration
+|ID
+|Description
+
+include::{adoc-include}/_tables/conf-org.codice.ddf.distribution.landing-page.properties-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-org.codice.ddf.platform.logging.LoggingService-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-ddf_Custom_Mime_Type_Resolver-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-MetricsReporting-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-org.codice.ddf.persistence.internal.PersistentStoreImpl-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-ddf.platform.scheduler.Command-table-contents.adoc[]
+
+include::{adoc-include}/_tables/conf-ddf.platform.ui.config-table-contents.adoc[]
+
+|===

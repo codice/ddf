@@ -20,7 +20,10 @@ define([
     'marionette',
     'backbone',
     'js/model/Organization.js',
+<<<<<<< HEAD
     'js/view/AccordionCollectionView.js',
+=======
+>>>>>>> master
     'js/view/ConfigurationEdit.view.js',
     'js/view/Organization.view.js',
     'js/model/Service.js',
@@ -31,10 +34,16 @@ define([
     'text!templates/sourceModal.handlebars',
     'text!templates/optionListType.handlebars',
     'text!templates/textType.handlebars',
+<<<<<<< HEAD
     'text!templates/sourceOrganization.hbs',
     'text!templates/optionLabelType.hbs'
 
 ], function (ich, Marionette, Backbone, Organization, AccordionCollectionView, ConfigurationEdit, OrganizationView, Service, Utils, wreqr, _, $, sourceModal, optionListType, textType, sourceOrganization, optionLabelType) {
+=======
+    'text!templates/sourceOrganization.hbs'
+
+], function (ich, Marionette, Backbone, Organization, ConfigurationEdit, OrganizationView, Service, Utils, wreqr, _, $, sourceModal, optionListType, textType, sourceOrganization) {
+>>>>>>> master
 
     if (!ich.sourceOrganization) {
         ich.addTemplate('sourceOrganization', sourceOrganization);
@@ -99,11 +108,11 @@ define([
             this.$el.attr('aria-hidden', "true");
             this.renderNameField();
             this.renderTypeDropdown();
-            this.initRadioButtonUI(properties);
             if (!_.isNull(this.model)) {
                 this.rebind(properties);
             }
         },
+<<<<<<< HEAD
         initRadioButtonUI: function (boundModel) {
             var $radios = this.$el.find('input[type=radio]');
             var view = this;
@@ -118,6 +127,8 @@ define([
                 }
             });
         },
+=======
+>>>>>>> master
         /**
          * Renders editable name field.
          */
@@ -332,7 +343,6 @@ define([
                 var properties = config.get('properties');
                 view.checkName(view.$('.sourceName').find('input').val().trim());
                 view.renderDetails(config);
-                view.initRadioButtonUI(properties);
                 view.rebind(properties);
             }
             view.$el.trigger('shown.bs.modal');
@@ -347,6 +357,7 @@ define([
         renderDetails: function (configuration) {
             var service = configuration.get('service');
             if (!_.isUndefined(service)) {
+<<<<<<< HEAD
                 // Make an accordionCollection to hold the accordions. Uses AccordionView as it's itemView
                 var accordionCollection = new Backbone.Collection();
                 var configsWithServices = this.model.getAllConfigsWithServices();
@@ -381,6 +392,15 @@ define([
                 // Add the accordions to the accordions region of the modal
                 this.accordions.show(new AccordionCollectionView({
                     collection: accordionCollection
+=======
+                var toDisplay = service.get('metatype').filter(function (mt) {
+                    return !_.contains(['shortname', 'id'], mt.get('id'));
+                });
+                this.details.show(new ConfigurationEdit.ConfigurationCollection({
+                    collection: new Service.MetatypeList(toDisplay),
+                    service: service,
+                    configuration: configuration
+>>>>>>> master
                 }));
             } else {
                 this.$(this.organizationInfo.el).html('');

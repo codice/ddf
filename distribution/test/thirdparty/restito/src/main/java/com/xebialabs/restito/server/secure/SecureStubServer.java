@@ -56,7 +56,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class SecureStubServer extends StubServer {
 
     @SuppressWarnings("WeakerAccess")
-    public static final  int DEFAULT_PORT = 6666;
+    public static final int DEFAULT_PORT = 6666;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StubServer.class);
 
     private final List<Call> calls = new CopyOnWriteArrayList<>();
 
@@ -68,8 +70,6 @@ public class SecureStubServer extends StubServer {
      * Whether or not the server should run in HTTPS mode.
      */
     public boolean secured = true;
-
-    private Logger log = LoggerFactory.getLogger(StubServer.class);
 
     /**
      * Creates a server based on stubs that are used to determine behavior.
@@ -239,7 +239,7 @@ public class SecureStubServer extends StubServer {
 
                 if (!processed) {
                     response.setStatus(HttpStatus.NOT_FOUND_404);
-                    log.warn("Request {} hasn't been covered by any of {} stubs.",
+                    LOGGER.debug("Request {} hasn't been covered by any of {} stubs.",
                             request.getRequestURI(),
                             stubs.size());
                 }

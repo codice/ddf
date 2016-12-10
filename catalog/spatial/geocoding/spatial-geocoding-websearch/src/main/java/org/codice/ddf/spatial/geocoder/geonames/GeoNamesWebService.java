@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,27 +13,32 @@
  **/
 package org.codice.ddf.spatial.geocoder.geonames;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.Optional;
 
 import javax.ws.rs.WebApplicationException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.spatial.geocoder.GeoCoder;
 import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoder.GeoResultCreator;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.context.impl.NearbyLocationImpl;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.impl.PointImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.SpatialContextFactory;
-import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
-import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Shape;
-import com.spatial4j.core.shape.impl.PointImpl;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -46,6 +51,7 @@ public class GeoNamesWebService implements GeoCoder {
 
     //geonames requires an application username, this is the default name for DDF
     private static final String USERNAME = "ddf_ui";
+<<<<<<< HEAD
 
     private static final String GEONAMES_API_ADDRESS = "api.geonames.org";
 
@@ -59,6 +65,23 @@ public class GeoNamesWebService implements GeoCoder {
 
     private static final String POPULATION_KEY = "population";
 
+=======
+
+    private static final String GEONAMES_API_ADDRESS = "api.geonames.org";
+
+    private static final String GEONAMES_PROTOCOL = "http";
+
+    private static final String GEONAMES_KEY = "geonames";
+
+    private static final String GEONAMES_COUNTRYCODE = "countryCode";
+
+    private static final String LAT_KEY = "lat";
+
+    private static final String LON_KEY = "lng";
+
+    private static final String POPULATION_KEY = "population";
+
+>>>>>>> master
     private static final String ADMIN_CODE_KEY = "fcode";
 
     private static final String PLACENAME_KEY = "name";
@@ -108,7 +131,7 @@ public class GeoNamesWebService implements GeoCoder {
                     .accept("application/json")
                     .get(String.class);
         } catch (WebApplicationException e) {
-            LOGGER.error("Error while making geonames request.", e);
+            LOGGER.debug("Error while making geonames request.", e);
             return null;
         }
 
@@ -118,7 +141,7 @@ public class GeoNamesWebService implements GeoCoder {
             JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
             result = parser.parse(response);
         } catch (ParseException e) {
-            LOGGER.error("Error while parsing JSON message from Geonames service.", e);
+            LOGGER.debug("Error while parsing JSON message from Geonames service.", e);
         }
 
         return result;
@@ -133,7 +156,7 @@ public class GeoNamesWebService implements GeoCoder {
         try {
             location = URLEncoder.encode(location, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error("Unable to encode location.", e);
+            LOGGER.debug("Unable to encode location.", e);
         }
 
         return location;
@@ -141,9 +164,7 @@ public class GeoNamesWebService implements GeoCoder {
 
     @Override
     public NearbyLocation getNearbyCity(String locationWkt) {
-        if (locationWkt == null) {
-            throw new IllegalArgumentException("argument 'locationWkt' may not be null.");
-        }
+        notNull(locationWkt, "argument locationWkt may not be null");
 
         Point wktCenterPoint = createPointFromWkt(locationWkt);
 
@@ -176,6 +197,45 @@ public class GeoNamesWebService implements GeoCoder {
         return null;
     }
 
+    @Override
+    public Optional<String> getCountryCode(String locationWkt, int radius) {
+        notNull(locationWkt, "argument locationWkt may not be null");
+
+        Point wktCenterPoint = createPointFromWkt(locationWkt);
+        String urlStr = String.format(
+                "%s://%s/countryCode?lat=%f&lng=%f&radius=%d&type=JSON&username=%s",
+                GEONAMES_PROTOCOL,
+                GEONAMES_API_ADDRESS,
+                wktCenterPoint.getY(),
+                wktCenterPoint.getX(),
+                radius,
+                USERNAME);
+
+        Object result = query(urlStr);
+
+        if (result instanceof JSONObject) {
+            JSONObject jsonResult = (JSONObject) result;
+            Object countryCode = jsonResult.get(GEONAMES_COUNTRYCODE);
+            if (countryCode != null) {
+                String alpha2CountryCode = (String) countryCode;
+                if (StringUtils.isNotEmpty(alpha2CountryCode)) {
+                    try {
+                        String alpha3CountryCode = new Locale(Locale.ENGLISH.getLanguage(),
+                                alpha2CountryCode).getISO3Country();
+                        return Optional.of(alpha3CountryCode);
+                    } catch (MissingResourceException e) {
+                        LOGGER.debug(
+                                "Failed to convert country code {} to alpha-3 format. Returning "
+                                        + "empty value",
+                                alpha2CountryCode);
+                    }
+                }
+            }
+        }
+
+        return Optional.empty();
+    }
+
     Point createPointFromWkt(String wkt) {
         try {
             SpatialContextFactory contextFactory = new JtsSpatialContextFactory();
@@ -184,7 +244,7 @@ public class GeoNamesWebService implements GeoCoder {
             Point center = shape.getCenter();
             return center;
         } catch (java.text.ParseException parseException) {
-            LOGGER.error(parseException.getMessage(), parseException);
+            LOGGER.debug(parseException.getMessage(), parseException);
         }
 
         return null;

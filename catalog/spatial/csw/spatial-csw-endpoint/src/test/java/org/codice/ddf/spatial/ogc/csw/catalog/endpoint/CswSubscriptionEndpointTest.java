@@ -13,8 +13,9 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -51,8 +52,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
-import junit.framework.Assert;
-
 import ch.qos.logback.classic.Level;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.EventProcessor;
@@ -60,6 +59,7 @@ import ddf.catalog.event.Subscription;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
@@ -148,9 +148,8 @@ public class CswSubscriptionEndpointTest {
 
         when(osgiFilter.toString()).thenReturn(FILTER_STR);
         doReturn(serviceRegistration).when(mockContext)
-                .registerService(eq(Subscription.class.getName()),
-                        any(Subscription.class),
-                        any(Dictionary.class));
+                .registerService(eq(Subscription.class.getName()), any(Subscription.class), any(
+                        Dictionary.class));
         doReturn(configAdminRef).when(mockContext)
                 .getServiceReference(eq(ConfigurationAdmin.class.getName()));
         when(serviceRegistration.getReference()).thenReturn(subscriptionReference);
@@ -178,9 +177,8 @@ public class CswSubscriptionEndpointTest {
     public void testDeleteRecordsSubscription() throws Exception {
         cswSubscriptionEndpoint.addOrUpdateSubscription(defaultRequest.get202RecordsType(), true);
         Response response = cswSubscriptionEndpoint.deleteRecordsSubscription(subscriptionId);
-        assertEquals(Response.Status.OK.getStatusCode(),
-                response.getStatusInfo()
-                        .getStatusCode());
+        assertThat(Response.Status.OK.getStatusCode(), is(response.getStatusInfo()
+                .getStatusCode()));
         verify(serviceRegistration).unregister();
         verify(config).delete();
 
@@ -190,9 +188,8 @@ public class CswSubscriptionEndpointTest {
     public void testDeleteRecordsSubscriptionNoSubscription() throws Exception {
         String requestId = "requestId";
         Response response = cswSubscriptionEndpoint.deleteRecordsSubscription(requestId);
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(),
-                response.getStatusInfo()
-                        .getStatusCode());
+        assertThat(Response.Status.NOT_FOUND.getStatusCode(), is(response.getStatusInfo()
+                .getStatusCode()));
 
     }
 
@@ -200,9 +197,8 @@ public class CswSubscriptionEndpointTest {
     public void testGetRecordsSubscriptionNoSubscription() throws Exception {
         String requestId = "requestId";
         Response response = cswSubscriptionEndpoint.getRecordsSubscription(requestId);
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(),
-                response.getStatusInfo()
-                        .getStatusCode());
+        assertThat(Response.Status.NOT_FOUND.getStatusCode(), is(response.getStatusInfo()
+                .getStatusCode()));
 
     }
 
@@ -211,9 +207,9 @@ public class CswSubscriptionEndpointTest {
         cswSubscriptionEndpoint.addOrUpdateSubscription(defaultRequest.get202RecordsType(), true);
         Response response = cswSubscriptionEndpoint.getRecordsSubscription(subscriptionId);
         AcknowledgementType getAck = (AcknowledgementType) response.getEntity();
-        assertEquals(defaultRequest.get202RecordsType(),
-                ((JAXBElement<GetRecordsType>) getAck.getEchoedRequest()
-                        .getAny()).getValue());
+        assertThat(defaultRequest.get202RecordsType(),
+                is(((JAXBElement<GetRecordsType>) getAck.getEchoedRequest()
+                        .getAny()).getValue()));
         verify(mockContext).getService(eq(subscriptionReference));
 
     }
@@ -230,13 +226,12 @@ public class CswSubscriptionEndpointTest {
         response = cswSubscriptionEndpoint.updateRecordsSubscription(createAck.getRequestId(),
                 getRecordsRequest.get202RecordsType());
         AcknowledgementType updateAck = (AcknowledgementType) response.getEntity();
-        assertEquals(((GetRecordsType) ((JAXBElement) updateAck.getEchoedRequest()
-                .getAny()).getValue()).getResultType(), ResultType.HITS);
+        assertThat(((GetRecordsType) ((JAXBElement) updateAck.getEchoedRequest()
+                .getAny()).getValue()).getResultType(), is(ResultType.HITS));
         verify(serviceRegistration).unregister();
         verify(config).delete();
-        verify(mockContext, times(2)).registerService(eq(Subscription.class.getName()),
-                any(Subscription.class),
-                any(Dictionary.class));
+        verify(mockContext, times(2)).registerService(eq(Subscription.class.getName()), any(
+                Subscription.class), any(Dictionary.class));
 
     }
 
@@ -247,7 +242,7 @@ public class CswSubscriptionEndpointTest {
         getRecordsRequest.setVersion("");
         Response response = cswSubscriptionEndpoint.createRecordsSubscription(getRecordsRequest);
         AcknowledgementType createAck = (AcknowledgementType) response.getEntity();
-        assertNotNull(createAck);
+        assertThat(createAck, notNullValue());
         verify(mockContext).registerService(eq(Subscription.class.getName()),
                 any(Subscription.class),
                 any(Dictionary.class));
@@ -262,8 +257,8 @@ public class CswSubscriptionEndpointTest {
         Response response =
                 cswSubscriptionEndpoint.createRecordsSubscription(getRecordsRequest.get202RecordsType());
         AcknowledgementType createAck = (AcknowledgementType) response.getEntity();
-        assertNotNull(createAck);
-        assertNotNull(createAck.getRequestId());
+        assertThat(createAck, notNullValue());
+        assertThat(createAck.getRequestId(), notNullValue());
         CSW_LOGGER.setLevel(Level.INFO);
         verify(mockContext).registerService(eq(Subscription.class.getName()),
                 any(Subscription.class),
@@ -339,11 +334,11 @@ public class CswSubscriptionEndpointTest {
 
     @Test
     public void testDeletedSubscription() throws Exception {
-        Assert.assertFalse("Did not expect a subscription to be deleted",
-                cswSubscriptionEndpoint.deleteSubscription(subscriptionId));
+        assertThat(cswSubscriptionEndpoint.deleteSubscription(subscriptionId),
+                is(false));
         cswSubscriptionEndpoint.addOrUpdateSubscription(defaultRequest.get202RecordsType(), true);
-        Assert.assertTrue("Expected a subscription to be deleted",
-                cswSubscriptionEndpoint.deleteSubscription(subscriptionId));
+        assertThat(cswSubscriptionEndpoint.deleteSubscription(subscriptionId),
+                is(true));
         verify(serviceRegistration, times(1)).unregister();
         verify(config, times(2)).delete();
     }

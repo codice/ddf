@@ -12,11 +12,21 @@
  *
  **/
  -->
+<<<<<<< HEAD
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
         <version>2.9.4</version>
+=======
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>core</artifactId>
+        <groupId>ddf.catalog.core</groupId>
+        <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,6 +48,13 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
+<<<<<<< HEAD
+=======
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+>>>>>>> master
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
@@ -58,11 +75,22 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>findbugs</artifactId>
         </dependency>
+<<<<<<< HEAD
+=======
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+>>>>>>> master
 
         <!-- test dependencies -->
         <dependency>
             <groupId>ddf.catalog.core</groupId>
+<<<<<<< HEAD
             <artifactId>catalog-core-attribute-registry</artifactId>
+=======
+            <artifactId>catalog-core-attributeregistry</artifactId>
+>>>>>>> master
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -109,6 +137,7 @@
             </exclusions>
         </dependency>
 
+<<<<<<< HEAD
         <!-- groovy dependencies -->
         <dependency>
             <groupId>org.ow2.asm</groupId>
@@ -138,6 +167,13 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>2.4.1</version>
+=======
+        <!--Spock dependencies-->
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>spock-shaded</artifactId>
+            <version>${project.version}</version>
+>>>>>>> master
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -181,22 +217,38 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
+<<<<<<< HEAD
                                             <minimum>0.75</minimum>
+=======
+                                            <minimum>0.78</minimum>
+>>>>>>> master
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
+<<<<<<< HEAD
                                             <minimum>0.61</minimum>
+=======
+                                            <minimum>0.58</minimum>
+>>>>>>> master
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
+<<<<<<< HEAD
                                             <minimum>0.58</minimum>
+=======
+                                            <minimum>0.64</minimum>
+>>>>>>> master
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
+<<<<<<< HEAD
                                             <minimum>0.84</minimum>
+=======
+                                            <minimum>0.88</minimum>
+>>>>>>> master
                                         </limit>
                                     </limits>
                                 </rule>
@@ -205,6 +257,7 @@
                     </execution>
                 </executions>
             </plugin>
+<<<<<<< HEAD
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
@@ -218,6 +271,8 @@
                     </execution>
                 </executions>
             </plugin>
+=======
+>>>>>>> master
         </plugins>
     </build>
 </project>

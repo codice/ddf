@@ -18,8 +18,8 @@ import java.io.InputStream;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.resource.Resource;
@@ -30,7 +30,7 @@ import ddf.catalog.resource.Resource;
  */
 public class ResourceImpl extends BinaryContentImpl implements Resource {
 
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(ResourceImpl.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceImpl.class);
 
     private String name;
 
@@ -91,9 +91,9 @@ public class ResourceImpl extends BinaryContentImpl implements Resource {
         try {
             mimeType = mimeTypeString == null ? null : new MimeType(mimeTypeString);
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Could not assign the MimeType to the Resource named '" + name
-                    + "' because the following " + "MimeType could not be parsed properly: "
-                    + mimeTypeString);
+            LOGGER.debug(
+                    "Could not assign the MimeType to the Resource named '{}' because the following MimeType could not be parsed properly: {}",
+                    name, mimeTypeString);
         }
         return mimeType;
     }

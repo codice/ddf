@@ -27,7 +27,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -52,6 +51,12 @@ public class RecordViewHelpers {
     static {
         transformerFactory = TransformerFactory.newInstance();
         documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        try {
+            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to configure features on document builder.", e);
+        }
     }
 
     public CharSequence buildMetadata(String metadata, Options options) {
@@ -77,16 +82,8 @@ public class RecordViewHelpers {
                             .toString()))
                     .append("</pre>");
             return new Handlebars.SafeString(sb.toString());
-        } catch (TransformerConfigurationException e) {
-            LOGGER.warn("Failed to convert metadata to a pretty string", e);
-        } catch (TransformerException e) {
-            LOGGER.warn("Failed to convert metadata to a pretty string", e);
-        } catch (SAXException e) {
-            LOGGER.warn("Failed to convert metadata to a pretty string", e);
-        } catch (ParserConfigurationException e) {
-            LOGGER.warn("Failed to convert metadata to a pretty string", e);
-        } catch (IOException e) {
-            LOGGER.warn("Failed to convert metadata to a pretty string", e);
+        } catch (TransformerException | SAXException | ParserConfigurationException | IOException e) {
+            LOGGER.debug("Failed to convert metadata to a pretty string", e);
         }
         return metadata;
     }

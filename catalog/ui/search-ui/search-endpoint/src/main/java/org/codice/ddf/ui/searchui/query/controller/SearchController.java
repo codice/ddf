@@ -173,6 +173,7 @@ public class SearchController {
         }
 
         for (Map.Entry<String, Future> entry : futures.entrySet()) {
+<<<<<<< HEAD
             String sourceId = entry.getKey();
             Future future = entry.getValue();
             try {
@@ -188,6 +189,25 @@ public class SearchController {
                 LOGGER.warn("Query failed for source {}", sourceId, e.getCause());
                 failSource(request, session, search, sourceId, e);
             }
+=======
+            executorService.submit(() -> {
+                String sourceId = entry.getKey();
+                Future future = entry.getValue();
+                try {
+                    long timeRemaining = Math.max(0, deadline - System.currentTimeMillis());
+                    future.get(timeRemaining, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    LOGGER.info("Query interrupted for source {}", sourceId, e);
+                    failSource(request, session, search, sourceId, e);
+                } catch (TimeoutException e) {
+                    LOGGER.info("Query timed out for source {}", sourceId, e);
+                    failSource(request, session, search, sourceId, e);
+                } catch (ExecutionException e) {
+                    LOGGER.info("Query failed for source {}", sourceId, e.getCause());
+                    failSource(request, session, search, sourceId, e);
+                }
+            });
+>>>>>>> master
         }
     }
 
@@ -197,7 +217,7 @@ public class SearchController {
         try {
             publishResults(request.getId(), search.transform(request.getId()), session);
         } catch (CatalogTransformerException e) {
-            LOGGER.error("Failed to transform failed search results.", e);
+            LOGGER.info("Failed to transform failed search results.", e);
         }
     }
 

@@ -13,6 +13,8 @@
  */
 package ddf.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -24,7 +26,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -69,6 +70,13 @@ public class XPathHelper {
                 DocumentBuilderFactory.newInstance(org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
                         this.getClass()
                                 .getClassLoader());
+        dbf.setNamespaceAware(true);
+        try {
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to set features on document builder.", e);
+        }
         tf =
                 TransformerFactory.newInstance(org.apache.xalan.processor.TransformerFactoryImpl.class.getName(),
                         this.getClass()
@@ -130,12 +138,8 @@ public class XPathHelper {
             } finally {
                 thread.setContextClassLoader(loader);
             }
-        } catch (ParserConfigurationException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (SAXException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
     }
 
@@ -184,10 +188,8 @@ public class XPathHelper {
             serializer.write(n, lsOut);
 
             return stringOut.toString();
-        } catch (DOMException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (LSException e) {
-            LOGGER.error(e.getMessage(), e);
+        } catch (DOMException | LSException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
 
         return null;
@@ -235,7 +237,7 @@ public class XPathHelper {
      * {@link NamespaceContext}, the {@link NamespaceResolver} class. Allows you to also change the
      * how the type is returned.
      *
-     * @param xpathExpression
+     * @param xpathExpressionKey
      * @param returnType
      * @throws XPathExpressionException
      */
@@ -245,7 +247,7 @@ public class XPathHelper {
     }
 
     /**
-     * @param xpathExpression
+     * @param xpathExpressionKey
      * @param returnType
      * @param nsContext
      * @return
@@ -257,14 +259,29 @@ public class XPathHelper {
                 .setNamespaceContext(nsContext);
 
         XPathExpression compiledExpression = XPathCache.getCompiledExpression(xpathExpressionKey);
-
         Thread thread = Thread.currentThread();
         ClassLoader loader = thread.getContextClassLoader();
         thread.setContextClassLoader(this.getClass()
                 .getClassLoader());
 
-        try {
-            return compiledExpression.evaluate(document, returnType);
+        DocumentBuilder documentBuilder;
+        byte[] array;
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            documentBuilder = dbf.newDocumentBuilder();
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(document);
+            StreamResult result = new StreamResult(bos);
+            transformer.transform(source, result);
+            array = bos.toByteArray();
+        } catch (IOException | ParserConfigurationException | TransformerException e) {
+            throw new XPathExpressionException(e);
+        }
+
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(array)) {
+            return compiledExpression.evaluate(documentBuilder.parse(bis), returnType);
+        } catch (IOException | SAXException e) {
+            throw new XPathExpressionException(e);
         } finally {
             thread.setContextClassLoader(loader);
         }
@@ -286,12 +303,8 @@ public class XPathHelper {
             StringWriter writer = new StringWriter();
             serializer.transform(new DOMSource(document), new StreamResult(writer));
             return writer.toString();
-        } catch (TransformerConfigurationException e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (TransformerFactoryConfigurationError e) {
-            LOGGER.error(e.getMessage(), e);
-        } catch (TransformerException e) {
-            LOGGER.error(e.getMessage(), e);
+        } catch (TransformerFactoryConfigurationError | TransformerException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
 
         return null;

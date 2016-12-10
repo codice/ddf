@@ -16,7 +16,6 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.StringReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -37,6 +36,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -97,7 +99,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
             jaxbContext = JAXBContext.newInstance(contextPath,
                     FeatureCollectionMessageBodyReaderWfs20.class.getClassLoader());
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
+            LOGGER.info("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
         return jaxbContext;
@@ -107,7 +109,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
     public boolean isReadable(Class<?> clazz, Type type, Annotation[] annotations,
             MediaType mediaType) {
         if (!Wfs20FeatureCollection.class.isAssignableFrom(clazz)) {
-            LOGGER.warn("{} class is not readable.", clazz);
+            LOGGER.debug("{} class is not readable.", clazz);
         }
         return Wfs20FeatureCollection.class.isAssignableFrom(clazz);
     }
@@ -134,11 +136,18 @@ public class FeatureCollectionMessageBodyReaderWfs20
             JAXBElement<FeatureCollectionType> wfsFeatureCollectionType = null;
             try {
                 unmarshaller = JAXB_CONTEXT.createUnmarshaller();
-                Reader reader = new StringReader(originalInputStream);
+                XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+                xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                        false);
+                xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+                xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
+                        false);
+                XMLStreamReader xmlStreamReader =
+                        xmlInputFactory.createXMLStreamReader(new StringReader(originalInputStream));
                 wfsFeatureCollectionType =
-                        (JAXBElement<FeatureCollectionType>) unmarshaller.unmarshal(reader);
+                        (JAXBElement<FeatureCollectionType>) unmarshaller.unmarshal(xmlStreamReader);
             } catch (ClassCastException e1) {
-                LOGGER.warn(
+                LOGGER.debug(
                         "Exception unmarshalling {}, could be an OWS Exception Report from server.",
                         e1.getMessage());
 
@@ -158,10 +167,10 @@ public class FeatureCollectionMessageBodyReaderWfs20
                 responseBuilder.type("text/xml");
                 Response response = responseBuilder.build();
                 throw new WebApplicationException(e1, response);
-            } catch (JAXBException e1) {
-                LOGGER.error("Error in retrieving feature collection.", e1);
+            } catch (JAXBException | XMLStreamException e1) {
+                LOGGER.debug("Error in retrieving feature collection.", e1);
             } catch (RuntimeException | Error e) {
-                LOGGER.error("Error processing collection", e);
+                LOGGER.debug("Error processing collection", e);
                 throw e;
             }
 
@@ -183,7 +192,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
                     featureCollection.setNumberReturned(numberReturned);
 
                 } catch (XStreamException e) {
-                    LOGGER.error("Exception unmarshalling {}", e);
+                    LOGGER.debug("Exception unmarshalling {}", e);
                 } finally {
                     IOUtils.closeQuietly(inStream);
                 }

@@ -41,6 +41,8 @@
         <property name="enforcedMetacardValidators">
             <list/>
         </property>
+        <property name="enforceErrors" value="true"/>
+        <property name="enforceWarnings" value="true"/>
 
     </bean>
 
@@ -53,11 +55,17 @@
         <property name="attributeMap">
             <list/>
         </property>
+        <property name="filterErrors" value="true"/>
+        <property name="filterWarnings" value="true"/>
     </bean>
 
 
     <!-- Register in the OSGi Service Registry -->
+<<<<<<< HEAD
     <service ref="pre-ingest-plugin" interface="ddf.catalog.plugin.PreIngestPlugin"/>
+=======
+    <service ref="pre-ingest-plugin" interface="ddf.catalog.plugin.PreIngestPlugin" ranking="-1"/>
+>>>>>>> master
     <!--<service ref="pre-query-plugin" interface="ddf.catalog.plugin.PreQueryPlugin"/>-->
     <service ref="post-query-plugin" auto-export="interfaces" ranking="100"/>
 

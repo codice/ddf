@@ -79,6 +79,7 @@ public class ActiveApplicationsCompleterTest {
      * Tests the {@link ActiveApplicationsCompleter#complete(String, int, List)} method
      * for the case where the ApplicationService given to it is null
      */
+    // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
     @Test
     public void testActiveApplicationsCompleterNullAppService() {
         ch.qos.logback.classic.Logger root =

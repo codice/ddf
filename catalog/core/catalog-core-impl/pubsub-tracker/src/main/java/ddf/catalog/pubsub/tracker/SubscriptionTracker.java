@@ -75,7 +75,7 @@ public class SubscriptionTracker {
                     subscriptionId);
             services.put(serviceId, subscriptionId);
         } catch (EventException e) {
-            LOGGER.error("Error in creating subscription. {}", serviceId, e);
+            LOGGER.info("Error in creating subscription. {}", serviceId, e);
         }
 
         LOGGER.debug("EXITING: {}", methodName);
@@ -105,7 +105,7 @@ public class SubscriptionTracker {
                     services.remove(serviceId);
 
                 } catch (EventException e) {
-                    LOGGER.error("Error in deleting subscription. ", serviceId, e);
+                    LOGGER.info("Error in deleting subscription. ", serviceId, e);
                 }
             }
         }

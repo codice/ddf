@@ -14,7 +14,6 @@
 
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
-import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -33,6 +32,9 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -63,6 +65,7 @@ import net.opengis.filter.v_1_1_0.LiteralType;
 import net.opengis.filter.v_1_1_0.LowerBoundaryType;
 import net.opengis.filter.v_1_1_0.ObjectFactory;
 import net.opengis.filter.v_1_1_0.PropertyIsBetweenType;
+import net.opengis.filter.v_1_1_0.PropertyIsFuzzyType;
 import net.opengis.filter.v_1_1_0.PropertyIsLikeType;
 import net.opengis.filter.v_1_1_0.PropertyIsNullType;
 import net.opengis.filter.v_1_1_0.PropertyNameType;
@@ -122,7 +125,7 @@ public class CswFilterFactory {
                     CswJAXBElementProvider.class.getClassLoader());
             LOGGER.debug(jaxbContext.toString());
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
+            LOGGER.info("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
         return jaxbContext;
@@ -190,8 +193,19 @@ public class CswFilterFactory {
 
     public FilterType buildPropertyIsLikeFilter(String propertyName, Object literal,
             boolean isCaseSensitive) {
+<<<<<<< HEAD
         FilterType filter = new FilterType();
         filter.setComparisonOps(createPropertyIsLike(propertyName, literal, isCaseSensitive));
+=======
+        FilterType filter = new FilterType();
+        filter.setComparisonOps(createPropertyIsLike(propertyName, literal, isCaseSensitive));
+        return filter;
+    }
+
+    public FilterType buildPropertyIsFuzzyFilter(String propertyName, Object literal) {
+        FilterType filter = new FilterType();
+        filter.setComparisonOps(createPropertyIsFuzzy(propertyName, literal));
+>>>>>>> master
         return filter;
     }
 
@@ -503,21 +517,27 @@ public class CswFilterFactory {
             String xmlGeo = writer.toString();
             LOGGER.debug("Geometry as XML: {}", xmlGeo);
 
-            Reader reader = new StringReader(xmlGeo);
+            XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                    false);
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+            XMLStreamReader xmlStreamReader =
+                    xmlInputFactory.createXMLStreamReader(new StringReader(xmlGeo));
 
             Unmarshaller unmarshaller = JAXB_CONTEXT.createUnmarshaller();
-            Object object = unmarshaller.unmarshal(reader);
+            Object object = unmarshaller.unmarshal(xmlStreamReader);
             LOGGER.debug("Unmarshalled as => {}", object);
             if (object instanceof JAXBElement) {
                 abstractGeometry = (JAXBElement<? extends AbstractGeometryType>) object;
             } else {
-                LOGGER.error(
+                LOGGER.debug(
                         "Unable to cast to JAXBElement<? extends AbstractGeometryType>.  Object is of type [{}].",
                         object.getClass()
                                 .getName());
             }
-        } catch (JAXBException e) {
-            LOGGER.error("Unable to unmarshal geometry [{}]",
+        } catch (JAXBException | XMLStreamException e) {
+            LOGGER.debug("Unable to unmarshal geometry [{}]",
                     geometry.getClass()
                             .getName(),
                     e);
@@ -609,6 +629,17 @@ public class CswFilterFactory {
         propertyIsLikeType.setLiteral(createLiteralType(literal).getValue());
         propertyIsLikeType.setMatchCase(isCaseSensitive);
         return filterObjectFactory.createPropertyIsLike(propertyIsLikeType);
+    }
+
+    private JAXBElement<PropertyIsFuzzyType> createPropertyIsFuzzy(String propertyName,
+            Object literal) {
+        PropertyIsFuzzyType propertyIsFuzzyType = new PropertyIsFuzzyType();
+
+        propertyIsFuzzyType.setPropertyName(createPropertyNameType(Arrays.asList(new Object[] {
+                propertyName})).getValue());
+        propertyIsFuzzyType.setLiteral(createLiteralType(literal).getValue());
+
+        return filterObjectFactory.createPropertyIsFuzzy(propertyIsFuzzyType);
     }
 
     private JAXBElement<BinaryComparisonOpType> createPropertyIsEqualTo(String propertyName,

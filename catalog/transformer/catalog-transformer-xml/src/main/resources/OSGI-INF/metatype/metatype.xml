@@ -16,7 +16,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD name="Xml Query Transformer"
-         description="Xml Response Queue Transformer"
+         description="XML Response Queue Transformer"
          id="ddf.catalog.transformer.xml.XmlResponseQueueTransformer">
         <AD name="Parallel Marhsalling Threshold" id="threshold" required="true" type="Integer"
             default="50"

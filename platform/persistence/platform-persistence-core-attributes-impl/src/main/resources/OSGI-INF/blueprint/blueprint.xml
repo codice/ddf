@@ -21,9 +21,6 @@
         <cm:managed-properties
                 persistent-id="org.codice.ddf.persistence.attributes.internal.DataUsageLimit"
                 update-strategy="container-managed" />
-        <property name="defaultLimit">
-            <value type="java.lang.Long">750000000</value>
-        </property>
         <argument ref="persistentStore"/>
     </bean>
 

@@ -1,0 +1,4 @@
+|<<org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard Attribute Security Policy Plugin>>
+|org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin
+|Metacard Attribute Security Policy Plugin
+

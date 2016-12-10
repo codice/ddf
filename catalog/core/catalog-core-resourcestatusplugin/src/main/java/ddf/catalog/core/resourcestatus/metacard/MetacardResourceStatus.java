@@ -14,7 +14,14 @@
 package ddf.catalog.core.resourcestatus.metacard;
 
 import java.util.List;
+<<<<<<< HEAD
 
+=======
+import java.util.Objects;
+import java.util.Optional;
+
+import org.codice.ddf.configuration.SystemInfo;
+>>>>>>> master
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +47,13 @@ public class MetacardResourceStatus implements PostQueryPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardResourceStatus.class);
 
+<<<<<<< HEAD
+=======
+    private static final String INTERNAL_LOCAL_RESOURCE = "internal.local-resource";
+
+    private static final String LOCAL_CONTENT_SCHEME = "content:";
+
+>>>>>>> master
     private ResourceCacheInterface cache;
 
     public MetacardResourceStatus(ResourceCacheInterface cache) {
@@ -53,12 +67,18 @@ public class MetacardResourceStatus implements PostQueryPlugin {
 
         results.stream()
                 .map(Result::getMetacard)
+<<<<<<< HEAD
                 .filter(metacard -> metacard != null)
                 .forEach(this::addResourceCachedAttribute);
+=======
+                .filter(Objects::nonNull)
+                .forEach(this::addResourceLocalAttribute);
+>>>>>>> master
 
         return input;
     }
 
+<<<<<<< HEAD
     private void addResourceCachedAttribute(Metacard metacard) {
         metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_CACHE_STATUS,
                 isResourceCached(metacard, new ResourceRequestById(metacard.getId()))));
@@ -72,10 +92,67 @@ public class MetacardResourceStatus implements PostQueryPlugin {
             return true;
         }
         return false;
+=======
+    private void addResourceLocalAttribute(Metacard metacard) {
+        boolean isResourceLocal = false;
+        if (!hasResourceUri(metacard)) {
+            isResourceLocal = false;
+        } else {
+            isResourceLocal = isResourceLocal(metacard);
+        }
+        metacard.setAttribute(
+                new AttributeImpl(INTERNAL_LOCAL_RESOURCE, isResourceLocal));
+    }
+
+    private boolean isResourceLocal(Metacard metacard) {
+        return (doesSourceIdMatchLocalSiteName(metacard) && isResourceUriLocal(metacard))
+                || isResourceCached(metacard, new ResourceRequestById(metacard.getId()));
+    }
+    
+    private boolean isResourceCached(Metacard metacard, ResourceRequest resourceRequest) {
+        String key = getCacheKey(metacard, resourceRequest);
+        ReliableResource cachedResource = (ReliableResource) cache.getValid(key, metacard);
+        return cachedResource != null;
+    }
+
+    private boolean hasResourceUri(Metacard metacard) {
+        Optional<String> resourceUri = Optional.ofNullable(metacard.getResourceURI())
+                .map(uri -> uri.toString());
+        return resourceUri.isPresent();
+    }
+
+    private boolean isResourceUriLocal(Metacard metacard) {
+        return hasResourceUri(metacard) && metacard.getResourceURI()
+                .toString()
+                .startsWith(LOCAL_CONTENT_SCHEME);
+    }
+
+    private boolean doesSourceIdMatchLocalSiteName(Metacard metacard) {
+        Optional<String> sourceId = Optional.ofNullable(metacard.getSourceId());
+
+        if (sourceId.isPresent()) {
+            String sourceIdLowerCase = sourceId.get()
+                    .toLowerCase();
+            return sourceIdLowerCase.equals(getLocalSiteName());
+        } else {
+            LOGGER.debug(
+                    "Unable to determine if the source id in metacard {} matches the local site name because the metacard did not contain a source id attribute.",
+                    metacard.getId());
+            return false;
+        }
+>>>>>>> master
     }
 
     private String getCacheKey(Metacard metacard, ResourceRequest resourceRequest) {
         CacheKey cacheKey = new CacheKey(metacard, resourceRequest);
         return cacheKey.generateKey();
     }
+<<<<<<< HEAD
+=======
+
+    String getLocalSiteName() {
+        return SystemInfo.getSiteName()
+                .toLowerCase();
+    }
+>>>>>>> master
 }

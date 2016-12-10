@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -50,7 +50,7 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
-import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +71,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Validation;
 import lux.Config;
 import lux.xml.SaxonDocBuilder;
 import lux.xml.XmlReader;
@@ -90,6 +91,10 @@ import net.sf.saxon.tree.tiny.TinyTree;
  */
 public class DynamicSchemaResolver {
 
+    public static final String LUX_XML_FIELD_NAME = "lux_xml";
+
+    public static final String SCORE_FIELD_NAME = "score";
+
     protected static final char FIRST_CHAR_OF_SUFFIX = '_';
 
     protected static final String COULD_NOT_READ_METACARD_TYPE_MESSAGE =
@@ -102,10 +107,6 @@ public class DynamicSchemaResolver {
     protected static final XMLInputFactory XML_INPUT_FACTORY;
 
     private static final String SOLR_CLOUD_VERSION_FIELD = "_version_";
-
-    public static final String LUX_XML_FIELD_NAME = "lux_xml";
-
-    public static final String SCORE_FIELD_NAME = "score";
 
     private static final List<String> PRIVATE_SOLR_FIELDS = Arrays.asList(SOLR_CLOUD_VERSION_FIELD,
             SchemaFields.METACARD_TYPE_FIELD_NAME,
@@ -131,6 +132,7 @@ public class DynamicSchemaResolver {
                     Boolean.FALSE);
             XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
             XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+            XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
         } finally {
             Thread.currentThread()
                     .setContextClassLoader(tccl);
@@ -165,20 +167,19 @@ public class DynamicSchemaResolver {
                 .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
                 .collect(Collectors.toSet());
         anyTextFieldsCache.addAll(basicTextAttributes);
-        fieldsCache.add(BasicTypes.VALIDATION_ERRORS + SchemaFields.TEXT_SUFFIX);
-        fieldsCache.add(BasicTypes.VALIDATION_WARNINGS + SchemaFields.TEXT_SUFFIX);
+        fieldsCache.add(Validation.VALIDATION_ERRORS + SchemaFields.TEXT_SUFFIX);
+        fieldsCache.add(Validation.VALIDATION_WARNINGS + SchemaFields.TEXT_SUFFIX);
     }
 
     /**
      * Adds the fields that are already in Solr to the cache. This method should be called
      * once the SolrClient is up to ensure the cache is synchronized with Solr.
      *
-     * @param client
-     *            the SolrClient we are working with
+     * @param client the SolrClient we are working with
      */
     public void addFieldsFromClient(SolrClient client) {
         if (client == null) {
-            LOGGER.warn("Solr client is null, could not add fields to cache.");
+            LOGGER.debug("Solr client is null, could not add fields to cache.");
             return;
         }
 
@@ -199,12 +200,13 @@ public class DynamicSchemaResolver {
             for (Entry<String, ?> e : ((SimpleOrderedMap<?>) (response.getResponse()
                     .get(FIELDS_KEY)))) {
                 fieldsCache.add(e.getKey());
-                if (e.getKey().endsWith(SchemaFields.TEXT_SUFFIX)) {
+                if (e.getKey()
+                        .endsWith(SchemaFields.TEXT_SUFFIX)) {
                     anyTextFieldsCache.add(e.getKey());
                 }
             }
         } catch (SolrServerException | SolrException | IOException e) {
-            LOGGER.warn("Could not update cache for field names.", e);
+            LOGGER.info("Could not update cache for field names.", e);
         }
     }
 
@@ -263,8 +265,7 @@ public class DynamicSchemaResolver {
                                 out.reset();
                             }
                         } catch (IOException e) {
-                            LOGGER.warn(COULD_NOT_SERIALIZE_OBJECT_MESSAGE, e);
-                            throw new MetacardCreationException(COULD_NOT_SERIALIZE_OBJECT_MESSAGE);
+                            throw new MetacardCreationException(COULD_NOT_SERIALIZE_OBJECT_MESSAGE, e);
                         }
 
                         attributeValues = byteArrays;
@@ -298,7 +299,9 @@ public class DynamicSchemaResolver {
                     byte[] luxXml = createTinyBinary(metacard.getMetadata());
                     solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
                 } catch (XMLStreamException | SaxonApiException e) {
-                    LOGGER.warn("Unable to parse metadata field.  XPath support unavailable for metacard " + metacard.getId());
+                    LOGGER.debug(
+                            "Unable to parse metadata field.  XPath support unavailable for metacard {}",
+                            metacard.getId());
                 }
             }
         }
@@ -417,9 +420,9 @@ public class DynamicSchemaResolver {
                 in = new ObjectInputStream(bais);
                 return (Serializable) in.readObject();
             } catch (IOException e) {
-                LOGGER.warn("IO exception loading input document", e);
+                LOGGER.info("IO exception loading input document", e);
             } catch (ClassNotFoundException e) {
-                LOGGER.warn("Could not create object to return.", e);
+                LOGGER.info("Could not create object to return.", e);
                 // TODO which exception to throw?
             } finally {
                 IOUtils.closeQuietly(bais);
@@ -434,7 +437,7 @@ public class DynamicSchemaResolver {
 
     /**
      * PRE-CONDITION is that fieldname cannot be null.
-     * <p>
+     * <p/>
      * The convention is that we add a suffix starting with an underscore, so if we find the last
      * underscore, then we can return the original field name.
      *
@@ -548,11 +551,11 @@ public class DynamicSchemaResolver {
 
         } catch (IOException e) {
 
-            LOGGER.warn("IO exception loading cached metacard type", e);
+            LOGGER.info("IO exception loading cached metacard type", e);
 
             throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
         } catch (ClassNotFoundException e) {
-            LOGGER.warn("Class exception loading cached metacard type", e);
+            LOGGER.info("Class exception loading cached metacard type", e);
 
             throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
         } finally {
@@ -637,8 +640,7 @@ public class DynamicSchemaResolver {
 
             return bytes;
         } catch (IOException e) {
-            LOGGER.warn("IO exception reading metacard type message", e);
-            throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
+            throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE, e);
         }
 
     }
@@ -719,7 +721,7 @@ public class DynamicSchemaResolver {
                 builder.setLength(0);
             }
         } catch (XMLStreamException e1) {
-            LOGGER.warn(
+            LOGGER.info(
                     "Failure occurred in parsing the xml data. No data has been stored or indexed.",
                     e1);
         } finally {

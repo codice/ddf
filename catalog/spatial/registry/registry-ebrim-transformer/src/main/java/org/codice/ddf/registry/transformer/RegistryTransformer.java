@@ -39,6 +39,10 @@ import com.google.common.io.CharStreams;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+<<<<<<< HEAD
+=======
+import ddf.catalog.data.MetacardType;
+>>>>>>> master
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -52,6 +56,11 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
 
     private ParserConfigurator configurator;
 
+<<<<<<< HEAD
+=======
+    private MetacardType registryMetacardType;
+
+>>>>>>> master
     @Override
     public Metacard transform(InputStream inputStream)
             throws IOException, CatalogTransformerException {
@@ -142,7 +151,11 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
             if (registryObjectType != null) {
 
                 metacard = (MetacardImpl) RegistryPackageConverter.getRegistryObjectMetacard(
+<<<<<<< HEAD
                         registryObjectType);
+=======
+                        registryObjectType, registryMetacardType);
+>>>>>>> master
 
             }
         }
@@ -167,4 +180,10 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
         this.parser = parser;
     }
 
+<<<<<<< HEAD
+=======
+    public void setRegistryMetacardType(MetacardType registryMetacardType) {
+        this.registryMetacardType = registryMetacardType;
+    }
+>>>>>>> master
 }

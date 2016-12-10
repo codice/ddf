@@ -72,7 +72,12 @@
                name="value" value="{{value}}" {{#unless editable}}readonly{{/unless}}/>
     {{/is}}
     {{#is type "boolean"}}
+<<<<<<< HEAD
         <input type="checkbox" name="value" value="{{value}}" {{#unless editable}}disabled{{/unless}}/>
+=======
+        <input type="checkbox" name="value" value="{{value}}"
+               {{#unless editable}}disabled{{/unless}}/>
+>>>>>>> master
     {{/is}}
     {{#is type "date"}}
         <input type="date" name="valueDate" value="{{valueDate}}"
@@ -86,12 +91,27 @@
     {{/is}}
     {{#is type "point"}}
         <div class="coords">
+<<<<<<< HEAD
             <label>Lat:</label><input class="lat-lon-input {{#if validationError}}validation-error{{/if}}" type="number" min="-90" max="90"
                                       name="valueLat"
                                       value="{{valueLat}}"/>
             <label>Lon:</label><input class="lat-lon-input {{#if validationError}}validation-error{{/if}}" type="number" min="-180" max="180"
                                       name="valueLon"
                                       value="{{valueLon}}"/>
+=======
+            <label>Lat:</label><input
+                class="lat-lon-input {{#if validationError}}validation-error{{/if}}" type="number"
+                min="-90" max="90"
+                name="valueLat"
+                value="{{valueLat}}"
+                {{#unless editable}}readonly{{/unless}}/>
+            <label>Lon:</label><input
+                class="lat-lon-input {{#if validationError}}validation-error{{/if}}" type="number"
+                min="-180" max="180"
+                name="valueLon"
+                value="{{valueLon}}"
+                {{#unless editable}}readonly{{/unless}}/>
+>>>>>>> master
         </div>
     {{/is}}
     {{#is type "bounds"}}

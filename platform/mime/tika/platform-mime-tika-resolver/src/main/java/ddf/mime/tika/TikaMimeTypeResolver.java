@@ -47,12 +47,9 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
         try {
             config = new TikaConfig(this.getClass()
                     .getClassLoader());
-            if (config == null) {
-                LOGGER.warn("Config = NULL");
-            }
             tika = new Tika(config);
         } catch (Exception e) {
-            LOGGER.warn("Error creating TikaConfig with ClassLoader", e);
+            LOGGER.debug("Error creating TikaConfig with ClassLoader", e);
         }
     }
 
@@ -110,7 +107,7 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
                 MimeType mimeType = mimeTypes.forName(contentType);
                 extension = mimeType.getExtension();
             } catch (Exception e) {
-                LOGGER.warn("Exception caught getting file extension for mime type {}",
+                LOGGER.debug("Exception caught getting file extension for mime type {}",
                         contentType,
                         e);
             }
@@ -132,7 +129,7 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
                 String filename = "dummy." + fileExtension;
                 mimeType = tika.detect(filename);
             } catch (Exception e) {
-                LOGGER.warn("Exception caught getting mime type for file extension {}",
+                LOGGER.debug("Exception caught getting mime type for file extension {}",
                         fileExtension,
                         e);
             }

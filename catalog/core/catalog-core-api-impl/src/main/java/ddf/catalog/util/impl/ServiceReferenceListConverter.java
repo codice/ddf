@@ -15,8 +15,8 @@ package ddf.catalog.util.impl;
 
 import org.osgi.service.blueprint.container.Converter;
 import org.osgi.service.blueprint.container.ReifiedType;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 /**
  * This converter is used to allow {@link ServiceReferenceListConverter} objects to pass through for
@@ -26,8 +26,8 @@ import org.slf4j.ext.XLogger;
  */
 public class ServiceReferenceListConverter implements Converter {
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(
-            ServiceReferenceListConverter.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            ServiceReferenceListConverter.class);
 
     /**
      * @parameter sourceObject object considering to be converted
@@ -37,10 +37,10 @@ public class ServiceReferenceListConverter implements Converter {
      */
     @Override
     public boolean canConvert(Object sourceObject, ReifiedType targetType) {
-        logger.trace("Deciphering if canConvert ");
+        LOGGER.trace("Deciphering if canConvert ");
 
         if (targetType != null) {
-            logger.debug("ReifiedType:" + targetType.getRawClass());
+            LOGGER.debug("ReifiedType: {}", targetType.getRawClass());
         }
         return (sourceObject instanceof SortedServiceReferenceList);
     }
@@ -56,7 +56,7 @@ public class ServiceReferenceListConverter implements Converter {
     @Override
     public Object convert(Object sourceObject, ReifiedType targetType) throws Exception {
 
-        logger.trace("Converting " + sourceObject);
+        LOGGER.trace("Converting {}", sourceObject);
 
         SortedServiceReferenceList list = ((SortedServiceReferenceList) sourceObject);
 

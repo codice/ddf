@@ -33,10 +33,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.PropertyIsFuzzyFunction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
+import org.geotools.filter.IsEqualsToImpl;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.xml.Configuration;
@@ -48,8 +50,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+<<<<<<< HEAD
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+=======
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Core;
+>>>>>>> master
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
@@ -100,7 +107,7 @@ public class CswQueryFactory {
 
     public QueryRequest getQueryById(List<String> ids) {
         List<Filter> filters = ids.stream()
-                .map(id -> builder.attribute(Metacard.ID)
+                .map(id -> builder.attribute(Core.ID)
                         .is()
                         .equalTo()
                         .text(id))
@@ -171,7 +178,7 @@ public class CswQueryFactory {
         } else {
             // not supported by catalog:
             //filter = Filter.INCLUDE;
-            filter = builder.attribute(Metacard.ID)
+            filter = builder.attribute(Core.ID)
                     .is()
                     .like()
                     .text(FilterDelegate.WILDCARD_CHAR);
@@ -183,6 +190,8 @@ public class CswQueryFactory {
                     null);
         }
 
+        filter = transformCustomFunctionToFilter(filter);
+
         try {
             visitor.setVisitedFilter((Filter) filter.accept(visitor, null));
         } catch (UnsupportedOperationException ose) {
@@ -190,6 +199,32 @@ public class CswQueryFactory {
         }
 
         return visitor;
+    }
+
+    /**
+     * Transforms the filter if it contains a custom function from the
+     * {@link org.codice.ddf.spatial.ogc.csw.catalog.common.ExtendedGeotoolsFunctionFactory}. If
+     * the filter does not contain a custom function then the original filter is returned.
+     *
+     * @param filter
+     * @return
+     */
+    private Filter transformCustomFunctionToFilter(Filter filter) {
+        if (filter instanceof IsEqualsToImpl
+                && ((IsEqualsToImpl) filter).getExpression1() instanceof PropertyIsFuzzyFunction) {
+
+            PropertyIsFuzzyFunction fuzzyProperty =
+                    (PropertyIsFuzzyFunction) ((IsEqualsToImpl) filter).getExpression1();
+
+            return builder.attribute(fuzzyProperty.getPropertyName()
+                    .toString())
+                    .is()
+                    .like()
+                    .fuzzyText(fuzzyProperty.getLiteral()
+                            .toString());
+        }
+
+        return filter;
     }
 
     private SortBy buildSort(SortByType sort) throws CswException {
@@ -211,16 +246,27 @@ public class CswQueryFactory {
         }
 
         if (!DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+<<<<<<< HEAD
                                 .getPropertyName(),
                         sortBy.getPropertyName()
                                 .getNamespaceContext())) {
+=======
+                        .getPropertyName(),
+                sortBy.getPropertyName()
+                        .getNamespaceContext())) {
+>>>>>>> master
             throw new CswException("Property " + sortBy.getPropertyName()
                     .getPropertyName() + " is not a valid SortBy Field",
                     CswConstants.INVALID_PARAMETER_VALUE,
                     "SortProperty");
         }
 
+<<<<<<< HEAD
         String name = DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+=======
+        String name =
+                DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+>>>>>>> master
                                 .getPropertyName(),
                         sortBy.getPropertyName()
                                 .getNamespaceContext());
@@ -296,7 +342,7 @@ public class CswQueryFactory {
         if (!adapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate(tags, true))) {
             List<Filter> filters = new ArrayList<>(tags.size());
             for (String tag : tags) {
-                filters.add(builder.attribute(Metacard.TAGS)
+                filters.add(builder.attribute(Core.METACARD_TAGS)
                         .is()
                         .like()
                         .text(tag));

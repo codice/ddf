@@ -35,7 +35,7 @@ public class CXFFilterAdder {
 
     private static final String DEFAULT_URL_PATTERN = "/services/catalog/*";
 
-    private Logger logger = LoggerFactory.getLogger(CXFFilterAdder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CXFFilterAdder.class);
 
     private ServiceRegistration filterService;
 
@@ -55,14 +55,14 @@ public class CXFFilterAdder {
     }
 
     public void setUrlPattern(String urlPattern) {
-        logger.trace("Unregistering filter service to reset urlPatterns");
+        LOGGER.trace("Unregistering filter service to reset urlPatterns");
         filterService.unregister();
         properties.put(URL_PATTERNS_KEY, PropertyResolver.resolveProperties(urlPattern));
         registerService();
     }
 
     private void registerService() {
-        logger.debug("Registering Filter with CXF Context for url {}",
+        LOGGER.debug("Registering Filter with CXF Context for url {}",
                 properties.get(URL_PATTERNS_KEY));
         BundleContext cxfContext = getContext();
         if (cxfContext != null) {
@@ -70,9 +70,9 @@ public class CXFFilterAdder {
                     casProxyFilter,
                     properties);
         } else {
-            logger.debug("Attempting to register service with null CXF context.");
+            LOGGER.debug("Attempting to register service with null CXF context.");
         }
-        logger.debug("Filter registered.");
+        LOGGER.debug("Filter registered.");
     }
 
     private BundleContext getContext() {

@@ -137,14 +137,14 @@ public class OpenSearchEndpoint implements OpenSearch {
             @QueryParam(TYPE) String type, @QueryParam(VERSION) String versions,
             @Context HttpServletRequest request) {
         final String methodName = "processQuery";
-        LOGGER.trace("ENTERING: " + methodName);
+        LOGGER.trace("ENTERING: {}", methodName);
         Response response;
         String localCount = count;
-        LOGGER.debug("request url: " + ui.getRequestUri());
+        LOGGER.debug("request url: {}", ui.getRequestUri());
 
         // honor maxResults if count is not specified
         if ((StringUtils.isEmpty(localCount)) && (!(StringUtils.isEmpty(maxResults)))) {
-            LOGGER.debug("setting count to: " + maxResults);
+            LOGGER.debug("setting count to: {}", maxResults);
             localCount = maxResults;
         }
 
@@ -161,8 +161,7 @@ public class OpenSearchEndpoint implements OpenSearch {
                 // Since local is a magic work, not in any specification, weneed to
                 // eventually remove support for it.
                 if (siteSet.remove(LOCAL)) {
-                    LOGGER.debug("Found 'local' alias, replacing with " + SystemInfo.getSiteName()
-                            + ".");
+                    LOGGER.debug("Found 'local' alias, replacing with {}.", SystemInfo.getSiteName());
                     siteSet.add(SystemInfo.getSiteName());
                 }
 
@@ -171,7 +170,7 @@ public class OpenSearchEndpoint implements OpenSearch {
                             "Only local site specified, saving overhead and just performing a local query on "
                                     + framework.getId() + ".");
                 } else {
-                    LOGGER.debug("Querying site set: " + siteSet);
+                    LOGGER.debug("Querying site set: {}", siteSet);
                     query.setSiteIds(siteSet);
                 }
 
@@ -223,17 +222,17 @@ public class OpenSearchEndpoint implements OpenSearch {
 
             response = executeQuery(queryFormat, query, ui, properties);
         } catch (IllegalArgumentException iae) {
-            LOGGER.warn("Bad input found while executing a query", iae);
+            LOGGER.info("Bad input found while executing a query", iae);
             response = Response.status(Response.Status.BAD_REQUEST)
                     .entity(wrapStringInPreformattedTags(iae.getMessage()))
                     .build();
         } catch (RuntimeException re) {
-            LOGGER.warn("Exception while executing a query", re);
+            LOGGER.info("Exception while executing a query", re);
             response = Response.serverError()
                     .entity(wrapStringInPreformattedTags("Exception while executing a query"))
                     .build();
         }
-        LOGGER.trace("EXITING: " + methodName);
+        LOGGER.trace("EXITING: {}", methodName);
 
         return response;
     }
@@ -253,15 +252,15 @@ public class OpenSearchEndpoint implements OpenSearch {
             String bbox, String radius, String lat, String lon) {
         if (geometry != null && !geometry.trim()
                 .isEmpty()) {
-            LOGGER.debug("Adding SpatialCriterion geometry: " + geometry);
+            LOGGER.debug("Adding SpatialCriterion geometry: {}", geometry);
             query.addGeometrySpatialFilter(geometry);
         } else if (bbox != null && !bbox.trim()
                 .isEmpty()) {
-            LOGGER.debug("Adding SpatialCriterion bbox: " + bbox);
+            LOGGER.debug("Adding SpatialCriterion bbox: {}", bbox);
             query.addBBoxSpatialFilter(bbox);
         } else if (polygon != null && !polygon.trim()
                 .isEmpty()) {
-            LOGGER.debug("Adding SpatialCriterion polygon: " + polygon);
+            LOGGER.debug("Adding SpatialCriterion polygon: {}", polygon);
             query.addPolygonSpatialFilter(polygon);
         } else if (lat != null && !lat.trim()
                 .isEmpty() && lon != null && !lon.trim()
@@ -271,7 +270,7 @@ public class OpenSearchEndpoint implements OpenSearch {
                 LOGGER.debug("Adding default radius");
                 query.addSpatialDistanceFilter(lon, lat, DEFAULT_RADIUS);
             } else {
-                LOGGER.debug("Using radius: " + radius);
+                LOGGER.debug("Using radius: {}", radius);
                 query.addSpatialDistanceFilter(lon, lat, radius);
             }
         }
@@ -301,8 +300,8 @@ public class OpenSearchEndpoint implements OpenSearch {
             String url = ui.getRequestUri()
                     .toString();
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("organization: " + organization);
-                LOGGER.debug("url: " + url);
+                LOGGER.debug("organization: {}", organization);
+                LOGGER.debug("url: {}", url);
             }
 
             arguments.put("organization", organization);
@@ -312,7 +311,7 @@ public class OpenSearchEndpoint implements OpenSearch {
             // interval
             if (subscriptionList != null && !subscriptionList.isEmpty()) {
                 String subscription = subscriptionList.get(0);
-                LOGGER.debug("Subscription: " + subscription);
+                LOGGER.debug("Subscription: {}", subscription);
                 arguments.put(Constants.SUBSCRIPTION_KEY, subscription);
                 List<String> intervalList = queryParams.get(UPDATE_QUERY_INTERVAL);
                 if (intervalList != null && !intervalList.isEmpty()) {
@@ -360,22 +359,22 @@ public class OpenSearchEndpoint implements OpenSearch {
                 }
             }
         } catch (UnsupportedQueryException ce) {
-            LOGGER.warn("Unsupported query", ce);
+            LOGGER.info("Unsupported query", ce);
             response = Response.status(Response.Status.BAD_REQUEST)
                     .entity(wrapStringInPreformattedTags("Unsupported query"))
                     .build();
         } catch (CatalogTransformerException e) {
-            LOGGER.warn("Error transforming response", e);
+            LOGGER.info("Error transforming response", e);
             response = Response.serverError()
                     .entity(wrapStringInPreformattedTags("Error transforming response"))
                     .build();
         } catch (FederationException e) {
-            LOGGER.warn("Error executing query", e);
+            LOGGER.info("Error executing query", e);
             response = Response.serverError()
                     .entity(wrapStringInPreformattedTags("Error executing query"))
                     .build();
         } catch (SourceUnavailableException e) {
-            LOGGER.warn("Error executing query because the underlying source was unavailable.", e);
+            LOGGER.info("Error executing query because the underlying source was unavailable.", e);
             response = Response.serverError()
                     .entity(wrapStringInPreformattedTags("Error executing query because the underlying source was unavailable."))
                     .build();
@@ -383,7 +382,7 @@ public class OpenSearchEndpoint implements OpenSearch {
             // Account for any runtime exceptions and send back a server error
             // this prevents full stacktraces returning to the client
             // this allows for a graceful server error to be returned
-            LOGGER.warn("RuntimeException on executing query", e);
+            LOGGER.info("RuntimeException on executing query", e);
             response = Response.serverError()
                     .entity(wrapStringInPreformattedTags("RuntimeException on executing query"))
                     .build();
@@ -428,8 +427,7 @@ public class OpenSearchEndpoint implements OpenSearch {
         if (!(StringUtils.isEmpty(maxTimeoutStr))) {
             maxTimeout = Long.parseLong(maxTimeoutStr);
         }
-        LOGGER.debug("Retrieved query settings: \n" + "sortField:" + sortField + "\nsortOrder:"
-                + sortOrder);
+        LOGGER.debug("Retrieved query settings:   sortField: {}   sortOrder: {}", sortField, sortOrder);
         return new OpenSearchQuery(null,
                 startIndex,
                 count,

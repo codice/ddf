@@ -62,7 +62,7 @@ public class StsAddressProviderImpl implements StsAddressProvider {
             URI uri = new URI(getWsdlAddress());
             return uri.getScheme();
         } catch (URISyntaxException e) {
-            LOGGER.warn("Unable to parse STS url", e);
+            LOGGER.info("Unable to parse STS url", e);
             return "";
         }
     }
@@ -73,7 +73,7 @@ public class StsAddressProviderImpl implements StsAddressProvider {
             URI uri = new URI(getWsdlAddress());
             return uri.getHost();
         } catch (URISyntaxException e) {
-            LOGGER.warn("Unable to parse STS url", e);
+            LOGGER.info("Unable to parse STS url", e);
             return "";
         }
     }
@@ -84,7 +84,7 @@ public class StsAddressProviderImpl implements StsAddressProvider {
             URI uri = new URI(getWsdlAddress());
             return Integer.toString(uri.getPort());
         } catch (URISyntaxException e) {
-            LOGGER.warn("Unable to parse STS url", e);
+            LOGGER.info("Unable to parse STS url", e);
             return "";
         }
     }

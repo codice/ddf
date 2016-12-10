@@ -14,6 +14,8 @@
 # [Distributed Data Framework \(DDF\)](http://ddf.codice.org/)
 [![Join the chat at https://gitter.im/codice/ddf](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/codice/ddf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/3703/badge.svg)](https://scan.coverity.com/projects/3703)
+[![CLA assistant](https://cla-assistant.io/readme/badge/codice/ddf)](https://cla-assistant.io/codice/ddf)
+
 
 
 Distributed Data Framework (DDF) is an open source, modular integration framework. 
@@ -108,7 +110,7 @@ mvn install
 This will compile DDF and run all of the tests in the DDF source distribution. It usually takes some time for maven to download required dependencies in the first build.
 The distribution will be available under "distribution/ddf/target" directory.
 
-### How to build using multiple threads ###
+### How to build using multiple threads (currently not usable on Windows) ###
 
 To build DDF using the [parallel builds feature of maven](https://cwiki.apache.org/confluence/display/MAVEN/Parallel+builds+in+Maven+3), Run the following command:
 

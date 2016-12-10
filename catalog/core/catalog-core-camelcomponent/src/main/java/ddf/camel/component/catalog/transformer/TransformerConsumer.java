@@ -150,7 +150,7 @@ public class TransformerConsumer extends DefaultConsumer {
             // isn't
             // and it cannot be converted
             if (null == content) {
-                LOGGER.debug("Unable to create " + objClass.getName() + " - throwing exception");
+                LOGGER.debug("Unable to create {} - throwing exception", objClass.getName());
                 throw new CatalogTransformerException("Unable to create t" + objClass.getName());
             }
         } catch (Exception e) {

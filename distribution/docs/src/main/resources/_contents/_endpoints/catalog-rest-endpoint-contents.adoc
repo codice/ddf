@@ -1,0 +1,64 @@
+
+==== Catalog REST Endpoint
+
+The Catalog REST Endpoint allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. 
+
+===== Installing the Catalog REST Endpoint
+
+The Catalog REST Endpoint is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Catalog REST Endpoint
+
+The RESTful CRUD Endpoint has no configurable properties.
+It can only be installed or uninstalled.
+
+===== Using the Catalog REST Endpoint
+
+The Catalog REST Endpoint provides the capability to query, create, update, and delete metacards and associated resource in the catalog provider as follows:
+
+[cols="2m,1,2,5", options="header"]
+|===
+
+|Operation
+|HTTP Request
+|Details
+|Example URL
+
+|create
+|HTTP POST
+|HTTP request body contains the input to be ingested.
+|\${public_url}/services/catalog
+
+|update
+|HTTP PUT
+|The ID of the Metacard to be updated is appended to the end of the URL. (`<metacardId` is the `Metacard.ID` of the metacard to be updated.)
+
+The updated metadata is contained in the HTTP body.
+
+|\${public_url}/services/catalog/<metacardId>
+
+|delete
+|HTTP DELETE
+|The ID of the Metacard to be deleted is appended to the end of the URL.(`<metacardId>` is the `Metacard.ID` of the metacard to be deleted.)
+|\${public_url}/services/catalog/<metacardId>
+
+|read
+|HTTP GET
+|The ID of the Metacard to be retrieved is appended to the end of the URL. +
+By default, the response body will include the XML representation of the Metacard. (`<metacardId>` is the `Metacard.ID` of the metacard to be retrieved)
+
+|\${public_url}/services/catalog/<metacardId>
+
+|federated read
+|HTTP GET
+|The SOURCE ID of a federated source is appended in the URL before the ID of the Metacard to be retrieved is appended to the end. (`<sourceId>` is the `FEDERATED SOURCE ID` and `<metacardId>` is the `Metacard.ID` of the Metacard to be retrieved.)
+
+|\${public_url}/services/catalog/sources/&lt;sourceId&gt;/&lt;metacardId&gt;
+
+|sources
+|HTTP GET
+|Retrieves information about federated sources, including `sourceId`, `availability`, `contentTypes`,and `version`.
+
+|\${public_url}/services/catalog/sources/
+
+|===

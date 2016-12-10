@@ -128,7 +128,7 @@ public class SchemaFieldResolver {
             rsp = luke.process(solr);
             Map<String, FieldInfo> fieldsInfo = rsp.getFieldInfo();
             if (fieldsInfo != null && !fieldsInfo.isEmpty()) {
-                LOGGER.info("got fieldsInfo for {} fields", fieldsInfo.size());
+                LOGGER.debug("got fieldsInfo for {} fields", fieldsInfo.size());
 
                 for (Map.Entry<String, FieldInfo> entry : fieldsInfo.entrySet()) {
 
@@ -147,14 +147,14 @@ public class SchemaFieldResolver {
                             suffix = getSpecialIndexSuffix(suffix);
                             fieldType += suffix;
                         }
-                        LOGGER.info("field {} has type {}", entry.getKey(), fieldType);
+                        LOGGER.debug("field {} has type {}", entry.getKey(), fieldType);
                         schemaField = new SchemaField(entry.getKey(), fieldType);
                         schemaField.setSuffix(suffix);
                         return schemaField;
                     }
                 }
             } else {
-                LOGGER.info("fieldsInfo from LukeRequest are either null or empty");
+                LOGGER.debug("fieldsInfo from LukeRequest are either null or empty");
             }
 
         } catch (SolrServerException e) {
@@ -163,7 +163,7 @@ public class SchemaFieldResolver {
             LOGGER.info("IOException while processing LukeRequest", e);
         }
 
-        LOGGER.info("Did not find SchemaField for property {}", propertyName);
+        LOGGER.debug("Did not find SchemaField for property {}", propertyName);
 
         return schemaField;
     }

@@ -25,6 +25,10 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
+=======
+import java.util.concurrent.CancellationException;
+>>>>>>> master
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -34,8 +38,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
-import javax.activation.MimeType;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -51,6 +55,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
@@ -66,6 +71,7 @@ import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.transformer.api.PrintWriter;
 import ddf.catalog.transformer.api.PrintWriterProvider;
+
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.EchoedRequestType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -97,9 +103,9 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
     private static final String TIMESTAMP_ATTRIBUTE = "timestamp";
 
-    private static final String NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE = "numberOfRecordsMatched";
+    public static final String NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE = "numberOfRecordsMatched";
 
-    private static final String NEXT_RECORD_ATTRIBUTE = "nextRecord";
+    public static final String NEXT_RECORD_ATTRIBUTE = "nextRecord";
 
     private static final String RECORD_SCHEMA_ATTRIBUTE = "recordSchema";
 
@@ -159,7 +165,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             bais = new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8));
         }
 
-        BinaryContent transformedContent = new BinaryContentImpl(bais, new MimeType());
+        BinaryContent transformedContent = new BinaryContentImpl(bais, CswRecordConverter.XML_MIME_TYPE);
         return transformedContent;
     }
 
@@ -189,6 +195,17 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             nextRecord = 0;
         }
 
+        String metacardsString = null;
+        AtomicLong numReturned = new AtomicLong(cswRecordCollection.getNumberOfRecordsReturned());
+
+        if (!ResultType.HITS.equals(cswRecordCollection.getResultType())) {
+            arguments.put(CswConstants.OMIT_XML_DECLARATION, Boolean.TRUE);
+            metacardsString = multiThreadedMarshal(results,
+                    numReturned,
+                    cswRecordCollection.getOutputSchema(),
+                    arguments);
+        }
+
         if (!cswRecordCollection.isById()) {
             writer.addAttribute(VERSION_ATTRIBUTE, CswConstants.VERSION_2_0_2);
 
@@ -208,14 +225,13 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             writer.endNode();
 
             writer.startNode(SEARCH_RESULTS_QNAME);
-            writer.addAttribute(NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE,
-                    Long.toString(cswRecordCollection.getNumberOfRecordsMatched()));
+            writer.addAttribute(NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE, Long.toString(
+                    cswRecordCollection.getNumberOfRecordsMatched()));
 
             if (ResultType.HITS.equals(cswRecordCollection.getResultType())) {
                 writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE, Long.toString(0));
             } else {
-                writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE,
-                        Long.toString(cswRecordCollection.getNumberOfRecordsReturned()));
+                writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE, numReturned.toString());
                 writer.addAttribute(NEXT_RECORD_ATTRIBUTE, Long.toString(nextRecord));
             }
 
@@ -231,11 +247,6 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         }
 
         if (!ResultType.HITS.equals(cswRecordCollection.getResultType())) {
-            arguments.put(CswConstants.OMIT_XML_DECLARATION, Boolean.TRUE);
-
-            String metacardsString = multiThreadedMarshal(results,
-                    cswRecordCollection.getOutputSchema(),
-                    arguments);
             writer.setRawValue(metacardsString);
         }
 
@@ -248,19 +259,25 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         return writer.makeString();
     }
 
-    /*
-        Multi-threaded marshal of metacard assumes:
-        - cpu-bound => optimum utilization from availableProcessors()+1 thread pool.
-        - query size is unbounded => guard against resource exhaustion with fixed thread-pool,
-          fixed work-queue.
+    /**
+     * Multi-threaded marshal of metacard assumes that the query size is unbounded to guard against
+     * resource exhaustion with fixed thread-pool and fixed work-queue.  CPU-bound for optimum utilization
+     * from availableProcessors()+1 thread pool.
+     *
+     * @param results - the list of results to marshal
+     * @param recordSchema - the schema
+     * @param arguments - additional args
+     * @return - the marshaled results
+     * @throws CatalogTransformerException
      */
-    //private void multiThreadedMarshal(PrintWriter writer, List<Result> results,
-    private String multiThreadedMarshal(List<Result> results, String recordSchema,
-            final Map<String, Serializable> arguments) throws CatalogTransformerException {
+    private String multiThreadedMarshal(List<Result> results, AtomicLong numResults,
+            String recordSchema, final Map<String, Serializable> arguments)
+            throws CatalogTransformerException {
 
         CompletionService<BinaryContent> completionService = new ExecutorCompletionService<>(
                 queryExecutor);
 
+<<<<<<< HEAD
         try {
             final MetacardTransformer transformer =
                     metacardTransformerManager.getTransformerBySchema(recordSchema);
@@ -295,14 +312,61 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             CharArrayWriter accum = new CharArrayWriter(ACCUM_INITIAL_SIZE);
             for (InputStream is : contents) {
                 IOUtils.copy(is, accum);
-            }
-
-            return accum.toString();
-
-        } catch (IOException | InterruptedException | ExecutionException xe) {
-            throw new CatalogTransformerException(xe);
+=======
+        final MetacardTransformer transformer = metacardTransformerManager.getTransformerBySchema(
+                recordSchema);
+        if (transformer == null) {
+            throw new CatalogTransformerException(
+                    "Cannot find transformer for schema: " + recordSchema);
         }
 
+        Map<Future<BinaryContent>, Result> futures = new HashMap<>(results.size());
+        for (Result result : results) {
+            final Metacard mc = result.getMetacard();
+
+            // the "current" thread will run submitted task when queueSize exceeded; effectively
+            // blocking enqueue of more tasks.
+            futures.put(completionService.submit(() -> {
+                BinaryContent content = transformer.transform(mc, arguments);
+                return content;
+            }), result);
+        }
+
+
+        InputStream[] contents = new InputStream[results.size()];
+
+        while (!futures.isEmpty()) {
+            try {
+                Future<BinaryContent> completedFuture = completionService.take();
+                int index = results.indexOf(futures.get(completedFuture));
+                try {
+                    contents[index] = completedFuture.get()
+                            .getInputStream();
+                } catch (ExecutionException | CancellationException | InterruptedException e) {
+                    LOGGER.debug("Error transforming Metacard", e);
+                    numResults.decrementAndGet();
+                } finally {
+                    futures.remove(completedFuture);
+                }
+            } catch (InterruptedException e) {
+                LOGGER.debug("Metacard transform interrupted", e);
+>>>>>>> master
+            }
+
+        }
+
+        CharArrayWriter accum = new CharArrayWriter(ACCUM_INITIAL_SIZE);
+        for (InputStream is : contents) {
+            try {
+                if (is != null) {
+                    IOUtils.copy(is, accum);
+                }
+            } catch (IOException e) {
+                LOGGER.debug("Error copying Metacard Binary content", e);
+            }
+        }
+
+        return accum.toString();
     } // end multiThreadedMarshal()
 
     private boolean isByIdQuery(Map<String, Serializable> arguments) {
@@ -413,7 +477,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 ack.setTimeStamp(DatatypeFactory.newInstance()
                         .newXMLGregorianCalendar(new GregorianCalendar()));
             } catch (DatatypeConfigurationException e) {
-                LOGGER.warn("Failed to set timestamp on Acknowledgement, Exception {}", e);
+                LOGGER.debug("Failed to set timestamp on Acknowledgement, Exception {}", e);
             }
 
             JAXBElement<AcknowledgementType> jaxBAck =
@@ -444,7 +508,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 numThreads,
                 0L,
                 TimeUnit.MILLISECONDS,
-                new LinkedBlockingDeque<Runnable>(BLOCKING_Q_INITIAL_SIZE),
+                new LinkedBlockingDeque<>(BLOCKING_Q_INITIAL_SIZE),
                 new CswThreadFactory(),
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
@@ -469,12 +533,10 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r, QUERY_POOL_NAME + "-" + suffix.incrementAndGet());
-            thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                @Override
-                public void uncaughtException(Thread t, Throwable e) {
-                    LOGGER.error("UNCAUGHT exception in thread " + t.getName(), e);
-                }
-            });
+            thread.setUncaughtExceptionHandler((t, e) -> LOGGER.debug(
+                    "UNCAUGHT exception in thread {}",
+                    t.getName(),
+                    e));
             return thread;
         }
     }

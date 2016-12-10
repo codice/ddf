@@ -54,7 +54,7 @@ public class MigrationFileWriter {
             final File exportDir = exportPath.toFile();
             FileUtils.forceMkdir(exportDir);
         } catch (IOException e) {
-            LOGGER.error("IO Exception during FileUtils.forceMkdir", e.getMessage(), e);
+            LOGGER.info("IO Exception during FileUtils.forceMkdir", e.getMessage(), e);
             throw new ExportMigrationException(e.getMessage());
         }
     }
@@ -69,7 +69,7 @@ public class MigrationFileWriter {
         if (!exportFile.exists()) {
             boolean success = exportFile.createNewFile();
             if (!success) {
-                LOGGER.warn("Was not able to create new file for metacard export");
+                LOGGER.debug("Was not able to create new file for metacard export");
             }
         }
 

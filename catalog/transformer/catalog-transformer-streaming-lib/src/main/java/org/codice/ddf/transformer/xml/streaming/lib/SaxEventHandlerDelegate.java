@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -41,6 +41,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
 
 /**
@@ -50,11 +51,11 @@ import ddf.catalog.transform.CatalogTransformerException;
  */
 public class SaxEventHandlerDelegate extends DefaultHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaxEventHandlerDelegate.class);
+
     private XMLReader parser;
 
     private List<SaxEventHandler> eventHandlers = new ArrayList<>();
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SaxEventHandlerDelegate.class);
 
     private MetacardType metacardType = BasicTypes.BASIC_METACARD;
 
@@ -63,6 +64,10 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     public SaxEventHandlerDelegate() {
         try {
             parser = XMLReaderFactory.createXMLReader();
+            parser.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            parser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
         } catch (Exception e) {
             LOGGER.debug(
                     "Exception thrown during creation of SaxEventHandlerDelegate. Probably caused by one of the setFeature calls",
@@ -111,19 +116,18 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
             List<Serializable> errorsAndWarnings =
                     Arrays.asList(inputTransformerErrorHandler.getParseWarningsErrors());
             if (!((String) errorsAndWarnings.get(0)).isEmpty()) {
-                LOGGER.warn((String) errorsAndWarnings.get(0));
+                LOGGER.debug((String) errorsAndWarnings.get(0));
                 Attribute attr;
                 List<Serializable> values;
-                if ((attr = metacard.getAttribute(BasicTypes.VALIDATION_ERRORS)) != null
+                if ((attr = metacard.getAttribute(Validation.VALIDATION_ERRORS)) != null
                         && (values = attr.getValues()) != null) {
                     errorsAndWarnings.addAll(values);
                 }
-                metacard.setAttribute(new AttributeImpl(BasicTypes.VALIDATION_ERRORS,
+                metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
                         errorsAndWarnings));
             }
 
         } catch (IOException | SAXException e) {
-            LOGGER.debug("Exception thrown during parsing of inputStream", e);
             throw new CatalogTransformerException("Could not properly parse metacard", e);
         }
 

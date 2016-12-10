@@ -64,7 +64,11 @@ public class DdfBrandingPlugin implements BrandingPlugin {
                     "/ddf/logo.png");
             favIcon = propertiesConfiguration.getString("branding.favicon", "/ddf/favicon.png");
         } catch (ConfigurationException e) {
+<<<<<<< HEAD
             LOGGER.error("Unable to read properties file {}",
+=======
+            LOGGER.info("Unable to read properties file {}",
+>>>>>>> master
                     brandingPropertiesFilePath,
                     e.getMessage());
             productName = "DDF";

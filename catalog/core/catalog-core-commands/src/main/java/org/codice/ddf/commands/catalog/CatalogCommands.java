@@ -15,6 +15,7 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.Optional;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -22,12 +23,15 @@ import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
 import org.codice.ddf.commands.catalog.facade.Provider;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.cache.SolrCacheMBean;
@@ -63,8 +67,21 @@ public abstract class CatalogCommands extends SubjectCommands {
 
     // DDF-535: remove "-provider" alias in DDF 3.0
     @Option(name = "--provider", required = false, aliases = {"-p",
-            "-provider"}, multiValued = false, description = "Interacts with the provider directly instead of the framework.")
+            "-provider"}, multiValued = false, description = "Interacts with the Provider directly "
+            + "instead of the framework. NOTE: This option picks the first Provider.")
     boolean isProvider = false;
+
+    @Reference
+    CatalogProvider catalogProvider;
+
+    @Reference
+    CatalogFramework catalogFramework;
+
+    @Reference
+    BundleContext bundleContext;
+
+    @Reference
+    FilterBuilder filterBuilder;
 
     protected SolrCacheMBean getCacheProxy()
             throws IOException, MalformedObjectNameException, InstanceNotFoundException {
@@ -76,16 +93,21 @@ public abstract class CatalogCommands extends SubjectCommands {
                 false);
     }
 
+    //TODO Optional
     protected CatalogFacade getCatalog() throws InterruptedException {
         if (isProvider) {
-            return new Provider(getService(CatalogProvider.class));
+            return new Provider(catalogProvider);
         } else {
             // otherwise use default
-            return new Framework(getService(CatalogFramework.class));
+            return new Framework(catalogFramework);
         }
     }
 
-    protected FilterBuilder getFilterBuilder() throws InterruptedException {
-        return getService(FilterBuilder.class);
+    protected <T> Optional<T> getServiceByFilter(Class<T> clazz, String filter)
+            throws InvalidSyntaxException {
+        return bundleContext.getServiceReferences(clazz, filter)
+                .stream()
+                .findFirst()
+                .map(ref -> bundleContext.getService(ref));
     }
 }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -20,13 +20,12 @@ import java.util.Stack;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.codice.ddf.transformer.xml.streaming.AbstractSaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
-import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.lib.SaxEventToXmlElementConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
-import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -36,7 +35,7 @@ import com.vividsolutions.jts.io.gml2.GMLHandler;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.validation.ValidationException;
 
 /**
@@ -45,9 +44,13 @@ import ddf.catalog.validation.ValidationException;
  * Note: ONLY CAN PARSE GML2 points. Will throw hard-to-debug Null Pointer Exceptions if used with GML3 or other GML2 geometries.
  * {@inheritDoc}
  */
-public class GmlHandler implements SaxEventHandler {
+public class GmlHandler extends AbstractSaxEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GmlHandler.class);
+
+    GMLHandler gh;
+
+    WKTWriter wktWriter;
 
     private List<Attribute> attributes;
 
@@ -57,13 +60,9 @@ public class GmlHandler implements SaxEventHandler {
 
     private SaxEventToXmlElementConverter gml3Element;
 
-    GMLHandler gh;
-
     private Gml3ToWkt gml3Converter;
 
     private Stack<String> state;
-
-    WKTWriter wktWriter;
 
     public GmlHandler(GMLHandler gmlHandler, Gml3ToWkt gml3Converter) {
         this.gh = gmlHandler;
@@ -73,7 +72,7 @@ public class GmlHandler implements SaxEventHandler {
         try {
             gml3Element = new SaxEventToXmlElementConverter();
         } catch (UnsupportedEncodingException | XMLStreamException e) {
-            LOGGER.warn("Error constructing new SaxEventToXmlElementConverter()", e);
+            LOGGER.debug("Error constructing new SaxEventToXmlElementConverter()", e);
         }
         state = new Stack<>();
     }
@@ -87,32 +86,12 @@ public class GmlHandler implements SaxEventHandler {
     }
 
     @Override
-    public void setDocumentLocator(Locator locator) {
-
-    }
-
-    @Override
-    public void startDocument() throws SAXException {
-
-    }
-
-    @Override
-    public void endDocument() throws SAXException {
-
-    }
-
-    @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
         try {
             gml3Element.addNamespace(prefix, uri);
         } catch (XMLStreamException e) {
-            LOGGER.warn("Error adding namespace to SaxEventToXmlConverter()", e);
+            LOGGER.debug("Error adding namespace to SaxEventToXmlConverter()", e);
         }
-    }
-
-    @Override
-    public void endPrefixMapping(String prefix) throws SAXException {
-
     }
 
     /**
@@ -132,7 +111,7 @@ public class GmlHandler implements SaxEventHandler {
             try {
                 gml3Element.toElement(uri, localName, attributes);
             } catch (XMLStreamException e) {
-                LOGGER.warn("Error writing toElement in SaxEventToXmlConverter()", e);
+                LOGGER.debug("Error writing toElement in SaxEventToXmlConverter()", e);
             }
             if (localName.equalsIgnoreCase("pos")) {
                 readingGml3 = true;
@@ -164,7 +143,7 @@ public class GmlHandler implements SaxEventHandler {
             try {
                 gml3Element.toElement(namespaceURI, localName);
             } catch (XMLStreamException e) {
-                LOGGER.warn("Error writing to element in SaxEventToXmlConverter()", e);
+                LOGGER.debug("Error writing to element in SaxEventToXmlConverter()", e);
             }
             if (!readingGml3) {
                 try {
@@ -184,7 +163,7 @@ public class GmlHandler implements SaxEventHandler {
                         attributes.add(new AttributeImpl(Metacard.GEOGRAPHY,
                                 gml3Converter.convert(gml3Element.toString())));
                     } catch (ValidationException e) {
-                        this.attributes.add(new AttributeImpl(BasicTypes.VALIDATION_ERRORS,
+                        this.attributes.add(new AttributeImpl(Validation.VALIDATION_ERRORS,
                                 "geospatial-handler"));
                     }
                 }
@@ -210,7 +189,7 @@ public class GmlHandler implements SaxEventHandler {
             try {
                 gml3Element.toElement(ch, start, length);
             } catch (XMLStreamException e) {
-                LOGGER.warn("Error writing to element in SaxEventToXmlConverter()", e);
+                LOGGER.debug("Error writing to element in SaxEventToXmlConverter()", e);
             }
             if (!readingGml3) {
                 try {
@@ -220,21 +199,6 @@ public class GmlHandler implements SaxEventHandler {
                 }
             }
         }
-
-    }
-
-    @Override
-    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
-
-    }
-
-    @Override
-    public void processingInstruction(String target, String data) throws SAXException {
-
-    }
-
-    @Override
-    public void skippedEntity(String name) throws SAXException {
 
     }
 }

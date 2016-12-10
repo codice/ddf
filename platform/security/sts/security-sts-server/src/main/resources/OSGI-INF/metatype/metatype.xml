@@ -37,7 +37,7 @@
         
 	</OCD>
 
-	<OCD description="STS Server Token Endpoint" name="STS Server Token Endpoint" id="ddf.security.sts.StsStaticService">
+	<OCD description="STS Server Token Endpoint" name="STS Server Token Endpoint" id="org.apache.cxf.sts.service.StaticService">
 
         <AD name="" id="endpoints" required="true" type="String"
 			default=".*" cardinality="100"
@@ -50,8 +50,8 @@
 	    <Object ocdref="ddf.security.sts"/>
   	</Designate>
 
-	<Designate pid="ddf.security.sts.StsStaticService">
-	    <Object ocdref="ddf.security.sts.StsStaticService"/>
+	<Designate pid="org.apache.cxf.sts.service.StaticService">
+	    <Object ocdref="org.apache.cxf.sts.service.StaticService"/>
   	</Designate>
 
 

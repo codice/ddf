@@ -24,6 +24,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -34,8 +35,14 @@ import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.ToXMLContentHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
@@ -47,20 +54,27 @@ public class VideoInputTransformer implements InputTransformer {
 
     private Templates templates = null;
 
-    public VideoInputTransformer() {
+    private MetacardType metacardType = null;
+
+    public VideoInputTransformer(MetacardType metacardType) {
+
+        this.metacardType = metacardType;
+
         ClassLoader tccl = Thread.currentThread()
                 .getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            Thread.currentThread()
+                    .setContextClassLoader(getClass().getClassLoader());
             templates = TransformerFactory.newInstance(TransformerFactoryImpl.class.getName(),
                     this.getClass()
                             .getClassLoader())
                     .newTemplates(new StreamSource(TikaMetadataExtractor.class.getResourceAsStream(
                             "/metadata.xslt")));
         } catch (TransformerConfigurationException e) {
-            LOGGER.warn("Couldn't create XML transformer", e);
+            LOGGER.debug("Couldn't create XML transformer", e);
         } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            Thread.currentThread()
+                    .setContextClassLoader(tccl);
         }
     }
 
@@ -83,19 +97,33 @@ public class VideoInputTransformer implements InputTransformer {
             metadataText = transformToXml(metadataText);
         }
 
-        return MetacardCreator.createBasicMetacard(metadata, id, metadataText);
+        return MetacardCreator.createMetacard(metadata, id, metadataText, metacardType);
     }
 
     private String transformToXml(String xhtml) {
         LOGGER.debug("Transforming xhtml to xml.");
+        XMLReader xmlReader = null;
         try {
-            Writer xml = new StringWriter();
-            Transformer transformer = templates.newTransformer();
-            transformer.transform(new StreamSource(new StringReader(xhtml)), new StreamResult(xml));
-            return xml.toString();
-        } catch (TransformerException e) {
-            LOGGER.warn("Unable to transform metadata from XHTML to XML.", e);
-            return xhtml;
+            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
+            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
+            xmlReader = new XMLFilterImpl(xmlParser);
+        } catch (SAXException e) {
+            LOGGER.debug(e.getMessage(), e);
         }
+        if (xmlReader != null) {
+            try {
+                Writer xml = new StringWriter();
+                Transformer transformer = templates.newTransformer();
+                transformer.transform(new SAXSource(xmlReader, new InputSource(new StringReader(xhtml))),
+                        new StreamResult(xml));
+                return xml.toString();
+            } catch (TransformerException e) {
+                LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);
+            }
+        }
+        return xhtml;
     }
 }

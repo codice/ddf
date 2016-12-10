@@ -831,7 +831,11 @@ The response is returned as a data map that contains an internal map with the fo
 |GeoJson-formatted value
 |This format is defined by the GeoJSON Metacard Transformer.
 
+<<<<<<< HEAD
 |results/metacard/properties/resource.cached
+=======
+|results/metacard/is-resource-local
+>>>>>>> master
 |A property indicating whether a metacard's associated resource is cached
 |Boolean
 |true, false
@@ -892,6 +896,7 @@ The response is returned as a data map that contains an internal map with the fo
 [source,json,xml]
 ----
 {
+<<<<<<< HEAD
     "data": {
         "hits": 1,
         "metacard-types": {
@@ -948,5 +953,72 @@ The response is returned as a data map that contains an internal map with the fo
         "successful": true
     },
     "channel": "/857f76c0-da8c-72f5-09cd-536b69e427af"
+=======
+   "data": {
+      "hits": 1,
+      "metacard-types": {
+         "ddf.metacard": {...}
+      },
+      "id": "6f0e04e9-acd1-4935-b9dd-c83e770a36d5",
+      "results": [
+         {
+            "metacard": {
+               "is-resource-local": false,
+               "cached": "2016-07-13T19:22:18.220+0000",
+               "geometry": {
+                  "coordinates": [
+                     -84.415337,
+                     42.729925
+                  ],
+                  "type": "Point"
+               },
+               "type": "Feature",
+               "actions": [...],
+               "properties": {
+                  "thumbnail": "...",
+                  "metadata": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><metadata>...</metadata>",
+                  "resource-size": "362417",
+                  "created": "2010-06-10T12:07:26.000+0000",
+                  "resource-uri": "content:faade630a2a247468ca9a9b57303b437",
+                  "metacard-tags": [
+                     "resource"
+                  ],
+                  "checksum-algorithm": "Adler32",
+                  "metadata-content-type": "image/jpeg",
+                  "metacard-type": "ddf.metacard",
+                  "resource-download-url": "${secure_url}services/catalog/sources/ddf.distribution/faade630a2a247468ca9a9b57303b437?transform=resource",
+                  "title": "example.jpg",
+                  "source-id": "ddf.distribution",
+                  "effective": "2016-07-13T19:22:06.966+0000",
+                  "point-of-contact": "",
+                  "checksum": "dc7337c5",
+                  "modified": "2010-06-10T12:07:26.000+0000",
+                  "id": "faade630a2a247468ca9a9b57303b437"
+               }
+            }
+         }
+      ],
+      "status": [
+         {
+            "hits": 1,
+            "elapsed": 453,
+            "reasons": [],
+            "id": "ddf.distribution",
+            "state": "SUCCEEDED",
+            "results": 1
+         }
+      ],
+      "successful": true
+   },
+   "channel": "/6f0e04e9-acd1-4935-b9dd-c83e770a36d5"
+},
+{
+   "successful": true
+},
+{
+   "channel": "/service/query",
+   "id": "142",
+   "successful": true
+>>>>>>> master
 }
 ----

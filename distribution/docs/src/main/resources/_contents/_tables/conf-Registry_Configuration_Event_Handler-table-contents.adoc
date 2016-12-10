@@ -1,0 +1,4 @@
+|<<Registry_Configuration_Event_Handler,Registry Source Configuration Handler>>
+|Registry_Configuration_Event_Handler
+|Configurable values for the registry source configuration handler
+

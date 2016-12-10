@@ -57,8 +57,8 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
         prefixes.put(CswConstants.DUBLIN_CORE_SCHEMA, CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX);
         prefixes.put(CswConstants.DUBLIN_CORE_TERMS_SCHEMA,
                 CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX);
-        prefixes.put(GmdMetacardType.GMD_NAMESPACE,
-                GmdMetacardType.GMD_PREFIX);
+        prefixes.put(GmdConstants.GMD_NAMESPACE,
+                GmdConstants.GMD_PREFIX);
 
         setNamespaceMapperPropertyName(NS_MAPPER_PROPERTY_RI);
         setNamespacePrefixes(prefixes);
@@ -78,7 +78,7 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
             jaxbContext = JAXBContext.newInstance(contextPath,
                     CswJAXBElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
+            LOGGER.info("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
         return jaxbContext;

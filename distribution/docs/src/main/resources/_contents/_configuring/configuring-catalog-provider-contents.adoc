@@ -1,0 +1,9 @@
+
+==== Reconfiguring ${branding} with a Different Catalog Provider
+
+This scenario describes how to reconfigure ${branding} to use a different catalog provider.
+
+This scenario assumes ${branding} is already running.
+
+. Uninstall Catalog Provider (if installed).
+. Install the new Catalog Provider by installing its feature.

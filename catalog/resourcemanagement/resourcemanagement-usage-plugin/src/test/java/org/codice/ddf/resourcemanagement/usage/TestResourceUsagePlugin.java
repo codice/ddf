@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,6 +21,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -49,6 +50,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -75,12 +77,17 @@ public class TestResourceUsagePlugin {
     private Subject subject;
 
     @Before
-    public void setup() throws PersistenceException {
+    public void setUp() throws PersistenceException {
         attributeStore = mock(AttributesStore.class);
-        doReturn(DATA_LIMIT)
-                .when(attributeStore)
+        doReturn(DATA_LIMIT).when(attributeStore)
                 .getDataLimitByUser(anyString());
         plugin = new ResourceUsagePlugin(attributeStore);
+        plugin.setMonitorLocalSources(true);
+    }
+
+    @Test
+    public void getMonitorLocalSources() {
+        assertThat(plugin.getMonitorLocalSources(), is(true));
     }
 
     @Test
@@ -94,11 +101,11 @@ public class TestResourceUsagePlugin {
             throws StopProcessingException, PluginExecutionException, PersistenceException {
         ArgumentCaptor<String> usernameArg = ArgumentCaptor.forClass(String.class);
 
-        ResourceRequest origRequest = getMockResourceRequest(RESOURCE_SIZE, TEST_USER);
-        ResourceRequest request = plugin.process(origRequest);
+        ResourceRequest originalRequest = getMockLocalResourceRequest(RESOURCE_SIZE, TEST_USER);
+        ResourceRequest request = plugin.process(originalRequest);
 
         assertThat(request, notNullValue());
-        assertThat(request, is(origRequest));
+        assertThat(request, is(originalRequest));
 
         verify(attributeStore).getDataLimitByUser(usernameArg.capture());
 
@@ -108,68 +115,146 @@ public class TestResourceUsagePlugin {
     @Test(expected = DataUsageLimitExceededException.class)
     public void testPreResourceSizeExceedsDataLimit()
             throws StopProcessingException, PluginExecutionException, PersistenceException {
-        doReturn(DATA_LIMIT)
-                .when(attributeStore)
+        doReturn(DATA_LIMIT).when(attributeStore)
                 .getCurrentDataUsageByUser(anyString());
-        ResourceRequest origRequest = getMockResourceRequest(RESOURCE_SIZE_LARGE, TEST_USER);
-        plugin.process(origRequest);
+        ResourceRequest originalRequest = getMockLocalResourceRequest(RESOURCE_SIZE_LARGE, TEST_USER);
+        plugin.process(originalRequest);
     }
 
     @Test
-    public void testPreResourceSizeNotFound()
+    public void testPreResourceLocalSourceSizeNotFound()
             throws PersistenceException, PluginExecutionException, StopProcessingException {
-        ResourceRequest origRequest = getMockResourceRequest(null, TEST_USER);
-        ResourceRequest request = plugin.process(origRequest);
+        ResourceRequest originalRequest = getMockLocalResourceRequest(null, TEST_USER);
+        ResourceRequest request = plugin.process(originalRequest);
         assertThat(request, is(notNullValue()));
-        assertThat(request, is(origRequest));
+        assertThat(request, is(originalRequest));
         verify(attributeStore, never()).getDataLimitByUser(anyString());
         verify(attributeStore, never()).getCurrentDataUsageByUser(anyString());
     }
 
     @Test
-    public void testInvalidPreResourceSize()
+    public void testPreResourceLocalSourceInvalidSize()
             throws StopProcessingException, PluginExecutionException, PersistenceException {
-        ResourceRequest origRequest = getMockResourceRequest("47 bytes", TEST_USER);
-        ResourceRequest request = plugin.process(origRequest);
+        ResourceRequest originalRequest = getMockLocalResourceRequest("47 bytes", TEST_USER);
+        ResourceRequest request = plugin.process(originalRequest);
         assertThat(request, is(notNullValue()));
-        assertThat(request, is(origRequest));
+        assertThat(request, is(originalRequest));
         verify(attributeStore, never()).getDataLimitByUser(anyString());
         verify(attributeStore, never()).getCurrentDataUsageByUser(anyString());
     }
 
     @Test
-    public void testNoPreResourceSubject()
+    public void testPreResourceLocalSourceNoLocalMonitoring()
             throws StopProcessingException, PluginExecutionException, PersistenceException {
-        ResourceRequest origRequest = getMockResourceRequestNoSubject(RESOURCE_SIZE);
-        ResourceRequest request = plugin.process(origRequest);
+        plugin.setMonitorLocalSources(false);
+        ResourceRequest originalRequest = getMockLocalResourceRequest(RESOURCE_SIZE, TEST_USER);
+        ResourceRequest request = plugin.process(originalRequest);
         assertThat(request, is(notNullValue()));
-        assertThat(request, is(origRequest));
+        assertThat(request, is(originalRequest));
         verify(attributeStore, never()).getDataLimitByUser(anyString());
         verify(attributeStore, never()).getCurrentDataUsageByUser(anyString());
     }
 
     @Test
-    public void testPostResourceValidSize()
+    public void testPostResourceLocalSourceNoLocalMonitoring()
+            throws StopProcessingException, PluginExecutionException, PersistenceException {
+        plugin.setMonitorLocalSources(false);
+        ResourceResponse originalResponse = getMockLocalResourceResponse(RESOURCE_SIZE, TEST_USER);
+        ResourceResponse response = plugin.process(originalResponse);
+        assertThat(response, is(notNullValue()));
+        assertThat(response, is(originalResponse));
+        verify(attributeStore, never()).getDataLimitByUser(anyString());
+        verify(attributeStore, never()).getCurrentDataUsageByUser(anyString());
+    }
+
+    @Test
+    public void testPostResourceRemoteSourceNoRemoteDestinationKey() throws Exception {
+        plugin.setMonitorLocalSources(false);
+        ResourceResponse originalResponse= getMockRemoteResourceResponseNoRemoteDestinationKey(
+                RESOURCE_SIZE,
+                TEST_USER);
+        ResourceResponse response = plugin.process(originalResponse);
+        assertThat(response, is(notNullValue()));
+        assertThat(response, is(originalResponse));
+        verify(attributeStore, never()).getDataLimitByUser(anyString());
+        verify(attributeStore, never()).getCurrentDataUsageByUser(anyString());
+    }
+
+    @Test
+    public void testPostResourceRemoteSourceFalseRemoteDestinationKey() throws Exception {
+        plugin.setMonitorLocalSources(false);
+        ResourceResponse originalResponse = getMockRemoteResourceResponseFalseRemoteDestinationKey(
+                RESOURCE_SIZE,
+                TEST_USER);
+        ResourceResponse response = plugin.process(originalResponse);
+        assertThat(response, is(notNullValue()));
+        assertThat(response, is(originalResponse));
+        verify(attributeStore, never()).getDataLimitByUser(anyString());
+        verify(attributeStore, never()).getCurrentDataUsageByUser(anyString());
+    }
+
+    @Test
+    public void testPreResourcePersistenceException()
+            throws StopProcessingException, PluginExecutionException, PersistenceException {
+        doThrow(PersistenceException.class).when(attributeStore)
+                .getCurrentDataUsageByUser(anyString());
+        ResourceRequest originalRequest = getMockLocalResourceRequest(RESOURCE_SIZE, TEST_USER);
+        ResourceRequest request = plugin.process(originalRequest);
+        assertThat(request, notNullValue());
+        assertThat(request, is(originalRequest));
+    }
+
+    @Test
+    public void testPostResourcePersistenceException()
+            throws StopProcessingException, PluginExecutionException, PersistenceException {
+        doThrow(PersistenceException.class).when(attributeStore).updateUserDataUsage(anyString(),
+                anyLong());
+        ResourceResponse resourceResponse = getMockLocalResourceResponse(RESOURCE_SIZE, TEST_USER);
+        ResourceResponse response = plugin.process(resourceResponse);
+
+        assertThat(response, notNullValue());
+        assertThat(response, is(resourceResponse));
+    }
+
+    @Test
+    public void testPreResourceNoSubject()
+            throws StopProcessingException, PluginExecutionException, PersistenceException {
+        ResourceRequest originalRequest = getMockResourceRequestNoSubject(RESOURCE_SIZE);
+        ResourceRequest request = plugin.process(originalRequest);
+        assertThat(request, is(notNullValue()));
+        assertThat(request, is(originalRequest));
+        verify(attributeStore, never()).getDataLimitByUser(anyString());
+        verify(attributeStore, never()).getCurrentDataUsageByUser(anyString());
+    }
+
+    @Test
+    public void testPostResourceNoSubject()
+            throws StopProcessingException, PluginExecutionException, PersistenceException {
+        ResourceResponse originalResponse = getMockResourceResponseNoSubject(RESOURCE_SIZE);
+        ResourceResponse response = plugin.process(originalResponse);
+        assertThat(response, is(notNullValue()));
+        assertThat(response, is(originalResponse));
+        verify(attributeStore, never()).updateUserDataUsage(anyString(), anyLong());
+    }
+
+    @Test
+    public void testPostResourceLocalSourceValidSize()
             throws StopProcessingException, PluginExecutionException, PersistenceException {
         ArgumentCaptor<String> usernameArg = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Long> dataUsage = ArgumentCaptor.forClass(Long.class);
-
-        ResourceResponse resourceResponse = getMockResourceResponse(RESOURCE_SIZE, TEST_USER);
-        ResourceResponse request = plugin.process(resourceResponse);
-
-        assertThat(request, notNullValue());
-        assertThat(request, is(resourceResponse));
-
+        ResourceResponse originalResponse = getMockLocalResourceResponse(RESOURCE_SIZE, TEST_USER);
+        ResourceResponse response = plugin.process(originalResponse);
+        assertThat(response, notNullValue());
+        assertThat(response, is(originalResponse));
         verify(attributeStore).updateUserDataUsage(usernameArg.capture(), dataUsage.capture());
-
         assertThat(usernameArg.getValue(), is(TEST_USER));
         assertThat(dataUsage.getValue(), is(Long.valueOf(RESOURCE_SIZE)));
     }
 
     @Test
-    public void testPostResourceSizeNotFound()
+    public void testPostResourceLocalSourceSizeNotFound()
             throws PersistenceException, PluginExecutionException, StopProcessingException {
-        ResourceResponse resourceResponse = getMockResourceResponse(null, TEST_USER);
+        ResourceResponse resourceResponse = getMockLocalResourceResponse(null, TEST_USER);
         ResourceResponse request = plugin.process(resourceResponse);
         assertThat(request, is(notNullValue()));
         assertThat(request, is(resourceResponse));
@@ -177,33 +262,60 @@ public class TestResourceUsagePlugin {
     }
 
     @Test
-    public void testInvalidPostResourceSize()
+    public void testPostResourceInvalidSize()
             throws StopProcessingException, PluginExecutionException, PersistenceException {
-        ResourceResponse origRequest = getMockResourceResponse("47 bytes", TEST_USER);
-        ResourceResponse request = plugin.process(origRequest);
-        assertThat(request, is(notNullValue()));
-        assertThat(request, is(origRequest));
+        ResourceResponse originalResponse = getMockLocalResourceResponse("47 bytes", TEST_USER);
+        ResourceResponse response = plugin.process(originalResponse);
+        assertThat(response, is(notNullValue()));
+        assertThat(response, is(originalResponse));
         verify(attributeStore, never()).updateUserDataUsage(anyString(), anyLong());
     }
 
     @Test
-    public void testNoPostResourceSubject()
-            throws StopProcessingException, PluginExecutionException, PersistenceException {
-        ResourceResponse origRequest = getMockResourceResponseNoSubject(RESOURCE_SIZE);
-        ResourceResponse request = plugin.process(origRequest);
-        assertThat(request, is(notNullValue()));
-        assertThat(request, is(origRequest));
-        verify(attributeStore, never()).updateUserDataUsage(anyString(), anyLong());
+    public void testPreResourceRemoteSourceValidSize() throws Exception {
+        plugin.setMonitorLocalSources(false);
+        ArgumentCaptor<String> usernameArg = ArgumentCaptor.forClass(String.class);
+        ResourceRequest originalRequest = getMockRemoteResourceRequest(RESOURCE_SIZE, TEST_USER);
+        ResourceRequest request = plugin.process(originalRequest);
+        assertThat(request, notNullValue());
+        assertThat(request, is(originalRequest));
+        verify(attributeStore).getDataLimitByUser(usernameArg.capture());
+        assertThat(usernameArg.getValue(), is(TEST_USER));
+    }
+
+    @Test
+    public void testPostResourceRemoteSourceValidSize() throws Exception {
+        plugin.setMonitorLocalSources(false);
+        ArgumentCaptor<String> usernameArg = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Long> dataUsage = ArgumentCaptor.forClass(Long.class);
+        ResourceResponse originalResponse = getMockRemoteResourceResponse(RESOURCE_SIZE, TEST_USER);
+        ResourceResponse response = plugin.process(originalResponse);
+        assertThat(response, notNullValue());
+        assertThat(response, is(originalResponse));
+        verify(attributeStore).updateUserDataUsage(usernameArg.capture(), dataUsage.capture());
+        assertThat(usernameArg.getValue(), is(TEST_USER));
+        assertThat(dataUsage.getValue(), is(Long.valueOf(RESOURCE_SIZE)));
     }
 
     private ResourceResponse getMockResourceResponse(String resourceSize, String expectedUsername) {
         setSubject(expectedUsername);
+        ResourceResponse resourceResponse = mock(ResourceResponse.class);
+        Map<String, Serializable> responseProperties = new HashMap<>();
+        responseProperties.put(SecurityConstants.SECURITY_SUBJECT, subject);
+        responseProperties.put(Metacard.RESOURCE_SIZE, resourceSize);
+        when(resourceResponse.getPropertyNames()).thenReturn(responseProperties.keySet());
+        when(resourceResponse.getPropertyValue(SecurityConstants.SECURITY_SUBJECT)).thenReturn(
+                subject);
+        when(resourceResponse.getPropertyValue(Metacard.RESOURCE_SIZE)).thenReturn(resourceSize);
+        return resourceResponse;
+    }
 
-        ResourceResponse resourceRequest = mock(ResourceResponse.class);
+    private ResourceRequest getMockResourceRequest(String resourceSize,
+            String expectedUsername) {
+        setSubject(expectedUsername);
+        ResourceRequest resourceRequest = mock(ResourceRequest.class);
         Map<String, Serializable> requestProperties = new HashMap<>();
-
         requestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject);
-
         requestProperties.put(Metacard.RESOURCE_SIZE, resourceSize);
         when(resourceRequest.getPropertyNames()).thenReturn(requestProperties.keySet());
         when(resourceRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT)).thenReturn(
@@ -212,64 +324,75 @@ public class TestResourceUsagePlugin {
         return resourceRequest;
     }
 
-    private ResourceRequest getMockResourceRequest(String resourceSize, String expectedUsername) {
-
+    private ResourceResponse getMockLocalResourceResponse(String resourceSize,
+            String expectedUsername) {
         setSubject(expectedUsername);
+        return getMockResourceResponse(resourceSize, expectedUsername);
+    }
 
-        ResourceRequest resourceRequest = mock(ResourceRequest.class);
-        Map<String, Serializable> requestProperties = new HashMap<>();
+    private ResourceRequest getMockLocalResourceRequest(String resourceSize,
+            String expectedUsername) {
+        setSubject(expectedUsername);
+        return getMockResourceRequest(resourceSize, expectedUsername);
+    }
 
-        requestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject);
-
-        requestProperties.put(Metacard.RESOURCE_SIZE, resourceSize);
-        when(resourceRequest.getPropertyNames()).thenReturn(requestProperties.keySet());
-        when(resourceRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT)).thenReturn(
-                subject);
-        when(resourceRequest.getPropertyValue(Metacard.RESOURCE_SIZE)).thenReturn(resourceSize);
+    private ResourceRequest getMockRemoteResourceRequest(String resourceSize,
+            String expectedUsername) {
+        setSubject(expectedUsername);
+        ResourceRequest resourceRequest =getMockResourceRequest(resourceSize, expectedUsername);
+        when(resourceRequest.getPropertyValue(Constants.REMOTE_DESTINATION_KEY)).thenReturn(true);
+        when(resourceRequest.hasProperties()).thenReturn(true);
         return resourceRequest;
+    }
+
+    private ResourceResponse getMockRemoteResourceResponse(String resourceSize,
+            String expectedUsername) {
+        setSubject(expectedUsername);
+        ResourceResponse resourceResponse = getMockResourceResponse(resourceSize, expectedUsername);
+        when(resourceResponse.getPropertyValue(Constants.REMOTE_DESTINATION_KEY)).thenReturn(true);
+        when(resourceResponse.hasProperties()).thenReturn(true);
+        return resourceResponse;
+    }
+
+    private ResourceResponse getMockRemoteResourceResponseNoRemoteDestinationKey(
+            String resourceSize, String expectedUsername) {
+        setSubject(expectedUsername);
+        ResourceResponse resourceResponse = getMockResourceResponse(resourceSize, expectedUsername);
+        when(resourceResponse.hasProperties()).thenReturn(true);
+        return resourceResponse;
+    }
+
+    private ResourceResponse getMockRemoteResourceResponseFalseRemoteDestinationKey(
+            String resourceSize, String expectedUsername) {
+        setSubject(expectedUsername);
+        ResourceResponse resourceResponse = getMockResourceResponse(resourceSize, expectedUsername);
+        when(resourceResponse.getPropertyValue(Constants.REMOTE_DESTINATION_KEY)).thenReturn(false);
+        when(resourceResponse.hasProperties()).thenReturn(true);
+        return resourceResponse;
     }
 
     private ResourceRequest getMockResourceRequestNoSubject(String resourceSize) {
-
-        ResourceRequest resourceRequest = mock(ResourceRequest.class);
-        Map<String, Serializable> requestProperties = new HashMap<>();
-
-        requestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject);
-
-        requestProperties.put(Metacard.RESOURCE_SIZE, resourceSize);
-        when(resourceRequest.getPropertyNames()).thenReturn(requestProperties.keySet());
-
-        when(resourceRequest.getPropertyValue(Metacard.RESOURCE_SIZE)).thenReturn(resourceSize);
+        ResourceRequest resourceRequest =getMockResourceRequest(resourceSize, null);
+        when(resourceRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT)).thenReturn(
+                null);
         return resourceRequest;
     }
 
     private ResourceResponse getMockResourceResponseNoSubject(String resourceSize) {
-
-        ResourceResponse resourceRequest = mock(ResourceResponse.class);
-        Map<String, Serializable> requestProperties = new HashMap<>();
-
-        requestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject);
-
-        requestProperties.put(Metacard.RESOURCE_SIZE, resourceSize);
-        when(resourceRequest.getPropertyNames()).thenReturn(requestProperties.keySet());
-
-        when(resourceRequest.getPropertyValue(Metacard.RESOURCE_SIZE)).thenReturn(resourceSize);
-        return resourceRequest;
+        ResourceResponse resourceResponse = getMockResourceResponse(resourceSize, null);
+        when(resourceResponse.getPropertyValue(SecurityConstants.SECURITY_SUBJECT)).thenReturn(null);
+        return resourceResponse;
     }
 
     private void setSubject(String expectedUsername) {
         AuthorizingRealm realm = mock(AuthorizingRealm.class);
-
         when(realm.getName()).thenReturn("mockRealm");
         when(realm.isPermitted(any(PrincipalCollection.class), any(Permission.class))).thenReturn(
                 true);
-
         Collection<Realm> realms = new ArrayList<>();
         realms.add(realm);
-
         DefaultSecurityManager manager = new DefaultSecurityManager();
         manager.setRealms(realms);
-
         SimplePrincipalCollection principalCollection =
                 new SimplePrincipalCollection(new Principal() {
                     @Override
@@ -291,6 +414,7 @@ public class TestResourceUsagePlugin {
             super(principals, true, null, new SimpleSession(UUID.randomUUID()
                     .toString()), manager);
         }
+
         @Override
         public boolean isGuest() {
             return false;

@@ -28,7 +28,7 @@ class FloatValueConverter extends PropertyValueConverter {
             LOGGER.debug("Converted float value {} to {}", propertyValue, intBits);
         } catch (NumberFormatException e) {
             output.append(propertyValue);
-            LOGGER.warn("Float value conversion failed for {}, leaving as-is", propertyValue, e);
+            LOGGER.debug("Float value conversion failed for {}, leaving as-is", propertyValue, e);
         }
     }
 }

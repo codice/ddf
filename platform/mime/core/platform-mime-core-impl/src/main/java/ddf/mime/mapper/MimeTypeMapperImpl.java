@@ -98,7 +98,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
             try {
                 extension = resolver.getFileExtensionForMimeType(mimeType);
             } catch (Exception e) {
-                LOGGER.warn("Error resolving file extension for mime type: {}", mimeType);
+                LOGGER.debug("Error resolving file extension for mime type: {}", mimeType);
                 throw new MimeTypeResolutionException(e);
             }
 
@@ -142,7 +142,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
             try {
                 mimeType = resolver.getMimeTypeForFileExtension(fileExtension);
             } catch (Exception e) {
-                LOGGER.warn("Error resolving mime type for file extension: " + fileExtension);
+                LOGGER.debug("Error resolving mime type for file extension: {}", fileExtension);
                 throw new MimeTypeResolutionException(e);
             }
 
@@ -208,7 +208,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
                     mimeType = resolver.getMimeTypeForFileExtension(fileExtension);
                 }
             } catch (Exception e) {
-                LOGGER.warn("Error resolving mime type for file extension: " + fileExtension);
+                LOGGER.debug("Error resolving mime type for file extension: {}", fileExtension);
                 throw new MimeTypeResolutionException(e);
             }
 
@@ -237,6 +237,12 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
         String namespace = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
+        try {
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to configure features on document builder.", e);
+        }
 
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();

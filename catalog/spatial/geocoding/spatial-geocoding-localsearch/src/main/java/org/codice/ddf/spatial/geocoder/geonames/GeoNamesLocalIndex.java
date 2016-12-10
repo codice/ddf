@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,6 +16,9 @@ package org.codice.ddf.spatial.geocoder.geonames;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.Optional;
 
 import org.codice.ddf.spatial.geocoder.GeoCoder;
 import org.codice.ddf.spatial.geocoder.GeoResult;
@@ -60,7 +63,7 @@ public class GeoNamesLocalIndex implements GeoCoder {
                         population);
             }
         } catch (GeoEntryQueryException e) {
-            LOGGER.error("Error querying the local GeoNames index", e);
+            LOGGER.debug("Error querying the local GeoNames index", e);
         }
 
         return null;
@@ -77,10 +80,36 @@ public class GeoNamesLocalIndex implements GeoCoder {
                 return locations.get(0);
             }
         } catch (ParseException parseException) {
-            LOGGER.error(String.format("Error parsing the supplied wkt: %s", location),
-                    parseException);
+            LOGGER.debug("Error parsing the supplied wkt: {}", location, parseException);
         }
 
         return null;
+    }
+
+    @Override
+    public Optional<String> getCountryCode(String locationWKT, int radius) {
+        try {
+            Optional<String> alpha2CountryCode = geoEntryQueryable.getCountryCode(locationWKT,
+                    radius);
+
+            if (alpha2CountryCode.isPresent()) {
+                try {
+                    String alpha3CountryCode = new Locale(Locale.ENGLISH.getLanguage(),
+                            alpha2CountryCode.get()).getISO3Country();
+                    return Optional.of(alpha3CountryCode);
+                } catch (MissingResourceException e) {
+                    LOGGER.debug(
+                            "Failed to convert country code {} to alpha-3 format. Returning empty value",
+                            alpha2CountryCode.get(),
+                            e);
+                }
+            }
+        } catch (GeoEntryQueryException e) {
+            LOGGER.debug("Error querying the local GeoNames index", e);
+        } catch (ParseException e) {
+            LOGGER.debug("Error parsing WKT: {} ", locationWKT, e);
+        }
+
+        return Optional.empty();
     }
 }

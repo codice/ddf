@@ -13,9 +13,12 @@
  */
 package ddf.catalog.metacard.validation;
 
+<<<<<<< HEAD
 import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
 import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 
+=======
+>>>>>>> master
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,6 +32,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -40,6 +44,10 @@ import ddf.catalog.plugin.impl.PolicyResponseImpl;
 public class MetacardValidityFilterPlugin implements PolicyPlugin {
 
     private static Map<String, List<String>> attributeMap = new HashMap<>();
+
+    private boolean filterErrors = true;
+
+    private boolean filterWarnings = false;
 
     public Map<String, List<String>> getAttributeMap() {
         return attributeMap;
@@ -106,19 +114,21 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
         Metacard metacard = input.getMetacard();
         HashMap<String, Set<String>> securityMap = new HashMap<>();
 
-        if ((metacard.getAttribute(VALIDATION_ERRORS) != null && metacard.getAttribute(
-                VALIDATION_ERRORS)
-                .getValues() != null) || (metacard.getAttribute(VALIDATION_WARNINGS) != null &&
-                metacard.getAttribute(VALIDATION_WARNINGS)
-                        .getValues() != null)) {
+        if (isMarkedForFilter(filterErrors, metacard, Validation.VALIDATION_ERRORS)
+                || isMarkedForFilter(filterWarnings, metacard, Validation.VALIDATION_WARNINGS)) {
             for (Map.Entry<String, List<String>> attributeMapping : attributeMap.entrySet()) {
                 securityMap.put(attributeMapping.getKey(),
                         new HashSet<>(attributeMapping.getValue()));
             }
-
         }
 
         return new PolicyResponseImpl(new HashMap<>(), securityMap);
+    }
+
+    private boolean isMarkedForFilter(boolean filterFlag, Metacard metacard, String attribute) {
+        return filterFlag && metacard.getAttribute(attribute) != null && metacard.getAttribute(
+                attribute)
+                .getValues() != null;
     }
 
     @Override
@@ -131,5 +141,21 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
     public PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
             throws StopProcessingException {
         return new PolicyResponseImpl();
+    }
+
+    public void setFilterErrors(boolean filterErrors) {
+        this.filterErrors = filterErrors;
+    }
+
+    public boolean getFilterErrors() {
+        return filterErrors;
+    }
+
+    public void setFilterWarnings(boolean filterWarnings) {
+        this.filterWarnings = filterWarnings;
+    }
+
+    public boolean getFilterWarnings() {
+        return filterWarnings;
     }
 }

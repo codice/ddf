@@ -271,7 +271,7 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
             LOGGER.trace("entry {},{}", filter, data);
             Set<Metacard> notFilteredSet = new HashSet<>();
             notFilteredSet.addAll((Collection<? extends Metacard>) data);
-            Set<Metacard> filteredSet = (Set<Metacard>) filter.getFilter()
+            Collection<Metacard> filteredSet = (Collection<Metacard>) filter.getFilter()
                     .accept(this, data);
             notFilteredSet.removeAll(filteredSet);
             LOGGER.trace("exit {}", notFilteredSet.size());

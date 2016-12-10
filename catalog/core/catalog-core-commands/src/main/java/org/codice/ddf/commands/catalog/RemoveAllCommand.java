@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,9 +25,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.ProcessingDetails;
@@ -49,10 +50,9 @@ import ddf.catalog.source.UnsupportedQueryException;
 /**
  * Command used to remove all or a subset of records (in bulk) from the Catalog.
  */
-@Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the catalog.")
+@Service
+@Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the Catalog.")
 public class RemoveAllCommand extends CatalogCommands {
-
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveAllCommand.class);
 
     static final int PAGE_SIZE_LOWER_LIMIT = 1;
 
@@ -70,6 +70,8 @@ public class RemoveAllCommand extends CatalogCommands {
     static final String WARNING_MESSAGE_FORMAT_CACHE_REMOVAL =
             "WARNING: This will permanently remove all %1$s"
                     + "records from the cache. Do you want to proceed? (yes/no): ";
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveAllCommand.class);
 
     private static final int DEFAULT_BATCH_SIZE = 100;
 
@@ -93,7 +95,6 @@ public class RemoveAllCommand extends CatalogCommands {
 
     @Override
     protected Object executeWithSubject() throws Exception {
-
         if (batchSize < PAGE_SIZE_LOWER_LIMIT) {
             printErrorMessage(String.format(BATCH_SIZE_ERROR_MESSAGE_FORMAT, batchSize));
             return null;
@@ -109,11 +110,9 @@ public class RemoveAllCommand extends CatalogCommands {
         } else {
             return executeRemoveAllFromStore();
         }
-
     }
 
     private Object executeRemoveAllFromCache() throws Exception {
-
         long start = System.currentTimeMillis();
 
         getCacheProxy().removeAll();
@@ -133,9 +132,7 @@ public class RemoveAllCommand extends CatalogCommands {
     }
 
     private Object executeRemoveAllFromStore() throws Exception {
-        CatalogFacade catalog = this.getCatalog();
-
-        FilterBuilder filterBuilder = getFilterBuilder();
+        CatalogFacade catalog = getCatalog();
 
         QueryRequest firstQuery = getIntendedQuery(filterBuilder, true);
         QueryRequest subsequentQuery = getIntendedQuery(filterBuilder, false);
@@ -216,7 +213,6 @@ public class RemoveAllCommand extends CatalogCommands {
     }
 
     private boolean needsAlternateQueryAndResponse(SourceResponse response) {
-
         Set<ProcessingDetails> processingDetails =
                 (Set<ProcessingDetails>) response.getProcessingDetails();
 
@@ -275,7 +271,6 @@ public class RemoveAllCommand extends CatalogCommands {
     }
 
     private String getTotalAmount(long hits) {
-
         if (hits <= UNKNOWN_AMOUNT) {
             return "UNKNOWN";
         }
@@ -285,7 +280,6 @@ public class RemoveAllCommand extends CatalogCommands {
 
     private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
             throws InterruptedException {
-
         Filter filter = addValidationAttributeToQuery(filterBuilder.attribute(Metacard.ID)
                 .is()
                 .like()
@@ -311,7 +305,6 @@ public class RemoveAllCommand extends CatalogCommands {
 
     private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
             throws InterruptedException {
-
         Filter filter = addValidationAttributeToQuery(filterBuilder.attribute(Metacard.ANY_TEXT)
                 .is()
                 .like()
@@ -341,17 +334,17 @@ public class RemoveAllCommand extends CatalogCommands {
 
     private Filter addValidationAttributeToQuery(Filter filter, FilterBuilder filterBuilder) {
         return filterBuilder.allOf(filter,
-                filterBuilder.anyOf(filterBuilder.attribute(BasicTypes.VALIDATION_ERRORS)
+                filterBuilder.anyOf(filterBuilder.attribute(Validation.VALIDATION_ERRORS)
                                 .is()
                                 .empty(),
-                        filterBuilder.attribute(BasicTypes.VALIDATION_ERRORS)
+                        filterBuilder.attribute(Validation.VALIDATION_ERRORS)
                                 .is()
                                 .like()
                                 .text(WILDCARD)),
-                filterBuilder.anyOf(filterBuilder.attribute(BasicTypes.VALIDATION_WARNINGS)
+                filterBuilder.anyOf(filterBuilder.attribute(Validation.VALIDATION_WARNINGS)
                                 .is()
                                 .empty(),
-                        filterBuilder.attribute(BasicTypes.VALIDATION_WARNINGS)
+                        filterBuilder.attribute(Validation.VALIDATION_WARNINGS)
                                 .is()
                                 .like()
                                 .text(WILDCARD)));

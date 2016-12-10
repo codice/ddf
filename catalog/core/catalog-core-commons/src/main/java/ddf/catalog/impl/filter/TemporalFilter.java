@@ -21,13 +21,12 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
 import org.joda.time.format.DateTimeParser;
 import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 public class TemporalFilter {
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(TemporalFilter.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(TemporalFilter.class);
 
     private static DateTimeFormatter formatter;
 
@@ -93,8 +92,8 @@ public class TemporalFilter {
                 returnDate = formatter.parseDateTime(date)
                         .toDate();
             } catch (IllegalArgumentException iae) {
-                LOGGER.warn(
-                        "Could not parse out updated date in response, date will not being passed back.");
+                LOGGER.debug(
+                        "Could not parse out updated date in response, date will not be passed back.", iae);
             }
         }
         return returnDate;

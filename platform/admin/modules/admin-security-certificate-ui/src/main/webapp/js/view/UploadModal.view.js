@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define,btoa*/
 define([
     'jquery',
     'underscore',
@@ -22,16 +22,19 @@ define([
     'text!templates/uploadModal.handlebars',
     'text!templates/fileInfo.handlebars',
     'text!templates/error.handlebars',
+    'text!templates/certificateDetail.handlebars',
     'handlebars',
     'js/model/FileHelper',
+    'js/model/UrlCertificate',
     'fileupload'
-], function ($, _, ich, Backbone, Marionette, uploadModal, fileInfo, error, Handlebars, FileHelper) {
+], function ($, _, ich, Backbone, Marionette, uploadModal, fileInfo, error, certificateDetail, Handlebars, FileHelper, UrlCertificate) {
 
     var UploadModalView = {};
 
     ich.addTemplate('uploadModal', uploadModal);
     ich.addTemplate('fileInfo', fileInfo);
     ich.addTemplate('error', error);
+    ich.addTemplate('certificateDetail', certificateDetail);
 
     var BaseModal = Marionette.LayoutView.extend({
         // use the Backbone constructor paradigm to allow extending of classNames
@@ -59,12 +62,21 @@ define([
         }
     });
 
+    var UrlCertView = Marionette.ItemView.extend({
+        template: 'certificateDetail',
+        modelEvents: {
+            'change': 'render'
+        }
+    });
+
     UploadModalView.UploadModal = BaseModal.extend({
         template: 'uploadModal',
         className: 'upload-modal',
         events: {
             'click .save': 'save',
             'click .cancel': 'close',
+            'click .show-url-btn': 'showUrlCerts',
+            'click .nav-tabs a': 'checkSave',
             'keyup #alias': 'validateTextInput',
             'keyup *': 'checkSave'
         },
@@ -76,14 +88,46 @@ define([
         regions: {
             fileuploadregion: '.file-upload-region',
             fileeditregion: '.file-edit-region',
-            errorregion: '.error-region'
+            errorregion: '.error-region',
+            urlcertregion: '.url-cert-region'
         },
-        isValid: function () {
-            return this.ui.alias.val() !== '' && this.file.isValid();
+        showUrlCerts : function(e) {
+            var view = this;
+            var url = this.$('.urlField').val();
+            var encodedUrl = btoa(url);
+            var model = new UrlCertificate.Response();
+            model.fetch({url: model.url + "/" + encodedUrl}).done(function() {
+                view.urlModel.unset('error');
+                if (view.urlModel.get('value') && view.urlModel.get('value').keys().length === 0) {
+                    view.urlModel.set('error', 'Unable to determine certificates. Check URL.');
+                } else if (view.urlModel.get('status') >= 400) {
+                    view.urlModel.set('error', 'Error while looking up certificates. Check URL.');
+                }
+                view.checkSave(e);
+            }).fail(function(result) {
+                view.disable();
+                if (result.status && result.status >= 400) {
+                    view.urlModel.set('error', result.statusText + ': ' + result.status);
+                }
+
+            });
+            this.urlcertregion.show(new UrlCertView({model: model}));
+            this.urlModel = model;
+        },
+        isValid: function (e) {
+            var activeTab = this.$('.nav-tabs li.active a').attr('href');
+            var target = e.currentTarget.hash || activeTab;
+            if (target === '#upload') {
+                return this.ui.alias.val() !== '' && this.file.isValid();
+            } else if (target === '#url') {
+                return this.urlcertregion.currentView !== undefined &&
+                    this.urlcertregion.currentView.model.keys().length > 0;
+            }
+            return false;
         },
         // Checks if the modal save button can be enabled if this is valid.
-        checkSave: function () {
-            if (this.isValid()) {
+        checkSave: function (e) {
+            if (this.isValid(e)) {
                 this.enable();
             } else {
                 this.disable();
@@ -145,30 +189,44 @@ define([
             this.disable();
         },
         save: function () {
-
+            var activeTab = this.$('.nav-tabs li.active a').attr('href');
             var that = this;
-            var alias = this.ui.alias.val();
-            var keypass = this.ui.keypass.val();
-            var storepass = this.ui.storepass.val();
+            if (activeTab === '#upload') {
+                var alias = this.ui.alias.val();
+                var keypass = this.ui.keypass.val();
+                var storepass = this.ui.storepass.val();
 
-            this.file.load(function () {
-                var model = that.options.collection.create({
-                    alias: alias,
-                    keypass: keypass,
-                    storepass: storepass,
-                    file: that.file.toJSON()
-                }, {
-                    wait: true,
-                    success: _.bind(function () {
-                        that.options.collection.parents[0].fetch();
-                        that.destroy();
-                    }, this)
+                this.file.load(function () {
+                    var model = that.options.collection.create({
+                        alias: alias,
+                        keypass: keypass,
+                        storepass: storepass,
+                        file: that.file.toJSON()
+                    }, {
+                        wait: true,
+                        success: _.bind(function () {
+                            that.options.collection.parents[0].fetch();
+                            that.destroy();
+                        }, this)
+                    });
+                    if (!model.isValid()) {
+                        that.error.set('value', model.validate());
+                    }
+
                 });
-                if (!model.isValid()) {
-                    that.error.set('value', model.validate());
-                }
+            } else if (activeTab === '#url') {
+                var url = this.$('.urlField').val();
+                var encodedUrl = btoa(url);
+                this.urlModel.fetch({url: this.urlModel.saveUrl + "/" + encodedUrl}).done(function(result) {
+                    var obj = _.reduce(result.value, function(memo, val) {
+                        return !(!memo || !val);
 
-            });
+                    });
+                    if (obj.success) {
+                        that.destroy();
+                    }
+                });
+            }
         }
     });
 

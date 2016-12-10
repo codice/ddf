@@ -25,6 +25,9 @@ import java.nio.file.Paths;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.KarafConsole;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -33,10 +36,6 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
-
-import ddf.common.test.BeforeExam;
-import ddf.common.test.KarafConsole;
-import ddf.test.itests.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

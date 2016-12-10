@@ -42,6 +42,12 @@
         <bundle>mvn:ddf.admin.modules/admin-modules-configuration/${project.version}</bundle>
     </feature>
 
+    <feature name="admin-modules-docs" install="manual" version="${project.version}"
+             description="DDF Documentation Module">
+        <feature prerequisite="true">admin-ui</feature>
+        <bundle>mvn:ddf.admin.modules/admin-docs-ui/${project.version}</bundle>
+    </feature>
+
     <feature name="admin-modules-installer" install="manual" version="${project.version}"
              description="DDF Installer Module">
         <feature prerequisite="true">admin-ui</feature>
@@ -64,6 +70,7 @@
              description="Contains the modules that should be installed after the installer is finished.">
         <feature>admin-modules-configuration</feature>
         <feature>admin-modules-application</feature>
+        <feature>admin-modules-docs</feature>
         <bundle>mvn:ddf.admin.modules/admin-metrics-ui/${project.version}</bundle>
         <bundle>mvn:ddf.admin.modules/admin-security-certificate-ui/${project.version}</bundle>
     </feature>

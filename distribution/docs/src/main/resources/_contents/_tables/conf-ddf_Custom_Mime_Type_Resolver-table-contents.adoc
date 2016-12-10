@@ -1,0 +1,4 @@
+|<<DDF_Custom_Mime_Type_Resolver,MIME Custom Types>>
+|DDF_Custom_Mime_Type_Resolver
+|DDF Custom Mime Types
+

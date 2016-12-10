@@ -1,0 +1,4 @@
+|<<org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin,Expiration Date Pre-Ingest Plugin>>
+|org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin
+|Catalog pre-ingest plugin to set an expiration date on metacards
+

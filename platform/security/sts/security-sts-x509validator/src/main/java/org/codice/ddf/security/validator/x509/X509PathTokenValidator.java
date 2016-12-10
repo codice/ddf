@@ -116,7 +116,7 @@ public class X509PathTokenValidator implements TokenValidator {
                     X509PathTokenValidator.class.getClassLoader(),
                     null);
         } catch (WSSecurityException | IOException e) {
-            LOGGER.error("Unable to read merlin properties file.", e);
+            LOGGER.warn("Unable to read merlin properties file. Unable to validate certificates.", e);
         }
     }
 
@@ -186,8 +186,7 @@ public class X509PathTokenValidator implements TokenValidator {
         requestData.setSigVerCrypto(sigCrypto);
         requestData.setWssConfig(WSSConfig.getNewInstance());
         requestData.setCallbackHandler(callbackHandler);
-        requestData.setMsgContext(tokenParameters.getWebServiceContext()
-                .getMessageContext());
+        requestData.setMsgContext(tokenParameters.getMessageContext());
         requestData.setSubjectCertConstraints(certConstraints.getCompiledSubjectContraints());
 
         TokenValidatorResponse response = new TokenValidatorResponse();
@@ -230,10 +229,10 @@ public class X509PathTokenValidator implements TokenValidator {
                     ((X509Security) binarySecurity).setX509Certificate(cert);
                 }
             } catch (WSSecurityException ex) {
-                LOGGER.warn("", ex);
+                LOGGER.debug("Unable to set certificate", ex);
                 return response;
             } catch (XMLSecurityException ex) {
-                LOGGER.warn("", ex);
+                LOGGER.debug("Unable to get certificates", ex);
                 return response;
             }
         } else {
@@ -272,7 +271,7 @@ public class X509PathTokenValidator implements TokenValidator {
             validateTarget.setState(STATE.VALID);
             validateTarget.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
         } catch (WSSecurityException ex) {
-            LOGGER.warn("Unable to validate credentials.", ex);
+            LOGGER.debug("Unable to validate credentials.", ex);
         }
         return response;
     }

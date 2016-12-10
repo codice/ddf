@@ -36,7 +36,7 @@ public class XPathEvaluator {
             return (Boolean) evaluator.evaluate(xpath, XPathConstants.BOOLEAN);
 
         } catch (XPathExpressionException e) {
-            LOGGER.error("Unable to evaluate xpath", e);
+            LOGGER.debug("Unable to evaluate xpath", e);
         }
 
         return false;

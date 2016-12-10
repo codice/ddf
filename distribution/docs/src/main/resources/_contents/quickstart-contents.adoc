@@ -1,7 +1,11 @@
 
 This quick tutorial will enable install, configuring and using a basic instance of ${branding}.
 
+<<<<<<< HEAD
 .QuickStart Uses
+=======
+.Quick Start Uses
+>>>>>>> master
 [NOTE]
 ====
 This tutorial is intended for setting up a test, demonstration, or trial installation of ${branding}. For more complete installation and configuration steps, see <<_installing_${branding},Installing ${branding}>>

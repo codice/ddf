@@ -14,6 +14,9 @@
 package ddf.catalog.resource.download;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,13 +31,17 @@ import com.google.common.base.Stopwatch;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
+<<<<<<< HEAD
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher.ProductRetrievalStatus;
+=======
+>>>>>>> master
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
 /**
@@ -43,18 +50,28 @@ import ddf.catalog.resourceretriever.ResourceRetriever;
  */
 public class ReliableResourceDownloadManager {
 
-    static final int ONE_SECOND_IN_MS = 1000;
+    public static final String DOWNLOAD_ID_PROPERTY_KEY = "downloadId";
+
+    private static final int ONE_SECOND_IN_MS = 1000;
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(ReliableResourceDownloadManager.class);
 
     private ReliableResourceDownloaderConfig downloaderConfig;
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
     private DownloadStatusInfo downloadStatusInfo;
     private ExecutorService executor;
 
     /**
+<<<<<<< HEAD
      * @param downloaderConfig
      *            reference to the {@link ReliableResourceDownloaderConfig}
+=======
+     * @param downloaderConfig reference to the {@link ReliableResourceDownloaderConfig}
+>>>>>>> master
      */
     public ReliableResourceDownloadManager(ReliableResourceDownloaderConfig downloaderConfig,
             DownloadStatusInfo downloadStatusInfo, ExecutorService executor) {
@@ -77,14 +94,11 @@ public class ReliableResourceDownloadManager {
     }
 
     /**
-     * @param resourceRequest
-     *            the original @ResourceRequest to retrieve the resource
-     * @param metacard
-     *            the @Metacard associated with the resource being downloaded
-     * @param retriever
-     *            the @ResourceRetriever to be used to get the resource
+     * @param resourceRequest the original @ResourceRequest to retrieve the resource
+     * @param metacard        the @Metacard associated with the resource being downloaded
+     * @param retriever       the @ResourceRetriever to be used to get the resource
      * @return the modified @ResourceResponse with the @ReliableResourceInputStream that the client
-     *         should read from
+     * should read from
      * @throws DownloadException
      */
     public ResourceResponse download(ResourceRequest resourceRequest, Metacard metacard,
@@ -133,6 +147,7 @@ public class ReliableResourceDownloadManager {
                     resourceResponse.getProperties(),
                     resourceResponse.getResource());
 
+<<<<<<< HEAD
             // TODO - this should be before retrieveResource() but eventPublisher requires a
             // resourceResponse and that resource response must have a resource request in it (to get
             // USER property)
@@ -140,6 +155,13 @@ public class ReliableResourceDownloadManager {
 
             resourceResponse = startDownload(downloadIdentifier, resourceResponse, retriever, metacard);
 
+=======
+            resourceResponse = startDownload(downloadIdentifier,
+                    resourceResponse,
+                    retriever,
+                    metacard);
+
+>>>>>>> master
         }
         return resourceResponse;
     }
@@ -150,6 +172,7 @@ public class ReliableResourceDownloadManager {
     }
 
     public void setDelayBetweenAttempts(int delayBetweenAttempts) {
+        LOGGER.debug("Delay between attempts set to {} second(s)", delayBetweenAttempts);
         downloaderConfig.setDelayBetweenAttemptsMS(delayBetweenAttempts * ONE_SECOND_IN_MS);
     }
 
@@ -182,6 +205,7 @@ public class ReliableResourceDownloadManager {
     }
 
     public void setProductCacheDirectory(String productCacheDirectory) {
+<<<<<<< HEAD
         this.downloaderConfig.getResourceCache().setProductCacheDirectory(productCacheDirectory);
     }
 
@@ -197,6 +221,28 @@ public class ReliableResourceDownloadManager {
 
     private ResourceResponse startDownload(String downloadIdentifier, ResourceResponse resourceResponse,
             ResourceRetriever retriever, Metacard metacard) {
+=======
+        this.downloaderConfig.getResourceCache()
+                .setProductCacheDirectory(productCacheDirectory);
+    }
+
+    public List<DownloadInfo> getDownloadsInProgress() {
+        List<DownloadInfo> downloadsInProgress = new ArrayList<>();
+        for (String downloadIdentifier : downloadStatusInfo.getAllDownloads()) {
+            Map<String, String> downloadStatus = downloadStatusInfo
+                    .getDownloadStatus(downloadIdentifier);
+            DownloadInfo downloadInfo = new DownloadInfo(downloadStatus);
+            if (downloadInfo.isDownloadInState(DownloadState.IN_PROGRESS)) {
+                downloadsInProgress.add(downloadInfo);
+            }
+        }
+
+        return downloadsInProgress;
+    }
+
+    private ResourceResponse startDownload(String downloadIdentifier,
+            ResourceResponse resourceResponse, ResourceRetriever retriever, Metacard metacard) {
+>>>>>>> master
         AtomicBoolean downloadStarted = new AtomicBoolean(Boolean.FALSE);
         ReliableResourceDownloader downloader = new ReliableResourceDownloader(downloaderConfig,
                 downloadStarted,
@@ -205,6 +251,10 @@ public class ReliableResourceDownloadManager {
                 retriever);
 
         ResourceResponse response = downloader.setupDownload(metacard, downloadStatusInfo);
+<<<<<<< HEAD
+=======
+        response.getProperties().put(DOWNLOAD_ID_PROPERTY_KEY, downloadIdentifier);
+>>>>>>> master
 
         // Start download in separate thread so can return ResourceResponse with
         // ReliableResourceInputStream available for client to start reading from
@@ -216,6 +266,11 @@ public class ReliableResourceDownloadManager {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
+<<<<<<< HEAD
+=======
+                Thread.currentThread()
+                        .interrupt();
+>>>>>>> master
             }
             long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
             if (elapsedTime > ONE_SECOND_IN_MS) {

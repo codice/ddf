@@ -144,7 +144,8 @@ public class MetacardImpl implements Metacard {
      * Creates a {@link Metacard} with the provided {@link Metacard} and {@link MetacardType}.
      * This method does not simply wrap the metacard and keep its type, but will create a new
      * metacard and clone any attributes defined by the {@link MetacardType} that exist on the
-     * given {@link Metacard}.
+     * given {@link Metacard}. <b>Note,</b> this means any attributes with null values will not
+     * be copied over.
      *
      * @param metacard the {@link Metacard} to create this new {@code Metacard} from
      * @param type the {@link MetacardType} of metacard to create
@@ -157,8 +158,12 @@ public class MetacardImpl implements Metacard {
                     MetacardType.class.getName() + " instance should not be null.");
         }
         map = new HashMap<>();
-        for (AttributeDescriptor attribute : metacard.getMetacardType().getAttributeDescriptors()) {
-            map.put(attribute.getName(), metacard.getAttribute(attribute.getName()));
+        for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
+            Attribute metacardAttribute = metacard.getAttribute(descriptor.getName());
+            if (metacardAttribute == null || metacardAttribute.getValue() == null) {
+                continue;
+            }
+            map.put(descriptor.getName(), metacardAttribute);
         }
     }
 
@@ -474,7 +479,7 @@ public class MetacardImpl implements Metacard {
             try {
                 uri = new URI(data);
             } catch (URISyntaxException e) {
-                LOGGER.warn("failed parsing URI string, returning null");
+                LOGGER.debug("Failed parsing resource URI string {}", data);
             }
         }
         return uri;
@@ -552,12 +557,16 @@ public class MetacardImpl implements Metacard {
 
         if (attribute == null) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Attribute " + attributeName + " was not found, returning null");
+                LOGGER.debug("Attribute {} was not found, returning null", attributeName);
             }
             return null;
         }
 
         Serializable data = attribute.getValue();
+
+        if (data == null) {
+            return null;
+        }
 
         if (returnType.isAssignableFrom(data.getClass())) {
             return returnType.cast(data);

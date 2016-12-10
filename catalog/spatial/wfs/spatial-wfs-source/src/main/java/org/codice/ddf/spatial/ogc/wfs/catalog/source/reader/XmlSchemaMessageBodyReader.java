@@ -76,7 +76,7 @@ public class XmlSchemaMessageBodyReader implements MessageBodyReader<XmlSchema> 
             schema = schemaCollection.read(new InputSource(inStream));
             return schema;
         }
-        LOGGER.warn("Did not receive valid XML Schema, instead got: \n{}", input);
+        LOGGER.debug("Did not receive valid XML Schema, instead got: \n{}", input);
         return null;
     }
 }

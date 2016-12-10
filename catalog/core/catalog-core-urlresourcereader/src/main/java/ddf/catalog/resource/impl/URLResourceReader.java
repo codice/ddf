@@ -195,7 +195,7 @@ public class URLResourceReader implements ResourceReader {
                             path,
                             URLResourceReader.class.getSimpleName());
                 } catch (InvalidPathException e) {
-                    LOGGER.error("{} is an invalid path.", rootResourceDirectoryPath, e);
+                    LOGGER.info("{} is an invalid path.", rootResourceDirectoryPath, e);
                 }
             }
         }
@@ -256,7 +256,7 @@ public class URLResourceReader implements ResourceReader {
             throws IOException, ResourceNotFoundException {
         String bytesToSkip = null;
         if (resourceURI == null) {
-            LOGGER.warn("Resource URI was null");
+            LOGGER.debug("Resource URI was null");
             throw new ResourceNotFoundException("Unable to find resource");
         }
 
@@ -323,7 +323,7 @@ public class URLResourceReader implements ResourceReader {
                     mimeType,
                     FilenameUtils.getName(productName)));
         } catch (MimeTypeResolutionException | IOException e) {
-            LOGGER.error("Error retrieving resource", e);
+            LOGGER.info("Error retrieving resource", e);
             throw new ResourceNotFoundException(
                     "Unable to retrieve resource at: " + resourceURI.toString(), e);
         }
@@ -375,7 +375,6 @@ public class URLResourceReader implements ResourceReader {
                     }
                     String errorMsg = "Received error code while retrieving resource (status "
                             + clientResponse.getStatus() + "): " + error;
-                    LOGGER.warn(errorMsg);
                     throw new ResourceNotFoundException(errorMsg);
                 }
             } else {
@@ -398,7 +397,7 @@ public class URLResourceReader implements ResourceReader {
                     mimeType,
                     FilenameUtils.getName(productName)));
         } catch (MimeTypeResolutionException | IOException | WebApplicationException e) {
-            LOGGER.error("Error retrieving resource", e);
+            LOGGER.info("Error retrieving resource", e);
             throw new ResourceNotFoundException(
                     "Unable to retrieve resource at: " + resourceURI.toString(), e);
         }
@@ -417,7 +416,7 @@ public class URLResourceReader implements ResourceReader {
 
         String mimeType = null;
         if (mimeTypeMapper == null) {
-            LOGGER.warn("mimeTypeMapper is NULL");
+            LOGGER.debug("mimeTypeMapper is NULL");
         } else {
             // Extract the file extension (if any) from the URL's filename
             String fileExtension = FilenameUtils.getExtension(productName);
@@ -492,7 +491,11 @@ public class URLResourceReader implements ResourceReader {
 
         try {
             if (requestedBytesToSkip > responseBytesSkipped) {
+<<<<<<< HEAD
                 LOGGER.warn("Server returned incorrect byte range, skipping first [{}] bytes",
+=======
+                LOGGER.debug("Server returned incorrect byte range, skipping first [{}] bytes",
+>>>>>>> master
                         misalignment);
                 if (in.skip(misalignment) != misalignment) {
                     throw new IOException(String.format(

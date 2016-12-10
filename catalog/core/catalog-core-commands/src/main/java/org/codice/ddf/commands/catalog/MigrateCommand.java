@@ -13,10 +13,12 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+<<<<<<< HEAD
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -27,9 +29,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.felix.gogo.commands.Command;
+=======
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
+>>>>>>> master
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Provider;
-import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.ServiceReference;
@@ -38,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.QueryRequest;
@@ -51,92 +59,69 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.ServiceComparator;
 
-@Command(scope = CatalogCommands.NAMESPACE, name = "migrate", description = "Migrates Metacards "
-        + "from a Configured External Provider into the Catalog.  The migrate command currently "
-        + "picks the first Catalog provider as the FROM and the second Catalog provider as the TO. "
-        + "Additional support will be added to specify which provider will be migrated TO and FROM "
-        + "in the future.")
+@Service
+@Command(scope = CatalogCommands.NAMESPACE, name = "migrate", description = "Migrates Metacards from one Provider to another Provider.")
 public class MigrateCommand extends DuplicateCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrateCommand.class);
 
-    private CatalogFacade ingestProvider;
+    @Option(name = "--list", required = false, aliases = {
+            "-list"}, multiValued = false, description = "Print a list of Providers.")
+    boolean listProviders = false;
 
-    private CatalogFacade framework;
+    @Option(name = "--from", required = false, aliases = {
+            "-from"}, multiValued = false, description = "The Source ID of the Provider to migrate from.")
+    String fromProviderId;
 
-    private long start;
-
-    private AtomicInteger queryIndex = new AtomicInteger(1);
-
-    private AtomicInteger ingestCount = new AtomicInteger(0);
+    @Option(name = "--to", required = false, aliases = {
+            "-to"}, multiValued = false, description = "The Source ID of the Provider to migrate to.")
+    String toProviderId;
 
     @Override
     protected Object executeWithSubject() throws Exception {
+        final List<CatalogProvider> providers = getCatalogProviders();
 
-        List<CatalogProvider> providers = getCatalogProviders();
+        if (listProviders) {
+            if (providers.size() == 0) {
+                console.println("There are no available Providers.");
+                return null;
+            }
+            console.println("Available Providers:");
+            providers.stream()
+                    .map(p -> p.getClass()
+                            .getSimpleName())
+                    .forEach(id -> console.println("\t" + id));
+
+            return null;
+        }
+
+        if (batchSize > MAX_BATCH_SIZE || batchSize < 1) {
+            console.println("Batch Size must be between 1 and " + MAX_BATCH_SIZE + ".");
+            return null;
+        }
 
         if (providers.isEmpty() || providers.size() < 2) {
-            console.println("Not enough CatalogProviders installed to migrate");
+            console.println("Not enough CatalogProviders installed to migrate.");
             return null;
         }
 
-        console.println("The \"FROM\" provider is: " + providers.get(0)
-                .getClass()
+        final CatalogProvider fromProvider = promptForProvider("FROM", fromProviderId, providers);
+        if (fromProvider == null) {
+            console.println("Invalid \"FROM\" Provider id.");
+            return null;
+        }
+        console.println("FROM Provider ID: " + fromProvider.getClass()
                 .getSimpleName());
-        CatalogProvider provider = providers.get(1);
-        console.println("The \"TO\" provider is: " + provider.getClass()
+
+        final CatalogProvider toProvider = promptForProvider("TO", toProviderId, providers);
+        if (toProvider == null) {
+            console.println("Invalid \"TO\" Provider id.");
+            return null;
+        }
+        console.println("TO Provider ID: " + toProvider.getClass()
                 .getSimpleName());
-        String answer = getInput("Do you wish to continue? (yes/no)");
-        if (!"yes".equalsIgnoreCase(answer)) {
-            console.println();
-            console.println("Now exiting...");
-            console.flush();
-            return null;
-        }
 
-        ingestProvider = new Provider(provider);
-
-        framework = getCatalog();
-
-        start = System.currentTimeMillis();
-
-        final Filter filter = (cqlFilter != null) ? CQL.toFilter(cqlFilter) : getFilter(
-                getFilterStartTime(start),
-                start,
-                Metacard.MODIFIED);
-
-        QueryImpl query = new QueryImpl(filter);
-        query.setRequestsTotalResultsCount(true);
-        query.setPageSize(batchSize);
-        query.setSortBy(new SortByImpl(Metacard.MODIFIED, SortOrder.DESCENDING));
-        QueryRequest queryRequest = new QueryRequestImpl(query);
-        SourceResponse response;
-        try {
-            response = framework.query(queryRequest);
-        } catch (FederationException e) {
-            printErrorMessage("Error occurred while querying the Framework." + e.getMessage());
-            return null;
-        } catch (SourceUnavailableException e) {
-            printErrorMessage("Error occurred while querying the Framework." + e.getMessage());
-            return null;
-        } catch (UnsupportedQueryException e) {
-            printErrorMessage("Error occurred while querying the Framework." + e.getMessage());
-            return null;
-        }
-        final long totalHits = response.getHits();
-        final long totalPossible;
-        if (totalHits == 0) {
-            console.println("No records were found to replicate.");
-            return null;
-        }
-
-        // If the maxMetacards is set, restrict the totalPossible to the number of maxMetacards
-        if (maxMetacards > 0 && maxMetacards <= totalHits) {
-            totalPossible = maxMetacards;
-        } else {
-            totalPossible = totalHits;
-        }
-
+<<<<<<< HEAD
         console.println("Starting migration for " + totalPossible + " Records");
 
         if (multithreaded > 1 && totalPossible > batchSize) {
@@ -173,25 +158,63 @@ public class MigrateCommand extends DuplicateCommands {
                 printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
             } while (queryIndex.addAndGet(batchSize) <= totalPossible);
         }
+=======
+        CatalogFacade queryProvider = new Provider(fromProvider);
+        CatalogFacade ingestProvider = new Provider(toProvider);
+
+        start = System.currentTimeMillis();
+
+        console.println("Starting migration.");
+
+        duplicateInBatches(queryProvider, ingestProvider, getFilter());
+>>>>>>> master
 
         console.println();
         long end = System.currentTimeMillis();
         String completed = String.format(
-                " %d record(s) replicated; %d record(s) failed; completed in %3.3f seconds.",
-                ingestCount.get(),
+                " %d record(s) migrated; %d record(s) failed; completed in %3.3f seconds.",
+                ingestedCount.get(),
                 failedCount.get(),
                 (end - start) / MS_PER_SECOND);
-        LOGGER.info("Replication Complete: {}", completed);
+        LOGGER.debug("Migration Complete: {}", completed);
         console.println(completed);
 
         return null;
     }
 
+    private CatalogProvider promptForProvider(String whichProvider, String id,
+            List<CatalogProvider> providers) throws IOException {
+        List<String> providersIdList = providers.stream()
+                .map(p -> p.getClass()
+                        .getSimpleName())
+                .collect(Collectors.toList());
+        while (true) {
+            if (StringUtils.isBlank(id) || !providersIdList.contains(id)) {
+                console.println(
+                        "Please enter the Source ID of the \"" + whichProvider + "\" Provider:");
+            } else {
+                break;
+            }
+            id = getInput(whichProvider + " Provider ID: ");
+        }
+
+        final String providerId = id;
+        final CatalogProvider provider = providers.stream()
+                .filter(p -> p.getClass()
+                        .getSimpleName()
+                        .equals(providerId))
+                .findFirst()
+                .orElse(null);
+
+        return provider;
+    }
+
     @Override
-    protected List<Metacard> query(CatalogFacade framework, int startIndex, Filter filter) {
+    protected SourceResponse query(CatalogFacade framework, Filter filter, int startIndex,
+            long querySize) {
         QueryImpl query = new QueryImpl(filter);
-        query.setRequestsTotalResultsCount(false);
-        query.setPageSize(batchSize);
+        query.setRequestsTotalResultsCount(true);
+        query.setPageSize((int) querySize);
         query.setSortBy(new SortByImpl(Metacard.MODIFIED, SortOrder.DESCENDING));
         QueryRequest queryRequest = new QueryRequestImpl(query);
         query.setStartIndex(startIndex);
@@ -199,14 +222,7 @@ public class MigrateCommand extends DuplicateCommands {
         try {
             LOGGER.debug("Querying with startIndex: {}", startIndex);
             response = framework.query(queryRequest);
-        } catch (UnsupportedQueryException e) {
-            printErrorMessage(String.format("Received error from Framework: %s%n", e.getMessage()));
-            return null;
-        } catch (SourceUnavailableException e) {
-            printErrorMessage(String.format("Received error from Frameworks: %s%n",
-                    e.getMessage()));
-            return null;
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             printErrorMessage(String.format("Received error from Frameworks: %s%n",
                     e.getMessage()));
             return null;
@@ -218,14 +234,19 @@ public class MigrateCommand extends DuplicateCommands {
             }
             return null;
         }
+<<<<<<< HEAD
         return response.getResults()
                 .stream()
                 .map(Result::getMetacard)
                 .collect(Collectors.toList());
+=======
+
+        return response;
+>>>>>>> master
     }
 
     private List<CatalogProvider> getCatalogProviders() {
-        ServiceTracker st = new ServiceTracker(getBundleContext(),
+        ServiceTracker st = new ServiceTracker(bundleContext,
                 CatalogProvider.class.getName(),
                 null);
         st.open();

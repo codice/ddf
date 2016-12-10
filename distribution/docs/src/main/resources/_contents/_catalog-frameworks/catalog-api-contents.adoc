@@ -1,0 +1,222 @@
+
+==== Catalog API
+
+The Catalog API is an OSGi bundle (`catalog-core-api`) that contains the Java interfaces for the Catalog components and implementation classes for the Catalog Framework, Operations, and Data components.
+
+===== Catalog API Search Interfaces
+
+The Catalog API includes two different search interfaces.
+
+${ddf-ui} Application Search Interface:: The ${branding} Search UI application provides a graphic interface to return results and locate them on an interactive globe or map.
+
+SSH Search Interface:: Additionally, it is possible to use a client script to remotely access ${branding} via SSH and send console commands to search and ingest data.
+
+===== Catalog Search Result Objects
+
+Data is returned from searches as Catalog Search `Result` objects.
+This is a subtype of Catalog `Entry` that also contains additional data based on what type of sort policy was applied to the search.
+Because it is a subtype of Catalog `Entry`, a Catalog Search `Result` has all Catalog ``Entry``’s fields such as metadata, effective time, and modified time.
+It also contains some of the following fields, depending on type of search, that are populated by ${branding} when the search occurs:
+
+Distance:: Populated when a point-radius spatial search occurs. Numerical value that indicates the result’s distance from the center point of the search.
+Units:: Populated when a point-radius spatial search occurs. Indicates the units (kilometer, mile, etc.) for the distance field.
+Relevance:: Populated when a contextual search occurs. Numerical value that indicates how relevant the text in the result is to the text originally searched for.
+
+===== Search Programmatic Flow
+
+Searching the catalog involves three basic steps:
+
+. Define the search criteria (contextual, spatial, or temporal).
+.. Optionally define a sort policy and assign it to the criteria.
+.. For contextual search, optionally set the `fuzzy` flag to `true` or `false` (the default value for the `Metadata Catalog` `fuzzy` flag is `true`, while the `portal` default value is `false`).
+.. For contextual search, optionally set the `caseSensitive` flag to true (the default is that `caseSensitive` flag is NOT set and queries are not case sensitive).
+Doing so enables case sensitive matching on the search criteria.
+For example, if `caseSensitive` is set to true and the phrase is “Baghdad” then only metadata containing “Baghdad” with the same matching case will be returned.
+Words such as “baghdad”, “BAGHDAD”,  and “baghDad” will not be returned because they do not match the exact case of the search term.
+. Issue a search.
+. Examine the results.
+
+===== Sort Policies
+
+Searches can also be sorted according to various built-in policies.
+A sort policy is applied to the search criteria after its creation but before the search is issued.
+The policy specifies to the ${branding} the order the Catalog search results should be in when they are returned to the requesting client.
+Only one sort policy may be defined per search.
+
+There are three policies available.
+
+.Sort Policies
+[cols="4" options="header"]
+|===
+
+|Sort Policy
+|Sorts By
+|Default Order
+|Available for
+
+|Temporal
+|The catalog search result’s effective time field
+|Newest to oldest
+|All Search Types
+
+|Distance
+|The catalog search result’s distance field
+|Nearest to farthest
+|Point-Radius Spatial searches
+
+|Relevance
+|The catalog search result’s relevance field
+|Most to least relevant
+|Contextual
+
+|===
+
+If no sort policy is defined for a particular search, the temporal policy will automatically be applied.
+
+===== Asynchronous Search & Retrieval
+
+Asynchronous Search & Retrieval allows a requestor to execute multiple queries at once, begin multiple product downloads while query results are being returned, cancel queries and downloads, and receive status on the state of incoming query results and product downloads.
+
+.Important Terms for Asynchronous Search
+[cols="3" options="header"]
+|===
+|Capability
+|Description
+|Endpoint Integration
+
+|Asynchronous Search
+|Search multiple sources simultaneously
+|Search UI
+
+|Product caching
+|Allows quick retrieval of already downloaded products
+|${ddf-catalog}
+
+|Canceling Product Downloads
+|The ability to cancel a download in progress
+|${ddf-catalog}
+
+|Activities
+a|Activities
+* `download`
+* `retry`
+* `cancel`
+* `pause`
+* `remove`
+* `resume`
+|${ddf-catalog}, CometD endpoint
+
+|Notifications
+|Time-stamped messages of an action
+|${ddf-catalog}, Search UI/CometD endpoint
+
+|Workspaces
+|Ability to save and manage queries and save metacards
+|${ddf-platform}, Search UI/CometD endpoint
+
+|3D Map support
+|Ability to execute a geospatial search using a 3D map
+|N/A
+
+|===
+
+===== Product Retrieval
+
+The ${branding} is used to catalog resources.
+A Resource is a URI-addressable entity that is represented by a Metacard.
+Resources may also be known as products or data.
+Resources may exist either locally or on a remote data store.
+
+.Examples of Resources
+
+* NITF image
+* MPEG video
+* Live video stream
+* Audio recording
+* Document
+
+.Product Retrieval Services
+
+* SOAP Web services
+* ${branding} JSON
+* ${branding} REST
+
+The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key
+components for processing a retrieve product request.
+The Endpoint bundle contains a Web service that exposes the interface to retrieve products, also referred to as Resources.
+The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
+The `CatalogFramework` relies on the Sources to execute the actual product retrieval.
+Optional PreResource and PostResource Catalog Plugins may be invoked by the `CatalogFramework` to modify the product retrieval request/response prior to the Catalog Provider processing the request and providing the response.
+It is possible to retrieve products from specific remote Sources by specifying the site name(s) in the request.
+
+.Product Caching
+[NOTE]
+====
+Existing ${branding} clients are able to leverage product caching due to the product cache being implemented in the ${branding}.
+Enabling the product cache is an administrator function.
+
+Product Caching is enabled by default.
+====
+
+To configure product caching:
+
+. Navigate to the *${admin-console}*.
+. Select ${ddf-catalog}.
+. Select *Configuration*.
+. Select *Resource Download Settings*.
+
+include::{adoc-include}/_tables/ddf.catalog.resource.download.ReliableResourceDownloadManager-table-contents.adoc[]
+
+.Product Retrieval Request
+[ditaa,product_retrieval_request,png]
+....
++------+             +---------------------------------------------------------------------------------------------------------------------------------+
+| cDEF |             |/-----------------\/--------------------------\/-----------------\/------------------\/--------------------------\/-------------\|/--------------------\
+|Client|             ||c369<<Endpoint>> ||c369<<CatalogFramework>>  ||c369             ||c369              ||c369<<DownloadManager>>   ||  <<Cache>>  |||c369<<External>>    |
++------+             || Service Endpoint||Standard Catalog Framework||PreResourcePlugin||PostResourcePlugin||     Download Manager     ||c369Cache    |||    Resource Host   |
+  :                  |\-----------------/\--------------------------/\-----------------/\------------------/\--------------------------/\-------------/|\--------------------/
+  |Service Retrieval |        :                       |                         |               |                     |                        |       |        |
+  | Request          |        |                       :                         :               :                     :                        :       |        :
+  |------------------|------->|                       |                         |               |                     |                        |       |        |
+  |                  |        |query(ResourceRequest) |                         |               |                     |                        |       |        |
+  |                  |        |---------------------->|process(ResourceRequest) |               |                     |                        |       |        |
+  |                  |        |                       |------------------------>|               |                     |                        |       |        |
+  |                  |        |                       |   ResourceRequest       |               |                     |                        |       |        |
+  |                  |        |                       |<------------------------|               |                     |                        |       |        |
+  |                  | cDEF   |                       | getResource             |               |                     |                        |       |        |
+  |                  |        |                       |-------------------------------------------------------------->| download               |       |        |
+  |                  |        |                       |                         :               :                     |------------------------|-------|------->|
+  |                  |        |                       |                         |               |                     |    resource            |       |        |
+  |                  |        |                       |                         |               |                     |<-----------------------|-------|--------|
+  |                  |        |                       |                         |               |                     | resource               |       |        |
+  |                  |        |                       |                         |               |                     |----------------------->|       |        |
+  |                  |        |                       |      resource           |               |                     |                        |       |        |
+  |                  |        |                       |<------------------------|-------------------------------------|                        |       |        |
+  |                  |        |                       |process(ResourceResponse):               :                     |                        |       |        |
+  |                  |        |                       |-------------------------|-------------->|                     |                        |       |        |
+  |                  |        |                       |   ResourceResponse      |               |                     |                        |       |        |
+  |                  |        |                       |<------------------------|---------------|                     |                        |       |        |
+  |Web Service       |        |       ResourceResponse|                         |               |                     |                        |       |        |
+  |     Retrieval Response    |<----------------------|                         :               |                     |                        |       |        |
+  |<-----------------|--------|                       |                         |               |                     |                        |       |        |
+  |                  |        |                       |                         |               |                     |                        |       |        |
+  |                  +---------------------------------------------------------------------------------------------------------------------------------+        |
+  |                                                                                                                                                             |
+....
+
+===== Notifications and Activities
+
+${branding} can send/receive notifications of "Activities" occuring in the system.
+
+====== Notifications
+
+Currently, the notifications provide information about product retrieval only.
+For example, in the ${branding} Search UI, after a user initiates a resource download, they receive notifications when the download completed, failed, canceled, or is being retried.
+
+====== Activities
+
+Activity events include the status and progress of actions that are being performed by the user, such as searches and downloads.
+Activities can be enabled by selecting "Show tasks" in the Standard Search UI configuration.
+A list of all activities opens in a drop-down menu, from which activities can be read and deleted.
+If a download activity is being performed, the Activity drop-down menu provides the link to retrieve the product.
+If caching is enabled, a progress bar is displayed in the Activity (Product Retrieval) drop-down menu until the action being performed is complete.

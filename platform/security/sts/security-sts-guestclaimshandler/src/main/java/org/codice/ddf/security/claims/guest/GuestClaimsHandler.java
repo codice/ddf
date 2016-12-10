@@ -62,7 +62,7 @@ public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
             }
             initClaimsMap(attrs);
         } else {
-            LOGGER.warn("Set attribute value list was null");
+            LOGGER.debug("Set attribute value list was null");
         }
     }
 
@@ -84,7 +84,7 @@ public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
                     }
                     claimsMap.put(new URI(claimMapping[0]), values);
                 } catch (URISyntaxException e) {
-                    LOGGER.warn(
+                    LOGGER.info(
                             "Claims mapping cannot be converted to a URI. This claim will be excluded: {}",
                             attr,
                             e);
@@ -134,7 +134,7 @@ public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
                     ipClaim.addValue(ipAddress);
                     claimsColl.add(ipClaim);
                 } catch (URISyntaxException e) {
-                    LOGGER.warn(
+                    LOGGER.info(
                             "Claims mapping cannot be converted to a URI. Ip claim will be excluded",
                             e);
                 }

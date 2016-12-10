@@ -60,7 +60,7 @@ public class LocalResourceRetriever implements ResourceRetriever {
             throw new ResourceNotFoundException("Unable to find resource due to null URI");
         }
 
-        Map<String, Serializable> props = new HashMap<String, Serializable>(properties);
+        Map<String, Serializable> props = new HashMap<>(properties);
 
         if (bytesToSkip > 0) {
             props.put(BYTES_TO_SKIP, Long.valueOf(bytesToSkip));
@@ -84,15 +84,9 @@ public class LocalResourceRetriever implements ResourceRetriever {
                                     reader.getId(),
                                     resourceUri);
                         }
-                    } catch (ResourceNotFoundException e) {
+                    } catch (ResourceNotFoundException | ResourceNotSupportedException | IOException e) {
                         LOGGER.debug("Product not found using resource reader with name {}",
-                                reader.getId());
-                    } catch (ResourceNotSupportedException e) {
-                        LOGGER.debug("Product not found using resource reader with name {}",
-                                reader.getId());
-                    } catch (IOException ioe) {
-                        LOGGER.debug("Product not found using resource reader with name {}",
-                                reader.getId());
+                                reader.getId(), e);
                     }
                 }
             }

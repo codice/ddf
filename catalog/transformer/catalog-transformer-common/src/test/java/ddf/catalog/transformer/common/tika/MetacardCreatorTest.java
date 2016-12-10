@@ -35,13 +35,20 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+<<<<<<< HEAD
+=======
+import ddf.catalog.data.impl.MetacardTypeImpl;
+>>>>>>> master
 
 public class MetacardCreatorTest {
     @Test
     public void testNoMetadata() {
         final Metadata metadata = new Metadata();
 
-        final Metacard metacard = MetacardCreator.createBasicMetacard(metadata, null, null);
+        final Metacard metacard = MetacardCreator.createMetacard(metadata,
+                null,
+                null,
+                BasicTypes.BASIC_METACARD);
 
         assertThat(metacard, notNullValue());
         assertThat(metacard.getTitle(), nullValue());
@@ -107,12 +114,28 @@ public class MetacardCreatorTest {
 
         final Metacard metacard;
         if (CollectionUtils.isEmpty(extraAttributes)) {
+<<<<<<< HEAD
             metacard = MetacardCreator.createBasicMetacard(metadata, id, metadataXml);
         } else {
             metacard = MetacardCreator.createEnhancedMetacard(metadata,
                     id,
                     metadataXml,
                     extraAttributes);
+=======
+            metacard = MetacardCreator.createMetacard(metadata,
+                    id,
+                    metadataXml,
+                    BasicTypes.BASIC_METACARD);
+        } else {
+            MetacardTypeImpl extendedMetacardType =
+                    new MetacardTypeImpl(BasicTypes.BASIC_METACARD.getName(),
+                            BasicTypes.BASIC_METACARD,
+                            extraAttributes);
+            metacard = MetacardCreator.createMetacard(metadata,
+                    id,
+                    metadataXml,
+                    extendedMetacardType);
+>>>>>>> master
         }
 
         assertThat(metacard, notNullValue());

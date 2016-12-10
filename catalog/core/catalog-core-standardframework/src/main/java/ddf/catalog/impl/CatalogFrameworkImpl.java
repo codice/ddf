@@ -13,13 +13,9 @@
  */
 package ddf.catalog.impl;
 
-import static ddf.catalog.Constants.CONTENT_PATHS;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
+<<<<<<< HEAD
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -27,30 +23,25 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.AbstractMap;
+=======
+>>>>>>> master
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+=======
+>>>>>>> master
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.collections.CollectionUtils;
+<<<<<<< HEAD
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -65,27 +56,26 @@ import org.apache.tika.mime.MediaType;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.platform.util.InputValidation;
 import org.opengis.filter.Filter;
+=======
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.codice.ddf.configuration.SystemInfo;
+>>>>>>> master
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.blueprint.container.ServiceUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
-
 import ddf.catalog.CatalogFramework;
+<<<<<<< HEAD
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
+=======
+>>>>>>> master
 import ddf.catalog.content.data.ContentItem;
-import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
-import ddf.catalog.content.operation.CreateStorageResponse;
-import ddf.catalog.content.operation.DeleteStorageRequest;
-import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
+<<<<<<< HEAD
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
@@ -100,16 +90,15 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
+=======
+import ddf.catalog.data.BinaryContent;
+>>>>>>> master
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
+<<<<<<< HEAD
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
@@ -117,24 +106,29 @@ import ddf.catalog.filter.impl.LiteralImpl;
 import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
 import ddf.catalog.filter.impl.PropertyNameImpl;
 import ddf.catalog.history.Historian;
+=======
+import ddf.catalog.impl.operations.CreateOperations;
+import ddf.catalog.impl.operations.DeleteOperations;
+import ddf.catalog.impl.operations.QueryOperations;
+import ddf.catalog.impl.operations.ResourceOperations;
+import ddf.catalog.impl.operations.SourceOperations;
+import ddf.catalog.impl.operations.TransformOperations;
+import ddf.catalog.impl.operations.UpdateOperations;
+>>>>>>> master
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.OperationTransaction;
-import ddf.catalog.operation.ProcessingDetails;
-import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.Request;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceInfoRequest;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
+<<<<<<< HEAD
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
@@ -160,30 +154,17 @@ import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.resource.DataUsageLimitExceededException;
+=======
+>>>>>>> master
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.resource.download.DownloadException;
-import ddf.catalog.resourceretriever.LocalResourceRetriever;
-import ddf.catalog.resourceretriever.RemoteResourceRetriever;
-import ddf.catalog.resourceretriever.ResourceRetriever;
-import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.CatalogStore;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
-import ddf.catalog.source.InternalIngestException;
-import ddf.catalog.source.Source;
-import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.transform.MetacardTransformer;
-import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.Masker;
+<<<<<<< HEAD
 import ddf.catalog.util.impl.Requests;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
 import ddf.mime.MimeTypeResolutionException;
@@ -192,6 +173,8 @@ import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
+=======
+>>>>>>> master
 
 /**
  * CatalogFrameworkImpl is the core class of DDF. It is used for query, create, update, delete, and
@@ -199,35 +182,29 @@ import ddf.security.permission.KeyValueCollectionPermission;
  */
 @SuppressWarnings("deprecation")
 public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFramework {
-
-    protected static final String FAILED_BY_GET_RESOURCE_PLUGIN =
-            "Error during Pre/PostResourcePlugin.";
-
-    static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
-
-    private static final String PRE_INGEST_ERROR =
-            "Error during pre-ingest service invocation:\n\n";
-
-    private static final String DEFAULT_RESOURCE_NOT_FOUND_MESSAGE = "Unknown resource request";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFrameworkImpl.class);
 
     private static final String FANOUT_MESSAGE =
             "Fanout proxy does not support create, update, and delete operations";
 
-    protected boolean notificationEnabled = true;
+    //
+    // Injected properties
+    //
+    private boolean fanoutEnabled;
 
-    protected boolean activityEnabled = true;
-
-    // The local catalog provider, which is set to the first item in the {@link List} of
-    // {@link CatalogProvider}s.
-    // Keep this private to make sure subclasses don't use it.
-    private CatalogProvider catalog;
+    private List<String> fanoutTagBlacklist = new ArrayList<>();
 
     private Masker masker;
 
-    private boolean fanoutEnabled = false;
+    private CreateOperations createOperations;
 
+    private UpdateOperations updateOperations;
+
+    private DeleteOperations deleteOperations;
+
+    private QueryOperations queryOperations;
+
+<<<<<<< HEAD
     private List<String> fanoutTagBlacklist = new ArrayList<>();
 
     private List<String> fanoutProxyTagBlacklist;
@@ -235,18 +212,39 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     private FilterAdapter filterAdapter;
 
     private StorageProvider storage;
+=======
+    private ResourceOperations resourceOperations;
+>>>>>>> master
 
-    private FrameworkProperties frameworkProperties;
+    private SourceOperations sourceOperations;
+
+    private TransformOperations transformOperations;
 
     private Historian historian;
 
     /**
-     * Instantiates a new CatalogFrameworkImpl
+     * Instantiates a new CatalogFrameworkImpl which delegates its work to surrogate operations classes.
      *
-     * @param frameworkProperties - collection of properties to be set on the CatalogFramework instance
+     * @param createOperations    delegate that handles create operations
+     * @param updateOperations    delegate that handles update operations
+     * @param deleteOperations    delegate that handles delete operations
+     * @param queryOperations     delegate that handles query operations
+     * @param resourceOperations  delegate that handles resource operations
+     * @param sourceOperations    delegate that handles source operations
+     * @param transformOperations delegate that handles transformation operations
      */
-    public CatalogFrameworkImpl(FrameworkProperties frameworkProperties) {
-        this.frameworkProperties = frameworkProperties;
+    public CatalogFrameworkImpl(CreateOperations createOperations,
+            UpdateOperations updateOperations, DeleteOperations deleteOperations,
+            QueryOperations queryOperations, ResourceOperations resourceOperations,
+            SourceOperations sourceOperations, TransformOperations transformOperations) {
+
+        this.createOperations = createOperations;
+        this.updateOperations = updateOperations;
+        this.deleteOperations = deleteOperations;
+        this.queryOperations = queryOperations;
+        this.resourceOperations = resourceOperations;
+        this.sourceOperations = sourceOperations;
+        this.transformOperations = transformOperations;
 
         setId(SystemInfo.getSiteName());
         setVersion(SystemInfo.getVersion());
@@ -264,6 +262,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
     }
 
+<<<<<<< HEAD
     public void setFanoutEnabled(boolean fanoutEnabled) {
         this.fanoutEnabled = fanoutEnabled;
     }
@@ -386,6 +385,30 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             LOGGER.info("Setting storage = NULL");
             this.storage = null;
         }
+=======
+    public QueryOperations getQueryOperations() {
+        return queryOperations;
+    }
+
+    public ResourceOperations getResourceOperations() {
+        return resourceOperations;
+    }
+
+    public SourceOperations getSourceOperations() {
+        return sourceOperations;
+    }
+
+    public TransformOperations getTransformOperations() {
+        return transformOperations;
+    }
+
+    public void setFanoutEnabled(boolean fanoutEnabled) {
+        this.fanoutEnabled = fanoutEnabled;
+    }
+
+    public void setFanoutTagBlacklist(List<String> fanoutTagBlacklist) {
+        this.fanoutTagBlacklist = fanoutTagBlacklist;
+>>>>>>> master
     }
 
     /**
@@ -395,13 +418,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      */
     public void setMasker(Masker masker) {
         synchronized (this) {
-
             this.masker = masker;
             if (this.getId() != null) {
                 masker.setId(getId());
             }
         }
-
     }
 
     /**
@@ -418,391 +439,116 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             if (masker != null) {
                 masker.setId(sourceId);
             }
+
+            // Set the id of the describable delegate objects
+            if (queryOperations != null) {
+                queryOperations.setId(sourceId);
+            }
+            if (resourceOperations != null) {
+                resourceOperations.setId(sourceId);
+            }
+            if (sourceOperations != null) {
+                sourceOperations.setId(sourceId);
+            }
         }
+    }
+
+    @Override
+    public Set<String> getSourceIds() {
+        return sourceOperations.getSourceIds(fanoutEnabled);
     }
 
     @Override
     public SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest)
             throws SourceUnavailableException {
-        SourceInfoResponse response;
-        Set<SourceDescriptor> sourceDescriptors;
+        return sourceOperations.getSourceInfo(sourceInfoRequest, fanoutEnabled);
+    }
+
+    @Override
+    public CreateResponse create(CreateStorageRequest createRequest)
+            throws IngestException, SourceUnavailableException {
+        List<String> blacklist = Collections.emptyList();
 
         if (fanoutEnabled) {
-            return getFanoutSourceInfo(sourceInfoRequest);
+            blacklist = new ArrayList<>(fanoutTagBlacklist);
         }
 
-        boolean addCatalogProviderDescriptor = false;
-        try {
-            validateSourceInfoRequest(sourceInfoRequest);
-            // Obtain the source information based on the sourceIds in the
-            // request
-
-            sourceDescriptors = new LinkedHashSet<>();
-            Set<String> requestedSourceIds = sourceInfoRequest.getSourceIds();
-
-            // If it is an enterprise request than add all source information for the enterprise
-            if (sourceInfoRequest.isEnterprise()) {
-
-                sourceDescriptors =
-                        getFederatedSourceDescriptors(frameworkProperties.getFederatedSources()
-                                .values(), true);
-                // If Ids are specified check if they are known sources
-            } else if (requestedSourceIds != null) {
-                LOGGER.debug("getSourceRequest contains requested source ids");
-                Set<FederatedSource> discoveredSources = new HashSet<>();
-                boolean containsId = false;
-
-                for (String requestedSourceId : requestedSourceIds) {
-                    // Check if the requestedSourceId can be found in the known federatedSources
-
-                    if (frameworkProperties.getFederatedSources()
-                            .containsKey(requestedSourceId)) {
-                        containsId = true;
-                        LOGGER.debug("Found federated source: {}", requestedSourceId);
-                        discoveredSources.add(frameworkProperties.getFederatedSources()
-                                .get(requestedSourceId));
-                    }
-                    if (!containsId) {
-                        LOGGER.debug("Unable to find source: {}", requestedSourceId);
-
-                        // Check for the local catalog provider, DDF sourceId represents this
-                        if (requestedSourceId.equals(getId())) {
-                            LOGGER.debug(
-                                    "adding CatalogSourceDescriptor since it was in sourceId list as: {}",
-                                    requestedSourceId);
-                            addCatalogProviderDescriptor = true;
-                        }
-                    }
-                    containsId = false;
-
-                }
-
-                sourceDescriptors = getFederatedSourceDescriptors(discoveredSources,
-                        addCatalogProviderDescriptor);
-
-            } else {
-                // only add the local catalogProviderdescriptor
-                addCatalogSourceDescriptor(sourceDescriptors);
-            }
-
-            response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
-
-        } catch (RuntimeException re) {
-            LOGGER.warn("Exception during runtime while performing getSourceInfo: {}",
-                    re.getMessage());
-            LOGGER.debug("Exception during runtime while performing getSourceInfo", re);
-            throw new SourceUnavailableException(
-                    "Exception during runtime while performing getSourceInfo");
-
-        }
-
-        return response;
+        return createOperations.create(createRequest, blacklist);
     }
 
-    /**
-     * Retrieves the {@link SourceDescriptor} info for all {@link FederatedSource}s in the fanout
-     * configuration, but the all of the source info, e.g., content types, for all of the available
-     * {@link FederatedSource}s is packed into one {@link SourceDescriptor} for the
-     * fanout configuration with the fanout's site name in it. This keeps the individual
-     * {@link FederatedSource}s' source info hidden from the external client.
-     */
-    public SourceInfoResponse getFanoutSourceInfo(SourceInfoRequest sourceInfoRequest)
-            throws SourceUnavailableException {
-
-        SourceInfoResponse response;
-        SourceDescriptorImpl sourceDescriptor;
-        try {
-
-            // request
-            if (sourceInfoRequest == null) {
-                throw new IllegalArgumentException("SourceInfoRequest was null");
-            }
-
-            Set<SourceDescriptor> sourceDescriptors = new LinkedHashSet<>();
-            Set<String> ids = sourceInfoRequest.getSourceIds();
-
-            // Only return source descriptor information if this sourceId is
-            // specified
-            if (ids != null && !ids.isEmpty()) {
-                for (String id : ids) {
-                    if (!id.equals(this.getId())) {
-                        SourceUnavailableException sourceUnavailableException =
-                                new SourceUnavailableException("Unknown source: " + id);
-                        LOGGER.warn("Throwing SourceUnavailableException for unknown source: {}",
-                                id,
-                                sourceUnavailableException);
-                        throw sourceUnavailableException;
-
-                    }
-                }
-
-            }
-            // Fanout will only add one source descriptor with all the contents
-            Set<ContentType> contentTypes = frameworkProperties.getFederatedSources()
-                    .values()
-                    .stream()
-                    .filter(source -> source != null && source.isAvailable()
-                            && source.getContentTypes() != null)
-                    .map(Source::getContentTypes)
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toSet());
-
-            // only reveal this sourceDescriptor, not the federated sources
-            sourceDescriptor = new SourceDescriptorImpl(this.getId(), contentTypes);
-            sourceDescriptor.setVersion(this.getVersion());
-            sourceDescriptors.add(sourceDescriptor);
-
-            response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
-
-        } catch (RuntimeException re) {
-            LOGGER.warn("Exception during runtime while performing create", re);
-            throw new SourceUnavailableException(
-                    "Exception during runtime while performing getSourceInfo",
-                    re);
-
+    @Override
+    public CreateResponse create(CreateRequest createRequest)
+            throws IngestException, SourceUnavailableException {
+        if (fanoutEnabled && blockFanoutCreate(createRequest)) {
+            throw new IngestException(FANOUT_MESSAGE);
         }
-        return response;
 
+        return createOperations.create(createRequest);
     }
 
-    /**
-     * Creates a {@link Set} of {@link SourceDescriptor} based on the incoming list of
-     * {@link Source}.
-     *
-     * @param sources {@link Collection} of {@link Source} to obtain descriptor information from
-     * @return new {@link Set} of {@link SourceDescriptor}
-     */
-    private Set<SourceDescriptor> getFederatedSourceDescriptors(Collection<FederatedSource> sources,
-            boolean addCatalogProviderDescriptor) {
-        SourceDescriptorImpl sourceDescriptor;
-        Set<SourceDescriptor> sourceDescriptors = new HashSet<>();
-        if (sources != null) {
-            for (Source source : sources) {
-                if (source != null) {
-                    String sourceId = source.getId();
-                    LOGGER.debug("adding sourceId: {}", sourceId);
-
-                    // check the poller for cached information
-                    if (frameworkProperties.getSourcePoller() != null &&
-                            frameworkProperties.getSourcePoller()
-                                    .getCachedSource(source) != null) {
-                        source = frameworkProperties.getSourcePoller()
-                                .getCachedSource(source);
-                    }
-
-                    sourceDescriptor = new SourceDescriptorImpl(sourceId, source.getContentTypes());
-                    sourceDescriptor.setVersion(source.getVersion());
-                    sourceDescriptor.setAvailable(source.isAvailable());
-
-                    sourceDescriptors.add(sourceDescriptor);
-                }
-            }
-        }
-        if (addCatalogProviderDescriptor) {
-            addCatalogSourceDescriptor(sourceDescriptors);
+    @Override
+    public UpdateResponse update(UpdateStorageRequest updateRequest)
+            throws IngestException, SourceUnavailableException {
+        if (fanoutEnabled && blockFanoutStorageRequest(updateRequest)) {
+            throw new IngestException(FANOUT_MESSAGE);
         }
 
-        Set<SourceDescriptor> orderedDescriptors = new TreeSet<>(new SourceDescriptorComparator());
-
-        orderedDescriptors.addAll(sourceDescriptors);
-        return orderedDescriptors;
-
+        return updateOperations.update(updateRequest);
     }
 
-    private void validateSourceInfoRequest(SourceInfoRequest sourceInfoRequest) {
-        if (sourceInfoRequest == null) {
-            throw new IllegalArgumentException("SourceInfoRequest was null");
+    @Override
+    public UpdateResponse update(UpdateRequest updateRequest)
+            throws IngestException, SourceUnavailableException {
+        if (fanoutEnabled && blockFanoutUpdate(updateRequest)) {
+            throw new IngestException(FANOUT_MESSAGE);
         }
+
+        return updateOperations.update(updateRequest);
     }
 
-    /**
-     * Adds the local catalog's {@link SourceDescriptor} to the set of {@link SourceDescriptor}s for
-     * this framework.
-     *
-     * @param descriptors the set of {@link SourceDescriptor}s to add the local catalog's descriptor to
-     */
-    protected void addCatalogSourceDescriptor(Set<SourceDescriptor> descriptors) {
-        /*
-         * DDF-1614 if (catalog != null && descriptors != null ) { SourceDescriptorImpl descriptor =
-         * new SourceDescriptorImpl(getId(), catalog.getContentTypes());
-         * descriptor.setVersion(this.getVersion()); descriptors.add(descriptor); }
-         */
-        // DDF-1614: Even when no local catalog provider is configured should still
-        // return a local site with the framework's ID and version (and no content types
-        // since there is no catalog provider).
-        // But when a local catalog provider is configured, include its content types in the
-        // local site info.
-        if (descriptors != null) {
-            Set<ContentType> contentTypes = new HashSet<>();
-            if (catalog != null) {
-                contentTypes = catalog.getContentTypes();
-            }
-            SourceDescriptorImpl descriptor = new SourceDescriptorImpl(this.getId(), contentTypes);
-            descriptor.setVersion(this.getVersion());
-            descriptors.add(descriptor);
+    @Override
+    public DeleteResponse delete(DeleteRequest deleteRequest)
+            throws IngestException, SourceUnavailableException {
+
+        List<String> blacklist = Collections.emptyList();
+
+        if (fanoutEnabled) {
+            blacklist = new ArrayList<>(fanoutTagBlacklist);
         }
+        return deleteOperations.delete(deleteRequest, blacklist);
     }
 
-    private void buildPolicyMap(HashMap<String, Set<String>> policyMap,
-            Set<Entry<String, Set<String>>> policy) {
-        if (policy != null) {
-            for (Entry<String, Set<String>> entry : policy) {
-                if (policyMap.containsKey(entry.getKey())) {
-                    policyMap.get(entry.getKey())
-                            .addAll(entry.getValue());
-                } else {
-                    policyMap.put(entry.getKey(), new HashSet<>(entry.getValue()));
-                }
-            }
-        }
+    @Override
+    public QueryResponse query(QueryRequest fedQueryRequest)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        return queryOperations.query(fedQueryRequest, fanoutEnabled);
     }
 
-    private Metacard generateMetacard(String mimeTypeRaw, String id, String fileName, long size,
-            Subject subject, Path tmpContentPath)
-            throws MetacardCreationException, MimeTypeParseException {
-
-        Metacard generatedMetacard = null;
-        InputTransformer transformer = null;
-        StringBuilder causeMessage = new StringBuilder("Could not create metacard with mimeType ");
-        try {
-            MimeType mimeType = new MimeType(mimeTypeRaw);
-
-            List<InputTransformer> listOfCandidates =
-                    frameworkProperties.getMimeTypeToTransformerMapper()
-                            .findMatches(InputTransformer.class, mimeType);
-
-            LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
-
-            for (InputTransformer candidate : listOfCandidates) {
-                transformer = candidate;
-
-                try (InputStream transformerStream = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream()) {
-                    generatedMetacard = transformer.transform(transformerStream);
-                }
-                if (generatedMetacard != null) {
-                    break;
-                }
-            }
-        } catch (CatalogTransformerException | IOException e) {
-            causeMessage.append(mimeTypeRaw)
-                    .append(". Reason: ")
-                    .append(System.lineSeparator())
-                    .append(e.getMessage());
-
-            // The caught exception more than likely does not have the root cause message
-            // that is needed to inform the caller as to why things have failed.  Therefore
-            // we need to iterate through the chain of cause exceptions and gather up
-            // all of their message details.
-            Throwable cause = e.getCause();
-            while (cause != null && cause != cause.getCause()) {
-                causeMessage.append(System.lineSeparator())
-                        .append(cause.getMessage());
-                cause = cause.getCause();
-            }
-            LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
-        }
-
-        if (generatedMetacard == null) {
-            throw new MetacardCreationException(causeMessage.toString());
-        }
-
-        if (id != null) {
-            generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
-        } else {
-            generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID,
-                    UUID.randomUUID()
-                            .toString()
-                            .replaceAll("-", "")));
-        }
-
-        if (StringUtils.isBlank(generatedMetacard.getTitle())) {
-            generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, fileName));
-        }
-
-        String name = SubjectUtils.getName(subject);
-
-        generatedMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
-                name == null ? "" : name));
-
-        return generatedMetacard;
-
+    @Override
+    public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy)
+            throws SourceUnavailableException, UnsupportedQueryException, FederationException {
+        return queryOperations.query(queryRequest, strategy, fanoutEnabled);
     }
 
-    private String updateFileExtension(String mimeTypeRaw, String fileName) {
-        String extension = FilenameUtils.getExtension(fileName);
-        if (ContentItem.DEFAULT_FILE_NAME.equals(fileName) && !ContentItem.DEFAULT_MIME_TYPE.equals(
-                mimeTypeRaw) || StringUtils.isEmpty(extension)) {
-            try {
-                extension = frameworkProperties.getMimeTypeMapper()
-                        .getFileExtensionForMimeType(mimeTypeRaw);
-                if (StringUtils.isNotEmpty(extension)) {
-                    fileName = FilenameUtils.removeExtension(fileName);
-                    fileName += extension;
-                }
-            } catch (MimeTypeResolutionException e) {
-                LOGGER.debug("Unable to guess file extension for mime type.", e);
-            }
-        }
-        return fileName;
+    @Override
+    public BinaryContent transform(Metacard metacard, String transformerShortname,
+            Map<String, Serializable> arguments) throws CatalogTransformerException {
+        return transformOperations.transform(metacard, transformerShortname, arguments);
     }
 
-    private String guessMimeType(String mimeTypeRaw, String fileName, Path tmpContentPath)
-            throws IOException {
-        if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
-            try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
-                    tmpContentPath.toFile())
-                    .openStream()) {
-                String mimeTypeGuess = frameworkProperties.getMimeTypeMapper()
-                        .guessMimeType(inputStreamMessageCopy,
-                                FilenameUtils.getExtension(fileName));
-                if (StringUtils.isNotEmpty(mimeTypeGuess)) {
-                    mimeTypeRaw = mimeTypeGuess;
-                }
-            } catch (MimeTypeResolutionException e) {
-                LOGGER.debug("Unable to guess mime type for file.", e);
-            }
-            if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
-                Detector detector = new DefaultProbDetector();
-                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream()) {
-                    MediaType mediaType = detector.detect(inputStreamMessageCopy, new Metadata());
-                    mimeTypeRaw = mediaType.toString();
-                } catch (IOException e) {
-                    LOGGER.debug("Unable to guess mime type for file.", e);
-                }
-            }
-            if (mimeTypeRaw.equals("text/plain")) {
-                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream();
-                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-                                inputStreamMessageCopy,
-                                Charset.forName("UTF-8")))) {
-                    String line = "";
-                    while (bufferedReader.ready()) {
-                        line = bufferedReader.readLine();
-                        line = line.trim();
-                        if (!StringUtils.isEmpty(line)) {
-                            break;
-                        }
-                    }
-
-                    if (line.startsWith("<")) {
-                        mimeTypeRaw = "text/xml";
-                    } else if (line.startsWith("{") || line.startsWith("[")) {
-                        mimeTypeRaw = "application/json";
-                    }
-                } catch (IOException e) {
-                    LOGGER.debug("Unable to guess mime type for file.", e);
-                }
-            }
-        }
-        return mimeTypeRaw;
+    @Override
+    public BinaryContent transform(SourceResponse response, String transformerShortname,
+            Map<String, Serializable> arguments) throws CatalogTransformerException {
+        return transformOperations.transform(response, transformerShortname, arguments);
     }
 
+    @Override
+    public ResourceResponse getLocalResource(ResourceRequest resourceRequest)
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+        return resourceOperations.getLocalResource(resourceRequest, fanoutEnabled);
+    }
+
+<<<<<<< HEAD
     private void generateMetacardAndContentItems(StorageRequest storageRequest,
             List<ContentItem> incomingContentItems, Map<String, Metacard> metacardMap,
             List<ContentItem> contentItems, Map<String, Path> tmpContentPaths)
@@ -1015,9 +761,23 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
 
         return createResponse;
+=======
+    @Override
+    public ResourceResponse getResource(ResourceRequest resourceRequest, String resourceSiteName)
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+        return resourceOperations.getResource(resourceRequest, resourceSiteName, fanoutEnabled);
     }
 
     @Override
+    public ResourceResponse getEnterpriseResource(ResourceRequest resourceRequest)
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+        return resourceOperations.getEnterpriseResource(resourceRequest, fanoutEnabled);
+>>>>>>> master
+    }
+
+    @Deprecated
+    @Override
+<<<<<<< HEAD
     public CreateResponse create(CreateRequest createRequest)
             throws IngestException, SourceUnavailableException {
 
@@ -1047,49 +807,53 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         setDefaultValues(createRequest);
 
         CreateResponse createResponse = null;
+=======
+    public Map<String, Set<String>> getLocalResourceOptions(String metacardId)
+            throws ResourceNotFoundException {
+        return resourceOperations.getLocalResourceOptions(metacardId, fanoutEnabled);
+    }
 
-        Exception ingestError = null;
-        try {
-            Map<String, Serializable> unmodifiablePropertiesMap = Collections.unmodifiableMap(
-                    createRequest.getProperties());
-            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            for (Metacard metacard : createRequest.getMetacards()) {
-                HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
-                for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-                    PolicyResponse policyResponse = plugin.processPreCreate(metacard,
-                            unmodifiablePropertiesMap);
-                    buildPolicyMap(itemPolicyMap,
-                            policyResponse.itemPolicy()
-                                    .entrySet());
-                    buildPolicyMap(requestPolicyMap,
-                            policyResponse.operationPolicy()
-                                    .entrySet());
-                }
-                metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
-            }
-            createRequest.getProperties()
-                    .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+    @Deprecated
+    @Override
+    public Map<String, Set<String>> getEnterpriseResourceOptions(String metacardId)
+            throws ResourceNotFoundException {
+        return resourceOperations.getEnterpriseResourceOptions(metacardId, fanoutEnabled);
+    }
+>>>>>>> master
 
-            for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                createRequest = plugin.processPreCreate(createRequest);
-            }
+    @Deprecated
+    @Override
+    public Map<String, Set<String>> getResourceOptions(String metacardId, String sourceId)
+            throws ResourceNotFoundException {
+        return resourceOperations.getResourceOptions(metacardId, sourceId, fanoutEnabled);
+    }
 
+    /**
+     * String representation of this {@code CatalogFrameworkImpl}.
+     */
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
+<<<<<<< HEAD
             createRequest.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
                             new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
                                     new ArrayList<>()));
+=======
+    private boolean blockFanoutStorageRequest(UpdateStorageRequest updateStorageRequest) {
+        return blockFanoutContentItems(updateStorageRequest.getContentItems());
+    }
+>>>>>>> master
 
-            for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
-                try {
-                    createRequest = plugin.process(createRequest);
-                } catch (PluginExecutionException e) {
-                    LOGGER.info(
-                            "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                            e);
-                }
-            }
-            validateCreateRequest(createRequest);
+    private boolean blockFanoutContentItems(List<ContentItem> contentItems) {
+        return contentItems.stream()
+                .map(ContentItem::getMetacard)
+                .anyMatch(this::isMetacardBlacklisted);
+    }
 
+<<<<<<< HEAD
             // Call the create on the catalog
             LOGGER.debug("Calling catalog.create() with {} entries.",
                     createRequest.getMetacards()
@@ -1098,41 +862,29 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 createResponse = catalog.create(createRequest);
                 createResponse = historian.version(createResponse);
             }
+=======
+    private boolean blockFanoutCreate(CreateRequest createRequest) {
+        return createRequest.getMetacards()
+                .stream()
+                .anyMatch(this::isMetacardBlacklisted);
+    }
 
-            if (catalogStoreRequest) {
-                CreateResponse remoteCreateResponse = doRemoteCreate(createRequest);
-                if (createResponse == null) {
-                    createResponse = remoteCreateResponse;
-                } else {
-                    createResponse.getProperties()
-                            .putAll(remoteCreateResponse.getProperties());
-                    createResponse.getProcessingErrors()
-                            .addAll(remoteCreateResponse.getProcessingErrors());
-                }
-            }
+    private boolean blockFanoutUpdate(UpdateRequest updateRequest) {
+        return updateRequest.getUpdates()
+                .stream()
+                .anyMatch((updateEntry) -> isMetacardBlacklisted(updateEntry.getValue()));
+    }
+>>>>>>> master
 
-        } catch (IngestException iee) {
-            INGEST_LOGGER.warn("Ingest error", iee);
-            ingestError = iee;
-            throw iee;
-        } catch (StopProcessingException see) {
-            LOGGER.warn(PRE_INGEST_ERROR, see);
-            ingestError = see;
-            throw new IngestException(PRE_INGEST_ERROR + see.getMessage());
-        } catch (RuntimeException re) {
-            LOGGER.warn("Exception during runtime while performing create", re);
-            ingestError = re;
-            throw new InternalIngestException("Exception during runtime while performing create");
-        } finally {
-            if (ingestError != null && INGEST_LOGGER.isWarnEnabled()) {
-                INGEST_LOGGER.warn("Error on create operation. {} metacards failed to ingest. {}",
-                        createRequest.getMetacards()
-                                .size(),
-                        buildIngestLog(createRequest),
-                        ingestError);
-            }
+    private boolean isMetacardBlacklisted(Metacard metacard) {
+        Set<String> tags = new HashSet<>(metacard.getTags());
+
+        // defaulting to resource tag if the metacard doesn't contain any tags
+        if (tags.isEmpty()) {
+            tags.add(Metacard.DEFAULT_TAG);
         }
 
+<<<<<<< HEAD
         try {
             createResponse = validateFixCreateResponse(createResponse, createRequest);
             for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
@@ -3450,6 +3202,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         public URI getResourceUri() {
             return resourceUri;
         }
+=======
+        return CollectionUtils.containsAny(tags, fanoutTagBlacklist);
+>>>>>>> master
     }
 
     private boolean blockFanoutUpdate(UpdateRequest updateRequest) {

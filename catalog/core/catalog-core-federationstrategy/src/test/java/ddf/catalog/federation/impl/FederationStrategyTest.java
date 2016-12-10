@@ -64,6 +64,16 @@ import ddf.catalog.impl.CatalogFrameworkImpl;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.impl.MockDelayProvider;
 import ddf.catalog.impl.QueryResponsePostProcessor;
+import ddf.catalog.impl.operations.CreateOperations;
+import ddf.catalog.impl.operations.DeleteOperations;
+import ddf.catalog.impl.operations.MetacardFactory;
+import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
+import ddf.catalog.impl.operations.OperationsMetacardSupport;
+import ddf.catalog.impl.operations.OperationsSecuritySupport;
+import ddf.catalog.impl.operations.OperationsStorageSupport;
+import ddf.catalog.impl.operations.QueryOperations;
+import ddf.catalog.impl.operations.SourceOperations;
+import ddf.catalog.impl.operations.UpdateOperations;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -134,21 +144,79 @@ public class FederationStrategyTest {
 
         // Must have more than one thread or sleeps will block the monitor
         SortedFederationStrategy fedStrategy = new SortedFederationStrategy(executor,
-                new ArrayList<PreFederatedQueryPlugin>(),
-                new ArrayList<PostFederatedQueryPlugin>());
+                new ArrayList<>(),
+                new ArrayList<>());
 
         FrameworkProperties props = new FrameworkProperties();
-        props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
+        props.setCatalogProviders(Collections.singletonList(provider));
         props.setFederationStrategy(fedStrategy);
         props.setSourcePoller(poller);
         props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
+<<<<<<< HEAD
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
         Historian historian = new Historian();
         historian.setHistoryEnabled(false);
         framework.setHistorian(historian);
+=======
+
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        MetacardFactory metacardFactory =
+                new MetacardFactory(props.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props,
+                metacardFactory);
+
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+
+        SourceOperations sourceOperations = new SourceOperations(props);
+
+        QueryOperations queryOperations = new QueryOperations(props,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(sourceOperations,
+                queryOperations);
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(props,
+                sourceOperations);
+
+        CreateOperations createOperations = new CreateOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCatStore,
+                opsStorage);
+        UpdateOperations updateOperations = new UpdateOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCatStore,
+                opsStorage);
+        DeleteOperations deleteOperations = new DeleteOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCatStore);
+
+        opsStorage.setHistorian(historian);
+        updateOperations.setHistorian(historian);
+        deleteOperations.setHistorian(historian);
+
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(createOperations,
+                updateOperations,
+                deleteOperations,
+                queryOperations,
+                null,
+                null,
+                null);
+        sourceOperations.bind(provider);
+>>>>>>> master
 
         List<Metacard> metacards = new ArrayList<Metacard>();
 
@@ -390,10 +458,10 @@ public class FederationStrategyTest {
          *
          * Offset of 2 (start at result 2) and page size of 3 (end at result 4).
          */
-        LOGGER.debug("mockSortedResult1: " + mockSortedResult1);
-        LOGGER.debug("mockSortedResult2: " + mockSortedResult2);
-        LOGGER.debug("mockSortedResult3: " + mockSortedResult3);
-        LOGGER.debug("mockSortedResult4: " + mockSortedResult4);
+        LOGGER.debug("mockSortedResult1: {}", mockSortedResult1);
+        LOGGER.debug("mockSortedResult2: {}", mockSortedResult2);
+        LOGGER.debug("mockSortedResult3: {}", mockSortedResult3);
+        LOGGER.debug("mockSortedResult4: {}", mockSortedResult4);
 
         assertEquals(3,
                 federatedResponse.getResults()
@@ -409,7 +477,7 @@ public class FederationStrategyTest {
                         .get(2));
 
         for (Result result : federatedResponse.getResults()) {
-            LOGGER.debug("federated response result: " + result);
+            LOGGER.debug("federated response result: {}", result);
         }
     }
 
@@ -462,7 +530,7 @@ public class FederationStrategyTest {
         // Verification
         assertNotNull(federatedResponse);
 
-        LOGGER.debug("Federated response result size: " + federatedResponse.getResults()
+        LOGGER.debug("Federated response result size: {}", federatedResponse.getResults()
                 .size());
 
         /**
@@ -479,11 +547,11 @@ public class FederationStrategyTest {
                 federatedResponse.getResults()
                         .get(1));
 
-        LOGGER.debug("mockResult1: " + mockResult1);
-        LOGGER.debug("mockResult2: " + mockResult2);
+        LOGGER.debug("mockResult1: {}", mockResult1);
+        LOGGER.debug("mockResult2: {}", mockResult2);
 
         for (Result result : federatedResponse.getResults()) {
-            LOGGER.debug("result: " + result);
+            LOGGER.debug("result: {}", result);
         }
     }
 
@@ -573,7 +641,7 @@ public class FederationStrategyTest {
         // Verification
         assertNotNull(federatedResponse);
 
-        LOGGER.debug("Federated response result size: " + federatedResponse.getResults()
+        LOGGER.debug("Federated response result size: {}", federatedResponse.getResults()
                 .size());
 
         /**
@@ -597,12 +665,12 @@ public class FederationStrategyTest {
                 federatedResponse.getResults()
                         .get(2));
 
-        LOGGER.debug("mockSource2Result1: " + mockSource2Result1);
-        LOGGER.debug("mockSource1Result1: " + mockSource1Result1);
-        LOGGER.debug("mockSource2Result2: " + mockSource2Result2);
+        LOGGER.debug("mockSource2Result1: {}", mockSource2Result1);
+        LOGGER.debug("mockSource1Result1: {}", mockSource1Result1);
+        LOGGER.debug("mockSource2Result2: {}", mockSource2Result2);
 
         for (Result result : federatedResponse.getResults()) {
-            LOGGER.debug("federated response result: " + result);
+            LOGGER.debug("federated response result: {}", result);
         }
 
         // Check the responseProperties
@@ -671,7 +739,7 @@ public class FederationStrategyTest {
         // Verification
         assertNotNull(federatedResponse);
 
-        LOGGER.debug("Federated response result size: " + federatedResponse.getResults()
+        LOGGER.debug("Federated response result size: {}", federatedResponse.getResults()
                 .size());
 
         /**
@@ -688,11 +756,11 @@ public class FederationStrategyTest {
                 federatedResponse.getResults()
                         .get(1));
 
-        LOGGER.debug("mockResult1: " + mockResult1);
-        LOGGER.debug("mockResult2: " + mockResult2);
+        LOGGER.debug("mockResult1: {}", mockResult1);
+        LOGGER.debug("mockResult2: {}", mockResult2);
 
         for (Result result : federatedResponse.getResults()) {
-            LOGGER.debug("result: " + result);
+            LOGGER.debug("result: {}", result);
         }
 
         // Check the responseProperties

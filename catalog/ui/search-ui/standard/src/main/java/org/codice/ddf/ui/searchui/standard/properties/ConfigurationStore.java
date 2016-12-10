@@ -80,7 +80,7 @@ public class ConfigurationStore {
             String jsonMimeType_STRING = "application/json";
             mime = new MimeType(jsonMimeType_STRING);
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Failed to create json mimetype.");
+            LOGGER.info("Failed to create json mimetype.");
         }
         jsonMimeType = mime;
     }
@@ -141,7 +141,7 @@ public class ConfigurationStore {
             try {
                 httpProxy.stop(terrainEndpoint);
             } catch (Exception e) {
-                LOGGER.error("Unable to stop proxy endpoint.", e);
+                LOGGER.info("Unable to stop proxy endpoint.", e);
             }
         }
     }
@@ -291,6 +291,7 @@ public class ConfigurationStore {
         }
         imageryProviderMaps = newImageryProviders;
     }
+<<<<<<< HEAD
 
     private void findDifferences(List<Map<String, Object>> innerList,
             List<Map<String, Object>> outerList, List<Map<String, Object>> differences) {
@@ -298,13 +299,26 @@ public class ConfigurationStore {
         differences.removeIf(innerList::contains);
     }
 
+=======
+
+    private void findDifferences(List<Map<String, Object>> innerList,
+            List<Map<String, Object>> outerList, List<Map<String, Object>> differences) {
+        differences.addAll(outerList);
+        differences.removeIf(innerList::contains);
+    }
+
+>>>>>>> master
     private void stopImageryEndpoints(List<String> imageryEndpointsToStop) {
         for (String endpoint : imageryEndpointsToStop) {
             try {
                 httpProxy.stop(endpoint);
                 imageryEndpoints.remove(endpoint);
             } catch (Exception e) {
+<<<<<<< HEAD
                 LOGGER.error("Unable to stop proxy endpoint: {}", endpoint, e);
+=======
+                LOGGER.info("Unable to stop proxy endpoint: {}", endpoint, e);
+>>>>>>> master
             }
         }
     }
@@ -319,7 +333,11 @@ public class ConfigurationStore {
                 urlToProxyMap.put(url, endpointName);
                 imageryEndpoints.add(endpointName);
             } catch (Exception e) {
+<<<<<<< HEAD
                 LOGGER.error("Unable to configure proxy for: {}", url, e);
+=======
+                LOGGER.info("Unable to configure proxy for: {}", url, e);
+>>>>>>> master
             }
         }
     }
@@ -329,7 +347,7 @@ public class ConfigurationStore {
             try {
                 httpProxy.stop(terrainEndpoint);
             } catch (Exception e) {
-                LOGGER.error("Unable to stop proxy endpoint.", e);
+                LOGGER.info("Unable to stop proxy endpoint.", e);
             }
         }
 
@@ -356,7 +374,11 @@ public class ConfigurationStore {
                 terrainEndpoint = endpointName;
                 config.put(URL, SERVLET_PATH + "/" + endpointName);
             } catch (Exception e) {
+<<<<<<< HEAD
                 LOGGER.error("Unable to configure proxy for: {}", url, e);
+=======
+                LOGGER.info("Unable to configure proxy for: {}", url, e);
+>>>>>>> master
             }
         }
 
@@ -378,7 +400,7 @@ public class ConfigurationStore {
                 return null;
             }
         } catch (EdnSyntaxException | EdnIOException e) {
-            LOGGER.warn("Unable to parse provider configuration: " + provider, e);
+            LOGGER.warn("Unable to parse provider configuration: {}", provider, e);
             return null;
         }
         return config;

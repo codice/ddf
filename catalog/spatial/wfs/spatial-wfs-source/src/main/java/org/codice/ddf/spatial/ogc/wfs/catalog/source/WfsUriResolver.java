@@ -44,7 +44,7 @@ public class WfsUriResolver extends DefaultURIResolver {
      */
     public InputSource resolveEntity(String namespace, String schemaLocation, String baseUri) {
         if (StringUtils.isEmpty(gmlNamespace) || StringUtils.isEmpty(wfsNamespace)) {
-            LOGGER.error("Defined constant GML or WFS namespace has not been set.");
+            LOGGER.debug("Defined constant GML or WFS namespace has not been set.");
             return null;
         } else if (gmlNamespace.equals(namespace) || wfsNamespace.equals(namespace)) {
             LOGGER.debug("Found WFS or GML namespace.");

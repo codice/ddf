@@ -26,7 +26,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,7 +133,7 @@ public class TestBoundingBoxReader {
     @Test(expected = CswException.class)
     public void testMissingLowerCorner() throws CswException {
         HierarchicalStreamReader reader = mock(HierarchicalStreamReader.class);
-        Stack<String> boundingBoxNodes = new Stack<String>();
+        Stack<String> boundingBoxNodes = new Stack<>();
 
         boundingBoxNodes.push("-2.228 51.126");
         boundingBoxNodes.push("UpperCorner");
@@ -143,12 +142,7 @@ public class TestBoundingBoxReader {
         boundingBoxNodes.push("BoundingBox");
         boundingBoxNodes.push("BoundingBox");
 
-        Answer<String> answer = new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return boundingBoxNodes.pop();
-            }
-        };
+        Answer<String> answer = invocationOnMock -> boundingBoxNodes.pop();
 
         when(reader.getNodeName()).thenAnswer(answer);
         when(reader.getValue()).thenAnswer(answer);
@@ -164,7 +158,7 @@ public class TestBoundingBoxReader {
     @Test(expected = CswException.class)
     public void testMissingUpperCorner() throws CswException {
         HierarchicalStreamReader reader = mock(HierarchicalStreamReader.class);
-        Stack<String> boundingBoxNodes = new Stack<String>();
+        Stack<String> boundingBoxNodes = new Stack<>();
 
         boundingBoxNodes.push("-2.228 51.126");
         boundingBoxNodes.push("MISSING UPPER CORNER");
@@ -173,12 +167,7 @@ public class TestBoundingBoxReader {
         boundingBoxNodes.push("BoundingBox");
         boundingBoxNodes.push("BoundingBox");
 
-        Answer<String> answer = new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return boundingBoxNodes.pop();
-            }
-        };
+        Answer<String> answer = invocationOnMock -> boundingBoxNodes.pop();
 
         when(reader.getNodeName()).thenAnswer(answer);
         when(reader.getValue()).thenAnswer(answer);

@@ -40,7 +40,7 @@ import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
-import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.codice.solr.query.SolrQueryFilterVisitor;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
@@ -75,7 +75,7 @@ public class PersistentStoreImpl implements PersistentStore {
                     try {
                         server.close();
                     } catch (IOException e) {
-                        LOGGER.warn("Unable to close Solr client", e);
+                        LOGGER.info("Unable to close Solr client", e);
                     }
                 }
             }
@@ -214,8 +214,10 @@ public class PersistentStoreImpl implements PersistentStore {
                         result.addProperty(name, (Integer) doc.getFirstValue(name));
                     } else if (name.endsWith(PersistentItem.DATE_SUFFIX)) {
                         result.addProperty(name, (Date) doc.getFirstValue(name));
+                    } else if (name.endsWith(PersistentItem.BINARY_SUFFIX)) {
+                        result.addProperty(name, (byte[]) doc.getFirstValue(name));
                     } else {
-                        LOGGER.info("Not adding field {} because it has invalid suffix", name);
+                        LOGGER.debug("Not adding field {} because it has invalid suffix", name);
                     }
                 }
                 results.add(result);
@@ -250,7 +252,7 @@ public class PersistentStoreImpl implements PersistentStore {
 
         if (!idsToDelete.isEmpty()) {
             try {
-                LOGGER.info("Deleting {} items by ID", idsToDelete.size());
+                LOGGER.debug("Deleting {} items by ID", idsToDelete.size());
                 coreSolrClient.deleteById(idsToDelete);
             } catch (SolrServerException e) {
                 LOGGER.info(
@@ -289,7 +291,7 @@ public class PersistentStoreImpl implements PersistentStore {
 
     private SolrClient getSolrCore(String storeName) {
         if (coreSolrClients.containsKey(storeName)) {
-            LOGGER.info("Returning core {} from map of coreSolrClients", storeName);
+            LOGGER.debug("Returning core {} from map of coreSolrClients", storeName);
             return coreSolrClients.get(storeName);
         }
 
@@ -297,14 +299,14 @@ public class PersistentStoreImpl implements PersistentStore {
         SolrClient coreSolrClient = null;
         try {
             Future<SolrClient> coreSolrClientFuture =
-                    SolrClientFactory.getHttpSolrClient(solrUrl.getResolvedString(), storeName);
-            coreSolrClient = coreSolrClientFuture.get(5, TimeUnit.SECONDS);
+                    HttpSolrClientFactory.getHttpSolrClient(solrUrl.getResolvedString(), storeName);
+            coreSolrClient = coreSolrClientFuture.get(30, TimeUnit.SECONDS);
             coreSolrClients.put(storeName, coreSolrClient);
 
             LOGGER.trace("EXITING: getSolrCore");
 
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            LOGGER.warn("Error getting solr server from future", e);
+            LOGGER.debug("Error getting solr server from future", e);
         }
         return coreSolrClient;
     }

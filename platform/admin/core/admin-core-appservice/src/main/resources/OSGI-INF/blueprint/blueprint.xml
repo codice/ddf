@@ -12,7 +12,10 @@
  **/ -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+    <ext:property-placeholder />
 
     <bean id="appService"
           class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
@@ -21,7 +24,7 @@
                 update-strategy="container-managed"/>
         <argument ref="bundleStateServices"/>
         <property name="configFileName"
-                  value="etc/org.codice.ddf.admin.applicationlist.properties"/>
+                  value="${ddf.home}/etc/org.codice.ddf.admin.applicationlist.properties"/>
     </bean>
 
     <service ref="appService"

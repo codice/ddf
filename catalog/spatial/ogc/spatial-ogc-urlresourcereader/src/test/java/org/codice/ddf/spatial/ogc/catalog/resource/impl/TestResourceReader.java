@@ -114,7 +114,7 @@ public class TestResourceReader {
                 .getInputStream(), writer, MOCK_HTTP_SERVER_ENCODING);
         String responseString = writer.toString();
 
-        LOGGER.info("Response " + responseString);
+        LOGGER.info("Response {}", responseString);
 
         assertThat(responseString,
                 is("<html><script type=\"text/javascript\">window.location.replace(\"" + httpUriStr
@@ -185,7 +185,7 @@ public class TestResourceReader {
                 .getInputStream(), writer, MOCK_HTTP_SERVER_ENCODING);
         String responseString = writer.toString();
 
-        LOGGER.info("Response " + responseString);
+        LOGGER.info("Response {}", responseString);
 
         assertThat(responseString,
                 is("<html><script type=\"text/javascript\">window.location.replace(\"" + httpUriStr
@@ -224,7 +224,7 @@ public class TestResourceReader {
                 .getInputStream(), writer, MOCK_HTTP_SERVER_ENCODING);
         String responseString = writer.toString();
 
-        LOGGER.info("Response " + responseString);
+        LOGGER.info("Response {}", responseString);
 
         assertThat(responseString,
                 is("<html><script type=\"text/javascript\">window.location.replace(\"" + httpUriStr
@@ -264,7 +264,7 @@ public class TestResourceReader {
                 .getInputStream(), writer, MOCK_HTTP_SERVER_ENCODING);
         String responseString = writer.toString();
 
-        LOGGER.info("Response " + responseString);
+        LOGGER.info("Response {}", responseString);
 
         assertThat(responseString,
                 is("<html><script type=\"text/javascript\">window.location.replace(\"" + httpUriStr

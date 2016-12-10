@@ -87,21 +87,19 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
      */
     private static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
+
     private final ConfigurationAdminExt configAdminExt;
 
     private ObjectName objectName;
 
     private MBeanServer mBeanServer;
 
-    private ApplicationService appService;
-
-    /** the service pid string.*/
-
     /**
-     * the service factor pid.
+     * the service pid string.
      */
 
-    private Logger logger = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
+    private ApplicationService appService;
 
     /**
      * has all the application plugins.
@@ -148,17 +146,17 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     public void init() throws ApplicationServiceException {
         try {
             try {
-                logger.debug("Registering application service MBean under object name: {}",
+                LOGGER.debug("Registering application service MBean under object name: {}",
                         objectName.toString());
                 mBeanServer.registerMBean(this, objectName);
             } catch (InstanceAlreadyExistsException iaee) {
                 // Try to remove and re-register
-                logger.info("Re-registering Application Service MBean");
+                LOGGER.debug("Re-registering Application Service MBean");
                 mBeanServer.unregisterMBean(objectName);
                 mBeanServer.registerMBean(this, objectName);
             }
         } catch (Exception e) {
-            logger.warn("Could not register mbean.", e);
+            LOGGER.warn("Could not register mbean.", e);
             throw new ApplicationServiceException(e);
         }
     }
@@ -179,7 +177,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
                 mBeanServer.unregisterMBean(objectName);
             }
         } catch (Exception e) {
-            logger.warn("Exception unregistering mbean: ", e);
+            LOGGER.warn("Exception unregistering mbean: ", e);
             throw new ApplicationServiceException(e);
         }
     }
@@ -213,12 +211,12 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         for (ApplicationNode curRoot : rootApplications) {
             applications.add(convertApplicationNode(curRoot));
         }
-        logger.debug("Returning {} root applications.", applications.size());
+        LOGGER.debug("Returning {} root applications.", applications.size());
         return applications;
     }
 
     private Map<String, Object> convertApplicationNode(ApplicationNode application) {
-        logger.debug("Converting {} to a map",
+        LOGGER.debug("Converting {} to a map",
                 application.getApplication()
                         .getName());
         Map<String, Object> appMap = new HashMap<String, Object>();
@@ -250,13 +248,13 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
             List<String> parentList = new ArrayList<String>();
             applications.add(convertApplicationEntries(curRoot, parentList, applicationsArray));
         }
-        logger.debug("Returning {} root applications.", applications.size());
+        LOGGER.debug("Returning {} root applications.", applications.size());
         return applicationsArray;
     }
 
     private Map<String, Object> convertApplicationEntries(ApplicationNode application,
             List<String> parentList, List<Map<String, Object>> applicationsArray) {
-        logger.debug("Converting {} to a map",
+        LOGGER.debug("Converting {} to a map",
                 application.getApplication()
                         .getName());
         Map<String, Object> appMap = new HashMap<String, Object>();
@@ -302,7 +300,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
 
     private void makeDependencyList(List<String> childrenList, ApplicationNode application) {
-        logger.debug("Getting Dependency List",
+        LOGGER.debug("Getting Dependency List",
                 application.getApplication()
                         .getName());
         for (ApplicationNode curNode : application.getChildren()) {
@@ -315,12 +313,12 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     @Override
     public synchronized boolean startApplication(String appName) {
         try {
-            logger.debug("Starting application with name {}", appName);
+            LOGGER.debug("Starting application with name {}", appName);
             appService.startApplication(appName);
-            logger.debug("Finished installing application {}", appName);
+            LOGGER.debug("Finished installing application {}", appName);
             return true;
         } catch (ApplicationServiceException ase) {
-            logger.warn("Application " + appName + " was not successfully started.", ase);
+            LOGGER.warn("Application {} was not successfully started.", appName, ase);
             return false;
         }
     }
@@ -328,12 +326,12 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     @Override
     public synchronized boolean stopApplication(String appName) {
         try {
-            logger.debug("Stopping application with name {}", appName);
+            LOGGER.debug("Stopping application with name {}", appName);
             appService.stopApplication(appName);
-            logger.debug("Finished stopping application {}", appName);
+            LOGGER.debug("Finished stopping application {}", appName);
             return true;
         } catch (ApplicationServiceException ase) {
-            logger.warn("Application " + appName + " was not successfully stopped.", ase);
+            LOGGER.warn("Application {} was not successfully stopped.", appName, ase);
             return false;
         }
     }
@@ -344,10 +342,10 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
             try {
                 appService.addApplication(new URI((String) curURL.get("value")));
             } catch (URISyntaxException use) {
-                logger.warn("Could not add application with url {}, not a valid URL.",
+                LOGGER.warn("Could not add application with url {}, not a valid URL.",
                         curURL.get("value"));
             } catch (ApplicationServiceException ase) {
-                logger.warn("Could not add application with url {} due to error.",
+                LOGGER.warn("Could not add application with url {} due to error.",
                         curURL.get("value"),
                         ase);
             }
@@ -358,10 +356,10 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     public void removeApplication(String appName) {
         if (!StringUtils.isEmpty(appName)) {
             try {
-                logger.debug("Removing application with name: {}", appName);
+                LOGGER.debug("Removing application with name: {}", appName);
                 appService.removeApplication(appName);
             } catch (ApplicationServiceException ase) {
-                logger.warn("Could not remove application with nae {} due to error.", appName, ase);
+                LOGGER.warn("Could not remove application with nae {} due to error.", appName, ase);
             }
         }
     }
@@ -423,7 +421,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
                     }
 
                 } catch (ApplicationServiceException e) {
-                    logger.warn("There was an error while trying to access the application", e);
+                    LOGGER.warn("There was an error while trying to access the application", e);
                     return new ArrayList<Map<String, Object>>();
                 }
             }

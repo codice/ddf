@@ -93,20 +93,23 @@
 			<extent>
 				<EX_Extent>
 					<geographicElement>
-						<EX_GeographicBoundingBox>
-							<westBoundLongitude>
-								<gco:Decimal>7.73</gco:Decimal>
-							</westBoundLongitude>
-							<eastBoundLongitude>
-								<gco:Decimal>10.35</gco:Decimal>
-							</eastBoundLongitude>
-							<southBoundLatitude>
-								<gco:Decimal>49.39</gco:Decimal>
-							</southBoundLatitude>
-							<northBoundLatitude>
-								<gco:Decimal>51.66</gco:Decimal>
-							</northBoundLatitude>
-						</EX_GeographicBoundingBox>
+						<EX_BoundingPolygon>
+							<polygon>
+								<gml:Point gml:id="GMLID_32dd2660-9c7c-11e5-989a-0002a5d5c51b" srsName= "http://www.opengis.net/def/crs/EPSG/0/4326">
+									<gml:pos>52.189365 15.825012</gml:pos>
+								</gml:Point>
+							</polygon>
+							<polygon>
+								<gml:Point gml:id="GMLID_6276d1a0-9c7c-11e5-8db9-0002a5d5c51b" srsName= "http://www.opengis.net/def/crs/EPSG/0/4326">
+									<gml:pos>52.189365 15.81318</gml:pos>
+								</gml:Point>
+							</polygon>
+							<polygon>
+								<gml:Point gml:id="GMLID_79f5d560-9c7c-11e5-a9e0-0002a5d5c51b" srsName= "http://www.opengis.net/def/crs/EPSG/0/4326">
+									<gml:pos>52.1929 15.81318</gml:pos>
+								</gml:Point>
+							</polygon>
+						</EX_BoundingPolygon>
 					</geographicElement>
 				</EX_Extent>
 			</extent>

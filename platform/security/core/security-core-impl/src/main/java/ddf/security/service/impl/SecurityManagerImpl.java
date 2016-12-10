@@ -39,13 +39,13 @@ import ddf.security.service.SecurityServiceException;
 
 public class SecurityManagerImpl implements SecurityManager {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityManagerImpl.class);
+
     private DefaultSecurityManager internalManager;
 
     private Collection<Realm> realms;
 
     private List<String> usernameAttributeList;
-
-    private Logger logger = LoggerFactory.getLogger(SecurityManagerImpl.class);
 
     /**
      * Creates a new security manager with the collection of given realms.
@@ -61,7 +61,7 @@ public class SecurityManagerImpl implements SecurityManager {
     public void setRealms(Collection<Realm> realms) {
         this.realms = realms;
         // update the default manager with current realm list
-        logger.debug("Updating manager with {} realms.", realms.size());
+        LOGGER.debug("Updating manager with {} realms.", realms.size());
         internalManager.setRealms(realms);
     }
 
@@ -140,11 +140,11 @@ public class SecurityManagerImpl implements SecurityManager {
     private SimplePrincipalCollection createPrincipalFromToken(SecurityToken token) {
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
         for (Realm curRealm : realms) {
-            logger.debug("Configuring settings for realm name: {} type: {}",
+            LOGGER.debug("Configuring settings for realm name: {} type: {}",
                     curRealm.getName(),
                     curRealm.getClass()
                             .toString());
-            logger.debug("Is authorizer: {}, is AuthorizingRealm: {}",
+            LOGGER.debug("Is authorizer: {}, is AuthorizingRealm: {}",
                     curRealm instanceof Authorizer,
                     curRealm instanceof AuthorizingRealm);
             SecurityAssertion securityAssertion = null;
@@ -155,7 +155,7 @@ public class SecurityManagerImpl implements SecurityManager {
                     principals.add(principal.getName(), curRealm.getName());
                 }
             } catch (Exception e) {
-                logger.warn(
+                LOGGER.warn(
                         "Encountered error while trying to get the Principal for the SecurityToken. Security functions may not work properly.",
                         e);
             }

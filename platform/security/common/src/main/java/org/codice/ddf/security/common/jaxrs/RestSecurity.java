@@ -80,15 +80,11 @@ public final class RestSecurity {
                     .getScheme(), "https")) {
                 if (Boolean.valueOf(System.getProperty("org.codice.allowBasicAuthOverHttp",
                         "false"))) {
-                    LOGGER.warn(
-                            "CAUTION: Passing username & password on an un-encrypted protocol [{}]."
-                                    + " This is a security issue. ",
-                            client.getCurrentURI());
                     SecurityLogger.auditWarn(
-                            "Passing username & password on an un-encrypted protocol ["
-                                    + client.getCurrentURI() + "].");
+                            "Passing username & password on an un-encrypted protocol [{}].",
+                            client.getCurrentURI());
                 } else {
-                    LOGGER.warn(
+                    LOGGER.debug(
                             "Passing username & password is not allowed on an un-encrypted protocol [{}].",
                             client.getCurrentURI());
                     return;
@@ -126,7 +122,7 @@ public final class RestSecurity {
                 encodedSamlHeader = SAML_HEADER_PREFIX + deflateAndBase64Encode(saml);
             }
         } catch (WSSecurityException | ArithmeticException | IOException e) {
-            LOGGER.error("Unable to parse SAML assertion from subject.", e);
+            LOGGER.info("Unable to parse SAML assertion from subject.", e);
         }
         return encodedSamlHeader;
     }

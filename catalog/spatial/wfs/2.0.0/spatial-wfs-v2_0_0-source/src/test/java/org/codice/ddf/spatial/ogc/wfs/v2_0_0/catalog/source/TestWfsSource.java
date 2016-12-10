@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -42,6 +43,7 @@ import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
@@ -1075,7 +1077,6 @@ public class TestWfsSource {
     @Test
     public void testSearchByMultipleTypes() throws Exception {
         //Setup
-        int startIndex = 0;
         int pageSize = 10;
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
@@ -1107,6 +1108,60 @@ public class TestWfsSource {
 
         //Validate
         assertEquals(2, numTypes);
+    }
+
+    @Test
+    public void testSrsNameProvided() throws Exception {
+
+        int pageSize = 10;
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                10,
+                false);
+        source.setSrsName(WfsConstants.EPSG_4326);
+
+        Filter filter = builder.attribute(Metacard.CONTENT_TYPE)
+                .is()
+                .equalTo()
+                .text(SAMPLE_FEATURE_NAME + "0");
+        QueryImpl query = new QueryImpl(filter);
+        query.setPageSize(pageSize);
+
+        //Execute
+        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression()
+                .get(0)
+                .getValue();
+
+        assertThat(queryType.getSrsName(), is(WfsConstants.EPSG_4326));
+    }
+
+
+    @Test
+    public void testSrsNameNotProvided() throws Exception {
+
+        int pageSize = 10;
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN,
+                10,
+                false);
+
+        Filter filter = builder.attribute(Metacard.CONTENT_TYPE)
+                .is()
+                .equalTo()
+                .text(SAMPLE_FEATURE_NAME + "0");
+        QueryImpl query = new QueryImpl(filter);
+        query.setPageSize(pageSize);
+
+        //Execute
+        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression()
+                .get(0)
+                .getValue();
+
+        assertThat(queryType.getSrsName(), nullValue());
     }
 
 }

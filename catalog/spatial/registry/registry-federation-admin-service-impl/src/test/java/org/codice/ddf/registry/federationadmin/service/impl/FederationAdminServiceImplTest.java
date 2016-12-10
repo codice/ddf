@@ -77,6 +77,10 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+<<<<<<< HEAD
+=======
+import ddf.catalog.data.types.Core;
+>>>>>>> master
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.ExpressionBuilder;
@@ -620,8 +624,12 @@ public class FederationAdminServiceImplTest {
         String destination = TEST_DESTINATION;
         Set<String> destinations = new HashSet<>();
         destinations.add(destination);
+<<<<<<< HEAD
         QueryResponse response = getPopulatedTestQueryResponse(getTestQueryRequest(),
                 testMetacard);
+=======
+        QueryResponse response = getPopulatedTestQueryResponse(getTestQueryRequest(), testMetacard);
+>>>>>>> master
         when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
         federationAdminServiceImpl.deleteRegistryEntriesByRegistryIds(ids, destinations);
         verify(catalogFramework).delete(any(DeleteRequest.class));
@@ -1108,7 +1116,11 @@ public class FederationAdminServiceImplTest {
 
     private QueryRequest getTestQueryRequest() {
         Filter filter = getTestFilter();
+<<<<<<< HEAD
         SortBy sortBy = FILTER_FACTORY.sort(Metacard.CREATED, SortOrder.ASCENDING);
+=======
+        SortBy sortBy = FILTER_FACTORY.sort(Core.CREATED, SortOrder.ASCENDING);
+>>>>>>> master
         Query query = new QueryImpl(filter);
         ((QueryImpl) query).setSortBy(sortBy);
         QueryRequest request = new QueryRequestImpl(query);
@@ -1149,7 +1161,12 @@ public class FederationAdminServiceImplTest {
 
     private Metacard getPopulatedRemoteTestRegistryMetacard() {
         Metacard mcard = getPopulatedTestRegistryMetacard();
+<<<<<<< HEAD
         mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REMOTE_REGISTRY_ID, "RemoteRegId"));
+=======
+        mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REMOTE_REGISTRY_ID,
+                "RemoteRegId"));
+>>>>>>> master
         return mcard;
     }
 }

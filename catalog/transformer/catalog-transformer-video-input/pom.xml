@@ -17,7 +17,11 @@
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
+<<<<<<< HEAD
         <version>2.9.4</version>
+=======
+        <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
 
     <artifactId>video-input-transformer</artifactId>
@@ -65,7 +69,7 @@
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.transformer.input.video,
-                            ddf.catalog.data.impl
+                            ddf.catalog.data.impl.*
                         </Private-Package>
                     </instructions>
                 </configuration>
@@ -88,7 +92,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.82</minimum>
+                                            <minimum>0.80</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
@@ -98,7 +102,7 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.83</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>

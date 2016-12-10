@@ -1,0 +1,250 @@
+==== OpenSearch Endpoint
+
+The OpenSearch Endpoint enables a client to send query parameters and receive search results. This endpoint uses the input query parameters to create an OpenSearch query. The client does not need to specify all of the query parameters, only the query parameters of interest.
+
+===== Installing the OpenSearch Endpoint
+
+The OpenSearch Endpoint is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the OpenSearch Endpoint
+
+The OpenSearch Endpoint has no configurable properties.
+It can only be installed or uninstalled.
+
+===== OpenSearch URL
+
+----
+${secure_url}/services/catalog/query
+----
+
+====== From Code:
+
+The OpenSearch specification defines a file format to describe an OpenSearch endpoint.
+This file is XML-based and is used to programatically retrieve a site's endpoint, as well as the different parameter options a site holds.
+The parameters are defined via the http://www.opensearch.org/Specifications/OpenSearch/1.1[OpenSearch] and https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-search[CDR IPT] Specifications.
+
+====== From a Web Browser:
+
+Many modern web browsers currently act as OpenSearch clients.
+The request call is an HTTP GET with the query options being parameters that are passed.
+
+.Example of an OpenSearch request:
+----
+http://${public_url}/services/catalog/query?q=Predator
+----
+
+This request performs a full-text search for the phrase 'Predator' on the ${branding} providers and provides the results as Atom-formatted XML for the web browser to render.
+
+====== Parameter List
+
+.Main OpenSearch Standard
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|`searchTerms`
+|`q`
+|URL-encoded string
+|Complex contextual search string.
+
+|`count`
+|`count`
+|integer >= 0
+|Maximum # of results to retrieve
+
+default: 10
+
+|`startIndex`
+|`start`
+|integer >= 1
+|Index of first result to return.
+
+default: 1
+
+This value uses a one based index for the results.
+
+|`format`
+|`format`
+|requires a transformer shortname as a string, possible values include, when available
+
+	`atom`
+
+	`html`
+
+	`kml`
+
+see Included Query Response Transformers for more possible values.
+|default: `atom`
+|===
+
+.Temporal Extension
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|`start`
+|`dtstart`
+|RFC-3399-defined value
+|`yyyy-MM-dd'T'HH:mm:ss.SSSZZ`
+
+|`end`
+|`dtend`
+|RFC-3399-defined value
+|`yyyy-MM-dd'T'HH:mm:ss.SSSZZ`
+|===
+
+[NOTE]
+====
+The start and end temporal criteria must be of the format specified above. Other formats are currently not supported. Example:
+
+`2011-01-01T12:00:00.111-04:00`.
+
+*The start and end temporal elements are based on modified timestamps for a metacard.*
+====
+
+.Geospatial Extension
+These geospatial query parameters are used to create a geospatial `INTERSECTS` query, where `INTERSECTS` means geometries that are not `DISJOINT` of the given geospatial parameter. 
+
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|`lat`
+|`lat`
+|`EPSG:4326` decimal degrees
+|Expects a latitude and a radius to be specified.
+
+|`lon`
+|`lon`
+|`EPSG:4326` decimal degrees
+|Expects a longitude and a radius to be specified.
+
+|`radius`
+|`radius`
+|Meters along the Earth's surface > 0
+|Used in conjunction with lat and lon query parameters.
+
+|`polygon`
+|`polygon`
+|clockwise `lat lon` pairs ending at the first one
+|example: `-80, -170, 0, -170, 80, -170, 80, 170, 0, 170, -80, 170, -80, -170`
+
+According to the OpenSearch Geo Specification this is *deprecated*. 
+Use geometry instead.
+
+|`box`
+|`bbox`
+|4 comma-separated `EPSG:4326` decimal degrees
+|west, south, east, north
+
+|`geometry`
+|`geometry` 
+|WKT Geometries: `POINT`, `POLYGON`, `MULTIPOINT`, `MULTIPOLYGON`
+|Examples:
+
+`POINT(10 20)` where 10 is the longitude and 20 is the latitude.
+
+`POLYGON ( ( 30 10, 10 20, 20 40, 40 40, 30 10 ) )`. 30 is longitude and 10 is latitude for the first point.
+Make sure to repeat the starting point as the last point to close the polygon.
+
+|===
+
+.Extensions
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|`sort`
+|`sort`
+|`sbfield`: 'date' or 'relevance'
+`sborder`: 'asc' or 'desc'
+|`sort=<sbfield>:<sborder>` default: `relevance:desc`
+
+Sorting by date will sort the effective date.
+
+|`maxResults`
+|`mr`
+|Integer >= 0
+|Maximum # of results to return.
+
+If count is also specified, the count value will take precedence over the `maxResults` value
+
+|`maxTimeout`
+|`mt`
+|Integer > 0
+|Maximum timeout (milliseconds) for query to respond
+
+default: 300000 (5 minutes)
+|===
+
+.Federated Search
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|`routeTo`
+|`src`
+|(varies depending on the names of the sites in the federation)
+|comma delimited list of site names to query.
+
+Also can specify `src=local` to query the local site.
+
+If src is not provided, the default behavior is to execute an enterprise search to the entire federation.
+
+|===
+
+.${branding} Extensions
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|`dateOffset`
+|`dtoffset`
+|integer > 0
+|Specifies an offset, backwards from the current time, to search on the modified time field for entries. Defined in milliseconds.
+
+|`type`
+|`type`
+|Any valid datatype
+|Specifies the type of data to search for.
+
+|`version`
+|`version`
+|20,30
+|Comma-delimited list of version values to search for.
+
+|`selector`
+|`selector`
+|`//namespace:example`,`//example`
+|Comma-delimited list of XPath string selectors that narrow down the search.
+
+|===
+
+====== Supported Complex Contextual Query Format
+
+The OpenSearch Endpoint supports the following operators: `AND`, `OR`, and `NOT`.
+These operators are case sensitive.
+Implicit `ANDs` are also supported.
+
+Using parentheses to change the order of operations is supported.
+Using quotes to group keywords into literal expressions is supported.
+
+See the http://www.opensearch.org/Specifications/OpenSearch/1.1[OpenSearch] specification for more syntax specifics.

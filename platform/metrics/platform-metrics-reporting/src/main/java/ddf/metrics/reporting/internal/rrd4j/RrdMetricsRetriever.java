@@ -391,7 +391,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             // Write the content into xml stringwriter
             xmlString = XMLUtils.prettyFormat(doc);
         } catch (ParserConfigurationException pce) {
-            LOGGER.error("Parsing error while creating xml data", pce);
+            LOGGER.debug("Parsing error while creating xml data", pce);
         }
 
         LOGGER.trace("xml = {}", xmlString);
@@ -943,7 +943,6 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         try {
             FetchData fetchData = fetchRequest.fetchData();
             LOGGER.trace("************  {}: {}  **************", dsType, dataType);
-            // LOGGER.trace(fetchData.dump());
 
             int rrdStep = RRD_STEP; // in seconds
             long[] timestamps = fetchData.getTimestamps();
@@ -962,7 +961,6 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             LOGGER.trace("adjustedValues.length = {}", adjustedValues.length);
 
             for (int i = 0; i < adjustedValues.length; i++) {
-                // LOGGER.trace("adjustedValue[{}] = {}", i, adjustedValues[i]);
                 if (adjustedValues[i] > metricsMaxThreshold) {
                     LOGGER.trace("Value [{}] is an OUTLIER", adjustedValues[i]);
                 }

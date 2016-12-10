@@ -16,14 +16,14 @@ package org.codice.ddf.commands.catalog;
 import java.io.PrintStream;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
 import org.fusesource.jansi.Ansi;
 
 /**
  * CommandSupport provides printing and progress bar support for
  * extending classes
  */
-public abstract class CommandSupport extends OsgiCommandSupport {
+public abstract class CommandSupport implements Action {
 
     protected static final double MS_PER_SECOND = 1000.0;
 
@@ -31,11 +31,11 @@ public abstract class CommandSupport extends OsgiCommandSupport {
 
     protected static final int PROGESS_BAR_NOTCH_LENGTH = 50;
 
-    private static final Ansi.Color ERROR_COLOR = Ansi.Color.RED;
+    protected static final Ansi.Color ERROR_COLOR = Ansi.Color.RED;
 
-    private static final Ansi.Color HEADER_COLOR = Ansi.Color.CYAN;
+    protected static final Ansi.Color HEADER_COLOR = Ansi.Color.CYAN;
 
-    private static final Ansi.Color SUCCESS_COLOR = Ansi.Color.GREEN;
+    protected static final Ansi.Color SUCCESS_COLOR = Ansi.Color.GREEN;
 
     protected PrintStream console = System.out;
 

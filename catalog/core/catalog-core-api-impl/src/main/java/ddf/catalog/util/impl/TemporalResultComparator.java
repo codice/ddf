@@ -107,10 +107,10 @@ public class TemporalResultComparator implements Comparator<Result> {
         }
 
         if (dateA == null && dateB != null) {
-            LOGGER.debug("dateA is null and dateB is not null: " + dateB);
+            LOGGER.debug("dateA is null and dateB is not null: {}", dateB);
             return 1;
         } else if (dateA != null && dateB == null) {
-            LOGGER.debug("dateA is not null: " + dateA + " and dateB is null");
+            LOGGER.debug("dateA is not null: {} and dateB is null", dateA);
             return -1;
         } else if (dateA == null && dateB == null) {
             LOGGER.debug("both are null");
@@ -121,7 +121,7 @@ public class TemporalResultComparator implements Comparator<Result> {
         } else if (SortOrder.DESCENDING.equals(sortOrder)) {
             return dateB.compareTo(dateA);
         } else {
-            LOGGER.warn("Unknown order type. Returning 0.");
+            LOGGER.debug("Unknown order type. Returning 0.");
             return 0;
         }
 

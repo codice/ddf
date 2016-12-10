@@ -22,7 +22,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+<<<<<<< HEAD
 import java.util.regex.Pattern;
+=======
+>>>>>>> master
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBElement;
@@ -45,7 +48,16 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+<<<<<<< HEAD
 import ddf.catalog.data.impl.MetacardImpl;
+=======
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.DateTime;
+import ddf.catalog.data.types.Topic;
+>>>>>>> master
 import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
@@ -69,10 +81,13 @@ public class RegistryPackageConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryPackageConverter.class);
 
+<<<<<<< HEAD
     private static final String URN_PATTERN_REGEX = "urn:(.*)";
 
     private static final Pattern URN_PATTERN = Pattern.compile(URN_PATTERN_REGEX);
 
+=======
+>>>>>>> master
     private static final Map<String, String> METACARD_XML_NAME_MAP;
 
     private static final InternationalStringTypeHelper INTERNATIONAL_STRING_TYPE_HELPER =
@@ -82,6 +97,7 @@ public class RegistryPackageConverter {
 
     static {
         METACARD_XML_NAME_MAP = new HashMap<>();
+<<<<<<< HEAD
         METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.LIVE_DATE, "liveDate");
         METACARD_XML_NAME_MAP.put(Metacard.CREATED, "liveDate");
         METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.DATA_START_DATE, "dataStartDate");
@@ -93,6 +109,17 @@ public class RegistryPackageConverter {
         METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.REGION, "region");
         METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.DATA_SOURCES, "inputDataSources");
         METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.DATA_TYPES, "dataTypes");
+=======
+        METACARD_XML_NAME_MAP.put(Core.CREATED, "liveDate");
+        METACARD_XML_NAME_MAP.put(DateTime.START, "dataStartDate");
+        METACARD_XML_NAME_MAP.put(DateTime.END, "dataEndDate");
+        METACARD_XML_NAME_MAP.put(Core.MODIFIED, "lastUpdated");
+        METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.LINKS, "links");
+        METACARD_XML_NAME_MAP.put(Core.LOCATION, "location");
+        METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.REGION, "region");
+        METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.DATA_SOURCES, "inputDataSources");
+        METACARD_XML_NAME_MAP.put(Topic.KEYWORD, "dataTypes");
+>>>>>>> master
         METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.SECURITY_LEVEL, "securityLevel");
         METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.SERVICE_BINDING_TYPES, "bindingType");
         METACARD_XML_NAME_MAP.put(RegistryObjectMetacardType.SERVICE_BINDINGS, "serviceType");
@@ -102,8 +129,13 @@ public class RegistryPackageConverter {
     private RegistryPackageConverter() {
     }
 
+<<<<<<< HEAD
     public static Metacard getRegistryObjectMetacard(RegistryObjectType registryObject)
             throws RegistryConversionException {
+=======
+    public static Metacard getRegistryObjectMetacard(RegistryObjectType registryObject,
+            MetacardType metacardType) throws RegistryConversionException {
+>>>>>>> master
         MetacardImpl metacard = null;
 
         if (registryObject == null) {
@@ -112,7 +144,11 @@ public class RegistryPackageConverter {
 
         validateIdentifiable(registryObject);
 
+<<<<<<< HEAD
         metacard = new MetacardImpl(new RegistryObjectMetacardType());
+=======
+        metacard = new MetacardImpl(metacardType);
+>>>>>>> master
 
         parseTopLevel(registryObject, metacard);
 
@@ -127,7 +163,11 @@ public class RegistryPackageConverter {
         } else if (registryObject instanceof PersonType) {
             parseRegistryPerson((PersonType) registryObject, metacard);
         } else {
+<<<<<<< HEAD
             LOGGER.warn("Unexpected object found: {}", registryObject);
+=======
+            LOGGER.debug("Unexpected object found: {}", registryObject);
+>>>>>>> master
         }
 
         return metacard;
@@ -198,34 +238,62 @@ public class RegistryPackageConverter {
 
         if (organization.isSetName()) {
             setMetacardStringAttribute(INTERNATIONAL_STRING_TYPE_HELPER.getString(organization.getName()),
+<<<<<<< HEAD
                     RegistryObjectMetacardType.ORGANIZATION_NAME,
                     metacard);
         } else {
             unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_NAME, metacard);
+=======
+                    Contact.POINT_OF_CONTACT_NAME,
+                    metacard);
+        } else {
+            unsetMetacardAttribute(Contact.POINT_OF_CONTACT_NAME, metacard);
+>>>>>>> master
         }
 
         if (organization.isSetEmailAddress()) {
             setMetacardEmailAttribute(organization.getEmailAddress(),
+<<<<<<< HEAD
                     RegistryObjectMetacardType.ORGANIZATION_EMAIL,
                     metacard);
         } else {
             unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_EMAIL, metacard);
+=======
+                    Contact.POINT_OF_CONTACT_EMAIL,
+                    metacard);
+        } else {
+            unsetMetacardAttribute(Contact.POINT_OF_CONTACT_EMAIL, metacard);
+>>>>>>> master
         }
 
         if (organization.isSetTelephoneNumber()) {
             setMetacardPhoneNumberAttribute(organization.getTelephoneNumber(),
+<<<<<<< HEAD
                     RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER,
                     metacard);
         } else {
             unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER, metacard);
+=======
+                    Contact.POINT_OF_CONTACT_PHONE,
+                    metacard);
+        } else {
+            unsetMetacardAttribute(Contact.POINT_OF_CONTACT_PHONE, metacard);
+>>>>>>> master
         }
 
         if (organization.isSetAddress()) {
             setMetacardAddressAttribute(organization.getAddress(),
+<<<<<<< HEAD
                     RegistryObjectMetacardType.ORGANIZATION_ADDRESS,
                     metacard);
         } else {
             unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_ADDRESS, metacard);
+=======
+                    Contact.POINT_OF_CONTACT_ADDRESS,
+                    metacard);
+        } else {
+            unsetMetacardAttribute(Contact.POINT_OF_CONTACT_ADDRESS, metacard);
+>>>>>>> master
         }
     }
 
@@ -339,6 +407,7 @@ public class RegistryPackageConverter {
             Map<String, SlotType1> slotMap =
                     SLOT_TYPE_HELPER.getNameSlotMap(registryObject.getSlot());
 
+<<<<<<< HEAD
             setAttributeFromMap(RegistryObjectMetacardType.LIVE_DATE, slotMap, metacard);
             setAttributeFromMap(Metacard.CREATED, slotMap, metacard);
             setAttributeFromMap(RegistryObjectMetacardType.DATA_START_DATE, slotMap, metacard);
@@ -349,6 +418,17 @@ public class RegistryPackageConverter {
             setAttributeFromMap(RegistryObjectMetacardType.REGION, slotMap, metacard);
             setAttributeFromMap(RegistryObjectMetacardType.DATA_SOURCES, slotMap, metacard);
             setAttributeFromMap(RegistryObjectMetacardType.DATA_TYPES, slotMap, metacard);
+=======
+            setAttributeFromMap(Core.CREATED, slotMap, metacard);
+            setAttributeFromMap(DateTime.START, slotMap, metacard);
+            setAttributeFromMap(DateTime.END, slotMap, metacard);
+            setAttributeFromMap(Core.MODIFIED, slotMap, metacard);
+            setAttributeFromMap(RegistryObjectMetacardType.LINKS, slotMap, metacard);
+            setAttributeFromMap(Core.LOCATION, slotMap, metacard);
+            setAttributeFromMap(RegistryObjectMetacardType.REGION, slotMap, metacard);
+            setAttributeFromMap(RegistryObjectMetacardType.DATA_SOURCES, slotMap, metacard);
+            setAttributeFromMap(Topic.KEYWORD, slotMap, metacard);
+>>>>>>> master
             setAttributeFromMap(RegistryObjectMetacardType.SECURITY_LEVEL, slotMap, metacard);
         }
 
@@ -439,11 +519,14 @@ public class RegistryPackageConverter {
     }
 
     private static String getPhoneNumber(TelephoneNumberType digits) {
+<<<<<<< HEAD
         if (digits.getNumber()
                 .isEmpty()) {
             return "N/A";
         }
 
+=======
+>>>>>>> master
         StringBuilder phoneNumberBuilder = new StringBuilder();
 
         phoneNumberBuilder = buildNonNullString(phoneNumberBuilder,

@@ -16,7 +16,11 @@
     <parent>
         <artifactId>certificate</artifactId>
         <groupId>ddf.security.certificate</groupId>
+<<<<<<< HEAD
         <version>2.9.4</version>
+=======
+        <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>DDF :: Security :: Certificate :: Keystore Editor</name>
@@ -51,15 +55,20 @@
             <version>0.3.11</version>
         </dependency>
         <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
-            <!-- Only using the SecurityConstants class, some transient dependencies caused security failures -->
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
     <build>
@@ -71,7 +80,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            not-yet-commons-ssl
+                            not-yet-commons-ssl,
+                            httpclient,
+                            httpcore
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -94,7 +105,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>

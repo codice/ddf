@@ -52,8 +52,53 @@
             overflow: auto;
         }
 
+        .links {
+            padding-left: 0;
+        }
+
+        .external-links {
+            border: solid #e1e1e1 1px;
+        }
+
+        .external-links-horizontal {
+            float: none;
+            background: #666666;
+            width: 100%;
+        }
+
+        .external-links-horizontal ul li {
+            display: inline-block;
+            padding: 5px 20px;
+            color: #ffffff;
+            font-size: 130%;
+        }
+
+        .external-links-horizontal ul li a {
+            color: #ffffff;
+        }
+
+        .external-links-horizontal ul li a:hover {
+            color: #1E90FF;
+            text-decoration: none;
+        }
+
+        .link-wrap {
+            max-width: 1130px;
+            margin: 0 auto;
+        }
+
+        .link-wrap-no-title {
+            max-width: 1170px;
+            margin: 0 auto;
+        }
+
         .jumbotron {
             background-color: rgba(0, 0, 0, 0.25);
+            margin-bottom: 0;
+        }
+
+        .link-title {
+            background: #1E90FF;
         }
 
         .panel {
@@ -97,6 +142,26 @@
             </div>
         </div>
     </div>
+    {{#if parsedLinks}}
+        <div class="external-links-horizontal">
+            {{#if linksTitle}}
+                <div class="link-wrap">
+            {{else}}
+                <div class="link-wrap-no-title">
+            {{/if}}
+                <ul class="links">
+                    {{#if linksTitle}}
+                        <li class="link-title">{{linksTitle}}</li>
+                    {{/if}}
+                    {{#each parsedLinks}}
+                        <li class="link">
+                            <a href="{{this}}">{{@key}}</a>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    {{/if}}
     <div class="container">
         <div class="row">
             <div class="col-md-6">
@@ -106,7 +171,6 @@
             </div>
             <div id="announcements" class="col-md-6">
                 <h2>Announcements</h2>
-
                 <div class="panel-group scrollable-list" id="accordion" role="tablist"
                      aria-multiselectable="true">
                     <!-- If there are no announcements, display a simple message. 'noAnnouncements' is a custom helper
@@ -145,46 +209,45 @@
                     {{/each}}
                 </div>
             </div>
-        </div>
-        <hr>
-        <footer>
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-4">
-                        <p>{{version}} -- powered by DDF</p>
-                    </div>
-                    <div id="phone" class="col-md-2">
-                        {{phone}}
-                    </div>
-                    <div id="email" class="col-md-3">
-                        <a href="mailto:{{email}}">{{email}}</a>
-                    </div>
-                    <div id="externalUrl" class="col-md-3">
-                        <a href="{{externalUrl}}">{{externalUrl}}</a>
+            <hr>
+            <footer>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p>{{version}} -- powered by DDF</p>
+                        </div>
+                        <div id="phone" class="col-md-2">
+                            {{phone}}
+                        </div>
+                        <div id="email" class="col-md-3">
+                            <a href="mailto:{{email}}">{{email}}</a>
+                        </div>
+                        <div id="externalUrl" class="col-md-3">
+                            <a href="{{externalUrl}}">{{externalUrl}}</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </footer>
-    </div>
-</div>
-<footer>
-    <div class="footer-layout">
-        <div class="footer-container">
-            <div class="banner-container" id="footer">
-
-            </div>
+            </footer>
         </div>
     </div>
-</footer>
+    <footer>
+        <div class="footer-layout">
+            <div class="footer-container">
+                <div class="banner-container" id="footer">
 
-<!-- js
-================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="/landing/assets/js/jquery-1.10.1.min.js"></script>
-<script src="/landing/assets/js/spin.min.js"></script>
-<script src="/landing/assets/js/jquery.spin.js"></script>
-<script src="/landing/assets/js/index.js"></script>
-<script src="/landing/assets/js/bootstrap.min.js"></script>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- js
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/landing/assets/js/jquery-1.10.1.min.js"></script>
+    <script src="/landing/assets/js/spin.min.js"></script>
+    <script src="/landing/assets/js/jquery.spin.js"></script>
+    <script src="/landing/assets/js/index.js"></script>
+    <script src="/landing/assets/js/bootstrap.min.js"></script>
 
 </body>
 </html>

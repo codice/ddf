@@ -1,5 +1,6 @@
 package ddf.catalog.validation.impl
 
+<<<<<<< HEAD
 import static org.mockito.Mockito.when
 import static org.powermock.api.mockito.PowerMockito.mockStatic
 
@@ -8,6 +9,18 @@ import ddf.catalog.data.DefaultAttributeValueRegistry
 import ddf.catalog.data.MetacardType
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
 import ddf.catalog.data.impl.AttributeRegistryImpl
+=======
+import ddf.catalog.data.AttributeRegistry
+import ddf.catalog.data.DefaultAttributeValueRegistry
+import ddf.catalog.data.InjectableAttribute
+import ddf.catalog.data.MetacardType
+import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
+import ddf.catalog.data.impl.AttributeDescriptorImpl
+import ddf.catalog.data.impl.AttributeRegistryImpl
+import ddf.catalog.data.impl.BasicTypes
+import ddf.catalog.data.impl.MetacardTypeImpl
+import ddf.catalog.data.impl.types.CoreAttributes
+>>>>>>> master
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
 import org.junit.Rule
@@ -15,6 +28,10 @@ import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.FrameworkUtil
+<<<<<<< HEAD
+=======
+import org.osgi.framework.ServiceRegistration
+>>>>>>> master
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.rule.PowerMockRule
 import spock.lang.Specification
@@ -22,6 +39,12 @@ import spock.lang.Specification
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
+<<<<<<< HEAD
+=======
+import static org.mockito.Mockito.when
+import static org.powermock.api.mockito.PowerMockito.mockStatic
+
+>>>>>>> master
 @PrepareForTest(FrameworkUtil.class)
 class ValidationParserSpecTest extends Specification {
     @Rule
@@ -45,14 +68,28 @@ class ValidationParserSpecTest extends Specification {
 
         attributeValidatorRegistry = new AttributeValidatorRegistryImpl()
 
+<<<<<<< HEAD
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
 
         validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry, defaultAttributeValueRegistry)
+=======
+        attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", Arrays.asList(new CoreAttributes())))
+
+        defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
+
+        validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry,
+                defaultAttributeValueRegistry)
+
+>>>>>>> master
 
         file = temporaryFolder.newFile("temp.json")
     }
 
+<<<<<<< HEAD
     def "Test Blank File"() {
+=======
+    def "test blank file"() {
+>>>>>>> master
         when: "Blank file installed should be noop"
         validationParser.install(file)
 
@@ -82,11 +119,16 @@ class ValidationParserSpecTest extends Specification {
         thrown(IllegalArgumentException)
     }
 
+<<<<<<< HEAD
     def "test valid file"() {
+=======
+    def "test valid file install then uninstall"() {
+>>>>>>> master
         setup:
         file.withPrintWriter { it.write(valid) }
 
         mockStatic(FrameworkUtil.class)
+<<<<<<< HEAD
         Bundle mockBundle = Mock(Bundle)
         when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
 
@@ -110,6 +152,200 @@ class ValidationParserSpecTest extends Specification {
             it.get("name") == "another-useful-type"
         })
         1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, null)
+=======
+        def Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        def BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        def ServiceRegistration<MetacardType> typeService1 = Mock(ServiceRegistration)
+        def ServiceRegistration<MetacardType> typeService2 = Mock(ServiceRegistration)
+        def ServiceRegistration<InjectableAttribute> injectService1 = Mock(ServiceRegistration)
+        def ServiceRegistration<InjectableAttribute> injectService2 = Mock(ServiceRegistration)
+        def ServiceRegistration<MetacardValidator> validatorService = Mock(ServiceRegistration)
+
+        def type1Name = "type1"
+        def type2Name = "type2"
+
+        def attribute1Name = "attribute1"
+        def attribute2Name = "attribute2"
+
+        when: "the definition file is installed"
+        validationParser.install(file)
+
+        then: "a required attributes metacard validator is registered as a service"
+        1 * mockBundleContext.registerService(
+                MetacardValidator.class, _ as MetacardValidator, null) >> validatorService
+
+        and: "the metacard types are registered as services"
+        1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
+            it.get("name") == type1Name
+        }) >> typeService1
+        1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
+            it.get("name") == type2Name
+        }) >> typeService2
+
+        and: "the two attributes are registered in the attribute registry"
+        attributeRegistry.lookup(attribute1Name).isPresent()
+        attributeRegistry.lookup(attribute2Name).isPresent()
+
+        and: "the four attribute validators are registered in the attribute validator registry"
+        attributeValidatorRegistry.getValidators(attribute1Name).size() == 4
+
+        and: "the default values are registered in the default value registry"
+        defaultAttributeValueRegistry.getDefaultValue(type2Name, attribute1Name).isPresent()
+        defaultAttributeValueRegistry.getDefaultValue(type2Name, attribute1Name).get() == "value1"
+
+        defaultAttributeValueRegistry.getDefaultValue(type1Name, attribute2Name).isPresent()
+        defaultAttributeValueRegistry.getDefaultValue(type1Name, attribute2Name).get() == "value2"
+        !defaultAttributeValueRegistry.getDefaultValue(type2Name, attribute2Name).isPresent()
+
+        and: "the injectable attribute services are registered"
+        2 * mockBundleContext.registerService(InjectableAttribute.class, _ as InjectableAttribute,
+                null) >>> [injectService1, injectService2]
+
+        when: "the definition file is uninstalled"
+        validationParser.uninstall(file)
+
+        then: "the required attributes metacard validator service is deregistered"
+        1 * validatorService.unregister()
+
+        and: "the metacard type services are deregistered"
+        1 * typeService1.unregister()
+        1 * typeService2.unregister()
+
+        and: "the two attributes are deregistered"
+        !attributeRegistry.lookup(attribute1Name).isPresent()
+        !attributeRegistry.lookup(attribute2Name).isPresent()
+
+        and: "the two attribute validators are deregistered"
+        attributeValidatorRegistry.getValidators(attribute1Name).size() == 0
+
+        and: "the default values are deregistered"
+        !defaultAttributeValueRegistry.getDefaultValue(type2Name, attribute1Name).isPresent()
+        !defaultAttributeValueRegistry.getDefaultValue(type1Name, attribute2Name).isPresent()
+
+        and: "the injectable attribute services are deregistered"
+        1 * injectService1.unregister()
+        1 * injectService2.unregister()
+    }
+
+    def "test valid file update"() {
+        setup:
+        file.withPrintWriter { it.write(valid) }
+
+        mockStatic(FrameworkUtil.class)
+        def Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        def BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        def ServiceRegistration<MetacardType> typeService1 = Mock(ServiceRegistration)
+        def ServiceRegistration<MetacardType> typeService2 = Mock(ServiceRegistration)
+        def ServiceRegistration<InjectableAttribute> injectService1 = Mock(ServiceRegistration)
+        def ServiceRegistration<InjectableAttribute> injectService2 = Mock(ServiceRegistration)
+        def ServiceRegistration<MetacardValidator> mockValidatorService = Mock(ServiceRegistration)
+
+        def type1Name = "type1"
+        def type2Name = "type2"
+
+        def updatedType1Name = "type1-updated"
+        def updatedType2Name = "type2-updated"
+
+        def attribute1Name = "attribute1"
+        def attribute2Name = "attribute2"
+
+        def updatedAttribute1Name = "attribute1-updated"
+        def updatedAttribute2Name = "attribute2-updated"
+
+        when: "the file is installed then updated"
+        validationParser.install(file)
+
+        String updatedFileContents = valid.replaceAll(type1Name, updatedType1Name)
+                .replaceAll(type2Name, updatedType2Name)
+                .replaceAll(attribute1Name, updatedAttribute1Name)
+                .replaceAll(attribute2Name, updatedAttribute2Name)
+
+        file.withPrintWriter({ it.write(updatedFileContents) })
+        validationParser.update(file)
+
+        then: "a required attributes metacard validator service is registered on the install"
+        1 * mockBundleContext.registerService(
+                MetacardValidator.class, _ as MetacardValidator, null) >> mockValidatorService
+
+        and: "two metacard type services are registered on the install"
+        1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
+            it.get("name") == type1Name
+        }) >> typeService1
+        1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
+            it.get("name") == type2Name
+        }) >> typeService2
+
+        and: "two injectable attribute services are registered on the install"
+        1 * mockBundleContext.registerService(InjectableAttribute.class, {
+            it.attribute() == attribute1Name
+        }, null) >> injectService1
+        1 * mockBundleContext.registerService(InjectableAttribute.class, {
+            it.attribute() == attribute2Name
+        }, null) >> injectService2
+
+        and: "the required attributes metacard validator service is deregistered on the update"
+        1 * mockValidatorService.unregister()
+
+        and: "the two metacard type services are deregistered"
+        1 * typeService1.unregister()
+        1 * typeService2.unregister()
+
+        and: "the two attributes are deregistered"
+        !attributeRegistry.lookup(attribute1Name).isPresent()
+        !attributeRegistry.lookup(attribute2Name).isPresent()
+
+        and: "the attribute validators are deregistered"
+        attributeValidatorRegistry.getValidators(attribute1Name).size() == 0
+
+        and: "the default values are deregistered"
+        !defaultAttributeValueRegistry.getDefaultValue(type2Name, attribute1Name).isPresent()
+
+        and: "the two injectable attribute services are deregistered"
+        1 * injectService1.unregister()
+        1 * injectService2.unregister()
+
+        then: "a new required attributes metacard validator service is registered"
+        1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, null)
+
+        and: "two new metacard type services are registered"
+        1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
+            it.get("name") == updatedType1Name
+        })
+        1 * mockBundleContext.registerService(MetacardType.class, _ as MetacardType, {
+            it.get("name") == updatedType2Name
+        })
+
+        and: "two new attributes are registered"
+        attributeRegistry.lookup(updatedAttribute1Name).isPresent()
+        attributeRegistry.lookup(updatedAttribute2Name).isPresent()
+
+        and: "four new attribute validators are registered"
+        attributeValidatorRegistry.getValidators(updatedAttribute1Name).size() == 4
+
+        and: "two new default values are registered"
+        defaultAttributeValueRegistry.getDefaultValue(updatedType2Name, updatedAttribute1Name).isPresent()
+        defaultAttributeValueRegistry.getDefaultValue(updatedType2Name, updatedAttribute1Name).get() == "value1"
+
+        defaultAttributeValueRegistry.getDefaultValue(updatedType1Name, updatedAttribute2Name).isPresent()
+        defaultAttributeValueRegistry.getDefaultValue(updatedType1Name, updatedAttribute2Name).get() == "value2"
+        !defaultAttributeValueRegistry.getDefaultValue(updatedType2Name, updatedAttribute2Name).isPresent()
+
+        and: "two new injectable attribute services are registered"
+        1 * mockBundleContext.registerService(InjectableAttribute.class, {
+            it.attribute() == updatedAttribute1Name
+        }, null)
+        1 * mockBundleContext.registerService(InjectableAttribute.class, {
+            it.attribute() == updatedAttribute2Name
+        }, null)
+>>>>>>> master
     }
 
     def "test default values"() {
@@ -167,50 +403,140 @@ class ValidationParserSpecTest extends Specification {
 
         then:
         thrown(IllegalArgumentException)
+<<<<<<< HEAD
         attributeRegistry.getAttributeDescriptor("cool-attribute").isPresent()
         attributeValidatorRegistry.getValidators("cool-attribute").size() == 0
+=======
+        attributeRegistry.lookup("attribute1").isPresent()
+        attributeValidatorRegistry.getValidators("attribute1").size() == 0
+    }
+
+    def "test injections"() {
+        setup:
+        file.withPrintWriter { it.write(valid) }
+
+        mockStatic(FrameworkUtil.class)
+        def Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        def BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        when:
+        validationParser.install(file)
+
+        then:
+        1 * mockBundleContext.registerService(InjectableAttribute.class, {
+            it.attribute() == "attribute1"
+            it.metacardTypes().isEmpty()
+        }, null)
+
+        1 * mockBundleContext.registerService(InjectableAttribute.class, {
+            it.attribute() == "attribute2"
+            it.metacardTypes() == ["other.type.1", "other.type.2"] as Set
+        }, null)
+    }
+
+    def "test metacard types"() {
+        setup:
+        file.withPrintWriter { it.write(valid) }
+
+        mockStatic(FrameworkUtil.class)
+        def Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        def BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        def attribute1Name = "attribute1";
+        def attribute2Name = "attribute2";
+        def expectedAttribute1 = new AttributeDescriptorImpl(
+                attribute1Name, true, true, false, false, BasicTypes.STRING_TYPE);
+        def expectedAttribute2 = new AttributeDescriptorImpl(
+                attribute2Name, true, true, false, true, BasicTypes.XML_TYPE);
+
+        def type1Name = "type1";
+        def type2Name = "type2";
+
+        when:
+        validationParser.install(file)
+
+        then:
+        1 * mockBundleContext.registerService(MetacardType.class, {
+            it == new MetacardTypeImpl(type1Name, BasicTypes.BASIC_METACARD,
+                    [expectedAttribute1, expectedAttribute2] as Set)
+        }, { it.get("name") == type1Name })
+        1 * mockBundleContext.registerService(MetacardType.class, {
+            it == new MetacardTypeImpl(type2Name, BasicTypes.BASIC_METACARD,
+                    [expectedAttribute1] as Set)
+        }, { it.get("name") == type2Name })
+>>>>>>> master
     }
 
     String valid = '''
 {
     "metacardTypes": [
         {
+<<<<<<< HEAD
             "type": "my-metacard-type",
             "attributes": {
                 "cool-attribute": {
                     "required": true
                 },
                 "geospatial-goodness": {
+=======
+            "type": "type1",
+            "attributes": {
+                "attribute1": {
+                    "required": true
+                },
+                "attribute2": {
+>>>>>>> master
                     "required": false
                 }
             }
         },
         {
+<<<<<<< HEAD
             "type": "another-useful-type",
             "attributes": {
                 "cool-attribute": {
                     "required": false
                 },
                 "useful-attribute": {
+=======
+            "type": "type2",
+            "attributes": {
+                "attribute1": {
+>>>>>>> master
                     "required": false
                 }
             }
         }
     ],
     "attributeTypes": {
+<<<<<<< HEAD
         "cool-attribute": {
+=======
+        "attribute1": {
+>>>>>>> master
             "type": "STRING_TYPE",
             "stored": true,
             "indexed": true,
             "tokenized": false,
             "multivalued": false
         },
+<<<<<<< HEAD
         "geospatial-goodness": {
+=======
+        "attribute2": {
+>>>>>>> master
             "type": "XML_TYPE",
             "stored": true,
             "indexed": true,
             "tokenized": false,
             "multivalued": true
+<<<<<<< HEAD
         },
         "useful-attribute": {
             "type": "BOOLEAN_TYPE",
@@ -222,6 +548,12 @@ class ValidationParserSpecTest extends Specification {
     },
     "validators": {
         "cool-attribute": [
+=======
+        }
+    },
+    "validators": {
+        "attribute1": [
+>>>>>>> master
             {
                 "validator": "size",
                 "arguments": ["0", "128"]
@@ -229,9 +561,41 @@ class ValidationParserSpecTest extends Specification {
             {
                 "validator": "pattern",
                 "arguments": ["(hi)+\\d"]
+<<<<<<< HEAD
             }
         ]
     }
+=======
+            },
+            {
+                "validator": "iso3_country",
+            },
+            {
+                "validator": "iso3_countryignorecase",
+            }
+        ]
+    },
+    "defaults": [
+        {
+            "attribute": "attribute1",
+            "value": "value1"
+        },
+        {
+            "attribute": "attribute2",
+            "value": "value2",
+            "metacardTypes": ["type1"]
+        }
+    ],
+    "inject": [
+        {
+            "attribute": "attribute1"
+        },
+        {
+            "attribute": "attribute2",
+            "metacardTypes": ["other.type.1", "other.type.2"]
+        }
+    ]
+>>>>>>> master
 }
 '''
 
@@ -335,6 +699,11 @@ class ValidationParserSpecTest extends Specification {
             }
         ]
     }
+<<<<<<< HEAD
 }'''
 
+=======
+}
+'''
+>>>>>>> master
 }

@@ -72,11 +72,11 @@ public class RelevanceResultComparator implements Comparator<Result> {
             } else if (SortOrder.DESCENDING.equals(sortOrder)) {
                 return relevanceScoreB.compareTo(relevanceScoreA);
             } else {
-                LOGGER.warn("Unknown order type. Returning 0.");
+                LOGGER.debug("Unknown order type. Returning 0.");
                 return 0;
             }
         } else {
-            LOGGER.warn("Error comparing responses, at least one was null.  Returning -1: ");
+            LOGGER.debug("Error comparing responses, at least one was null.  Returning -1: ");
             return -1;
         }
     }

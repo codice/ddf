@@ -13,7 +13,6 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,7 +27,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryTest;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
@@ -56,6 +55,7 @@ import org.opengis.filter.spatial.Within;
 import org.opengis.filter.temporal.After;
 import org.opengis.filter.temporal.Before;
 import org.opengis.filter.temporal.BinaryTemporalOperator;
+import org.opengis.filter.temporal.During;
 import org.opengis.filter.temporal.TEquals;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -63,6 +63,12 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+<<<<<<< HEAD
+=======
+import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.impl.filter.FuzzyFunction;
+>>>>>>> master
 
 public class TestCswRecordMapperFilterVisitor {
 
@@ -90,9 +96,13 @@ public class TestCswRecordMapperFilterVisitor {
 
         created =
                 new AttributeExpressionImpl(new NameImpl(new QName(CswConstants.DUBLIN_CORE_SCHEMA,
-                        Metacard.CREATED,
+                        Core.CREATED,
                         CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
+<<<<<<< HEAD
         metacardType = new CswRecordMetacardType();
+=======
+        metacardType = CswQueryFactoryTest.getCswMetacardType();
+>>>>>>> master
 
         mockMetacardTypeList = new ArrayList<>();
         mockMetacardTypeList.add(metacardType);
@@ -114,7 +124,7 @@ public class TestCswRecordMapperFilterVisitor {
     public void testVisitWithBoundingBoxProperty() {
         AttributeExpressionImpl propName = new AttributeExpressionImpl(new NameImpl(new QName(
                 CswConstants.DUBLIN_CORE_SCHEMA,
-                CswRecordMetacardType.OWS_BOUNDING_BOX,
+                CswConstants.OWS_BOUNDING_BOX,
                 CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
         CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
                 mockMetacardTypeList);
@@ -128,7 +138,7 @@ public class TestCswRecordMapperFilterVisitor {
     public void testVisitWithMappedName() {
         AttributeExpressionImpl propName = new AttributeExpressionImpl(new NameImpl(new QName(
                 CswConstants.DUBLIN_CORE_SCHEMA,
-                CswRecordMetacardType.CSW_ALTERNATIVE,
+                CswConstants.CSW_ALTERNATIVE,
                 CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
         CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
@@ -136,9 +146,8 @@ public class TestCswRecordMapperFilterVisitor {
 
         PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
 
-        assertThat(propertyName.getPropertyName(), equalTo(Metacard.TITLE));
-        assertThat(propertyName.getPropertyName(),
-                not(equalTo(CswRecordMetacardType.CSW_ALTERNATIVE)));
+        assertThat(propertyName.getPropertyName(), is(Core.TITLE));
+        assertThat(propertyName.getPropertyName(), not(is(CswConstants.CSW_ALTERNATIVE)));
     }
 
     @Test
@@ -221,6 +230,27 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(duplicate.getExpression1(), is(attrExpr));
         assertThat(duplicate.getExpression2(), is(val));
         assertThat(duplicate.isMatchingCase(), is(true));
+<<<<<<< HEAD
+=======
+    }
+
+    @Test
+    public void testVisitPropertyIsFuzzy() {
+        visitor = new CswRecordMapperFilterVisitor(metacardType, mockMetacardTypeList);
+        Expression val1 = factory.property("fooProperty");
+        Expression val2 = factory.literal("fooLiteral");
+
+        //PropertyIsFuzzy maps to a propertyIsLike filter with a fuzzy function
+        GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
+        PropertyIsLike fuzzySearch = (PropertyIsLike) builder.attribute(val1.toString())
+                .is()
+                .like()
+                .fuzzyText(val2.toString());
+        PropertyIsLike visitedFilter = (PropertyIsLike) visitor.visit(fuzzySearch, null);
+
+        assertThat(visitedFilter.getExpression(), is(instanceOf(FuzzyFunction.class)));
+        assertThat(visitedFilter.getLiteral(), is(val2.toString()));
+>>>>>>> master
     }
 
     @Test
@@ -262,18 +292,22 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(duplicate.getExpression2(), is(val));
     }
 
-    @Ignore("not supported by solr provider")
+
     @Test
     public void testVisitPropertyIsGreaterThanTemporal() {
-        Expression val = factory.literal(new Date());
+        Expression val = factory.literal(new Date(System.currentTimeMillis() - 1000));
+        Expression test =
+                new AttributeExpressionImpl(new NameImpl(new QName(CswConstants.DUBLIN_CORE_SCHEMA,
+                        "TestDate",
+                        CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
-        PropertyIsGreaterThan filter = factory.greater(created, val);
+        PropertyIsGreaterThan filter = factory.greater(test, val);
         Object obj = visitor.visit(filter, null);
 
-        assertThat(obj, instanceOf(After.class));
-        After duplicate = (After) obj;
-        assertThat(duplicate.getExpression1(), equalTo(created));
-        assertThat(duplicate.getExpression2(), equalTo(val));
+        assertThat(obj, instanceOf(During.class));
+        During duplicate = (During) obj;
+        assertThat(duplicate.getExpression1(), is(test));
+        assertThat(duplicate.getExpression2(), is(val));
     }
 
     @Test
@@ -362,9 +396,12 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(obj, instanceOf(Or.class));
         Or duplicate = (Or) obj;
 
+<<<<<<< HEAD
         List<Class<? extends BinaryTemporalOperator>> classes =
                 new ArrayList<>();
 
+=======
+>>>>>>> master
         for (Filter child : duplicate.getChildren()) {
             BinaryTemporalOperator binary = (BinaryTemporalOperator) child;
             assertThat(binary, anyOf(instanceOf(TEquals.class), instanceOf(Before.class)));
@@ -417,7 +454,7 @@ public class TestCswRecordMapperFilterVisitor {
         Expression val = factory.literal("source1");
         Expression val2 = factory.literal("source2");
 
-        Expression sourceExpr = factory.property(Metacard.SOURCE_ID);
+        Expression sourceExpr = factory.property(Core.SOURCE_ID);
 
         PropertyIsEqualTo filter = factory.equal(sourceExpr, val, false);
 

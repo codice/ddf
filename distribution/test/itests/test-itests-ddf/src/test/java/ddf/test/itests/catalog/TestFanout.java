@@ -13,6 +13,8 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
@@ -28,6 +30,12 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.http.HttpStatus;
+<<<<<<< HEAD
+=======
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
+>>>>>>> master
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,10 +45,13 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 
 import com.jayway.restassured.path.json.JsonPath;
 
+<<<<<<< HEAD
 import ddf.common.test.BeforeExam;
 import ddf.common.test.catalog.CatalogIngest;
 import ddf.test.itests.AbstractIntegrationTest;
 
+=======
+>>>>>>> master
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestFanout extends AbstractIntegrationTest {
@@ -79,9 +90,8 @@ public class TestFanout extends AbstractIntegrationTest {
 
     private void startCswSource() throws Exception {
         getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
-        CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
-        getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
-
+        getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID,
+                getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()));
         getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
     }
 
@@ -100,7 +110,7 @@ public class TestFanout extends AbstractIntegrationTest {
             assertThat(json.getInt("size()"), equalTo(1));
             assertThat(json.getList("id", String.class), hasItem(LOCAL_SOURCE_ID));
         } finally {
-            getServiceManager().stopManagedService(CswSourceProperties.FACTORY_PID);
+            getServiceManager().stopManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID);
         }
     }
 
@@ -123,31 +133,44 @@ public class TestFanout extends AbstractIntegrationTest {
             assertThat(json.getList("id", String.class), hasItem(LOCAL_SOURCE_ID));
             assertThat(json.getList("id", String.class), hasItem(CSW_SOURCE_ID));
         } finally {
-            getServiceManager().stopManagedService(CswSourceProperties.FACTORY_PID);
+            getServiceManager().stopManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID);
         }
     }
 
     @Test
     public void testCswIngestWithFanoutEnabledAndEmptyBlacklist() throws Exception {
+<<<<<<< HEAD
         String id = CatalogIngest.ingest("Some data to ingest",
                 MediaType.TEXT_PLAIN,
                 REST_PATH.getUrl(),
                 HttpStatus.SC_CREATED);
         CatalogIngest.deleteMetacard(id, REST_PATH.getUrl(), HttpStatus.SC_OK);
+=======
+        String id = CatalogTestCommons.ingest("Some data to ingest",
+                MediaType.TEXT_PLAIN,
+                HttpStatus.SC_CREATED);
+        CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_OK);
+>>>>>>> master
     }
 
     @Test
     public void testCswIngestFailsWithFanoutEnabledAndBlacklistSet() throws Exception {
         getCatalogBundle().setFanoutTagBlacklist(TAG_BLACKLIST);
+<<<<<<< HEAD
         CatalogIngest.ingest("Some data to ingest. This should fail.",
                 MediaType.TEXT_PLAIN,
                 REST_PATH.getUrl(),
+=======
+        CatalogTestCommons.ingest("Some data to ingest. This should fail.",
+                MediaType.TEXT_PLAIN,
+>>>>>>> master
                 HttpStatus.SC_BAD_REQUEST);
     }
 
     @Test
     public void testCswUpdateWorksWithFanoutEnabledAndEmptyBlacklist() throws IOException {
         getCatalogBundle().setFanoutTagBlacklist(Collections.emptyList());
+<<<<<<< HEAD
         String id = CatalogIngest.ingest("Some data to ingest",
                 MediaType.TEXT_PLAIN,
                 REST_PATH.getUrl(),
@@ -157,43 +180,81 @@ public class TestFanout extends AbstractIntegrationTest {
                 REST_PATH.getUrl() + id,
                 HttpStatus.SC_OK);
         CatalogIngest.deleteMetacard(id, REST_PATH.getUrl(), HttpStatus.SC_OK);
+=======
+        String id = CatalogTestCommons.ingest("Some data to ingest",
+                MediaType.TEXT_PLAIN,
+                HttpStatus.SC_CREATED);
+        CatalogTestCommons.update(id,
+                "Some data to update",
+                MediaType.TEXT_PLAIN,
+                HttpStatus.SC_OK);
+        CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_OK);
+>>>>>>> master
     }
 
     @Test
     public void testCswUpdateFailsWithFanoutEnabledAndBlacklistSet() throws IOException {
         getCatalogBundle().setFanoutTagBlacklist(Collections.emptyList());
+<<<<<<< HEAD
         String id = CatalogIngest.ingest("Some data to ingest",
                 MediaType.TEXT_PLAIN,
                 REST_PATH.getUrl(),
+=======
+        String id = CatalogTestCommons.ingest("Some data to ingest",
+                MediaType.TEXT_PLAIN,
+>>>>>>> master
                 HttpStatus.SC_CREATED);
 
         // Set blacklist so update will fail
         getCatalogBundle().setFanoutTagBlacklist(TAG_BLACKLIST);
+<<<<<<< HEAD
         CatalogIngest.update("Some data to update",
                 MediaType.TEXT_PLAIN,
                 REST_PATH.getUrl() + id,
+=======
+        CatalogTestCommons.update(id,
+                "Some data to update",
+                MediaType.TEXT_PLAIN,
+>>>>>>> master
                 HttpStatus.SC_BAD_REQUEST);
 
         // Set blacklist to empty list so the delete will succeed
         getCatalogBundle().setFanoutTagBlacklist(new ArrayList<>());
+<<<<<<< HEAD
         CatalogIngest.deleteMetacard(id, REST_PATH.getUrl(), HttpStatus.SC_OK);
+=======
+        CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_OK);
+>>>>>>> master
     }
 
     @Test
     public void testCswDeleteFailsWithFanoutEnabledAndBlacklistSet() throws IOException {
         // The case where delete works with fanout on and empty blacklist is tested as clean up in the other tests.
         getCatalogBundle().setFanoutTagBlacklist(Collections.emptyList());
+<<<<<<< HEAD
         String id = CatalogIngest.ingest("Some data to ingest",
                 MediaType.TEXT_PLAIN,
                 REST_PATH.getUrl(),
+=======
+        String id = CatalogTestCommons.ingest("Some data to ingest",
+                MediaType.TEXT_PLAIN,
+>>>>>>> master
                 HttpStatus.SC_CREATED);
 
         // Set blacklist so update will fail
         getCatalogBundle().setFanoutTagBlacklist(TAG_BLACKLIST);
+<<<<<<< HEAD
         CatalogIngest.deleteMetacard(id, REST_PATH.getUrl(), HttpStatus.SC_BAD_REQUEST);
 
         // Set blacklist to empty list so the delete will succeed
         getCatalogBundle().setFanoutTagBlacklist(new ArrayList<>());
         CatalogIngest.deleteMetacard(id, REST_PATH.getUrl(), HttpStatus.SC_OK);
+=======
+        CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_BAD_REQUEST);
+
+        // Set blacklist to empty list so the delete will succeed
+        getCatalogBundle().setFanoutTagBlacklist(new ArrayList<>());
+        CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_OK);
+>>>>>>> master
     }
 }

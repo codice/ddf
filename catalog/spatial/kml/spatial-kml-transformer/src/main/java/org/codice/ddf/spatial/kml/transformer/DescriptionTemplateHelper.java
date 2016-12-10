@@ -112,14 +112,14 @@ public class DescriptionTemplateHelper {
             try {
                 return options.fn();
             } catch (IOException e) {
-                LOGGER.error("Failed to execute thumbnail template", e);
+                LOGGER.debug("Failed to execute thumbnail template", e);
                 return "";
             }
         } else {
             try {
                 return options.inverse();
             } catch (IOException e) {
-                LOGGER.error("Failed to execute noThumbnail template", e);
+                LOGGER.debug("Failed to execute noThumbnail template", e);
                 return "";
             }
         }

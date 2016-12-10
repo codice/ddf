@@ -42,9 +42,9 @@ public class MarkableStreamInterceptor extends AbstractPhaseInterceptor<Message>
             message.setContent(InputStream.class,
                     new ByteArrayInputStream(IOUtils.toByteArray(is)));
         } catch (IOException e) {
-            LOGGER.warn("Failed to convert buffered stream");
+            LOGGER.debug("Failed to convert buffered stream");
         } catch (NullPointerException e) {
-            LOGGER.warn("InputStream was null");
+            LOGGER.debug("InputStream was null");
         }
     }
 }

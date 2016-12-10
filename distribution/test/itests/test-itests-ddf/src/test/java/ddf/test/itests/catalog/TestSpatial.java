@@ -13,6 +13,8 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -25,7 +27,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -35,6 +36,8 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.HttpStatus;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,12 +49,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.response.ValidatableResponse;
 import com.jayway.restassured.specification.RequestSpecification;
-
-import ddf.common.test.BeforeExam;
-import ddf.test.itests.AbstractIntegrationTest;
-import ddf.test.itests.common.Library;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -147,8 +145,16 @@ public class TestSpatial extends AbstractIntegrationTest {
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_FAR_METACARD)})
                     .put("CswXPathExpressionQuery",
+<<<<<<< HEAD
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     CSW_METACARD)})
+=======
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
+                    .put("CswFuzzyTextQuery",
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
+>>>>>>> master
                     .build();
 
     @BeforeExam
@@ -173,7 +179,7 @@ public class TestSpatial extends AbstractIntegrationTest {
     public void tearDown() throws Exception {
         if (metacardIds != null) {
             for (String metacardId : metacardIds.values()) {
-                TestCatalog.deleteMetacard(metacardId);
+                deleteMetacard(metacardId);
             }
             metacardIds.clear();
         }
@@ -333,6 +339,16 @@ public class TestSpatial extends AbstractIntegrationTest {
         performQueryAndValidateExpectedResults("CswXPathExpressionQuery");
     }
 
+<<<<<<< HEAD
+=======
+    @Test
+    public void testCswFuzzyTextQuery()
+            throws XPathException, ParserConfigurationException, SAXException, IOException {
+
+        performQueryAndValidateExpectedResults("CswFuzzyTextQuery");
+    }
+
+>>>>>>> master
     /**
      * Ingests data, performs and validates the query returns the correct results.
      *
@@ -360,7 +376,7 @@ public class TestSpatial extends AbstractIntegrationTest {
             Map<String, String> savedQueries) {
 
         //gets a list of resources available within the resource bundle
-        Enumeration<URL> queryResourcePaths = FrameworkUtil.getBundle(TestSpatial.class)
+        Enumeration<URL> queryResourcePaths = FrameworkUtil.getBundle(AbstractIntegrationTest.class)
                 .getBundleContext()
                 .getBundle()
                 .findEntries(resourcesPath, "*", false);
@@ -372,58 +388,10 @@ public class TestSpatial extends AbstractIntegrationTest {
                 String queryName = queryResourcePath.substring(
                         queryResourcePath.lastIndexOf("/") + 1);
                 savedQueries.put(removeFileExtension(queryName),
-                        Library.getFileContent(queryResourcePath));
+                        getFileContent(queryResourcePath));
             }
         }
         return savedQueries;
-    }
-
-    public static String ingestCswRecord(String cswRecord) {
-
-        String transactionRequest = Library.getCswInsert("csw:Record", cswRecord);
-
-        ValidatableResponse response = given().log()
-                .all()
-                .body(transactionRequest)
-                .header("Content-Type", MediaType.APPLICATION_XML)
-                .when()
-                .post(CSW_ENDPOINT_URL.getUrl())
-                .then()
-                .log()
-                .all()
-                .assertThat()
-                .statusCode(equalTo(HttpStatus.SC_OK));
-
-        return response.extract()
-                .body()
-                .xmlPath()
-                .get("Transaction.InsertResult.BriefRecord.identifier")
-                .toString();
-    }
-
-    public static Map<String, String> ingestMetacards(Map<String, String> metacardsIds) {
-        //ingest csw
-        String cswRecordId = ingestCswRecord(Library.getFileContent(
-                CSW_RESOURCE_ROOT + "csw/record/CswRecord.xml"));
-        metacardsIds.put(CSW_METACARD, cswRecordId);
-
-        //ingest xml
-        String plainXmlNearId = TestCatalog.ingest(Library.getFileContent(
-                CSW_RESOURCE_ROOT + "xml/PlainXmlNear.xml"), MediaType.TEXT_XML);
-        String plainXmlFarId = TestCatalog.ingest(Library.getFileContent(
-                CSW_RESOURCE_ROOT + "xml/PlainXmlFar.xml"), MediaType.TEXT_XML);
-        metacardsIds.put(PLAINXML_NEAR_METACARD, plainXmlNearId);
-        metacardsIds.put(PLAINXML_FAR_METACARD, plainXmlFarId);
-
-        //ingest json
-        String geoJsonNearId = TestCatalog.ingestGeoJson(Library.getFileContent(
-                CSW_RESOURCE_ROOT + "json/GeoJsonNear.json"));
-        String geoJsonFarId = TestCatalog.ingestGeoJson(Library.getFileContent(
-                CSW_RESOURCE_ROOT + "json/GeoJsonFar.json"));
-        metacardsIds.put(GEOJSON_NEAR_METACARD, geoJsonNearId);
-        metacardsIds.put(GEOJSON_FAR_METACARD, geoJsonFarId);
-
-        return metacardsIds;
     }
 
     private static String removeFileExtension(String file) {

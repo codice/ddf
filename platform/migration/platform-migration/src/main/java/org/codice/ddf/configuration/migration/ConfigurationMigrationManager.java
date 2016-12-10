@@ -102,12 +102,12 @@ public class ConfigurationMigrationManager
         try {
             mBeanServer.registerMBean(this, objectName);
         } catch (InstanceAlreadyExistsException e) {
-            LOGGER.info("{} already registered as an MBean. Re-registering.", CLASS_NAME);
+            LOGGER.debug("{} already registered as an MBean. Re-registering.", CLASS_NAME);
 
             mBeanServer.unregisterMBean(objectName);
             mBeanServer.registerMBean(this, objectName);
 
-            LOGGER.info("Successfully re-registered {} as an MBean.", CLASS_NAME);
+            LOGGER.debug("Successfully re-registered {} as an MBean.", CLASS_NAME);
         }
     }
 
@@ -122,13 +122,13 @@ public class ConfigurationMigrationManager
             configurationAdminMigration.export(exportDirectory);
             migrationWarnings.addAll(exportMigratables(exportDirectory));
         } catch (IOException e) {
-            LOGGER.error("Unable to create export directories", e);
+            LOGGER.info("Unable to create export directories", e);
             throw new ExportMigrationException("Unable to create export directories", e);
         } catch (MigrationException e) {
-            LOGGER.error("Export operation failed", e);
+            LOGGER.info("Export operation failed", e);
             throw e;
         } catch (RuntimeException e) {
-            LOGGER.error("Failure to export, internal error occurred", e);
+            LOGGER.info("Failure to export, internal error occurred", e);
             throw new UnexpectedMigrationException("Export failed", e);
         }
 

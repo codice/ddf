@@ -40,7 +40,9 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.framework.BundleContext;
@@ -111,7 +113,7 @@ public class KMLTransformerImpl implements KMLTransformer {
             KML_MIMETYPE.setPrimaryType("application");
             KML_MIMETYPE.setSubType("vnd.google-earth.kml+xml");
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Unable to parse KML MimeType.", e);
+            LOGGER.info("Unable to parse KML MimeType.", e);
         }
     }
 
@@ -139,15 +141,22 @@ public class KMLTransformerImpl implements KMLTransformer {
             this.jaxbContext = JAXBContext.newInstance(Kml.class);
             unmarshaller = jaxbContext.createUnmarshaller();
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB Context.  Setting to null.");
+            LOGGER.info("Unable to create JAXB Context.  Setting to null.");
             this.jaxbContext = null;
         }
 
         try {
             if (unmarshaller != null) {
                 LOGGER.debug("Reading in KML Style");
+                XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+                xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                        false);
+                xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+                xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+                XMLStreamReader xmlStreamReader =
+                        xmlInputFactory.createXMLStreamReader(stylingUrl.openStream());
                 JAXBElement<Kml> jaxbKmlStyle =
-                        unmarshaller.unmarshal(new StreamSource(stylingUrl.openStream()),
+                        unmarshaller.unmarshal(xmlStreamReader,
                                 Kml.class);
                 Kml kml = jaxbKmlStyle.getValue();
                 if (kml.getFeature() != null) {
@@ -155,10 +164,10 @@ public class KMLTransformerImpl implements KMLTransformer {
                             .getStyleSelector();
                 }
             }
-        } catch (JAXBException e) {
-            LOGGER.warn("Exception while unmarshalling default style resource.", e);
+        } catch (JAXBException | XMLStreamException e) {
+            LOGGER.debug("Exception while unmarshalling default style resource.", e);
         } catch (IOException e) {
-            LOGGER.warn("Exception while opening default style resource.", e);
+            LOGGER.debug("Exception while opening default style resource.", e);
         }
 
         templateLoader = new ClassPathTemplateLoader();
@@ -258,7 +267,7 @@ public class KMLTransformerImpl implements KMLTransformer {
                 LOGGER.info("bad url passed in, using request url for kml href.", e);
                 urlToMetacard = incomingRestUriAbsolutePathString;
             }
-            LOGGER.debug("REST URL: " + urlToMetacard);
+            LOGGER.debug("REST URL: {}", urlToMetacard);
         }
 
         return performDefaultTransformation(entry, incomingRestUriAbsolutePathString);
@@ -306,7 +315,7 @@ public class KMLTransformerImpl implements KMLTransformer {
             LOGGER.debug(description);
 
         } catch (IOException e) {
-            LOGGER.error("Failed to apply description Template", e);
+            LOGGER.debug("Failed to apply description Template", e);
         }
         kmlPlacemark.setDescription(description);
 
@@ -416,13 +425,12 @@ public class KMLTransformerImpl implements KMLTransformer {
 
             String transformedKmlString = marshalKml(kml);
 
-            // logger.debug("transformed kml metacard: " + transformedKmlString);
             InputStream kmlInputStream = new ByteArrayInputStream(transformedKmlString.getBytes(
                     StandardCharsets.UTF_8));
 
             return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
         } catch (Exception e) {
-            LOGGER.error("Error transforming metacard ({}) to KML: {}",
+            LOGGER.debug("Error transforming metacard ({}) to KML: {}",
                     metacard.getId(),
                     e.getMessage());
             throw new CatalogTransformerException("Error transforming metacard to KML.", e);
@@ -441,7 +449,7 @@ public class KMLTransformerImpl implements KMLTransformer {
                 .toString();
 
         String restUriAbsolutePath = (String) arguments.get("url");
-        LOGGER.debug("rest string url arg: " + restUriAbsolutePath);
+        LOGGER.debug("rest string url arg: {}", restUriAbsolutePath);
 
         // Transform Metacards to KML
         Document kmlDoc = KmlFactory.createDocument();
@@ -457,9 +465,10 @@ public class KMLTransformerImpl implements KMLTransformer {
                 kmlDoc.getFeature()
                         .add(placemark);
             } catch (CatalogTransformerException e) {
-                LOGGER.warn("Error transforming current metacard (" + result.getMetacard()
-                        .getId() + ") to KML and will continue with remaining query responses.", e);
-                continue;
+                LOGGER.debug(
+                        "Error transforming current metacard ({}) to KML and will continue with remaining query responses.",
+                        result.getMetacard()
+                                .getId(), e);
             }
         }
 
@@ -474,9 +483,7 @@ public class KMLTransformerImpl implements KMLTransformer {
                         .size() + CLOSE_PARENTHESIS);
 
         String transformedKml = marshalKml(kmlResult);
-
-        // logger.debug("transformed kml: " + transformedKml);
-
+        
         InputStream kmlInputStream = new ByteArrayInputStream(transformedKml.getBytes(
                 StandardCharsets.UTF_8));
         LOGGER.trace("EXITING: ResponseQueue transform");
@@ -494,7 +501,7 @@ public class KMLTransformerImpl implements KMLTransformer {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, UTF_8);
             marshaller.marshal(kmlResult, writer);
         } catch (JAXBException e) {
-            LOGGER.warn("Failed to marshal KML: ", e);
+            LOGGER.debug("Failed to marshal KML: ", e);
         }
 
         kmlResultString = writer.toString();

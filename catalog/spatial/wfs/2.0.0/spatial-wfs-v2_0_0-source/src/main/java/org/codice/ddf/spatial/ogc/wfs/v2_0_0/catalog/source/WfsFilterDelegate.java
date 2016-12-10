@@ -193,7 +193,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         temporalOperands = new ArrayList<QName>();
 
         if (filterCapabilities == null) {
-            LOGGER.error("WFS 2.0 Service doesn't support any filters");
+            LOGGER.debug("WFS 2.0 Service doesn't support any filters");
             return;
         }
 

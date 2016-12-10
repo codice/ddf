@@ -14,11 +14,25 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <!-- Register in the OSGi Service Registry -->
-    <service interface="ddf.catalog.validation.MetacardValidator" >
+    <service interface="ddf.catalog.validation.MetacardValidator">
         <bean class="org.codice.ddf.sdk.validation.metacard.SampleMetacardValidator">
             <property name="validWords">
                 <set value-type="java.lang.String">
                     <value>Metacard-1</value>
+<<<<<<< HEAD
+=======
+                    <value>clean</value>
+                </set>
+            </property>
+            <property name="warningWords">
+                <set value-type="java.lang.String">
+                    <value>warning</value>
+                </set>
+            </property>
+            <property name="errorWords">
+                <set value-type="java.lang.String">
+                    <value>error</value>
+>>>>>>> master
                 </set>
             </property>
         </bean>

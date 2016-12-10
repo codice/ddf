@@ -33,20 +33,17 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.source.UnsupportedQueryException;
+
 import net.opengis.filter.v_1_1_0.FilterType;
 
 /**
  * CswCqlTextFilter converts a {@link FilterType} to the equivalent CQL Text.
- *
  */
 public final class CswCqlTextFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswCqlTextFilter.class);
 
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
-
-    private static final org.geotools.xml.Configuration PARSER_CONFIG =
-            new org.geotools.filter.v1_1.OGCConfiguration();
 
     private static CswCqlTextFilter instance;
 
@@ -69,7 +66,7 @@ public final class CswCqlTextFilter {
                     "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0",
                     AbstractCswSource.class.getClassLoader());
         } catch (JAXBException e) {
-            LOGGER.error("Failed to initialize JAXBContext", e);
+            LOGGER.info("Failed to initialize JAXBContext", e);
         }
 
         return jaxbContext;
@@ -89,20 +86,14 @@ public final class CswCqlTextFilter {
             } else {
                 throw new UnsupportedQueryException("Query did not produce a valid filter.");
             }
-        } catch (IOException e) {
-            throw new UnsupportedQueryException("Unable to create CQL Filter.", e);
-        } catch (SAXException e) {
-            throw new UnsupportedQueryException("Unable to create CQL Filter.", e);
-        } catch (ParserConfigurationException e) {
-            throw new UnsupportedQueryException("Unable to create CQL Filter.", e);
-        } catch (JAXBException e) {
+        } catch (IOException | SAXException | ParserConfigurationException | JAXBException e) {
             throw new UnsupportedQueryException("Unable to create CQL Filter.", e);
         }
     }
 
     private String marshalFilterType(FilterType filterType) throws JAXBException {
         Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-        JAXBElement<FilterType> filterTypeJaxbElement = new JAXBElement<FilterType>(new QName(
+        JAXBElement<FilterType> filterTypeJaxbElement = new JAXBElement<>(new QName(
                 "http://www.opengis.net/ogc",
                 "Filter"), FilterType.class, filterType);
         StringWriter writer = new StringWriter();

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,18 +27,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.stream.XMLStreamException;
-
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
+import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Attribute;
@@ -48,9 +45,18 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGenericXmlLib {
+
+    MetacardTypeRegister mockMetacardTypeRegister;
+
+    @Before
+    public void setup() {
+        mockMetacardTypeRegister = mock(MetacardTypeRegister.class);
+        doReturn(BasicTypes.BASIC_METACARD).when(mockMetacardTypeRegister).getMetacardType();
+    }
 
     @Test
     public void testNormalTransform() throws FileNotFoundException, CatalogTransformerException {
@@ -64,7 +70,9 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        assertThat(xmlInputTransformer.getMetacardType(), is(notNullValue()));
+        xmlInputTransformer.setDynamicMetacardTypeRegister(mockMetacardTypeRegister);
+        assertThat(xmlInputTransformer.getDynamicMetacardTypeRegister()
+                .getMetacardType(), is(notNullValue()));
         Metacard metacard = null;
         try {
             metacard = xmlInputTransformer.transform(inputStream, "test");
@@ -90,6 +98,7 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
+        xmlInputTransformer.setDynamicMetacardTypeRegister(mockMetacardTypeRegister);
         try {
             xmlInputTransformer.transform(inputStream, "test");
         } catch (IOException e) {
@@ -125,7 +134,9 @@ public class TestGenericXmlLib {
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        MetacardType metacardType = xmlInputTransformer.getMetacardType();
+        xmlInputTransformer.setDynamicMetacardTypeRegister(mockMetacardTypeRegister);
+        MetacardType metacardType = xmlInputTransformer.getDynamicMetacardTypeRegister()
+                .getMetacardType();
         assertThat(metacardType.getAttributeDescriptors(),
                 is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
     }
@@ -135,7 +146,9 @@ public class TestGenericXmlLib {
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(null);
-        MetacardType metacardType = xmlInputTransformer.getMetacardType();
+        xmlInputTransformer.setDynamicMetacardTypeRegister(mockMetacardTypeRegister);
+        MetacardType metacardType = xmlInputTransformer.getDynamicMetacardTypeRegister()
+                .getMetacardType();
         assertThat(metacardType.getAttributeDescriptors(),
                 is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
     }
@@ -156,7 +169,7 @@ public class TestGenericXmlLib {
             }
         };
         Metacard metacard = saxEventHandlerDelegate.read(inputStream);
-        assertThat(metacard.getAttribute(BasicTypes.VALIDATION_ERRORS)
+        assertThat(metacard.getAttribute(Validation.VALIDATION_ERRORS)
                 .getValue(), is("mock-errors-and-warnings"));
 
     }
@@ -174,7 +187,9 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        assertThat(xmlInputTransformer.getMetacardType(), is(notNullValue()));
+        xmlInputTransformer.setDynamicMetacardTypeRegister(mockMetacardTypeRegister);
+        assertThat(xmlInputTransformer.getDynamicMetacardTypeRegister()
+                .getMetacardType(), is(notNullValue()));
         Metacard metacard = null;
         try {
             metacard = xmlInputTransformer.transform(inputStream, "test");
@@ -203,6 +218,7 @@ public class TestGenericXmlLib {
     }
 
     @Test
+<<<<<<< HEAD
     public void testSaxEventToXmlElementConverter()
             throws UnsupportedEncodingException, XMLStreamException {
         SaxEventToXmlElementConverter saxEventToXmlElementConverter =
@@ -281,6 +297,8 @@ public class TestGenericXmlLib {
     }
 
     @Test
+=======
+>>>>>>> master
     public void testDynamicMetacardType() {
         Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
         attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.TITLE,

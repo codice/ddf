@@ -31,7 +31,7 @@ public class TestEscapingPrintWriter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestEscapingPrintWriter.class);
 
     static {
-        LOGGER.info("defaultCharset: " + Charset.defaultCharset());
+        LOGGER.info("defaultCharset: {}", Charset.defaultCharset());
 
         int definedSurrogateCount = 0;
         int definedIsoCount = 0;

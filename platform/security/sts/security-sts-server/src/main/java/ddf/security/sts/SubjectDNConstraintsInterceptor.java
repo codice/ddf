@@ -32,7 +32,8 @@ import org.slf4j.LoggerFactory;
 
 public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private Logger logger = LoggerFactory.getLogger(SubjectDNConstraintsInterceptor.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SubjectDNConstraintsInterceptor.class);
 
     public SubjectDNConstraintsInterceptor() {
         super(Phase.PRE_INVOKE);
@@ -52,7 +53,7 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
             String subjectDNConstraints =
                     (String) message.get(WSHandlerConstants.SIG_SUBJECT_CERT_CONSTRAINTS);
             if (subjectDNConstraints == null) {
-                logger.warn(
+                LOGGER.warn(
                         "No Subject DN Certificate Constraints were defined. This could be a security issue");
             } else {
                 Collection<Pattern> subjectDNPatterns = setSubjectDNPatterns(subjectDNConstraints);
@@ -63,7 +64,7 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
                     throw new AccessDeniedException("No certificate provided.");
                 }
                 if (!(matches(cert[0], subjectDNPatterns))) {
-                    logger.warn("Certificate does not match Subject DN Certificate Constraints");
+                    LOGGER.debug("Certificate does not match Subject DN Certificate Constraints");
                     throw new AccessDeniedException(
                             "Certificate DN does not match allowed pattern(s).");
                 }
@@ -94,11 +95,11 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
     protected boolean matches(final X509Certificate cert,
             final Collection<Pattern> subjectDNPatterns) {
         if (subjectDNPatterns == null || subjectDNPatterns.isEmpty()) {
-            logger.warn(
+            LOGGER.warn(
                     "No Subject DN Certificate Constraints were defined. This could be a security issue");
         } else {
             if (cert == null) {
-                logger.debug("The certificate is null so no constraints matching was possible");
+                LOGGER.debug("The certificate is null so no constraints matching was possible");
                 return false;
             }
             String subjectName = cert.getSubjectX500Principal()
@@ -107,8 +108,9 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
             for (Pattern subjectDNPattern : subjectDNPatterns) {
                 final Matcher matcher = subjectDNPattern.matcher(subjectName);
                 if (matcher.matches()) {
-                    logger.debug("Subject DN " + subjectName + " matches with pattern "
-                            + subjectDNPattern);
+                    LOGGER.debug("Subject DN {} matches with pattern {}",
+                            subjectName,
+                            subjectDNPattern);
                     return true;
                 }
             }

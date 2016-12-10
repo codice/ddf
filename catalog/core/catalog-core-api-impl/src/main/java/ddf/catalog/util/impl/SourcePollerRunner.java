@@ -24,15 +24,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.source.Source;
 
 /**
  * The poller to check the availability of all configured sources. This class is instantiated by the
- * CatalogFramework's blueprint and is scheduled by the {@link SourcePoller} to execute at a fixed
- * rate, i.e., the polling interval.
+ * CatalogFramework's blueprint and is scheduled by the {@link SourcePoller} to execute at a
+ * configured rate, i.e., the polling interval.
  *
  * This class maintains a list of all of the sources to be polled for their availability. Sources
  * are added to this list when they come online and when they are deleted. A cached map is
@@ -41,8 +41,7 @@ import ddf.catalog.source.Source;
  */
 public class SourcePollerRunner implements Runnable {
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(SourcePollerRunner.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(SourcePollerRunner.class);
 
     private List<Source> sources;
 
@@ -69,7 +68,7 @@ public class SourcePollerRunner implements Runnable {
      */
     public SourcePollerRunner() {
 
-        LOGGER.info("Creating source poller runner.");
+        LOGGER.debug("Creating source poller runner.");
         sources = new CopyOnWriteArrayList<Source>();
     }
 
@@ -147,7 +146,7 @@ public class SourcePollerRunner implements Runnable {
      */
     public void bind(Source source) {
 
-        LOGGER.info("Binding source: {}", source);
+        LOGGER.debug("Binding source: {}", source);
         if (source != null) {
             LOGGER.debug("Marking new source {} as UNCHECKED.", source);
             sources.add(source);
@@ -166,7 +165,7 @@ public class SourcePollerRunner implements Runnable {
      *            the source to remove from the list
      */
     public void unbind(Source source) {
-        LOGGER.info("Unbinding source [{}]", source);
+        LOGGER.debug("Unbinding source [{}]", source);
         if (source != null) {
             cachedSources.remove(source);
             sources.remove(source);

@@ -124,7 +124,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
                 ser = reader.getValue()
                         .getBytes(UTF8_ENCODING);
             } catch (UnsupportedEncodingException e) {
-                LOGGER.warn("Error encoding the binary value into the metacard.", e);
+                LOGGER.debug("Error encoding the binary value into the metacard.", e);
             }
             break;
         case DATE:
@@ -141,6 +141,14 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         LOGGER.debug("readGml() input XML: {}", xml);
         //Add namespace into XML for processing
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        try {
+            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
+                    false);
+            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                    false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to configure features on document builder.", e);
+        }
         DocumentBuilder dBuilder = null;
         Document doc = null;
         Object gml = null;
@@ -153,7 +161,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             is.setCharacterStream(new StringReader(xml));
             doc = dBuilder.parse(is);
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            LOGGER.error(XML_PARSE_FAILURE);
+            LOGGER.debug(XML_PARSE_FAILURE);
         }
 
         if (null != doc) {
@@ -170,7 +178,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             String xmlNs = doc.getDocumentElement()
                     .getAttribute("xmlns" + prefix);
             if (xmlNs.equals(Wfs20Constants.GML_3_2_NAMESPACE)) {
-                LOGGER.warn("Namespace already exists.");
+                LOGGER.debug("Namespace already exists.");
             } else {
                 doc.createElementNS(Wfs20Constants.GML_3_2_NAMESPACE,
                         doc.getDocumentElement()
@@ -186,7 +194,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
                         .newTransformer()
                         .transform(xmlSource, outputTarget);
             } catch (TransformerException | TransformerFactoryConfigurationError e) {
-                LOGGER.error(CREATE_TRANSFORMER_FAILURE);
+                LOGGER.debug(CREATE_TRANSFORMER_FAILURE);
             }
 
             xmlIs = new ByteArrayInputStream(outputStream.toByteArray());
@@ -202,7 +210,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             try {
                 gml = parser.parse(xmlIs);
             } catch (IOException | SAXException | ParserConfigurationException e) {
-                LOGGER.error("{} {}", GML_FAILURE, xml);
+                LOGGER.debug("{} {}", GML_FAILURE, xml);
             }
         }
 

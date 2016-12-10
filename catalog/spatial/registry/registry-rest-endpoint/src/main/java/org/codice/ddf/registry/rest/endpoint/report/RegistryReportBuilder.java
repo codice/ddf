@@ -22,7 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+<<<<<<< HEAD
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+=======
+>>>>>>> master
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.rest.endpoint.HandlebarsHelper;
 import org.codice.ddf.registry.schemabindings.converter.web.OrganizationWebConverter;
@@ -37,6 +40,10 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.google.common.collect.ImmutableMap;
 
 import ddf.catalog.data.Metacard;
+<<<<<<< HEAD
+=======
+import ddf.catalog.data.types.Contact;
+>>>>>>> master
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 
 /**
@@ -106,6 +113,7 @@ public class RegistryReportBuilder {
     private Map<String, Object> getSummaryMap(Metacard metacard) {
         Map<String, Object> summaryMap = new HashMap<>();
 
+<<<<<<< HEAD
         Map<String, String> summaryAttributes =
                 ImmutableMap.of(RegistryObjectMetacardType.ORGANIZATION_NAME,
                         "Organization Name",
@@ -117,6 +125,18 @@ public class RegistryReportBuilder {
                         "Email Addresses",
                         RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER,
                         "Phone Numbers");
+=======
+        Map<String, String> summaryAttributes = ImmutableMap.of(Contact.POINT_OF_CONTACT_NAME,
+                "Organization Name",
+                Metacard.POINT_OF_CONTACT,
+                "Point of Contact",
+                Contact.POINT_OF_CONTACT_ADDRESS,
+                "Address",
+                Contact.POINT_OF_CONTACT_EMAIL,
+                "Email Addresses",
+                Contact.POINT_OF_CONTACT_PHONE,
+                "Phone Numbers");
+>>>>>>> master
 
         summaryAttributes.keySet()
                 .stream()

@@ -136,7 +136,7 @@ public class WebSSOFilter implements Filter {
             throws IOException, ServletException {
 
         if (handlers.size() == 0) {
-            LOGGER.warn("Handlers not ready. Returning status code 503, Service Unavailable.");
+            LOGGER.warn("Handlers not ready. Returning status code 503, Service Unavailable. Check system configuration and bundle state.");
             returnSimpleResponse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, httpResponse);
             return;
         }

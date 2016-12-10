@@ -33,7 +33,7 @@ public abstract class AbstractApplicationCommand implements Action {
 
     protected PrintStream console = System.out;
 
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public Object execute() throws Exception {
@@ -46,7 +46,7 @@ public abstract class AbstractApplicationCommand implements Action {
         } catch (ApplicationServiceException ase) {
             console.println(
                     "Encountered error while trying to perform command. Check log for more details.");
-            logger.warn("Error while performing command.", ase);
+            logger.debug("Error while performing command.", ase);
         }
         return null;
     }

@@ -54,7 +54,7 @@ public class AuthnResponseValidator {
 
         if (authnResponse.getAssertions()
                 .size() > 1) {
-            LOGGER.warn(
+            LOGGER.info(
                     "Received multiple assertions in AuthN response.  Only using the first assertion.");
         }
 

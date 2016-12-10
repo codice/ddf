@@ -1,0 +1,4 @@
+|<<ddf.catalog.source.solr.SolrCatalogProvider,Catalog Embedded Solr Catalog Provider>>
+|ddf.catalog.source.solr.SolrCatalogProvider
+|Catalog Embedded Solr Catalog Provider
+

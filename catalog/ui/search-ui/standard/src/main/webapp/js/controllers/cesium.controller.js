@@ -23,12 +23,21 @@ define(['application',
         'jquery',
         'drawHelper',
         'js/controllers/cesium.layerCollection.controller',
+<<<<<<< HEAD
         'js/model/user'
     ], function (Application, _, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $, DrawHelper,
                  LayerCollectionController, User) {
+=======
+        'js/model/user',
+        'js/widgets/cesium.mapclustering'
+    ], function (Application, _, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $, DrawHelper,
+                 LayerCollectionController, User, MapClustering) {
+>>>>>>> master
         "use strict";
 
         var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
+
+        var mapclustering = new MapClustering();
 
         var CesiumLayerCollectionController = LayerCollectionController.extend({
             initialize: function () {
@@ -39,11 +48,13 @@ define(['application',
             }
         });
 
-        var Controller = Marionette.Controller.extend({
-            initialize: function () {
-                Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
-                this.mapViewer = this.createMap();
-                this.drawHelper = new DrawHelper(this.mapViewer);
+    var Controller = Marionette.Controller.extend({
+        initialize: function () {
+            this.overlays = {};
+
+            Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
+            this.mapViewer = this.createMap();
+            this.drawHelper = new DrawHelper(this.mapViewer);
 
                 this.scene = this.mapViewer.scene;
                 this.ellipsoid = this.mapViewer.scene.globe.ellipsoid;
@@ -55,11 +66,18 @@ define(['application',
                 this.listenTo(wreqr.vent, 'search:start', this.clearResults);
                 this.listenTo(wreqr.vent, 'map:results', this.newResults);
                 this.listenTo(wreqr.vent, 'map:clear', this.clear);
+                this.listenTo(wreqr.vent, 'metacard:overlay', this.overlayImage);
+                this.listenTo(wreqr.vent, 'metacard:overlay:remove', this.removeOverlay);
 
                 if (wreqr.reqres.hasHandler('search:results')) {
                     this.newResults(wreqr.reqres.request('search:results'));
                 }
             },
+
+            toggleClustering: function() {
+                mapclustering.toggleClustering();
+            },
+
             createMap: function () {
                 var layerPrefs = Application.UserModel.get('user>preferences>mapLayers');
                 var layersToRemove = [];
@@ -87,6 +105,17 @@ define(['application',
                     }
                 );
 
+                viewer.camera.moveEnd.addEventListener(function() {
+                    if(mapclustering.clustering) {
+                        var cartographic = new Cesium.Cartographic();
+                        var metersToKm = 0.001;
+                        viewer.scene.mapProjection.ellipsoid.cartesianToCartographic(viewer.camera.positionWC, cartographic);
+                        var cameraHeight = (cartographic.height * metersToKm).toFixed(1);
+                        mapclustering.cluster(cameraHeight);
+                    }
+                });
+                mapclustering.setViewer(viewer);
+
                 if (properties.terrainProvider) {
                     var type = imageryProviderTypes[properties.terrainProvider.type];
                     var initObj = _.omit(properties.terrainProvider, 'type');
@@ -102,9 +131,9 @@ define(['application',
                         scene: viewer.scene
                     });
                 }
+
                 return viewer;
             },
-
             billboards: [
                 'images/default.png',
                 'images/default-selected.png'
@@ -298,6 +327,41 @@ define(['application',
                 }
             },
 
+            overlayImage: function (model) {
+                var metacardId = model.get('properties').get('id');
+                this.removeOverlay(metacardId);
+
+                var coords = model.get('geometry').getPolygon();
+                var cartographics = _.map(coords, function(coord) {
+                    return Cesium.Cartographic.fromDegrees(coord.longitude, coord.latitude, coord.altitude);
+                });
+
+                var rectangle = Cesium.Rectangle.fromCartographicArray(cartographics);
+
+                var overlayLayer = this.scene.imageryLayers.addImageryProvider(new Cesium.SingleTileImageryProvider({
+                    url: model.get('currentOverlayUrl'),
+                    rectangle: rectangle
+                }));
+
+                this.overlays[metacardId] = overlayLayer;
+            },
+
+            removeOverlay: function (metacardId) {
+                if (this.overlays[metacardId]) {
+                    this.scene.imageryLayers.remove(this.overlays[metacardId]);
+                    delete this.overlays[metacardId];
+                }
+            },
+
+            removeAllOverlays: function() {
+                for (var overlay in this.overlays) {
+                    if (this.overlays.hasOwnProperty(overlay)) {
+                        this.scene.imageryLayers.remove(this.overlays[overlay]);
+                    }
+                }
+                this.overlays = {};
+            },
+
             newResults: function (result, zoomOnResults) {
                 this.showResults(result.get('results'));
                 if (zoomOnResults) {
@@ -309,10 +373,16 @@ define(['application',
                 if (this.mapViews) {
                     this.mapViews.destroy();
                 }
+
                 this.mapViews = new CesiumMetacard.ResultsView({
                     collection: results,
                     geoController: this
                 }).render();
+                mapclustering.setResultLists(this.mapViews);
+
+                if(!_.isUndefined(results)) {
+                    mapclustering.cluster();
+                }
             },
 
             clear: function () {
@@ -324,8 +394,10 @@ define(['application',
                 if (this.mapViews) {
                     this.mapViews.destroy();
                 }
-            }
 
+                mapclustering.uncluster();
+                this.removeAllOverlays();
+            }
         });
 
         return Controller;

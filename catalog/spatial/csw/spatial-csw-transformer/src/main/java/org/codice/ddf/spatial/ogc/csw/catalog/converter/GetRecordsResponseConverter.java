@@ -41,27 +41,7 @@ public class GetRecordsResponseConverter implements Converter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsResponseConverter.class);
 
-    private static final String SEARCH_STATUS_NODE_NAME = "SearchStatus";
-
-    private static final String SEARCH_RESULTS_NODE_NAME = "SearchResults";
-
-    private static final String VERSION_ATTRIBUTE = "version";
-
-    private static final String TIMESTAMP_ATTRIBUTE = "timestamp";
-
-    private static final String NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE = "numberOfRecordsMatched";
-
-    private static final String NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE = "numberOfRecordsReturned";
-
-    private static final String NEXT_RECORD_ATTRIBUTE = "nextRecord";
-
-    private static final String RECORD_SCHEMA_ATTRIBUTE = "recordSchema";
-
-    private static final String ELEMENT_SET_ATTRIBUTE = "elementSet";
-
     private Converter transformProvider;
-
-    private String outputSchema = CswConstants.CSW_OUTPUT_SCHEMA;
 
     /**
      * Creates a new GetRecordsResponseConverter Object
@@ -109,7 +89,7 @@ public class GetRecordsResponseConverter implements Converter {
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         if (transformProvider == null) {
             throw new ConversionException(
-                    "Unable to locate Converter for outputSchema: " + outputSchema);
+                    "Unable to locate Converter for outputSchema: " + CswConstants.CSW_OUTPUT_SCHEMA);
         }
         CswRecordCollection cswRecords = new CswRecordCollection();
         List<Metacard> metacards = cswRecords.getCswRecords();

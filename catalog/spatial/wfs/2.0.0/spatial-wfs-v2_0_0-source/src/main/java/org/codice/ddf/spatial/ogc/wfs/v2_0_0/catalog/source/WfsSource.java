@@ -109,6 +109,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
+
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
 import net.opengis.filter.v_2_0_0.SortByType;
@@ -164,6 +165,8 @@ public class WfsSource extends MaskableImpl
     private static final String CONNECTION_TIMEOUT_PROPERTY = "connectionTimeout";
 
     private static final String RECEIVE_TIMEOUT_PROPERTY = "receiveTimeout";
+
+    private static final String SRS_NAME_PROPERTY = "srsName";
 
     private static final String WFS_ERROR_MESSAGE = "Error received from Wfs Server.";
 
@@ -244,6 +247,11 @@ public class WfsSource extends MaskableImpl
 
     private String forcedFeatureType;
 
+<<<<<<< HEAD
+=======
+    private String srsName;
+
+>>>>>>> master
     public WfsSource(FilterAdapter filterAdapter, BundleContext context, AvailabilityTask task,
             SecureCxfClientFactory factory, EncryptionService encryptionService)
             throws SecurityServiceException {
@@ -303,6 +311,7 @@ public class WfsSource extends MaskableImpl
 
         setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
         setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY));
+        setSrsName((String) configuration.get(SRS_NAME_PROPERTY));
 
         String[] nonQueryableProperties =
                 (String[]) configuration.get(NON_QUERYABLE_PROPS_PROPERTY);
@@ -402,9 +411,9 @@ public class WfsSource extends MaskableImpl
 
     private void availabilityChanged(boolean isAvailable) {
         if (isAvailable) {
-            LOGGER.info("WFS source {} is available.", getId());
+            LOGGER.debug("WFS source {} is available.", getId());
         } else {
-            LOGGER.info("WFS source {} is unavailable.", getId());
+            LOGGER.debug("WFS source {} is unavailable.", getId());
         }
 
         for (SourceMonitor monitor : this.sourceMonitors) {
@@ -426,13 +435,13 @@ public class WfsSource extends MaskableImpl
         try {
             capabilities = wfs.getCapabilities(new GetCapabilitiesRequest());
         } catch (WfsException wfse) {
-            LOGGER.warn(WFS_ERROR_MESSAGE
+            LOGGER.info(WFS_ERROR_MESSAGE
                             + " Received HTTP code '{}' from server for source with id='{}'",
                     wfse.getHttpStatus(),
                     getId());
             LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
         } catch (WebApplicationException wae) {
-            handleWebApplicationException(wae);
+            LOGGER.debug(handleWebApplicationException(wae), wae);
         } catch (Exception e) {
             handleClientException(e);
         }
@@ -447,7 +456,7 @@ public class WfsSource extends MaskableImpl
             List<FeatureTypeType> featureTypes = getFeatureTypes(capabilities);
             buildFeatureFilters(featureTypes, capabilities.getFilterCapabilities());
         } else {
-            LOGGER.warn("WfsSource {}: WFS Server did not return any capabilities.", getId());
+            LOGGER.debug("WfsSource {}: WFS Server did not return any capabilities.", getId());
         }
     }
 
@@ -455,7 +464,7 @@ public class WfsSource extends MaskableImpl
         List<FeatureTypeType> featureTypes = capabilities.getFeatureTypeList()
                 .getFeatureType();
         if (featureTypes.isEmpty()) {
-            LOGGER.warn("\"WfsSource {}: No feature types found.", getId());
+            LOGGER.debug("\"WfsSource {}: No feature types found.", getId());
         }
         return featureTypes;
     }
@@ -513,10 +522,23 @@ public class WfsSource extends MaskableImpl
 
             LOGGER.debug("ftName: {}", ftSimpleName);
             try {
-                XmlSchema schema = wfs.describeFeatureType(new DescribeFeatureTypeRequest(
-                        featureTypeType.getName()));
+                XmlSchema schema =
+                        wfs.describeFeatureType(new DescribeFeatureTypeRequest(featureTypeType.getName()));
 
-                if ((schema != null)) {
+                if (schema == null) {
+                    // Some WFS 2.0.0 DescribeFeatureRequests return inconsistent results when
+                    // the `:` character is encoded in the URL, ie Prefix:SomeFeature is encoded to
+                    // Prefix%3ASomeFeature. To avoid this issue, we will make a call without the prefix
+                    // if the previous call does not work.
+                    schema = wfs.describeFeatureType(new DescribeFeatureTypeRequest(new QName(
+                            featureTypeType.getName()
+                                    .getNamespaceURI(),
+                            featureTypeType.getName()
+                                    .getLocalPart(),
+                            "")));
+                }
+
+                if (schema != null) {
                     // Update local map with enough info to create actual MetacardType registrations
                     // later
                     MetacardTypeRegistration registration = createFeatureMetacardTypeRegistration(
@@ -537,12 +559,10 @@ public class WfsSource extends MaskableImpl
                                     metacardAttributeToFeaturePropertyMapper,
                                     coordinateOrder));
                 }
-            } catch (WfsException wfse) {
-                LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
+            } catch (WfsException | IllegalArgumentException wfse) {
+                LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
             } catch (WebApplicationException wae) {
-                handleWebApplicationException(wae);
-            } catch (IllegalArgumentException ie) {
-                LOGGER.warn(WFS_ERROR_MESSAGE, ie);
+                LOGGER.debug(handleWebApplicationException(wae), wae);
             }
         }
 
@@ -550,7 +570,7 @@ public class WfsSource extends MaskableImpl
         registerFeatureMetacardTypes(mcTypeRegs);
 
         if (featureTypeFilters.isEmpty()) {
-            LOGGER.warn("Wfs Source {}: No Feature Type schemas validated.", getId());
+            LOGGER.debug("Wfs Source {}: No Feature Type schemas validated.", getId());
         }
         LOGGER.debug("Wfs Source {}: Number of validated Features = {}",
                 getId(),
@@ -607,7 +627,7 @@ public class WfsSource extends MaskableImpl
                     featureConverter.getClass()
                             .getSimpleName());
         } else {
-            LOGGER.warn(
+            LOGGER.debug(
                     "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
                     getId(),
                     ftSimpleName);
@@ -666,7 +686,7 @@ public class WfsSource extends MaskableImpl
             }
 
             if (metacardAttributeToFeaturePropertyMapper == null) {
-                LOGGER.warn("Unable to find a {} for feature type {}.",
+                LOGGER.debug("Unable to find a {} for feature type {}.",
                         MetacardMapper.class.getSimpleName(),
                         featureType.toString());
             }
@@ -710,7 +730,7 @@ public class WfsSource extends MaskableImpl
         Query query = request.getQuery();
 
         if (query == null) {
-            LOGGER.error("WFS Source {}: Incoming query is null.", getId());
+            LOGGER.debug("WFS Source {}: Incoming query is null.", getId());
             return null;
         }
 
@@ -732,10 +752,10 @@ public class WfsSource extends MaskableImpl
                     .size();
 
             if (featureCollection.getNumberReturned() == null) {
-                LOGGER.warn("Number Returned Attribute was not added to the response");
+                LOGGER.debug("Number Returned Attribute was not added to the response");
             } else if (!featureCollection.getNumberReturned()
                     .equals(BigInteger.valueOf(numResults))) {
-                LOGGER.warn(
+                LOGGER.debug(
                         "Number Returned Attribute ({}) did not match actual number returned ({})",
                         featureCollection.getNumberReturned(),
                         numResults);
@@ -771,7 +791,7 @@ public class WfsSource extends MaskableImpl
             simpleResponse = new SourceResponseImpl(request, results, totalResults);
 
         } catch (WfsException wfse) {
-            LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
+            LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
             throw new UnsupportedQueryException("Error received from WFS Server", wfse);
         } catch (Exception ce) {
             String msg = handleClientException(ce);
@@ -798,9 +818,12 @@ public class WfsSource extends MaskableImpl
                             .getLocalPart();
                 } else {
                     typeName = filterDelegateEntry.getKey()
-                            .getPrefix() +
-                            ":" + filterDelegateEntry.getKey()
+                            .getPrefix() + ":" + filterDelegateEntry.getKey()
                             .getLocalPart();
+                }
+
+                if (StringUtils.isNotBlank(srsName)) {
+                    wfsQuery.setSrsName(srsName);
                 }
 
                 wfsQuery.setTypeNames(Arrays.asList(typeName));
@@ -851,7 +874,7 @@ public class WfsSource extends MaskableImpl
                                     .isSortingSupported() && !filterDelegateEntry.getValue()
                                     .getAllowedSortOrders()
                                     .contains(sortOrder)) {
-                                LOGGER.warn(
+                                LOGGER.debug(
                                         "Unsupported sort order of [{}]. Supported sort orders are {}.",
                                         sortOrder,
                                         filterDelegateEntry.getValue()
@@ -862,7 +885,7 @@ public class WfsSource extends MaskableImpl
                             }
                         }
                     } else {
-                        LOGGER.warn("Sorting is disabled.");
+                        LOGGER.debug("Sorting is disabled.");
                     }
 
                     queries.add(wfsQuery);
@@ -878,7 +901,7 @@ public class WfsSource extends MaskableImpl
             GetFeatureType getFeatureType = new GetFeatureType();
             int pageSize = query.getPageSize();
             if (pageSize < 0) {
-                LOGGER.error("Page size has a negative value");
+                LOGGER.debug("Page size has a negative value");
                 throw new UnsupportedQueryException(
                         "Unable to build query. Page size has a negative value.");
             }
@@ -886,7 +909,7 @@ public class WfsSource extends MaskableImpl
             int startIndex = query.getStartIndex();
 
             if (startIndex < 0) {
-                LOGGER.error("Start index has a negative value");
+                LOGGER.debug("Start index has a negative value");
                 throw new UnsupportedQueryException(
                         "Unable to build query. Start index has a negative value.");
             } else if (startIndex != 0) {
@@ -1015,7 +1038,7 @@ public class WfsSource extends MaskableImpl
             refs = context.getServiceReferences(MetadataTransformer.class.getName(),
                     "(" + Constants.SERVICE_ID + "=" + transformerId + ")");
         } catch (InvalidSyntaxException e) {
-            LOGGER.warn("Invalid transformer ID. Returning original metacard.", e);
+            LOGGER.debug("Invalid transformer ID. Returning original metacard.", e);
             return mc;
         }
 
@@ -1027,7 +1050,8 @@ public class WfsSource extends MaskableImpl
                 MetadataTransformer transformer = (MetadataTransformer) context.getService(refs[0]);
                 return transformer.transform(mc);
             } catch (CatalogTransformerException e) {
-                LOGGER.warn("Transformation Failed for transformer: {}. Returning original metacard",
+                LOGGER.debug(
+                        "Transformation Failed for transformer: {}. Returning original metacard",
                         transformerId,
                         e);
                 return mc;
@@ -1041,7 +1065,7 @@ public class WfsSource extends MaskableImpl
         try {
             contentTypes = filterAdapter.adapt(query, new ContentTypeFilterDelegate());
         } catch (UnsupportedQueryException e) {
-            LOGGER.warn("WFS Source {}: Unable to get content types from query.", getId(), e);
+            LOGGER.debug("WFS Source {}: Unable to get content types from query.", getId(), e);
         }
 
         return contentTypes != null ? contentTypes : new ArrayList<ContentType>();
@@ -1184,6 +1208,14 @@ public class WfsSource extends MaskableImpl
         return this.receiveTimeout;
     }
 
+    public void setSrsName(String srsName) {
+        this.srsName = srsName;
+    }
+
+    public String getSrsName() {
+        return this.srsName;
+    }
+
     public void setFilterAdapter(FilterAdapter filterAdapter) {
         this.filterAdapter = filterAdapter;
     }
@@ -1236,10 +1268,8 @@ public class WfsSource extends MaskableImpl
     private String handleWebApplicationException(WebApplicationException wae) {
         Response response = wae.getResponse();
         WfsException wfsException = new WfsResponseExceptionMapper().fromResponse(response);
-        String msg = "Error received from WFS Server " + getId() + "\n" + wfsException.getMessage();
-        LOGGER.error(msg, wae);
 
-        return msg;
+        return "Error received from WFS Server " + getId() + "\n" + wfsException.getMessage();
     }
 
     private String handleClientException(Exception ce) {
@@ -1256,12 +1286,12 @@ public class WfsSource extends MaskableImpl
             msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' with URL '" + getWfsUrl() + "': "
                     + ce.getMessage();
         } else if (cause instanceof ConnectException) {
-            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' may not be running.\n" +
-                    ce.getMessage();
+            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' may not be running.\n"
+                    + ce.getMessage();
         } else {
             msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'\n" + ce;
         }
-        LOGGER.warn(msg);
+        LOGGER.info(msg);
         LOGGER.debug(msg, ce);
         return msg;
     }
@@ -1386,7 +1416,7 @@ public class WfsSource extends MaskableImpl
                     newAvailability = !featureTypeFilters.isEmpty();
                 }
             } catch (SecurityServiceException sse) {
-                LOGGER.error("Unable to create Wfs client for provided enpoint.", sse);
+                LOGGER.info("Unable to create Wfs client for provided enpoint.", sse);
             }
 
             if (oldAvailability != newAvailability) {

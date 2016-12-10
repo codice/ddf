@@ -107,7 +107,7 @@ public class GeoCoderEndpoint {
                         .build();
             }
         } catch (GeoEntryQueryException e) {
-            LOGGER.error("Error querying GeoNames resource with wkt:" + wkt, e);
+            LOGGER.debug("Error querying GeoNames resource with wkt:{}", wkt, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .build();
         }

@@ -108,7 +108,7 @@ public class CasHandler implements AuthenticationHandler {
                         "Calling cas authentication and validation filters to perform redirects.");
                 handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
             } else {
-                LOGGER.warn(
+                LOGGER.debug(
                         "No cas authentication information found and resolve is not enabled, returning NO_ACTION.");
             }
         }
@@ -120,7 +120,7 @@ public class CasHandler implements AuthenticationHandler {
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
             FilterChain chain) throws ServletException {
         HandlerResult handlerResult;
-        LOGGER.warn("handleError was called on the CasHandler, cannot do anything.");
+        LOGGER.debug("handleError was called on the CasHandler, cannot do anything.");
         handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
         return handlerResult;
     }
@@ -143,7 +143,7 @@ public class CasHandler implements AuthenticationHandler {
             String proxyTicket =
                     attributePrincipal.getProxyTicketFor(clientConfiguration.getAddress());
             if (proxyTicket == null || proxyTicket.equals("null")) {
-                LOGGER.warn("Couldn't get proxy ticket for CAS authentication.");
+                LOGGER.debug("Couldn't get proxy ticket for CAS authentication.");
             } else {
                 LOGGER.debug("proxy ticket: {}", proxyTicket);
                 LOGGER.debug("Creating AuthenticationToken with {}|{} as the credentials.",
@@ -155,7 +155,7 @@ public class CasHandler implements AuthenticationHandler {
                         realm);
             }
         } else {
-            LOGGER.warn("Couldn't get attribute principle for CAS authentication.");
+            LOGGER.debug("Couldn't get attribute principle for CAS authentication.");
         }
 
         return token;

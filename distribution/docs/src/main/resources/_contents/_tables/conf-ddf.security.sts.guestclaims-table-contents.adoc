@@ -1,0 +1,4 @@
+|<<ddf.security.sts.guestclaims,Security STS Guest Claims Handler>>
+|ddf.security.sts.guestclaims
+|Guest Claims Handler Configuration
+

@@ -17,7 +17,11 @@
     <parent>
         <groupId>ddf.test</groupId>
         <artifactId>test</artifactId>
+<<<<<<< HEAD
         <version>2.9.4</version>
+=======
+        <version>2.10.0-SNAPSHOT</version>
+>>>>>>> master
     </parent>
     <groupId>ddf.test.itests</groupId>
     <artifactId>itests</artifactId>
@@ -26,11 +30,13 @@
     <modules>
         <module>test-itests-common</module>
         <module>test-itests-ddf</module>
+        <module>test-itests-dependencies-app</module>
     </modules>
     <properties>
         <pax.exam.version>4.8.0</pax.exam.version>
         <pax.tinybundles.version>2.1.1</pax.tinybundles.version>
         <pax.url.version>2.4.5</pax.url.version>
+        <cometd.version>3.0.9</cometd.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -74,56 +80,56 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <!-- Start of dependencies for pax exam karaf container -->
         <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>ddf</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.googlecode.pojosr</groupId>
-                    <artifactId>de.kalpatec.pojosr.framework</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-junit4</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.7</version>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <!-- End of pax exam dependencies -->
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>org.apache.karaf.features.core</artifactId>
+            <version>${karaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.core</artifactId>
+            <version>${karaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-appservice</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.osgi</groupId>
+            <artifactId>spring-osgi-core</artifactId>
+            <version>${spring-osgi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.policy</groupId>
+            <artifactId>security-policy-context</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.configadmin</artifactId>
+            <version>${felix.configadmin.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ddf.test.thirdparty</groupId>
             <artifactId>rest-assured</artifactId>
-            <scope>test</scope>
+            <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.tinybundles</groupId>
-            <artifactId>tinybundles</artifactId>
-        </dependency>
-        <!-- Start of dependencies for pax exam karaf container -->
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-aether</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- End of pax exam dependencies -->
     </dependencies>
     <build>
         <plugins>

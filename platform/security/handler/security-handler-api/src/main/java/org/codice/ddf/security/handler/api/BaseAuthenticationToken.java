@@ -101,7 +101,7 @@ public class BaseAuthenticationToken implements AuthenticationToken {
         if (getCredentials() != null) {
             retVal = getCredentials().toString();
         } else {
-            LOGGER.warn("Credentials are null - unable to create XML representation.");
+            LOGGER.debug("Credentials are null - unable to create XML representation.");
         }
 
         return retVal;

@@ -1,0 +1,11 @@
+==== Expiration Date Pre-Ingest Plugin
+
+The Expiration Date plugin updates metacard expiration dates.
+
+===== Installing the Expiration Date Pre-Ingest Plugin
+
+The Expiration Date Pre-Ingest Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Expiration Date Pre-Ingest Plugin
+
+The Expiration Date Pre-Ingest Plugin has no configurable properties.

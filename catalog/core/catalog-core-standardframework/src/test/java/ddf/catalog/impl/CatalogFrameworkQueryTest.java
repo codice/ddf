@@ -46,6 +46,21 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
+<<<<<<< HEAD
+=======
+import ddf.catalog.impl.operations.CreateOperations;
+import ddf.catalog.impl.operations.DeleteOperations;
+import ddf.catalog.impl.operations.MetacardFactory;
+import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
+import ddf.catalog.impl.operations.OperationsMetacardSupport;
+import ddf.catalog.impl.operations.OperationsSecuritySupport;
+import ddf.catalog.impl.operations.OperationsStorageSupport;
+import ddf.catalog.impl.operations.QueryOperations;
+import ddf.catalog.impl.operations.ResourceOperations;
+import ddf.catalog.impl.operations.SourceOperations;
+import ddf.catalog.impl.operations.TransformOperations;
+import ddf.catalog.impl.operations.UpdateOperations;
+>>>>>>> master
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -53,7 +68,6 @@ import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
@@ -84,18 +98,76 @@ public class CatalogFrameworkQueryTest {
         when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(source);
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<>();
         FrameworkProperties props = new FrameworkProperties();
-        props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
+        props.setCatalogProviders(Collections.singletonList(provider));
         props.setPostIngest(postIngestPlugins);
         props.setFederationStrategy(new MockFederationStrategy());
         props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
         props.setSourcePoller(mockPoller);
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
+<<<<<<< HEAD
         framework = new CatalogFrameworkImpl(props);
         Historian historian = new Historian();
         historian.setHistoryEnabled(false);
         framework.setHistorian(historian);
         framework.bind(provider);
+=======
+
+        OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
+        MetacardFactory metacardFactory =
+                new MetacardFactory(props.getMimeTypeToTransformerMapper());
+        OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props,
+                metacardFactory);
+        SourceOperations sourceOperations = new SourceOperations(props);
+        QueryOperations queryOperations = new QueryOperations(props,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard);
+        ResourceOperations resourceOperations = new ResourceOperations(props,
+                queryOperations,
+                opsSecurity);
+        TransformOperations transformOperations = new TransformOperations(props);
+        OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(props,
+                sourceOperations);
+        OperationsStorageSupport opsStorage = new OperationsStorageSupport(sourceOperations,
+                queryOperations);
+        CreateOperations createOperations = new CreateOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCatStore,
+                opsStorage);
+        UpdateOperations updateOperations = new UpdateOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCatStore,
+                opsStorage);
+        DeleteOperations deleteOperations = new DeleteOperations(props,
+                queryOperations,
+                sourceOperations,
+                opsSecurity,
+                opsMetacard,
+                opsCatStore);
+
+        Historian historian = new Historian();
+        historian.setHistoryEnabled(false);
+
+        opsStorage.setHistorian(historian);
+        updateOperations.setHistorian(historian);
+        deleteOperations.setHistorian(historian);
+
+        framework = new CatalogFrameworkImpl(createOperations,
+                updateOperations,
+                deleteOperations,
+                queryOperations,
+                resourceOperations,
+                sourceOperations,
+                transformOperations);
+        sourceOperations.bind(provider);
+>>>>>>> master
     }
 
     @Test
@@ -237,10 +309,7 @@ public class CatalogFrameworkQueryTest {
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("Expecting return 2 results.", 2, response.getHits());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -257,10 +326,7 @@ public class CatalogFrameworkQueryTest {
                             .get(0)
                             .getMetacard()
                             .getId());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -272,10 +338,7 @@ public class CatalogFrameworkQueryTest {
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("Before filter should return 0 results.", 0, response.getHits());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -341,10 +404,7 @@ public class CatalogFrameworkQueryTest {
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("Expecting return 0 results.", 0, response.getHits());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -364,10 +424,7 @@ public class CatalogFrameworkQueryTest {
                             .get(0)
                             .getMetacard()
                             .getId());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -387,10 +444,7 @@ public class CatalogFrameworkQueryTest {
                             .get(0)
                             .getMetacard()
                             .getId());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -463,10 +517,7 @@ public class CatalogFrameworkQueryTest {
                             .getMetacard()
                             .getId());
 
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -486,10 +537,7 @@ public class CatalogFrameworkQueryTest {
                             .get(0)
                             .getMetacard()
                             .getId());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }
@@ -503,10 +551,7 @@ public class CatalogFrameworkQueryTest {
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("During filter should return 2 result", 2, response.getHits());
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Failure", e);
-            fail();
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             LOGGER.error("Failure", e);
             fail();
         }

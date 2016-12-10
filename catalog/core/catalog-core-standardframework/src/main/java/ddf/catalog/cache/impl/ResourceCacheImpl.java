@@ -116,7 +116,11 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
             try {
                 xmlConfigBuilder = new XmlConfigBuilder(xmlConfigFileUrl.openStream());
                 cfg = xmlConfigBuilder.build();
+<<<<<<< HEAD
                 LOGGER.info("Successfully built hazelcast config from XML config file {}",
+=======
+                LOGGER.debug("Successfully built hazelcast config from XML config file {}",
+>>>>>>> master
                         xmlConfigFilename);
             } catch (FileNotFoundException e) {
                 LOGGER.info("FileNotFoundException trying to build hazelcast config from XML file "

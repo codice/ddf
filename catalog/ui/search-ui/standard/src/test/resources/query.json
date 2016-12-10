@@ -60,6 +60,12 @@
             "title": "Export as metadata",
             "description": "Provides a URL to the metacard that transforms the return value via themetadata transformer",
             "url": "http://localhost:8888/services/catalog/sources/ddf.distribution/d34832c4a9444c5681851c63dc468ce3?transform=metadata"
+          },
+          {
+            "id": "catalog.data.metacard.map.overlay.thumbnail",
+            "title": "Export as thumbnail overlay",
+            "description": "Provides a metacard URL that transforms the metacard into a geographically aligned image (suitable for overlaying on a map) via the thumbnail overlay transformer",
+            "url": "http://localhost:8888/services/catalog/sources/ddf.distribution/d34832c4a9444c5681851c63dc468ce3?transform=overlay.thumbnail"
           }
         ],
         "geometry": {

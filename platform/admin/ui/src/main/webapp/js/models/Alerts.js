@@ -45,6 +45,7 @@ define([
                 var json = {'items': response.stacktrace.split(/\n/)};
                 if (response.stacktrace === 'Forbidden') {
                     json.banner = 'Your session has expired. Please <a href="/login/index.html?prevurl=/admin/">log in</a> again.';
+                    json.items = ['An error was received while trying to contact the server which indicated that you may no longer be logged in.'];
                 }
                 return json;
             } else {

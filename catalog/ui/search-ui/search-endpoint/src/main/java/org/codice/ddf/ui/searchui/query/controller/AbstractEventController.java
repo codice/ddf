@@ -64,6 +64,7 @@ public abstract class AbstractEventController implements EventHandler {
 
     @Session
     ServerSession controllerServerSession;
+<<<<<<< HEAD
 
     PersistentStore persistentStore;
 
@@ -71,6 +72,14 @@ public abstract class AbstractEventController implements EventHandler {
 
     ConcurrentHashMap<String, ServerSession> userSessionMap = new ConcurrentHashMap<>();
 
+=======
+
+    PersistentStore persistentStore;
+
+    EventAdmin eventAdmin;
+
+    ConcurrentHashMap<String, ServerSession> userSessionMap = new ConcurrentHashMap<>();
+>>>>>>> master
 
     /**
      * Establishes {@code AbstractEventController} as a listener to events published by the OSGi
@@ -111,7 +120,12 @@ public abstract class AbstractEventController implements EventHandler {
      */
     public ServerSession getSessionBySessionId(String sessionId) {
         return userSessionMap.searchValues(1, value -> {
+<<<<<<< HEAD
             if (value.getId().equals(sessionId)) {
+=======
+            if (value.getId()
+                    .equals(sessionId)) {
+>>>>>>> master
                 return value;
             }
             return null;
@@ -127,7 +141,11 @@ public abstract class AbstractEventController implements EventHandler {
      */
     public ServerSession getSessionById(String userId, String sessionId) {
         ServerSession session = null;
+<<<<<<< HEAD
         if (userId != null){
+=======
+        if (userId != null) {
+>>>>>>> master
             session = getSessionByUserId(userId);
         }
         if (session == null && sessionId != null) {
@@ -230,7 +248,9 @@ public abstract class AbstractEventController implements EventHandler {
 
         userSessionMap.put(userId, serverSession);
 
-        LOGGER.debug("Added ServerSession to userSessionMap - New map: {}", userSessionMap);
+        LOGGER.debug("Added ServerSession for user {} to userSessionMap - New map: {}",
+                userId,
+                userSessionMap);
     }
 
     protected void queuePersistedMessages(final ServerSession serverSession,

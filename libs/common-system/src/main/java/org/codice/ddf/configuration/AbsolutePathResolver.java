@@ -56,4 +56,8 @@ public class AbsolutePathResolver {
                 .toString();
         return trailingSeparator ? absolutePathStr + File.separator : absolutePathStr;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> master

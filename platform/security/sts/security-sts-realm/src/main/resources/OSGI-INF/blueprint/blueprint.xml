@@ -15,7 +15,9 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-        >
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+    <ext:property-placeholder />
 
     <reference id="contextPolicyManager"
                interface="org.codice.ddf.security.policy.context.ContextPolicyManager"
@@ -30,9 +32,9 @@
                   value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port"/>
         <property name="serviceName"
                   value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService"/>
-        <property name="signatureProperties" value="etc/ws-security/server/signature.properties"/>
-        <property name="encryptionProperties" value="etc/ws-security/server/encryption.properties"/>
-        <property name="tokenProperties" value="etc/ws-security/server/signature.properties"/>
+        <property name="signatureProperties" value="${ddf.home}/etc/ws-security/server/signature.properties"/>
+        <property name="encryptionProperties" value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
+        <property name="tokenProperties" value="${ddf.home}/etc/ws-security/server/signature.properties"/>
         <property name="assertionType"
                   value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
         <property name="keyType" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer"/>
@@ -67,9 +69,9 @@
                   value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port"/>
         <property name="serviceName"
                   value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService"/>
-        <property name="signatureProperties" value="etc/ws-security/server/signature.properties"/>
-        <property name="encryptionProperties" value="etc/ws-security/server/encryption.properties"/>
-        <property name="tokenProperties" value="etc/ws-security/server/signature.properties"/>
+        <property name="signatureProperties" value="${ddf.home}/etc/ws-security/server/signature.properties"/>
+        <property name="encryptionProperties" value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
+        <property name="tokenProperties" value="${ddf.home}/etc/ws-security/server/signature.properties"/>
         <property name="assertionType"
                   value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
         <property name="keyType" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer"/>

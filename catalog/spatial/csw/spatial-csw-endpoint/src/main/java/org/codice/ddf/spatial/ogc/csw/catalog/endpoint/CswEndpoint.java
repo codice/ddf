@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -61,7 +61,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
@@ -183,7 +183,8 @@ public class CswEndpoint implements Csw {
                     ComparisonOperatorType.LESS_THAN,
                     ComparisonOperatorType.LESS_THAN_EQUAL_TO,
                     ComparisonOperatorType.EQUAL_TO,
-                    ComparisonOperatorType.NOT_EQUAL_TO));
+                    ComparisonOperatorType.NOT_EQUAL_TO,
+                    ComparisonOperatorType.FUZZY));
 
     protected static final String PROVIDER_NAME = "DDF";
 
@@ -222,7 +223,8 @@ public class CswEndpoint implements Csw {
             "Unable to retrieve product for ID: %s";
 
     private static final List<String> TYPE_NAMES_LIST = Arrays.asList(CswConstants.CSW_RECORD,
-            GmdMetacardType.GMD_METACARD_TYPE_NAME, CswConstants.EBRIM_RECORD);
+            GmdConstants.GMD_METACARD_TYPE_NAME,
+            CswConstants.EBRIM_RECORD);
 
     private static Map<String, Element> documentElements = new HashMap<>();
 
@@ -568,7 +570,7 @@ public class CswEndpoint implements Csw {
                         updateAction.getHandle());
             }
         }
-        LOGGER.debug("{} records inserted.", numInserted);
+        LOGGER.debug("{} records updated.", numUpdated);
         response.getTransactionSummary()
                 .setTotalUpdated(BigInteger.valueOf(numUpdated));
 
@@ -609,7 +611,7 @@ public class CswEndpoint implements Csw {
                     geometry = reader.read(bbox);
                 }
             } catch (ParseException e) {
-                LOGGER.warn("Unable to parse BoundingBox : {}", bbox, e);
+                LOGGER.debug("Unable to parse BoundingBox : {}", bbox, e);
             }
             BriefRecordType briefRecordType = new BriefRecordType();
             if (geometry != null) {
@@ -858,16 +860,16 @@ public class CswEndpoint implements Csw {
 
         if (types.isEmpty()) {
             schemas.add(getSchemaComponentType(CswConstants.CSW_OUTPUT_SCHEMA));
-            schemas.add(getSchemaComponentType(GmdMetacardType.GMD_NAMESPACE));
+            schemas.add(getSchemaComponentType(GmdConstants.GMD_NAMESPACE));
         } else {
             if (types.contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                     CswConstants.CSW_RECORD_LOCAL_NAME))) {
                 schemas.add(getSchemaComponentType(CswConstants.CSW_OUTPUT_SCHEMA));
             }
 
-            if (types.contains(new QName(GmdMetacardType.GMD_NAMESPACE,
-                    GmdMetacardType.GMD_LOCAL_NAME))) {
-                schemas.add(getSchemaComponentType(GmdMetacardType.GMD_NAMESPACE));
+            if (types.contains(new QName(GmdConstants.GMD_NAMESPACE,
+                    GmdConstants.GMD_LOCAL_NAME))) {
+                schemas.add(getSchemaComponentType(GmdConstants.GMD_NAMESPACE));
             }
 
             if (types.contains(new QName(CswConstants.EBRIM_SCHEMA,
@@ -927,14 +929,8 @@ public class CswEndpoint implements Csw {
                 LOGGER.debug("Attempting to execute query: {}", response.getRequest());
                 QueryResponse queryResponse = framework.query(queryRequest);
                 response.setSourceResponse(queryResponse);
-            } catch (UnsupportedQueryException e) {
-                LOGGER.warn("Unable to query", e);
-                throw new CswException(e);
-            } catch (SourceUnavailableException e) {
-                LOGGER.warn("Unable to query", e);
-                throw new CswException(e);
-            } catch (FederationException e) {
-                LOGGER.warn("Unable to query", e);
+            } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+                LOGGER.debug("Unable to query", e);
                 throw new CswException(e);
             }
         }
@@ -948,7 +944,7 @@ public class CswEndpoint implements Csw {
 
         if (outputSchema.equals(CswConstants.CSW_OUTPUT_SCHEMA)) {
             listOfObject.add(getDocElementFromResourcePath("csw/2.0.2/record.xsd"));
-        } else if (outputSchema.equals(GmdMetacardType.GMD_NAMESPACE)) {
+        } else if (outputSchema.equals(GmdConstants.GMD_NAMESPACE)) {
             listOfObject.add(getDocElementFromResourcePath("gmd/record_gmd.xsd"));
         } else if (outputSchema.equals(CswConstants.EBRIM_SCHEMA)) {
             listOfObject.add(getDocElementFromResourcePath("csw-ebrim.1.0.2/csw-ebrim.xsd"));
@@ -985,15 +981,17 @@ public class CswEndpoint implements Csw {
 
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         docBuilderFactory.setNamespaceAware(true);
+        try {
+            docBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            docBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (ParserConfigurationException e) {
+            LOGGER.debug("Unable to configure features on document builder.", e);
+        }
         Document doc;
         try {
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
             doc = docBuilder.parse(recordUrl.openStream());
-        } catch (ParserConfigurationException e) {
-            throw new CswException(e);
-        } catch (SAXException e) {
-            throw new CswException(e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new CswException(e);
         }
 
@@ -1143,9 +1141,9 @@ public class CswEndpoint implements Csw {
 
         // Builds GetRecords operation metadata
         Operation getRecordsOp = buildOperation(CswConstants.GET_RECORDS, getAndPost);
-        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER, Arrays.asList("hits",
-                "results",
-                "validate"), getRecordsOp);
+        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
+                Arrays.asList("hits", "results", "validate"),
+                getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
                 schemaTransformerManager.getAvailableSchemas(),
@@ -1165,16 +1163,16 @@ public class CswEndpoint implements Csw {
                 supportedSchemas,
                 getRecordByIdOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordByIdOp);
-        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER, Arrays.asList("hits",
-                "results",
-                "validate"), getRecordByIdOp);
+        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
+                Arrays.asList("hits", "results", "validate"),
+                getRecordByIdOp);
         addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
                 ELEMENT_NAMES,
                 getRecordByIdOp);
 
         // Builds Transactions operation metadata
-        Operation transactionOp = buildOperation(CswConstants.TRANSACTION, Arrays.asList(
-                CswConstants.POST));
+        Operation transactionOp = buildOperation(CswConstants.TRANSACTION,
+                Arrays.asList(CswConstants.POST));
         addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
                 inputTransformerManager.getAvailableIds(),
                 transactionOp);

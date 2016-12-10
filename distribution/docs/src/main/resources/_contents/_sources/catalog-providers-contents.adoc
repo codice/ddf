@@ -1,0 +1,8 @@
+
+=== Included Catalog Providers
+
+The following catalog providers are included with a standard installation of ${branding}:
+
+<<_catalog_solr_embedded_provider,Solr Embedded Catalog Provider>>:: An implementation of the `CatalogProvider` interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+
+<<_catalog_solr_external_provider,Solr External Catalog Provider>>:: Used with a Standalone external (HTTP) Solr Server.

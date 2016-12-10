@@ -10,7 +10,7 @@
  *
  **/
 /*global require, window */
-/*jslint nomen:false, -W064 */
+/*jslint nomen:false, -W064, browser:true */
 
 (function () {
     'use strict';
@@ -128,12 +128,20 @@
         'js/models/Alerts.js',
         'js/views/Alerts.view',
         'properties',
+<<<<<<< HEAD
+=======
+        'js/util/SessionRefresherUtil',
+>>>>>>> master
         'icanhaz',
         'js/HandlebarsHelpers',
         'modelbinder',
         'bootstrap',
         'templateConfig'
+<<<<<<< HEAD
     ], function ($, Backbone, Marionette, Application, ModuleView, AlertsModel, AlertsView, Properties) {
+=======
+    ], function ($, Backbone, Marionette, Application, ModuleView, AlertsModel, AlertsView, Properties, SessionRefresherUtil) {
+>>>>>>> master
 
         var app = Application.App;
 
@@ -166,6 +174,20 @@
                 });
             }
         });
+
+        //refresh the session if keypress  or mouse click events occur
+        SessionRefresherUtil(60000);
+
+        //redirect upon session timeout
+        $(document).ajaxError(function (_, jqxhr) {
+                if (jqxhr.status === 401 || jqxhr.status === 403) {
+                    app.addInitializer(function () {
+                        Application.App.alertsRegion.show(new AlertsView.View({'model': AlertsModel.Jolokia({'stacktrace': 'Forbidden'})}));
+                    });
+                }
+
+            }
+        );
 
         //setup the footer
         app.addInitializer(function () {

@@ -45,7 +45,7 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
                     DownloadStatusInfo.class.getName() + ":service=download-manager");
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException mone) {
-            LOGGER.info("Could not create objectName.", mone);
+            LOGGER.debug("Could not create objectName.", mone);
         }
     }
 
@@ -54,12 +54,12 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
             try {
                 mBeanServer.registerMBean(this, objectName);
             } catch (InstanceAlreadyExistsException iaee) {
-                LOGGER.info("Re-registering Download Manager MBean");
+                LOGGER.debug("Re-registering Download Manager MBean");
                 mBeanServer.unregisterMBean(objectName);
                 mBeanServer.registerMBean(this, objectName);
             }
         } catch (Exception e) {
-            LOGGER.warn("Could not register MBean.", e);
+            LOGGER.info("Could not register MBean.", e);
         }
     }
 
@@ -69,7 +69,7 @@ public class DownloadManagerService implements DownloadManagerServiceMBean {
                 mBeanServer.unregisterMBean(objectName);
             }
         } catch (Exception e) {
-            LOGGER.warn("Exception unregistering MBean: ", e);
+            LOGGER.debug("Exception unregistering MBean: ", e);
         }
     }
 

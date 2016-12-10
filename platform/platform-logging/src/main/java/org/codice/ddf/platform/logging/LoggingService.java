@@ -71,15 +71,15 @@ public class LoggingService implements PaxAppender, LoggingServiceMBean {
             }
             objectName = new ObjectName(MBEAN_OBJECT_NAME);
             mBeanServer.registerMBean(this, objectName);
-            LOGGER.info("Registered [{}] MBean under object name: [{}].", CLASS_NAME,
+            LOGGER.debug("Registered [{}] MBean under object name: [{}].", CLASS_NAME,
                     objectName.toString());
         } catch (InstanceAlreadyExistsException e) {
-            LOGGER.info("[{}] already registered as an MBean. Re-registering.", CLASS_NAME);
+            LOGGER.debug("[{}] already registered as an MBean. Re-registering.", CLASS_NAME);
 
             mBeanServer.unregisterMBean(objectName);
             mBeanServer.registerMBean(this, objectName);
 
-            LOGGER.info("Successfully re-registered [{}] as an MBean.", CLASS_NAME);
+            LOGGER.debug("Successfully re-registered [{}] as an MBean.", CLASS_NAME);
         }
     }
 
@@ -87,10 +87,10 @@ public class LoggingService implements PaxAppender, LoggingServiceMBean {
         try {
             if (objectName != null && mBeanServer != null) {
                 mBeanServer.unregisterMBean(objectName);
-                LOGGER.info("Unregistered Logging Service MBean");
+                LOGGER.debug("Unregistered Logging Service MBean");
             }
         } catch (InstanceNotFoundException | MBeanRegistrationException e) {
-            LOGGER.error("Exception unregistering MBean [{}].", objectName.toString(), e);
+            LOGGER.info("Exception unregistering MBean [{}].", objectName.toString(), e);
         }
     }
 
@@ -122,7 +122,6 @@ public class LoggingService implements PaxAppender, LoggingServiceMBean {
                     .format("An invalid value of [%d] was entered for maximum log events to store. This "
                             + "value must be greater than 0 and must not exceed [%d]. Unable to reset maximum log"
                             + " events to store.", newMaxLogEvents, MAX_LOG_EVENTS_LIMIT);
-            LOGGER.warn(message);
             throw new IllegalArgumentException(message);
         }
 

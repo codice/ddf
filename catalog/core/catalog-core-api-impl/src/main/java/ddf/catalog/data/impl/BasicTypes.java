@@ -14,6 +14,7 @@
 package ddf.catalog.data.impl;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Validation;
 
 /**
  * Constants for basic types, both {@link MetacardType} and {@link AttributeType}
@@ -97,63 +99,87 @@ public class BasicTypes {
      */
     public static final AttributeType<Short> SHORT_TYPE;
 
+    /**
+     * Use {@link Validation#VALIDATION_WARNINGS}.
+     */
+    @Deprecated
     public static final String VALIDATION_WARNINGS = "validation-warnings";
 
+    /**
+     * Use {@link Validation#VALIDATION_ERRORS}.
+     */
+    @Deprecated
     public static final String VALIDATION_ERRORS = "validation-errors";
 
-    private static final Map<String, AttributeType> ATTRIBUTE_TYPE_MAP = new HashMap<>();
+    private static final Map<String, AttributeType> ATTRIBUTE_TYPE_MAP;
+
+    private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     static {
-        DATE_TYPE = addAttributeType("DATE_TYPE", AttributeFormat.DATE, Date.class);
+        Map<String, AttributeType> attributeTypeMap = new HashMap<>();
 
-        STRING_TYPE = addAttributeType("STRING_TYPE", AttributeFormat.STRING, String.class);
+        DATE_TYPE = addAttributeType("DATE_TYPE",
+                AttributeFormat.DATE,
+                Date.class,
+                attributeTypeMap);
 
-        XML_TYPE = addAttributeType("XML_TYPE", AttributeFormat.XML, String.class);
+        STRING_TYPE = addAttributeType("STRING_TYPE",
+                AttributeFormat.STRING,
+                String.class,
+                attributeTypeMap);
 
-        LONG_TYPE = addAttributeType("LONG_TYPE", AttributeFormat.LONG, Long.class);
+        XML_TYPE = addAttributeType("XML_TYPE",
+                AttributeFormat.XML,
+                String.class,
+                attributeTypeMap);
 
-        BINARY_TYPE = addAttributeType("BINARY_TYPE", AttributeFormat.BINARY, byte[].class);
+        LONG_TYPE = addAttributeType("LONG_TYPE",
+                AttributeFormat.LONG,
+                Long.class,
+                attributeTypeMap);
 
-        GEO_TYPE = addAttributeType("GEO_TYPE", AttributeFormat.GEOMETRY, String.class);
+        BINARY_TYPE = addAttributeType("BINARY_TYPE",
+                AttributeFormat.BINARY,
+                byte[].class,
+                attributeTypeMap);
 
-        BOOLEAN_TYPE = addAttributeType("BOOLEAN_TYPE", AttributeFormat.BOOLEAN, Boolean.class);
+        GEO_TYPE = addAttributeType("GEO_TYPE",
+                AttributeFormat.GEOMETRY,
+                String.class,
+                attributeTypeMap);
 
-        DOUBLE_TYPE = addAttributeType("DOUBLE_TYPE", AttributeFormat.DOUBLE, Double.class);
+        BOOLEAN_TYPE = addAttributeType("BOOLEAN_TYPE",
+                AttributeFormat.BOOLEAN,
+                Boolean.class,
+                attributeTypeMap);
 
-        FLOAT_TYPE = addAttributeType("FLOAT_TYPE", AttributeFormat.FLOAT, Float.class);
+        DOUBLE_TYPE = addAttributeType("DOUBLE_TYPE",
+                AttributeFormat.DOUBLE,
+                Double.class,
+                attributeTypeMap);
 
-        INTEGER_TYPE = addAttributeType("INTEGER_TYPE", AttributeFormat.INTEGER, Integer.class);
+        FLOAT_TYPE = addAttributeType("FLOAT_TYPE",
+                AttributeFormat.FLOAT,
+                Float.class,
+                attributeTypeMap);
 
-        OBJECT_TYPE = addAttributeType("OBJECT_TYPE", AttributeFormat.OBJECT, Serializable.class);
+        INTEGER_TYPE = addAttributeType("INTEGER_TYPE",
+                AttributeFormat.INTEGER,
+                Integer.class,
+                attributeTypeMap);
 
-        SHORT_TYPE = addAttributeType("SHORT_TYPE", AttributeFormat.SHORT, Short.class);
+        OBJECT_TYPE = addAttributeType("OBJECT_TYPE",
+                AttributeFormat.OBJECT,
+                Serializable.class,
+                attributeTypeMap);
 
-        BASIC_METACARD = new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                getBasicAttributeDescriptors());
-    }
+        SHORT_TYPE = addAttributeType("SHORT_TYPE",
+                AttributeFormat.SHORT,
+                Short.class,
+                attributeTypeMap);
 
-    private static <T extends Serializable> AttributeType<T> addAttributeType(final String typeName,
-            final AttributeFormat format, final Class<T> bindingClass) {
-        final AttributeType<T> attributeType = new AttributeType<T>() {
-            private static final long serialVersionUID = 1L;
+        ATTRIBUTE_TYPE_MAP = Collections.unmodifiableMap(attributeTypeMap);
 
-            @Override
-            public Class<T> getBinding() {
-                return bindingClass;
-            }
-
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return format;
-            }
-        };
-
-        ATTRIBUTE_TYPE_MAP.put(typeName, attributeType);
-
-        return attributeType;
-    }
-
-    private static Set<AttributeDescriptor> getBasicAttributeDescriptors() {
         Set<AttributeDescriptor> descriptors = new HashSet<>();
         descriptors.add(new AttributeDescriptorImpl(Metacard.MODIFIED,
                 true /* indexed */,
@@ -257,13 +283,13 @@ public class BasicTypes {
                 false /* tokenized */,
                 false /* multivalued */,
                 STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(VALIDATION_WARNINGS,
+        descriptors.add(new AttributeDescriptorImpl(Validation.VALIDATION_WARNINGS,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 true /* multivalued */,
                 STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(VALIDATION_ERRORS,
+        descriptors.add(new AttributeDescriptorImpl(Validation.VALIDATION_ERRORS,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
@@ -311,6 +337,7 @@ public class BasicTypes {
                 false /* tokenized */,
                 true /* multivalued */,
                 STRING_TYPE));
+<<<<<<< HEAD
         descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_CACHE_STATUS,
                 true /* indexed */,
                 true /* stored */,
@@ -318,6 +345,50 @@ public class BasicTypes {
                 false /* multivalued */,
                 BOOLEAN_TYPE));
         return descriptors;
+=======
+        descriptors.add(new AttributeDescriptorImpl(Validation.FAILED_VALIDATORS_WARNINGS,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Validation.FAILED_VALIDATORS_ERRORS,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                STRING_TYPE));
+        DESCRIPTORS = Collections.unmodifiableSet(descriptors);
+
+        BASIC_METACARD = new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
+                getBasicAttributeDescriptors());
+    }
+
+    private static <T extends Serializable> AttributeType<T> addAttributeType(final String typeName,
+            final AttributeFormat format, final Class<T> bindingClass,
+            Map<String, AttributeType> map) {
+        final AttributeType<T> attributeType = new AttributeType<T>() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Class<T> getBinding() {
+                return bindingClass;
+            }
+
+            @Override
+            public AttributeFormat getAttributeFormat() {
+                return format;
+            }
+        };
+
+        map.put(typeName, attributeType);
+
+        return attributeType;
+    }
+
+    private static Set<AttributeDescriptor> getBasicAttributeDescriptors() {
+        return DESCRIPTORS;
+>>>>>>> master
     }
 
     public static AttributeType getAttributeType(String type) {

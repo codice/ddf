@@ -1,0 +1,24 @@
+{
+  "metacardTypes": [
+    {
+      "type": "customtype1",
+      "attributes": {
+        "title": {
+          "required": true
+        },
+        "datatype": {
+          "required": false
+        }
+      }
+    }
+  ],
+  "attributeTypes": {
+    "datatype": {
+      "type": "STRING_TYPE",
+      "indexed": true,
+      "stored": true,
+      "tokenized": true,
+      "multivalued": true
+    }
+  }
+}

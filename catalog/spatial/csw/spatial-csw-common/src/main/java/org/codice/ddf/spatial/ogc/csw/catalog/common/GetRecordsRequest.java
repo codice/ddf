@@ -66,7 +66,7 @@ public class GetRecordsRequest extends CswRequest {
             context = JAXBContext.newInstance(contextPath,
                     CswJAXBElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB context using contextPath: {}", contextPath, e);
+            LOGGER.info("Unable to create JAXB context using contextPath: {}", contextPath, e);
         }
 
         JAX_BCONTEXT = context;
@@ -288,7 +288,7 @@ public class GetRecordsRequest extends CswRequest {
             try {
                 getRecords.setResultType(ResultType.fromValue(getResultType()));
             } catch (IllegalArgumentException iae) {
-                LOGGER.warn("Failed to find \"{}\" as a valid ResultType, Exception {}",
+                LOGGER.debug("Failed to find \"{}\" as a valid ResultType",
                         getResultType(),
                         iae);
                 throw new CswException(
@@ -308,7 +308,7 @@ public class GetRecordsRequest extends CswRequest {
         query.setTypeNames(typeNames);
 
         if (getElementName() != null && getElementSetName() != null) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "CSW getRecords request received with mutually exclusive ElementName and SetElementName set");
             throw new CswException(
                     "A CSW getRecords request can only have an \"ElementName\" or an \"ElementSetName\"");
@@ -325,7 +325,7 @@ public class GetRecordsRequest extends CswRequest {
                 eleSetName.setValue(ElementSetType.fromValue(getElementSetName()));
                 query.setElementSetName(eleSetName);
             } catch (IllegalArgumentException iae) {
-                LOGGER.warn("Failed to find \"{}\" as a valid elementSetType, Exception {}",
+                LOGGER.debug("Failed to find \"{}\" as a valid elementSetType, Exception {}",
                         getElementSetName(),
                         iae);
                 throw new CswException(
@@ -393,10 +393,11 @@ public class GetRecordsRequest extends CswRequest {
                             (JAXBElement<FilterType>) unmarshaller.unmarshal(xmlStreamReader);
                     queryConstraint.setFilter(jaxbFilter.getValue());
                 } catch (JAXBException e) {
-                    throw new CswException("JAXBException parsing OGC Filter:" + getConstraint(),
-                            e);
+                    LOGGER.debug("JAXBException parsing OGC Filter:", e);
+                    throw new CswException("JAXBException parsing OGC Filter:" + getConstraint());
                 } catch (Exception e) {
-                    throw new CswException("Unable to parse OGC Filter:" + getConstraint(), e);
+                    LOGGER.debug("Unable to parse OGC Filter:", e);
+                    throw new CswException("Unable to parse OGC Filter:" + getConstraint());
                 }
             } else {
                 throw new CswException(

@@ -33,6 +33,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+<<<<<<< HEAD
+=======
+import java.util.Optional;
+>>>>>>> master
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -49,18 +53,18 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.platform.util.Exceptions;
 import org.fusesource.jansi.Ansi;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,10 +91,13 @@ import ddf.security.common.audit.SecurityLogger;
 /**
  * Custom Karaf command for ingesting records into the Catalog.
  */
+@Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "ingest", description = "Ingests Metacards into the Catalog.")
 public class IngestCommand extends CatalogCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestCommand.class);
+
+    private static final String NEW_LINE = System.getProperty("line.separator");
 
     private static final Logger INGEST_LOGGER =
             LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
@@ -135,12 +142,15 @@ public class IngestCommand extends CatalogCommands {
     private final AtomicInteger ignoreCount = new AtomicInteger();
 
     private final AtomicInteger fileCount = new AtomicInteger(Integer.MAX_VALUE);
+<<<<<<< HEAD
 
     private Map<String, List<File>> metacardFileMapping;
 
     private File failedIngestDirectory = null;
 
     private InputTransformer transformer = null;
+=======
+>>>>>>> master
 
     @Argument(name = "File path or Directory path", description =
             "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes."
@@ -148,7 +158,7 @@ public class IngestCommand extends CatalogCommands {
     String filePath = null;
 
     // DDF-535: Remove this argument in ddf-3.0
-    @Argument(name = "Batch size", description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits. [DEPRECATED: use --batchsize option instead]", index = 1, multiValued = false, required = false)
+    @Argument(name = "Batch size", description = "Number of Metacards to ingest at a time. Change this argument based on system memory and Catalog Provider limits. [DEPRECATED: use --batchsize option instead]", index = 1, multiValued = false, required = false)
     int deprecatedBatchSize = DEFAULT_BATCH_SIZE;
 
     // DDF-535: remove "Transformer" alias in ddf-3.0
@@ -169,7 +179,7 @@ public class IngestCommand extends CatalogCommands {
     String failedDir = null;
 
     @Option(name = "--batchsize", required = false, aliases = {
-            "-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
+            "-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and Catalog Provider limits.")
     int batchSize = DEFAULT_BATCH_SIZE;
 
     @Option(name = "--ignore", required = false, aliases = {
@@ -179,8 +189,20 @@ public class IngestCommand extends CatalogCommands {
     @Option(name = "--include-content", required = false, aliases = {}, multiValued = false, description = "Ingest a zip file that contains metacards and content using the default transformer.  The specified zip must be signed externally using DDF certificates.")
     boolean includeContent = false;
 
+<<<<<<< HEAD
     private static final String NEW_LINE = System.getProperty("line.separator");
 
+=======
+    @Reference
+    StorageProvider storageProvider;
+
+    private Map<String, List<File>> metacardFileMapping;
+
+    private File failedIngestDirectory = null;
+
+    private Optional<InputTransformer> transformer = null;
+
+>>>>>>> master
     @Override
     protected Object executeWithSubject() throws Exception {
         if (batchSize * multithreaded > MAX_QUEUE_SIZE) {
@@ -331,7 +353,11 @@ public class IngestCommand extends CatalogCommands {
 
         if (!SERIALIZED_OBJECT_ID.matches(transformerId)) {
             transformer = getTransformer();
+<<<<<<< HEAD
             if (transformer == null) {
+=======
+            if (!transformer.isPresent()) {
+>>>>>>> master
                 console.println(transformerId + " is an invalid input transformer.");
                 return null;
             }
@@ -447,7 +473,7 @@ public class IngestCommand extends CatalogCommands {
     private Metacard generateMetacard(InputStream message) throws IOException {
         try {
             if (message != null) {
-                return transformer.transform(message);
+                return transformer.get().transform(message);
             } else {
                 throw new IllegalArgumentException("Data file is null.");
             }
@@ -494,7 +520,7 @@ public class IngestCommand extends CatalogCommands {
             }
         } catch (SourceUnavailableException e) {
             if (INGEST_LOGGER.isWarnEnabled()) {
-                INGEST_LOGGER.warn("Error on process batch, local provider not available. {}"
+                INGEST_LOGGER.warn("Error on process batch, local Provider not available. {}"
                                 + " metacards failed to ingest. {}",
                         metacards.size(),
                         buildIngestLog(metacards),
@@ -544,6 +570,10 @@ public class IngestCommand extends CatalogCommands {
 
     private void addFileToQueue(ArrayBlockingQueue<Metacard> metacardQueue, long start, File file) {
         if (file.isHidden()) {
+<<<<<<< HEAD
+=======
+            fileCount.incrementAndGet();
+>>>>>>> master
             ignoreCount.incrementAndGet();
             return;
         }
@@ -594,11 +624,18 @@ public class IngestCommand extends CatalogCommands {
 
         ByteSource byteSource = com.google.common.io.Files.asByteSource(inputFile);
 
+<<<<<<< HEAD
         InputCollectionTransformer zipDecompression = getZipDecompression();
         if (zipDecompression != null) {
 
             try (InputStream inputStream = byteSource.openBufferedStream()) {
                 List<Metacard> metacardList = zipDecompression.transform(inputStream, arguments)
+=======
+        Optional<InputCollectionTransformer> zipDecompression = getZipDecompression();
+        if (zipDecompression.isPresent()) {
+            try (InputStream inputStream = byteSource.openBufferedStream()) {
+                List<Metacard> metacardList = zipDecompression.get().transform(inputStream, arguments)
+>>>>>>> master
                         .stream()
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
@@ -625,8 +662,11 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private void submitToStorageProvider(List<Metacard> metacardList) {
+<<<<<<< HEAD
         StorageProvider storageProvider = getAllServices(StorageProvider.class).get(0);
 
+=======
+>>>>>>> master
         metacardList.stream()
                 .filter(metacard -> metacardFileMapping.containsKey(metacard.getId()))
                 .map(metacard -> {
@@ -720,10 +760,17 @@ public class IngestCommand extends CatalogCommands {
         Map<String, List<File>> fileMap = new HashMap<>();
         Files.walkFileTree(inputFile.toPath(), new SimpleFileVisitor<Path>() {
             @Override
+<<<<<<< HEAD
             public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs)
                     throws IOException {
 
                 File file = filePath.toFile();
+=======
+            public FileVisitResult visitFile(Path filePathToVisit, BasicFileAttributes attrs)
+                    throws IOException {
+
+                File file = filePathToVisit.toFile();
+>>>>>>> master
 
                 if (file.getParent()
                         .contains(CONTENT) && !file.isDirectory() && !file.isHidden()) {
@@ -749,6 +796,7 @@ public class IngestCommand extends CatalogCommands {
         }
     }
 
+<<<<<<< HEAD
     private InputCollectionTransformer getZipDecompression() {
         List<InputCollectionTransformer> inputCollectionTransformerList = null;
         try {
@@ -771,16 +819,34 @@ public class IngestCommand extends CatalogCommands {
 
         try {
             refs = bundleContext.getServiceReferences(InputTransformer.class.getName(),
+=======
+    private Optional<InputCollectionTransformer> getZipDecompression() {
+        try {
+            return getServiceByFilter(InputCollectionTransformer.class,
+                    "(|" + "(" + Constants.SERVICE_ID + "=" + ZIP_DECOMPRESSION + ")" + ")");
+        } catch (InvalidSyntaxException e) {
+            LOGGER.info("Unable to get transformer id={}", ZIP_DECOMPRESSION, e);
+            return Optional.empty();
+        }
+    }
+
+    private Optional<InputTransformer> getTransformer() {
+        try {
+            return getServiceByFilter(InputTransformer.class,
+>>>>>>> master
                     "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
         } catch (InvalidSyntaxException e) {
             throw new IllegalArgumentException(
                     "Invalid transformer transformerId: " + transformerId, e);
         }
+<<<<<<< HEAD
 
         if (refs == null || refs.length == 0) {
             throw new IllegalArgumentException("Transformer " + transformerId + " not found");
         } else {
             return (InputTransformer) bundleContext.getService(refs[0]);
         }
+=======
+>>>>>>> master
     }
 }

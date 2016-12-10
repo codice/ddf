@@ -41,7 +41,7 @@ public class HttpUtils {
         try {
             return validateAndStripQueryString(url);
         } catch (MalformedURLException ex) {
-            LOGGER.warn("Tried to strip query string from invalid url, {}", url);
+            LOGGER.debug("Tried to strip query string from invalid url, {}", url);
             return url;
         }
     }
@@ -122,7 +122,7 @@ public class HttpUtils {
             cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
             response.addCookie(cookie);
         } catch (MalformedURLException e) {
-            LOGGER.warn("Unable to delete cookie {}", cookieName, e);
+            LOGGER.info("Unable to delete cookie {}", cookieName, e);
         }
     }
 

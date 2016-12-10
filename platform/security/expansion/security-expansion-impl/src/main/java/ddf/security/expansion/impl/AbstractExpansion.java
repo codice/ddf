@@ -119,7 +119,7 @@ public abstract class AbstractExpansion implements Expansion {
 
         // if they didn't specify a key value, just return the original string
         if ((key == null) || (key.isEmpty())) {
-            LOGGER.warn("Expand called with a null key value - no expansion attempted.");
+            LOGGER.debug("Expand called with a null key value - no expansion attempted.");
             return values;
         }
 
@@ -160,7 +160,7 @@ public abstract class AbstractExpansion implements Expansion {
                     }
                 }
             } else {
-                LOGGER.warn("Expansion table contains invalid entries - skipping.");
+                LOGGER.debug("Expansion table contains invalid entries - skipping.");
             }
             temp = currentSet;
             currentSet = expandedSet;
@@ -455,27 +455,23 @@ public abstract class AbstractExpansion implements Expansion {
         }
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file),
                 StandardCharsets.UTF_8.name()))) {
-            if (br != null) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    if ((line.length() > 0) && (!line.startsWith(CFG_COMMENT_STR))) {
-                        if (line.startsWith(SEPARATOR_PREFIX)) {
-                            if (line.length() > SEPARATOR_PREFIX.length()) {
-                                attributeSeparator = line.substring(SEPARATOR_PREFIX.length());
-                            } else {
-                                attributeSeparator = DEFAULT_VALUE_SEPARATOR;
-                            }
+            String line;
+            while ((line = br.readLine()) != null) {
+                if ((line.length() > 0) && (!line.startsWith(CFG_COMMENT_STR))) {
+                    if (line.startsWith(SEPARATOR_PREFIX)) {
+                        if (line.length() > SEPARATOR_PREFIX.length()) {
+                            attributeSeparator = line.substring(SEPARATOR_PREFIX.length());
                         } else {
-                            addExpansionRule(line);
+                            attributeSeparator = DEFAULT_VALUE_SEPARATOR;
                         }
+                    } else {
+                        addExpansionRule(line);
                     }
                 }
-                LOGGER.info("Finished loading mapping configuration file.");
             }
+            LOGGER.debug("Finished loading mapping configuration file.");
         } catch (IOException e) {
-            LOGGER.warn("Unexpected exception reading mapping configuration file {} - {}",
-                    filename,
-                    e.getMessage());
+            LOGGER.warn("Unexpected exception reading mapping configuration file {}", filename, e);
             setExpansionMap(null);
         }
     }

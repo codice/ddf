@@ -52,7 +52,7 @@ public class ManagedServiceFactoryConfigurationFile extends ConfigurationFile {
             String message = String.format(
                     "Unable to get or update Configuration for factory pid [%s].",
                     factoryPid);
-            LOGGER.error(message, e);
+            LOGGER.info(message, e);
             throw new ConfigurationFileException(message, e);
         }
     }

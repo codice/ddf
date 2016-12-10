@@ -41,6 +41,7 @@
     <feature name="catalog-core" install="manual" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
         <feature prerequisite="true">catalog-core-api</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-jaxrs</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
@@ -60,6 +61,8 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-solrcommands/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-attributeregistry/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-injectattribute/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
@@ -69,6 +72,7 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-defaultvalues/${project.version}</bundle>
+<<<<<<< HEAD
 
         <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
@@ -94,6 +98,10 @@
         <configfile finalname="/bin/catalog-export.bat">
             mvn:ddf.catalog.core/catalog-core-commands/${project.version}/bin/batexport
         </configfile>
+=======
+        <bundle>mvn:ddf.catalog.core/catalog-core-metacardtype/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/versioning-api/${project.version}</bundle>
+>>>>>>> master
     </feature>
 
     <feature name="catalog-core-content" install="auto" version="${project.version}"
@@ -119,6 +127,12 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-migratable/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-core-downloadaction" install="auto" version="${project.version}"
+             description="Catalog Core feature to download resources asynchronously.">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-downloadaction/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-metrics" install="auto" version="${project.version}">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-metricsplugin/${project.version}</bundle>
@@ -129,6 +143,12 @@
              description="Catalog post ingest plug-in to backup metacards to a file system.">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-backupplugin/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-plugin-expirationdate" install="manual" version="${project.version}"
+                 description="Catalog pre-ingest plugin to set an expiration date on metacards.">
+        <feature prerequisite="true">catalog-core</feature>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-expirationdate/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-schematron-plugin" install="auto" version="${project.version}"
@@ -357,11 +377,14 @@
              description="DDF Metacard and attribute validation services">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-validator/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/catalog-core-attribute-registry/${project.version}</bundle>
         <feature>catalog-plugin-metacard-validation</feature>
     </feature>
 
+<<<<<<< HEAD
     <feature name="catalog-core-validationparser" install="manual" version="${project.version}"
+=======
+    <feature name="catalog-core-validationparser" install="auto" version="${project.version}"
+>>>>>>> master
              description="Provides the ability to define new metacard types, attributes, attribute validators, and default values via JSON files">
         <feature prerequisite="true">catalog-core-validator</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-validationparser/${project.version}</bundle>
@@ -389,6 +412,15 @@
              description="DDF Metacard Duplicate Validator">
         <feature prerequisite="true">catalog-core</feature>
         <bundle>mvn:org.codice.ddf.validator/catalog-validator-metacardduplication/${project.version}</bundle>
+<<<<<<< HEAD
+=======
+    </feature>
+
+    <feature name="catalog-transformer-overlay" install="auto" version="${project.version}"
+             description="Transforms a metacard into a geographically aligned image suitable for overlaying on a map">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-overlay/${project.version}</bundle>
+>>>>>>> master
     </feature>
 
     <feature name="catalog-app" install="auto" version="${project.version}"
@@ -398,5 +430,26 @@
         <feature>catalog-core-api</feature>
         <feature>catalog-core</feature>
     </feature>
-    
+
+    <feature name="catalog-client-info" install="auto" version="${project.version}"
+             description="Places client-specific information from the servlet API into request and response properties">
+        <feature prerequisite="true">catalog-core-api</feature>
+        <feature prerequisite="true">clientinfo-filter</feature>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-clientinfo/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-metacardingest-network" install="auto" version="${project.version}"
+             description="Conditional attribute enhancement to metacards during ingest using client network information">
+        <feature prerequisite="true">catalog-core-api</feature>
+        <feature prerequisite="true">clientinfo-filter</feature>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardingest-network/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-ftp" install="manual" version="${project.version}"
+             description="FTP endpoint for ingesting files into the DDF catalog. Supports PUT and MPUT operations only. Avoids the extra IO overhead of otherwise having to temporarily write the file to the file system.">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog/ftp/${project.version}</bundle>
+        <bundle>mvn:org.apache.mina/mina-core/${mina.version}</bundle>
+    </feature>
+
 </features>

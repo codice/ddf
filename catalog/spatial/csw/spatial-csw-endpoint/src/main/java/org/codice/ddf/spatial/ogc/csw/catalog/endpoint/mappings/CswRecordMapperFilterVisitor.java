@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,8 +24,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.geotools.filter.LiteralExpressionImpl;
@@ -44,6 +44,7 @@ import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLessThanOrEqualTo;
 import org.opengis.filter.PropertyIsNotEqualTo;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
@@ -58,7 +59,12 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+<<<<<<< HEAD
 import ddf.catalog.data.impl.BasicTypes;
+=======
+import ddf.catalog.data.types.Core;
+import ddf.catalog.impl.filter.FuzzyFunction;
+>>>>>>> master
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
 
@@ -147,9 +153,14 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         String propertyName = expression.getPropertyName();
         String name;
 
+<<<<<<< HEAD
         if (CswConstants.BBOX_PROP.equals(propertyName)
                 || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName)
                 || GmdMetacardType.APISO_BOUNDING_BOX.equals(propertyName)) {
+=======
+        if (CswConstants.BBOX_PROP.equals(propertyName) || CswConstants.OWS_BOUNDING_BOX.equals(
+                propertyName) || GmdConstants.APISO_BOUNDING_BOX.equals(propertyName)) {
+>>>>>>> master
             name = Metacard.ANY_GEO;
         } else {
             NamespaceSupport namespaceSupport = expression.getNamespaceContext();
@@ -159,7 +170,13 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
             if (SPATIAL_QUERY_TAG.equals(extraData)) {
                 AttributeDescriptor attrDesc = metacardType.getAttributeDescriptor(name);
+<<<<<<< HEAD
                 if (attrDesc != null && !BasicTypes.GEO_TYPE.equals(attrDesc.getType())) {
+=======
+                if (attrDesc != null
+                        && !AttributeType.AttributeFormat.GEOMETRY.equals(attrDesc.getType()
+                        .getAttributeFormat())) {
+>>>>>>> master
                     throw new UnsupportedOperationException(
                             "Attempted a spatial query on a non-geometry-valued attribute ("
                                     + propertyName + ")");
@@ -193,7 +210,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     @Override
     public Object visit(PropertyIsEqualTo filter, Object extraData) {
-        if (StringUtils.equals(Metacard.SOURCE_ID,
+        if (StringUtils.equals(Core.SOURCE_ID,
                 ((PropertyName) filter.getExpression1()).getPropertyName())) {
             sourceIds.add((String) ((Literal) filter.getExpression2()).getValue());
             return null;
@@ -367,7 +384,11 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     }
 
     private void setExpressionType(AttributeType type, LiteralExpressionImpl typedExpression) {
+<<<<<<< HEAD
         if (type != null && typedExpression != null) {
+=======
+        if (type != null) {
+>>>>>>> master
             if (type.getBinding() == Short.class) {
                 typedExpression.setValue(Short.valueOf((String) typedExpression.getValue()));
             } else if (type.getBinding() == Integer.class) {
@@ -486,4 +507,19 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         }
         return (Expression) expression.accept(this, extraData);
     }
+
+    @Override
+    public Object visit(Function function, Object extraData) {
+
+        if (function instanceof FuzzyFunction) {
+            //FuzzyFunction has 1 parameter to visit
+            Expression expr1 = visit(function.getParameters()
+                    .get(0), null);
+            ((FuzzyFunction) function).setParameters(Arrays.asList(expr1));
+            return function;
+        } else {
+            return super.visit(function, extraData);
+        }
+    }
 }
+

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml"
+          xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/"
+          xmlns:ns5="http://www.w3.org/2001/SMIL20/Language">
+    <type>ddf.metacard</type>
+    <source>ddf.distribution</source>
+    <string name="metadata-content-type-version">
+        <value>myVersion</value>
+    </string>
+    <string name="title">
+        <value>warning metacard</value>
+    </string>
+    <dateTime name="created">
+        <value>2013-04-18T10:50:27.371-07:00</value>
+    </dateTime>
+    <dateTime name="modified">
+        <value>2013-04-18T10:50:27.371-07:00</value>
+    </dateTime>
+    <base64Binary name="thumbnail">
+        <value>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAALAAgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAJBAAAAQFAwUAAAAAAAAAAAAAABETFAEDBBIVAgUGISJRYZP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBf/EABkRAAMAAwAAAAAAAAAAAAAAAAABAwISIv/aAAwDAQACEQMRAD8A3fRvVTHmTS+RjkUfbolC+fUBDhR0zXMN5WUyibqyClrhMj8WdoAtynSGLfJ//9k=</value>
+    </base64Binary>
+    <string name="metadata">
+        <value>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
+            &lt;Resource&gt;
+            &lt;name&gt;Lady Liberty&lt;/name&gt;
+            &lt;/Resource&gt;
+        </value>
+    </string>
+    <string name="metadata-content-type">
+        <value>myType</value>
+    </string>
+    <string name="resource-uri">
+        <value>" + uri + "</value>
+    </string>
+</metacard>

@@ -274,6 +274,10 @@ public class WfsSource extends MaskableImpl
         String username = (String) configuration.get(USERNAME_PROPERTY);
         Boolean disableCnCheckProp = (Boolean) configuration.get(DISABLE_CN_CHECK_PROPERTY);
         String id = (String) configuration.get(ID_PROPERTY);
+        if(hasSourceIdChanged(id)) {
+            super.setId(id);
+            configureWfsFeatures();
+        }
 
         setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
         setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY));
@@ -284,7 +288,6 @@ public class WfsSource extends MaskableImpl
         this.nonQueryableProperties = nonQueryableProperties;
 
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
-        super.setId(id);
 
         if (hasWfsUrlChanged(wfsUrl) || hasDisableCnCheck(disableCnCheckProp)) {
             this.wfsUrl = wfsUrl;
@@ -365,6 +368,10 @@ public class WfsSource extends MaskableImpl
         return !StringUtils.equals(this.wfsUrl, wfsUrl);
     }
 
+    private boolean hasSourceIdChanged(String id) {
+        return !StringUtils.equals(getId(), id);
+    }
+
     private boolean hasPasswordChanged(String password) {
         return !StringUtils.equals(this.password, password);
     }
@@ -430,13 +437,13 @@ public class WfsSource extends MaskableImpl
         try {
             capabilities = wfs.getCapabilities(new GetCapabilitiesRequest());
         } catch (WfsException wfse) {
-            LOGGER.warn(WFS_ERROR_MESSAGE
+            LOGGER.info(WFS_ERROR_MESSAGE
                             + " Received HTTP code '{}' from server for source with id='{}'",
                     wfse.getHttpStatus(),
                     getId());
             LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
         } catch (WebApplicationException wae) {
-            handleWebApplicationException(wae);
+            LOGGER.debug(handleWebApplicationException(wae), wae);
         } catch (Exception e) {
             handleClientException(e);
         }
@@ -452,7 +459,7 @@ public class WfsSource extends MaskableImpl
             List<String> supportedGeo = getSupportedGeo(capabilities);
             buildFeatureFilters(featureTypes, supportedGeo);
         } else {
-            LOGGER.warn("WfsSource {}: WFS Server did not return any capabilities.", getId());
+            LOGGER.info("WfsSource {}: WFS Server did not return any capabilities.", getId());
         }
     }
 
@@ -460,7 +467,7 @@ public class WfsSource extends MaskableImpl
         List<FeatureTypeType> featureTypes = capabilities.getFeatureTypeList()
                 .getFeatureType();
         if (featureTypes.isEmpty()) {
-            LOGGER.warn("\"WfsSource {}: No feature types found.", getId());
+            LOGGER.debug("\"WfsSource {}: No feature types found.", getId());
         }
         return featureTypes;
     }
@@ -551,14 +558,14 @@ public class WfsSource extends MaskableImpl
                         }
 
                         if (featureConverter == null) {
-                            LOGGER.warn(
+                            LOGGER.debug(
                                     "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
                                     getId(),
                                     ftName);
                             featureConverter = new GenericFeatureConverter();
                         }
                     } else {
-                        LOGGER.warn(
+                        LOGGER.debug(
                                 "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
                                 getId(),
                                 ftName);
@@ -573,12 +580,10 @@ public class WfsSource extends MaskableImpl
                     featureCollectionReader.registerConverter(featureConverter);
                 }
 
-            } catch (WfsException wfse) {
-                LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
+            } catch (WfsException | IllegalArgumentException wfse) {
+                LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
             } catch (WebApplicationException wae) {
-                handleWebApplicationException(wae);
-            } catch (IllegalArgumentException ie) {
-                LOGGER.warn(WFS_ERROR_MESSAGE, ie);
+                LOGGER.debug(handleWebApplicationException(wae), wae);
             }
 
         }
@@ -610,7 +615,7 @@ public class WfsSource extends MaskableImpl
         }
 
         if (featureTypeFilters.isEmpty()) {
-            LOGGER.warn(
+            LOGGER.info(
                     "Wfs Source {}: No Feature Type schemas validated. Marking source as unavailable",
                     getId());
         }
@@ -727,11 +732,11 @@ public class WfsSource extends MaskableImpl
                 results.add(result);
                 debugResult(result);
             }
-            Long totalHits = Long.valueOf(featureCollection.getFeatureMembers()
-                    .size());
+            Long totalHits = (long) featureCollection.getFeatureMembers()
+                    .size();
             simpleResponse = new SourceResponseImpl(request, results, totalHits);
         } catch (WfsException wfse) {
-            LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
+            LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
             throw new UnsupportedQueryException("Error received from WFS Server", wfse);
         } catch (Exception ce) {
             String msg = handleClientException(ce);
@@ -810,7 +815,7 @@ public class WfsSource extends MaskableImpl
             refs = context.getServiceReferences(MetadataTransformer.class.getName(),
                     "(" + Constants.SERVICE_ID + "=" + transformerId + ")");
         } catch (InvalidSyntaxException e) {
-            LOGGER.warn("Invalid transformer ID. Returning original metacard.", e);
+            LOGGER.debug("Invalid transformer ID. Returning original metacard.", e);
             return mc;
         }
 
@@ -822,7 +827,7 @@ public class WfsSource extends MaskableImpl
                 MetadataTransformer transformer = (MetadataTransformer) context.getService(refs[0]);
                 return transformer.transform(mc);
             } catch (CatalogTransformerException e) {
-                LOGGER.warn("Transformation Failed for transformer: {}. Returning original metacard",
+                LOGGER.debug("Transformation Failed for transformer: {}. Returning original metacard",
                         transformerId,
                         e);
                 return mc;
@@ -836,7 +841,7 @@ public class WfsSource extends MaskableImpl
         try {
             contentTypes = filterAdapter.adapt(query, new ContentTypeFilterDelegate());
         } catch (UnsupportedQueryException e) {
-            LOGGER.warn("WFS Source {}: Unable to get content types from query.", getId(), e);
+            LOGGER.debug("WFS Source {}: Unable to get content types from query.", getId(), e);
         }
 
         return contentTypes != null ? contentTypes : new ArrayList<ContentType>();
@@ -1010,12 +1015,8 @@ public class WfsSource extends MaskableImpl
     private String handleWebApplicationException(WebApplicationException wae) {
         Response response = wae.getResponse();
         WfsException wfsException = new WfsResponseExceptionMapper().fromResponse(response);
-        String msg = "Error received from WFS Server " + getId() + "\n" + wfsException.getMessage();
 
-        LOGGER.warn(msg);
-        LOGGER.debug(msg, wae);
-
-        return msg;
+        return "Error received from WFS Server " + getId() + "\n" + wfsException.getMessage();
     }
 
     private String handleClientException(Exception ce) {
@@ -1037,7 +1038,7 @@ public class WfsSource extends MaskableImpl
         } else {
             msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'\n" + ce;
         }
-        LOGGER.warn(msg);
+        LOGGER.info(msg);
         LOGGER.debug(msg, ce);
         return msg;
     }
@@ -1158,7 +1159,7 @@ public class WfsSource extends MaskableImpl
                     }
                 }
             } catch (SecurityServiceException sse) {
-                LOGGER.error("Could not get a client to connect to the endpointUrl.", sse);
+                LOGGER.info("Could not get a client to connect to the endpointUrl.", sse);
             }
             return newAvailability;
         }

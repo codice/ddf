@@ -168,7 +168,7 @@ public class ResourceReaderTest {
 
         HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
         try {
-            LOGGER.info("Getting resource: " + filePath);
+            LOGGER.info("Getting resource: {}", filePath);
             URI uri = new URI(FILE_SCHEME_PLUS_SEP + filePath);
 
             resourceReader.retrieveResource(uri, arguments);
@@ -316,7 +316,7 @@ public class ResourceReaderTest {
 
         HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
         try {
-            LOGGER.info("Getting resource: " + filePath);
+            LOGGER.info("Getting resource: {}", filePath);
             URI uri = new URI(FILE_SCHEME_PLUS_SEP + filePath);
             resourceReader.retrieveResource(uri, arguments);
         } catch (IOException e) {
@@ -339,7 +339,7 @@ public class ResourceReaderTest {
 
         HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
         try {
-            LOGGER.info("Getting resource: " + filePath);
+            LOGGER.info("Getting resource: {}", filePath);
             File file = new File(filePath);
             URI uri = file.toURI();
             resourceReader.retrieveResource(uri, arguments);
@@ -716,21 +716,21 @@ public class ResourceReaderTest {
 
         HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
 
-        LOGGER.info("Getting resource: " + filePath);
+        LOGGER.info("Getting resource: {}", filePath);
 
         // Test using the URL ResourceReader
         File file = new File(filePath);
 
         URI uri = file.toURI();
-        LOGGER.info("URI: " + uri.toString());
+        LOGGER.info("URI: {}", uri.toString());
 
         ResourceResponse resourceResponse = resourceReader.retrieveResource(uri, arguments);
 
         Resource resource = resourceResponse.getResource();
         assert (resource != null);
 
-        LOGGER.info("MimeType: " + resource.getMimeType());
-        LOGGER.info("Got resource: " + resource.getName());
+        LOGGER.info("MimeType: {}", resource.getMimeType());
+        LOGGER.info("Got resource: {}", resource.getName());
         String name = resource.getName();
         assertNotNull(name);
         assertThat(name, is(filename));
@@ -775,15 +775,15 @@ public class ResourceReaderTest {
         resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
 
         // Test using the URL ResourceReader
-        LOGGER.info("URI: " + uri.toString());
+        LOGGER.info("URI: {}", uri.toString());
 
         ResourceResponse resourceResponse = resourceReader.retrieveResource(uri, arguments);
 
         Resource resource = resourceResponse.getResource();
         assert (resource != null);
 
-        LOGGER.info("MimeType: " + resource.getMimeType());
-        LOGGER.info("Got resource: " + resource.getName());
+        LOGGER.info("MimeType: {}", resource.getMimeType());
+        LOGGER.info("Got resource: {}", resource.getName());
         String name = resource.getName();
         assertNotNull(name);
         assertThat(name, is(filename));

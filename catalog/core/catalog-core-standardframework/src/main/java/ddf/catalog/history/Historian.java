@@ -13,20 +13,29 @@
  */
 package ddf.catalog.history;
 
+<<<<<<< HEAD
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static ddf.catalog.Constants.CONTENT_PATHS;
 import static ddf.catalog.core.versioning.MetacardVersion.HISTORY_METACARDS_PROPERTY;
+=======
+>>>>>>> master
 import static ddf.catalog.core.versioning.MetacardVersion.SKIP_VERSIONING;
 
 import java.io.IOException;
 import java.io.InputStream;
+<<<<<<< HEAD
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.ArrayList;
+=======
+import java.util.ArrayList;
+import java.util.Collection;
+>>>>>>> master
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,11 +55,30 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
+=======
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+
+import org.codice.ddf.security.common.Security;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.ByteSource;
+>>>>>>> master
 
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
+<<<<<<< HEAD
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.CreateStorageResponse;
 import ddf.catalog.content.operation.UpdateStorageRequest;
@@ -69,6 +97,40 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.Subject;
+=======
+import ddf.catalog.content.operation.CreateStorageResponse;
+import ddf.catalog.content.operation.ReadStorageRequest;
+import ddf.catalog.content.operation.ReadStorageResponse;
+import ddf.catalog.content.operation.StorageRequest;
+import ddf.catalog.content.operation.UpdateStorageRequest;
+import ddf.catalog.content.operation.UpdateStorageResponse;
+import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
+import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
+import ddf.catalog.core.versioning.MetacardVersion.Action;
+import ddf.catalog.core.versioning.impl.DeletedMetacardImpl;
+import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.Operation;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.Update;
+import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.CatalogProvider;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.SubjectUtils;
+>>>>>>> master
 
 /**
  * Class utilizing {@link StorageProvider} and {@link CatalogProvider} to version
@@ -77,14 +139,18 @@ import ddf.security.Subject;
 public class Historian {
     private static final Logger LOGGER = LoggerFactory.getLogger(Historian.class);
 
+<<<<<<< HEAD
     private final Map<String, List<Callable<Boolean>>> staged = new ConcurrentHashMap<>();
 
+=======
+>>>>>>> master
     private boolean historyEnabled = true;
 
     private List<StorageProvider> storageProviders;
 
     private List<CatalogProvider> catalogProviders;
 
+<<<<<<< HEAD
     private Supplier<org.apache.shiro.subject.Subject> getSubject = SecurityUtils::getSubject;
 
     /**
@@ -118,6 +184,17 @@ public class Historian {
      * {@link UpdateResponse}
      *
      * @param updateResponse Versioned metacards created from any created metacards in this
+=======
+    private List<MetacardType> metacardTypes;
+
+    private FilterBuilder filterBuilder;
+
+    /**
+     * Versions metacards being updated based off of the {@link Update#getOldMetacard} method on
+     * {@link UpdateResponse}
+     *
+     * @param updateResponse Versioned metacards created from any old metacards
+>>>>>>> master
      * @return The original UpdateResponse
      * @throws SourceUnavailableException
      * @throws IngestException
@@ -131,6 +208,7 @@ public class Historian {
 
         List<Metacard> inputMetacards = updateResponse.getUpdatedMetacards()
                 .stream()
+<<<<<<< HEAD
                 .map(Update::getNewMetacard)
                 .collect(Collectors.toList());
 
@@ -145,11 +223,24 @@ public class Historian {
                     .put(HISTORY_METACARDS_PROPERTY,
                             new ArrayList<>(createdHistory.getCreatedMetacards()));
         }
+=======
+                .map(Update::getOldMetacard)
+                .collect(Collectors.toList());
+
+        final Map<String, Metacard> versionedMetacards = getVersionMetacards(inputMetacards,
+                Action.VERSIONED,
+                (Subject) updateResponse.getRequest()
+                        .getProperties()
+                        .get(SecurityConstants.SECURITY_SUBJECT));
+
+        CreateResponse response = storeVersionMetacards(versionedMetacards);
+>>>>>>> master
 
         return updateResponse;
     }
 
     /**
+<<<<<<< HEAD
      * Versions created {@link Metacard}s and {@link ContentItem}s.
      *
      * @param createStorageRequest Versions this requests items
@@ -211,11 +302,14 @@ public class Historian {
     }
 
     /**
+=======
+>>>>>>> master
      * Versions updated {@link Metacard}s and {@link ContentItem}s.
      *
      * @param streamUpdateRequest   Needed to pass {@link MetacardVersion#SKIP_VERSIONING}
      *                              flag into downstream update
      * @param updateStorageResponse Versions this response's updated items
+<<<<<<< HEAD
      * @param tmpContentPaths       The temporary content paths needed to duplicate the
      *                              {@link ContentItem}s
      * @return The transaction key for using with {@link Historian#commit(String)} and
@@ -227,10 +321,21 @@ public class Historian {
             throws IOException {
         if (doSkip(updateStorageResponse)) {
             return Optional.empty();
+=======
+     * @return the update response originally passed in
+     * @throws IOException
+     */
+    public UpdateStorageResponse version(UpdateStorageRequest streamUpdateRequest,
+            UpdateStorageResponse updateStorageResponse, UpdateResponse updateResponse)
+            throws UnsupportedQueryException, SourceUnavailableException, IngestException {
+        if (doSkip(updateStorageResponse)) {
+            return updateStorageResponse;
+>>>>>>> master
         }
         setSkipFlag(streamUpdateRequest);
         setSkipFlag(updateStorageResponse);
 
+<<<<<<< HEAD
         String transactionKey = UUID.randomUUID()
                 .toString();
         List<Callable<Boolean>> preStaged = new ArrayList<>(2);
@@ -281,6 +386,30 @@ public class Historian {
         });
 
         return Optional.of(transactionKey);
+=======
+        Collection<ReadStorageRequest> ids = getReadStorageRequests(updateStorageResponse);
+        if (ids.isEmpty()) {
+            LOGGER.debug("No root content items to version");
+            return updateStorageResponse;
+        }
+
+        Map<String, Metacard> metacards = query(forIds(fromStorageRequests(ids)));
+        Map<String, List<ContentItem>> oldContent = getOldContent(ids);
+
+        Map<String, Metacard> versionMetacards = getVersionMetacards(metacards.values(),
+                Action.VERSIONED_CONTENT,
+                (Subject) updateResponse.getProperties()
+                        .get(SecurityConstants.SECURITY_SUBJECT));
+
+        CreateStorageResponse createStorageResponse = versionContentItems(oldContent,
+                versionMetacards);
+
+        setResourceUriForContent(/*mutable*/ versionMetacards, createStorageResponse);
+
+        CreateResponse createResponse = storeVersionMetacards(versionMetacards);
+
+        return updateStorageResponse;
+>>>>>>> master
     }
 
     /**
@@ -288,6 +417,7 @@ public class Historian {
      *
      * @param deleteResponse Versions this responses deleted metacards
      */
+<<<<<<< HEAD
     public void version(DeleteResponse deleteResponse) {
         if (doSkip(deleteResponse)) {
             return;
@@ -340,6 +470,51 @@ public class Historian {
      */
     public void rollback(String historianTransactionKey) {
         staged.remove(historianTransactionKey);
+=======
+    public DeleteResponse version(DeleteResponse deleteResponse)
+            throws SourceUnavailableException, IngestException {
+        if (doSkip(deleteResponse)) {
+            return deleteResponse;
+        }
+        setSkipFlag(deleteResponse);
+
+        Map<String, List<ContentItem>> contentItems = getContentItems(deleteResponse);
+        Action action = contentItems.isEmpty() ? Action.DELETED : Action.DELETED_CONTENT;
+
+        Map<String, Metacard> versionedMap =
+                getVersionMetacards(deleteResponse.getDeletedMetacards(),
+                        action,
+                        (Subject) deleteResponse.getRequest()
+                                .getProperties()
+                                .get(SecurityConstants.SECURITY_SUBJECT));
+
+        CreateStorageResponse createStorageResponse = versionContentItems(contentItems,
+                versionedMap);
+        if (createStorageResponse != null) {
+            setResourceUriForContent(/*Mutable*/ versionedMap, createStorageResponse);
+        }
+
+        CreateResponse createResponse =
+                executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(new ArrayList<>(
+                        versionedMap.values()))));
+        String emailAddress = SubjectUtils.getEmailAddress((Subject) deleteResponse.getProperties()
+                .get(SecurityConstants.SECURITY_SUBJECT));
+        List<Metacard> deletedMetacards = versionedMap.entrySet()
+                .stream()
+                .map(s -> new DeletedMetacardImpl(s.getKey(),
+                        emailAddress,
+                        s.getValue()
+                                .getId(),
+                        MetacardVersionImpl.toMetacard(s.getValue(), metacardTypes)))
+                .collect(Collectors.toList());
+
+        CreateResponse deleteTrackResponse =
+                executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(
+                        deletedMetacards,
+                        new HashMap<>())));
+
+        return deleteResponse;
+>>>>>>> master
     }
 
     public boolean isHistoryEnabled() {
@@ -366,6 +541,7 @@ public class Historian {
         this.catalogProviders = catalogProviders;
     }
 
+<<<<<<< HEAD
     private StorageProvider storageProvider() {
         return storageProviders.stream()
                 .findFirst()
@@ -496,6 +672,169 @@ public class Historian {
         }
 
         return resultItems;
+=======
+    public void setFilterBuilder(FilterBuilder filterBuilder) {
+        this.filterBuilder = filterBuilder;
+    }
+
+    public void setSkipFlag(@Nullable Operation op) {
+        Optional.ofNullable(op)
+                .map(Operation::getProperties)
+                .ifPresent(p -> p.put(SKIP_VERSIONING, true));
+    }
+
+    private List<String> fromStorageRequests(Collection<ReadStorageRequest> requests) {
+        return requests.stream()
+                .map(StorageRequest::getId)
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, Metacard> query(Filter filter) throws UnsupportedQueryException {
+        SourceResponse response = catalogProvider().query(new QueryRequestImpl(new QueryImpl(filter,
+                1,
+                250,
+                null,
+                false,
+                TimeUnit.SECONDS.toMillis(10))));
+
+        return response.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Metacard::getId, Function.identity()));
+    }
+
+    private Filter forIds(List<String> ids) {
+        List<Filter> idFilters = ids.stream()
+                .map(id -> filterBuilder.attribute(Metacard.ID)
+                        .is()
+                        .equalTo()
+                        .text(id))
+                .collect(Collectors.toList());
+
+        return filterBuilder.anyOf(idFilters);
+    }
+
+    private Map<String, List<ContentItem>> getOldContent(Collection<ReadStorageRequest> ids) {
+        return ids.stream()
+                .map(this::getStorageItem)
+                .filter(Objects::nonNull)
+                .map(ReadStorageResponse::getContentItem)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(ContentItem::getId, Lists::newArrayList, (l, r) -> {
+                    l.addAll(r);
+                    return l;
+                }));
+    }
+
+    private List<ReadStorageRequest> getReadStorageRequests(
+            UpdateStorageResponse updateStorageResponse) {
+        return getReadStorageRequests(updateStorageResponse.getUpdatedContentItems()
+                .stream()
+                .filter(ci -> ci.getQualifier() == null || ci.getQualifier()
+                        .equals(""))
+                .map(ContentItem::getMetacard)
+                .collect(Collectors.toList()));
+    }
+
+    private List<ReadStorageRequest> getReadStorageRequests(List<Metacard> metacards) {
+        return metacards.stream()
+                .map(m -> new ReadStorageRequestImpl(m.getResourceURI(),
+                        m.getId(),
+                        new HashMap<>()))
+                .collect(Collectors.toList());
+    }
+
+    private ReadStorageResponse getStorageItem(ReadStorageRequest r) {
+        try {
+            return storageProvider().read(r);
+        } catch (StorageException e) {
+            LOGGER.debug("could not get storage item for metacard (id: {})(uri: {})",
+                    r.getId(),
+                    r.getResourceUri(),
+                    e);
+        }
+        return null;
+    }
+
+    private Map<String, List<ContentItem>> getContentItems(DeleteResponse deleteResponse) {
+        return getOldContent(getReadStorageRequests(deleteResponse.getDeletedMetacards()));
+    }
+
+    private CreateStorageResponse versionContentItems(Map<String, List<ContentItem>> items,
+            Map<String, Metacard> versionedMetacards)
+            throws SourceUnavailableException, IngestException {
+        List<ContentItem> contentItems = items.entrySet()
+                .stream()
+                .map(e -> getVersionedContentItems(e.getValue(), versionedMetacards))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        if (contentItems.isEmpty()) {
+            LOGGER.debug("No content items to version");
+            return null;
+        }
+
+        CreateStorageResponse createStorageResponse =
+                executeAsSystem(() -> storageProvider().create(new CreateStorageRequestImpl(
+                        contentItems,
+                        new HashMap<>())));
+        tryCommitStorage(createStorageResponse);
+        return createStorageResponse;
+    }
+
+    private void tryCommitStorage(CreateStorageResponse createStorageResponse)
+            throws IngestException {
+        try {
+            storageProvider().commit(createStorageResponse.getStorageRequest());
+        } catch (StorageException e) {
+            try {
+                storageProvider().rollback(createStorageResponse.getStorageRequest());
+            } catch (StorageException e1) {
+                LOGGER.debug("Could not rollback storage request", e1);
+            }
+            LOGGER.debug("Could not copy and store the previous resource", e);
+            throw new IngestException("Error Updating Metacard");
+        }
+    }
+
+    private List<ContentItemImpl> getVersionedContentItems(List<ContentItem> entry,
+            Map<String, Metacard> versionedMetacards) {
+        return entry.stream()
+                .map(content -> createContentItem(content, versionedMetacards))
+                .collect(Collectors.toList());
+    }
+
+    private ContentItemImpl createContentItem(ContentItem content,
+            Map<String, Metacard> versionedMetacards) {
+        long size = 0;
+        try {
+            size = content.getSize();
+        } catch (IOException e) {
+            LOGGER.debug("Could not get size of file. (file: {}) (id: {})",
+                    content.getFilename(),
+                    content.getId(),
+                    e);
+        }
+        return new ContentItemImpl(versionedMetacards.get(content.getId())
+                .getId(),
+                content.getQualifier(),
+                new WrappedByteSource(content),
+                content.getMimeTypeRawData(),
+                content.getFilename(),
+                size,
+                versionedMetacards.get(content.getId()));
+    }
+
+    /*Map<MetacardVersion.VERSION_OF_ID -> MetacardVersion>*/
+    private Map<String, Metacard> getVersionMetacards(Collection<Metacard> metacards,
+            final Action action, Subject subject) {
+        return metacards.stream()
+                .filter(MetacardVersionImpl::isNotVersion)
+                .map(metacard -> new MetacardVersionImpl(metacard, action, subject))
+                .collect(Collectors.toMap(MetacardVersionImpl::getVersionOfId,
+                        Function.identity()));
+>>>>>>> master
     }
 
     /**
@@ -521,10 +860,53 @@ public class Historian {
                 .getOrDefault(SKIP_VERSIONING, false));
     }
 
+<<<<<<< HEAD
     private void setSkipFlag(@Nullable Operation op) {
         Optional.ofNullable(op)
                 .map(Operation::getProperties)
                 .ifPresent(p -> p.put(SKIP_VERSIONING, true));
+=======
+    private CreateResponse storeVersionMetacards(Map<String, Metacard> versionMetacards) {
+        return executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(new ArrayList<>(
+                versionMetacards.values()))));
+    }
+
+    private void setResourceUriForContent(/*mutable*/ Map<String, Metacard> versionMetacards,
+            CreateStorageResponse createStorageResponse) {
+        for (ContentItem contentItem : createStorageResponse.getCreatedContentItems()) {
+            Metacard metacard = versionMetacards.values()
+                    .stream()
+                    .filter(m -> contentItem.getId()
+                            .equals(m.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (metacard == null) {
+                LOGGER.info(
+                        "Could not find version metacard to set resource URI for (contentItem id: {})",
+                        contentItem.getId());
+                continue;
+            }
+            metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, contentItem.getUri()));
+        }
+
+    }
+
+    private StorageProvider storageProvider() {
+        return storageProviders.stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    private CatalogProvider catalogProvider() {
+        return catalogProviders.stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void setMetacardTypes(List<MetacardType> metacardTypes) {
+        this.metacardTypes = metacardTypes;
+>>>>>>> master
     }
 
     private static class WrappedByteSource extends ByteSource {

@@ -48,8 +48,6 @@ import ddf.catalog.source.Source;
 public abstract class AbstractFederationStrategy implements FederationStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFederationStrategy.class);
 
-    // private static XLogger LOGGER = new
-    // XLogger(LoggerFactory.getLogger(AbstractFederationStrategy.class));
     private static final String CLASS_NAME = AbstractFederationStrategy.class.getName();
 
     private static final int DEFAULT_MAX_START_INDEX = 50000;
@@ -148,7 +146,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
         for (final Source source : sources) {
             if (source != null) {
                 if (!futures.containsKey(source)) {
-                    LOGGER.debug("running query on source: " + source.getId());
+                    LOGGER.debug("running query on source: {}", source.getId());
 
                     try {
                         for (PreFederatedQueryPlugin service : preQuery) {
@@ -156,12 +154,11 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
                                 modifiedQueryRequest = service.process(source,
                                         modifiedQueryRequest);
                             } catch (PluginExecutionException e) {
-                                LOGGER.warn("Error executing PreFederatedQueryPlugin: "
-                                        + e.getMessage(), e);
+                                LOGGER.info("Error executing PreFederatedQueryPlugin: ", e);
                             }
                         }
                     } catch (StopProcessingException e) {
-                        LOGGER.warn("Plugin stopped processing: ", e);
+                        LOGGER.info("Plugin stopped processing: ", e);
                     }
 
                     futures.put(source,
@@ -169,8 +166,8 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
                                     modifiedQueryRequest.getQuery(),
                                     modifiedQueryRequest.getProperties())));
                 } else {
-                    LOGGER.warn("Duplicate source found with name " + source.getId()
-                            + ". Ignoring second one.");
+                    LOGGER.info("Duplicate source found with name {}. Ignoring second one.",
+                            source.getId());
                 }
             }
         }
@@ -207,11 +204,11 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
                 try {
                     queryResponse = service.process(queryResponse);
                 } catch (PluginExecutionException e) {
-                    LOGGER.warn("Error executing PostFederatedQueryPlugin: " + e.getMessage(), e);
+                    LOGGER.info("Error executing PostFederatedQueryPlugin: ", e);
                 }
             }
         } catch (StopProcessingException e) {
-            LOGGER.warn("Plugin stopped processing: ", e);
+            LOGGER.info("Plugin stopped processing: ", e);
         }
 
         LOGGER.debug("returning Query Results: {}", queryResponse);
@@ -232,12 +229,11 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
             int modifiedPageSize = computeModifiedPageSize(offset, pageSize);
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Creating new query for federated sources to query each source from "
-                        + modifiedOffset + " to " + modifiedPageSize + ".");
-                LOGGER.debug("original offset: " + offset);
-                LOGGER.debug("original page size: " + pageSize);
-                LOGGER.debug("modified offset: " + modifiedOffset);
-                LOGGER.debug("modified page size: " + modifiedPageSize);
+                LOGGER.debug("Creating new query for federated sources to query each source from {} to {}.", modifiedOffset, modifiedPageSize);
+                LOGGER.debug("original offset: {}", offset);
+                LOGGER.debug("original page size: {}", pageSize);
+                LOGGER.debug("modified offset: {}", modifiedOffset);
+                LOGGER.debug("modified page size: {}", modifiedPageSize);
             }
 
             /**
@@ -272,12 +268,12 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
      *            the new default max start index value
      */
     public void setMaxStartIndex(int maxStartIndex) {
-        LOGGER.debug("Current max start index: " + this.maxStartIndex);
+        LOGGER.debug("Current max start index: {}", this.maxStartIndex);
         this.maxStartIndex = DEFAULT_MAX_START_INDEX;
 
         if (maxStartIndex > 0) {
             this.maxStartIndex = maxStartIndex;
-            LOGGER.debug("New max start index: " + this.maxStartIndex);
+            LOGGER.debug("New max start index: {}", this.maxStartIndex);
         } else {
             LOGGER.debug(
                     "Invalid max start index input. Reset to default value: " + this.maxStartIndex);

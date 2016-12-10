@@ -10,15 +10,31 @@
  *
  **/
 /*global define*/
+
 define([
         'icanhaz',
-         'jquery'
+        'jquery'
     ],
     function (ich, $) {
         "use strict";
-    ich.addHelper('select', function (value, options) {
-                    var $el = $('<select />').html( options.fn(this) );
-                    $el.find('[value="' + value + '"]').attr({'selected':'selected'});
-                    return $el.html();
-    });
+        var helper, helpers = {
+            select: function (value, options) {
+                var $el = $('<select />').html( options.fn(this) );
+                $el.find('[value="' + value + '"]').attr({'selected':'selected'});
+                return $el.html();
+            },
+            gt: function (value, test, options) {
+                if (value > test) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            }
+        };
+
+        for (helper in helpers) {
+            if (helpers.hasOwnProperty(helper)) {
+                ich.addHelper(helper, helpers[helper]);
+            }
+        }
 });

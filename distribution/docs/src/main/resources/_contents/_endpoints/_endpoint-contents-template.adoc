@@ -1,0 +1,27 @@
+
+==== {endpoint name}
+
+{description}
+
+===== Installing the {endpoint name}
+
+The {endpoint name} is installed by default with a standard installation in the ${app-name} application.
+The {endpoint name} is not installed by default with a standard installation in the ${app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring the {endpoint name}
+
+* any applicable configurations
+
+===== {endpoint name} URL
+
+----
+${secure_url}/path/to/endpoint
+----
+
+{operations}
+
+====Known Issues with {endpoint name}
+

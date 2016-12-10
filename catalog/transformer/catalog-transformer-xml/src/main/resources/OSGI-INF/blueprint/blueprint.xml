@@ -72,7 +72,7 @@
         <property name="threshold" value="50"/>
     </bean>
 
-    <bean id="fjp" class="java.util.concurrent.ForkJoinPool"/>
+    <bean id="fjp" class="java.util.concurrent.ForkJoinPool" factory-method="commonPool"/>
 
     <service ref="xmlResponseQueueTransformer"
              interface="ddf.catalog.transform.QueryResponseTransformer">

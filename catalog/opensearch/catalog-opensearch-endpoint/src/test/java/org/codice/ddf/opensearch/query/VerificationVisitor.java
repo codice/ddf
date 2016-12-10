@@ -35,14 +35,13 @@ import org.opengis.filter.spatial.Intersects;
 import org.opengis.filter.spatial.Within;
 import org.opengis.filter.temporal.During;
 import org.opengis.filter.temporal.TOverlaps;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 public class VerificationVisitor extends DefaultFilterVisitor {
     public static final String SEPARATOR = " - ";
 
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(VerificationVisitor.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(VerificationVisitor.class);
 
     private int indent = 0;
 

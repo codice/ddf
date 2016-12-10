@@ -1,0 +1,44 @@
+{
+  "inject": [
+    {
+      "attribute": "page-count"
+    },
+    {
+      "attribute": "temperature",
+      "metacardTypes": ["other.metacard.type"]
+    }
+  ],
+  "attributeTypes": {
+    "page-count": {
+      "type": "INTEGER_TYPE",
+      "stored": true,
+      "indexed": true,
+      "multivalued": false,
+      "tokenized": false
+    },
+    "temperature": {
+      "type": "DOUBLE_TYPE",
+      "stored": true,
+      "indexed": true,
+      "multivalued": false,
+      "tokenized": false
+    },
+    "other-attribute": {
+      "type": "STRING_TYPE",
+      "stored": true,
+      "indexed": true,
+      "multivalued": false,
+      "tokenized": false
+    }
+  },
+  "metacardTypes": [
+    {
+      "type": "other.metacard.type",
+      "attributes": {
+        "other-attribute": {
+          "required": false
+        }
+      }
+    }
+  ]
+}

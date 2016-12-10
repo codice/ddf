@@ -1,0 +1,4 @@
+|<<org.codice.ddf.platform.logging.LoggingService,Logging Service>>
+|org.codice.ddf.platform.logging.LoggingService
+|null
+

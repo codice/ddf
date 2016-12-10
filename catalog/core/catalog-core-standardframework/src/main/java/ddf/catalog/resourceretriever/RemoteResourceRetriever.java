@@ -59,10 +59,10 @@ public class RemoteResourceRetriever implements ResourceRetriever {
         }
 
         // Create a fresh HashMap so as not to disturb the existing properties if we need to add to them
-        Map<String, Serializable> props = new HashMap<String, Serializable>(properties);
+        Map<String, Serializable> props = new HashMap<>(properties);
 
         if (bytesToSkip > 0) {
-            props.put(BYTES_TO_SKIP, Long.valueOf(bytesToSkip));
+            props.put(BYTES_TO_SKIP, bytesToSkip);
         }
 
         return source.retrieveResource(resourceUri, props);

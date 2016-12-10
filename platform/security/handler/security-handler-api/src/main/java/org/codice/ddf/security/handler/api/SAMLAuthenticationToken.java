@@ -53,7 +53,7 @@ public class SAMLAuthenticationToken extends BaseAuthenticationToken {
             credentials = token;
             reference = false;
         } else {
-            LOGGER.warn("Current token is not a reference - call to replace is ignored.");
+            LOGGER.debug("Current token is not a reference - call to replace is ignored.");
         }
     }
 
@@ -64,7 +64,7 @@ public class SAMLAuthenticationToken extends BaseAuthenticationToken {
      */
     public Element getSAMLTokenAsElement() {
         if (reference) {
-            LOGGER.warn("Attempting to return a SAML token without converting from a reference.");
+            LOGGER.debug("Attempting to return a SAML token without converting from a reference.");
             return null;
         }
 

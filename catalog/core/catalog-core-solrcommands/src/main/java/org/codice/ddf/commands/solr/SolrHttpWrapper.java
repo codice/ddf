@@ -35,7 +35,7 @@ import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHttpResponse;
-import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +72,7 @@ public class SolrHttpWrapper implements HttpWrapper {
             keyStore.load(storeStream, password.toCharArray());
         } catch (CertificateException | IOException
                 | NoSuchAlgorithmException | KeyStoreException e) {
-            LOGGER.error("Unable to load keystore at " + location, e);
+            LOGGER.warn("Unable to load keystore at {}", location, e);
         }
 
         return keyStore;
@@ -83,7 +83,7 @@ public class SolrHttpWrapper implements HttpWrapper {
             return StringUtils.split(System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES),
                     ",");
         }
-        return SolrClientFactory.DEFAULT_CIPHER_SUITES.toArray(new String[SolrClientFactory.DEFAULT_CIPHER_SUITES.size()]);
+        return HttpSolrClientFactory.DEFAULT_CIPHER_SUITES.toArray(new String[HttpSolrClientFactory.DEFAULT_CIPHER_SUITES.size()]);
 
     }
 
@@ -92,7 +92,7 @@ public class SolrHttpWrapper implements HttpWrapper {
         HttpResponse httpResponse;
         HttpGet get = new HttpGet(uri);
         try {
-            LOGGER.info("Executing uri: {}", uri.toString());
+            LOGGER.debug("Executing uri: {}", uri.toString());
             httpResponse = solrClient.execute(get);
             return new ResponseWrapper(httpResponse);
         } catch (IOException e) {
@@ -128,7 +128,7 @@ public class SolrHttpWrapper implements HttpWrapper {
                     .build();
         } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
                 KeyManagementException e) {
-            LOGGER.error("Unable to create secure HttpClient", e);
+            LOGGER.error("Unable to create secure HttpClient for Solr. The server should not be used in this state.", e);
             return null;
         }
 
@@ -144,7 +144,7 @@ public class SolrHttpWrapper implements HttpWrapper {
         if (System.getProperty("https.protocols") != null) {
             return StringUtils.split(System.getProperty("https.protocols"), ",");
         }
-        return SolrClientFactory.DEFAULT_PROTOCOLS.toArray(new String[SolrClientFactory.DEFAULT_PROTOCOLS.size()]);
+        return HttpSolrClientFactory.DEFAULT_PROTOCOLS.toArray(new String[HttpSolrClientFactory.DEFAULT_PROTOCOLS.size()]);
     }
 
 }

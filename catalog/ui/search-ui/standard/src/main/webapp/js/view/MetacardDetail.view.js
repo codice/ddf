@@ -23,10 +23,11 @@ define([
         'text!templates/metacard.handlebars',
         'js/view/Modal',
         'text!templates/metacardActionModal.handlebars',
+        'js/view/MapActions.view',
         'js/view/NearbyLocation.view',
         'js/model/NearbyLocation'
     ],
-    function ($, _, Marionette, ich, dir, maptype, wreqr, Cometd, metacardTemplate, Modal, metacardActionTemplate, NearbyLocationView, NearbyLocation) {
+    function ($, _, Marionette, ich, dir, maptype, wreqr, Cometd, metacardTemplate, Modal, metacardActionTemplate, MapActionsView, NearbyLocationView, NearbyLocation) {
 
         "use strict";
 
@@ -49,7 +50,8 @@ define([
             className : 'slide-animate height-full',
             template: 'metacardTemplate',
             regions: {
-                nearby: '#nearby'
+                nearby: '#nearby',
+                mapActions: '#map-actions'
             },
             events: {
                 'click .location-link': 'viewLocation',
@@ -100,6 +102,8 @@ define([
                     var nearby = new NearbyLocation({geo: this.model.get('geometry')});
                     this.showChildView('nearby', new NearbyLocationView({model: nearby}));
                 }
+
+                this.showChildView('mapActions', new MapActionsView({model: this.model}));
             },
             serializeData: function () {
                 var type;
@@ -137,7 +141,6 @@ define([
                 });
             },
             onTabClick: function (e) {
-
                 this.updateScrollbar();
                 this.hash = e.target.hash;
             },

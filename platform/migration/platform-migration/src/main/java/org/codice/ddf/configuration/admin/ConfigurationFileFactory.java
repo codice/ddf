@@ -113,7 +113,7 @@ public class ConfigurationFileFactory {
                     Constants.SERVICE_PID,
                     ConfigurationAdmin.SERVICE_FACTORYPID,
                     properties);
-            LOGGER.error(message);
+            LOGGER.info(message);
             throw new ConfigurationFileException(message);
         }
         return configurationFileBuilder.properties(properties);
@@ -134,7 +134,7 @@ public class ConfigurationFileFactory {
         } catch (ConfigurationFileException | IOException e) {
             String message = String.format("Unable to read configuration file [%s].",
                     configurationFile.toString());
-            LOGGER.error(message, e);
+            LOGGER.info(message, e);
             throw new ConfigurationFileException(message, e);
         }
     }

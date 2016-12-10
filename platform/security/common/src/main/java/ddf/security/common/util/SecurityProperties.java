@@ -51,7 +51,7 @@ public class SecurityProperties extends HashMap<String, Serializable> {
                         subjectObj);
             }
         } else {
-            LOGGER.warn(
+            LOGGER.debug(
                     "Unable to retrieve the current message associated with the web service call.");
         }
     }

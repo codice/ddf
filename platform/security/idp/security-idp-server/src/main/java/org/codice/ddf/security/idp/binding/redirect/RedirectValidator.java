@@ -98,7 +98,7 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
             try {
                 relayState = URLDecoder.decode(relayState, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                LOGGER.warn("Unable to URL decode relay state, it may already be decoded.", e);
+                LOGGER.info("Unable to URL decode relay state, it may already be decoded.", e);
             }
         }
 

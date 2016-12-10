@@ -335,7 +335,11 @@ The following table shows the format to use for each property type supported.
 
 |Lists of Strings
 |`name = [ "value1", "value2", ... ]`
+<<<<<<< HEAD
 |`authenticationTypes = [ "/\=SAML\|GUEST", "/admin\=SAML\|basic", "/system\=basic", "/solr\=SAML\|PKI\|basic", "/sources\=SAML\|basic", "/security-config\=SAML\|basic" ]`
+=======
+|`complexStringArray = [ "{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\ {\"VERSION\"\ \"1.1\|1.2\"\ \"image/png\"}\ \"beta\"\ 1}", "{\"url\"\ \"http://test.sample.com"\ 0.5}", "/solr\=SAML\|PKI\|basic", "/security-config\=SAML\|basic" ]`
+>>>>>>> master
 
 |Lists of Integers
 |`name = I[ "value1", "value1", ... ]`
@@ -348,6 +352,7 @@ The following table shows the format to use for each property type supported.
 * Lists of values can be prefixed with any of the supported types (`B`, `I`, `L`, `F` or `D`)
 * To prevent any configuration issues, the `=` signs used in values should be escaped using `\`
 * Boolean values will default to `false` if any value other than `true` is provided
+* Escape character in values must be used for double quotes (`"`) and spaces, but cannot be used with `{` `}` or `[` `]` pairings
 ====
 
 .Sample configuration file
@@ -566,7 +571,7 @@ In order to change the Data Directory, the `system.properties` file in `${brandi
 [source]
 ----
 # Uncomment the following line and set it to the desired path
-#solr.catalog.data.dir=/opt/solr/catalog/data
+# solr.data.dir = ${karaf.home}/data/solr
 ----
 
 ===== Changing the Data Directory after ${branding} has ingested data
@@ -588,12 +593,12 @@ mkdir /path/to/new/data/dir
 cp /path/to/old/data/dir/* /path/to/new/data/dir/.
 ----
 +
-. Set the `system.properties` file to use the new directory.
+. Edit the `system.properties` file to use the new directory.
 +
-.Set the SOLR_CATALOG_DATA_DIR
-[source,java]
+.Edit the solr.data.dir system property
+[source]
 ----
-solr.catalog.data.dir=/path/to/new/data/dir
+solr.data.dir = /path/to/new/data/dir
 ----
 +
 . Restart ${branding}.

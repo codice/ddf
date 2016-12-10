@@ -24,23 +24,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Overrides the default CXF policies with the one specified in the constructor.
- *
  */
 public class AbstractOverrideInterceptor extends AbstractPhaseInterceptor<Message> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOverrideInterceptor.class);
 
     private PolicyLoader loader;
-
-    private Logger logger = LoggerFactory.getLogger(AbstractOverrideInterceptor.class);
 
     private Policy policy = null;
 
     /**
      * Creates a new instance of the OverrideInterceptor.
      *
-     * @param phase
-     *            Phase to load in.
-     * @param loader
-     *            PolicyLoader to use to retrieve the policy.
+     * @param phase  Phase to load in.
+     * @param loader PolicyLoader to use to retrieve the policy.
      */
     public AbstractOverrideInterceptor(String phase, PolicyLoader loader) {
         super(phase);
@@ -63,7 +59,7 @@ public class AbstractOverrideInterceptor extends AbstractPhaseInterceptor<Messag
             try {
                 policy = builder.getPolicy(loader.getPolicy()
                         .getDocumentElement());
-                logger.trace("Read in policy, adding to policy override of message.");
+                LOGGER.trace("Read in policy, adding to policy override of message.");
                 message.put(PolicyConstants.POLICY_OVERRIDE, policy);
             } catch (Exception e) {
                 throw new Fault(e);

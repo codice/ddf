@@ -23,6 +23,9 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
@@ -56,10 +59,18 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
                         Unmarshaller um = provider.getJAXBContext(ServiceExceptionReport.class,
                                 ServiceExceptionReport.class)
                                 .createUnmarshaller();
+                        XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+                        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                                false);
+                        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+                        xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
+                                false);
+                        XMLStreamReader xmlStreamReader =
+                                xmlInputFactory.createXMLStreamReader(new StringReader(msg));
                         ServiceExceptionReport report =
-                                (ServiceExceptionReport) um.unmarshal(new StringReader(msg));
+                                (ServiceExceptionReport) um.unmarshal(xmlStreamReader);
                         wfsEx = convertToWfsException(report);
-                    } catch (JAXBException e) {
+                    } catch (JAXBException | XMLStreamException e) {
                         wfsEx = new WfsException("Error parsing Response: " + msg, e);
                     }
                 }

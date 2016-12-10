@@ -151,7 +151,6 @@ public class ContentResourceReader implements ResourceReader {
         ResourceResponse response = null;
 
         if (resourceUri == null) {
-            LOGGER.warn("Resource URI was null");
             throw new ResourceNotFoundException("Unable to find resource - resource URI was null");
         }
 
@@ -176,7 +175,7 @@ public class ContentResourceReader implements ResourceReader {
                     ReadStorageResponse readResponse = storage.read(readRequest);
                     ContentItem contentItem = readResponse.getContentItem();
                     String fileName = contentItem.getFilename();
-                    LOGGER.debug("resource name: " + fileName);
+                    LOGGER.debug("resource name: {}", fileName);
                     InputStream is = contentItem.getInputStream();
                     response =
                             new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is),

@@ -236,7 +236,7 @@ public class UPBSTValidator implements TokenValidator {
         try {
             parser.marshal(configurator, tokenType, rootElement);
         } catch (ParserException ex) {
-            LOGGER.warn("", ex);
+            LOGGER.info("Unable to parse username token", ex);
             return response;
         }
         usernameTokenElement = (Element) rootElement.getFirstChild();
@@ -331,7 +331,7 @@ public class UPBSTValidator implements TokenValidator {
             response.setTokenRealm(null);
             validateTarget.setPrincipal(principal);
         } catch (WSSecurityException ex) {
-            LOGGER.warn("", ex);
+            LOGGER.debug("Unable to validate token.", ex);
         }
 
         if (response.getToken().getState() != STATE.VALID) {
@@ -397,7 +397,7 @@ public class UPBSTValidator implements TokenValidator {
                                 .toString(),
                         base.getRealm());
             } catch (WSSecurityException e) {
-                LOGGER.warn("Unable to parse {} from encodedToken.",
+                LOGGER.info("Unable to parse {} from encodedToken.",
                         UPAuthenticationToken.class.getSimpleName(),
                         e);
                 return null;

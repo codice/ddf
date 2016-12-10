@@ -16,5 +16,5 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 public enum CswAxisOrder {
     LAT_LON,
-    LON_LAT;
+    LON_LAT
 }

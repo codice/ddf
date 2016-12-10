@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,14 +13,15 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -63,7 +64,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
@@ -73,7 +74,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerMana
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,7 +162,7 @@ public class TestCswEndpoint {
             CONTEXTUAL_TEST_ATTRIBUTE + " Like '" + CQL_CONTEXTUAL_PATTERN + "'";
 
     private static final String GMD_CONTEXTUAL_LIKE_QUERY =
-            GmdMetacardType.APISO_PREFIX + "title Like '" + CQL_CONTEXTUAL_PATTERN + "'";
+            GmdConstants.APISO_PREFIX + "title Like '" + CQL_CONTEXTUAL_PATTERN + "'";
 
     private static final String RANGE_VALUE = "bytes=100-";
 
@@ -173,8 +173,6 @@ public class TestCswEndpoint {
     private static CswEndpoint csw;
 
     private static CatalogFramework catalogFramework = mock(CatalogFramework.class);
-
-    private static BundleContext mockContext = mock(BundleContext.class);
 
     private static TransformerManager mockMimeTypeManager = mock(TransformerManager.class);
 
@@ -235,7 +233,7 @@ public class TestCswEndpoint {
                 "source3")));
         CreateResponseImpl createResponse = new CreateResponseImpl(null,
                 null,
-                Arrays.<Metacard>asList(new MetacardImpl()));
+                Arrays.asList(new MetacardImpl()));
         when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
     }
 
@@ -658,7 +656,9 @@ public class TestCswEndpoint {
     public void testPostDescribeRecordRequestGMDTypePassed() {
         DescribeRecordType drt = createDefaultDescribeRecordType();
         List<QName> typeNames = new ArrayList<>();
-        typeNames.add(new QName(GmdMetacardType.GMD_NAMESPACE, GmdMetacardType.GMD_LOCAL_NAME, GmdMetacardType.GMD_PREFIX));
+        typeNames.add(new QName(GmdConstants.GMD_NAMESPACE,
+                GmdConstants.GMD_LOCAL_NAME,
+                GmdConstants.GMD_PREFIX));
         drt.setTypeName(typeNames);
         DescribeRecordResponseType drrt = null;
 
@@ -894,9 +894,7 @@ public class TestCswEndpoint {
         DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
         drr.setTypeName(VALID_TYPE);
         drr.setNamespace(null);
-        DescribeRecordResponseType drrt = null;
-
-        drrt = csw.describeRecord(drr);
+        csw.describeRecord(drr);
     }
 
     @Test(expected = CswException.class)
@@ -1070,15 +1068,15 @@ public class TestCswEndpoint {
                 query);
 
         grr.setAbstractQuery(jaxbQuery);
-        final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
-        grr.setOutputSchema(EXAMPLE_SCHEMA);
-        final String EXAMPLE_MIME = "application/xml";
-        grr.setOutputFormat(EXAMPLE_MIME);
+        final String exampleSchema = CswConstants.CSW_OUTPUT_SCHEMA;
+        grr.setOutputSchema(exampleSchema);
+        final String exampleMime = "application/xml";
+        grr.setOutputFormat(exampleMime);
 
         CswRecordCollection collection = csw.getRecords(grr);
 
-        assertThat(collection.getMimeType(), is(EXAMPLE_MIME));
-        assertThat(collection.getOutputSchema(), is(EXAMPLE_SCHEMA));
+        assertThat(collection.getMimeType(), is(exampleMime));
+        assertThat(collection.getOutputSchema(), is(exampleSchema));
         assertThat(collection.getSourceResponse(), notNullValue());
         assertThat(collection.getResultType(), is(ResultType.RESULTS));
         assertThat(collection.getElementSetType(), is(ElementSetType.SUMMARY));
@@ -1093,7 +1091,9 @@ public class TestCswEndpoint {
         grr.setResultType(ResultType.RESULTS);
         QueryType query = new QueryType();
         List<QName> typeNames = new ArrayList<>();
-        typeNames.add(new QName(GmdMetacardType.GMD_NAMESPACE, GmdMetacardType.GMD_LOCAL_NAME, GmdMetacardType.GMD_PREFIX));
+        typeNames.add(new QName(GmdConstants.GMD_NAMESPACE,
+                GmdConstants.GMD_LOCAL_NAME,
+                GmdConstants.GMD_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText(GMD_CONTEXTUAL_LIKE_QUERY);
@@ -1107,17 +1107,17 @@ public class TestCswEndpoint {
                 query);
 
         grr.setAbstractQuery(jaxbQuery);
-        final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
-        grr.setOutputSchema(EXAMPLE_SCHEMA);
-        final String EXAMPLE_MIME = "application/xml";
-        grr.setOutputFormat(EXAMPLE_MIME);
+        final String exampleSchema = CswConstants.CSW_OUTPUT_SCHEMA;
+        grr.setOutputSchema(exampleSchema);
+        final String exampleMime = "application/xml";
+        grr.setOutputFormat(exampleMime);
 
         when(catalogFramework.query(argument.capture())).thenReturn(getQueryResponse());
 
         CswRecordCollection collection = csw.getRecords(grr);
 
-        assertThat(collection.getMimeType(), is(EXAMPLE_MIME));
-        assertThat(collection.getOutputSchema(), is(EXAMPLE_SCHEMA));
+        assertThat(collection.getMimeType(), is(exampleMime));
+        assertThat(collection.getOutputSchema(), is(exampleSchema));
         assertThat(collection.getSourceResponse(), notNullValue());
         assertThat(collection.getResultType(), is(ResultType.RESULTS));
         assertThat(collection.getElementSetType(), is(ElementSetType.SUMMARY));
@@ -1194,8 +1194,7 @@ public class TestCswEndpoint {
 
         final Metacard metacard = new MetacardImpl();
 
-        final List<Result> mockResults =
-                Collections.<Result>singletonList(new ResultImpl(metacard));
+        final List<Result> mockResults = Collections.singletonList(new ResultImpl(metacard));
         final QueryResponseImpl queryResponse = new QueryResponseImpl(null,
                 mockResults,
                 mockResults.size());
@@ -1221,7 +1220,7 @@ public class TestCswEndpoint {
         final Metacard metacard1 = new MetacardImpl();
         final Metacard metacard2 = new MetacardImpl();
 
-        final List<Result> mockResults = Arrays.<Result>asList(new ResultImpl(metacard1),
+        final List<Result> mockResults = Arrays.asList(new ResultImpl(metacard1),
                 new ResultImpl(metacard2));
         final QueryResponse queryResponse = new QueryResponseImpl(null,
                 mockResults,
@@ -1518,14 +1517,14 @@ public class TestCswEndpoint {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             StringWriter sw = new StringWriter();
 
-            JAXBElement<DescribeRecordResponseType> wrappedResponse =
-                    new JAXBElement<>(cswQnameOutPutSchema,
-                            DescribeRecordResponseType.class,
-                            response);
+            JAXBElement<DescribeRecordResponseType> wrappedResponse = new JAXBElement<>(
+                    cswQnameOutPutSchema,
+                    DescribeRecordResponseType.class,
+                    response);
 
             marshaller.marshal(wrappedResponse, sw);
 
-            LOGGER.info("\nResponse\n" + sw.toString() + "\n\n");
+            LOGGER.info("Response: {}", sw.toString());
 
         } catch (JAXBException e) {
             fail("Could not marshall message, Error: " + e.getMessage());
@@ -1549,7 +1548,7 @@ public class TestCswEndpoint {
 
             marshaller.marshal(wrappedResponse, sw);
 
-            LOGGER.info("\nResponse\n" + sw.toString() + "\n\n");
+            LOGGER.info("Response: {}", sw.toString());
 
         } catch (JAXBException e) {
             fail("Could not marshal message, Error: " + e.getMessage());
@@ -1563,7 +1562,7 @@ public class TestCswEndpoint {
         request.getInsertActions()
                 .add(new InsertAction(CswConstants.CSW_TYPE,
                         null,
-                        Arrays.<Metacard>asList(new MetacardImpl())));
+                        Arrays.asList(new MetacardImpl())));
 
         TransactionResponseType response = csw.transaction(request);
         assertThat(response, notNullValue());
@@ -1590,7 +1589,7 @@ public class TestCswEndpoint {
         request.getInsertActions()
                 .add(new InsertAction(CswConstants.CSW_TYPE,
                         null,
-                        Arrays.<Metacard>asList(new MetacardImpl())));
+                        Arrays.asList(new MetacardImpl())));
         request.setVerbose(true);
 
         TransactionResponseType response = csw.transaction(request);
@@ -1810,14 +1809,14 @@ public class TestCswEndpoint {
                 .getValue();
         assertThat(firstUpdate.getId(), is("123"));
         assertThat(firstUpdate.getTitle(), is("foo"));
-        assertThat((String) firstUpdate.getAttribute("subject")
+        assertThat(firstUpdate.getAttribute("subject")
                 .getValue(), is("bar"));
 
         Metacard secondUpdate = updates.get(1)
                 .getValue();
         assertThat(secondUpdate.getId(), is("789"));
         assertThat(secondUpdate.getTitle(), is("foo"));
-        assertThat((String) secondUpdate.getAttribute("subject")
+        assertThat(secondUpdate.getAttribute("subject")
                 .getValue(), is("bar"));
     }
 
@@ -1970,17 +1969,17 @@ public class TestCswEndpoint {
                             assertThat(parameter.getValue(), contains(CswConstants.CSW_RECORD));
                         } else {
                             assertThat(parameter.getValue(), hasItems(CswConstants.CSW_RECORD,
-                                    GmdMetacardType.GMD_METACARD_TYPE_NAME));
+                                    GmdConstants.GMD_METACARD_TYPE_NAME));
                         }
                     }
                 }
             }
         }
-        assertTrue(opNames.contains(CswConstants.GET_CAPABILITIES));
-        assertTrue(opNames.contains(CswConstants.DESCRIBE_RECORD));
-        assertTrue(opNames.contains(CswConstants.GET_RECORDS));
-        assertTrue(opNames.contains(CswConstants.GET_RECORD_BY_ID));
-        assertTrue(opNames.contains(CswConstants.TRANSACTION));
+        assertThat(opNames.contains(CswConstants.GET_CAPABILITIES), is(true));
+        assertThat(opNames.contains(CswConstants.DESCRIBE_RECORD), is(true));
+        assertThat(opNames.contains(CswConstants.GET_RECORDS), is(true));
+        assertThat(opNames.contains(CswConstants.GET_RECORD_BY_ID), is(true));
+        assertThat(opNames.contains(CswConstants.TRANSACTION), is(true));
     }
 
     /**
@@ -1992,31 +1991,29 @@ public class TestCswEndpoint {
         FilterCapabilities fc = ct.getFilterCapabilities();
 
         assertThat(fc.getIdCapabilities(), notNullValue());
-        assertTrue(fc.getIdCapabilities()
-                .getEIDOrFID()
-                .size() == 1);
+        assertThat(fc.getIdCapabilities()
+                .getEIDOrFID(), hasSize(1));
 
         assertThat(fc.getScalarCapabilities(), notNullValue());
-        assertTrue(CswEndpoint.COMPARISON_OPERATORS.size() == fc.getScalarCapabilities()
+        assertThat(CswEndpoint.COMPARISON_OPERATORS, hasSize(fc.getScalarCapabilities()
                 .getComparisonOperators()
                 .getComparisonOperator()
-                .size());
+                .size()));
         for (ComparisonOperatorType cot : CswEndpoint.COMPARISON_OPERATORS) {
-            assertTrue(fc.getScalarCapabilities()
+            assertThat(fc.getScalarCapabilities()
                     .getComparisonOperators()
-                    .getComparisonOperator()
-                    .contains(cot));
+                    .getComparisonOperator(), hasItem(cot));
         }
 
         assertThat(fc.getSpatialCapabilities(), notNullValue());
-        assertTrue(CswEndpoint.SPATIAL_OPERATORS.size() == fc.getSpatialCapabilities()
+        assertThat(CswEndpoint.SPATIAL_OPERATORS, hasSize(fc.getSpatialCapabilities()
                 .getSpatialOperators()
                 .getSpatialOperator()
-                .size());
+                .size()));
         for (SpatialOperatorType sot : fc.getSpatialCapabilities()
                 .getSpatialOperators()
                 .getSpatialOperator()) {
-            assertTrue(CswEndpoint.SPATIAL_OPERATORS.contains(sot.getName()));
+            assertThat(CswEndpoint.SPATIAL_OPERATORS, hasItem(sot.getName()));
         }
     }
 

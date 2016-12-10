@@ -32,7 +32,10 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.LocalizedStringType;
  */
 public class InternationalStringTypeHelper {
     private Locale locale;
+<<<<<<< HEAD
     private boolean findNearestMatch = false;
+=======
+>>>>>>> master
     private static final String DEFAULT_LANG = "en-US";
 
     public InternationalStringTypeHelper() {
@@ -42,11 +45,14 @@ public class InternationalStringTypeHelper {
     InternationalStringTypeHelper(Locale locale) {
         setLocale(locale);
     }
+<<<<<<< HEAD
     
     InternationalStringTypeHelper(Locale locale, boolean findNearestMatch) {
         setLocale(locale);
         setNearestMatch(findNearestMatch);
     }
+=======
+>>>>>>> master
 
     /**
      * This is is a convenience method that pulls the string value from the InternationalStringType
@@ -91,10 +97,13 @@ public class InternationalStringTypeHelper {
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
+<<<<<<< HEAD
     
     public void setNearestMatch(boolean findNearestMatch) {
         this.findNearestMatch = findNearestMatch;        
     }
+=======
+>>>>>>> master
 
     private Optional<String> getLocalizedString(List<LocalizedStringType> localizedStrings) {
         Optional<String> optionalLocalString = localizedStrings.stream()
@@ -102,6 +111,7 @@ public class InternationalStringTypeHelper {
                         .equals(localizedString.getLang()))
                 .findFirst()
                 .map(LocalizedStringType::getValue);
+<<<<<<< HEAD
         
         //If an exact match has not been found then look at the base language e.g. if en-GB 
         //has not been found then try to find the first one in the list of localizedStrings 
@@ -124,4 +134,8 @@ public class InternationalStringTypeHelper {
         return localeStrings[0];
     }
 
+=======
+        return optionalLocalString;
+    }
+>>>>>>> master
 }

@@ -48,7 +48,7 @@ import ddf.security.service.impl.SecurityAssertionStore;
  */
 public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private Logger logger = LoggerFactory.getLogger(PEPAuthorizingInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PEPAuthorizingInterceptor.class);
 
     private SecurityManager securityManager;
 
@@ -63,7 +63,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
      * @param securityManager
      */
     public void setSecurityManager(SecurityManager securityManager) {
-        logger.trace("Setting the security manager");
+        LOGGER.trace("Setting the security manager");
         this.securityManager = securityManager;
     }
 
@@ -92,14 +92,14 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     if (user == null) {
                         throw new AccessDeniedException("Unauthorized");
                     }
-                    if (logger.isTraceEnabled()) {
-                        logger.trace(format(assertion.getSecurityToken()
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace(format(assertion.getSecurityToken()
                                 .getToken()));
                     }
 
-                    logger.debug("Is user authenticated: {}", user.isAuthenticated());
+                    LOGGER.debug("Is user authenticated: {}", user.isAuthenticated());
 
-                    logger.debug("Checking for permission");
+                    LOGGER.debug("Checking for permission");
                     SecurityLogger.audit("Is Subject authenticated? " + user.isAuthenticated(),
                             user);
 
@@ -109,21 +109,22 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     }
 
                     action = new KeyValueCollectionPermission(actionURI);
-                    logger.debug("Permission: {}", action);
+                    LOGGER.debug("Permission: {}", action);
 
                     isPermitted = user.isPermitted(action);
 
-                    logger.debug("Result of permission: {}", isPermitted);
+                    LOGGER.debug("Result of permission: {}", isPermitted);
                     SecurityLogger.audit("Is Subject  permitted? " + isPermitted, user);
                     // store the subject so the DDF framework can use it later
                     ThreadContext.bind(user);
                     message.put(SecurityConstants.SAML_ASSERTION, user);
-                    logger.debug("Added assertion information to message at key {}",
+                    LOGGER.debug("Added assertion information to message at key {}",
                             SecurityConstants.SAML_ASSERTION);
                 } catch (SecurityServiceException e) {
                     SecurityLogger.audit(
                             "Denying access : Caught exception when trying to authenticate user for service ["
-                                    + actionURI + "]", e);
+                                    + actionURI + "]",
+                            e);
                     throw new AccessDeniedException("Unauthorized");
                 }
                 if (!isPermitted) {
@@ -231,7 +232,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
     private String format(Element unformattedXml) {
         if (unformattedXml == null) {
-            logger.error("Unable to transform xml: null");
+            LOGGER.debug("Unable to transform xml: null");
             return null;
         }
 

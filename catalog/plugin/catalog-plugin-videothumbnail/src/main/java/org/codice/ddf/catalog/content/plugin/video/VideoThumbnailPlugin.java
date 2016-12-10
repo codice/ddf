@@ -228,7 +228,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
         try {
             videoDuration = getVideoDuration(videoFilePath);
         } catch (Exception e) {
-            LOGGER.warn("Couldn't get video duration from FFmpeg output.", e);
+            LOGGER.debug("Couldn't get video duration from FFmpeg output.", e);
         }
 
         /* Realistically, to get good thumbnails by dividing a video into segments, the video
@@ -257,12 +257,15 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     }
 
     private CommandLine getFFmpegInfoCommand(final String videoFilePath) {
-        return new CommandLine(ffmpegPath).addArgument(SUPPRESS_PRINTING_BANNER_FLAG)
+        CommandLine commandLine = new CommandLine(ffmpegPath).addArgument(SUPPRESS_PRINTING_BANNER_FLAG)
                 .addArgument(INPUT_FILE_FLAG)
                 .addArgument(videoFilePath, DONT_HANDLE_QUOTING);
+        LOGGER.debug("FFmpeg command : {}", commandLine.toString());
+        return commandLine;
     }
 
     private Duration parseVideoDuration(final String ffmpegOutput) throws IOException {
+        LOGGER.debug("FFmpeg output : {}", ffmpegOutput);
         final Pattern pattern = Pattern.compile("Duration: \\d\\d:\\d\\d:\\d\\d\\.\\d+");
         final Matcher matcher = pattern.matcher(ffmpegOutput);
 

@@ -23,16 +23,15 @@
      affect feature descriptors that are installed from the command line or as part of the
      org.apache.karaf.features.cfg."
 -->
-<features name="${project.artifactId}-${project.version}"
+<features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          name="${project.artifactId}-${project.version}"
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
-
     <!--
-    Begin Camel Features 2.16.1; All feature definitions come from 3rd party feature file
-        (org.apache.camel.karaf/apache-camel/2.16.1/xml/features)
+    Begin Camel Features ${camel.version}; All feature definitions come from 3rd party feature file
+        (org.apache.camel.karaf/apache-camel/${camel.version}/xml/features)
 
     DO NOT EDIT
     -->
@@ -53,128 +52,186 @@
             <!--mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/2.2.6_1-->
         <!--</bundle>-->
     <!--</feature>-->
-    <feature name='camel' install="manual" version='2.16.1'  start-level='50'>
+    <feature name='camel' install="manual" version='${camel.version}' start-level='50'>
         <!-- Added cxf as prereq to keep things ordered -->
         <feature prerequisite="true">cxf</feature>
-        <feature version='2.16.1'>camel-core</feature>
-        <feature version='2.16.1'>camel-spring</feature>
-        <feature version='2.16.1'>camel-blueprint</feature>
+        <feature version='${camel.version}'>camel-core</feature>
+        <feature version='${camel.version}'>camel-blueprint</feature>
+        <!-- we no longer install camel-spring by default as spring-dm is deprecated -->
+
     </feature>
-    <feature name='camel-core' install="manual" version='2.16.1'  start-level='50'>
-        <feature>cxf-specs</feature>
-        <bundle>mvn:org.apache.camel/camel-core/2.16.1</bundle>
-        <bundle>mvn:org.apache.camel/camel-catalog/2.16.1</bundle>
+    <feature name='camel-core' install="manual" version='${camel.version}' start-level='50'>
+        <feature version="${cxf.version}">cxf-specs</feature>
+        <bundle>mvn:org.apache.camel/camel-core/${camel.version}</bundle>
+        <!-- the camel commands requires the camel-catalog to be installed -->
+        <bundle>mvn:org.apache.camel/camel-catalog/${camel.version}</bundle>
+        <bundle>mvn:org.apache.camel/camel-commands-core/${camel.version}</bundle>
         <conditional>
             <condition>shell</condition>
-            <bundle>mvn:org.apache.camel/camel-commands-core/2.16.1</bundle>
-            <bundle>
-                mvn:org.apache.camel.karaf/camel-karaf-commands/2.16.1
-            </bundle>
+            <bundle>mvn:org.apache.camel.karaf/camel-karaf-commands/${camel.version}</bundle>
         </conditional>
         <!--
          allow camel to access its own mbeans for karaf commands and other needs
         -->
         <config name="jmx.acl.org.apache.camel">* = *</config>
     </feature>
-    <feature name="camel-catalog" install="manual" version="2.16.1"  start-level="50">
-        <feature version="2.16.1">camel-core</feature>
-        <bundle>
-            mvn:org.apache.camel.karaf/camel-karaf-commands-catalog/2.16.1
+    <feature name="camel-catalog" install="manual" version="${camel.version}" start-level="50">
+        <details>Install the camel catalog commands</details>
+        <feature version='${camel.version}'>camel-core</feature>
+        <conditional>
+            <condition>shell</condition>
+            <bundle>mvn:org.apache.camel.karaf/camel-karaf-commands-catalog/${camel.version}
+            </bundle>
+        </conditional>
+    </feature>
+    <feature name='camel-blueprint' install="manual" version='${camel.version}'
+             start-level='50'>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle>mvn:org.apache.camel/camel-blueprint/${camel.version}</bundle>
+    </feature>
+    <feature name='camel-spring' install="manual" version='${camel.version}'
+             start-level='50'>
+        <bundle dependency='true'>
+            mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta-spec.version}
         </bundle>
+        <feature version='${spring.version.range}'>spring</feature>
+        <feature version='${spring.version.range}'>spring-tx</feature>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle>mvn:org.apache.camel/camel-spring/${camel.version}</bundle>
     </feature>
-    <feature name='camel-spring' install="manual" version='2.16.1'
-             start-level='50'>
-        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
-        <feature version='[3.2,4)'>spring</feature>
-        <feature version='[1.2,2)'>spring-dm</feature>
-        <feature version='[3.2,4)'>spring-tx</feature>
-        <feature version='2.16.1'>camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-spring/2.16.1</bundle>
-    </feature>
-    <feature name='camel-blueprint' install="manual" version='2.16.1'
-             start-level='50'>
-        <feature version='2.16.1'>camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-blueprint/2.16.1</bundle>
+    <feature name='camel-amqp' version='${camel.version}' start-level='50'>
+        <feature version='${camel.version}'>camel-jms</feature>
+        <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
+        <bundle dependency='true'>
+            mvn:commons-collections/commons-collections/${commons-collections.version}
+        </bundle>
+        <bundle dependency='true'>
+            wrap:mvn:org.apache.qpid/qpid-jms-client/${qpid-jms-client.version}
+        </bundle>
+        <bundle dependency='true'>wrap:mvn:org.apache.qpid/proton-j/${qpid-proton-j.version}
+        </bundle>
+        <bundle dependency='true'>mvn:io.netty/netty-resolver/${camel.netty.version}</bundle>
+        <bundle dependency='true'>mvn:io.netty/netty-common/${camel.netty.version}</bundle>
+        <bundle dependency='true'>mvn:io.netty/netty-buffer/${camel.netty.version}</bundle>
+        <bundle dependency='true'>mvn:io.netty/netty-transport/${camel.netty.version}</bundle>
+        <bundle dependency='true'>mvn:io.netty/netty-handler/${camel.netty.version}</bundle>
+        <bundle dependency='true'>mvn:io.netty/netty-transport-native-epoll/${camel.netty.version}
+        </bundle>
+        <bundle dependency='true'>mvn:io.netty/netty-codec/${camel.netty.version}</bundle>
+        <bundle>mvn:org.apache.camel/camel-amqp/${camel.version}</bundle>
     </feature>
 
     <!-- the following features are sorted A..Z -->
-    <feature name='camel-context' install="manual" version='2.16.1'
+    <feature name='camel-context' install="manual" version='${camel.version}'
              start-level='50'>
-        <feature version='2.16.1'>camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-context/2.16.1</bundle>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle>mvn:org.apache.camel/camel-context/${camel.version}</bundle>
     </feature>
-    <feature name='camel-cxf' install="manual" version='2.16.1'  start-level='50'>
-        <feature version='[3.0,4.0)'>cxf-core</feature>
-        <feature version='[3.0,4.0)'>cxf-jaxrs</feature>
-        <feature version='[3.0,4.0)'>cxf-jaxws</feature>
-        <feature version='[3.0,4.0)'>cxf-http-jetty</feature>
-        <feature version='[3.0,4.0)'>cxf-databinding-jaxb</feature>
-        <feature version='[3.0,4.0)'>cxf-bindings-soap</feature>
-        <feature version="2.16.1">camel-spring</feature>
-        <bundle>mvn:org.apache.camel/camel-cxf-transport/2.16.1</bundle>
-        <bundle>mvn:org.apache.camel/camel-cxf/2.16.1</bundle>
+    <feature name='camel-cxf' install="manual" version='${camel.version}' start-level='50'>
+        <feature version='${camel.version}'>camel-blueprint</feature>
+        <feature version='${camel.version}'>camel-spring</feature>
+        <feature version='${cxf.version.range}'>cxf-core</feature>
+        <feature version='${cxf.version.range}'>cxf-jaxrs</feature>
+        <feature version='${cxf.version.range}'>cxf-jaxws</feature>
+        <feature version='${cxf.version.range}'>cxf-http-jetty</feature>
+        <feature version='${cxf.version.range}'>cxf-databinding-jaxb</feature>
+        <feature version='${cxf.version.range}'>cxf-bindings-soap</feature>
+        <bundle>mvn:org.apache.camel/camel-cxf-transport/${camel.version}</bundle>
+        <bundle>mvn:org.apache.camel/camel-cxf/${camel.version}</bundle>
     </feature>
-    <feature name='camel-eventadmin' install="manual" version='2.16.1'
+    <feature name='camel-eventadmin' install="manual" version='${camel.version}'
              start-level='50'>
+        <feature version='${camel.version}'>camel-core</feature>
         <feature>eventadmin</feature>
-        <feature version='2.16.1'>camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-eventadmin/2.16.1</bundle>
+        <bundle>mvn:org.apache.camel/camel-eventadmin/${camel.version}</bundle>
     </feature>
-    <feature name='camel-freemarker' install="manual" version='2.16.1'
+    <feature name='camel-freemarker' install="manual" version='${camel.version}'
              start-level='50'>
-        <feature version='2.16.1'>camel-core</feature>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.freemarker/2.3.23_1</bundle>
-        <bundle>mvn:org.apache.camel/camel-freemarker/2.16.1</bundle>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.freemarker/${servicemix.bundles.freemarker.version}
+        </bundle>
+        <bundle>mvn:org.apache.camel/camel-freemarker/${camel.version}</bundle>
     </feature>
-    <feature name='camel-http' install="manual" version='2.16.1'  start-level='50'>
+    <feature name='camel-http' install="manual" version='${camel.version}' start-level='50'>
         <!-- Added camel as prereq to keep things ordered -->
         <feature prerequisite="true">camel</feature>
-        <feature version='2.16.1'>camel-core</feature>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-httpclient/3.1_7</bundle>
-        <bundle dependency='true'>mvn:commons-codec/commons-codec/1.10</bundle>
-        <!--<bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-servlet_3.0_spec/1.0</bundle>-->
-        <bundle>mvn:org.apache.camel/camel-http-common/2.16.1</bundle>
-        <bundle>mvn:org.apache.camel/camel-http/2.16.1</bundle>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-httpclient/${servicemix.bundles.commons-httpclient.version}
+        </bundle>
+        <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
+        <bundle dependency='true'>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api.version}
+        </bundle>
+        <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
+        <bundle>mvn:org.apache.camel/camel-http/${camel.version}</bundle>
     </feature>
-    <feature name='camel-jaxb' install="manual" version='2.16.1'  start-level='50'>
-        <feature version='2.16.1'>camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-jaxb/2.16.1</bundle>
+    <feature name='camel-jackson' install="manual" version='${camel.version}' start-level='50'>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2.version}
+        </bundle>
+        <bundle dependency='true'>
+            mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2.version}
+        </bundle>
+        <bundle dependency='true'>
+            mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2.version}
+        </bundle>
+        <bundle dependency='true'>
+            mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2.version}
+        </bundle>
+        <bundle>mvn:org.apache.camel/camel-jackson/${camel.version}</bundle>
     </feature>
-    <!--
-    <feature name='camel-jetty' install="manual" version='2.16.1'  start-level='50'>
+    <feature name='camel-jaxb' install="manual" version='${camel.version}' start-level='50'>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle>mvn:org.apache.camel/camel-jaxb/${camel.version}</bundle>
+    </feature>
+    <feature name='camel-jetty9' version='${camel.version}' start-level='50'>
         <feature>jetty</feature>
-        <feature version='2.16.1'>camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-http-common/2.16.1</bundle>
-        <bundle>mvn:org.apache.camel/camel-jetty-common/2.16.1</bundle>
-        <bundle>mvn:org.apache.camel/camel-jetty8/2.16.1</bundle>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
+        <bundle>mvn:org.apache.camel/camel-jetty-common/${camel.version}</bundle>
+        <bundle>mvn:org.apache.camel/camel-jetty9/${camel.version}</bundle>
     </feature>
-    -->
-    <feature name='camel-jetty9' version='2.16.1' start-level='50'>
-        <details>camel-jetty9 intend to work with jetty9, so this feature only works in the karaf container which support jetty9, e.g. karaf 4.x</details>
-        <feature prerequisite="true" version="[9,10)">jetty</feature>
-        <feature prerequisite="true" version="2.16.1">camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-http-common/2.16.1</bundle>
-        <bundle>mvn:org.apache.camel/camel-jetty-common/2.16.1</bundle>
-        <bundle>mvn:org.apache.camel/camel-jetty9/2.16.1</bundle>
+    <feature name='camel-jms' install="manual" version='${camel.version}'  start-level='50'>
+        <feature version='${camel.version}'>camel-core</feature>
+        <feature version='${spring.version.range}'>spring</feature>
+        <feature version='${spring.version.range}'>spring-jms</feature>
+        <bundle dependency='true'>
+            mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta-spec.version}
+        </bundle>
+        <bundle dependency='true'>mvn:commons-pool/commons-pool/${commons-pool.version}</bundle>
+        <bundle dependency='true'>
+            mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms-spec.version}
+        </bundle>
+        <bundle>mvn:org.apache.camel/camel-jms/${camel.version}</bundle>
     </feature>
-    <feature name='camel-jms' install="manual" version='2.16.1'  start-level='50'>
-        <feature version='[3.2,4)'>spring</feature>
-        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
-        <bundle dependency='true'>mvn:commons-pool/commons-pool/1.6</bundle>
-        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
-        <feature version='[3.2,4)'>spring-jms</feature>
-        <feature version='2.16.1'>camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-jms/2.16.1</bundle>
+    <feature name='camel-protobuf' version='${camel.version}' start-level='50'>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle dependency='true'>mvn:com.google.protobuf/protobuf-java/${protobuf.version}</bundle>
+        <bundle>mvn:org.apache.camel/camel-protobuf/${camel.version}</bundle>
     </feature>
-    <feature name='camel-stax' install="manual" version='2.16.1'  start-level='50'>
-        <feature version='2.16.1'>camel-core</feature>
-        <bundle>mvn:org.apache.camel/camel-stax/2.16.1</bundle>
+    <feature name='camel-sjms' version='${camel.version}' start-level='50'>
+        <feature version='${camel.version}'>camel-core</feature>
+        <!-- JTA is not currently supported by SJMS but is a required dependency of the Geronimo JMS Bundle -->
+        <bundle dependency='true'>
+            mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta-spec.version}
+        </bundle>
+        <bundle dependency='true'>
+            mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms-spec.version}
+        </bundle>
+        <bundle dependency='true'>mvn:commons-pool/commons-pool/${commons-pool.version}</bundle>
+        <bundle>mvn:org.apache.camel/camel-sjms/${camel.version}</bundle>
     </feature>
-    <feature name='camel-test' install="manual" version='2.16.1'  start-level='50'>
-        <feature version='2.16.1'>camel-core</feature>
-        <feature version='2.16.1'>camel-spring</feature>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/4.11_2</bundle>
-        <bundle>mvn:org.apache.camel/camel-test/2.16.1</bundle>
+    <feature name='camel-stax' install="manual" version='${camel.version}' start-level='50'>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle>mvn:org.apache.camel/camel-stax/${camel.version}</bundle>
+    </feature>
+    <feature name='camel-test' install="manual" version='${camel.version}' start-level='50'>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/${servicemix.bundles.junit.version}
+        </bundle>
+        <bundle>mvn:org.apache.camel/camel-test/${camel.version}</bundle>
     </feature>
 
     <!-- End Camel Features -->
@@ -279,13 +336,16 @@
         <feature prerequisite="true" version="${cxf.wsdl4j.bundle.version}">servicemix-wsdl4j</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-wsdl/${cxf.version}</bundle>
     </feature>
+    <feature name="neethi" version="${cxf.version}" install="manual">
+        <bundle start-level="30">mvn:org.apache.neethi/neethi/${cxf.neethi.version}</bundle>
+    </feature>
     <feature name="cxf-ws-policy" version="${cxf.version}" install="manual">
         <feature version="${cxf.version}">cxf-wsdl</feature>
-        <bundle start-level="30" dependency="true">mvn:org.apache.neethi/neethi/${cxf.neethi.version}</bundle>
+        <feature prerequisite="true">neethi</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-ws-policy/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-ws-addr" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-ws-policy</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-ws-policy</feature>
         <feature version="${cxf.version}">cxf-bindings-soap</feature>
         <feature version="${cxf.version}">cxf-databinding-jaxb</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-ws-addr/${cxf.version}</bundle>
@@ -599,6 +659,8 @@
     <feature name="cxf-sts" version="${cxf.version}" install="manual">
         <bundle start-level="40" dependency="true">mvn:com.hazelcast/hazelcast/${cxf.hazelcast.version}</bundle>
         <bundle start-level="40" dependency="true">mvn:net.sf.ehcache/ehcache/${cxf.ehcache.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-json-basic/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-jose/${cxf.version}</bundle>
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-ws-security</feature>
         <bundle>mvn:org.apache.cxf.services.sts/cxf-services-sts-core/${cxf.version}</bundle>
@@ -665,6 +727,7 @@
 
     <feature name="platform-api" install="manual" version="${project.version}"
              description="Top Level Platform API">
+        <bundle dependency="true">wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
     </feature>
 
@@ -705,6 +768,12 @@
              description="Shared platform configuration">
         <feature prerequisite="true">landing-page</feature>
         <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-country-local" install="manual" version="${project.version}"
+             description="Service to convert country codes into various formats by performing a local lookup.">
+        <bundle>mvn:ddf.platform.country/platform-country-converter-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.country/platform-country-converter-local/${project.version}</bundle>
     </feature>
 
     <feature name="action-core-api" install="manual" version="${project.version}"
@@ -761,6 +830,7 @@
     <feature name="security-core-api" install="manual" version="${project.version}"
              description="DDF Security Core">
         <feature prerequisite="true">cxf-rt-security</feature>
+        <feature prerequisite="true" version="${spring.version}_1">spring</feature>
         <bundle>mvn:org.apache.shiro/shiro-core/${shiro.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxen/${org.apache.servicemix.bundles.jaxen.version}</bundle>
@@ -795,16 +865,13 @@
         <bundle>mvn:ddf.compression/compression-gzip/${project.version}</bundle>
     </feature>
 
-    <feature name="banana" install="manual" version="${project.version}"
+    <feature name="banana" install="auto" version="${project.version}"
              description="Adds banana">
         <feature prerequisite="true">platform-dependencies</feature>
         <feature prerequisite="true" version="${project.version}">solr</feature>
         <bundle>mvn:ddf.platform.solr/solr-banana/${project.version}/war</bundle>
         <bundle>mvn:ddf.platform.solr/solr-banana-provisioner/${project.version}</bundle>
 
-        <configfile finalname="/data/solr/banana/conf/solrconfig.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
-        </configfile>
         <configfile finalname="/data/solr/banana/conf/schema.xml">
             mvn:ddf.platform.solr/solr-banana/${project.version}/xml/bananaschema
         </configfile>
@@ -860,73 +927,8 @@
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
 
         <bundle>mvn:ddf.persistence.core/persistence-core-listeners/${project.version}</bundle>
-        <configfile finalname="/data/solr/activity/conf/solr.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/solrconfig.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/schema.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/protwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/stopwords_en.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/stopwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
-        </configfile>
-        <configfile finalname="/data/solr/activity/conf/synonyms.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
-        </configfile>
-
-        <configfile finalname="/data/solr/notification/conf/solr.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/solrconfig.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/schema.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/protwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/stopwords_en.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/stopwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
-        </configfile>
-        <configfile finalname="/data/solr/notification/conf/synonyms.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
-        </configfile>
-
 
         <bundle>mvn:ddf.persistence.core/persistence-core-attributes-impl/${project.version}</bundle>
-        <configfile finalname="/data/solr/attributes/conf/solr.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/solrconfig.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/schema.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/protwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/stopwords_en.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/stopwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
-        </configfile>
-        <configfile finalname="/data/solr/attributes/conf/synonyms.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
-        </configfile>
     </feature>
 
     <feature name="error" install="manual" version="${project.version}"
@@ -951,6 +953,7 @@
 
     <feature name="web-container" install="manual" version="${project.version}">
         <feature prerequisite="true">platform-filter-delegate</feature>
+        <feature prerequisite="true">platform-paxweb-jettyconfig</feature>
         <feature>war</feature>
     </feature>
 
@@ -990,7 +993,10 @@
     <feature name="platform-all" install="manual" version="${project.version}" hidden="true">
         <feature prerequisite="true">platform-api</feature>
         <bundle>mvn:ddf.platform/platform-logging/${project.version}</bundle>
+<<<<<<< HEAD
         <feature prerequisite="true">platform-security-session</feature>
+=======
+>>>>>>> master
         <feature prerequisite="true">platform-migrate-all</feature>
         <feature>platform-scheduler</feature>
         <feature>platform-commands</feature>
@@ -1010,13 +1016,19 @@
         <feature>error</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
-        <feature>banana</feature>
     </feature>
 
-    <feature name="platform-security-session" install="manual" version="${project.version}"
+    <feature name="clientinfo-filter" install="auto" version="${project.version}"
+             description="Servlet filter to extract client information from the request">
+        <feature prerequisite="true">security-core-api</feature>
+        <bundle>mvn:ddf.platform/platform-filter-clientinfo/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-paxweb-jettyconfig" install="manual" version="${project.version}"
              description="Custom Session Manager">
         <feature>pax-jetty</feature>
-        <bundle>mvn:ddf.platform.security/platform-security-session/${project.version}</bundle>
+        <bundle dependency="true">wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
+        <bundle>mvn:ddf.platform/platform-paxweb-jettyconfig/${project.version}</bundle>
     </feature>
 
     <feature name="platform-http-proxy" install="manual" version="${project.version}"
@@ -1036,6 +1048,53 @@
         <feature>platform-migratable-api</feature>
         <feature>platform-migration</feature>
         <feature>platform-migratable</feature>
+    </feature>
+
+    <feature name="artemis-core" install="manual" version="${artemis.version}" description="ActiveMQ Artemis broker libraries">
+        <feature prerequisite="true">transaction</feature>
+        <feature prerequisite="true">netty-core</feature>
+        <feature prerequisite="true">scr</feature>
+        <configfile finalname="etc/org.apache.activemq.artemis.cfg">mvn:org.apache.activemq/artemis-features/${artemis.version}/cfg</configfile>
+        <configfile finalname="etc/artemis.xml">mvn:org.apache.activemq/artemis-features/${artemis.version}/xml/artemis</configfile>
+
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms_2_spec.version}</bundle>
+        <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
+        <bundle>mvn:io.netty/netty-codec-http/${netty.version}</bundle>
+        <bundle>mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
+        <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+
+        <bundle>mvn:org.jboss.logging/jboss-logging/${jboss-logging.version}</bundle>
+        <bundle>mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
+
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-json_1.0_spec/${geronimo-json-spec.version}
+        </bundle>
+        <bundle>mvn:org.apache.johnzon/johnzon-core/${johnzon.version}</bundle>
+
+        <bundle>mvn:org.apache.activemq/artemis-native/${artemis.version}</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-server-osgi/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="artemis-amqp" install="manual" version="${artemis.version}" description="ActiveMQ Artemis AMQP protocol libraries">
+        <feature prerequisite="true">wrap</feature>
+        <feature prerequisite="true">artemis-core</feature>
+        <bundle>wrap:mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
+        <bundle>wrap:mvn:org.apache.qpid/qpid-jms-client/${qpid-jms.version}</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-proton-plug/${artemis.version}</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-amqp-protocol/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="artemis-mqtt" install="manual" version="${artemis.version}"
+             description="ActiveMQ Artemis MQTT protocol libraries">
+        <feature>artemis-core</feature>
+        <bundle>mvn:org.apache.activemq/artemis-mqtt-protocol/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="netty-core" install="manual" version="${netty.version}" description="Netty libraries">
+        <bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-transport/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-buffer/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-handler/${netty.version}</bundle>
     </feature>
 
 </features>

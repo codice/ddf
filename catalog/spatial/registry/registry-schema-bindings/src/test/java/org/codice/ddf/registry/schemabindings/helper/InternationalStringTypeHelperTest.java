@@ -50,7 +50,10 @@ public class InternationalStringTypeHelperTest {
     public void testGetString() throws Exception {
         InternationalStringType ist = getTestInternationalStringType();
 
+<<<<<<< HEAD
         istHelper.setLocale(Locale.US);
+=======
+>>>>>>> master
         String istString = istHelper.getString(ist);
         assertThat(istString, is(equalTo(US)));
 
@@ -74,6 +77,7 @@ public class InternationalStringTypeHelperTest {
     @Test
     public void testGetStringWithNoMatchingLocale() throws Exception {
         InternationalStringType ist = getTestInternationalStringType();
+<<<<<<< HEAD
         
         istHelper.setLocale(Locale.CHINA);
         String istString = istHelper.getString(ist);
@@ -103,6 +107,14 @@ public class InternationalStringTypeHelperTest {
 
     }
     
+=======
+        istHelper.setLocale(Locale.CHINA);
+
+        String istString = istHelper.getString(ist);
+        assertThat(istString, is(equalTo(EMPTY_STRING)));
+    }
+
+>>>>>>> master
     @Test
     public void testCreate() throws Exception {
         int expectedSize = 1;

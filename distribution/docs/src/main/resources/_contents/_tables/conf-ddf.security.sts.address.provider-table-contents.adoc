@@ -1,0 +1,4 @@
+|<<ddf.security.sts.address.provider,Security STS Address Provider>>
+|ddf.security.sts.address.provider
+|STS Address Provider
+

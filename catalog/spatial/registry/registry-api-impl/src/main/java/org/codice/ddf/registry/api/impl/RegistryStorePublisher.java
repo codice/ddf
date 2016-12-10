@@ -82,7 +82,11 @@ public class RegistryStorePublisher implements EventHandler {
             if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
                 if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+<<<<<<< HEAD
                     LOGGER.error("Thread pool failed to terminate");
+=======
+                    LOGGER.debug("Thread pool failed to terminate");
+>>>>>>> master
                 }
             }
         } catch (InterruptedException e) {
@@ -95,7 +99,10 @@ public class RegistryStorePublisher implements EventHandler {
 
         if (reference == null || bundleContext == null
                 || bundleContext.getService(reference) == null) {
+<<<<<<< HEAD
             LOGGER.warn("Reference or BundleContext was null/unset.");
+=======
+>>>>>>> master
             return;
         }
 
@@ -139,7 +146,11 @@ public class RegistryStorePublisher implements EventHandler {
 
         if (registryStore.getRegistryId()
                 .isEmpty()) {
+<<<<<<< HEAD
             LOGGER.warn(String.format("RegistryStore missing id. Unable to complete %s request.",
+=======
+            LOGGER.info(String.format("RegistryStore missing id. Unable to complete %s request.",
+>>>>>>> master
                     publish));
             return;
         }
@@ -151,8 +162,14 @@ public class RegistryStorePublisher implements EventHandler {
 
                 if (registryIdentityMetacardOpt.isPresent()) {
                     Metacard registryIdentityMetacard = registryIdentityMetacardOpt.get();
+<<<<<<< HEAD
                     String localRegistryId = RegistryUtility.getRegistryId(registryIdentityMetacard);
                     if(localRegistryId == null){
+=======
+                    String localRegistryId =
+                            RegistryUtility.getRegistryId(registryIdentityMetacard);
+                    if (localRegistryId == null) {
+>>>>>>> master
                         throw new EventException();
                     }
                     Security.runAsAdminWithException(() -> {
@@ -168,9 +185,15 @@ public class RegistryStorePublisher implements EventHandler {
                 }
 
             } catch (Exception e) {
+<<<<<<< HEAD
                 LOGGER.error("Failed to {} registry configuration to {}",
                         publish,
                         ((RegistryStoreImpl) registryStore).getRemoteName());
+=======
+                LOGGER.debug("Failed to {} registry configuration to {}",
+                        publish,
+                        ((RegistryStoreImpl) registryStore).getId());
+>>>>>>> master
             }
         }, 3, TimeUnit.SECONDS);
     }
@@ -192,7 +215,10 @@ public class RegistryStorePublisher implements EventHandler {
         String pid = event.getProperty(Constants.SERVICE_PID)
                 .toString();
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
         Boolean previousAutoPush = registryStoreMap.get(pid);
 
         if (previousAutoPush == null) {

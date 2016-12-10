@@ -64,7 +64,7 @@ public class GmlGeometryConverter implements Converter {
             new HierarchicalStreamCopier().copy(new XppReader(new StringReader(gmlXml), parser),
                     writer);
         } catch (XmlPullParserException e) {
-            LOGGER.warn(ERROR_SERIALIZING_MSG, e);
+            LOGGER.debug(ERROR_SERIALIZING_MSG, e);
         }
     }
 
@@ -75,12 +75,8 @@ public class GmlGeometryConverter implements Converter {
         Geometry geo = null;
         try {
             geo = gmlReader.read(gmlNode.toString(), null);
-        } catch (SAXException e) {
-            LOGGER.warn(ERROR_PARSING_MSG, e);
-        } catch (IOException e) {
-            LOGGER.warn(ERROR_PARSING_MSG, e);
-        } catch (ParserConfigurationException e) {
-            LOGGER.warn(ERROR_PARSING_MSG, e);
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            LOGGER.debug(ERROR_PARSING_MSG, e);
         }
         if (geo != null) {
             WKTWriter wktWriter = new WKTWriter();

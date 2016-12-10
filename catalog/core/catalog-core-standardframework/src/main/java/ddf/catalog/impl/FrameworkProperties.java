@@ -27,6 +27,10 @@ import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
+<<<<<<< HEAD
+=======
+import ddf.catalog.data.AttributeInjector;
+>>>>>>> master
 import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationStrategy;
@@ -36,6 +40,7 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.PostResourcePlugin;
+import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
@@ -72,6 +77,8 @@ public class FrameworkProperties {
     private List<PreResourcePlugin> preResource = new ArrayList<>();
 
     private List<PostResourcePlugin> postResource = new ArrayList<>();
+
+    private List<PreAuthorizationPlugin> preAuthorizationPlugins = new ArrayList<>();
 
     private List<PolicyPlugin> policyPlugins = new ArrayList<>();
 
@@ -115,6 +122,11 @@ public class FrameworkProperties {
 
     private DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
+<<<<<<< HEAD
+=======
+    private List<AttributeInjector> attributeInjectors = new ArrayList<>();
+
+>>>>>>> master
     public List<CatalogProvider> getCatalogProviders() {
         return catalogProviders;
     }
@@ -177,6 +189,14 @@ public class FrameworkProperties {
 
     public void setPostResource(List<PostResourcePlugin> postResource) {
         this.postResource = postResource;
+    }
+
+    public List<PreAuthorizationPlugin> getPreAuthorizationPlugins() {
+        return preAuthorizationPlugins;
+    }
+
+    public void setPreAuthorizationPlugins(List<PreAuthorizationPlugin> preAuthorizationPlugins) {
+        this.preAuthorizationPlugins = preAuthorizationPlugins;
     }
 
     public List<PolicyPlugin> getPolicyPlugins() {
@@ -361,4 +381,15 @@ public class FrameworkProperties {
     public DefaultAttributeValueRegistry getDefaultAttributeValueRegistry() {
         return defaultAttributeValueRegistry;
     }
+<<<<<<< HEAD
+=======
+
+    public void setAttributeInjectors(List<AttributeInjector> attributeInjectors) {
+        this.attributeInjectors = attributeInjectors;
+    }
+
+    public List<AttributeInjector> getAttributeInjectors() {
+        return attributeInjectors;
+    }
+>>>>>>> master
 }

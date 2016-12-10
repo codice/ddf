@@ -68,7 +68,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
                     getXmlFileFilter());
             observer.addListener(this);
             monitor.addObserver(observer);
-            LOGGER.debug("Monitoring directory: " + directoryToMonitor);
+            LOGGER.debug("Monitoring directory: {}", directoryToMonitor);
         }
     }
 
@@ -76,7 +76,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             monitor.start();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
     }
 
@@ -84,7 +84,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             SecurityLogger.audit("Directory {} changed.", changedDir.getCanonicalPath());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
 
         reloadPolicies();
@@ -94,7 +94,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             SecurityLogger.audit("Directory {} was created.", createdDir.getCanonicalPath());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
     }
 
@@ -102,7 +102,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             SecurityLogger.audit("Directory {} was deleted.", deletedDir.getCanonicalPath());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
     }
 
@@ -113,7 +113,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
                     new String(Files.readAllBytes(Paths.get(changedFile.getCanonicalPath())),
                             StandardCharsets.UTF_8));
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
 
         reloadPolicies();
@@ -126,7 +126,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
                     new String(Files.readAllBytes(Paths.get(createdFile.getCanonicalPath())),
                             StandardCharsets.UTF_8));
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
 
         reloadPolicies();
@@ -136,7 +136,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             SecurityLogger.audit("File {} was deleted.", deleteFile.getCanonicalPath());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
 
         reloadPolicies();
@@ -146,7 +146,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         try {
             String directoryPath = observer.getDirectory()
                     .getCanonicalPath();
-            LOGGER.trace("starting to check directory for xacml policy update(s) " + directoryPath);
+            LOGGER.trace("starting to check directory for xacml policy update(s) {}", directoryPath);
 
             if (!xacmlPolicyDirectories.isEmpty() && isXacmlPoliciesDirectoryEmpty(
                     xacmlPolicyDirectories.iterator()
@@ -154,16 +154,15 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
                 LOGGER.warn("No XACML Policies found in: {}", directoryPath);
             }
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
     }
 
     public void onStop(FileAlterationObserver observer) {
         try {
-            LOGGER.trace("Done checking directory " + observer.getDirectory()
-                    .getCanonicalPath());
+            LOGGER.trace("Done checking directory {}", observer.getDirectory().getCanonicalPath());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
         }
     }
 

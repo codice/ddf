@@ -41,6 +41,12 @@
         <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver"/>
         <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+<<<<<<< HEAD
+=======
+        <property name="metacardTypes">
+            <reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
+        </property>
+>>>>>>> master
     </bean>
 
     <jaxrs:server id="restService" address="/catalog">

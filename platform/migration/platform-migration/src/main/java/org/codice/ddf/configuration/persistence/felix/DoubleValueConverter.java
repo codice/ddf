@@ -28,7 +28,7 @@ public class DoubleValueConverter extends PropertyValueConverter {
             LOGGER.debug("Converted double value {} to {}", propertyValue, longBits);
         } catch (NumberFormatException e) {
             output.append(propertyValue);
-            LOGGER.warn("Double value conversion failed for {}, leaving as-is", propertyValue, e);
+            LOGGER.debug("Double value conversion failed for {}, leaving as-is", propertyValue, e);
         }
     }
 }

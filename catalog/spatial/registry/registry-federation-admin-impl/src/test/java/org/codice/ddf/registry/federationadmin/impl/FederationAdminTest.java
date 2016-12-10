@@ -838,4 +838,8 @@ public class FederationAdminTest {
     private Metacard getTestMetacard() {
         return new MetacardImpl(new RegistryObjectMetacardType());
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> master

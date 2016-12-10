@@ -1,0 +1,14 @@
+<csw:Transaction service="CSW"
+   version="2.0.2" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+   xmlns:ogc="http://www.opengis.net/ogc">
+  <csw:Delete typeName="csw:Record" handle="something">
+    <csw:Constraint version="2.0.0">
+      <ogc:Filter>
+        <ogc:PropertyIsEqualTo>
+            <ogc:PropertyName>title</ogc:PropertyName>
+            <ogc:Literal>Aliquam fermentum purus quis arcu</ogc:Literal>
+        </ogc:PropertyIsEqualTo>
+      </ogc:Filter>
+    </csw:Constraint>
+  </csw:Delete>
+</csw:Transaction>

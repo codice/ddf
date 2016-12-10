@@ -69,10 +69,16 @@ public class MTSValidPacketIterator {
      * {@code null} if no more packets are available.
      */
     public MTSPacket getNextValidPacket() {
+<<<<<<< HEAD
         scanNextPacket();
         while (!currentPacketIsValid) {
             scanNextPacket();
         }
+=======
+        do {
+            scanNextPacket();
+        } while (!currentPacketIsValid);
+>>>>>>> master
         return currentPacket;
     }
 
@@ -81,7 +87,11 @@ public class MTSValidPacketIterator {
             currentPacket = source.nextPacket();
             handleExceptionNotThrown();
         } catch (Exception e) {
+<<<<<<< HEAD
             LOGGER.trace("Skipping invalid MTS packet, caused by: {}", e);
+=======
+            LOGGER.trace("Skipping invalid MTS packet, caused by: ", e);
+>>>>>>> master
             currentPacketIsValid = false;
             packetsProcessed++;
             packetsFailed++;

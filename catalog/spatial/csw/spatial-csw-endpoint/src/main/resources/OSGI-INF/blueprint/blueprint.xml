@@ -124,6 +124,7 @@
     <bean id="transactionMessageBodyReader"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader.TransactionMessageBodyReader">
         <argument ref="transformProvider"/>
+        <argument ref="cswMetacardType"/>
     </bean>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>

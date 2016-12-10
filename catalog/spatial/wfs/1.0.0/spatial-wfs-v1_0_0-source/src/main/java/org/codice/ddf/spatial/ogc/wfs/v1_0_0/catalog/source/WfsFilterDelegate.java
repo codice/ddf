@@ -1352,7 +1352,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                     (JAXBElement<LineStringType>) Wfs10JTStoGML200Converter.convertGeometryTypeToJAXB(
                             lineStringType);
         } catch (JAXBException jbe) {
-            LOGGER.error("Unable to create LineString with geometry: [{}]", geometry);
+            LOGGER.debug("Unable to create LineString with geometry: [{}]", geometry);
         }
         return jaxbElement;
     }
@@ -1368,7 +1368,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                     (JAXBElement<MultiPointType>) Wfs10JTStoGML200Converter.convertGeometryTypeToJAXB(
                             multiPointType);
         } catch (JAXBException jbe) {
-            LOGGER.error("Unable to create MultiPointType with geometry: [{}]", geometry);
+            LOGGER.debug("Unable to create MultiPointType with geometry: [{}]", geometry);
         }
         return jaxbElement;
     }
@@ -1384,7 +1384,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                     (JAXBElement<MultiLineStringType>) Wfs10JTStoGML200Converter.convertGeometryTypeToJAXB(
                             multiLineStringType);
         } catch (JAXBException jbe) {
-            LOGGER.error("Unable to create MultiLineStringType with geometry: [{}]", geometry);
+            LOGGER.debug("Unable to create MultiLineStringType with geometry: [{}]", geometry);
         }
         return jaxbElement;
     }
@@ -1400,7 +1400,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                     (JAXBElement<MultiPolygonType>) Wfs10JTStoGML200Converter.convertGeometryTypeToJAXB(
                             multiLineStringType);
         } catch (JAXBException jbe) {
-            LOGGER.error("Unable to create MultiPolygonType with geometry: [{}]", geometry);
+            LOGGER.debug("Unable to create MultiPolygonType with geometry: [{}]", geometry);
         }
         return jaxbElement;
     }
@@ -1416,7 +1416,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                     (JAXBElement<GeometryCollectionType>) Wfs10JTStoGML200Converter.convertGeometryTypeToJAXB(
                             geometryCollectionType);
         } catch (JAXBException jbe) {
-            LOGGER.error("Unable to create MultiPolygonType with geometry: [{}]", geometry);
+            LOGGER.debug("Unable to create MultiPolygonType with geometry: [{}]", geometry);
         }
         return jaxbElement;
     }

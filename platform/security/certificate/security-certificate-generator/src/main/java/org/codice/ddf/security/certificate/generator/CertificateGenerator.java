@@ -69,19 +69,19 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
                     CertificateGenerator.class.getName() + ":service=certgenerator");
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
-            LOGGER.error("Unable to create Certificate Generator MBean.", e);
+            LOGGER.info("Unable to create Certificate Generator MBean.", e);
         }
         if (mBeanServer != null) {
             try {
                 try {
                     mBeanServer.registerMBean(this, objectName);
-                    LOGGER.info("Registered Certificate Generator MBean under object name: {}",
+                    LOGGER.debug("Registered Certificate Generator MBean under object name: {}",
                             objectName.toString());
                 } catch (InstanceAlreadyExistsException e) {
-                    LOGGER.info("Re-registered Certificate Generator MBean");
+                    LOGGER.debug("Re-registered Certificate Generator MBean");
                 }
             } catch (Exception e) {
-                LOGGER.error("Could not register MBean [{}].", objectName.toString(), e);
+                LOGGER.info("Could not register MBean [{}].", objectName.toString(), e);
             }
         }
     }

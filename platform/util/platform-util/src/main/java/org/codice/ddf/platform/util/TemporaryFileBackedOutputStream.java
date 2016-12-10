@@ -15,10 +15,23 @@ package org.codice.ddf.platform.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+<<<<<<< HEAD
+=======
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+>>>>>>> master
 
 import com.google.common.io.ByteSource;
 import com.google.common.io.FileBackedOutputStream;
 
+<<<<<<< HEAD
+=======
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
+
+>>>>>>> master
 /**
  * TemporaryFileBackedOutputStream buffers the written data to memory of a temporary file, and
  * makes the data available as a ByteSource. This class will make sure the temporary file is
@@ -27,8 +40,24 @@ import com.google.common.io.FileBackedOutputStream;
  */
 public class TemporaryFileBackedOutputStream extends OutputStream {
 
+<<<<<<< HEAD
     private static final int DEFAULT_THRESHOLD = 1000000;
 
+=======
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TemporaryFileBackedOutputStream.class);
+
+    private static final int DEFAULT_THRESHOLD = 1000000;
+
+    private static final int MAX_RETRY_ATTEMPTS = 5;
+
+    private static final long INITIAL_RETRY_SLEEP = 1;
+
+    private static final TimeUnit INITIAL_RETRY_SLEEP_UNIT = TimeUnit.SECONDS;
+
+    private static final long MAX_DELAY = 30;
+
+>>>>>>> master
     private final FileBackedOutputStream fileBackedOutputStream;
 
     private boolean isClosed = false;
@@ -83,12 +112,37 @@ public class TemporaryFileBackedOutputStream extends OutputStream {
         }
         try {
             fileBackedOutputStream.close();
+<<<<<<< HEAD
             fileBackedOutputStream.reset();
+=======
+            reset();
+>>>>>>> master
         } finally {
             isClosed = true;
         }
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * Reset fileBackedOutputStream and retry if it fails.
+     */
+    @SuppressWarnings("unchecked")
+    private void reset() {
+
+        RetryPolicy retryPolicy = new RetryPolicy().retryOn(IOException.class)
+                .withBackoff(INITIAL_RETRY_SLEEP, MAX_DELAY, INITIAL_RETRY_SLEEP_UNIT)
+                .withMaxRetries(MAX_RETRY_ATTEMPTS);
+
+        Failsafe.with(retryPolicy)
+                .onFailedAttempt(throwable -> LOGGER.debug("failed to delete temporary file, will retry",
+                        throwable))
+                .onFailure(throwable -> LOGGER.debug("failed to delete temporary file", throwable))
+                .run(fileBackedOutputStream::reset);
+
+    }
+
+>>>>>>> master
     @Override
     public void flush() throws IOException {
         if (isClosed) {

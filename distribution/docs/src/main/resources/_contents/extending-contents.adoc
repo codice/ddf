@@ -161,12 +161,16 @@ The OGC Filter provides support for expression processing, such as adding or div
 
 ===== OGC filter in the ${branding} Catalog
 
-The ${branding} Catalog Framework uses the implementation provided by Geotools, which provides a Java representation of the standard.
+The ${branding} Catalog Framework uses the implementation provided by GeoTools, which provides a Java representation of the standard.
 
-Geotools originally provided standard Java classes for the OGC Filter Encoding 1.0, under the package name `org.opengis.filter`, which is where `org.opengis.filter.Filter` is located.
+GeoTools originally provided standard Java classes for the OGC Filter Encoding 1.0, under the package name `org.opengis.filter`, which is where `org.opengis.filter.Filter` is located.
 Java developers should use the Java objects exclusively to complete query tasks, rather than parsing or viewing the XML representation.
 
 === Development Recommendations
+
+==== XML Parsing
+
+Restrict the use of DTD and entity expansion in XML. Follow the guidelines as outlined in https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet
 
 ==== Javascript
 
@@ -786,7 +790,7 @@ This example demonstrates a plugin that allows the ${branding} to use the Admin 
 +
 [source,java,linenums]
 ----
-import org.codice.${ddf-branding-lowercase}.admin.application.plugin.AbstractApplicationPlugin;
+import org.codice.ddf.admin.application.plugin.AbstractApplicationPlugin;
 
 public class SourcesPlugin extends AbstractApplicationPlugin {
     /**

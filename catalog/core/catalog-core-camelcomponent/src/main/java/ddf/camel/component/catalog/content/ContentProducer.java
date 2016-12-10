@@ -86,8 +86,6 @@ public class ContentProducer extends DefaultProducer {
             GenericFile<File> genericFile = (GenericFile<File>) body;
             ingestedFile = genericFile.getFile();
         } else {
-            LOGGER.warn(
-                    "Unable to cast message body to Camel GenericFile, so unable to process ingested file");
             throw new ContentComponentException(
                     "Unable to cast message body to Camel GenericFile, so unable to process ingested file");
         }
@@ -115,7 +113,7 @@ public class ContentProducer extends DefaultProducer {
                 throw new ContentComponentException(e);
             }
         } else {
-            LOGGER.error("Did not find a MimeTypeMapper service");
+            LOGGER.info("Did not find a MimeTypeMapper service");
             throw new ContentComponentException(
                     "Unable to find a mime type for the ingested file " + ingestedFile.getName());
         }

@@ -51,14 +51,14 @@ public abstract class PropertiesFileValidator implements Validator {
 
     protected Properties readFile(boolean validateExists) {
         if (!validateExists && !path.toFile().exists()) {
-            LOGGER.warn("No properties file found at {}", path.toFile().getName());
+            LOGGER.debug("No properties file found at {}", path.toFile().getName());
             return null;
         }
 
         Properties properties = PropertiesLoader.loadProperties(path.toString());
         if (properties.isEmpty()) {
             String msg = String.format(GENERIC_INSECURE_DEFAULTS_MSG, path.toString());
-            LOGGER.warn(msg);
+            LOGGER.debug(msg);
             alerts.add(new Alert(Level.WARN, msg));
         }
 

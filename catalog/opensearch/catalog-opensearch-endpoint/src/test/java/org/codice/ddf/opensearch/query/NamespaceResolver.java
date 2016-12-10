@@ -15,13 +15,13 @@
 package org.codice.ddf.opensearch.query;
 
 import org.apache.xml.utils.PrefixResolver;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 import org.w3c.dom.Node;
 
 public class NamespaceResolver implements PrefixResolver {
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(NamespaceResolver.class));
+    private static final Logger LOGGER =
+             LoggerFactory.getLogger(NamespaceResolver.class);
 
     private static final String DEFAULT_NAMESPACE = "http://www.opengis.net/ogc";
 
@@ -38,7 +38,7 @@ public class NamespaceResolver implements PrefixResolver {
             namespace = "http://www.opengis.net/gml";
         }
 
-        LOGGER.debug("namespace returned = " + namespace);
+        LOGGER.debug("namespace returned = {}", namespace);
 
         return namespace;
     }
@@ -51,7 +51,7 @@ public class NamespaceResolver implements PrefixResolver {
             namespace = "http://www.opengis.net/gml";
         }
 
-        LOGGER.debug("namespace returned = " + namespace);
+        LOGGER.debug("namespace returned = {}", namespace);
 
         return namespace;
     }

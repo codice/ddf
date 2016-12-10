@@ -114,7 +114,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
         }
 
         if (message == null) {
-            LOGGER.error("Incoming SOAP message is null - guest interceptor makes no sense.");
+            LOGGER.debug("Incoming SOAP message is null - guest interceptor makes no sense.");
             return;
         }
 
@@ -201,11 +201,11 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                 if (securityAssertion != null) {
                     securityToken = securityAssertion.getSecurityToken();
                 } else {
-                    LOGGER.warn(
+                    LOGGER.info(
                             "Subject did not contain a security assertion, could not add assertion to the security header.");
                 }
             } else {
-                LOGGER.warn(
+                LOGGER.info(
                         "Subject did not contain any principals, could not create security token.");
             }
         }
@@ -228,7 +228,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
         try {
             soapFactory = SOAPFactory.newInstance();
         } catch (SOAPException e) {
-            LOGGER.error("Could not create a SOAPFactory.", e);
+            LOGGER.debug("Could not create a SOAPFactory.", e);
             return;  // can't add anything if we can't create it
         }
 
@@ -250,7 +250,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
             soapMessage.getSOAPHeader()
                     .addChildElement(action);
         } catch (SOAPException e) {
-            LOGGER.error("Unable to add addressing action.", e);
+            LOGGER.debug("Unable to add addressing action.", e);
         }
 
         try {
@@ -267,7 +267,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
             soapMessage.getSOAPHeader()
                     .addChildElement(messageId);
         } catch (SOAPException e) {
-            LOGGER.error("Unable to add addressing messageId.", e);
+            LOGGER.debug("Unable to add addressing messageId.", e);
         }
 
         try {
@@ -284,7 +284,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
             soapMessage.getSOAPHeader()
                     .addChildElement(to);
         } catch (SOAPException e) {
-            LOGGER.error("Unable to add addressing to.", e);
+            LOGGER.debug("Unable to add addressing to.", e);
         }
 
         try {
@@ -302,7 +302,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                     .addChildElement(replyTo);
 
         } catch (SOAPException e) {
-            LOGGER.error("Unable to add addressing replyTo.", e);
+            LOGGER.debug("Unable to add addressing replyTo.", e);
         }
         message.put(addressingProperty, addressingProperties);
     }

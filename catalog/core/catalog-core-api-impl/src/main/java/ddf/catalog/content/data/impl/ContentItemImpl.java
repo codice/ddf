@@ -142,7 +142,7 @@ public class ContentItemImpl implements ContentItem {
         try {
             this.mimeType = new MimeType(this.mimeTypeRawData);
         } catch (MimeTypeParseException e) {
-            LOGGER.debug("Unable to create MimeType from raw data " + mimeTypeRawData);
+            LOGGER.debug("Unable to create MimeType from raw data {}", mimeTypeRawData);
         }
         try {
             if (StringUtils.isNotBlank(this.qualifier)) {
@@ -198,5 +198,20 @@ public class ContentItemImpl implements ContentItem {
     @Override
     public Metacard getMetacard() {
         return metacard;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "ContentItemImpl{id='%s', uri=%s, filename='%s', mimeTypeRawData='%s', mimeType=%s, byteSource=%s, size=%d, metacard=%s, qualifier='%s'}",
+                id,
+                uri,
+                filename,
+                mimeTypeRawData,
+                mimeType,
+                byteSource,
+                size,
+                metacard,
+                qualifier);
     }
 }

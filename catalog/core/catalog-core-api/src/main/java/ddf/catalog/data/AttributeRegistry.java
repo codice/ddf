@@ -24,25 +24,23 @@ import java.util.Optional;
  */
 public interface AttributeRegistry {
     /**
-     * Registers a new attribute. Returns false if an attribute with the same name already exists
-     * (in which case the attribute is not registered) and true otherwise.
+     * Registers a new attribute.
      *
      * @param attributeDescriptor the {@link AttributeDescriptor} describing the attribute
-     * @return whether the attribute was registered
      * @throws IllegalArgumentException if {@code attributeDescriptor} or
      *                                  {@link AttributeDescriptor#getName()} is null
      */
-    boolean registerAttribute(AttributeDescriptor attributeDescriptor);
+    void register(AttributeDescriptor attributeDescriptor);
 
     /**
      * Removes an attribute from the registry.
      * <p>
-     * Does nothing if no attribute by the name {@code name} exists in the registry.
+     * Does nothing if the attributeDescriptor does not exist in the registry.
      *
-     * @param name the name of the attribute to remove
-     * @throws IllegalArgumentException if {@code name} is null
+     * @param attributeDescriptor an attributeDescriptor for the attribute
+     * @throws IllegalArgumentException if {@code attributeDescriptor} is null
      */
-    void deregisterAttribute(String name);
+    void deregister(AttributeDescriptor attributeDescriptor);
 
     /**
      * Gets the {@link AttributeDescriptor} for the attribute with the given name.
@@ -54,5 +52,5 @@ public interface AttributeRegistry {
      * @return an {@link Optional} containing the registered {@link AttributeDescriptor}
      * @throws IllegalArgumentException if {@code name} is null
      */
-    Optional<AttributeDescriptor> getAttributeDescriptor(String name);
+    Optional<AttributeDescriptor> lookup(String name);
 }

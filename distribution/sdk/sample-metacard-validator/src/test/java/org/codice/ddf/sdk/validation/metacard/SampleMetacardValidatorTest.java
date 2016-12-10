@@ -16,6 +16,8 @@ package org.codice.ddf.sdk.validation.metacard;
 
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableSet;
+
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.validation.ValidationException;
 
@@ -26,14 +28,35 @@ public class SampleMetacardValidatorTest {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setTitle("sample");
         SampleMetacardValidator validator = new SampleMetacardValidator();
+        validator.setValidWords(ImmutableSet.of("sample"));
+        validator.setWarningWords(ImmutableSet.of("warning"));
         validator.validate(metacard);
     }
 
     @Test(expected = ValidationException.class)
-    public void testValidateInvalidMetacard() throws ValidationException {
+    public void testValidateNoValidWordsMetacard() throws ValidationException {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setTitle("invalid");
         SampleMetacardValidator validator = new SampleMetacardValidator();
+        validator.setValidWords(ImmutableSet.of("sample"));
+        validator.validate(metacard);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void testValidateWarningMetacard() throws ValidationException {
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setTitle("warning");
+        SampleMetacardValidator validator = new SampleMetacardValidator();
+        validator.setWarningWords(ImmutableSet.of("warning"));
+        validator.validate(metacard);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void testValidateErrorMetacard() throws ValidationException {
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setTitle("error");
+        SampleMetacardValidator validator = new SampleMetacardValidator();
+        validator.setErrorWords(ImmutableSet.of("error"));
         validator.validate(metacard);
     }
 }

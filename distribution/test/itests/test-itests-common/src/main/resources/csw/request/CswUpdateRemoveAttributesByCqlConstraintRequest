@@ -1,0 +1,23 @@
+<csw:Transaction
+service="CSW"
+version="2.0.2"
+  verboseResponse="true"
+  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+  xmlns:ogc="http://www.opengis.net/ogc">
+  <csw:Update>
+    <csw:RecordProperty>
+      <csw:Name>title</csw:Name>
+    </csw:RecordProperty>
+    <csw:RecordProperty>
+      <csw:Name>date</csw:Name>
+    </csw:RecordProperty>
+    <csw:RecordProperty>
+      <csw:Name>location</csw:Name>
+    </csw:RecordProperty>
+    <csw:Constraint version="2.0.0">
+      <ogc:CqlText>
+        title = 'Aliquam fermentum purus quis arcu'
+      </ogc:CqlText>
+    </csw:Constraint>
+  </csw:Update>
+</csw:Transaction>

@@ -92,7 +92,7 @@ public class ConfigurationFilesPoller implements Runnable {
                         configurationDirectoryPath.toString());
                 configurationDirectoryPath.register(watchService, ENTRY_CREATE);
             } catch (IOException e) {
-                LOGGER.error("Unable to register path [{}] with Watch Service",
+                LOGGER.info("Unable to register path [{}] with Watch Service",
                         configurationDirectoryPath.toString(),
                         e);
                 return;
@@ -140,13 +140,13 @@ public class ConfigurationFilesPoller implements Runnable {
                 // Reset key, shutdown watcher if directory not able to be observed
                 // (possibly deleted)
                 if (!key.reset()) {
-                    LOGGER.warn("Configurations in [{}] are no longer able to be observed.",
+                    LOGGER.debug("Configurations in [{}] are no longer able to be observed.",
                             configurationDirectoryPath.toString());
                     break;
                 }
             }
         } catch (InterruptedException | RuntimeException e) {
-            LOGGER.error("The [{}] was interrupted.",
+            LOGGER.debug("The [{}] was interrupted.",
                     this.getClass()
                             .getName(),
                     e);
@@ -164,7 +164,7 @@ public class ConfigurationFilesPoller implements Runnable {
                 executorService.shutdownNow();
 
                 if (!executorService.awaitTermination(10, SECONDS)) {
-                    LOGGER.error("[{}] did not terminate correctly.", getClass().getName());
+                    LOGGER.info("[{}] did not terminate correctly.", getClass().getName());
                 }
             }
         } catch (IOException | InterruptedException e) {

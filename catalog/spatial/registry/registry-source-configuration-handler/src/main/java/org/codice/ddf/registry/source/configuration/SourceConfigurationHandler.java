@@ -129,7 +129,11 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
             if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
                 if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+<<<<<<< HEAD
                     LOGGER.error("Thread pool didn't terminate");
+=======
+                    LOGGER.debug("Thread pool didn't terminate");
+>>>>>>> master
                 }
             }
         } catch (InterruptedException e) {
@@ -164,7 +168,11 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
         try {
             updateRegistryConfigurations(metacard, true);
         } catch (IOException | InvalidSyntaxException | ParserException | RuntimeException e) {
+<<<<<<< HEAD
             LOGGER.error("Unable to update registry configurations, metacard still ingested");
+=======
+            LOGGER.debug("Unable to update registry configurations, metacard still ingested");
+>>>>>>> master
         }
     }
 
@@ -172,7 +180,11 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
         try {
             updateRegistryConfigurations(metacard, false);
         } catch (IOException | InvalidSyntaxException | ParserException | RuntimeException e) {
+<<<<<<< HEAD
             LOGGER.error("Unable to update registry configurations, metacard still updated");
+=======
+            LOGGER.debug("Unable to update registry configurations, metacard still updated");
+>>>>>>> master
         }
     }
 
@@ -182,7 +194,11 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
                 deleteRegistryConfigurations(metacard);
             }
         } catch (IOException | InvalidSyntaxException e) {
+<<<<<<< HEAD
             LOGGER.error("Unable to delete registry configurations, metacard still deleted");
+=======
+            LOGGER.debug("Unable to delete registry configurations, metacard still deleted");
+>>>>>>> master
         }
     }
 
@@ -276,7 +292,11 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
                         properties.put(SHORTNAME, configId);
                         config.update(properties);
                     } catch (IOException e) {
+<<<<<<< HEAD
                         LOGGER.error("Could not remove configuration for {}:{}",
+=======
+                        LOGGER.debug("Could not remove configuration for {}:{}",
+>>>>>>> master
                                 config.getProperties()
                                         .get(ID),
                                 config.getFactoryPid());
@@ -692,14 +712,22 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
                     }
                     updateRegistryConfigurations(metacard, false);
                 } catch (InvalidSyntaxException | ParserException | IOException e) {
+<<<<<<< HEAD
                     LOGGER.error(
+=======
+                    LOGGER.debug(
+>>>>>>> master
                             "Unable to update registry configurations. Registry source configurations won't be updated for metacard id: {}",
                             metacard.getId());
                 }
             }
 
         } catch (PrivilegedActionException e) {
+<<<<<<< HEAD
             LOGGER.error(
+=======
+            LOGGER.debug(
+>>>>>>> master
                     "Error getting registry metacards. Registry source configurations won't be updated.");
         }
     }

@@ -141,7 +141,7 @@ public class PKITokenValidator implements TokenValidator {
                     PKITokenValidator.class.getClassLoader(),
                     null);
         } catch (WSSecurityException | IOException e) {
-            LOGGER.error("Unable to read merlin properties file.", e);
+            LOGGER.warn("Unable to read merlin properties file. Unable to validate certificates.", e);
         }
     }
 
@@ -265,7 +265,7 @@ public class PKITokenValidator implements TokenValidator {
             validateTarget.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
             validateTarget.setState(STATE.VALID);
         } catch (WSSecurityException ex) {
-            LOGGER.warn("Unable to validate credentials.", ex);
+            LOGGER.info("Unable to validate credentials.", ex);
         }
         return response;
     }
@@ -296,7 +296,7 @@ public class PKITokenValidator implements TokenValidator {
                                 .toString(),
                         base.getRealm());
             } catch (WSSecurityException e) {
-                LOGGER.warn("Unable to parse {} from encodedToken.",
+                LOGGER.info("Unable to parse {} from encodedToken.",
                         PKIAuthenticationToken.class.getSimpleName(),
                         e);
                 return null;

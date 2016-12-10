@@ -22,13 +22,13 @@ import java.util.Random;
 import org.junit.Test;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 public class SortedServiceReferenceListTest {
 
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(
-            SortedServiceReferenceListTest.class));
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SortedServiceReferenceListTest.class);
 
     @Test
     public void testAscending() {
@@ -89,9 +89,9 @@ public class SortedServiceReferenceListTest {
         for (ServiceReference s : refList) {
 
             Integer ranking = (Integer) s.getProperty(Constants.SERVICE_RANKING);
-            logger.info(
-                    "service is ranked [" + ranking + "], lowest current ranking [" + lowestRanking
-                            + "]");
+            LOGGER.debug("service is ranked [{}], lowest current ranking [{}]",
+                    ranking,
+                    lowestRanking);
             assertThat(ranking, lessThanOrEqualTo(lowestRanking));
 
             lowestRanking = ranking;

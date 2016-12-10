@@ -109,7 +109,7 @@ public class SendCommand extends OsgiCommandSupport {
                 null);
 
         if (serviceReferences == null || serviceReferences.length != 1) {
-            LOGGER.debug("Found no service references for " + SERVICE_PID);
+            LOGGER.debug("Found no service references for {}", SERVICE_PID);
         } else {
             LOGGER.debug(
                     "Found " + serviceReferences.length + " service references for " + SERVICE_PID);

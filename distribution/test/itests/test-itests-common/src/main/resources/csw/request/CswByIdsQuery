@@ -1,0 +1,10 @@
+<GetRecordById xmlns="http://www.opengis.net/cat/csw/2.0.2"
+xmlns:ogc="http://www.opengis.net/ogc"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+service="CSW" version="2.0.2" outputFormat="application/xml"
+outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2../../../csw/2.0.2/CSW-discovery.xsd">
+  <ElementSetName>full</ElementSetName>
+  <Id>placeholder_id_1</Id>
+  <Id>placeholder_id_2</Id>
+</GetRecordById>

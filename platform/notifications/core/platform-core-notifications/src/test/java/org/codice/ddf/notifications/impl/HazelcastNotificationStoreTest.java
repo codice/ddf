@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -47,6 +48,11 @@ public class HazelcastNotificationStoreTest {
     private static final String TEST_PATH = "/src/main/resources/";
 
     private static final String PERSISTENT_CACHE_NAME = "persistentNotifications";
+
+    @BeforeClass
+    public static void beforeTests() {
+        System.setProperty("ddf.home", System.getProperty("java.io.tmpdir"));
+    }
 
     @Test
     public void testCreateCacheWithXmlConfigFile() throws Exception {
@@ -203,7 +209,7 @@ public class HazelcastNotificationStoreTest {
             // Query for specific user's notifications and verify only they are returned
             List<Map<String, String>> notifications = store.getNotifications("user2");
             assertNotNull(notifications);
-            LOGGER.info("notifications.size() = " + notifications.size());
+            LOGGER.info("notifications.size() = {}", notifications.size());
             assertTrue(notifications.size() == numNotificationsPerUser);
             for (Map<String, String> n : notifications) {
                 LOGGER.info("notification = {}", n);
@@ -216,7 +222,7 @@ public class HazelcastNotificationStoreTest {
             // Get all notifications
             notifications = store.getNotifications();
             assertNotNull(notifications);
-            LOGGER.info("notifications.size() = " + notifications.size());
+            LOGGER.info("notifications.size() = {}", notifications.size());
             assertTrue(notifications.size() == (userIds.length * numNotificationsPerUser));
             for (Map<String, String> n : notifications) {
                 LOGGER.info("notification = {}", n);

@@ -145,7 +145,7 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
         try {
             nodes = (NodeList) xPath.evaluate(xPathString, de, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
-            LOGGER.error("Could not evaluate the xPath expression: {}", xPathString, e);
+            LOGGER.info("Could not evaluate the xPath expression: {}", xPathString, e);
             return doc;
         }
         for (int i = 0; i < nodes.getLength(); i++) {

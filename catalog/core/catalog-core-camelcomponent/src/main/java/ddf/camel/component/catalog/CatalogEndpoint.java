@@ -123,7 +123,7 @@ public class CatalogEndpoint extends DefaultEndpoint {
         } else if (contextPath.equals(FRAMEWORK)) {
             producer = new FrameworkProducer(this, catalogFramework);
         } else {
-            LOGGER.debug("Unable to create producer for context path [" + contextPath + "]");
+            LOGGER.debug("Unable to create producer for context path [{}]", contextPath);
             throw new IllegalArgumentException(
                     "Unable to create producer for context path [" + contextPath + "]");
         }
@@ -152,7 +152,7 @@ public class CatalogEndpoint extends DefaultEndpoint {
         } else if (contextPath.equals(QUERYRESPONSE_TRANSFORMER)) {
             consumer = new QueryResponseTransformerConsumer(this, processor);
         } else {
-            LOGGER.debug("Unable to create consumer for context path [" + contextPath + "]");
+            LOGGER.debug("Unable to create consumer for context path [{}]", contextPath);
             throw new IllegalArgumentException(
                     "Unable to create consumer for context path [" + contextPath + "]");
         }

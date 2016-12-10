@@ -104,7 +104,7 @@ public class InputTransformerProducer extends TransformerProducer {
                 mimeType);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("List of matches for mimeType [" + mimeType + "]:" + listOfCandidates);
+            LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
         }
 
         Metacard generatedMetacard = null;

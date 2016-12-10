@@ -99,7 +99,7 @@ public class FileSystemStorageProvider implements StorageProvider {
      * Default constructor, invoked by blueprint.
      */
     public FileSystemStorageProvider() {
-        LOGGER.info("File System Provider initializing...");
+        LOGGER.debug("File System Provider initializing...");
     }
 
     @Override
@@ -194,7 +194,11 @@ public class FileSystemStorageProvider implements StorageProvider {
                             .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
                                     contentItem.getSize()));
                 } catch (IOException e) {
+<<<<<<< HEAD
                     LOGGER.warn("Could not set size of content item [{}] on metacard [{}]",
+=======
+                    LOGGER.info("Could not set size of content item [{}] on metacard [{}]",
+>>>>>>> master
                             contentItem.getId(),
                             contentItem.getMetacard()
                                     .getId(),
@@ -274,7 +278,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         } else if (updateMap.containsKey(request.getId())) {
             commitUpdates(request);
         } else {
-            LOGGER.warn("Nothing to commit for request: {}", request.getId());
+            LOGGER.info("Nothing to commit for request: {}", request.getId());
         }
     }
 
@@ -397,7 +401,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         try (InputStream fileInputStream = Files.newInputStream(file)) {
             mimeType = mimeTypeMapper.guessMimeType(fileInputStream, extension);
         } catch (Exception e) {
-            LOGGER.warn("Could not determine mime type for file extension = {}; defaulting to {}",
+            LOGGER.info("Could not determine mime type for file extension = {}; defaulting to {}",
                     extension,
                     DEFAULT_MIME_TYPE);
             mimeType = DEFAULT_MIME_TYPE;
@@ -406,7 +410,7 @@ public class FileSystemStorageProvider implements StorageProvider {
             try {
                 mimeType = Files.probeContentType(file);
             } catch (IOException e) {
-                LOGGER.warn("Unable to determine mime type using Java Files service.", e);
+                LOGGER.info("Unable to determine mime type using Java Files service.", e);
                 mimeType = DEFAULT_MIME_TYPE;
             }
         }
@@ -416,7 +420,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         try {
             size = Files.size(file);
         } catch (IOException e) {
-            LOGGER.warn("Unable to retrieve size of file: {}",
+            LOGGER.info("Unable to retrieve size of file: {}",
                     file.toAbsolutePath()
                             .toString(),
                     e);
@@ -523,7 +527,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         }
 
         if (copy != item.getSize()) {
-            LOGGER.warn("Created content item {} size {} does not match expected size {}",
+            LOGGER.info("Created content item {} size {} does not match expected size {}",
                     item.getId(),
                     copy,
                     item.getSize());

@@ -68,6 +68,7 @@ select {
     border: 1px solid red;
 }
 
-.data-limit-all {
-
+.glyphicon {
+    margin-left: 10px;
 }
+

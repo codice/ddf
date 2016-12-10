@@ -79,6 +79,16 @@ include::${project.build.directory}/doc-contents/_contents/_registry-contents/ma
 
 <<<
 
+<<<<<<< HEAD
+=======
+== Managing ${ddf-resource-management}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_contents/_resource-management-contents/managing-resource-management-contents.adoc[]
+
+<<<
+
+>>>>>>> master
 == Managing ${ddf-security}
 [small]#Version: ${project.version}#
 
@@ -207,9 +217,15 @@ include::${project.build.directory}/doc-contents/_contents/_platform-contents/ex
 Uncomment & remove this comment upon completing DDF-2156
 == Extending ${ddf-registry}
 [small]#Version: ${project.version}#
+<<<<<<< HEAD
 
 include::${project.build.directory}/doc-contents/_contents/_registry-contents/extending-registry-contents.adoc[]
 
+=======
+
+include::${project.build.directory}/doc-contents/_contents/_registry-contents/extending-registry-contents.adoc[]
+
+>>>>>>> master
 <<<
 ////
 == Extending ${ddf-security}

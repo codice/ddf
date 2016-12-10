@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
 
 public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
+    public static final String HTTP_PROTOCOL = "http://";
+
     private static final String DEFAULT_LOCALHOST_DN = "localhost.local";
 
     private MBeanServer mbeanServer;
@@ -118,20 +120,12 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     @Override
     public List<SystemPropertyDetails> readSystemProperties() {
-        LOGGER.info("get system properties");
+        LOGGER.debug("get system properties");
 
         ArrayList<SystemPropertyDetails> properties = new ArrayList<>();
-        properties.add(getSystemPropertyDetails(SystemBaseUrl.PROTOCOL,
-                PROTOCOL_TITLE,
-                PROTOCOL_DESCRIPTION,
-                PROTOCOL_OPTIONS));
         properties.add(getSystemPropertyDetails(SystemBaseUrl.HOST,
                 HOST_TITLE,
                 HOST_DESCRIPTION,
-                null));
-        properties.add(getSystemPropertyDetails(SystemBaseUrl.PORT,
-                DEFAULT_PORT_TITLE,
-                DEFAULT_PORT_DESCRIPTION,
                 null));
         properties.add(getSystemPropertyDetails(SystemBaseUrl.HTTP_PORT,
                 HTTP_PORT_TITLE,
@@ -182,7 +176,6 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
         try {
             Properties systemDotProperties = new Properties(systemPropertiesFile);
 
-            updateProperty(SystemBaseUrl.PORT, updatedSystemProperties, systemDotProperties);
             updateProperty(SystemBaseUrl.HOST, updatedSystemProperties, systemDotProperties);
             updateProperty(SystemBaseUrl.PROTOCOL, updatedSystemProperties, systemDotProperties);
             updateProperty(SystemBaseUrl.HTTP_PORT, updatedSystemProperties, systemDotProperties);
@@ -191,6 +184,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
             updateProperty(SystemInfo.SITE_CONTACT, updatedSystemProperties, systemDotProperties);
             updateProperty(SystemInfo.SITE_NAME, updatedSystemProperties, systemDotProperties);
             updateProperty(SystemInfo.VERSION, updatedSystemProperties, systemDotProperties);
+            updatePortProperty(updatedSystemProperties, systemDotProperties);
 
             systemDotProperties.save();
 
@@ -230,14 +224,14 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
                 json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
             }
         } catch (IOException e) {
-            LOGGER.error("Unable to read system user attribute file for hostname update.", e);
+            LOGGER.warn("Unable to read system user attribute file for hostname update.", e);
         }
 
         if (json != null) {
             try (OutputStream stream = Files.newOutputStream(Paths.get(userAttributesFile.toURI()))) {
                 MAPPER.writeValue(stream, json);
             } catch (IOException e) {
-                LOGGER.error("Unable to write system user attribute file for hostname update.", e);
+                LOGGER.warn("Unable to write system user attribute file for hostname update.", e);
             }
         }
 
@@ -288,13 +282,26 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
         }
     }
 
+    private void updatePortProperty(Map<String, String> updatedProperties,
+            Properties systemDotProperties) {
+        String protocol = SystemBaseUrl.getProtocol();
+
+        String port = SystemBaseUrl.getHttpsPort();
+        if (protocol != null && protocol.equalsIgnoreCase(HTTP_PROTOCOL)) {
+            port = SystemBaseUrl.getHttpPort();
+        }
+
+        systemDotProperties.put(SystemBaseUrl.PORT, port);
+        System.setProperty(SystemBaseUrl.PORT, port);
+    }
+
     private void configureMBean() {
         mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
         try {
             objectName = new ObjectName(SystemPropertiesAdminMBean.OBJECT_NAME);
         } catch (MalformedObjectNameException e) {
-            LOGGER.warn("Exception while creating object name: "
+            LOGGER.debug("Exception while creating object name: "
                     + SystemPropertiesAdminMBean.OBJECT_NAME, e);
         }
 
@@ -308,7 +315,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
                         objectName);
             }
         } catch (Exception e) {
-            LOGGER.error("Could not register mbean.", e);
+            LOGGER.info("Could not register mbean.", e);
         }
     }
 
@@ -318,7 +325,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
                 mbeanServer.unregisterMBean(objectName);
             }
         } catch (Exception e) {
-            LOGGER.warn("Exception unregistering mbean: ", e);
+            LOGGER.debug("Exception unregistering mbean: ", e);
             throw new RuntimeException(e);
         }
     }

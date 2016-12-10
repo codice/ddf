@@ -206,7 +206,6 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
             if (permission instanceof KeyValuePermission) {
                 permission = new KeyValueCollectionPermission(CollectionPermission.UNKNOWN_ACTION,
                         (KeyValuePermission) permission);
-                LOGGER.warn("No action associated with permissions");
                 LOGGER.debug(
                         "Should not execute subject.isPermitted with KeyValuePermission. Instead create a KeyValueCollectionPermission with an action.");
             }
@@ -316,9 +315,9 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                     resultCollection = policyExtension.isPermittedMatchAll(subjectAllCollection,
                             resultCollection);
                 } catch (Exception e) {
-                    SecurityLogger.auditWarn("Policy Extension plugin did not complete correctly.",
+                    SecurityLogger.auditWarn("Policy Extension plugin did not complete correctly. This could allow access to a resource.",
                             e);
-                    LOGGER.warn("Policy Extension plugin did not complete correctly.", e);
+                    LOGGER.warn("Policy Extension plugin did not complete correctly. This could allow access to a resource.", e);
                 }
             }
             return resultCollection;
@@ -338,9 +337,9 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                     resultCollection = policyExtension.isPermittedMatchOne(subjectAllCollection,
                             resultCollection);
                 } catch (Exception e) {
-                    SecurityLogger.auditWarn("Policy Extension plugin did not complete correctly.",
+                    SecurityLogger.auditWarn("Policy Extension plugin did not complete correctly. This could allow access to a resource.",
                             e);
-                    LOGGER.warn("Policy Extension plugin did not complete correctly.", e);
+                    LOGGER.warn("Policy Extension plugin did not complete correctly. This could allow access to a resource.", e);
                 }
             }
             return resultCollection;
