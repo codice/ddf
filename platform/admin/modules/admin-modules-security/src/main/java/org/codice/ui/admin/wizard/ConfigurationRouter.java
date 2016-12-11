@@ -80,7 +80,7 @@ public class ConfigurationRouter implements SparkApplication {
             }
 
             return testResults;
-        }, getGsonParser()::toJson);
+        }, json -> getGsonParser().toJson(json));
 
         post("/persist/:configHandlerId", (req, res) -> {
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
@@ -93,7 +93,7 @@ public class ConfigurationRouter implements SparkApplication {
             }
 
             return results;
-        }, getGsonParser()::toJson);
+        }, json -> getGsonParser().toJson(json));
 
         post("/probe/:configHandlerId/:probeId", (req, res) -> {
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
@@ -105,23 +105,23 @@ public class ConfigurationRouter implements SparkApplication {
             }
 
             return report;
-        }, getGsonParser()::toJson);
+        }, json -> getGsonParser().toJson(json));
 
         get("/capabilities/:configHandlerId",
                 (req, res) -> getConfigurationHandler(configurationHandlers,
                         req.params("configHandlerId")).getCapabilities(),
-                getGsonParser()::toJson);
+                json -> getGsonParser().toJson(json));
 
         get("/configurations/:configHandlerId",
                 (req, res) -> getConfigurationHandler(configurationHandlers,
                         req.params("configHandlerId")).getConfigurations(),
-                getGsonParser()::toJson);
+                json -> getGsonParser().toJson(json));
 
         after("/*", (req, res) -> res.type(APPLICATION_JSON));
 
         exception(Exception.class, (ex, req, res) -> {
             LOGGER.error("Wizard router error: ", ex);
-            // TODO: tbatie - 10/26/16 - Remove this on merge
+            // TODO: tbatie - 10/26/16 - Remove this on merge,
             res.status(500);
             res.type(APPLICATION_JSON);
             res.body(exToJSON(ex));

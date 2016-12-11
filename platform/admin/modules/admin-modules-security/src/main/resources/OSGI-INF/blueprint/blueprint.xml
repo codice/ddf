@@ -56,6 +56,18 @@
 
     <reference-list id="sourceConfigurationHandlers" interface="org.codice.ui.admin.sources.config.SourceConfigurationHandler" availability="optional"/>
 
+    <!--web context policy manager handler-->
+
+    <reference id="policyManager" interface="org.codice.ddf.security.policy.context.ContextPolicyManager" />
+
+    <service id="policyManagerConfigurationHandler"
+             interface="org.codice.ui.admin.wizard.api.ConfigurationHandler">
+
+        <bean class="org.codice.ui.admin.security.policy.context.ContextPolicyManagerHandler">
+            <property name="policyManager" ref="policyManager"/>
+        </bean>
+    </service>
+
     <!--config handler router-->
 
     <reference-list id="configurationHandlers" interface="org.codice.ui.admin.wizard.api.ConfigurationHandler" availability="optional">
