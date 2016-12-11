@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.is;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
@@ -612,6 +613,7 @@ public class RegistryPackageTypeHelperTest {
     }
 
     private void assertIst(InternationalStringType actual, String expectedName) {
+        istHelper.enableFallbackLocalization(true, Locale.US);
         assertThat(istHelper.getString(actual), is(equalTo(expectedName)));
     }
 
