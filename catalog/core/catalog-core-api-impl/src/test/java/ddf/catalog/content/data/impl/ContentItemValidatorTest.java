@@ -21,29 +21,68 @@ import org.junit.Test;
 import ddf.catalog.content.data.ContentItem;
 
 public class ContentItemValidatorTest {
-    
-    private static final String ILLEGAL_QUALIFIER = "bad.txt";
-
-    private static final String VALID_FILENAME = "good.txt";
-
-    private static final String VALID_QUALIFIER = "good-qualifier";
 
     @Test
-    public void testValidFilename() throws Exception {
-        ContentItem item = new ContentItemImpl(null, "", VALID_FILENAME, null);
-        ContentItemValidator.validate(item);
-        assertThat(item.getFilename(), is(VALID_FILENAME));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testInvalidQualifier() throws Exception {
-        ContentItemValidator.validate(new ContentItemImpl("", ILLEGAL_QUALIFIER, null, "", null));
+        String id = "634e8505-bd4b-436e-97e8-2045d1b0d265".replace("-", "");
+        String qualifier = "!wow!#$These%^characters&*aren't(_`allowed!!";
+        ContentItem item = new ContentItemImpl(id, qualifier, null, "", null);
+        assertThat(ContentItemValidator.validate(item), is(false));
     }
 
     @Test
-    public void testValidQualifier() throws Exception {
-        ContentItem item = new ContentItemImpl("123456789", VALID_QUALIFIER, null, "", null);
-        ContentItemValidator.validate(item);
-        assertThat(item.getQualifier(), is(VALID_QUALIFIER));
+    public void testInvalidId() throws Exception {
+        // "123456789 is not a guid
+        ContentItem item = new ContentItemImpl("123456789", "good-qualifier", null, "", null);
+        assertThat(ContentItemValidator.validate(item), is(false));
     }
+
+    @Test
+    public void testValidItem() throws Exception {
+        String id = "de7a758e-ed76-45c0-af82-aa731950693d".replace("-", "");
+        ContentItem item = new ContentItemImpl(id, null, null, "", null);
+        assertThat(ContentItemValidator.validate(item), is(true));
+    }
+
+    @Test
+    public void testValidItemWithQualifier() throws Exception {
+        String id = "634e8505-bd4b-436e-97e8-2045d1b0d265".replace("-", "");
+        String qualifier = "zoom-and-enhanced-overview";
+        ContentItem item = new ContentItemImpl(id, qualifier, null, "", null);
+        assertThat(ContentItemValidator.validate(item), is(true));
+    }
+
+    @Test
+    public void testInvalidIdWithQualifier() throws Exception {
+        String id = "634e8505-bd4b-436e-97e8-2045d1b0d265-abcdef".replace("-", "");
+        String qualifier = "zoom-and-enhanced-overview";
+        ContentItem item = new ContentItemImpl(id, qualifier, null, "", null);
+        assertThat(ContentItemValidator.validate(item), is(false));
+    }
+
+    @Test
+    public void testValidIdWithDashes() throws Exception {
+        String id = "634e8505-bd4b-436e-97e8-2045d1b0d265"; // still valid with dashes left in
+        String qualifier = "zoom-and-enhanced-overview";
+        ContentItem item = new ContentItemImpl(id, qualifier, null, "", null);
+        assertThat(ContentItemValidator.validate(item), is(true));
+    }
+
+    @Test
+    public void testInvalidIdColon() throws Exception {
+        /* content colon should not be added by the caller */
+        String id = "content:634e8505-bd4b-436e-97e8-2045d1b0d265".replace("-", "");
+        String qualifier = "zoom-and-enhanced-overview";
+        ContentItem item = new ContentItemImpl(id, qualifier, null, "", null);
+        assertThat(ContentItemValidator.validate(item), is(false));
+    }
+
+    @Test
+    public void testInvalidIdWithQualifierInId() throws Exception {
+        /* fragment should not be added by the caller */
+        String id = "634e8505-bd4b-436e-97e8-2045d1b0d265#zoom-and-enhance-overview".replace("-", "");
+        ContentItem item = new ContentItemImpl(id, null, null, "", null);
+        assertThat(ContentItemValidator.validate(item), is(false));
+    }
+
 }
