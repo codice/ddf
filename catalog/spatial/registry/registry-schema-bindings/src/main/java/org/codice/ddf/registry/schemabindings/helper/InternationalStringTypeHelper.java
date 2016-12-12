@@ -32,6 +32,9 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.LocalizedStringType;
  */
 public class InternationalStringTypeHelper {
     private Locale locale;
+    private boolean findNearestMatch = false;
+    private boolean useFallbackIfNoLocalizationFound = false;
+    private Locale fallbackLocale = Locale.US;
     private static final String DEFAULT_LANG = "en-US";
 
     public InternationalStringTypeHelper() {
@@ -86,12 +89,51 @@ public class InternationalStringTypeHelper {
         this.locale = locale;
     }
 
-    private Optional<String> getLocalizedString(List<LocalizedStringType> localizedStrings) {
+    public void setNearestMatch(boolean findNearestMatch) {
+        this.findNearestMatch = findNearestMatch;        
+    }
+
+    public void enableFallbackLocalization(boolean enableFallback, Locale fallbackLocale) {
+        this.useFallbackIfNoLocalizationFound = enableFallback;
+        this.fallbackLocale = fallbackLocale;
+    }
+    
+   private Optional<String> getLocalizedString(List<LocalizedStringType> localizedStrings) {
         Optional<String> optionalLocalString = localizedStrings.stream()
                 .filter(localizedString -> locale.toLanguageTag()
                         .equals(localizedString.getLang()))
                 .findFirst()
                 .map(LocalizedStringType::getValue);
+        
+        //If a match has not been found then if fallback Locale has been set then use that
+        if (!optionalLocalString.isPresent() && useFallbackIfNoLocalizationFound)
+        {
+            optionalLocalString = localizedStrings.stream()
+                    .filter(localizedString -> fallbackLocale.toLanguageTag()
+                            .equals(localizedString.getLang()))
+                    .findFirst()
+                    .map(LocalizedStringType::getValue);
+        }
+        
+        //If an exact match has not been found then look at the base language e.g. if en-GB 
+        //has not been found then try to find the first one in the list of localizedStrings 
+        //that has the same language e.g. en-US. The behaviour of this will vary depending
+        //on the order that the localized strings are loaded. Should only get to this
+        //if the fallback failed (or wasn't set)
+        if (!optionalLocalString.isPresent() && findNearestMatch)
+        {
+            String currentLang = getLangfromLocale(this.locale);
+            optionalLocalString = localizedStrings.stream()
+                    .filter(localizedString -> localizedString.getLang().startsWith(currentLang))
+                    .findFirst()
+                    .map(LocalizedStringType::getValue);
+        }
+
         return optionalLocalString;
     }
+   
+   private String getLangfromLocale(Locale language) {
+       String[] localeStrings = (language.getLanguage().split("[-_]+"));
+       return localeStrings[0];
+   }
 }
