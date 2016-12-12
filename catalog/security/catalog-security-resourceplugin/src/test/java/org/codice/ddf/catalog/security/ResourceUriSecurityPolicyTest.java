@@ -105,13 +105,13 @@ public class ResourceUriSecurityPolicyTest {
                 response);  // will need to change assert based on test
     }
 
-    private ResourceUriSecurityPolicy getPolicyPlugin(String catalogResourceUri,
+    private ResourceUriPolicy getPolicyPlugin(String catalogResourceUri,
             String[] createPermissionsArray) throws URISyntaxException, StopProcessingException {
 
         Metacard catalogMetacard = mock(MetacardImpl.class);
         when(catalogMetacard.getResourceURI()).thenReturn(new URI(catalogResourceUri));
 
-        ResourceUriSecurityPolicy policyPlugin = new ResourceUriSecurityPolicy() {
+        ResourceUriPolicy policyPlugin = new ResourceUriPolicy() {
             protected Metacard getMetacardFromCatalog(String id) {
                 return catalogMetacard;
             }
