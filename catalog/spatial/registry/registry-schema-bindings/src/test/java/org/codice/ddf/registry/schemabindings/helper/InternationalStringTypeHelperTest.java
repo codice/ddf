@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- */ 
+ */
 package org.codice.ddf.registry.schemabindings.helper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -63,7 +63,6 @@ public class InternationalStringTypeHelperTest {
     public void testGetString() throws Exception {
         InternationalStringType ist = getTestInternationalStringType();
 
-        istHelper.setLocale(Locale.US);
         String istString = istHelper.getString(ist);
 
         if (!isDefaultLocaleInTestSet()) {
@@ -103,67 +102,6 @@ public class InternationalStringTypeHelperTest {
 
         String istString = istHelper.getString(ist);
         assertThat(istString, is(equalTo(EMPTY_STRING)));
-        
-        istHelper.setLocale(Locale.UK);
-        istString = istHelper.getString(ist);
-        assertThat(istString, is(equalTo(EMPTY_STRING)));
-    }
-
-    @Test
-    public void testGetStringWithWithNearestMatch() throws Exception {
-        InternationalStringType ist = getTestInternationalStringType();
-        
-        istHelper.setNearestMatch(true);
-        
-        istHelper.setLocale(Locale.CHINA);
-        String istString = istHelper.getString(ist);
-        assertThat(istString, is(equalTo(EMPTY_STRING)));
-        
-        istHelper.setLocale(Locale.UK);
-        istString = istHelper.getString(ist);
-        //Expect US as this is loaded into the TestInternationalString first
-        assertThat(istString, is(equalTo(US)));
-        
-    }
-    
-    @Test
-    public void testGetStringWithFallback() throws Exception {
-        InternationalStringType ist = getTestInternationalStringType();
-        
-        istHelper.enableFallbackLocalization(true, Locale.ITALY);
-        istHelper.setLocale(Locale.CHINA);
-        String istString = istHelper.getString(ist);
-        assertThat(istString, is(equalTo(ITALY)));
-        
-        istHelper.enableFallbackLocalization(true, Locale.CANADA);
-        istHelper.setLocale(Locale.UK);
-        istString = istHelper.getString(ist);
-        assertThat(istString, is(equalTo(CANADA)));
-        
-        //Fallback set to something that is not there
-        istHelper.enableFallbackLocalization(true, Locale.JAPANESE);
-        istHelper.setLocale(Locale.JAPAN);
-        istString = istHelper.getString(ist);
-        assertThat(istString, is(equalTo(EMPTY_STRING)));
-        
-    }
-    
-    @Test
-    public void testGetStringWithFallbackAndNearest() throws Exception {
-        InternationalStringType ist = getTestInternationalStringType();
-        
-        istHelper.setNearestMatch(true);
-        istHelper.enableFallbackLocalization(true, Locale.ITALY);
-        istHelper.setLocale(Locale.UK);
-        String istString = istHelper.getString(ist);
-        assertThat(istString, is(equalTo(ITALY)));
-        
-        //Set a fallback that doesn't exist and it should fall through to find the nearest
-        istHelper.enableFallbackLocalization(true, Locale.GERMANY);
-        istHelper.setLocale(Locale.UK);
-        istString = istHelper.getString(ist);
-        assertThat(istString, is(equalTo(US)));
-        
     }
 
     @Test
