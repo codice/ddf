@@ -78,6 +78,8 @@
 |x|x|x||||
 |<<_catalog_policy_plugin,Catalog Policy Plugin>>
 ||||||x|
+|<<_resource_uri_policy_plugin,Resource URI Policy Plugin>>
+||||||x|
 |<<_checksum,Checksum Plugin>>
 |||||||
 |<<_event_processor,Event Processor>>
