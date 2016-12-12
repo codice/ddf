@@ -57,7 +57,6 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
     private FilterBuilder filterBuilder;
 
     @Override
-    //Additional permissions are necessary to create a metacard with a resource URI
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
@@ -71,7 +70,6 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
     }
 
     @Override
-    //Additional permission are necessary to overwrite and existing resource URI with an new value
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
