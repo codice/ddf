@@ -147,7 +147,7 @@
             description="List of attributes to be hidden in the UI."
             type="String"
             cardinality="10000"
-            default="metacard.modified,metacard.created,metacard-tags,metacard.owner,validation-errors,validation-warnings"
+            default="metacard.modified,metacard.created,metacard-tags,metacard.owner,validation-errors,validation-warnings,sortOrder,sortField,cql,enterprise,polling,security.access-groups,security.access-individuals,failed-validators-warnings,failed-validators-errors,sources,federation,metacard.sharing,cached"
             required="false"/>
 
         <AD id="scheduleFrequencyList"

@@ -15,7 +15,6 @@ package org.codice.ddf.catalog.ui.metacard.enumerations;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
