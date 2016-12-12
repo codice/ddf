@@ -15,7 +15,7 @@
 
     <OCD description="Resource URI Security Policy Plugin"
          name="Resource URI Security Policy Plugin"
-         id="org.codice.ddf.catalog.security.ResourceUriPolicy">
+         id="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy">
 
         <AD description="Allow users to provide a URI when creating a metacard"
             name="Permit Resource URI on Creation" id="permitResourceUriOnCreation" required="true"
@@ -28,7 +28,7 @@
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"/>/>
     </OCD>
 
-    <Designate pid="org.codice.ddf.catalog.security.ResourceUriPolicy">
-        <Object ocdref="org.codice.ddf.catalog.security.ResourceUriPolicy"/>
+    <Designate pid="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy">
+        <Object ocdref="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy"/>
     </Designate>
 </metatype:MetaData>
