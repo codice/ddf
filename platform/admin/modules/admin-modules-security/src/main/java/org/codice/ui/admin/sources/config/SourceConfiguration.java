@@ -36,12 +36,22 @@ public class SourceConfiguration extends Configuration {
 
     private String displayName;
 
+    private boolean certError;
+
     private boolean trustedCertAuthority;
 
     public boolean trustedCertAuthority() {
         return trustedCertAuthority;
     }
 
+    public boolean certError() {
+        return certError;
+    }
+
+    public SourceConfiguration certError(boolean certError) {
+        this.certError = certError;
+        return this;
+    }
     public SourceConfiguration trustedCertAuthority(boolean trustedCertAuthority) {
         this.trustedCertAuthority = trustedCertAuthority;
         return this;

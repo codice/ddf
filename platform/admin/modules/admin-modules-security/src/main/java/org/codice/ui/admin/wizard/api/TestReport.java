@@ -14,6 +14,7 @@
 
 package org.codice.ui.admin.wizard.api;
 
+import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
 
 import java.util.ArrayList;
@@ -54,6 +55,13 @@ public class TestReport {
     public boolean containsUnsuccessfulMessages() {
         return messages.stream()
                 .filter(msg -> msg.getType() != SUCCESS)
+                .findFirst()
+                .isPresent();
+    }
+
+    public boolean containsFailureMessages() {
+        return messages.stream()
+                .filter(msg -> msg.getType() == FAILURE)
                 .findFirst()
                 .isPresent();
     }

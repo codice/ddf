@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -74,7 +75,10 @@ public class OpenSearchSourceConfigurationHandler
             configuration.endpointUrl(confirmOpenSearchEndpointUrl(configuration));
             if (configuration.endpointUrl()
                     .equals(NONE_FOUND)) {
-                results.add(new ConfigurationMessage("No OpenSearch endpoint found.", FAILURE));
+                results.add(buildMessage(FAILURE, "No OpenSearch endpoint found."));
+                return new ProbeReport(results);
+            } else if(configuration.certError()) {
+                results.add(buildMessage(WARNING, "The discovered URL has incorrectly configured SSL certificates and is likely insecure."));
                 return new ProbeReport(results);
             }
             configuration.factoryPid(OPENSEARCH_FACTORY_PID);
@@ -151,7 +155,7 @@ public class OpenSearchSourceConfigurationHandler
                 .map(formatUrl -> String.format(formatUrl,
                         configuration.sourceHostName(),
                         configuration.sourcePort()))
-                .filter(url -> isAvailable(url, configuration))
+                .filter(url -> isAvailable(url, configuration) || configuration.certError())
                 .findFirst()
                 .orElse(NONE_FOUND);
     }
@@ -176,7 +180,14 @@ public class OpenSearchSourceConfigurationHandler
                 return true;
             }
             return false;
+        } catch(SSLPeerUnverifiedException e) {
+            config.certError(true);
+            return false;
         } catch (IOException e) {
+            if(e instanceof SSLPeerUnverifiedException){
+                config.certError(true);
+                return false;
+            }
             try {
                 SSLContext sslContext = SSLContexts.custom()
                         .loadTrustMaterial(null, (chain, authType) -> true)

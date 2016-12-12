@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -107,7 +108,7 @@ public class WfsSourceConfigurationHandler
                 .map(formatUrl -> String.format(formatUrl,
                         configuration.sourceHostName(),
                         configuration.sourcePort()))
-                .filter(url -> isAvailable(url, configuration))
+                .filter(url -> isAvailable(url, configuration) || configuration.certError())
                 .findFirst()
                 .orElse(NONE_FOUND);
     }
@@ -224,6 +225,11 @@ public class WfsSourceConfigurationHandler
             if (status == HTTP_OK && contentType.equals("text/xml") && contentLength > 0) {
                 config.trustedCertAuthority(true);
                 return true;
+            }
+        } catch(SSLPeerUnverifiedException e){
+            if(e instanceof SSLPeerUnverifiedException) {
+                config.certError(true);
+                return false;
             }
         } catch (IOException e) {
             try {

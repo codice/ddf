@@ -22,8 +22,8 @@ import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,20 +93,19 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
         case DISCOVER_SOURCES_ID:
 
             ProbeReport sourcesProbeReport = new ProbeReport();
-            List<ProbeReport> sourceHandlerProbeReports = sourceConfigurationHandlers.stream()
+
+            List<Object> discoveredSources = sourceConfigurationHandlers.stream()
                     .map(handler -> handler.probe(DISCOVER_SOURCES_ID, config))
                     .filter(probeReport -> !probeReport.containsUnsuccessfulMessages())
+                    .map(report -> report.getProbeResults().get(DISCOVER_SOURCES_ID))
                     .collect(Collectors.toList());
 
-            List<Object> discoveredSources = sourceHandlerProbeReports.stream()
-                    .map(report -> report.getProbeResults()
-                            .get(DISCOVER_SOURCES_ID))
+            List<ConfigurationMessage> probeSourceMessages = sourceConfigurationHandlers.stream()
+                    .map(handler -> handler.probe(DISCOVER_SOURCES_ID, config))
+                    .filter(probeReport -> !probeReport.containsFailureMessages())
+                    .map(ProbeReport::getMessages)
+                    .flatMap(Collection::stream)
                     .collect(Collectors.toList());
-
-            List<ConfigurationMessage> probeSourceMessages = new ArrayList<>();
-            sourceHandlerProbeReports.stream()
-                    .map(report -> report.getMessages())
-                    .forEach(results -> probeSourceMessages.addAll(results));
 
             sourcesProbeReport.addProbeResult(DISCOVER_SOURCES_ID, discoveredSources);
             sourcesProbeReport.addMessages(probeSourceMessages);

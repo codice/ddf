@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -97,6 +98,9 @@ public class CswSourceConfigurationHandler
             if (configuration.endpointUrl()
                     .equals(NONE_FOUND)) {
                 results.add(new ConfigurationMessage("No CSW endpoint found.", FAILURE));
+                return new ProbeReport(results);
+            } else if(configuration.certError()) {
+                results.add(buildMessage(WARNING, "The discovered URL has incorrectly configured SSL certificates and is likely insecure."));
                 return new ProbeReport(results);
             }
             try {
@@ -188,7 +192,7 @@ public class CswSourceConfigurationHandler
                 .map(formatUrl -> String.format(formatUrl,
                         configuration.sourceHostName(),
                         configuration.sourcePort()))
-                .filter(url -> isAvailable(url, configuration))
+                .filter(url -> isAvailable(url, configuration) || configuration.certError())
                 .findFirst()
                 .orElse(NONE_FOUND);
     }
@@ -216,6 +220,9 @@ public class CswSourceConfigurationHandler
                 config.trustedCertAuthority(true);
                 return true;
             }
+            return false;
+        } catch (SSLPeerUnverifiedException e) {
+            config.certError(true);
             return false;
         } catch (IOException e) {
             try {
