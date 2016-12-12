@@ -104,23 +104,8 @@ public class ContextPolicyManagerHandler
     }
 
     @Override
-    public Map.Entry<String, Class> getSubtype() {
-        return new Map.Entry<String, Class>() {
-            @Override
-            public String getKey() {
-                return "contextPolicyConfiguration";
-            }
-
-            @Override
-            public Class getValue() {
-                return ContextPolicyConfiguration.class;
-            }
-
-            @Override
-            public Class setValue(Class value) {
-                return null;
-            }
-        };
+    public Class getConfigClass() {
+        return ContextPolicyConfiguration.class;
     }
 
     public List<ContextPolicyBin> contextPolicyManagerSettingsToBins() {
