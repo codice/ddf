@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.security;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
@@ -46,7 +46,7 @@ import ddf.security.permission.Permissions;
  * There are security risk to allowing users to update URIs as well as allowing users to
  * pass in a URI when the metacard is created.
  */
-public class ResourceUriSecurityPolicy implements PolicyPlugin {
+public class ResourceUriPolicy implements PolicyPlugin {
 
     private String[] createPermissions;
 
@@ -57,35 +57,38 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
     private FilterBuilder filterBuilder;
 
     @Override
-    //Additional permissions are necessary to create a metacard with a resource URI
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
-        if (includesResourceUriAttribute(input)) {
+        if (input.getResourceURI() != null && StringUtils.isNotEmpty(input.getResourceURI()
+                .toString())) {
             return new PolicyResponseImpl(null,
                     Permissions.parsePermissionsFromString(getCreatePermissions()));
+        }
+
+        return new PolicyResponseImpl();
+    }
+
+    @Override
+    public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+
+        if (requiresPermissionsToChangeFrom(input.getResourceURI(),
+                getMetacardFromCatalog(input.getId()).getResourceURI())) {
+            return new PolicyResponseImpl(null,
+                    Permissions.parsePermissionsFromString(getUpdatePermissions()));
         } else {
             return new PolicyResponseImpl();
         }
     }
 
-    @Override
-    //Additional permission are necessary to overwrite and existing resource URI with an new value
-    public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
-            throws StopProcessingException {
+    private boolean requiresPermissionsToChangeFrom(URI input, URI catalog) {
 
-        if (includesResourceUriAttribute(input)) {
-            Metacard catalogMetacard = getMetacardFromCatalog(input.getId());
-            if (input.getResourceURI()
-                    .equals(catalogMetacard.getResourceURI())) {
-                return new PolicyResponseImpl();
-            } else {
-                return new PolicyResponseImpl(null,
-                        Permissions.parsePermissionsFromString(getUpdatePermissions()));
-            }
-        } else {
-            return new PolicyResponseImpl();
-        }
+        return !uriToString(input).equals(uriToString(catalog));
+    }
+
+    private String uriToString(URI uri) {
+        return uri == null ? "" : uri.toString();
     }
 
     @Override
@@ -176,11 +179,4 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
                 .get(0);
         return queryResult.getMetacard();
     }
-
-    private boolean includesResourceUriAttribute(Metacard metacard) {
-        Attribute resourceUri = metacard.getAttribute(Metacard.RESOURCE_URI);
-        return resourceUri != null && StringUtils.isNotEmpty((String) resourceUri.getValue());
-    }
-
 }
-
