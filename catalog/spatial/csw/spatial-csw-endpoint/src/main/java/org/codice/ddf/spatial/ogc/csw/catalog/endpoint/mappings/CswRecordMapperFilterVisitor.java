@@ -370,7 +370,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     }
 
     private void setExpressionType(AttributeType type, LiteralExpressionImpl typedExpression) {
-        if (type != null) {
+        if (type != null && typedExpression != null) {
             if (type.getBinding() == Short.class) {
                 typedExpression.setValue(Short.valueOf((String) typedExpression.getValue()));
             } else if (type.getBinding() == Integer.class) {
