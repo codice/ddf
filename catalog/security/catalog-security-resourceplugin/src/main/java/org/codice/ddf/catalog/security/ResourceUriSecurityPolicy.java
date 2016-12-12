@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.security;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
@@ -61,12 +61,13 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
-        if (includesResourceUriAttribute(input)) {
+        if (input.getResourceURI() != null && StringUtils.isNotEmpty(input.getResourceURI()
+                .toString())) {
             return new PolicyResponseImpl(null,
                     Permissions.parsePermissionsFromString(getCreatePermissions()));
-        } else {
-            return new PolicyResponseImpl();
         }
+
+        return new PolicyResponseImpl();
     }
 
     @Override
@@ -74,18 +75,22 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
-        if (includesResourceUriAttribute(input)) {
-            Metacard catalogMetacard = getMetacardFromCatalog(input.getId());
-            if (input.getResourceURI()
-                    .equals(catalogMetacard.getResourceURI())) {
-                return new PolicyResponseImpl();
-            } else {
-                return new PolicyResponseImpl(null,
-                        Permissions.parsePermissionsFromString(getUpdatePermissions()));
-            }
+        if (requiresPermissionsToChangeFrom(input.getResourceURI(),
+                getMetacardFromCatalog(input.getId()).getResourceURI())) {
+            return new PolicyResponseImpl(null,
+                    Permissions.parsePermissionsFromString(getUpdatePermissions()));
         } else {
             return new PolicyResponseImpl();
         }
+    }
+
+    private boolean requiresPermissionsToChangeFrom(URI input, URI catalog) {
+
+        return !uriToString(input).equals(uriToString(catalog));
+    }
+
+    private String uriToString(URI uri) {
+        return uri == null ? "" : uri.toString();
     }
 
     @Override
@@ -176,11 +181,4 @@ public class ResourceUriSecurityPolicy implements PolicyPlugin {
                 .get(0);
         return queryResult.getMetacard();
     }
-
-    private boolean includesResourceUriAttribute(Metacard metacard) {
-        Attribute resourceUri = metacard.getAttribute(Metacard.RESOURCE_URI);
-        return resourceUri != null && StringUtils.isNotEmpty((String) resourceUri.getValue());
-    }
-
 }
-
