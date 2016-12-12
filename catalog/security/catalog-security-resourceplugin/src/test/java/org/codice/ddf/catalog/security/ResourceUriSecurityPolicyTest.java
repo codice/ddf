@@ -40,8 +40,7 @@ public class ResourceUriSecurityPolicyTest {
     @Test
     public void testTwoEmptyUris() throws URISyntaxException, StopProcessingException {
 
-        PolicyPlugin policyPlugin = getPolicyPlugin("",
-                new String[] {"role=admin", "fizzle=bang"});
+        PolicyPlugin policyPlugin = getPolicyPlugin("", new String[] {"role=admin", "fizzle=bang"});
 
         PolicyResponse response = policyPlugin.processPreUpdate(getMockMetacard(""), null);
 
@@ -82,8 +81,7 @@ public class ResourceUriSecurityPolicyTest {
     public void testInputUriNotEmptyButCatalogUriEmpty()
             throws URISyntaxException, StopProcessingException {
 
-        PolicyPlugin policyPlugin = getPolicyPlugin("",
-                new String[] {"role=admin", "fizzle=bang"});
+        PolicyPlugin policyPlugin = getPolicyPlugin("", new String[] {"role=admin", "fizzle=bang"});
 
         PolicyResponse response = policyPlugin.processPreUpdate(getMockMetacard("sampleURI"), null);
 
@@ -99,7 +97,8 @@ public class ResourceUriSecurityPolicyTest {
         PolicyPlugin policyPlugin = getPolicyPlugin("sampleURI",
                 new String[] {"role=admin", "fizzle=bang"});
 
-        PolicyResponse response = policyPlugin.processPreUpdate(getMockMetacard("differentURI"), null);
+        PolicyResponse response = policyPlugin.processPreUpdate(getMockMetacard("differentURI"),
+                null);
 
         assertEmptyResponse(
                 "If metacard and update each has resource URI, but differ, policy needed to ensure no overwriting occurs",
