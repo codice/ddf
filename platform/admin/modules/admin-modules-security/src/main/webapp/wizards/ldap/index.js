@@ -352,24 +352,28 @@ const LdapAttributeMappingStageView = (props) => {
         disabled={mappingToadd.subjectClaim === undefined || mappingToadd.userAttribute === undefined}
         style={{margin: '0 auto', marginBottom: '30px', marginTop: '10px', display: 'block'}}
         onClick={() => addMapping(mappingToadd)} />
-      <Card expanded style={{width: '200%', marginLeft: '-15%'}}>
-        <CardHeader style={{textAlign: 'center'}}
-          title='STS Claims to LDAP Attribute Mapping'
-          subtitle='The mappings below will be saved'
-        />
+      <Card expanded style={{ width: '100%' }}>
+        <CardHeader style={{ fontSize: '0.80em' }}>
+          <Title>STS Claims to LDAP Attribute Mapping</Title>
+          <Description>
+            The mappings below will be saved.
+          </Description>
+        </CardHeader>
         <Table onRowSelection={(indexs) => setSelectedMappings(indexs)}
           multiSelectable>
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow >
               <TableHeaderColumn>STS Claim</TableHeaderColumn>
-              <TableHeaderColumn>LDAP User Attribute</TableHeaderColumn>
+              <TableHeaderColumn style={{ width: 120 }}>LDAP User Attribute</TableHeaderColumn>
             </TableRow>
           </TableHeader>
           <TableBody showRowHover deselectOnClickaway={false}>
             {tableMappings.map((mapping, i) =>
               <TableRow key={i} selected={mapping.selected}>
-                <TableRowColumn>{mapping.subjectClaim}</TableRowColumn>
-                <TableRowColumn>{mapping.userAttribute}</TableRowColumn>
+                <TableRowColumn>
+                  <span style={{cursor: 'help'}} title={mapping.subjectClaim}>{mapping.subjectClaim}</span>
+                </TableRowColumn>
+                <TableRowColumn style={{ width: 120 }}>{mapping.userAttribute}</TableRowColumn>
               </TableRow>)}
           </TableBody>
         </Table>
