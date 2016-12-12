@@ -44,7 +44,15 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeRegistryImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.types.Topic;
 
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -218,15 +226,23 @@ public class TestTransactionMessageBodyReader {
 
     private CswRecordConverter cswRecordConverter;
 
+    private AttributeRegistry registry = new AttributeRegistryImpl();
+
     @Before
     public void setup() {
         cswRecordConverter = new CswRecordConverter(CswQueryFactoryTest.getCswMetacardType());
+        new CoreAttributes().getAttributeDescriptors().stream().forEach(d -> registry.register(d));
+        new ContactAttributes().getAttributeDescriptors().stream().forEach(d -> registry.register(d));
+        new LocationAttributes().getAttributeDescriptors().stream().forEach(d -> registry.register(d));
+        new MediaAttributes().getAttributeDescriptors().stream().forEach(d -> registry.register(d));
+        new TopicAttributes().getAttributeDescriptors().stream().forEach(d -> registry.register(d));
+        new AssociationsAttributes().getAttributeDescriptors().stream().forEach(d -> registry.register(d));
     }
 
     @Test
     public void testIsReadable() throws Exception {
         TransactionMessageBodyReader reader = new TransactionMessageBodyReader(cswRecordConverter,
-                CswQueryFactoryTest.getCswMetacardType());
+                CswQueryFactoryTest.getCswMetacardType(), registry);
         assertThat(reader.isReadable(CswTransactionRequest.class, null, null, null), is(true));
         assertThat(reader.isReadable(Object.class, null, null, null), is(false));
     }
@@ -238,7 +254,7 @@ public class TestTransactionMessageBodyReader {
         when(mockConverter.unmarshal(any(HierarchicalStreamReader.class),
                 any(UnmarshallingContext.class))).thenReturn(mock(Metacard.class));
         TransactionMessageBodyReader reader = new TransactionMessageBodyReader(mockConverter,
-                CswQueryFactoryTest.getCswMetacardType());
+                CswQueryFactoryTest.getCswMetacardType(), registry);
         CswTransactionRequest request = reader.readFrom(CswTransactionRequest.class,
                 null,
                 null,
@@ -267,7 +283,7 @@ public class TestTransactionMessageBodyReader {
     public void testReadDeleteWithFilterFrom() throws IOException {
         TransactionMessageBodyReader reader =
                 new TransactionMessageBodyReader(mock(Converter.class),
-                        CswQueryFactoryTest.getCswMetacardType());
+                        CswQueryFactoryTest.getCswMetacardType(), registry);
         CswTransactionRequest request = reader.readFrom(CswTransactionRequest.class,
                 null,
                 null,
@@ -299,7 +315,7 @@ public class TestTransactionMessageBodyReader {
     public void testReadDeleteWithCqlFrom() throws IOException {
         TransactionMessageBodyReader reader =
                 new TransactionMessageBodyReader(mock(Converter.class),
-                        CswQueryFactoryTest.getCswMetacardType());
+                        CswQueryFactoryTest.getCswMetacardType(), registry);
         CswTransactionRequest request = reader.readFrom(CswTransactionRequest.class,
                 null,
                 null,
@@ -336,7 +352,7 @@ public class TestTransactionMessageBodyReader {
                 any(UnmarshallingContext.class))).thenReturn(mock(Metacard.class));
 
         TransactionMessageBodyReader reader = new TransactionMessageBodyReader(mockConverter,
-                CswQueryFactoryTest.getCswMetacardType());
+                CswQueryFactoryTest.getCswMetacardType(), registry);
 
         CswTransactionRequest request = reader.readFrom(CswTransactionRequest.class,
                 null,
@@ -376,7 +392,7 @@ public class TestTransactionMessageBodyReader {
     @Test
     public void testReadUpdateByNewRecordFrom() throws IOException, ParseException {
         TransactionMessageBodyReader reader = new TransactionMessageBodyReader(cswRecordConverter,
-                CswQueryFactoryTest.getCswMetacardType());
+                CswQueryFactoryTest.getCswMetacardType(), registry);
         CswTransactionRequest request = reader.readFrom(CswTransactionRequest.class,
                 null,
                 null,
@@ -417,7 +433,7 @@ public class TestTransactionMessageBodyReader {
     public void testReadUpdateByConstraintFrom() throws IOException, ParseException {
         TransactionMessageBodyReader reader =
                 new TransactionMessageBodyReader(mock(Converter.class),
-                        CswQueryFactoryTest.getCswMetacardType());
+                        CswQueryFactoryTest.getCswMetacardType(), registry);
         CswTransactionRequest request = reader.readFrom(CswTransactionRequest.class,
                 null,
                 null,
@@ -479,7 +495,7 @@ public class TestTransactionMessageBodyReader {
     @Test
     public void testReadMultipleUpdatesFrom() throws IOException, ParseException {
         TransactionMessageBodyReader reader = new TransactionMessageBodyReader(cswRecordConverter,
-                CswQueryFactoryTest.getCswMetacardType());
+                CswQueryFactoryTest.getCswMetacardType(), registry);
         CswTransactionRequest request = reader.readFrom(CswTransactionRequest.class,
                 null,
                 null,
@@ -542,7 +558,7 @@ public class TestTransactionMessageBodyReader {
     public void testConversionExceptionWhenNoNameInUpdateRecordProperty() throws IOException {
         TransactionMessageBodyReader reader =
                 new TransactionMessageBodyReader(mock(Converter.class),
-                        CswQueryFactoryTest.getCswMetacardType());
+                        CswQueryFactoryTest.getCswMetacardType(), registry);
         reader.readFrom(CswTransactionRequest.class, null, null, null, null, IOUtils.toInputStream(
                 UPDATE_REQUEST_NO_RECORDPROPERTY_NAME_XML));
     }
@@ -551,7 +567,7 @@ public class TestTransactionMessageBodyReader {
     public void testConversionExceptionWhenNoConstraintInUpdate() throws IOException {
         TransactionMessageBodyReader reader =
                 new TransactionMessageBodyReader(mock(Converter.class),
-                        CswQueryFactoryTest.getCswMetacardType());
+                        CswQueryFactoryTest.getCswMetacardType(), registry);
         reader.readFrom(CswTransactionRequest.class, null, null, null, null, IOUtils.toInputStream(
                 UPDATE_REQUEST_NO_CONSTRAINT_XML));
     }

@@ -80,7 +80,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     private static XMLInputFactory factory;
 
-    private static MetacardType metacardType;
+    private MetacardType metacardType;
 
     static {
         factory = XMLInputFactory.newInstance();
@@ -296,28 +296,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     }
 
     /**
-     * Converts the CSW record property {@code reader} is currently at to the specified Metacard
-     * attribute format.
-     *
-     * @param attributeName the String corresponding to the type that the value
-     *                      in {@code reader} should be converted to
-     * @param reader        the reader at the element whose value you want to convert
-     * @param cswAxisOrder  the order of the coordinates in the XML being read by {@code reader}
-     * @return the value that was extracted from {@code reader} and is of the type described by
-     * {@code attributeFormat}
-     */
-    public static Serializable convertRecordPropertyToMetacardAttribute(String attributeName,
-            HierarchicalStreamReader reader, CswAxisOrder cswAxisOrder) {
-        AttributeDescriptor attributeDescriptor =
-                metacardType.getAttributeDescriptor(attributeName);
-        if (attributeDescriptor != null) {
-            return CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(attributeDescriptor.getType()
-                    .getAttributeFormat(), reader, cswAxisOrder);
-        }
-        return null;
-    }
-
-    /**
      * Takes a CSW attribute as a name and value and returns an {@link Attribute} whose value is
      * {@code cswAttributeValue} converted to the type of the attribute
      * {@code metacardAttributeName} in a {@link Metacard}.
@@ -330,7 +308,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      * {@code cswAttributeValue} converted to the type of the attribute
      * {@code metacardAttributeName} in a {@code Metacard}.
      */
-    public static Attribute getMetacardAttributeFromCswAttribute(String cswAttributeName,
+    public Attribute getMetacardAttributeFromCswAttribute(String cswAttributeName,
             Serializable cswAttributeValue, String metacardAttributeName) {
         return CswUnmarshallHelper.getMetacardAttributeFromCswAttribute(metacardType,
                 cswAttributeName,

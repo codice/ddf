@@ -121,10 +121,13 @@
     <reference id="transformProvider" interface="com.thoughtworks.xstream.converters.Converter"
                filter="(id=csw)"/>
 
+    <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
+
     <bean id="transactionMessageBodyReader"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader.TransactionMessageBodyReader">
         <argument ref="transformProvider"/>
         <argument ref="cswMetacardType"/>
+        <argument ref="attributeRegistry" />
     </bean>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
