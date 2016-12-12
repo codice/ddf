@@ -13,9 +13,9 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD description="Resource URI Security Policy Plugin"
-         name="Resource URI Security Policy Plugin"
-         id="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy">
+    <OCD description="Resource URI Policy Plugin"
+         name="Resource URI Policy Plugin"
+         id="org.codice.ddf.catalog.security.ResourceUriPolicy">
 
         <AD description="Allow users to provide a URI when creating a metacard"
             name="Permit Resource URI on Creation" id="permitResourceUriOnCreation" required="true"
@@ -28,7 +28,7 @@
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"/>/>
     </OCD>
 
-    <Designate pid="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy">
-        <Object ocdref="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy"/>
+    <Designate pid="org.codice.ddf.catalog.security.ResourceUriPolicy">
+        <Object ocdref="org.codice.ddf.catalog.security.ResourceUriPolicy"/>
     </Designate>
 </metatype:MetaData>
