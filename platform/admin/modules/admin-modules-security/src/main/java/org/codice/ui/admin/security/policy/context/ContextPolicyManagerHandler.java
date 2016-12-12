@@ -119,10 +119,9 @@ public class ContextPolicyManagerHandler
                     convertAttributeMappingToMap(policy.getAllowedAttributes());
 
             for (ContextPolicyBin bin : bins) {
-                if (bin.realm()
-                        .equals(policy.getRealm()) && bin.authenticationTypes()
-                        .equals(policy.getAuthenticationMethods()) && bin.hasSameRequiredAttributes(
-                        policyRequiredAttributes)) {
+                if (bin.realm().equals(policy.getRealm()) &&
+                        bin.authenticationTypes().equals(policy.getAuthenticationMethods()) &&
+                        bin.hasSameRequiredAttributes(policyRequiredAttributes)) {
                     bin.addContextPath(policy.getContextPath());
                     foundBin = true;
                 }

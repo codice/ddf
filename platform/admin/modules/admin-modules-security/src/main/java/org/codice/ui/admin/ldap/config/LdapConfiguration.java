@@ -139,6 +139,8 @@ public class LdapConfiguration extends Configuration {
         return ldapUseCase;
     }
 
+    public Map<String, List<String>> attributeMappings;
+
     public List<Map<String, String>> queryResults() {
         return queryResults;
     }
@@ -153,6 +155,10 @@ public class LdapConfiguration extends Configuration {
 
     public String membershipAttribute() {
         return membershipAttribute;
+    }
+
+    public Map<String, List<String>> attributeMappings() {
+        return attributeMappings;
     }
 
     public LdapConfiguration hostName(String hostName) {
@@ -242,6 +248,11 @@ public class LdapConfiguration extends Configuration {
 
     public LdapConfiguration membershipAttribute(String membershipAttribute) {
         this.membershipAttribute = membershipAttribute;
+        return this;
+    }
+
+    public LdapConfiguration attributeMappings(Map<String, List<String>> attributeMapping) {
+        this.attributeMappings = attributeMapping;
         return this;
     }
 

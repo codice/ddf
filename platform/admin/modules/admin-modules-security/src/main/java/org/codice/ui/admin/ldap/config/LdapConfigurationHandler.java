@@ -36,6 +36,8 @@ import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +46,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 
@@ -307,8 +311,20 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             return testLdapDirectoryStructure(ldapConfiguration);
 
         case LDAP_ATTRIBUTE_MAPPING_TEST_ID:
-            // TODO: tbatie - 12/7/16 - Test the attribute mappings
-            return new TestReport(buildMessage(SUCCESS, "TODO: Validate me"));
+            // TODO: tbatie - 12/7/16 - Figure out other tests that can be ran on attribute mapping
+            if (ldapConfiguration.attributeMappings()
+                    .isEmpty()) {
+                return new TestReport(buildMessage(FAILURE, "Attribute mappings cannot be empty."));
+            } else if (ldapConfiguration.attributeMappings()
+                    .values()
+                    .stream()
+                    .filter(attriList -> attriList.isEmpty())
+                    .findFirst()
+                    .isPresent()) {
+                return new TestReport(buildMessage(FAILURE, "Cannot map a claim to an empty attribute value."));
+            } else {
+                return new TestReport(buildMessage(SUCCESS, "Successfully validated mapping."));
+            }
         default:
             return new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
         }
@@ -316,55 +332,99 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
     @Override
     public TestReport persist(LdapConfiguration config) {
-
-        // TODO: tbatie - 12/8/16 - Perform validation
-        Map<String, Object> ldapStsConfig = new HashMap<>();
-
-        String ldapUrl = "";
-        boolean startTls = false;
-        ldapStsConfig.put("ldapBindUserDn", config.bindUserDn());
-        ldapStsConfig.put("ldapBindUserPass", config.bindUserPassword());
-        ldapStsConfig.put("bindMethod", config.bindUserMethod());
-        ldapStsConfig.put("kdcAddress", config.bindKdcAddress());
-        ldapStsConfig.put("realm", config.bindRealm());
-
-        ldapStsConfig.put("userNameAttribute", config.userNameAttribute());
-        ldapStsConfig.put("userBaseDn", config.baseUserDn());
-        ldapStsConfig.put("groupBaseDn", config.baseGroupDn());
-
-        // TODO RAP 08 Dec 16: This is brittle
-        switch (config.encryptionMethod()
-                .toLowerCase()) {
-        case LDAPS:
-            ldapUrl = "ldaps://";
-            break;
-        case TLS:
-            startTls = true;
-        case NONE:
-            ldapUrl = "ldap://";
-            break;
-        }
-        ldapStsConfig.put("ldapUrl", ldapUrl + config.hostName() + ":" + config.port());
-        ldapStsConfig.put("startTls", Boolean.toString(startTls));
-
         Configurator configurator = new Configurator();
 
-        if(!Arrays.asList(LDAP_USE_CASES).contains(config.ldapUseCase())) {
+        if (!Arrays.asList(LDAP_USE_CASES)
+                .contains(config.ldapUseCase())) {
             return new TestReport(buildMessage(ConfigurationMessage.MessageType.FAILURE,
                     "No ldap use case specified"));
         }
 
-        if(config.ldapUseCase().equals(LOGIN) || config.ldapUseCase().equals(LOGIN_AND_CREDENTIAL_STORE)) {
+        if (config.ldapUseCase()
+                .equals(LOGIN) || config.ldapUseCase()
+                .equals(LOGIN_AND_CREDENTIAL_STORE)) {
+            // TODO: tbatie - 12/8/16 - Perform validation
+            Map<String, Object> ldapStsConfig = new HashMap<>();
+
+            String ldapUrl = "";
+            boolean startTls = false;
+            ldapStsConfig.put("ldapBindUserDn", config.bindUserDn());
+            ldapStsConfig.put("ldapBindUserPass", config.bindUserPassword());
+            ldapStsConfig.put("bindMethod", config.bindUserMethod());
+            ldapStsConfig.put("kdcAddress", config.bindKdcAddress());
+            ldapStsConfig.put("realm", config.bindRealm());
+
+            ldapStsConfig.put("userNameAttribute", config.userNameAttribute());
+            ldapStsConfig.put("userBaseDn", config.baseUserDn());
+            ldapStsConfig.put("groupBaseDn", config.baseGroupDn());
+
+            // TODO RAP 08 Dec 16: This is brittle
+            // TODO: tbatie - 12/12/16 - Yeah well I got this from the sts ldap so take that
+            switch (config.encryptionMethod()
+                    .toLowerCase()) {
+            case LDAPS:
+                ldapUrl = "ldaps://";
+                break;
+            case TLS:
+                startTls = true;
+            case NONE:
+                ldapUrl = "ldap://";
+                break;
+            }
+            ldapStsConfig.put("ldapUrl", ldapUrl + config.hostName() + ":" + config.port());
+            ldapStsConfig.put("startTls", Boolean.toString(startTls));
             configurator.startFeature("security-sts-ldaplogin");
             configurator.createManagedService("Ldap_Login_Config", ldapStsConfig);
         }
 
-        if(config.ldapUseCase().equals(CREDENTIAL_STORE) || config.ldapUseCase().equals(LOGIN_AND_CREDENTIAL_STORE)) {
+        if (config.ldapUseCase()
+                .equals(CREDENTIAL_STORE) || config.ldapUseCase()
+                .equals(LOGIN_AND_CREDENTIAL_STORE)) {
+
             // TODO: tbatie - 12/8/16 - Fields do not map directly with the ldap login fields, might want to wait to persist until they are identical
-//            ldapStsConfig.put("groupObjectClass", config.groupObjectClass());
-//            ldapStsConfig.put("membershipAttribute", config.membershipAttribute());
-//            configurator.startFeature("security-sts-ldapclaimshandler");
-//            configurator.createManagedService("Claims_Handler_Manager", ldapStsConfig);
+            Map<String, Object> ldapClaimsHandlerConfig = new HashMap<>();
+
+            Map<String, String> transformedAttributeMapping = config.attributeMappings()
+                    .entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(entry -> entry.getKey(),
+                            entry -> String.join(",", entry.getValue())));
+
+            Path newAttributeMappingPath = Paths.get(System.getProperty("ddf.home"),
+                    "etc",
+                    "ws-security",
+                    "ldapAttributeMap-" + UUID.randomUUID()
+                            .toString() + ".props");
+            configurator.createPropertyFile(newAttributeMappingPath, transformedAttributeMapping);
+            String ldapUrl = "";
+            boolean startTls = false;
+
+            switch (config.encryptionMethod()
+                    .toLowerCase()) {
+            case LDAPS:
+                ldapUrl = "ldaps://";
+                break;
+            case TLS:
+                startTls = true;
+            case NONE:
+                ldapUrl = "ldap://";
+                break;
+            }
+            ldapClaimsHandlerConfig.put("url", ldapUrl + config.hostName() + ":" + config.port());
+            ldapClaimsHandlerConfig.put("startTls", startTls);
+            ldapClaimsHandlerConfig.put("ldapBindUserDn", config.bindUserDn());
+            ldapClaimsHandlerConfig.put("password", config.bindUserPassword());
+            ldapClaimsHandlerConfig.put("membershipUserAttribute", config.userNameAttribute());
+            ldapClaimsHandlerConfig.put("loginUserAttribute", config.userNameAttribute());
+            ldapClaimsHandlerConfig.put("userBaseDn", config.baseUserDn());
+            ldapClaimsHandlerConfig.put("objectClass", config.groupObjectClass());
+            ldapClaimsHandlerConfig.put("memberNameAttribute", config.membershipAttribute());
+            ldapClaimsHandlerConfig.put("groupBaseDn", config.baseGroupDn());
+            ldapClaimsHandlerConfig.put("bindMethod", config.bindUserMethod());
+            ldapClaimsHandlerConfig.put("propertyFileLocation", newAttributeMappingPath.toString());
+
+            configurator.startFeature("security-sts-ldapclaimshandler");
+            configurator.createManagedService("Claims_Handler_Manager", ldapClaimsHandlerConfig);
         }
 
 

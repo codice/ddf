@@ -82,11 +82,11 @@ public class ContextPolicyBin {
             return false;
         }
 
-        return requiredAttributes.entrySet()
+        return !requiredAttributes.entrySet()
                 .stream()
-                .findFirst()
                 .filter(binMapping -> !mappingsToCheck.get(binMapping.getKey())
                         .equals(binMapping.getValue()))
+                .findFirst()
                 .isPresent();
     }
 }

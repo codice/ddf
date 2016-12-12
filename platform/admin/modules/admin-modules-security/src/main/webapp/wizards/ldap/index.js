@@ -2,7 +2,7 @@ import React from 'react'
 
 import { connect } from 'react-redux'
 import { getProbeValue, isSubmitting, getMessages, getConfig, getDisplayedLdapStages } from '../../reducer'
-import { setDefaults } from '../../actions'
+import { setDefaults, editConfig } from '../../actions'
 
 import Mount from '../../components/mount'
 import {Card, CardActions, CardHeader} from 'material-ui/Card'
@@ -386,12 +386,24 @@ const LdapAttributeMappingStageView = (props) => {
       </Card>
       <StageControls>
         <Back disabled={disabled} />
-        <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testAttributeMapping'
+        <NextAttributeMapping id={id} disabled={disabled || tableMappings.length === 0} url='/admin/wizard/test/ldap/testAttributeMapping' attributeMappings={toAttributeMapping(tableMappings)}
           nextStageId='confirm' />
       </StageControls>
     </Stage>
   )
 }
+
+const toAttributeMapping = (tableMappings) => {
+  var newMapping = {}
+  tableMappings.forEach((mapping) => { newMapping[mapping.subjectClaim] = [].concat(newMapping[mapping.subjectClaim] === undefined ? [] : newMapping[mapping.subjectClaim], [mapping.userAttribute]) })
+  return newMapping
+}
+// todo Need to transform map into a string, list map
+const mapDispatchToPropsNextAttributeMapping = (dispatch, {id, url, nextStageId, attributeMappings}) => ({
+  next: () => { dispatch(editConfig('attributeMappings', attributeMappings)); dispatch(testConfig(id, url, nextStageId)) }
+})
+const NextAttributeMappingView = ({next, disabled, nextStageId}) => <RaisedButton label='Next' disabled={disabled} primary onClick={next} />
+const NextAttributeMapping = connect(null, mapDispatchToPropsNextAttributeMapping)(NextAttributeMappingView)
 
 const getSubjectClaims = (state) => (getConfig(state, 'subjectClaims') !== undefined ? getConfig(state, 'subjectClaims').value : undefined)
 const getUserAttributes = (state) => (getConfig(state, 'userAttributes') !== undefined ? getConfig(state, 'userAttributes').value : undefined)
