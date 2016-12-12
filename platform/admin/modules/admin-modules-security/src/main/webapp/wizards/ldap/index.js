@@ -120,7 +120,7 @@ const IntroductionStageView = ({id, disabled, ldapUseCase}) => (
       authentication source for users. To begin, make sure you
       have the hostname and port of the LDAP you plan to. How do you plan to use LDAP?
     </Description>
-    <RadioSelection id='ldapUseCase' options={LdapUseCases} name='LDAP Use Cases' />
+    <RadioSelection id='ldapUseCase' options={LdapUseCases} name='LDAP Use Cases' disabled={disabled} />
     <StageControls justifyContent='center'>
       <Begin disabled={disabled || !ldapUseCase} nextStageId='ldapTypeSelection' />
     </StageControls>
@@ -142,7 +142,7 @@ const LdapTypeSelectionView = ({ id, disabled, ldapType }) => (
     <Description>
       Select the type of LDAP you plan to connect to.
     </Description>
-    <RadioSelection id='ldapType' options={LdapTypes} name='LDAP Type Selections' />
+    <RadioSelection id='ldapType' options={LdapTypes} name='LDAP Type Selections' disabled={disabled} />
     <StageControls>
       <Back disabled={disabled} />
       <Begin disabled={disabled || !ldapType} nextStageId={ldapType === 'embeddedLdap' ? 'configureEmbeddedLdap' : 'networkSettings'} />
