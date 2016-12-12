@@ -666,6 +666,8 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             probeReport.addProbeResult("baseUserDn", guesser.getUserBaseChoices());
             probeReport.addProbeResult("baseGroupDn", guesser.getGroupBaseChoices());
             probeReport.addProbeResult("userNameAttribute", guesser.getUserNameAttribute());
+            probeReport.addProbeResult("groupObjectClass", guesser.getGroupObjectClass());
+            probeReport.addProbeResult("membershipAttribute", guesser.getMembershipAttribute());
         }
 
         return probeReport;

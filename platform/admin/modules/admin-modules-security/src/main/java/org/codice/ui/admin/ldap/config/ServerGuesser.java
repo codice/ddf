@@ -32,12 +32,14 @@ import com.google.common.collect.ImmutableMap;
 abstract class ServerGuesser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerGuesser.class);
 
-    // TODO RAP 07 Dec 16: Add OpenDJ and OpenLDAP guessers
+    // TODO RAP 07 Dec 16: Add OpenDJ guesser
     private static final Map<String, Function<Connection, ServerGuesser>> GUESSER_LOOKUP =
             ImmutableMap.of("activeDirectory",
                     ServerGuesser.ADGuesser::new,
                     "embeddedLdap",
-                    ServerGuesser.EmbeddedGuesser::new);
+                    ServerGuesser.EmbeddedGuesser::new,
+                    "openLdap",
+                    ServerGuesser.OpenLdapGuesser::new);
 
     protected final Connection connection;
 
@@ -50,9 +52,19 @@ abstract class ServerGuesser {
                 .apply(connection);
     }
 
-    abstract String getBaseContext() throws Exception;
+    abstract List<String> getBaseContexts() throws Exception;
 
-    abstract String getUserNameAttribute();
+    String getUserNameAttribute() {
+        return "uid";
+    }
+
+    String getGroupObjectClass() {
+        return "groupOfNames";
+    }
+
+    String getMembershipAttribute() {
+        return "member";
+    }
 
     List<String> getUserBaseChoices() {
         return getChoices("(|(ou=user*)(name=user*)(cn=user*))");
@@ -63,30 +75,32 @@ abstract class ServerGuesser {
     }
 
     private List<String> getChoices(String query) {
-        String baseContext;
+        List<String> baseContexts;
         try {
-            baseContext = getBaseContext();
+            baseContexts = getBaseContexts();
         } catch (Exception e) {
             LOGGER.debug("Error getting baseContext", e);
             return Collections.emptyList();
         }
 
         List<String> choices = new ArrayList<>();
-        try (ConnectionEntryReader reader = connection.search(baseContext,
-                SearchScope.SINGLE_LEVEL,
-                query)) {
-            while (reader.hasNext()) {
-                if (!reader.isReference()) {
-                    SearchResultEntry resultEntry = reader.readEntry();
-                    choices.add(resultEntry.getName()
-                            .toString());
-                } else {
-                    // TODO RAP 07 Dec 16: What do we need to do with remote references?
-                    reader.readReference();
+        for (String baseContext : baseContexts) {
+            try (ConnectionEntryReader reader = connection.search(baseContext,
+                    SearchScope.SINGLE_LEVEL,
+                    query)) {
+                while (reader.hasNext()) {
+                    if (!reader.isReference()) {
+                        SearchResultEntry resultEntry = reader.readEntry();
+                        choices.add(resultEntry.getName()
+                                .toString());
+                    } else {
+                        // TODO RAP 07 Dec 16: What do we need to do with remote references?
+                        reader.readReference();
+                    }
                 }
+            } catch (IOException e) {
+                LOGGER.debug("Error getting choices", e);
             }
-        } catch (IOException e) {
-            LOGGER.debug("Error getting choices", e);
         }
 
         return choices;
@@ -98,20 +112,25 @@ abstract class ServerGuesser {
         }
 
         @Override
-        String getBaseContext() throws Exception {
+        List<String> getBaseContexts() throws Exception {
             ConnectionEntryReader reader = connection.search("",
                     SearchScope.BASE_OBJECT,
                     "(objectClass=*)",
                     "rootDomainNamingContext");
 
-            return reader.readEntry()
+            return Collections.singletonList(reader.readEntry()
                     .getAttribute("rootDomainNamingContext")
-                    .firstValueAsString();
+                    .firstValueAsString());
         }
 
         @Override
         String getUserNameAttribute() {
             return "sAMAccountName";
+        }
+
+        @Override
+        String getGroupObjectClass() {
+            return "group";
         }
     }
 
@@ -121,13 +140,8 @@ abstract class ServerGuesser {
         }
 
         @Override
-        String getBaseContext() throws Exception {
-            return null;
-        }
-
-        @Override
-        String getUserNameAttribute() {
-            return "uid";
+        List<String> getBaseContexts() throws Exception {
+            return Collections.emptyList();
         }
 
         // TODO RAP 07 Dec 16: Will more likely execute queries for these values and remove
@@ -140,6 +154,29 @@ abstract class ServerGuesser {
         @Override
         List<String> getGroupBaseChoices() {
             return Collections.singletonList("ou=groups,dc=example,dc=com");
+        }
+    }
+
+    private static class OpenLdapGuesser extends ServerGuesser {
+        private OpenLdapGuesser(Connection connection) {
+            super(connection);
+        }
+
+        @Override
+        List<String> getBaseContexts() throws Exception {
+            ConnectionEntryReader reader = connection.search("",
+                    SearchScope.BASE_OBJECT,
+                    "(objectClass=*)",
+                    "namingContexts");
+
+            ArrayList<String> contexts = new ArrayList<>();
+            while (reader.hasNext()) {
+                contexts.add(reader.readEntry()
+                        .getAttribute("namingContext")
+                        .firstValueAsString());
+            }
+
+            return contexts;
         }
     }
 }
