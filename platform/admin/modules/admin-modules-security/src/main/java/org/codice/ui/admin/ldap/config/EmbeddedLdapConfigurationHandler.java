@@ -38,7 +38,7 @@ public class EmbeddedLdapConfigurationHandler
             LoggerFactory.getLogger(EmbeddedLdapConfigurationHandler.class);
 
     private static final String EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID =
-            "embeddedLdapConfigurationHandler";
+            "embeddedLdap";
 
     @Override
     public ProbeReport probe(String probeId, EmbeddedLdapConfiguration configuration) {

@@ -161,7 +161,7 @@ public class OpenSearchSourceConfigurationHandler
         String contentType;
         HttpClient client = HttpClientBuilder.create()
                 .setDefaultRequestConfig(RequestConfig.custom()
-                        .setConnectTimeout(1000)
+                        .setConnectTimeout(PING_TIMEOUT)
                         .build())
                 .build();
         HttpGet request = new HttpGet(url);

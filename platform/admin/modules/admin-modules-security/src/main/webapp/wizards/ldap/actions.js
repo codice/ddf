@@ -24,7 +24,7 @@ export const probe = (url) => (dispatch, getState) => {
 
   const opts = {
     method: 'POST',
-    body: JSON.stringify({ configurationType: 'ldapConfiguration', ...config }),
+    body: JSON.stringify({ configurationType: 'ldap', ...config }),
     credentials: 'same-origin'
   }
 
@@ -45,7 +45,7 @@ export const probeAttributeMapping = (url, nextStageId) => (dispatch, getState) 
 
   const opts = {
     method: 'POST',
-    body: JSON.stringify({ configurationType: 'ldapConfiguration', ...config }),
+    body: JSON.stringify({ configurationType: 'ldap', ...config }),
     credentials: 'same-origin'
   }
 
@@ -68,7 +68,7 @@ export const probeLdapDir = () => (dispatch, getState) => {
 
   const opts = {
     method: 'POST',
-    body: JSON.stringify({ configurationType: 'ldapConfiguration', ...config }),
+    body: JSON.stringify({ configurationType: 'ldap', ...config }),
     credentials: 'same-origin'
   }
 
@@ -84,7 +84,7 @@ export const probeLdapDir = () => (dispatch, getState) => {
     })
 }
 
-export const testConfig = (id, url, nextStageId, configType = 'ldapConfiguration') => (dispatch, getState) => {
+export const testConfig = (id, url, nextStageId, configType = 'ldap') => (dispatch, getState) => {
   dispatch(clearMessages(id))
   dispatch(submittingStart(id))
 
@@ -113,7 +113,7 @@ export const testConfig = (id, url, nextStageId, configType = 'ldapConfiguration
     })
 }
 
-export const testAndProbeConfig = (id, url, nextStageId, configType = 'ldapConfiguration', probe) => (dispatch, getState) => {
+export const testAndProbeConfig = (id, url, nextStageId, configType = 'ldap', probe) => (dispatch, getState) => {
   dispatch(clearMessages(id))
   dispatch(submittingStart(id))
 

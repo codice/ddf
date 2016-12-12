@@ -48,7 +48,7 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
     public static final String NONE_FOUND = "None found";
 
-    public static final int PING_TIMEOUT = 2000;
+    public static final int PING_TIMEOUT = 3000;
 
     /*********************************************************
      * NamespaceContext for Xpath queries

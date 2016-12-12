@@ -38,7 +38,7 @@ const NextView = ({next, disabled, nextStageId}) => <RaisedButton label='Next' d
 const Next = connect(null, mapDispatchToPropsNext)(NextView)
 
 const mapDispatchToPropsProbeAndNext = (dispatch, {id, url, nextStageId, probe}) => ({
-  nextAndProbe: () => dispatch(testAndProbeConfig(id, url, nextStageId, 'ldapConfiguration', probe))
+  nextAndProbe: () => dispatch(testAndProbeConfig(id, url, nextStageId, 'ldap', probe))
 })
 const ProbeAndNextView = ({nextAndProbe, disabled, nextStageId}) => <RaisedButton label='Next'
   disabled={disabled}
@@ -168,7 +168,7 @@ const ConfigureEmbeddedLdap = ({ id, disabled }) => (
     </div>
     <StageControls>
       <Back disabled={disabled} />
-      <Save id={id} label='mic check check' disabled={disabled} url='/admin/wizard/persist/embeddedLdap' configType='embeddedLdapConfiguration' nextStageId='networkSettings' />
+      <Save id={id} label='mic check check' disabled={disabled} url='/admin/wizard/persist/embeddedLdap' configType='embeddedLdap' nextStageId='networkSettings' />
     </StageControls>
   </Stage>
 )

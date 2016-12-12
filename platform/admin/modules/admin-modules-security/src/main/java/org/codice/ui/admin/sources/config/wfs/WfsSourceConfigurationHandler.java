@@ -208,7 +208,7 @@ public class WfsSourceConfigurationHandler
         String contentType;
         HttpClient client = HttpClientBuilder.create()
                 .setDefaultRequestConfig(RequestConfig.custom()
-                        .setConnectTimeout(1000)
+                        .setConnectTimeout(PING_TIMEOUT)
                         .build())
                 .build();
         url += GET_CAPABILITIES_PARAMS;
