@@ -46,7 +46,7 @@ import ddf.security.permission.Permissions;
  * There are security risk to allowing users to update URIs as well as allowing users to
  * pass in a URI when the metacard is created.
  */
-public class ResourceUriSecurityPolicy implements PolicyPlugin {
+public class ResourceUriPolicy implements PolicyPlugin {
 
     private String[] createPermissions;
 

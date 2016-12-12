@@ -19,10 +19,10 @@
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"
                availability="optional"/>
 
-    <bean id="resourceUriSecurityPlugin"
-          class="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy">
+    <bean id="resourceUriPlugin"
+          class="org.codice.ddf.catalog.security.ResourceUriPolicy">
         <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.security.ResourceUriSecurityPolicy"/>
+                persistent-id="org.codice.ddf.catalog.security.ResourceUriPolicy"/>
         <property name="catalogFramework" ref="catalogFramework"/>
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="createPermissions">
@@ -36,7 +36,7 @@
             </array>
         </property>
     </bean>
-    <service ref="resourceUriSecurityPlugin" auto-export="interfaces" ranking="100"/>
+    <service ref="resourceUriPlugin" auto-export="interfaces" ranking="100"/>
 
 
 </blueprint>
