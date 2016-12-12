@@ -126,10 +126,9 @@ chown ${branding-lowercase}-user:${branding-lowercase}-group new_installation
 su - ${branding-lowercase}-user
 ----
 +
-.Example: Create a Directory on Windows and Switch User on Windows
+.Example: Create a Directory on Windows (Switching user not required for Windows)
 ----
 mkdir new_installation
-icacls "new_installation" /grant ${branding-lowercase}-user(OI)(CI)F /T
 ----
 +
 . Change the current directory to the location of the zip file (${branding-lowercase}-${project.version}.zip).
