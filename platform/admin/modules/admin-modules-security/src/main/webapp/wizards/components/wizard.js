@@ -1,3 +1,5 @@
+import React from 'react'
+
 import { connect } from 'react-redux'
 import { clearWizard } from '../../actions'
 import Mount from '../../components/mount'
