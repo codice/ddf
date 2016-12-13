@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -373,6 +374,29 @@ public class EndpointUtil {
         }
     }
 
+    public Map.Entry<String, Object> convertDateEntries(Map.Entry<String, Object> entry) {
+        if (entry.getKey() == null || entry.getValue() == null) {
+            return entry;
+        }
+
+        return attributeRegistry.lookup(entry.getKey())
+                .filter(ad -> AttributeType.AttributeFormat.DATE.equals(ad.getType()
+                        .getAttributeFormat()))
+                .map(_$ -> {
+                    Serializable date = parseDate((Serializable) entry.getValue());
+                    if (date instanceof Date) {
+                        date = (Date) date;
+                    } else if (date instanceof Instant) {
+                        // must be Date object for solr to parse correctly
+                        date = Date.from((Instant) date);
+                    }
+                    return (Map.Entry<String, Object>) new AbstractMap.SimpleEntry<String, Object>(
+                            entry.getKey(),
+                            date);
+                })
+                .orElse(entry);
+    }
+
     private Pattern boonDefault = Pattern.compile(
             "[a-zA-Z]{3}\\s[a-zA-Z]{3}\\s\\d+\\s[0-9:]+\\s(\\w+\\s)?\\d+");
 
@@ -389,17 +413,21 @@ public class EndpointUtil {
                     .toString();
         }
 
+        if (value instanceof Long) {
+            return Instant.ofEpochMilli((Long) value);
+        }
+
         if (!(value instanceof String)) {
             return null;
         }
 
-        String svalue = String.valueOf(value);
-        SimpleDateFormat dateFormat = null;
+        String string = String.valueOf(value);
 
-        if (boonDefault.matcher(svalue)
+        SimpleDateFormat dateFormat = null;
+        if (boonDefault.matcher(string)
                 .matches()) {
             dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
-        } else if (iso8601.matcher(svalue)
+        } else if (iso8601.matcher(string)
                 .matches()) {
             dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
         } else {

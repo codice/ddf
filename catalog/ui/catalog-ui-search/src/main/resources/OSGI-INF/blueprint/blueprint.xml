@@ -100,17 +100,12 @@
     <reference-list id="metacardMultiActionProviders" interface="ddf.action.MultiActionProvider"
                     filter="(id=catalog.data.metacard.*)"/>
 
-    <reference-list id="injectableAttributes" interface="ddf.catalog.data.InjectableAttribute" availability="optional"/>
+    <reference-list id="injectableAttributes" interface="ddf.catalog.data.InjectableAttribute"
+                    availability="optional"/>
 
     <bean id="metacardActionRegistry" class="org.codice.ddf.catalog.ui.MetacardActionRegistry">
         <argument ref="metacardActionProviders"/>
         <argument ref="metacardMultiActionProviders"/>
-    </bean>
-
-    <bean id="workspaceTransformer"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer">
-        <argument ref="catalogFramework"/>
-        <argument ref="inputTransformer"/>
     </bean>
 
     <bean id="endpointUtil" class="org.codice.ddf.catalog.ui.util.EndpointUtil">
@@ -124,6 +119,14 @@
             <reference interface="ddf.catalog.data.AttributeRegistry" availability="optional"/>
         </argument>
     </bean>
+
+    <bean id="workspaceTransformer"
+          class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer">
+        <argument ref="catalogFramework"/>
+        <argument ref="inputTransformer"/>
+        <argument ref="endpointUtil"/>
+    </bean>
+
 
     <bean id="validator" class="org.codice.ddf.catalog.ui.metacard.validation.Validator">
         <argument>

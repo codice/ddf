@@ -27,6 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.catalog.ui.util.EndpointUtil;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeDescriptor;
@@ -42,6 +43,8 @@ public class WorkspaceTransformer {
     private final CatalogFramework catalogFramework;
 
     private final InputTransformer inputTransformer;
+
+    private final EndpointUtil endpointUtil;
 
     private final Map<String, Function<Map.Entry<String, Object>, Map.Entry<String, Object>>>
             metacardToJsonEntryMapper = new HashMap<>();
@@ -91,9 +94,10 @@ public class WorkspaceTransformer {
     }
 
     public WorkspaceTransformer(CatalogFramework catalogFramework,
-            InputTransformer inputTransformer) {
+            InputTransformer inputTransformer, EndpointUtil endpointUtil) {
         this.catalogFramework = catalogFramework;
         this.inputTransformer = inputTransformer;
+        this.endpointUtil = endpointUtil;
         setupMetacardMappers();
         setupJsonMappers();
     }
@@ -123,6 +127,7 @@ public class WorkspaceTransformer {
         return map -> map.entrySet()
                 .stream()
                 .map(this::remapMetacardEntry)
+                .map(endpointUtil::convertDateEntries)
                 .reduce(init, metacardBiFunc(), (m1, m2) -> m2);
     }
 
