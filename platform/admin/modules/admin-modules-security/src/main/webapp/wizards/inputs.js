@@ -49,26 +49,31 @@ const Hostname = ({ label = 'Hostname', ...rest }) => (
   <Input label={label} {...rest} />
 )
 
-const InputAuto = ({ value, options = [], type = 'text', error, onEdit, label, ...rest }) => (
-  <AutoComplete
-    fullWidth
-    openOnFocus
-    dataSource={options.map((value) => ({ text: String(value), value }))}
-    filter={AutoComplete.noFilter}
-    type={type}
-    errorText={error}
-    floatingLabelText={label}
-    searchText={String(value)}
-    onNewRequest={({ value }) => { onEdit(value) }}
-    onUpdateInput={(value) => { onEdit(type === 'number' ? Number(value) : value) }}
-    {...rest} />
-)
+const InputAutoView = ({ value = '', options = [], type = 'text', message = {}, onEdit, label, ...rest }) => {
+  const { type: messageType, message: text } = message
 
-const PortView = ({ value = 0, label = 'Port', ...rest }) => (
+  return (
+    <AutoComplete
+      fullWidth
+      openOnFocus
+      dataSource={options.map((value) => ({ text: String(value), value }))}
+      filter={AutoComplete.noFilter}
+      type={type}
+      errorText={text}
+      errorStyle={messageStyles[messageType]}
+      floatingLabelText={label}
+      searchText={String(value)}
+      onNewRequest={({ value }) => { onEdit(value) }}
+      onUpdateInput={(value) => { onEdit(type === 'number' ? Number(value) : value) }}
+      {...rest} />
+  )
+}
+
+const InputAuto = connect(mapStateToProps, mapDispatchToProps)(InputAutoView)
+
+const Port = ({ value = 0, label = 'Port', ...rest }) => (
   <InputAuto type='number' value={value} label={label} {...rest} />
 )
-
-const Port = connect(mapStateToProps, mapDispatchToProps)(PortView)
 
 const SelectView = ({ value = '', options = [], label = 'Select', onEdit, error, ...rest }) => (
   <SelectField
@@ -95,9 +100,11 @@ const RadioSelection = connect(mapStateToProps, mapDispatchToProps)(RadioSelecti
 
 export {
   Input,
+  InputAuto,
   Password,
   Hostname,
   Port,
   Select,
   RadioSelection
 }
+InputAuto

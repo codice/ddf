@@ -17,7 +17,7 @@ import SelectField from 'material-ui/SelectField'
 import MenuItem from 'material-ui/MenuItem'
 import * as styles from './styles.less'
 import {testConfig, probe, probeLdapDir, nextStage, prevStage, probeAttributeMapping, setMappingToAdd, addMapping, setSelectedMappings, removeSelectedMappings, testAndProbeConfig} from './actions'
-import {Input, Password, Hostname, Port, Select, RadioSelection} from '../inputs'
+import {Input, InputAuto, Password, Hostname, Port, Select, RadioSelection} from '../inputs'
 import Wizard from '../components/wizard'
 
 const Title = ({children}) => <h1 className={styles.title}>{children}</h1>
@@ -194,7 +194,7 @@ const NetworkSettings = ({ id, disabled }) => (
   </Stage>
 )
 
-const BindSettingsView = ({id, disabled, probeLdapDir}) => (
+const BindSettingsView = ({id, disabled}) => (
   <Stage id={id} defaults={{bindUserDn: 'cn=admin', bindUserPassword: 'secret', bindUserMethod: 'Simple'}}>
     <Title>LDAP Bind User Settings</Title>
     <Description>
@@ -216,13 +216,12 @@ const BindSettingsView = ({id, disabled, probeLdapDir}) => (
     <Input id='bindRealm' disabled={disabled} label='Realm (for Kerberos and Digest MD5 authentication)' />
 
     <StageControls>
-      <RaisedButton label='Lookup LDAP Directory' primary onClick={() => probeLdapDir()} />
       <Back disabled={disabled} />
-      <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapBind' nextStageId='query' />
+      <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapBind' nextStageId='directorySettings' />
     </StageControls>
   </Stage>
 )
-const BindSettings = connect(null, {probeLdapDir})(BindSettingsView)
+const BindSettings = connect()(BindSettingsView)
 
 const QueryResult = (props) => {
   const {name, uid, cn, ou} = props
@@ -238,28 +237,20 @@ const QueryResult = (props) => {
   )
 }
 
-const QueryView = ({probe, probeAttributeMapping, probeValue = [], id, disabled, ldapUseCase}) => (
-  <Stage id={id} defaults={{
-    query: 'objectClass=*',
-    queryBase: 'dc=example,dc=com',
-    baseUserDn: 'ou=users,dc=example,dc=com',
-    baseGroupDn: 'ou=groups,dc=example,dc=com',
-    userNameAttribute: 'uid',
-    groupObjectClass: 'groupOfNames',
-    membershipAttribute: 'member'
-  }}>
+const DirectorySettingsView = ({probe, probeAttributeMapping, probeValue = [], id, disabled, ldapUseCase, probeLdapDir}) => (
+  <Stage id={id}>
     <Title>LDAP Directory Structure</Title>
     <Description>
       Next we need to configure the directories to for users/members and the attributes to use.
       Below is the LDAP Query Tool, capable of executing queries against the connected LDAP to discover the required field values
     </Description>
-    <Input id='baseUserDn' disabled={disabled} label='Base User DN' />
-    <Input id='userNameAttribute' disabled={disabled} label='User Name Attribute' />
-    <Input id='baseGroupDn' disabled={disabled} label='Base Group DN' />
+    <InputAuto id='baseUserDn' disabled={disabled} label='Base User DN' />
+    <InputAuto id='userNameAttribute' disabled={disabled} label='User Name Attribute' />
+    <InputAuto id='baseGroupDn' disabled={disabled} label='Base Group DN' />
     {ldapUseCase === 'loginAndCredentialStore' || ldapUseCase === 'credentialStore'
       ? <div>
-        <Input id='groupObjectClass' disabled={disabled} label='LDAP Group ObjectClass' />
-        <Input id='membershipAttribute' disabled={disabled} label='LDAP Membership Attribute' />
+        <InputAuto id='groupObjectClass' disabled={disabled} label='LDAP Group ObjectClass' />
+        <InputAuto id='membershipAttribute' disabled={disabled} label='LDAP Membership Attribute' />
       </div>
       : null}
     <Card >
@@ -270,8 +261,8 @@ const QueryView = ({probe, probeAttributeMapping, probeValue = [], id, disabled,
         showExpandableButton
       />
       <CardActions expandable style={{margin: '5px'}}>
-        <Input id='query' disabled={disabled} label='Query' />
-        <Input id='queryBase' disabled={disabled} label='Query Base DN' />
+        <InputAuto id='query' disabled={disabled} label='Query' />
+        <InputAuto id='queryBase' disabled={disabled} label='Query Base DN' />
 
         <div style={{textAlign: 'right', marginTop: 20}}>
           <FlatButton disabled={disabled} secondary label='run query' onClick={() => probe('/admin/wizard/probe/ldap/ldapQuery')} />
@@ -289,9 +280,10 @@ const QueryView = ({probe, probeAttributeMapping, probeValue = [], id, disabled,
     </Card>
 
     <StageControls>
+      <RaisedButton label='Lookup LDAP Directory' disabled={disabled} primary onClick={() => probeLdapDir()} />
       <Back disabled={disabled} />
       {ldapUseCase === 'loginAndCredentialStore' || ldapUseCase === 'credentialStore'
-        ? (<ProbeAndNext id={id}
+        ? (<ProbeAndNext id={id} disabled={disabled}
           url='/admin/wizard/test/ldap/testLdapDirStruct'
           probe={() => probeAttributeMapping('/admin/wizard/probe/ldap/subjectAttributeMap', 'attributeMapping')} />)
         : (<Next id={id}
@@ -302,10 +294,10 @@ const QueryView = ({probe, probeAttributeMapping, probeValue = [], id, disabled,
   </Stage>
 )
 
-const Query = connect(
+const DirectorySettings = connect(
     (state) => ({probeValue: getProbeValue(state), ldapUseCase: getLdapUseCase(state)}),
-    {probe, probeAttributeMapping}
-)(QueryView)
+    {probe, probeAttributeMapping, probeLdapDir}
+)(DirectorySettingsView)
 
 const LdapAttributeMappingStageView = (props) => {
   const {
@@ -449,7 +441,7 @@ let stageMapper = (stage, key) => {
     configureEmbeddedLdap: <ConfigureEmbeddedLdap id='configure-embedded-ldap' key={key} />,
     networkSettings: <NetworkSettings id='network-settings' key={key} />,
     bindSettings: <BindSettings id='bind-settings' key={key} />,
-    query: <Query id='ldap-query' key={key} />,
+    directorySettings: <DirectorySettings id='dir-settings' key={key} />,
     attributeMapping: <LdapAttributeMappingStage id='attribute-mapping' key={key} />,
     confirm: <Confirm id='ldap-save' key={key} />
   }

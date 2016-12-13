@@ -5,7 +5,7 @@ export const getConfig = (state, id) => state.getIn(['config'].concat(id), Map()
 export const getAllConfig = (state) => state.get('config').map((config) => config.get('value')).toJS()
 
 // TODO: add reducer checks for the wizardClear action to reset the state to defaults
-const config = (state = Map(), { type, id, value, values, messages }) => {
+const config = (state = Map(), { type, id, value, values, messages, options }) => {
   switch (type) {
     case 'EDIT_CONFIG':
       return state.setIn([id, 'value'], value)
@@ -15,6 +15,8 @@ const config = (state = Map(), { type, id, value, values, messages }) => {
       return fromJS(state).map((stateValue) => fromJS({stateValue})).merge(formattedSource)
     case 'SET_DEFAULTS':
       return fromJS(values).map((value) => fromJS({ value })).merge(state)
+    case 'SET_OPTIONS':
+      return state.merge(fromJS(options).map((options) => fromJS({ options })))
     case 'CLEAR_CONFIG':
       return state.clear()
     case 'SET_MESSAGES':

@@ -87,8 +87,8 @@ abstract class ServerGuesser {
         return contexts;
     }
 
-    String getUserNameAttribute() {
-        return "uid";
+    List<String> getUserNameAttribute() {
+        return ImmutableList.of("uid");
     }
 
     List<String> getGroupObjectClass() {
@@ -205,8 +205,8 @@ abstract class ServerGuesser {
         }
 
         @Override
-        String getUserNameAttribute() {
-            return "sAMAccountName";
+        List<String> getUserNameAttribute() {
+            return Collections.singletonList("sAMAccountName");
         }
 
         @Override

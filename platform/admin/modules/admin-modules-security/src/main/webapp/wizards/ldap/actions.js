@@ -18,6 +18,7 @@ export const setMappingToAdd = (mapping) => ({type: 'SET_SELECTED_MAPPING', mapp
 export const addMapping = (mapping) => ({type: 'ADD_MAPPING', mapping})
 export const setSelectedMappings = (indexs) => ({type: 'SELECT_MAPPINGS', indexs})
 export const removeSelectedMappings = () => ({type: 'REMOVE_SELECTED_MAPPINGS'})
+export const setOptions = (options) => ({type: 'SET_OPTIONS', options})
 
 export const probe = (url) => (dispatch, getState) => {
   const config = getAllConfig(getState())
@@ -77,6 +78,7 @@ export const probeLdapDir = () => (dispatch, getState) => {
     .then(([status, json]) => {
       if (status === 200) {
         console.log(json)
+        dispatch(setOptions(json.probeResults))
       }
     })
     .catch(() => {
