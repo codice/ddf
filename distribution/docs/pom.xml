@@ -57,11 +57,6 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
                 <properties>
-                    <asciidoctor.maven.plugin.version>1.5.3</asciidoctor.maven.plugin.version>
-                    <asciidoctorj.version>1.5.4.1</asciidoctorj.version>
-                    <asciidoctorj.diagram.version>1.5.0</asciidoctorj.diagram.version>
-                    <asciidoctorj.pdf.version>1.5.0-alpha.11</asciidoctorj.pdf.version>
-                    <jruby.version>1.7.25</jruby.version>
                     <packaging>pom</packaging>
                     <module>docs</module>
                     <skipTests>false</skipTests>
