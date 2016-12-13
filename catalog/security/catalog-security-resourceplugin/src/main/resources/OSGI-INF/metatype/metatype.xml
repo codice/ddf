@@ -18,12 +18,12 @@
          id="org.codice.ddf.catalog.security.ResourceUriPolicy">
 
         <AD description="Allow users to provide a URI when creating a metacard"
-            name="Permit Resource URI on Creation" id="permitResourceUriOnCreation" required="true"
+            name="Permit Resource URI on Creation" id="createPermissions" required="true"
             type="String" cardinality="1000"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"/>/>
 
         <AD description="Allow users to provide a URI when updating a metacard"
-            name="Permit Resource URI on Update" id="permitResourceUriOnUpdate" required="true"
+            name="Permit Resource URI on Update" id="updatePermissions" required="true"
             type="String" cardinality="1000"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"/>/>
     </OCD>
