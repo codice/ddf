@@ -28,12 +28,12 @@
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="createPermissions">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin</value>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
             </array>
         </property>
         <property name="updatePermissions">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin</value>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
             </array>
         </property>
     </bean>
