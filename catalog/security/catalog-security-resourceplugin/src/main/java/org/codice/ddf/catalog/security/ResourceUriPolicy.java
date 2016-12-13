@@ -162,12 +162,12 @@ public class ResourceUriPolicy implements PolicyPlugin {
         this.updatePermissions = updatePermissions == null ? null : updatePermissions.clone();
     }
 
-    protected Metacard getMetacardFromCatalog(String id) {
+    protected Metacard getMetacardFromCatalog(String id) throws StopProcessingException {
         Filter filter = filterBuilder.attribute(Metacard.ID)
                 .is()
                 .equalTo()
                 .text(id);
-        Query query = new QueryImpl(filter);
+        Query query = new QueryImpl(filter, 0, 0, null, true, 10000);
         QueryRequest queryRequest = new QueryRequestImpl(query);
         QueryResponse queryResponse;
         try {
@@ -175,8 +175,13 @@ public class ResourceUriPolicy implements PolicyPlugin {
         } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             throw new RuntimeException(e);
         }
-        Result queryResult = queryResponse.getResults()
-                .get(0);
-        return queryResult.getMetacard();
+
+        List<Result> results = queryResponse.getResults();
+        if (results.isEmpty()) {
+            throw new StopProcessingException("Cannot locate metacard to be updated");
+        }
+
+        return results.get(0)
+                .getMetacard();
     }
 }
