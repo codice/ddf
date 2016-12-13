@@ -51,6 +51,8 @@ public class InternationalStringTypeHelperTest {
                     ITALY);
 
     private static final String DEF_LOCALE_NAME = "deflocale";
+    
+    private static final String TAIWAN = "taiwan";
 
     private static final String EMPTY_STRING = "";
 
@@ -65,10 +67,6 @@ public class InternationalStringTypeHelperTest {
 
         String istString = istHelper.getString(ist);
 
-        if (!isDefaultLocaleInTestSet()) {
-            assertThat(istString, is(equalTo(DEF_LOCALE_NAME)));
-        }
-
         istHelper.setLocale(Locale.US);
         istString = istHelper.getString(ist);
         assertThat(istString, is(equalTo(US)));
@@ -80,6 +78,14 @@ public class InternationalStringTypeHelperTest {
         istHelper.setLocale(Locale.ITALY);
         istString = istHelper.getString(ist);
         assertThat(istString, is(equalTo(ITALY)));
+    }
+
+    @Test
+    public void testGetStringWithDefaultLocale() throws Exception {
+        InternationalStringType ist = getTestInternationalStringWithDefault();
+
+        String istString = istHelper.getString(ist);
+        assertThat(istString, is(equalTo(DEF_LOCALE_NAME)));
     }
 
     @Test
@@ -155,6 +161,7 @@ public class InternationalStringTypeHelperTest {
 
     private InternationalStringType getTestInternationalStringType() {
         InternationalStringType ist = RIM_FACTORY.createInternationalStringType();
+        
         for (Map.Entry<String, String> row : LOCALE_MAP.entrySet()) {
             LocalizedStringType localizedStringType = RIM_FACTORY.createLocalizedStringType();
             localizedStringType.setLang(row.getKey());
@@ -162,19 +169,25 @@ public class InternationalStringTypeHelperTest {
             ist.getLocalizedString().add(localizedStringType);
         }
 
-        if (!isDefaultLocaleInTestSet()) {
-            LocalizedStringType lstLocale = RIM_FACTORY.createLocalizedStringType();
-            lstLocale.setLang(Locale.getDefault().toLanguageTag());
-            lstLocale.setValue(DEF_LOCALE_NAME);
-            ist.getLocalizedString()
-                    .add(lstLocale);
-        }
-
         return ist;
     }
-
-    private boolean isDefaultLocaleInTestSet() {
-        return LOCALE_MAP.keySet().contains(Locale.getDefault().toLanguageTag());
+    
+    private InternationalStringType getTestInternationalStringWithDefault(){
+        InternationalStringType ist = RIM_FACTORY.createInternationalStringType();
+        
+        LocalizedStringType lstLocale = RIM_FACTORY.createLocalizedStringType();
+        lstLocale.setLang(Locale.getDefault().toLanguageTag());
+        lstLocale.setValue(DEF_LOCALE_NAME);
+        ist.getLocalizedString()
+                .add(lstLocale);
+        
+        LocalizedStringType lstTaiwan = RIM_FACTORY.createLocalizedStringType(); 
+        lstTaiwan.setLang(Locale.TAIWAN.toLanguageTag()); 
+        lstTaiwan.setValue(TAIWAN); 
+        ist.getLocalizedString()
+            .add(lstTaiwan);
+        
+        return ist;
     }
 
 }
