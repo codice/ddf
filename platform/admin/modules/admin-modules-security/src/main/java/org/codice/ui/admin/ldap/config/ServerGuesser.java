@@ -39,6 +39,7 @@ import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
@@ -90,12 +91,12 @@ abstract class ServerGuesser {
         return "uid";
     }
 
-    String getGroupObjectClass() {
-        return "groupOfNames";
+    List<String> getGroupObjectClass() {
+        return ImmutableList.of("groupOfNames", "group");
     }
 
-    String getMembershipAttribute() {
-        return "member";
+    List<String> getMembershipAttribute() {
+        return ImmutableList.of("member", "uniqueMember");
     }
 
     List<String> getUserBaseChoices() {
@@ -103,7 +104,7 @@ abstract class ServerGuesser {
     }
 
     List<String> getGroupBaseChoices() {
-        return getChoices("(|(ou=group*)(name=group*)(cn=group*))");
+        return getChoices("(|(ou=group*)(name=group*)(cn=group*)(objectClass=groupOfUniqueNames))");
     }
 
     Set<String> getClaimAttributeOptions(String baseGroupDn, String membershipAttribute)
@@ -209,8 +210,13 @@ abstract class ServerGuesser {
         }
 
         @Override
-        String getGroupObjectClass() {
-            return "group";
+        List<String> getGroupObjectClass() {
+            return Collections.singletonList("group");
+        }
+
+        @Override
+        List<String> getMembershipAttribute() {
+            return Collections.singletonList("member");
         }
     }
 
@@ -229,6 +235,16 @@ abstract class ServerGuesser {
         @Override
         List<String> getGroupBaseChoices() {
             return Collections.singletonList("ou=groups,dc=example,dc=com");
+        }
+
+        @Override
+        List<String> getGroupObjectClass() {
+            return Collections.singletonList("groupOfNames");
+        }
+
+        @Override
+        List<String> getMembershipAttribute() {
+            return Collections.singletonList("member");
         }
     }
 
