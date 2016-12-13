@@ -18,16 +18,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.forgerock.opendj.ldap.ByteString;
 import org.forgerock.opendj.ldap.Connection;
+import org.forgerock.opendj.ldap.DN;
+import org.forgerock.opendj.ldap.LdapException;
+import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
+import org.forgerock.opendj.ldap.schema.AttributeType;
+import org.forgerock.opendj.ldap.schema.ObjectClass;
+import org.forgerock.opendj.ldap.schema.ObjectClassType;
+import org.forgerock.opendj.ldap.schema.Schema;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 abstract class ServerGuesser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerGuesser.class);
@@ -48,7 +61,8 @@ abstract class ServerGuesser {
     }
 
     static ServerGuesser buildGuesser(String ldapType, Connection connection) {
-        return GUESSER_LOOKUP.get(ldapType)
+        return Optional.ofNullable(GUESSER_LOOKUP.get(ldapType))
+                .orElse(DefaultGuesser::new)
                 .apply(connection);
     }
 
@@ -72,6 +86,44 @@ abstract class ServerGuesser {
 
     List<String> getGroupBaseChoices() {
         return getChoices("(|(ou=group*)(name=group*)(cn=group*))");
+    }
+
+    Set<String> getClaimAttributeOptions(String baseGroupDn, String membershipAttribute)
+            throws SearchResultReferenceIOException, LdapException {
+
+        // Using the base group DN and membership attributes to constrain search,
+        // find one user's DN
+        ConnectionEntryReader reader = connection.search(baseGroupDn,
+                SearchScope.WHOLE_SUBTREE,
+                String.format("%s=*", membershipAttribute),
+                membershipAttribute);
+        SearchResultEntry searchResultEntry = reader.readEntry();
+        String tokenUserDn = searchResultEntry.getAttribute(membershipAttribute)
+                .firstValueAsString();
+
+        // Find the names of all the objectClasses the directory entry of that user has
+        Set<String> objectClassNames = connection.readEntry(DN.valueOf(tokenUserDn))
+                .getAttribute("objectClass")
+                .stream()
+                .map(ByteString::toString)
+                .collect(Collectors.toSet());
+
+        // Read the schema and filter for structural objectClasses that are in the set associated
+        // with the above user
+        Schema schema = Schema.readSchemaForEntry(connection, DN.valueOf(tokenUserDn));
+        Set<ObjectClass> objectClasses = schema.getObjectClasses()
+                .stream()
+                .filter(oc -> oc.getObjectClassType() == ObjectClassType.STRUCTURAL)
+                .filter(oc -> objectClassNames.contains(oc.getNameOrOID()))
+                .collect(Collectors.toSet());
+
+        // Return the required and optional eattributes names from the full set of objectClasses
+        return objectClasses.stream()
+                .flatMap(oc -> Sets.union(oc.getDeclaredRequiredAttributes(),
+                        oc.getDeclaredOptionalAttributes())
+                        .stream())
+                .map(AttributeType::getNameOrOID)
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     private List<String> getChoices(String query) {
@@ -104,6 +156,17 @@ abstract class ServerGuesser {
         }
 
         return choices;
+    }
+
+    private static class DefaultGuesser extends ServerGuesser {
+        private DefaultGuesser(Connection connection) {
+            super(connection);
+        }
+
+        @Override
+        List<String> getBaseContexts() throws Exception {
+            return Collections.singletonList("");
+        }
     }
 
     private static class ADGuesser extends ServerGuesser {

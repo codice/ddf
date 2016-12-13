@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,6 +64,8 @@ import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LDAPOptions;
+import org.forgerock.opendj.ldap.LdapException;
+import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
 import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.forgerock.opendj.ldap.requests.DigestMD5SASLBindRequest;
@@ -90,6 +91,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     public static final String LDAP_DIRECTORY_STRUCT_TEST_ID = "testLdapDirStruct";
 
     public static final String LDAP_ATTRIBUTE_MAPPING_TEST_ID = "testAttributeMapping";
+
     // Probe Ids
     public static final String LDAP_QUERY_PROBE_ID = "ldapQuery";
 
@@ -242,22 +244,29 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
         case ATTRIBUTE_MAP_ID:
             // TODO: tbatie - 12/7/16 - Need to also return a default map is embedded ldap and set
-            Object subjectClaims = new Configurator().getConfig("ddf.security.sts.client.configuration").get("claims");
+            Object subjectClaims = new Configurator().getConfig(
+                    "ddf.security.sts.client.configuration")
+                    .get("claims");
+
             // TODO: tbatie - 12/6/16 - Clean up this naming conventions
             LdapTestResult<Connection> connection = bindUserToLdapConnection(configuration);
-            List<SearchResultEntry> ldapSearchResults = getLdapQueryResults(connection.value(),
-                    "objectClass=*",
-                    configuration.queryBase());
-
-            Set<String> ldapEntryAttributes = new HashSet<>();
-            for (SearchResultEntry entry : ldapSearchResults) {
-                for (Attribute attri : entry.getAllAttributes()) {
-                    ldapEntryAttributes.add(attri.getAttributeDescriptionAsString());
-                }
+            Set<String> ldapEntryAttributes = null;
+            try {
+                ServerGuesser serverGuesser = ServerGuesser.buildGuesser(configuration.ldapType(),
+                        connection.value());
+                ldapEntryAttributes =
+                        serverGuesser.getClaimAttributeOptions(configuration.baseGroupDn(),
+                                configuration.membershipAttribute());
+            } catch (SearchResultReferenceIOException | LdapException e) {
+                LOGGER.warn("Error retrieving attributes from LDAP server; this may indicate a "
+                                + "configuration issue with baseGroupDN {} or membershipAttribute {}",
+                        configuration.baseGroupDn(),
+                        configuration.membershipAttribute());
             }
-            // TODO: tbatie - 12/6/16 - Probably need to do some filtering at this part on values like objectClass
+
             return new ProbeReport(new ArrayList<>()).addProbeResult(SUBJECT_CLAIMS_ID,
-                    subjectClaims).addProbeResult(LDAP_USER_ATTRIBUTES, ldapEntryAttributes);
+                    subjectClaims)
+                    .addProbeResult(LDAP_USER_ATTRIBUTES, ldapEntryAttributes);
         }
 
         return new ProbeReport(Arrays.asList(buildMessage(FAILURE, "UNKNOWN PROBE ID")));
@@ -318,10 +327,9 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             } else if (ldapConfiguration.attributeMappings()
                     .values()
                     .stream()
-                    .filter(attriList -> attriList.isEmpty())
-                    .findFirst()
-                    .isPresent()) {
-                return new TestReport(buildMessage(FAILURE, "Cannot map a claim to an empty attribute value."));
+                    .anyMatch(attriList -> attriList.isEmpty())) {
+                return new TestReport(buildMessage(FAILURE,
+                        "Cannot map a claim to an empty attribute value."));
             } else {
                 return new TestReport(buildMessage(SUCCESS, "Successfully validated mapping."));
             }
@@ -426,7 +434,6 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             configurator.startFeature("security-sts-ldapclaimshandler");
             configurator.createManagedService("Claims_Handler_Manager", ldapClaimsHandlerConfig);
         }
-
 
         ConfigReport configReport = configurator.commit();
         if (!configReport.getFailedResults()
