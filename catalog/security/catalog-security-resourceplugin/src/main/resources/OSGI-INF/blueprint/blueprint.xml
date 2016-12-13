@@ -22,7 +22,8 @@
     <bean id="resourceUriPlugin"
           class="org.codice.ddf.catalog.security.ResourceUriPolicy">
         <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.security.ResourceUriPolicy"/>
+                persistent-id="org.codice.ddf.catalog.security.ResourceUriPolicy"
+                update-strategy="container-managed"/>
         <property name="catalogFramework" ref="catalogFramework"/>
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="createPermissions">

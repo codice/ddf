@@ -15,12 +15,15 @@ package org.codice.ddf.catalog.security;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +35,8 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 
 public class ResourceUriPolicyTest {
+
+    private String key;
 
     @Before
     public void setUp() throws Exception {
@@ -75,10 +80,12 @@ public class ResourceUriPolicyTest {
                 new String[] {"role=admin", "fizzle=bang"});
 
         PolicyResponse response = policyPlugin.processPreUpdate(getMockMetacard(""), null);
+        Map<String, Set<String>> itemPolicy = response.itemPolicy();
 
-        assertEmptyResponse(
+        assertThat(
                 "If metacard has resource URI, but update does not, policy needed to ensure no overwriting occurs",
-                response);  // will need to change assert based on test
+                itemPolicy.isEmpty(),
+                is(false));
     }
 
     @Test
@@ -90,10 +97,12 @@ public class ResourceUriPolicyTest {
                 new String[] {"role=admin", "fizzle=bang"});
 
         PolicyResponse response = policyPlugin.processPreUpdate(getMockMetacard("sampleURI"), null);
+        Map<String, Set<String>> itemPolicy = response.itemPolicy();
 
-        assertEmptyResponse(
+        assertThat(
                 "If metacard has no resource URI, but update does, policy needed to ensure no overwriting occurs",
-                response);  // will need to change assert based on test
+                itemPolicy.isEmpty(),
+                is(false));
     }
 
     @Test
@@ -106,10 +115,32 @@ public class ResourceUriPolicyTest {
 
         PolicyResponse response = policyPlugin.processPreUpdate(getMockMetacard("differentURI"),
                 null);
+        Map<String, Set<String>> itemPolicy = response.itemPolicy();
 
-        assertEmptyResponse(
+        assertThat(
                 "If metacard and update each has resource URI, but differ, policy needed to ensure no overwriting occurs",
-                response);  // will need to change assert based on test
+                itemPolicy.isEmpty(),
+                is(false));
+    }
+
+    @Test
+    public void testCreatePermission() throws URISyntaxException, StopProcessingException {
+        String key = "baz";
+        String value = "foo";
+
+        PolicyPlugin policyPlugin = getPolicyPlugin("",
+                new String[] {"role=admin", key + "=" + value},
+                new String[] {"role=admin", "fizzle=bang"});
+
+        PolicyResponse response = policyPlugin.processPreCreate(getMockMetacard("sampleURI"), null);
+        Map<String, Set<String>> itemPolicy = response.itemPolicy();
+
+        assertThat("Creating a metacard with a resource URI requires special permissions",
+                itemPolicy.containsKey(key),
+                is(true));
+
+        assertThat(itemPolicy.get(key), containsInAnyOrder(value));
+
     }
 
     private ResourceUriPolicy getPolicyPlugin(String catalogResourceUri,

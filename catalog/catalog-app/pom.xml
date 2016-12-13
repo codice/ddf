@@ -535,10 +535,5 @@
             <artifactId>catalog-security-resourceplugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-resourceplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 </project>
