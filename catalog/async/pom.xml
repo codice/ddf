@@ -29,7 +29,10 @@
 
     <modules>
         <module>catalog-async-processingframework-api</module>
+        <module>catalog-async-processingframework</module>
+        <module>catalog-async-postingestplugin</module>
         <module>catalog-async-plugin-api</module>
+        <module>catalog-async-data</module>
         <module>catalog-async-data-api</module>
     </modules>
 
