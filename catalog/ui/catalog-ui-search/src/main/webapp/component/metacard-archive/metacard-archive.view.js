@@ -119,8 +119,9 @@ define([
                         var loadingView = new LoadingView();
                         $.whenAll.apply(this, this.model.map(function(result) {
                             return $.get('/search/catalog/internal/history/' +
+                                'revert/' +
                                 result.get('metacard').get('properties').get('metacard.deleted.id') +
-                                '/revert/' +
+                                '/' +
                                 result.get('metacard').get('properties').get('metacard.deleted.version')).then(function(response) {
                                     ResultUtils.refreshResult(result);
                             }.bind(this));

@@ -81,8 +81,7 @@ public class ExperimentalEnumerationExtractor {
                 .stream()
                 .flatMap(ad -> attributeValidatorRegistry.getValidators(ad.getName())
                         .stream()
-                        .map(av -> av.validate(new AttributeImpl(ad.getName(),
-                                "null"))))
+                        .map(av -> av.validate(new AttributeImpl(ad.getName(), "null"))))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .filter(avr -> !avr.getSuggestedValues()

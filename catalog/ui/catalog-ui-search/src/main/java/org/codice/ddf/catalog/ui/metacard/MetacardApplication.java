@@ -251,7 +251,7 @@ public class MetacardApplication implements SparkApplication {
             return util.getJson(response);
         });
 
-        get("/history/:id/revert/:revertid", (req, res) -> {
+        get("/history/revert/:id/:revertid", (req, res) -> {
             String id = req.params(":id");
             String revertId = req.params(":revertid");
 

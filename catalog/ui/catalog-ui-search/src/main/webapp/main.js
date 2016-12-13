@@ -41,9 +41,17 @@ require([
         }
 
         if (!settings.customErrorHandling) {
+            var defaultTitle = 'Server Error';
+            var defaultMessage = 'Unknown error.';
+
+            if (jqxhr.status === 403) {
+                defaultTitle = 'Forbidden';
+                defaultMessage = 'Not Authorized';
+            }
+
             announcement.announce({
-                title: 'Server Error',
-                message: message || 'Unknown error.',
+                title: defaultTitle,
+                message: message || defaultMessage,
                 type: 'error'
             });
         }

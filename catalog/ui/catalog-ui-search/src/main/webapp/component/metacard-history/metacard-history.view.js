@@ -96,7 +96,7 @@ define([
         revertToSelectedVersion: function(){
             LoadingCompanionView.beginLoading(this);
             var self = this;
-            $.get('/search/catalog/internal/history/'+this.model.get('metacard').get('id')+'/revert/'+selectedVersion).then(function(response){
+            $.get('/search/catalog/internal/history/revert/'+this.model.get('metacard').get('id')+'/'+selectedVersion).then(function(response){
                 self.model.get('metacard').get('properties').set(response.metacards[0]);
             }).always(function(){
                 setTimeout(function(){  //let solr flush
