@@ -735,6 +735,10 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             probeReport.addProbeResult("userNameAttribute", guesser.getUserNameAttribute());
             probeReport.addProbeResult("groupObjectClass", guesser.getGroupObjectClass());
             probeReport.addProbeResult("membershipAttribute", guesser.getMembershipAttribute());
+
+            // TODO RAP 13 Dec 16: Better query, perhaps driven by guessers?
+            probeReport.addProbeResult("query", Collections.singletonList("objectClass=*"));
+            probeReport.addProbeResult("queryBase", guesser.getBaseContexts());
         }
 
         return probeReport;

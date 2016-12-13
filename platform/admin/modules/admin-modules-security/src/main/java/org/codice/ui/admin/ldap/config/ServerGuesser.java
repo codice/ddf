@@ -68,23 +68,28 @@ abstract class ServerGuesser {
                 .apply(connection);
     }
 
-    List<String> getBaseContexts() throws Exception {
-        ConnectionEntryReader reader = connection.search("",
-                SearchScope.BASE_OBJECT,
-                "(objectClass=*)",
-                "namingContexts");
+    List<String> getBaseContexts() {
+        try {
+            ConnectionEntryReader reader = connection.search("",
+                    SearchScope.BASE_OBJECT,
+                    "(objectClass=*)",
+                    "namingContexts");
 
-        ArrayList<String> contexts = new ArrayList<>();
-        while (reader.hasNext()) {
-            contexts.add(reader.readEntry()
-                    .getAttribute("namingContexts")
-                    .firstValueAsString());
-        }
+            ArrayList<String> contexts = new ArrayList<>();
+            while (reader.hasNext()) {
+                contexts.add(reader.readEntry()
+                        .getAttribute("namingContexts")
+                        .firstValueAsString());
+            }
 
-        if (contexts.isEmpty()) {
-            contexts.add("");
+            if (contexts.isEmpty()) {
+                contexts.add("");
+            }
+            return contexts;
+        } catch (LdapException | SearchResultReferenceIOException e) {
+            LOGGER.debug("Error getting baseContext", e);
+            return Collections.singletonList("");
         }
-        return contexts;
     }
 
     List<String> getUserNameAttribute() {
@@ -146,13 +151,7 @@ abstract class ServerGuesser {
     }
 
     private List<String> getChoices(String query) {
-        List<String> baseContexts;
-        try {
-            baseContexts = getBaseContexts();
-        } catch (Exception e) {
-            LOGGER.debug("Error getting baseContext", e);
-            return Collections.emptyList();
-        }
+        List<String> baseContexts = getBaseContexts();
 
         List<String> choices = new ArrayList<>();
         for (String baseContext : baseContexts) {
@@ -189,17 +188,22 @@ abstract class ServerGuesser {
         }
 
         @Override
-        List<String> getBaseContexts() throws Exception {
-            ConnectionEntryReader reader = connection.search("",
-                    SearchScope.BASE_OBJECT,
-                    "(objectClass=*)",
-                    "rootDomainNamingContext");
+        List<String> getBaseContexts() {
+            try {
+                ConnectionEntryReader reader = connection.search("",
+                        SearchScope.BASE_OBJECT,
+                        "(objectClass=*)",
+                        "rootDomainNamingContext");
 
-            if (reader.hasNext()) {
-                return Collections.singletonList(reader.readEntry()
-                        .getAttribute("rootDomainNamingContext")
-                        .firstValueAsString());
-            } else {
+                if (reader.hasNext()) {
+                    return Collections.singletonList(reader.readEntry()
+                            .getAttribute("rootDomainNamingContext")
+                            .firstValueAsString());
+                } else {
+                    return Collections.singletonList("");
+                }
+            } catch (LdapException | SearchResultReferenceIOException e) {
+                LOGGER.debug("Error getting baseContext", e);
                 return Collections.singletonList("");
             }
         }
