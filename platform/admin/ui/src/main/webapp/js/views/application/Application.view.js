@@ -34,6 +34,11 @@ define([
 ], function(require, Backbone, Marionette, ich, _, $, applicationTemplate, applicationNodeTemplate, detailsTemplate, applicationNew, mvnItemTemplate, fileProgress, Properties) {
     "use strict";
 
+    var DetailsView = Marionette.ItemView.extend({
+        template: 'detailsTemplate',
+        tagName: 'div'
+    });
+
     // assume hard-coded apps unless configuration is set.  then we use that.
     var disableList = [
         'platform-app',
@@ -480,11 +485,6 @@ define([
                 setErrorState(that, child);
             });
         }
-    });
-
-    var DetailsView = Marionette.ItemView.extend({
-        template: 'detailsTemplate',
-        tagName: 'div'
     });
 
     return ApplicationView;

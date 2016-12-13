@@ -98,12 +98,6 @@ define(['application',
                 mapView = new Map2d();
             }
             if (mapView) {
-                MapModule.addInitializer(function () {
-                    MapModule.contentController = new Controller({
-                        region: Application.App.mapRegion
-                    });
-                    MapModule.contentController.show();
-                });
                 var Controller = Marionette.Controller.extend({
 
                     initialize: function (options) {
@@ -114,6 +108,12 @@ define(['application',
                         this.region.show(mapView);
                     }
 
+                });
+                MapModule.addInitializer(function () {
+                    MapModule.contentController = new Controller({
+                        region: Application.App.mapRegion
+                    });
+                    MapModule.contentController.show();
                 });
             }
         });
