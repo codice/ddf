@@ -45,14 +45,15 @@ import com.google.common.collect.Sets;
 abstract class ServerGuesser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerGuesser.class);
 
-    // TODO RAP 07 Dec 16: Add OpenDJ guesser
     private static final Map<String, Function<Connection, ServerGuesser>> GUESSER_LOOKUP =
             ImmutableMap.of("activeDirectory",
                     ServerGuesser.ADGuesser::new,
                     "embeddedLdap",
                     ServerGuesser.EmbeddedGuesser::new,
                     "openLdap",
-                    ServerGuesser.OpenLdapGuesser::new);
+                    ServerGuesser.OpenLdapGuesser::new,
+                    "openDj",
+                    ServerGuesser.OpenDjGuesser::new);
 
     protected final Connection connection;
 
@@ -66,7 +67,24 @@ abstract class ServerGuesser {
                 .apply(connection);
     }
 
-    abstract List<String> getBaseContexts() throws Exception;
+    List<String> getBaseContexts() throws Exception {
+        ConnectionEntryReader reader = connection.search("",
+                SearchScope.BASE_OBJECT,
+                "(objectClass=*)",
+                "namingContexts");
+
+        ArrayList<String> contexts = new ArrayList<>();
+        while (reader.hasNext()) {
+            contexts.add(reader.readEntry()
+                    .getAttribute("namingContexts")
+                    .firstValueAsString());
+        }
+
+        if (contexts.isEmpty()) {
+            contexts.add("");
+        }
+        return contexts;
+    }
 
     String getUserNameAttribute() {
         return "uid";
@@ -138,7 +156,7 @@ abstract class ServerGuesser {
         List<String> choices = new ArrayList<>();
         for (String baseContext : baseContexts) {
             try (ConnectionEntryReader reader = connection.search(baseContext,
-                    SearchScope.SINGLE_LEVEL,
+                    SearchScope.WHOLE_SUBTREE,
                     query)) {
                 while (reader.hasNext()) {
                     if (!reader.isReference()) {
@@ -162,11 +180,6 @@ abstract class ServerGuesser {
         private DefaultGuesser(Connection connection) {
             super(connection);
         }
-
-        @Override
-        List<String> getBaseContexts() throws Exception {
-            return Collections.singletonList("");
-        }
     }
 
     private static class ADGuesser extends ServerGuesser {
@@ -181,9 +194,13 @@ abstract class ServerGuesser {
                     "(objectClass=*)",
                     "rootDomainNamingContext");
 
-            return Collections.singletonList(reader.readEntry()
-                    .getAttribute("rootDomainNamingContext")
-                    .firstValueAsString());
+            if (reader.hasNext()) {
+                return Collections.singletonList(reader.readEntry()
+                        .getAttribute("rootDomainNamingContext")
+                        .firstValueAsString());
+            } else {
+                return Collections.singletonList("");
+            }
         }
 
         @Override
@@ -200,11 +217,6 @@ abstract class ServerGuesser {
     private static class EmbeddedGuesser extends ServerGuesser {
         private EmbeddedGuesser(Connection connection) {
             super(connection);
-        }
-
-        @Override
-        List<String> getBaseContexts() throws Exception {
-            return Collections.emptyList();
         }
 
         // TODO RAP 07 Dec 16: Will more likely execute queries for these values and remove
@@ -224,22 +236,11 @@ abstract class ServerGuesser {
         private OpenLdapGuesser(Connection connection) {
             super(connection);
         }
+    }
 
-        @Override
-        List<String> getBaseContexts() throws Exception {
-            ConnectionEntryReader reader = connection.search("",
-                    SearchScope.BASE_OBJECT,
-                    "(objectClass=*)",
-                    "namingContexts");
-
-            ArrayList<String> contexts = new ArrayList<>();
-            while (reader.hasNext()) {
-                contexts.add(reader.readEntry()
-                        .getAttribute("namingContext")
-                        .firstValueAsString());
-            }
-
-            return contexts;
+    private static class OpenDjGuesser extends ServerGuesser {
+        private OpenDjGuesser(Connection connection) {
+            super(connection);
         }
     }
 }
