@@ -21,6 +21,8 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -75,10 +77,12 @@ public class ResourceUriPolicyTest {
                 new String[] {"role=admin", "fizzle=bang"});
 
         PolicyResponse response = policyPlugin.processPreUpdate(getMockMetacard(""), null);
+        Map<String, Set<String>> itemPolicy = response.itemPolicy();
 
-        assertEmptyResponse(
+        assertThat(
                 "If metacard has resource URI, but update does not, policy needed to ensure no overwriting occurs",
-                response);  // will need to change assert based on test
+                itemPolicy.isEmpty(),
+                is(false));
     }
 
     @Test
@@ -90,10 +94,12 @@ public class ResourceUriPolicyTest {
                 new String[] {"role=admin", "fizzle=bang"});
 
         PolicyResponse response = policyPlugin.processPreUpdate(getMockMetacard("sampleURI"), null);
+        Map<String, Set<String>> itemPolicy = response.itemPolicy();
 
-        assertEmptyResponse(
+        assertThat(
                 "If metacard has no resource URI, but update does, policy needed to ensure no overwriting occurs",
-                response);  // will need to change assert based on test
+                itemPolicy.isEmpty(),
+                is(false));
     }
 
     @Test
@@ -106,10 +112,12 @@ public class ResourceUriPolicyTest {
 
         PolicyResponse response = policyPlugin.processPreUpdate(getMockMetacard("differentURI"),
                 null);
+        Map<String, Set<String>> itemPolicy = response.itemPolicy();
 
-        assertEmptyResponse(
+        assertThat(
                 "If metacard and update each has resource URI, but differ, policy needed to ensure no overwriting occurs",
-                response);  // will need to change assert based on test
+                itemPolicy.isEmpty(),
+                is(false));
     }
 
     private ResourceUriPolicy getPolicyPlugin(String catalogResourceUri,
