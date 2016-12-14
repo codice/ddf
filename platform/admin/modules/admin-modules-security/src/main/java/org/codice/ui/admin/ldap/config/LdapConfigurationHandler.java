@@ -354,8 +354,9 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             // TODO: tbatie - 12/8/16 - Perform validation
             Map<String, Object> ldapStsConfig = new HashMap<>();
 
-            String ldapUrl = "";
-            boolean startTls = false;
+            String ldapUrl = getLdapUrl(config);
+            boolean startTls = isStartTls(config);
+
             ldapStsConfig.put("ldapBindUserDn", config.bindUserDn());
             ldapStsConfig.put("ldapBindUserPass", config.bindUserPassword());
             ldapStsConfig.put("bindMethod", config.bindUserMethod());
@@ -366,19 +367,6 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             ldapStsConfig.put("userBaseDn", config.baseUserDn());
             ldapStsConfig.put("groupBaseDn", config.baseGroupDn());
 
-            // TODO RAP 08 Dec 16: This is brittle
-            // TODO: tbatie - 12/12/16 - Yeah well I got this from the sts ldap so take that
-            switch (config.encryptionMethod()
-                    .toLowerCase()) {
-            case LDAPS:
-                ldapUrl = "ldaps://";
-                break;
-            case TLS:
-                startTls = true;
-            case NONE:
-                ldapUrl = "ldap://";
-                break;
-            }
             ldapStsConfig.put("ldapUrl", ldapUrl + config.hostName() + ":" + config.port());
             ldapStsConfig.put("startTls", Boolean.toString(startTls));
             configurator.startFeature("security-sts-ldaplogin");
@@ -404,20 +392,9 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
                     "ldapAttributeMap-" + UUID.randomUUID()
                             .toString() + ".props");
             configurator.createPropertyFile(newAttributeMappingPath, transformedAttributeMapping);
-            String ldapUrl = "";
-            boolean startTls = false;
+            String ldapUrl = getLdapUrl(config);
+            boolean startTls = isStartTls(config);
 
-            switch (config.encryptionMethod()
-                    .toLowerCase()) {
-            case LDAPS:
-                ldapUrl = "ldaps://";
-                break;
-            case TLS:
-                startTls = true;
-            case NONE:
-                ldapUrl = "ldap://";
-                break;
-            }
             ldapClaimsHandlerConfig.put("url", ldapUrl + config.hostName() + ":" + config.port());
             ldapClaimsHandlerConfig.put("startTls", startTls);
             ldapClaimsHandlerConfig.put("ldapBindUserDn", config.bindUserDn());
@@ -786,6 +763,16 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         }
 
         return request;
+    }
+
+    private boolean isStartTls(LdapConfiguration config) {
+        return config.encryptionMethod()
+                .equalsIgnoreCase(TLS);
+    }
+
+    private String getLdapUrl(LdapConfiguration config) {
+        return config.encryptionMethod()
+                .equalsIgnoreCase(LDAPS) ? "ldaps://" : "ldap://";
     }
 
     public enum LdapTestResultType {
