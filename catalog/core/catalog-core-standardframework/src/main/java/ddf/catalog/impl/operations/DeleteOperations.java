@@ -121,6 +121,26 @@ public class DeleteOperations {
     //
     public DeleteResponse delete(DeleteRequest deleteRequest, List<String> fanoutTagBlacklist)
             throws IngestException, SourceUnavailableException {
+        DeleteResponse deleteResponse = doDelete(deleteRequest, fanoutTagBlacklist);
+        deleteResponse = doPostIngest(deleteResponse);
+        return deleteResponse;
+    }
+
+    private List<Metacard> getDeleteMetacards(DeleteRequest deleteRequest) {
+        return Optional.of(deleteRequest)
+                .map(Operation::getProperties)
+                .map(p -> p.get(Constants.OPERATION_TRANSACTION_KEY))
+                .filter(OperationTransaction.class::isInstance)
+                .map(OperationTransaction.class::cast)
+                .map(OperationTransaction::getPreviousStateMetacards)
+                .orElseGet(ArrayList::new);
+    }
+
+    //
+    // Private helper methods
+    //
+    public DeleteResponse doDelete(DeleteRequest deleteRequest, List<String> fanoutTagBlacklist)
+            throws IngestException, SourceUnavailableException {
         DeleteStorageRequest deleteStorageRequest = null;
 
         DeleteResponse deleteResponse = null;
@@ -156,7 +176,6 @@ public class DeleteOperations {
 
             // Post results to be available for pubsub
             deleteResponse = validateFixDeleteResponse(deleteResponse, deleteRequest);
-            deleteResponse = processPostIngestPlugins(deleteResponse);
 
         } catch (StopProcessingException see) {
             LOGGER.debug(PRE_INGEST_ERROR + see.getMessage(), see);
@@ -177,22 +196,64 @@ public class DeleteOperations {
             }
         }
 
+        deleteResponse = doPostIngest(deleteResponse);
+
         return deleteResponse;
     }
 
-    private List<Metacard> getDeleteMetacards(DeleteRequest deleteRequest) {
-        return Optional.of(deleteRequest)
-                .map(Operation::getProperties)
-                .map(p -> p.get(Constants.OPERATION_TRANSACTION_KEY))
-                .filter(OperationTransaction.class::isInstance)
-                .map(OperationTransaction.class::cast)
-                .map(OperationTransaction::getPreviousStateMetacards)
-                .orElseGet(ArrayList::new);
+    private DeleteResponse doPostIngest(DeleteResponse currentDeleteResponse) {
+        DeleteResponse deleteResponse = currentDeleteResponse;
+        try {
+            deleteResponse = processPostIngestPlugins(currentDeleteResponse);
+        } catch (RuntimeException re) {
+            LOGGER.info(
+                    "Exception during runtime while performing doing post create operations (plugins and pubsub)",
+                    re);
+        }
+
+        // if debug is enabled then catalog might take a significant performance hit w/r/t string
+        // building
+        if (INGEST_LOGGER.isDebugEnabled()) {
+            INGEST_LOGGER.debug("{} metacards were successfully deleted. {}",
+                    deleteResponse.getDeletedMetacards()
+                            .size(),
+                    buildDeleteLog(deleteResponse));
+        }
+
+        return deleteResponse;
     }
 
-    //
-    // Private helper methods
-    //
+    private String buildDeleteLog(DeleteResponse deleteResponse) {
+        StringBuilder strBuilder = new StringBuilder();
+        List<Metacard> metacards = deleteResponse.getDeletedMetacards();
+
+        String metacardTitleLabel = "Metacard Title: ";
+        String metacardIdLabel = "Metacard ID: ";
+
+        for (int i = 0; i < metacards.size(); i++) {
+            Metacard card = metacards.get(i);
+            strBuilder.append(System.lineSeparator())
+                    .append("Batch #: ")
+                    .append(i + 1)
+                    .append(" | ");
+            if (card != null) {
+                if (card.getTitle() != null) {
+                    strBuilder.append(metacardTitleLabel)
+                            .append(card.getTitle())
+                            .append(" | ");
+                }
+                if (card.getId() != null) {
+                    strBuilder.append(metacardIdLabel)
+                            .append(card.getId())
+                            .append(" | ");
+                }
+            } else {
+                strBuilder.append("Null Metacard");
+            }
+        }
+        return strBuilder.toString();
+    }
+
     private DeleteResponse processPostIngestPlugins(DeleteResponse deleteResponse) {
         for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
             try {

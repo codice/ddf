@@ -137,42 +137,9 @@ public class UpdateOperations {
     //
     public UpdateResponse update(UpdateRequest updateRequest)
             throws IngestException, SourceUnavailableException {
-        updateRequest = queryOperations.setFlagsOnRequest(updateRequest);
-        updateRequest = validateUpdateRequest(updateRequest);
-        updateRequest = validateLocalSource(updateRequest);
-
-        try {
-            updateRequest = injectAttributes(updateRequest);
-            updateRequest = setDefaultValues(updateRequest);
-
-            updateRequest = populateMetacards(updateRequest);
-            updateRequest = processPreAuthorizationPlugins(updateRequest);
-
-            updateRequest = populateUpdateRequestPolicyMap(updateRequest);
-            updateRequest = processPreUpdateAccessPlugins(updateRequest);
-
-            updateRequest = processPreIngestPlugins(updateRequest);
-            updateRequest = validateUpdateRequest(updateRequest);
-
-            // Call the update on the catalog
-            LOGGER.debug("Calling catalog.update() with {} updates.",
-                    updateRequest.getUpdates()
-                            .size());
-
-            UpdateResponse updateResponse = performLocalUpdate(updateRequest);
-            updateResponse = performRemoteUpdate(updateRequest, updateResponse);
-
-            // Handle the posting of messages to pubsub
-            updateResponse = validateFixUpdateResponse(updateResponse, updateRequest);
-            updateResponse = processPostIngestPlugins(updateResponse);
-
-            return updateResponse;
-        } catch (StopProcessingException see) {
-            throw new IngestException(PRE_INGEST_ERROR, see);
-        } catch (RuntimeException re) {
-            throw new InternalIngestException("Exception during runtime while performing update",
-                    re);
-        }
+        UpdateResponse updateResponse = doUpdate(updateRequest);
+        updateResponse = doPostIngest(updateResponse);
+        return updateResponse;
     }
 
     @SuppressWarnings("unchecked")
@@ -256,7 +223,7 @@ public class UpdateOperations {
                             new ArrayList<>(metacardMap.values()));
             updateRequest.setProperties(streamUpdateRequest.getProperties());
             historian.setSkipFlag(updateRequest);
-            updateResponse = update(updateRequest);
+            updateResponse = doUpdate(updateRequest);
             historian.version(streamUpdateRequest, updateStorageResponse, updateResponse);
         } catch (Exception e) {
             if (updateStorageRequest != null) {
@@ -276,12 +243,106 @@ public class UpdateOperations {
             opsStorageSupport.commitAndCleanup(updateStorageRequest, tmpContentPaths);
         }
 
+        updateResponse = doPostIngest(updateResponse);
+
         return updateResponse;
     }
 
     //
     // Private helper methods
     //
+    private UpdateResponse doUpdate(UpdateRequest updateRequest)
+            throws IngestException, SourceUnavailableException {
+        updateRequest = queryOperations.setFlagsOnRequest(updateRequest);
+        updateRequest = validateUpdateRequest(updateRequest);
+        updateRequest = validateLocalSource(updateRequest);
+
+        try {
+            updateRequest = injectAttributes(updateRequest);
+            updateRequest = setDefaultValues(updateRequest);
+
+            updateRequest = populateMetacards(updateRequest);
+            updateRequest = processPreAuthorizationPlugins(updateRequest);
+
+            updateRequest = populateUpdateRequestPolicyMap(updateRequest);
+            updateRequest = processPreUpdateAccessPlugins(updateRequest);
+
+            updateRequest = processPreIngestPlugins(updateRequest);
+            updateRequest = validateUpdateRequest(updateRequest);
+
+            // Call the update on the catalog
+            LOGGER.debug("Calling catalog.update() with {} updates.",
+                    updateRequest.getUpdates()
+                            .size());
+
+            UpdateResponse updateResponse = performLocalUpdate(updateRequest);
+            updateResponse = performRemoteUpdate(updateRequest, updateResponse);
+
+            // Handle the posting of messages to pubsub
+            updateResponse = validateFixUpdateResponse(updateResponse, updateRequest);
+            return updateResponse;
+        } catch (StopProcessingException see) {
+            throw new IngestException(PRE_INGEST_ERROR, see);
+        } catch (RuntimeException re) {
+            throw new InternalIngestException("Exception during runtime while performing update",
+                    re);
+        }
+    }
+
+    private UpdateResponse doPostIngest(UpdateResponse currentUpdateResponse) {
+        UpdateResponse updateResponse = currentUpdateResponse;
+        try {
+            updateResponse = processPostIngestPlugins(currentUpdateResponse);
+        } catch (RuntimeException re) {
+            LOGGER.info(
+                    "Exception during runtime while performing doing post update operations (plugins and pubsub)",
+                    re);
+        }
+
+        // if debug is enabled then catalog might take a significant performance hit w/r/t string
+        // building
+        if (INGEST_LOGGER.isDebugEnabled()) {
+            INGEST_LOGGER.debug("{} metacards were successfully updated. {}",
+                    updateResponse.getRequest().getUpdates()
+                            .size(),
+                    buildUpdateLog(updateResponse.getRequest()));
+        }
+
+        return updateResponse;
+    }
+
+    private String buildUpdateLog(UpdateRequest createReq) {
+        StringBuilder strBuilder = new StringBuilder();
+        List<Metacard> metacards = createReq.getUpdates()
+                .stream()
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+        String metacardTitleLabel = "Metacard Title: ";
+        String metacardIdLabel = "Metacard ID: ";
+
+        for (int i = 0; i < metacards.size(); i++) {
+            Metacard card = metacards.get(i);
+            strBuilder.append(System.lineSeparator())
+                    .append("Batch #: ")
+                    .append(i + 1)
+                    .append(" | ");
+            if (card != null) {
+                if (card.getTitle() != null) {
+                    strBuilder.append(metacardTitleLabel)
+                            .append(card.getTitle())
+                            .append(" | ");
+                }
+                if (card.getId() != null) {
+                    strBuilder.append(metacardIdLabel)
+                            .append(card.getId())
+                            .append(" | ");
+                }
+            } else {
+                strBuilder.append("Null Metacard");
+            }
+        }
+        return strBuilder.toString();
+    }
 
     private UpdateRequest rewriteRequestToAvoidHistoryConflicts(UpdateRequest updateRequest,
             QueryResponse response) {

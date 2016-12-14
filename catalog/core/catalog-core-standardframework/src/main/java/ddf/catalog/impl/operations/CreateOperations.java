@@ -54,7 +54,6 @@ import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.history.Historian;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -108,8 +107,6 @@ public class CreateOperations {
 
     private final OperationsStorageSupport opsStorageSupport;
 
-    private Historian historian;
-
     public CreateOperations(FrameworkProperties frameworkProperties,
             QueryOperations queryOperations, SourceOperations sourceOperations,
             OperationsSecuritySupport opsSecuritySupport,
@@ -130,69 +127,8 @@ public class CreateOperations {
     //
     public CreateResponse create(CreateRequest createRequest)
             throws IngestException, SourceUnavailableException {
-        CreateResponse createResponse = null;
-
-        Exception ingestError = null;
-
-        createRequest = queryOperations.setFlagsOnRequest(createRequest);
-        createRequest = validateCreateRequest(createRequest);
-        createRequest = validateLocalSource(createRequest);
-
-        try {
-            createRequest = injectAttributes(createRequest);
-            createRequest = setDefaultValues(createRequest);
-            createRequest = processPreAuthorizationPlugins(createRequest);
-            createRequest = updateCreateRequestPolicyMap(createRequest);
-            createRequest = processPrecreateAccessPlugins(createRequest);
-
-            createRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
-                                    Collections.emptyList()));
-
-            createRequest = processPreIngestPlugins(createRequest);
-            createRequest = validateCreateRequest(createRequest);
-            createResponse = getCreateResponse(createRequest);
-            createResponse = performRemoteCreate(createRequest, createResponse);
-
-        } catch (IngestException iee) {
-            INGEST_LOGGER.debug("Ingest error", iee);
-            ingestError = iee;
-            throw iee;
-        } catch (StopProcessingException see) {
-            ingestError = see;
-            throw new IngestException(PRE_INGEST_ERROR, see);
-        } catch (RuntimeException re) {
-            ingestError = re;
-            throw new InternalIngestException("Exception during runtime while performing create",
-                    re);
-        } finally {
-            if (ingestError != null && INGEST_LOGGER.isInfoEnabled()) {
-                INGEST_LOGGER.info("Error on create operation. {} metacards failed to ingest. {}",
-                        createRequest.getMetacards()
-                                .size(),
-                        buildIngestLog(createRequest),
-                        ingestError);
-            }
-        }
-
-        try {
-            createResponse = validateFixCreateResponse(createResponse, createRequest);
-            createResponse = processPostIngestPlugins(createResponse);
-        } catch (RuntimeException re) {
-            LOGGER.info(
-                    "Exception during runtime while performing doing post create operations (plugins and pubsub)",
-                    re);
-        }
-
-        // if debug is enabled then catalog might take a significant performance hit w/r/t string
-        // building
-        if (INGEST_LOGGER.isDebugEnabled()) {
-            INGEST_LOGGER.debug("{} metacards were successfully ingested. {}",
-                    createRequest.getMetacards()
-                            .size(),
-                    buildIngestLog(createRequest));
-        }
+        CreateResponse createResponse = doCreate(createRequest);
+        createResponse = doPostIngest(createResponse);
         return createResponse;
     }
 
@@ -258,7 +194,7 @@ public class CreateOperations {
                                     .map(StorageRequest::getProperties)
                                     .orElseGet(HashMap::new));
 
-            createResponse = create(createRequest);
+            createResponse = doCreate(createRequest);
         } catch (IOException | RuntimeException e) {
             if (createStorageRequest != null) {
                 try {
@@ -277,12 +213,95 @@ public class CreateOperations {
             opsStorageSupport.commitAndCleanup(createStorageRequest, tmpContentPaths);
         }
 
+        createResponse = doPostIngest(createResponse);
+
         return createResponse;
     }
 
     //
     // Private helper methods
     //
+    private CreateResponse doCreate(CreateRequest createRequest)
+            throws IngestException, SourceUnavailableException {
+        CreateResponse createResponse = null;
+
+        Exception ingestError = null;
+
+        createRequest = queryOperations.setFlagsOnRequest(createRequest);
+        createRequest = validateCreateRequest(createRequest);
+        createRequest = validateLocalSource(createRequest);
+
+        try {
+            createRequest = injectAttributes(createRequest);
+            createRequest = setDefaultValues(createRequest);
+            createRequest = processPreAuthorizationPlugins(createRequest);
+            createRequest = updateCreateRequestPolicyMap(createRequest);
+            createRequest = processPrecreateAccessPlugins(createRequest);
+
+            createRequest.getProperties()
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
+                                    Collections.emptyList()));
+
+            createRequest = processPreIngestPlugins(createRequest);
+            createRequest = validateCreateRequest(createRequest);
+            createResponse = getCreateResponse(createRequest);
+            createResponse = performRemoteCreate(createRequest, createResponse);
+
+        } catch (IngestException iee) {
+            INGEST_LOGGER.debug("Ingest error", iee);
+            ingestError = iee;
+            throw iee;
+        } catch (StopProcessingException see) {
+            ingestError = see;
+            throw new IngestException(PRE_INGEST_ERROR, see);
+        } catch (RuntimeException re) {
+            ingestError = re;
+            throw new InternalIngestException("Exception during runtime while performing create",
+                    re);
+        } finally {
+            if (ingestError != null && INGEST_LOGGER.isInfoEnabled()) {
+                INGEST_LOGGER.info("Error on create operation. {} metacards failed to ingest. {}",
+                        createRequest.getMetacards()
+                                .size(),
+                        buildIngestLog(createRequest),
+                        ingestError);
+            }
+        }
+
+        try {
+            createResponse = validateFixCreateResponse(createResponse, createRequest);
+        } catch (RuntimeException re) {
+            LOGGER.info(
+                    "Exception during runtime while performing doing post create operations (plugins and pubsub)",
+                    re);
+        }
+
+        return createResponse;
+    }
+
+    private CreateResponse doPostIngest(CreateResponse currentCreateResponse) {
+        CreateResponse createResponse = currentCreateResponse;
+        try {
+            createResponse = processPostIngestPlugins(currentCreateResponse);
+        } catch (RuntimeException re) {
+            LOGGER.info(
+                    "Exception during runtime while performing doing post create operations (plugins and pubsub)",
+                    re);
+        }
+
+        // if debug is enabled then catalog might take a significant performance hit w/r/t string
+        // building
+        if (INGEST_LOGGER.isDebugEnabled()) {
+            INGEST_LOGGER.debug("{} metacards were successfully ingested. {}",
+                    createResponse.getRequest().getMetacards()
+                            .size(),
+                    buildIngestLog(createResponse.getRequest()));
+        }
+
+        return createResponse;
+    }
+
     private boolean blockCreateMetacards(Collection<Metacard> metacards,
             List<String> fanoutBlacklist) {
         return metacards.stream()
