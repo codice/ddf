@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.forgerock.opendj.ldap.ByteString;
@@ -183,6 +185,18 @@ abstract class ServerGuesser {
     }
 
     private static class ADGuesser extends ServerGuesser {
+        private static final Predicate<String> USER_DN_EXC = Pattern.compile(
+                ".*(,|^)cn=system(,|$).*|.*(,|^)cn=builtin(,|$).*",
+                Pattern.CASE_INSENSITIVE)
+                .asPredicate()
+                .negate();
+
+        private static final Predicate<String> GROUP_DN_EXC = Pattern.compile(
+                ".*(,|^)cn=group policy creator owners(,|$).*",
+                Pattern.CASE_INSENSITIVE)
+                .asPredicate()
+                .negate();
+
         private ADGuesser(Connection connection) {
             super(connection);
         }
@@ -221,6 +235,22 @@ abstract class ServerGuesser {
         @Override
         List<String> getMembershipAttribute() {
             return Collections.singletonList("member");
+        }
+
+        @Override
+        List<String> getUserBaseChoices() {
+            return super.getUserBaseChoices()
+                    .stream()
+                    .filter(USER_DN_EXC)
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        List<String> getGroupBaseChoices() {
+            return super.getGroupBaseChoices()
+                    .stream()
+                    .filter(GROUP_DN_EXC)
+                    .collect(Collectors.toList());
         }
     }
 
