@@ -27,6 +27,8 @@ const config = (state = Map(), { type, id, value, values, messages, options }) =
       return state.mergeDeep(errs)
     case 'CLEAR_MESSAGES':
       return state.map((config) => config.delete('error').delete('success'))
+    case 'CLEAR_WIZARD':
+      return Map()
   }
 
   return state
@@ -41,6 +43,8 @@ const messages = (state = Map(), { type, id, messages }) => {
       return state.updateIn([id], List(), m => m.concat(msgs))
     case 'CLEAR_MESSAGES':
       return state.delete(id)
+    case 'CLEAR_WIZARD':
+      return Map()
     default:
       return state
   }
@@ -49,10 +53,14 @@ const messages = (state = Map(), { type, id, messages }) => {
 export const getMessages = (state, id) => state.getIn(['messages', id], List()).toJS()
 
 const probeValue = (state = [], { type, value }) => {
-  if (type === 'SET_PROBE_VALUE') {
-    return value
+  switch (type) {
+    case 'SET_PROBE_VALUE':
+      return value
+    case 'CLEAR_WIZARD':
+      return Map()
+    default:
+      return state
   }
-  return state
 }
 
 const tableMappings = (state = [], { type, mapping, indexs }) => {
@@ -71,6 +79,8 @@ const tableMappings = (state = [], { type, mapping, indexs }) => {
       })
     case 'REMOVE_SELECTED_MAPPINGS':
       return state.filter((mapping) => !mapping.selected)
+    case 'CLEAR_WIZARD':
+      return List()
     default:
       return state
   }
@@ -81,7 +91,8 @@ const mappingToAdd = (state = {}, { type, mapping }) => {
     case 'SET_SELECTED_MAPPING':
       return {subjectClaim: mapping.subjectClaim === undefined ? state.subjectClaim : mapping.subjectClaim,
         userAttribute: mapping.userAttribute === undefined ? state.userAttribute : mapping.userAttribute}
-
+    case 'CLEAR_WIZARD':
+      return Map()
     default:
       return state
   }
@@ -91,6 +102,8 @@ const selectedRemoveAttributeMapping = (state = [], {type, mappings}) => {
   switch (type) {
     case 'ADD_REMOVE_SELECTED_MAPPINGS':
       return state.concat(mappings)
+    case 'CLEAR_WIZARD':
+      return List()
     default:
       return state
   }
@@ -104,6 +117,8 @@ const step = (state = 0, { type }) => {
       return state + 1
     case 'BACK_STEP':
       return (state > 0) ? state - 1 : 0
+    case 'CLEAR_WIZARD':
+      return 0
     default:
       return state
   }
@@ -116,6 +131,8 @@ const submitting = (state = null, { type, id } = {}) => {
     case 'SUBMITTING_START':
       return id
     case 'SUBMITTING_END':
+      return null
+    case 'CLEAR_WIZARD':
       return null
     default:
       return state
