@@ -58,6 +58,8 @@
 
     <!--web context policy manager handler-->
 
+    <reference id="stsClientConfig" interface="ddf.security.sts.client.configuration.STSClientConfiguration" filter="(id=internal)"/>
+
     <reference id="policyManager" interface="org.codice.ddf.security.policy.context.ContextPolicyManager" />
 
     <service id="policyManagerConfigurationHandler"
@@ -65,6 +67,7 @@
 
         <bean class="org.codice.ui.admin.security.policy.context.ContextPolicyManagerHandler">
             <property name="policyManager" ref="policyManager"/>
+            <property name="stsClientConfig" ref="stsClientConfig" />
         </bean>
     </service>
 

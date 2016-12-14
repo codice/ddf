@@ -14,6 +14,7 @@
 package org.codice.ddf.security.policy.context;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Manages and stores all web context policies.
@@ -27,14 +28,19 @@ public interface ContextPolicyManager {
      * @param path - context path
      * @return policy associated with the given path
      */
-    public ContextPolicy getContextPolicy(String path);
+    ContextPolicy getContextPolicy(String path);
 
     /**
      * Returns a Collection of all {@link ContextPolicy} objects
      *
      * @return collection of policies <strong>The returned collection should be unmodifiable</strong>
      */
-    public Collection<ContextPolicy> getAllContextPolicies();
+    Collection<ContextPolicy> getAllContextPolicies();
+
+    /**
+     * List of contexts that have been white listed
+     */
+    List<String> getWhiteListContexts();
 
     /**
      * Sets a policy for a particular path
@@ -42,7 +48,7 @@ public interface ContextPolicyManager {
      * @param path          - context path
      * @param contextPolicy - context policy
      */
-    public void setContextPolicy(String path, ContextPolicy contextPolicy);
+    void setContextPolicy(String path, ContextPolicy contextPolicy);
 
     /**
      * Returns true if the policy is white listed.
@@ -50,5 +56,5 @@ public interface ContextPolicyManager {
      * @param path - - context path
      * @return true if the policy is white listed
      */
-    public boolean isWhiteListed(String path);
+    boolean isWhiteListed(String path);
 }

@@ -23,9 +23,7 @@ import java.util.Set;
 
 public class ContextPolicyBin {
 
-    public String realm() {
-        return realm;
-    }
+    private Set<String> contextPaths;
 
     private String realm;
 
@@ -33,8 +31,6 @@ public class ContextPolicyBin {
     private List<String> authenticationTypes;
 
     private Map<String, String> requiredAttributes;
-
-    private Set<String> contextPaths;
 
     public ContextPolicyBin() {
         authenticationTypes = new ArrayList<>();
@@ -57,6 +53,10 @@ public class ContextPolicyBin {
 
     public Set<String> contextPaths() {
         return contextPaths;
+    }
+
+    public String realm() {
+        return realm;
     }
 
     public ContextPolicyBin authenticationTypes(List<String> authenticationTypes) {

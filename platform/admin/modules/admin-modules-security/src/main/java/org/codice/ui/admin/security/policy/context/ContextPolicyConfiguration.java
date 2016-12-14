@@ -15,6 +15,7 @@
 package org.codice.ui.admin.security.policy.context;
 
 import java.util.List;
+import java.util.Map;
 
 import org.codice.ui.admin.security.policy.context.container.ContextPolicyBin;
 import org.codice.ui.admin.wizard.config.Configuration;
@@ -23,12 +24,23 @@ public class ContextPolicyConfiguration extends Configuration {
 
     private List<ContextPolicyBin> contextPolicyBins;
 
+    private List<String> whiteListContexts;
+
     public List<ContextPolicyBin> contextPolicyBins() {
         return contextPolicyBins;
     }
 
     public ContextPolicyConfiguration contextPolicyBins(List<ContextPolicyBin> contextPolicyBins) {
         this.contextPolicyBins = contextPolicyBins;
+        return this;
+    }
+
+    public List<String> whiteListContexts() {
+        return whiteListContexts;
+    }
+
+    public ContextPolicyConfiguration whiteListContexts(List<String> whiteListContexts) {
+        this.whiteListContexts = whiteListContexts;
         return this;
     }
 }

@@ -14,6 +14,9 @@
 
 package org.codice.ui.admin.security.policy.context;
 
+import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,14 +24,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ui.admin.security.policy.context.container.ContextPolicyBin;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
+import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.ProbeReport;
 import org.codice.ui.admin.wizard.api.TestReport;
+import org.codice.ui.admin.wizard.config.ConfigReport;
 import org.codice.ui.admin.wizard.config.Configurator;
+
+import com.google.common.collect.ImmutableMap;
+
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public class ContextPolicyManagerHandler
         implements ConfigurationHandler<ContextPolicyConfiguration> {
@@ -57,9 +67,10 @@ public class ContextPolicyManagerHandler
 
     private ContextPolicyManager policyManager;
 
+    private STSClientConfiguration stsClientConfig;
+
     @Override
     public ProbeReport probe(String probeId, ContextPolicyConfiguration configuration) {
-
         switch (probeId) {
         case POLICY_OPTIONS_ID:
             // TODO: tbatie - 12/14/16 - Filter the realms based on what is installed in the system
@@ -67,7 +78,7 @@ public class ContextPolicyManagerHandler
                     .get("claims");
             return new ProbeReport().addProbeResult("authenticationTypes", authenticationTypes)
                     .addProbeResult("realms", realms)
-                    .addProbeResult("claims", claims);
+                    .addProbeResult("claims", stsClientConfig.getClaims());
         }
 
         return null;
@@ -80,41 +91,65 @@ public class ContextPolicyManagerHandler
 
     @Override
     public TestReport persist(ContextPolicyConfiguration configuration) {
-//
-//        if(configuration.contextPolicyBins()
-//                .stream()
-//                .filter(bin -> bin.contextPaths().isEmpty()
-//                        || StringUtils.isEmpty(bin.realm())
-//                        || bin.authenticationTypes().isEmpty())
-//                .findFirst()
-//                .isPresent()) {
-//            // TODO: tbatie - 12/14/16 - throw bad request?
-//        }
-//
-//        List<String> realmsProps = new ArrayList<>();
-//        List<String> authTypesProps = new ArrayList<>();
-//        List<String> reqAttrisProps = new ArrayList<>();
-//
-//        for(ContextPolicyBin bin : configuration.contextPolicyBins()) {
-//            bin.contextPaths()
-//                    .stream()
-//                    .forEach(context -> {
-//                        realmsProps.add(context + "=" + bin.realm());
-//                        authTypesProps.add(context + "=" + String.join("|", bin.authenticationTypes()));
-//                    });
-//
-//            bin.requiredAttributes();
-//
-//        }
+        if(configuration.contextPolicyBins()
+                .stream()
+                .filter(bin -> bin.contextPaths().isEmpty()
+                        || StringUtils.isEmpty(bin.realm())
+                        || bin.authenticationTypes().isEmpty())
+                .findFirst()
+                .isPresent()) {
+            return new TestReport(buildMessage(FAILURE, "Context paths, realm and authentication types cannot be empty"));
+
+            // TODO: tbatie - 12/14/16 - throw bad request?
+        }
+
+        List<String> realmsProps = new ArrayList<>();
+        List<String> authTypesProps = new ArrayList<>();
+        List<String> reqAttrisProps = new ArrayList<>();
+
+        for(ContextPolicyBin bin : configuration.contextPolicyBins()) {
+            bin.contextPaths()
+                    .stream()
+                    .forEach(context -> {
+                        realmsProps.add(context + "=" + bin.realm());
+                        authTypesProps.add(context + "=" + String.join("|", bin.authenticationTypes()));
+                        if (bin.requiredAttributes().isEmpty()) {
+                            reqAttrisProps.add(context + "=");
+                        } else {
+                            reqAttrisProps.add(context + "={" + String.join(";",
+                                    bin.requiredAttributes()
+                                            .entrySet()
+                                            .stream()
+                                            .map(entry -> entry.getKey() + "=" + entry.getValue())
+                                            .collect(Collectors.toList())) + "}");
+                        }
+                    });
+        }
+
+        Map<String, Object> policyManagerProperties = ImmutableMap.of("authenticationTypes", authTypesProps,
+                "realms", realmsProps,
+                "requiredAttributes", reqAttrisProps,
+                "whiteListContexts", configuration.whiteListContexts());
 
         Configurator configurator = new Configurator();
-        return new TestReport();
+        configurator.updateConfigFile("org.codice.ddf.security.policy.context.impl.PolicyManager",
+                policyManagerProperties,
+                true);
+        ConfigReport configReport = configurator.commit();
+        if (!configReport.getFailedResults()
+                .isEmpty()) {
+            return new TestReport(buildMessage(ConfigurationMessage.MessageType.FAILURE,
+                    "Unable to persist changes"));
+        } else {
+            return new TestReport(buildMessage(ConfigurationMessage.MessageType.SUCCESS,
+                    "Successfully saved Web Context Policy Manager settings"));
+        }
     }
 
     @Override
     public List<ContextPolicyConfiguration> getConfigurations() {
-        return Arrays.asList(new ContextPolicyConfiguration().contextPolicyBins(
-                contextPolicyManagerSettingsToBins()));
+        return Arrays.asList(new ContextPolicyConfiguration().contextPolicyBins(contextPolicyManagerSettingsToBins())
+                .whiteListContexts(policyManager.getWhiteListContexts()));
     }
 
     @Override
@@ -133,7 +168,6 @@ public class ContextPolicyManagerHandler
     }
 
     public List<ContextPolicyBin> contextPolicyManagerSettingsToBins() {
-
         // TODO: tbatie - 12/10/16 - Probably should match terminology used by the policy manager
         List<ContextPolicyBin> bins = new ArrayList<>();
         Collection<ContextPolicy> allPolicies = policyManager.getAllContextPolicies();
@@ -163,6 +197,10 @@ public class ContextPolicyManagerHandler
         }
 
         return bins;
+    }
+
+    public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
+        this.stsClientConfig = stsClientConfig;
     }
 
     public void setPolicyManager(ContextPolicyManager policyManager) {
