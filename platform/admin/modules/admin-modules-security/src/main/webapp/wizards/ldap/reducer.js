@@ -58,7 +58,8 @@ const probeValue = (state = [], { type, value }) => {
 const tableMappings = (state = [], { type, mapping, indexs }) => {
   switch (type) {
     case 'ADD_MAPPING':
-      var duplicate = state.find((prev) => prev.subjectClaim === mapping.subjectClaim && prev.userAttribute === mapping.userAttribute)
+      var duplicate = state.find((prev) => prev.subjectClaim === mapping.subjectClaim)
+
       return duplicate === undefined ? state.concat({subjectClaim: mapping.subjectClaim, userAttribute: mapping.userAttribute, selected: false}) : state
     case 'SELECT_MAPPINGS':
       return state.map((mapping, i) => {

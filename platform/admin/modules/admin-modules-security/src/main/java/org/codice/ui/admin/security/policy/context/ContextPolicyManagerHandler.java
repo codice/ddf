@@ -17,15 +17,12 @@ package org.codice.ui.admin.security.policy.context;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
-import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
 import org.codice.ui.admin.security.policy.context.container.ContextPolicyBin;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
@@ -65,6 +62,7 @@ public class ContextPolicyManagerHandler
 
         switch (probeId) {
         case POLICY_OPTIONS_ID:
+            // TODO: tbatie - 12/14/16 - Filter the realms based on what is installed in the system
             Object claims = new Configurator().getConfig("ddf.security.sts.client.configuration")
                     .get("claims");
             return new ProbeReport().addProbeResult("authTypes", authenticationTypes)
@@ -82,8 +80,35 @@ public class ContextPolicyManagerHandler
 
     @Override
     public TestReport persist(ContextPolicyConfiguration configuration) {
+//
+//        if(configuration.contextPolicyBins()
+//                .stream()
+//                .filter(bin -> bin.contextPaths().isEmpty()
+//                        || StringUtils.isEmpty(bin.realm())
+//                        || bin.authenticationTypes().isEmpty())
+//                .findFirst()
+//                .isPresent()) {
+//            // TODO: tbatie - 12/14/16 - throw bad request?
+//        }
+//
+//        List<String> realmsProps = new ArrayList<>();
+//        List<String> authTypesProps = new ArrayList<>();
+//        List<String> reqAttrisProps = new ArrayList<>();
+//
+//        for(ContextPolicyBin bin : configuration.contextPolicyBins()) {
+//            bin.contextPaths()
+//                    .stream()
+//                    .forEach(context -> {
+//                        realmsProps.add(context + "=" + bin.realm());
+//                        authTypesProps.add(context + "=" + String.join("|", bin.authenticationTypes()));
+//                    });
+//
+//            bin.requiredAttributes();
+//
+//        }
+
         Configurator configurator = new Configurator();
-        // TODO: tbatie - 12/10/16
+
         return null;
     }
 
@@ -115,8 +140,10 @@ public class ContextPolicyManagerHandler
         Collection<ContextPolicy> allPolicies = policyManager.getAllContextPolicies();
         for (ContextPolicy policy : allPolicies) {
             boolean foundBin = false;
-            Map<String, Set<String>> policyRequiredAttributes =
-                    convertAttributeMappingToMap(policy.getAllowedAttributes());
+            Map<String, String> policyRequiredAttributes = policy.getAllowedAttributes()
+                    .stream()
+                    .collect(Collectors.toMap(map -> map.getAttributeName(),
+                            map -> map.getAttributeValue()));
 
             for (ContextPolicyBin bin : bins) {
                 if (bin.realm().equals(policy.getRealm()) &&
@@ -137,25 +164,6 @@ public class ContextPolicyManagerHandler
         }
 
         return bins;
-    }
-
-    public Map<String, Set<String>> convertAttributeMappingToMap(
-            Collection<ContextAttributeMapping> mappingToConvert) {
-        Map<String, Set<String>> convertedMapping = new HashMap<>();
-
-        for (ContextAttributeMapping mapping : mappingToConvert) {
-            String name = mapping.getAttributeName();
-            String value = mapping.getAttributeValue();
-
-            if (convertedMapping.containsKey(name)) {
-                convertedMapping.get(name)
-                        .add(value);
-            } else {
-                convertedMapping.put(name, new HashSet<>(Arrays.asList(value)));
-            }
-        }
-
-        return convertedMapping;
     }
 
     public void setPolicyManager(ContextPolicyManager policyManager) {

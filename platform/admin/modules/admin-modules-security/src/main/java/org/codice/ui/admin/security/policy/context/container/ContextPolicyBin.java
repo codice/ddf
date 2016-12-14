@@ -32,7 +32,7 @@ public class ContextPolicyBin {
     // TODO: tbatie - 12/10/16 - Should really be an ordered set
     private List<String> authenticationTypes;
 
-    private Map<String, Set<String>> requiredAttributes;
+    private Map<String, String> requiredAttributes;
 
     private Set<String> contextPaths;
 
@@ -51,8 +51,12 @@ public class ContextPolicyBin {
         return authenticationTypes;
     }
 
-    public Map<String, Set<String>> requiredAttributes() {
+    public Map<String, String> requiredAttributes() {
         return requiredAttributes;
+    }
+
+    public Set<String> contextPaths() {
+        return contextPaths;
     }
 
     public ContextPolicyBin authenticationTypes(List<String> authenticationTypes) {
@@ -60,7 +64,7 @@ public class ContextPolicyBin {
         return this;
     }
 
-    public ContextPolicyBin requiredAttributes(Map<String, Set<String>> requiredAttributes) {
+    public ContextPolicyBin requiredAttributes(Map<String, String> requiredAttributes) {
         this.requiredAttributes = requiredAttributes;
         return this;
     }
@@ -75,7 +79,7 @@ public class ContextPolicyBin {
         return this;
     }
 
-    public boolean hasSameRequiredAttributes(Map<String, Set<String>> mappingsToCheck) {
+    public boolean hasSameRequiredAttributes(Map<String, String> mappingsToCheck) {
         if (!(requiredAttributes.keySet()
                 .containsAll(mappingsToCheck.keySet()) && mappingsToCheck.keySet()
                 .containsAll(requiredAttributes.keySet()))) {
