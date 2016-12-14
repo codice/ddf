@@ -114,7 +114,10 @@ public class FileSystemStorageProvider implements StorageProvider {
 
         for (ContentItem contentItem : contentItems) {
             try {
-                ContentItemValidator.validate(contentItem);
+                if (!ContentItemValidator.validate(contentItem)) {
+                    LOGGER.warn("Item is not valid: {}", contentItem);
+                    continue;
+                }
                 Path contentIdDir = getTempContentItemDir(createRequest.getId(),
                         new URI(contentItem.getUri()));
 
@@ -164,7 +167,10 @@ public class FileSystemStorageProvider implements StorageProvider {
 
         for (ContentItem contentItem : contentItems) {
             try {
-                ContentItemValidator.validate(contentItem);
+                if (!ContentItemValidator.validate(contentItem)) {
+                    LOGGER.warn("Item is not valid: {}", contentItem);
+                    continue;
+                }
 
                 ContentItem updateItem = contentItem;
                 if (StringUtils.isBlank(contentItem.getFilename())
@@ -233,6 +239,11 @@ public class FileSystemStorageProvider implements StorageProvider {
                     "",
                     0,
                     metacard);
+
+            if (!ContentItemValidator.validate(deletedContentItem)) {
+                LOGGER.warn("Cannot delete invalid content item ({})", deletedContentItem);
+                continue;
+            }
             try {
                 // For deletion we can ignore the qualifier and assume everything under a given ID is
                 // to be removed.
@@ -261,7 +272,6 @@ public class FileSystemStorageProvider implements StorageProvider {
 
         DeleteStorageResponse response = new DeleteStorageResponseImpl(deleteRequest,
                 deletedContentItems);
-
         LOGGER.trace("EXITING: delete");
 
         return response;
@@ -288,8 +298,8 @@ public class FileSystemStorageProvider implements StorageProvider {
 
                 List<String> parts = getContentFilePathParts(metacardId, "");
 
-                Path contentIdDir = Paths.get(baseContentDirectory.toAbsolutePath()
-                        .toString(), parts.toArray(new String[parts.size()]));
+                Path contentIdDir = Paths.get(baseContentDirectory.toString(),
+                        parts.toArray(new String[parts.size()]));
 
                 if (!Files.exists(contentIdDir)) {
                     throw new StorageException("File doesn't exist for id: " + metacard.getId());
@@ -459,9 +469,16 @@ public class FileSystemStorageProvider implements StorageProvider {
     private Path getContentItemDir(URI contentUri) {
         List<String> pathParts = getContentFilePathParts(contentUri.getSchemeSpecificPart(),
                 contentUri.getFragment());
-
-        return Paths.get(baseContentDirectory.toAbsolutePath()
-                .toString(), pathParts.toArray(new String[pathParts.size()]));
+        try {
+            return Paths.get(baseContentDirectory.toString(),
+                    pathParts.toArray(new String[pathParts.size()]));
+        } catch (InvalidPathException e) {
+            LOGGER.debug("Invalid path: [{}/{}]",
+                    baseContentDirectory.toString(),
+                    pathParts.stream()
+                            .collect(Collectors.joining()));
+            return null;
+        }
     }
 
     //separating into 2 directories of 3 characters each allows us to
@@ -557,7 +574,7 @@ public class FileSystemStorageProvider implements StorageProvider {
 
         Path directory;
         if (!baseDirectory.isEmpty()) {
-            String path = FilenameUtils.normalize(baseDirectory);
+            String path = tryCanonicalizeDirectory(baseDirectory);
             try {
                 directory = Paths.get(path, DEFAULT_CONTENT_REPOSITORY, DEFAULT_CONTENT_STORE);
             } catch (InvalidPathException e) {
@@ -593,6 +610,18 @@ public class FileSystemStorageProvider implements StorageProvider {
 
         this.baseContentDirectory = directories;
         this.baseContentTmpDirectory = tmpDirectories;
+    }
+
+    private String tryCanonicalizeDirectory(String directory) {
+        String normalized = FilenameUtils.normalize(directory);
+        try {
+            return Paths.get(normalized)
+                    .toFile()
+                    .getCanonicalPath();
+        } catch (IOException e) {
+            LOGGER.debug("Could not get canonical path for ({})", directory, e);
+        }
+        return normalized;
     }
 
     private static class ContentItemDecorator implements ContentItem {

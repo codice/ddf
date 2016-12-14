@@ -48,6 +48,7 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 
 import ddf.catalog.content.StorageException;
@@ -208,6 +209,81 @@ public class FileSystemStorageProviderTest {
                 TEST_INPUT_FILENAME,
                 "",
                 "example");
+    }
+
+    @Test
+    public void testCreateWithQualifierAndOneInvalidItem() throws Exception {
+        String uuid = UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
+        ByteSource byteSource = new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+                return IOUtils.toInputStream("This data is my data, this data is your data.");
+            }
+        };
+        ContentItem contentItem = new ContentItemImpl(uuid,
+                null,
+                byteSource,
+                "application/text",
+                "datadatadata",
+                byteSource.size(),
+                mock(Metacard.class));
+        String invalidUuid = "wow-this-isn't-a-valid-uuid-right?!@#%";
+        ContentItem badContentItem = new ContentItemImpl(invalidUuid,
+                null,
+                byteSource,
+                "application/text",
+                "datadatadata",
+                byteSource.size(),
+                mock(Metacard.class));
+        CreateStorageRequest createRequest = new CreateStorageRequestImpl(Lists.newArrayList(
+                contentItem,
+                badContentItem), null);
+        CreateStorageResponse createResponse = provider.create(createRequest);
+
+        assertThat(createResponse.getCreatedContentItems()
+                .size(), is(1));
+        assertThat(createResponse.getCreatedContentItems()
+                .get(0)
+                .getId(), is(uuid));
+
+        ContentItem updateContentItem = new ContentItemImpl(invalidUuid,
+                null,
+                byteSource,
+                "application/text",
+                "datadatadata",
+                byteSource.size(),
+                mock(Metacard.class));
+        UpdateStorageRequest updateRequest = new UpdateStorageRequestImpl(Lists.newArrayList(
+                updateContentItem), null);
+        UpdateStorageResponse updateResponse = provider.update(updateRequest);
+
+        assertThat(updateResponse.getUpdatedContentItems()
+                .size(), is(0));
+    }
+
+    @Test
+    public void testInvalidDelete() throws Exception {
+        String uuid = UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
+
+        Metacard metacard = mock(Metacard.class);
+        when(metacard.getId()).thenReturn(uuid);
+        ContentItem contentItem = new ContentItemImpl(uuid,
+                null,
+                null,
+                "application/text",
+                "datadatadata",
+                0,
+                metacard);
+        DeleteStorageRequest deleteRequest = new DeleteStorageRequestImpl(Lists.newArrayList(
+                metacard), null);
+        DeleteStorageResponse deleteResponse = provider.delete(deleteRequest);
+
+        assertThat(deleteResponse.getDeletedContentItems()
+                .size(), is(0));
     }
 
     @Test
@@ -445,12 +521,24 @@ public class FileSystemStorageProviderTest {
         String uuid = UUID.randomUUID()
                 .toString()
                 .replaceAll("-", "");
-        String newId = id.substring(0, 6) + uuid.substring(6, uuid.length() - 1);
-        createResponse = assertContentItemWithQualifier(TEST_INPUT_CONTENTS,
-                NITF_MIME_TYPE,
-                TEST_INPUT_FILENAME,
-                newId,
-                "");
+        String badId = id.substring(0, 6) + uuid.substring(6, uuid.length() - 1);
+        boolean hadError = false;
+        try {
+            CreateStorageResponse badCreateResponse = assertContentItemWithQualifier(
+                    TEST_INPUT_CONTENTS,
+                    NITF_MIME_TYPE,
+                    TEST_INPUT_FILENAME,
+                    badId,
+                    "");
+        } catch (AssertionError e) {
+            // bad id is not a valid ID
+            hadError = true;
+        } finally {
+            if (!hadError) {
+                fail("Create succeeded when it should not have! " + badId + "Should not be valid!");
+            }
+            hadError = false;
+        }
 
         DeleteStorageRequest deleteRequest =
                 new DeleteStorageRequestImpl(createResponse.getCreatedContentItems()
@@ -470,9 +558,19 @@ public class FileSystemStorageProviderTest {
         assertThat(item.getFilename(), is(""));
         provider.commit(deleteRequest);
 
-        assertReadRequest(new URI(createResponse.getCreatedContentItems()
-                .get(0)
-                .getUri()), NITF_MIME_TYPE);
+        try {
+            assertReadRequest(new URI(createResponse.getCreatedContentItems()
+                    .get(0)
+                    .getUri()), NITF_MIME_TYPE);
+        } catch (StorageException e) {
+            // The item was deleted so it shouldn't have found it
+            hadError = true;
+        } finally {
+            if (!hadError) {
+                fail("read succeeded when it should not have! ");
+            }
+            hadError = false;
+        }
     }
 
     /**
@@ -508,7 +606,8 @@ public class FileSystemStorageProviderTest {
                 contentItem), null);
         CreateStorageResponse createResponse = provider.create(createRequest);
         List<ContentItem> createdContentItems = createResponse.getCreatedContentItems();
-        ContentItem createdContentItem = createdContentItems.get(0);
+        ContentItem createdContentItem =
+                createdContentItems.isEmpty() ? null : createdContentItems.get(0);
 
         assertNotNull(createdContentItem);
         String createdId = createdContentItem.getId();
