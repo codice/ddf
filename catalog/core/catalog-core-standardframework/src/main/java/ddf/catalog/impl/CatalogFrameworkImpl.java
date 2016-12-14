@@ -662,46 +662,40 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throws MetacardCreationException, MimeTypeParseException {
 
         Metacard generatedMetacard = null;
-        InputTransformer transformer = null;
-        StringBuilder causeMessage = new StringBuilder("Could not create metacard with mimeType ");
-        try {
-            MimeType mimeType = new MimeType(mimeTypeRaw);
+        InputTransformer transformer;
+        StringBuilder causeMessage = new StringBuilder();
 
-            List<InputTransformer> listOfCandidates =
-                    frameworkProperties.getMimeTypeToTransformerMapper()
-                            .findMatches(InputTransformer.class, mimeType);
+        MimeType mimeType = new MimeType(mimeTypeRaw);
 
-            LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
+        List<InputTransformer> listOfCandidates = frameworkProperties.getMimeTypeToTransformerMapper().findMatches(InputTransformer.class, mimeType);
 
-            for (InputTransformer candidate : listOfCandidates) {
-                transformer = candidate;
+        LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
 
-                try (InputStream transformerStream = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream()) {
-                    generatedMetacard = transformer.transform(transformerStream);
+        for (InputTransformer candidate : listOfCandidates) {
+            transformer = candidate;
+
+            try (InputStream transformerStream = com.google.common.io.Files.asByteSource(tmpContentPath.toFile()).openStream()) {
+                generatedMetacard = transformer.transform(transformerStream);
+            } catch (CatalogTransformerException | IOException e) {
+                causeMessage.append(String.format("Transformer [%s] could not create metacard.", transformer));
+                /*
+                    The caught exception more than likely does not have the root cause message
+                    that is needed to inform the caller as to why things have failed.  Therefore
+                    we need to iterate through the chain of cause exceptions and gather up
+                    all of their message details.
+                */
+                causeMessage.append(mimeTypeRaw).append(". Reason: ").append(System.lineSeparator()).append(e.getMessage());
+                Throwable cause = e.getCause();
+                while (cause != null && cause != cause.getCause()) {
+                    causeMessage.append(System.lineSeparator()).append(cause.getMessage());
+                    cause = cause.getCause();
                 }
-                if (generatedMetacard != null) {
-                    break;
-                }
+                LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
             }
-        } catch (CatalogTransformerException | IOException e) {
-            causeMessage.append(mimeTypeRaw)
-                    .append(". Reason: ")
-                    .append(System.lineSeparator())
-                    .append(e.getMessage());
 
-            // The caught exception more than likely does not have the root cause message
-            // that is needed to inform the caller as to why things have failed.  Therefore
-            // we need to iterate through the chain of cause exceptions and gather up
-            // all of their message details.
-            Throwable cause = e.getCause();
-            while (cause != null && cause != cause.getCause()) {
-                causeMessage.append(System.lineSeparator())
-                        .append(cause.getMessage());
-                cause = cause.getCause();
+            if (generatedMetacard != null) {
+                break;
             }
-            LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
         }
 
         if (generatedMetacard == null) {
