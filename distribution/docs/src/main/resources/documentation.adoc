@@ -249,3 +249,8 @@ include::${project.build.directory}/doc-contents/_contents/_ui-contents/extendin
 == All File Formats Supported
 
 include::{adoc-include}/_formats/complete-list-file-types-contents.adoc[]
+
+[appendix]
+== ${branding} Dependency List
+
+include::{adoc-include}/_dependency-list/ddf-dependency-list.adoc[]
