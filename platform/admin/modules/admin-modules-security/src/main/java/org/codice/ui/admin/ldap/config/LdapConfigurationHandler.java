@@ -19,7 +19,6 @@ import static org.codice.ui.admin.ldap.config.LdapConfiguration.LDAPS;
 import static org.codice.ui.admin.ldap.config.LdapConfiguration.LDAP_USE_CASES;
 import static org.codice.ui.admin.ldap.config.LdapConfiguration.LOGIN;
 import static org.codice.ui.admin.ldap.config.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
-import static org.codice.ui.admin.ldap.config.LdapConfiguration.NONE;
 import static org.codice.ui.admin.ldap.config.LdapConfiguration.TLS;
 import static org.codice.ui.admin.ldap.config.LdapConfigurationHandler.LdapTestResultType.CANNOT_BIND;
 import static org.codice.ui.admin.ldap.config.LdapConfigurationHandler.LdapTestResultType.CANNOT_CONFIGURE;
