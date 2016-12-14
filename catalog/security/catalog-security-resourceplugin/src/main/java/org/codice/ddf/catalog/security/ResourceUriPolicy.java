@@ -167,7 +167,7 @@ public class ResourceUriPolicy implements PolicyPlugin {
                 .is()
                 .equalTo()
                 .text(id);
-        Query query = new QueryImpl(filter, 0, 0, null, true, 10000);
+        Query query = new QueryImpl(filter, 1, 1, null, true, 10000);
         QueryRequest queryRequest = new QueryRequestImpl(query);
         QueryResponse queryResponse;
         try {
