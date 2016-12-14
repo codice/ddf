@@ -101,9 +101,7 @@ include::{adoc-include}/_configuring/managing-features-contents.adoc[]
 
 include::{adoc-include}/_securing/securing-contents.adoc[]
 
-include::{adoc-include}/_securing/configuring-certificates-contents.adoc[]
-
-include::{adoc-include}/_securing/creating-keys-and-certificates-contents.adoc[]
+include::{adoc-include}/_securing/managing-certificates-contents.adoc[]
 
 include::{adoc-include}/_securing/standalone-sts-contents.adoc[]
 

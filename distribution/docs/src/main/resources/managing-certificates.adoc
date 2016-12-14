@@ -1,0 +1,4 @@
+= Managing Certificates Draft
+include::./_contents/config.adoc[]
+
+include::{adoc-include}/_securing/managing-certificates-contents.adoc[]
