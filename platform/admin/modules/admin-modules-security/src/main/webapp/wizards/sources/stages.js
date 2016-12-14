@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import { getSourceSelections, getConfigurationHandlerId, getSourceName } from './reducer'
 import { getAllConfig } from '../../reducer'
-import { changeStage, discoverSources, persistConfig, resetSourceWizardState } from './actions'
+import { changeStage, testSources, persistConfig, resetSourceWizardState } from './actions'
 
 import Flexbox from 'flexbox-react'
 import { Link } from 'react-router'
@@ -53,7 +53,7 @@ const discoveryStageDefaults = {
   sourceHostName: 'localhost',
   sourcePort: 8993
 }
-const DiscoveryStageView = ({ discoverSources, setDefaults }) => (
+const DiscoveryStageView = ({ testSources, setDefaults }) => (
   <Mount on={() => setDefaults(discoveryStageDefaults)}>
     <NavPanes backClickTarget='welcomeStage' forwardClickTarget='sourceSelectionStage'>
       <CenteredElements>
@@ -62,12 +62,12 @@ const DiscoveryStageView = ({ discoverSources, setDefaults }) => (
         <ConstrainedPortInput id='sourcePort' label='Port' />
         <ConstrainedInput id='sourceUserName' label='Username (optional)' />
         <ConstrainedPasswordInput id='sourceUserPassword' label='Password (optional)' />
-        <Submit label='Check' onClick={() => discoverSources('/admin/wizard/probe/sources/discoverSources', 'sources', 'sourceSelectionStage')} />
+        <Submit label='Check' onClick={() => testSources('/admin/wizard/probe/sources/discoverSources', 'sources', 'sourceSelectionStage', 'source')} />
       </CenteredElements>
     </NavPanes>
   </Mount>
 )
-export const DiscoveryStage = connect(null, { discoverSources, setDefaults })(DiscoveryStageView)
+export const DiscoveryStage = connect(null, { testSources, setDefaults })(DiscoveryStageView)
 
 // Source Selection Stage
 const sourceSelectionTitle = 'Sources Found!'

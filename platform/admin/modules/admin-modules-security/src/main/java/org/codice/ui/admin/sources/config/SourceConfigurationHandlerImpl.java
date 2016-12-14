@@ -36,6 +36,7 @@ import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.ProbeReport;
 import org.codice.ui.admin.wizard.api.TestReport;
 
+
 public class SourceConfigurationHandlerImpl implements ConfigurationHandler<SourceConfiguration> {
 
     public static final String SOURCE_CONFIGURATION_HANDLER_ID = "sources";
@@ -48,7 +49,7 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
     public static final String NONE_FOUND = "None found";
 
-    public static final int PING_TIMEOUT = 3000;
+    public static final int PING_TIMEOUT = 500;
 
     /*********************************************************
      * NamespaceContext for Xpath queries
@@ -69,6 +70,8 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
             return null;
         }
     };
+
+
 
     List<SourceConfigurationHandler> sourceConfigurationHandlers;
 
@@ -94,14 +97,16 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
             ProbeReport sourcesProbeReport = new ProbeReport();
 
-            List<Object> discoveredSources = sourceConfigurationHandlers.stream()
+            List<ProbeReport> sourceProbeReports = sourceConfigurationHandlers.stream()
                     .map(handler -> handler.probe(DISCOVER_SOURCES_ID, config))
+                    .collect(Collectors.toList());
+
+            List<Object> discoveredSources = sourceProbeReports.stream()
                     .filter(probeReport -> !probeReport.containsUnsuccessfulMessages())
                     .map(report -> report.getProbeResults().get(DISCOVER_SOURCES_ID))
                     .collect(Collectors.toList());
 
-            List<ConfigurationMessage> probeSourceMessages = sourceConfigurationHandlers.stream()
-                    .map(handler -> handler.probe(DISCOVER_SOURCES_ID, config))
+            List<ConfigurationMessage> probeSourceMessages = sourceProbeReports.stream()
                     .filter(probeReport -> !probeReport.containsFailureMessages())
                     .map(ProbeReport::getMessages)
                     .flatMap(Collection::stream)

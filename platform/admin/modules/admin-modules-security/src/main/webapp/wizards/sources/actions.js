@@ -17,7 +17,7 @@ export const clearMessages = (id) => ({ type: 'CLEAR_MESSAGES', id })
 export const startSubmitting = () => ({ type: 'START_SUBMITTING' })
 export const endSubmitting = () => ({ type: 'END_SUBMITTING' })
 export const setConfigSource = (source) => ({ type: 'SET_CONFIG_SOURCE', value: source })
-export const discoverSources = (url, configType, nextStageId, id) => (dispatch, getState) => {
+export const testSources = (url, configType, nextStageId, id) => (dispatch, getState) => {
   dispatch(startSubmitting())
   dispatch(clearMessages(id))
   const config = getAllConfig(getState())
@@ -29,6 +29,23 @@ export const discoverSources = (url, configType, nextStageId, id) => (dispatch, 
     credentials: 'same-origin'
   }
 
+  window.fetch('/admin/wizard/test/sources/testValidUrl', opts)
+      .then((res) => Promise.all([ res.status, res.json() ]))
+      .then(([status, json]) => {
+        if (status === 400) {
+          dispatch(setMessages(id, json.messages))
+          dispatch(endSubmitting())
+        } else if (status === 200) {
+          discoverSources(url, opts, dispatch, id, nextStageId, body)
+        } else if (status === 500) {
+          dispatch(backendError({ ...json, url, method: 'POST', body }))
+          dispatch(endSubmitting())
+        }
+      }, () => {
+      })
+}
+
+const discoverSources = (url, opts, dispatch, id, nextStageId, body) => {
   window.fetch(url, opts)
     .then((res) => Promise.all([ res.status, res.json() ]))
     .then(([status, json]) => {
