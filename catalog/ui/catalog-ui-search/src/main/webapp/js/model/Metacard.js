@@ -70,7 +70,7 @@ define([
 
         function matchesEQUALS(value, filter) {
             var valueToCheckFor = filter.value;
-            if (value.toString() === valueToCheckFor) {
+            if (value.toString() === valueToCheckFor.toString()) {
                 return true;
             }
             return false;
@@ -78,7 +78,39 @@ define([
 
         function matchesNOTEQUALS(value, filter) {
             var valueToCheckFor = filter.value;
-            if (value.toString() !== valueToCheckFor) {
+            if (value.toString() !== valueToCheckFor.toString()) {
+                return true;
+            }
+            return false;
+        }
+
+        function matchesGreaterThan(value, filter){
+            var valueToCheckFor = filter.value;
+            if (value > valueToCheckFor){
+                return true;
+            }
+            return false;
+        }
+
+        function matchesGreaterThanOrEqualTo(value, filter){
+            var valueToCheckFor = filter.value;
+            if (value >= valueToCheckFor){
+                return true;
+            }
+            return false;
+        }
+
+        function matchesLessThan(value, filter){
+            var valueToCheckFor = filter.value;
+            if (value < valueToCheckFor){
+                return true;
+            }
+            return false;
+        }
+
+        function matchesLessThanOrEqualTo(value, filter){
+            var valueToCheckFor = filter.value;
+            if (value <= valueToCheckFor){
                 return true;
             }
             return false;
@@ -225,7 +257,7 @@ define([
                         break;
                     default:
                         var valueToCheck = metacard.properties[filter.property.replace(/['"]+/g, '')];
-                        if (valueToCheck) {
+                        if (valueToCheck !== undefined) {
                             valuesToCheck.push(valueToCheck);
                         }
                         break;
@@ -256,6 +288,26 @@ define([
                             break;
                         case '!=':
                             if (matchesNOTEQUALS(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case '>':
+                            if (matchesGreaterThan(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case '>=':
+                            if (matchesGreaterThanOrEqualTo(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case '<':
+                            if (matchesLessThan(valuesToCheck[i], filter)) {
+                                return true;
+                            }
+                            break;
+                        case '<=':
+                            if (matchesLessThanOrEqualTo(valuesToCheck[i], filter)) {
                                 return true;
                             }
                             break;

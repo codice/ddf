@@ -25,6 +25,8 @@ define([
     var geometryComparators = ['INTERSECTS'];
     var dateComparators = ['BEFORE', 'AFTER'];
     var stringComparators = ['CONTAINS', 'MATCHCASE', 'EQUALS'];
+    var numberComparators = ['>','<','=','>=','<='];
+    var booleanComparators = ['='];
 
     return Marionette.ItemView.extend({
         template: template,
@@ -59,19 +61,30 @@ define([
                         this.model.set('comparator', geometryComparators[0]);
                     }
                     return geometryComparators;
-                    break;
                 case 'DATE':
                     if (dateComparators.indexOf(this.model.get('comparator')) === -1){
                         this.model.set('comparator', dateComparators[0]);
                     }
                     return dateComparators;
-                    break;
+                case 'BOOLEAN':
+                    if (booleanComparators.indexOf(this.model.get('comparator')) === -1){
+                        this.model.set('comparator', booleanComparators[0]);
+                    }
+                    return booleanComparators;
+                case 'LONG':
+                case 'DOUBLE':
+                case 'FLOAT':
+                case 'INTEGER':
+                case 'SHORT':
+                    if (numberComparators.indexOf(this.model.get('comparator')) === -1){
+                        this.model.set('comparator', numberComparators[0]);
+                    }
+                    return numberComparators;
                 default:
                     if (stringComparators.indexOf(this.model.get('comparator')) === -1){
                         this.model.set('comparator', stringComparators[0]);
                     }
                     return stringComparators;
-                    break;
             }
         }
     });

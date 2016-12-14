@@ -37,7 +37,12 @@ define([
         INTERSECTS: 'INTERSECTS',
         CONTAINS: 'ILIKE',
         MATCHCASE: 'LIKE',
-        EQUALS: '='
+        EQUALS: '=',
+        '>': '>',
+        '<': '<',
+        '=': '=',
+        '<=': '<=',
+        '>=': '>=' 
     };
 
     var CQLtoComparator = {};
@@ -106,6 +111,20 @@ define([
                 case 'DATE':
                     if (['BEFORE', 'AFTER'].indexOf(currentComparator) === -1) {
                         this.model.set('comparator', 'BEFORE');
+                    }
+                    break;
+                case 'BOOLEAN': 
+                    if (['='].indexOf(currentComparator) === -1){
+                        this.model.set('comparator', '=');
+                    }
+                    break;
+                case 'LONG':
+                case 'DOUBLE':
+                case 'FLOAT':
+                case 'INTEGER':
+                case 'SHORT':
+                    if (['>', '<', '=', '>=', '<='].indexOf(currentComparator) === -1 ){
+                        this.model.set('comparator', '>');
                     }
                     break;
                 default:

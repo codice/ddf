@@ -32,7 +32,6 @@ define([
                 case 'thumbnail':
                 case 'location':
                     return this.children.first().hasChanged();
-                    break;
                 case 'date':
                     var currentValue = this.children.map(function(childView){
                         return childView.getCurrentValue();
@@ -45,14 +44,20 @@ define([
                                 return dateValue;
                             }
                         }).toString();
-                    break;
+                case 'number':  //needed until cql result correctly returns numbers as numbers
+                    var currentValue = this.children.map(function(childView){
+                        return childView.getCurrentValue().toString();
+                    });
+                    currentValue.sort();
+                    return JSON.stringify(currentValue) !== JSON.stringify(this.model.getInitialValue().map(function(value){ 
+                        return Number(value).toString(); //handle cases of unnecessary number padding -> 22.0000
+                    }));
                 default:
                     var currentValue = this.children.map(function(childView){
                         return childView.getCurrentValue();
                     });
                     currentValue.sort();
                     return JSON.stringify(currentValue) !== JSON.stringify(this.model.getInitialValue());
-                    break;
             }
         },
         addNewValue: function (propertyModel){

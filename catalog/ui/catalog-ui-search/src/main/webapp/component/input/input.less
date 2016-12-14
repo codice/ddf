@@ -27,12 +27,14 @@
   }
 }
 
-@{customElementNamespace}input.is-text {
+@{customElementNamespace}input.is-text,
+@{customElementNamespace}input.is-number,
+@{customElementNamespace}input.is-boolean {
   input {
     height: @minimumButtonSize;
     width: 100%;
   }
-  label {
+  .if-viewing label {
     padding-left: 10px;
     line-height: @minimumButtonSize;
     margin: 0px;

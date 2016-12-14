@@ -91,6 +91,16 @@ define([
                 case 'LOCATION':
                     this.set('calculatedType', 'location');
                     break;
+                case 'BOOLEAN':
+                    this.set('calculatedType', 'boolean');
+                    break;
+                case 'LONG':
+                case 'DOUBLE':
+                case 'FLOAT':
+                case 'INTEGER':
+                case 'SHORT':
+                    this.set('calculatedType', 'number');
+                    break;
                 case 'STRING':
                 case 'GEOMETRY':
                 case 'XML':

@@ -29,6 +29,7 @@ define(function () {
             COMMA: /^,/,
             LOGICAL: /^(AND|OR)/i,
             VALUE: /^('([^']|'')*'|-?\d+(\.\d*)?|\.\d+)/,
+            BOOLEAN: /^(false|true)/i,
             LPAREN: /^\(/,
             RPAREN: /^\)/,
             SPATIAL: /^(BBOX|INTERSECTS|DWITHIN|WITHIN|CONTAINS)/i,
@@ -73,9 +74,10 @@ define(function () {
             PROPERTY: ['COMPARISON', 'BETWEEN', 'COMMA', 'IS_NULL', 'BEFORE', 'AFTER', 'DURING'],
             BETWEEN: ['VALUE'],
             IS_NULL: ['END'],
-            COMPARISON: ['VALUE'],
+            COMPARISON: ['VALUE', 'BOOLEAN'],
             COMMA: ['GEOMETRY', 'VALUE', 'UNITS', 'PROPERTY'],
             VALUE: ['LOGICAL', 'COMMA', 'RPAREN', 'END'],
+            BOOLEAN: ['RPAREN'],
             SPATIAL: ['LPAREN'],
             UNITS: ['RPAREN'],
             LOGICAL: ['NOT', 'VALUE', 'SPATIAL', 'PROPERTY', 'LPAREN'],
@@ -183,6 +185,7 @@ define(function () {
                 case "VALUE":
                 case "TIME":
                 case "TIME_PERIOD":
+                case "BOOLEAN":
                     postfix.push(tok);
                     break;
                 case "COMPARISON":
@@ -302,7 +305,15 @@ define(function () {
                     } else {
                         return Number(tok.text);
                     }
-                    break;
+                case "BOOLEAN":
+                    switch(tok.text){
+                        case 'false':
+                            return false;
+                        case 'true':
+                            return true;
+                        default: 
+                            return false;
+                    }
                 case "SPATIAL":
                     switch (tok.text.toUpperCase()) {
                         case "BBOX":
@@ -458,6 +469,8 @@ define(function () {
                     return "'" + filter.replace(/'/g, "''") + "'";
                 } else if (typeof filter === "number") {
                     return String(filter);
+                } else if (typeof filter === "boolean") {
+                    return Boolean(filter);
                 }
                 break;
             default:
