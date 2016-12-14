@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog External Solr Catalog Provider"
+    <OCD name="Solr Catalog Provider"
          id="ddf.catalog.solr.provider.SolrCatalogProvider">
 		<AD
                 description="WARNING: Performance Impact. Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately."
