@@ -2,6 +2,8 @@
 .[[_included_policy_plugins]]Included Policy Plugins
 <<_catalog_policy_plugin,Catalog Policy Plugin>>:: Configures the attributes required for users to perform Create, Read, Update, and Delete operations on the catalog.
 
+<<_resource_uri_policy_plugin,Resource URI Policy Plugin>>:: Configures the attributes required for users to perform Create or Update operations on resource URIs.
+
 <<_historian_policy_plugin,Historian Policy Plugin>>:: tracks updates to metacards to enable viewing the history of metadata.
 
 <<_metacard_attribute_security_policy_plugin,Metacard Attribute Security Policy Plugin>>:: pulls attributes directly off of a metacard and combine these attributes into a security field for the metacard.

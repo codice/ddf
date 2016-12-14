@@ -49,7 +49,9 @@
         <!-- for GeoTools -->
         <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
-        <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+        <bundle dependency="true">
+            mvn:commons-collections/commons-collections/${commons-collections.version}
+        </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-federationstrategy/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
         <bundle>mvn:ddf.catalog.core/ddf-pubsub/${project.version}</bundle>
@@ -70,7 +72,8 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcestatusplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-tagsfilterplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}
+        </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-defaultvalues/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardtype/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/versioning-api/${project.version}</bundle>
@@ -118,7 +121,7 @@
     </feature>
 
     <feature name="catalog-plugin-expirationdate" install="manual" version="${project.version}"
-                 description="Catalog pre-ingest plugin to set an expiration date on metacards.">
+             description="Catalog pre-ingest plugin to set an expiration date on metacards.">
         <feature prerequisite="true">catalog-core</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-expirationdate/${project.version}</bundle>
     </feature>
@@ -306,6 +309,13 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-plugin/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-security-resourceplugin" install="auto" version="${project.version}"
+             description="DDF Catalog Resource URI Policy Plugins">
+        <feature prerequisite="true">catalog-app</feature>
+        <feature prerequisite="true">security-pdp-authz</feature>
+        <bundle>mvn:ddf.catalog.security/catalog-security-resourceplugin/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-security-policyplugin" install="auto" version="${project.version}"
              description="DDF Catalog Policy Plugins">
         <feature prerequisite="true">catalog-app</feature>
@@ -313,16 +323,20 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-policyplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-security-metacardattributeplugin" install="auto" version="${project.version}"
+    <feature name="catalog-security-metacardattributeplugin" install="auto"
+             version="${project.version}"
              description="DDF Catalog Metacard Attribute Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>
-        <bundle>mvn:ddf.catalog.security/catalog-security-metacardattributeplugin/${project.version}</bundle>
+        <bundle>
+            mvn:ddf.catalog.security/catalog-security-metacardattributeplugin/${project.version}
+        </bundle>
     </feature>
 
     <feature name="catalog-security-xmlattributeplugin" install="auto" version="${project.version}"
              description="DDF Catalog XML Attribute Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>
-        <bundle>mvn:ddf.catalog.security/catalog-security-xmlattributeplugin/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.security/catalog-security-xmlattributeplugin/${project.version}
+        </bundle>
     </feature>
 
     <feature name="catalog-admin-module-sources" install="auto" version="${project.version}"
@@ -349,7 +363,8 @@
     <feature name="catalog-plugin-metacard-validation" install="manual" version="${project.version}"
              description="DDF Metacard Validator Plugins">
         <feature prerequisite="true">catalog-app</feature>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}
+        </bundle>
     </feature>
 
     <feature name="catalog-core-validator" install="manual" version="${project.version}"
@@ -383,10 +398,13 @@
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pptx/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-validator-metacardduplication" install="manual" version="${project.version}"
+    <feature name="catalog-validator-metacardduplication" install="manual"
+             version="${project.version}"
              description="DDF Metacard Duplicate Validator">
         <feature prerequisite="true">catalog-core</feature>
-        <bundle>mvn:org.codice.ddf.validator/catalog-validator-metacardduplication/${project.version}</bundle>
+        <bundle>
+            mvn:org.codice.ddf.validator/catalog-validator-metacardduplication/${project.version}
+        </bundle>
     </feature>
 
     <feature name="catalog-transformer-overlay" install="auto" version="${project.version}"
@@ -414,7 +432,8 @@
              description="Conditional attribute enhancement to metacards during ingest using client network information">
         <feature prerequisite="true">catalog-core-api</feature>
         <feature prerequisite="true">clientinfo-filter</feature>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardingest-network/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardingest-network/${project.version}
+        </bundle>
     </feature>
 
     <feature name="catalog-ftp" install="manual" version="${project.version}"

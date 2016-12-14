@@ -23,6 +23,10 @@
 |org.codice.ddf.catalog.security.CatalogPolicy
 |Configure security policy attributes for Catalog.
 
+|<<resource_uri_policy_plugin, Resource URI Policy Plugin>>
+|org.codice.ddf.catalog.security.ResourceUriPolicy
+|Configure security policy attributes for resource URIs.
+
 |<<catalog_standard_framework, Catalog Standard Framework>>
 |ddf.catalog.CatalogFrameworkImpl
 |Configure settings for product retrieval through Catalog Standard Framework
@@ -264,6 +268,32 @@
 |readPermissions
 |String cardinality=1000
 |Roles/attributes required for the read operations (query and resource). Example: role=role1,role2
+|http://schemas.xmlsoap.org/ws/2005/05/ entity/claims/role=guest/>
+|Yes
+
+|===
+
+.[[resource_uri_policy_plugin]]Resource URI Policy Plugin
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Required Attributes
+|createPermissions
+|String
+|Roles/attributes required for the create operations. Example: role=role1,role2
+|http://schemasoap.org/ws/2005/05/ entity/claims/role=guest/>
+|Yes
+
+|Required Attributes
+|updatePermissions
+|String
+|Roles/attributes required for the update operation. Example: role=role1,role2
 |http://schemas.xmlsoap.org/ws/2005/05/ entity/claims/role=guest/>
 |Yes
 
