@@ -22,12 +22,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -256,11 +254,6 @@ public class AuthorizationFilterTest {
         @Override
         public Collection<ContextPolicy> getAllContextPolicies() {
             return stringContextPolicyMap.values();
-        }
-
-        @Override
-        public List<String> getWhiteListContexts() {
-            return new ArrayList<>();
         }
 
         @Override

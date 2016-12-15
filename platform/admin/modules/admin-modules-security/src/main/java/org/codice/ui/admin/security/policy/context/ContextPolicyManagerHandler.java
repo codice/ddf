@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ui.admin.security.policy.context.container.ContextPolicyBin;
@@ -35,7 +36,6 @@ import org.codice.ui.admin.wizard.api.ProbeReport;
 import org.codice.ui.admin.wizard.api.TestReport;
 import org.codice.ui.admin.wizard.config.ConfigReport;
 import org.codice.ui.admin.wizard.config.Configurator;
-
 import com.google.common.collect.ImmutableMap;
 
 import ddf.security.sts.client.configuration.STSClientConfiguration;
@@ -145,8 +145,22 @@ public class ContextPolicyManagerHandler
 
     @Override
     public List<ContextPolicyConfiguration> getConfigurations() {
-        return Arrays.asList(new ContextPolicyConfiguration().contextPolicyBins(contextPolicyManagerSettingsToBins())
-                .whiteListContexts(policyManager.getWhiteListContexts()));
+        Configurator configurator = new Configurator();
+        // TODO: tbatie - 12/15/16 - The policy manager interface does not include a getter for white list contexts although the implementation does.
+        // Can't change the interface so we are forced to look up the service properties instead of using the service reference
+        Object whiteListContexts = configurator.getConfig(
+                "org.codice.ddf.security.policy.context.impl.PolicyManager")
+                .get("whiteListContexts");
+
+        List<String> whiteListContextsAsList = whiteListContexts == null ?
+                new ArrayList<>() :
+                Arrays.stream((String[])whiteListContexts)
+                        .map(context -> StrSubstitutor.replaceSystemProperties(context))
+                        .collect(Collectors.toList());
+
+        return Arrays.asList(new ContextPolicyConfiguration()
+                .contextPolicyBins(contextPolicyManagerSettingsToBins())
+                .whiteListContexts(whiteListContextsAsList));
     }
 
     @Override

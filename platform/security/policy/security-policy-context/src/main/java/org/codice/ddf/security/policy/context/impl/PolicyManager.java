@@ -319,7 +319,6 @@ public class PolicyManager implements ContextPolicyManager {
      *
      * @return
      */
-    @Override
     public List<String> getWhiteListContexts() {
         List<String> copiedWhiteListContexts = new ArrayList<>();
         copiedWhiteListContexts.addAll(whiteListContexts);
