@@ -91,7 +91,7 @@ public class TestResourceReader {
 
         URLResourceReader urlResourceReader = new URLResourceReader(null) {
             @Override
-            protected WebClient getWebClient(String uri) {
+            protected WebClient getWebClient(String uri, Map<String, Serializable> properties) {
                 return mockWebClient;
             }
         };
