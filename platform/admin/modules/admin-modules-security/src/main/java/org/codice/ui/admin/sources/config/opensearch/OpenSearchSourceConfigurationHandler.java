@@ -120,7 +120,7 @@ public class OpenSearchSourceConfigurationHandler
     }
 
     @Override
-    public TestReport persist(SourceConfiguration configuration) {
+    public TestReport persist(SourceConfiguration configuration, String persistId) {
         //TODO: add reflection methods to make configMap work
         Configurator configurator = new Configurator();
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());

@@ -73,9 +73,6 @@ public class ContextPolicyManagerHandler
     public ProbeReport probe(String probeId, ContextPolicyConfiguration configuration) {
         switch (probeId) {
         case POLICY_OPTIONS_ID:
-            // TODO: tbatie - 12/14/16 - Filter the realms based on what is installed in the system
-            Object claims = new Configurator().getConfig("ddf.security.sts.client.configuration")
-                    .get("claims");
             return new ProbeReport().addProbeResult("authenticationTypes", authenticationTypes)
                     .addProbeResult("realms", realms)
                     .addProbeResult("claims", stsClientConfig.getClaims());
@@ -90,7 +87,7 @@ public class ContextPolicyManagerHandler
     }
 
     @Override
-    public TestReport persist(ContextPolicyConfiguration configuration) {
+    public TestReport persist(ContextPolicyConfiguration configuration, String persistId) {
         if(configuration.contextPolicyBins()
                 .stream()
                 .filter(bin -> bin.contextPaths().isEmpty()

@@ -52,7 +52,7 @@ public class EmbeddedLdapConfigurationHandler
     }
 
     @Override
-    public TestReport persist(EmbeddedLdapConfiguration configuration) {
+    public TestReport persist(EmbeddedLdapConfiguration configuration, String persistId) {
         // TODO: tbatie - 12/1/16 - VALIDATE REQUIRED FIELDS
 
         Configurator configurator = new Configurator();

@@ -338,7 +338,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     }
 
     @Override
-    public TestReport persist(LdapConfiguration config) {
+    public TestReport persist(LdapConfiguration config, String persistId) {
         Configurator configurator = new Configurator();
 
         if (!Arrays.asList(LDAP_USE_CASES)

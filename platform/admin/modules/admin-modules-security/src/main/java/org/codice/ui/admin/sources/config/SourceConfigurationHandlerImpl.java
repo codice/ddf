@@ -36,7 +36,7 @@ import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.ProbeReport;
 import org.codice.ui.admin.wizard.api.TestReport;
 
-
+// TODO: tbatie - 12/14/16 - Let's figure out a better name than impl
 public class SourceConfigurationHandlerImpl implements ConfigurationHandler<SourceConfiguration> {
 
     public static final String SOURCE_CONFIGURATION_HANDLER_ID = "sources";
@@ -120,7 +120,7 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
         }
     }
 
-    public TestReport persist(SourceConfiguration config) {
+    public TestReport persist(SourceConfiguration config, String persistId) {
         return new TestReport(buildMessage(FAILURE, "Cannot persist a SourceConfiguration."));
     }
 

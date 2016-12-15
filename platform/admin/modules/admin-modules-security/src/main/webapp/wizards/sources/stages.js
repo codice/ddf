@@ -107,7 +107,7 @@ const ConfirmationStageView = ({selectedSource, persistConfig, sourceName}) => (
       <ConstrainedSourceInfo label='Source Address' value={selectedSource.endpointUrl} />
       <ConstrainedSourceInfo label='Username' value={selectedSource.sourceUserName || 'none'} />
       <ConstrainedSourceInfo label='Password' value={selectedSource.sourceUserPassword || 'none'} />
-      <Submit label='Finish' disabled={sourceName === undefined || sourceName === ''} onClick={() => persistConfig('/admin/wizard/persist/' + selectedSource.configurationHandlerId, null, 'completedStage')} />
+      <Submit label='Finish' disabled={sourceName === undefined || sourceName === ''} onClick={() => persistConfig('/admin/wizard/persist/' + selectedSource.configurationHandlerId + '/create', null, 'completedStage')} />
     </CenteredElements>
   </NavPanes>
 )

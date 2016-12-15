@@ -272,7 +272,7 @@ let wcpm = ({ updatePolicyBins, persistChanges }) => (
       </Paper>
       <Divider />
       <PolicyBins />
-      <FloatingActionButton style={{ position: 'absolute', right: 20, bottom: 20 }} onClick={() => persistChanges('/admin/wizard/persist/contextPolicyManager')}>
+      <FloatingActionButton style={{ position: 'absolute', right: 20, bottom: 20 }} onClick={() => persistChanges('/admin/wizard/persist/contextPolicyManager/create')}>
         <SaveIcon />
       </FloatingActionButton>
     </Flexbox>

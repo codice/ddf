@@ -45,10 +45,10 @@ public interface ConfigurationHandler<S extends Configuration> {
      * @param configuration - Configuration to persist
      * @return Error messages resulting from persisting
      */
-    TestReport persist(S configuration);
+    TestReport persist(S configuration, String persistId);
 
     /*
-     * Returns configurations previously created from this configuration handler
+     * Returns configurations associated with this configuration handler
      */
     List<S> getConfigurations();
 

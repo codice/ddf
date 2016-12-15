@@ -159,7 +159,7 @@ public class CswSourceConfigurationHandler
     }
 
     @Override
-    public TestReport persist(SourceConfiguration configuration) {
+    public TestReport persist(SourceConfiguration configuration, String persistId) {
         Configurator configurator = new Configurator();
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
         configurator.commit();

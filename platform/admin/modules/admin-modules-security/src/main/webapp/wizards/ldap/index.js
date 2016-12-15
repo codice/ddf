@@ -168,7 +168,7 @@ const ConfigureEmbeddedLdap = ({ id, disabled }) => (
     </div>
     <StageControls>
       <Back disabled={disabled} />
-      <Save id={id} label='mic check check' disabled={disabled} url='/admin/wizard/persist/embeddedLdap' configType='embeddedLdap' nextStageId='networkSettings' />
+      <Save id={id} label='mic check check' disabled={disabled} url='/admin/wizard/persist/embeddedLdap/create' configType='embeddedLdap' nextStageId='networkSettings' />
     </StageControls>
   </Stage>
 )
@@ -429,7 +429,7 @@ const Confirm = ({id}) => (
 
     <StageControls>
       <Back />
-      <Save id={id} url='/admin/wizard/persist/ldap' />
+      <Save id={id} url='/admin/wizard/persist/ldap/create' />
     </StageControls>
   </Stage>
 )
