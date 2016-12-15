@@ -116,14 +116,14 @@
         <protobuf.version>3.1.0</protobuf.version>
         <servicemix.bundles.junit.version>4.11_2</servicemix.bundles.junit.version>
         <!-- Artemis dependencies -->
-        <artemis.version>1.4.0</artemis.version>
-        <proton.version>0.12.2</proton.version>
+        <artemis.version>1.5.1</artemis.version>
+        <proton.version>0.15.0</proton.version>
         <geronimo-jms_2_spec.version>1.0-alpha-2</geronimo-jms_2_spec.version>
         <jboss-logging.version>3.3.0.Final</jboss-logging.version>
         <jgroups.version>3.6.9.Final</jgroups.version>
         <commons-beanutils.version>1.9.2</commons-beanutils.version>
-        <netty.version>4.0.39.Final</netty.version>
-        <qpid-jms.version>0.9.0</qpid-jms.version>
+        <netty.version>4.1.5.Final</netty.version>
+        <qpid-jms.version>0.11.0</qpid-jms.version>
         <geronimo-json-spec.version>1.0-alpha-1</geronimo-json-spec.version>
         <johnzon.version>0.9.5</johnzon.version>
         <!--Documentation Replacements-->
