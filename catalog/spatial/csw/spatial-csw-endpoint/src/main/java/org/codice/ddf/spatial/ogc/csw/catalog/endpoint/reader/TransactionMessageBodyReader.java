@@ -34,6 +34,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.MetacardType;
 
 @Provider
@@ -43,9 +44,13 @@ public class TransactionMessageBodyReader implements MessageBodyReader<CswTransa
 
     private MetacardType metacardType;
 
-    public TransactionMessageBodyReader(Converter converter, MetacardType metacardType) {
+    private AttributeRegistry registry;
+
+    public TransactionMessageBodyReader(Converter converter, MetacardType metacardType,
+            AttributeRegistry registry) {
         this.cswRecordConverter = converter;
         this.metacardType = metacardType;
+        this.registry = registry;
     }
 
     @Override
@@ -61,7 +66,7 @@ public class TransactionMessageBodyReader implements MessageBodyReader<CswTransa
             throws IOException, WebApplicationException {
         XStream xStream = new XStream(new Xpp3Driver());
         TransactionRequestConverter transactionRequestConverter = new TransactionRequestConverter(
-                cswRecordConverter);
+                cswRecordConverter, registry);
         transactionRequestConverter.setCswRecordConverter(new CswRecordConverter(metacardType));
         xStream.registerConverter(transactionRequestConverter);
         xStream.alias("csw:" + CswConstants.TRANSACTION, CswTransactionRequest.class);

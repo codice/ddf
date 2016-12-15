@@ -19,9 +19,11 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -48,9 +50,10 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
-
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 
@@ -61,8 +64,11 @@ public class TransactionRequestConverter implements Converter {
 
     private CswRecordConverter cswRecordConverter;
 
-    public TransactionRequestConverter(Converter itp) {
+    private AttributeRegistry registry;
+
+    public TransactionRequestConverter(Converter itp, AttributeRegistry registry) {
         this.delegatingTransformer = itp;
+        this.registry = registry;
     }
 
     public CswRecordConverter getCswRecordConverter() {
@@ -234,25 +240,37 @@ public class TransactionRequestConverter implements Converter {
                 // Move back up to the <RecordProperty>.
                 reader.moveUp();
 
+                String attrName = DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(cswField);
+                cswRecordProperties.put(attrName, null);
                 // Is there a <Value>?
-                if (reader.hasMoreChildren()) {
+                while (reader.hasMoreChildren()) {
                     // Move down to the <Value>.
                     reader.moveDown();
 
                     if (reader.getNodeName()
                             .contains("Value")) {
-                        newValue = getRecordPropertyValue(reader, DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(
-                                cswField));
+                        newValue = getRecordPropertyValue(reader, attrName);
                     } else {
                         throw new ConversionException(
                                 "Invalid Parameter Value: invalid element in a RecordProperty.");
+                    }
+                    Serializable currentValue = cswRecordProperties.get(attrName);
+                    if (currentValue != null) {
+                        if (currentValue instanceof List) {
+                            ((List) currentValue).add(newValue);
+                        } else {
+                            LinkedList<Serializable> list = new LinkedList<>();
+                            list.add(currentValue);
+                            list.add(newValue);
+                            cswRecordProperties.put(attrName, list);
+                        }
+                    } else {
+                        cswRecordProperties.put(attrName, newValue);
                     }
 
                     // Back to the <RecordProperty>.
                     reader.moveUp();
                 }
-                cswRecordProperties.put(DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(
-                        cswField), newValue);
 
                 // Back to the <Update>, look for the next <RecordProperty>.
                 reader.moveUp();
@@ -294,7 +312,7 @@ public class TransactionRequestConverter implements Converter {
                         // If this basic metacard attribute hasn't already been set, set it.
                         if (!cswRecordPropertiesWithMetacardAttributes.containsKey(metacardAttrName)) {
                             Attribute metacardAttr =
-                                    CswRecordConverter.getMetacardAttributeFromCswAttribute(
+                                    cswRecordConverter.getMetacardAttributeFromCswAttribute(
                                             cswAttributeName,
                                             recordProperty.getValue(),
                                             metacardAttrName);
@@ -332,14 +350,10 @@ public class TransactionRequestConverter implements Converter {
             Serializable newValue;
             if (reader.hasMoreChildren()) {
                 reader.moveDown();
-                newValue = CswRecordConverter.convertRecordPropertyToMetacardAttribute(cswField,
-                        reader,
-                        CswAxisOrder.LON_LAT);
+                newValue = readPropertyValue(reader, cswField);
                 reader.moveUp();
             } else {
-                newValue = CswRecordConverter.convertRecordPropertyToMetacardAttribute(cswField,
-                        reader,
-                        CswAxisOrder.LON_LAT);
+                newValue = readPropertyValue(reader, cswField);
             }
 
             return newValue;
@@ -348,6 +362,19 @@ public class TransactionRequestConverter implements Converter {
                     "specified a Value that does not match the type " +
                     cswField + " expected by  for the field " + cswField, e);
         }
+    }
+
+    private Serializable readPropertyValue(HierarchicalStreamReader reader, String cswField) {
+        if (registry != null) {
+            Optional<AttributeDescriptor> descriptor = registry.lookup(cswField);
+            if (descriptor.isPresent()) {
+                return CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(descriptor.get()
+                        .getType()
+                        .getAttributeFormat(), reader, CswAxisOrder.LON_LAT);
+            }
+        }
+        // Assume the value is a String
+        return reader.getValue();
     }
 
     private <T> T getElementFromXml(String xml, Class<T> clazz) {

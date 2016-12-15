@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<csw:Transaction
+        service="CSW"
+        version="2.0.2"
+        xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+        xmlns:ogc="http://www.opengis.net/ogc">
+    <csw:Update>
+        <csw:RecordProperty>
+            <csw:Name>title</csw:Name>
+            <csw:Value>Updated Title</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>created</csw:Name>
+            <csw:Value>2015-08-25</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>datatype</csw:Name>
+            <csw:Value>ABC</csw:Value>
+            <csw:Value>DEF</csw:Value>
+            <csw:Value>GHI</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>language</csw:Name>
+            <csw:Value></csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>checksum</csw:Name>
+        </csw:RecordProperty>
+        <csw:Constraint version="2.0.0">
+            <ogc:Filter>
+                <ogc:PropertyIsEqualTo>
+                    <ogc:PropertyName>title</ogc:PropertyName>
+                    <ogc:Literal>Aliquam fermentum purus quis arcu</ogc:Literal>
+                </ogc:PropertyIsEqualTo>
+            </ogc:Filter>
+        </csw:Constraint>
+    </csw:Update>
+</csw:Transaction>
