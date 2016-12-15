@@ -308,6 +308,9 @@ public class Historian {
 
     private List<ReadStorageRequest> getReadStorageRequests(List<Metacard> metacards) {
         return metacards.stream()
+                .filter(m -> m.getResourceURI() != null)
+                .filter(m -> ContentItem.CONTENT_SCHEME.equals(m.getResourceURI()
+                        .getScheme()))
                 .map(m -> new ReadStorageRequestImpl(m.getResourceURI(),
                         m.getId(),
                         new HashMap<>()))

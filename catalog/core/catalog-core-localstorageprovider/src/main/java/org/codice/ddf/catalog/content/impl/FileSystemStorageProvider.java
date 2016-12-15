@@ -502,7 +502,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     private Path getContentFilePath(URI uri) throws StorageException {
         Path contentIdDir = getContentItemDir(uri);
         List<Path> contentFiles;
-        if (Files.exists(contentIdDir)) {
+        if (contentIdDir != null && Files.exists(contentIdDir)) {
             try {
                 contentFiles = listPaths(contentIdDir);
             } catch (IOException e) {

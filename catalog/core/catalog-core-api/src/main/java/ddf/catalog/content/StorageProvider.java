@@ -24,7 +24,7 @@ import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 
 /**
- * Provider of content repository storage.
+ * Provider of content repository storage. All URIs should use the {@link ddf.catalog.content.data.ContentItem}.CONTENT_SCHEME
  * <p>
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
