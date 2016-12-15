@@ -293,7 +293,8 @@ public class DumpCommand extends CatalogCommands {
             if (StringUtils.isNotBlank(zipFileName)) {
                 zipCompression = getZipCompression();
                 if (zipCompression != null) {
-                    zipCompression.transform(response, zipArgs);
+                    BinaryContent binaryContent = zipCompression.transform(response, zipArgs);
+                    binaryContent.getInputStream().close();
                     Long resultSize = (long) response.getResults()
                             .size();
                     printStatus(resultCount.addAndGet(resultSize));
