@@ -7,6 +7,7 @@ import { combineReducers } from 'redux-immutable'
 import AccountIcon from 'material-ui/svg-icons/action/account-circle'
 import LanguageIcon from 'material-ui/svg-icons/action/language'
 import RefreshIcon from 'material-ui/svg-icons/navigation/refresh'
+import VpnLockIcon from 'material-ui/svg-icons/notification/vpn-lock'
 import Flexbox from 'flexbox-react'
 import Divider from 'material-ui/Divider'
 import { cyan500 } from 'material-ui/styles/colors'
@@ -77,6 +78,20 @@ const SourceWizardTile = () => (
   </Link>
 )
 
+const ContextPolicyManagerTile = () => (
+  <Link to='/webContextPolicyManager/'>
+    <Paper className={styles.main}>
+      <div style={{width: '100%', height: '100%'}}>
+        <Flexbox alignItems='center' flexDirection='column' justifyContent='center' style={{width: '100%', height: '100%'}}>
+          <TileTitle text='Endpoint Security' />
+          <VpnLockIcon style={{color: cyan500, width: '50%', height: '50%'}} />
+          <TileSubtitle text='Web context policy management' />
+        </Flexbox>
+      </div>
+    </Paper>
+  </Link>
+)
+
 const LdapWizardTile = () => (
   <Link to='/ldap/'>
     <Paper className={styles.main}>
@@ -106,6 +121,7 @@ const SourcesHomeView = ({sourceConfigs = [], ldapConfigs = [], refresh}) => (
         <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
           <SourceWizardTile />
           <LdapWizardTile />
+          <ContextPolicyManagerTile />
         </Flexbox>
         <Divider />
         <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>

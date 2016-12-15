@@ -1,4 +1,4 @@
-import { getBins } from '../../reducer'
+import { getBins, getWhiteList } from '../../reducer'
 import { backendError } from '../../actions'
 
 // Bin level
@@ -23,6 +23,9 @@ export const addAttributeMapping = (binNumber) => ({ type: 'WCPM_ADD_ATTRIBUTE_M
 // Set Options
 export const setPolicyOptions = (options) => ({ type: 'WCPM_SET_OPTIONS', options })
 
+// Whitelist
+export const replaceWhitelist = (whiteList) => ({ type: 'WCPM_REPLACE_WHITELIST', whiteList })
+
 // Fetch
 
 export const updatePolicyBins = (url) => (dispatch, getState) => {
@@ -36,6 +39,7 @@ export const updatePolicyBins = (url) => (dispatch, getState) => {
     .then(([status, json]) => {
       if (status === 200) {
         dispatch(replaceAllBins(json[0].contextPolicyBins))
+        dispatch(replaceWhitelist(json[0].whiteListContexts))
         dispatch(fetchOptions('/admin/wizard/probe/contextPolicyManager/options'))
       }
     })
@@ -45,11 +49,10 @@ export const updatePolicyBins = (url) => (dispatch, getState) => {
 }
 
 export const persistChanges = (url) => (dispatch, getState) => {
-  const contextPolicyBins = getBins(getState())
-
   const formattedBody = {
     configurationType: 'contextPolicyManager',
-    contextPolicyBins: contextPolicyBins
+    contextPolicyBins: getBins(getState()),
+    whiteListContexts: getWhiteList(getState())
   }
 
   const opts = {
@@ -74,7 +77,8 @@ export const persistChanges = (url) => (dispatch, getState) => {
 export const fetchOptions = (url) => (dispatch, getState) => {
   const formattedBody = {
     configurationType: 'contextPolicyManager',
-    contextPolicyBins: getBins(getState())
+    contextPolicyBins: getBins(getState()),
+    whiteListContexts: getWhiteList(getState())
   }
 
   const opts = {

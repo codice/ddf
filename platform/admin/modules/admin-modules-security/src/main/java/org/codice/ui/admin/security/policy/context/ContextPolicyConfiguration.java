@@ -15,8 +15,6 @@
 package org.codice.ui.admin.security.policy.context;
 
 import java.util.List;
-import java.util.Map;
-
 import org.codice.ui.admin.security.policy.context.container.ContextPolicyBin;
 import org.codice.ui.admin.wizard.config.Configuration;
 

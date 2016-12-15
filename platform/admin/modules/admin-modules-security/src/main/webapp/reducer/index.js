@@ -27,5 +27,6 @@ export const getDisplayedLdapStages = (state) => ldap.getDisplayedLdapStages(sta
 
 export const getBins = (state) => webContext.getBins(state.get('wcpm'))
 export const getOptions = (state) => webContext.getOptions(state.get('wcpm'))
+export const getWhiteList = (state) => webContext.getWhiteList(state.get('wcpm'))
 
 export default combineReducers({ wizard, backendError, sourceWizard, sourcesHome, wcpm })

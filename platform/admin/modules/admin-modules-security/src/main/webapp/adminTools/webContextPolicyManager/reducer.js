@@ -5,7 +5,7 @@ const emptyEditBin = fromJS({
   name: 'untitled',
   realm: '',
   authenticationTypes: [],
-  requiredAttributes: [],
+  requiredAttributes: {},
   contextPaths: [],
   editing: true
 })
@@ -46,7 +46,7 @@ const bins = (state = List(), { type, bin, bins, path, binNumber, pathNumber, va
     // Attribute Mappings
     case 'WCPM_ADD_ATTRIBUTE_MAPPING':
       // TODO: don't allow adding a key that already exists
-      return state.updateIn([binNumber, 'requiredAttributes', state.getIn([binNumber, 'newrequiredClaim'])], () => state.getIn([binNumber, 'newrequiredAttribute']))
+      return state.updateIn([binNumber, 'requiredAttributes', state.getIn([binNumber, 'newrequiredClaim'])], () => state.getIn([binNumber, 'newrequiredAttribute'])).updateIn([binNumber, 'newrequiredAttribute'], () => '').updateIn([binNumber, 'newrequiredClaim'], () => '')
 
     default:
       return state
@@ -62,10 +62,20 @@ const options = (state = {}, { type, options }) => {
   }
 }
 
+const whiteList = (state = [], { type, whiteList }) => {
+  switch (type) {
+    case 'WCPM_REPLACE_WHITELIST':
+      return fromJS(whiteList)
+    default:
+      return state
+  }
+}
+
 export const getOptions = (state) => state.get('options').toJS()
 export const getBins = (state) => state.get('bins').toJS()
+export const getWhiteList = (state) => state.get('whiteList').toJS()
 
-export default combineReducers({ bins, options })
+export default combineReducers({ bins, options, whiteList })
 
 /*
 // Example State Data Structure
