@@ -558,6 +558,7 @@
         <module>ftp</module>
         <module>validator</module>
         <module>confluence</module>
+        <module>async</module>
     </modules>
     <build>
         <plugins>
