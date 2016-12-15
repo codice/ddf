@@ -17,6 +17,7 @@ export const clearMessages = (id) => ({ type: 'CLEAR_MESSAGES', id })
 export const startSubmitting = () => ({ type: 'START_SUBMITTING' })
 export const endSubmitting = () => ({ type: 'END_SUBMITTING' })
 export const setConfigSource = (source) => ({ type: 'SET_CONFIG_SOURCE', value: source })
+
 export const testSources = (url, configType, nextStageId, id) => (dispatch, getState) => {
   dispatch(startSubmitting())
   dispatch(clearMessages(id))

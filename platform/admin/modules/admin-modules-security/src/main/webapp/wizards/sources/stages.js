@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import { getSourceSelections, getConfigurationHandlerId, getSourceName } from './reducer'
-import { getAllConfig } from '../../reducer'
+import { getMessages, getAllConfig } from '../../reducer'
 import { changeStage, testSources, persistConfig, resetSourceWizardState } from './actions'
 
 import Flexbox from 'flexbox-react'
@@ -27,7 +27,8 @@ import {
   ConstrainedSourceInfo,
   SourceRadioButtons,
   NavPanes,
-  Submit
+  Submit,
+  Message
 } from './components'
 
 // Welcome Stage
@@ -53,7 +54,7 @@ const discoveryStageDefaults = {
   sourceHostName: 'localhost',
   sourcePort: 8993
 }
-const DiscoveryStageView = ({ testSources, setDefaults }) => (
+const DiscoveryStageView = ({ testSources, setDefaults, messages }) => (
   <Mount on={() => setDefaults(discoveryStageDefaults)}>
     <NavPanes backClickTarget='welcomeStage' forwardClickTarget='sourceSelectionStage'>
       <CenteredElements>
@@ -62,12 +63,13 @@ const DiscoveryStageView = ({ testSources, setDefaults }) => (
         <ConstrainedPortInput id='sourcePort' label='Port' />
         <ConstrainedInput id='sourceUserName' label='Username (optional)' />
         <ConstrainedPasswordInput id='sourceUserPassword' label='Password (optional)' />
+        {messages.map((msg, i) => <Message key={i} {...msg} />)}
         <Submit label='Check' onClick={() => testSources('/admin/wizard/probe/sources/discoverSources', 'sources', 'sourceSelectionStage', 'source')} />
       </CenteredElements>
     </NavPanes>
   </Mount>
 )
-export const DiscoveryStage = connect(null, { testSources, setDefaults })(DiscoveryStageView)
+export const DiscoveryStage = connect((state) => ({ messages: getMessages(state, 'source') }), { testSources, setDefaults })(DiscoveryStageView)
 
 // Source Selection Stage
 const sourceSelectionTitle = 'Sources Found!'
@@ -98,7 +100,7 @@ export const SourceSelectionStage = connect((state) => ({sourceSelections: getSo
 // Confirmation Stage
 const confirmationTitle = 'Finalize Source Configuration'
 const confirmationSubtitle = 'Name your source, confirm details, and press finish to add source'
-const sourceNameDescription = 'Use something descriptive to distinguish it from your other sources'
+const sourceNameDescription = 'Use a unique name to identify this source'
 const ConfirmationStageView = ({selectedSource, persistConfig, sourceName}) => (
   <NavPanes backClickTarget='sourceSelectionStage' forwardClickTarget='completedStage'>
     <CenteredElements>

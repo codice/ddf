@@ -32,6 +32,8 @@ import {
   navButtonStylesDisabled
 } from './styles.less'
 
+import ldapStyles from '../ldap/styles.less'
+
 import {
   Input,
   Password,
@@ -88,6 +90,10 @@ export const ConstrainedSelectInput = ({ id, label, description }) => (
     <Select id={id} label={label} />
     <DescriptionIcon description={description} />
   </WidthConstraint>
+)
+
+export const Message = ({type, message}) => (
+  <div className={type === 'FAILURE' ? ldapStyles.error : ldapStyles.success}>{message}</div>
 )
 
 const DescriptionIcon = ({ description }) => {
