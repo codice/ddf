@@ -24,16 +24,24 @@ define([
     var minimumBuffer = 0.000001;
 
     function convertToValid(key, model){
-        if (key.mapSouth !== undefined && (key.mapSouth >= key.mapNorth || key.mapSouth >= model.get('mapNorth'))){
+        if (key.mapSouth !== undefined && 
+            (key.mapSouth >= key.mapNorth || 
+            (!key.mapNorth && key.mapSouth >= model.get('mapNorth')))){
             key.mapSouth = parseFloat((key.mapNorth || model.get('mapNorth'))) - minimumDifference;
         }
-        if (key.mapEast !== undefined && (key.mapEast <= key.mapWest || key.mapEast <= model.get('mapWest'))){
+        if (key.mapEast !== undefined &&
+            (key.mapEast <= key.mapWest || 
+            (!key.mapWest && key.mapEast <= model.get('mapWest')))){
             key.mapEast = parseFloat((key.mapWest || model.get('mapWest'))) + minimumDifference;
         }
-        if (key.mapWest !== undefined && (key.mapWest >= key.mapEast || key.mapWest >= model.get('mapEast'))){
+        if (key.mapWest !== undefined && 
+            (key.mapWest >= key.mapEast || 
+            (!key.mapEast && key.mapWest >= model.get('mapEast')))){
             key.mapWest = parseFloat((key.mapEast || model.get('mapEast'))) - minimumDifference;
         }
-        if (key.mapNorth !== undefined && (key.mapNorth <= key.mapSouth || key.mapNorth <= model.get('mapSouth'))){
+        if (key.mapNorth !== undefined &&
+            (key.mapNorth <= key.mapSouth || 
+            (!key.mapSouth && key.mapNorth <= model.get('mapSouth')))){
             key.mapNorth = parseFloat((key.mapSouth || model.get('mapSouth'))) + minimumDifference;
         }
         if (key.mapNorth !== undefined){
@@ -144,16 +152,18 @@ define([
         },
 
         setLatLon: function () {
-            var result = {};
-            result.north = this.get('mapNorth');
-            result.south = this.get('mapSouth');
-            result.west = this.get('mapWest');
-            result.east = this.get('mapEast');
-            if (!(result.north && result.south && result.west && result.east)) {
-                result = converter.USNGtoLL(this.get('usngbb'));
+            if (this.get('locationType') === "latlon") {
+                var result = {};
+                result.north = this.get('mapNorth');
+                result.south = this.get('mapSouth');
+                result.west = this.get('mapWest');
+                result.east = this.get('mapEast');
+                if (!(result.north && result.south && result.west && result.east)) {
+                    result = converter.USNGtoLL(this.get('usngbb'));
 
+                }
+                this.set(result);
             }
-            this.set(result);
         },
 
         setFilterBBox: function (model) {
