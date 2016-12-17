@@ -386,9 +386,9 @@ const LdapAttributeMappingStageView = (props) => {
 }
 
 const toAttributeMapping = (tableMappings) => {
-  var newMapping = {}
-  tableMappings.forEach((mapping) => { newMapping[mapping.subjectClaim] = [].concat(newMapping[mapping.subjectClaim] === undefined ? [] : newMapping[mapping.subjectClaim], [mapping.userAttribute]) })
-  return newMapping
+  return tableMappings.reduce((prevObj, mapping) => {
+    prevObj[mapping.subjectClaim] = mapping.userAttribute
+  })
 }
 // todo Need to transform map into a string, list map
 const mapDispatchToPropsNextAttributeMapping = (dispatch, {id, url, nextStageId, attributeMappings}) => ({

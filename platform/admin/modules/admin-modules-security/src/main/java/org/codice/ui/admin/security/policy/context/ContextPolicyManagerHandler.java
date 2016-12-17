@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.text.StrSubstitutor;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
+import org.codice.ddf.security.policy.context.impl.PolicyManager;
 import org.codice.ui.admin.security.policy.context.container.ContextPolicyBin;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
@@ -65,17 +65,13 @@ public class ContextPolicyManagerHandler
 
     public static final String POLICY_OPTIONS_ID = "options";
 
-    private ContextPolicyManager policyManager;
-
-    private STSClientConfiguration stsClientConfig;
-
     @Override
     public ProbeReport probe(String probeId, ContextPolicyConfiguration configuration) {
         switch (probeId) {
         case POLICY_OPTIONS_ID:
             return new ProbeReport().addProbeResult("authenticationTypes", authenticationTypes)
                     .addProbeResult("realms", realms)
-                    .addProbeResult("claims", stsClientConfig.getClaims());
+                    .addProbeResult("claims", getStsClientConfig().getClaims());
         }
 
         return null;
@@ -145,22 +141,9 @@ public class ContextPolicyManagerHandler
 
     @Override
     public List<ContextPolicyConfiguration> getConfigurations() {
-        Configurator configurator = new Configurator();
-        // TODO: tbatie - 12/15/16 - The policy manager interface does not include a getter for white list contexts although the implementation does.
-        // Can't change the interface so we are forced to look up the service properties instead of using the service reference
-        Object whiteListContexts = configurator.getConfig(
-                "org.codice.ddf.security.policy.context.impl.PolicyManager")
-                .get("whiteListContexts");
-
-        List<String> whiteListContextsAsList = whiteListContexts == null ?
-                new ArrayList<>() :
-                Arrays.stream((String[])whiteListContexts)
-                        .map(context -> StrSubstitutor.replaceSystemProperties(context))
-                        .collect(Collectors.toList());
-
         return Arrays.asList(new ContextPolicyConfiguration()
                 .contextPolicyBins(contextPolicyManagerSettingsToBins())
-                .whiteListContexts(whiteListContextsAsList));
+                .whiteListContexts(getPolicyManager().getWhiteListContexts()));
     }
 
     @Override
@@ -179,9 +162,9 @@ public class ContextPolicyManagerHandler
     }
 
     public List<ContextPolicyBin> contextPolicyManagerSettingsToBins() {
-        // TODO: tbatie - 12/10/16 - Probably should match terminology used by the policy manager
+        // TODO: tbatie - 12/10/16 - Should match terminology used by the policy manager
         List<ContextPolicyBin> bins = new ArrayList<>();
-        Collection<ContextPolicy> allPolicies = policyManager.getAllContextPolicies();
+        Collection<ContextPolicy> allPolicies = getPolicyManager().getAllContextPolicies();
         for (ContextPolicy policy : allPolicies) {
             boolean foundBin = false;
             Map<String, String> policyRequiredAttributes = policy.getAllowedAttributes()
@@ -210,11 +193,15 @@ public class ContextPolicyManagerHandler
         return bins;
     }
 
-    public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
-        this.stsClientConfig = stsClientConfig;
+
+    public PolicyManager getPolicyManager() {
+        // TODO: tbatie - 12/16/16 - Throw exception? Something is seriously wrong if service isnt available
+        ContextPolicyManager manager = new Configurator().getServiceReference(ContextPolicyManager.class);
+        return manager == null? null : (PolicyManager) manager;
     }
 
-    public void setPolicyManager(ContextPolicyManager policyManager) {
-        this.policyManager = policyManager;
+    public STSClientConfiguration getStsClientConfig() {
+        // TODO: tbatie - 12/16/16 - Throw exception? Something is seriously wrong if service isnt available
+        return new Configurator().getServiceReference(STSClientConfiguration.class);
     }
 }

@@ -284,6 +284,22 @@ public class Configurator {
                 .readState();
     }
 
+    /**
+     * Retrieves the service reference. The reference should only be used for reading purposes, any changes should be done
+     * @param serviceClass - Class of service to retrieve
+     * @return first found service reference of serviceClass
+     * @throws ConfiguratorException
+     */
+    public<S> S getServiceReference(Class<S> serviceClass) throws ConfiguratorException {
+        BundleContext context = getBundleContext();
+        ServiceReference<S> ref = context.getServiceReference(serviceClass);
+        if(ref == null) {
+            return null;
+        }
+
+        return context.getService(ref);
+    }
+
     private String registerHandler(ConfigHandler handler) {
         String key = UUID.randomUUID()
                 .toString();

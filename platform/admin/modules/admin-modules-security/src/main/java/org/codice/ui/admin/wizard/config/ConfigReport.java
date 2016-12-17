@@ -40,6 +40,10 @@ public class ConfigReport {
                 .collect(Collectors.toList());
     }
 
+    public boolean containsFailedResults() {
+        return getFailedResults().size() != 0;
+    }
+
     public void putResult(String key, Result result) {
         results.put(key, result);
     }

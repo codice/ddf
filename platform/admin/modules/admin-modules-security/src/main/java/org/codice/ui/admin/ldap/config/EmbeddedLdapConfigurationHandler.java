@@ -14,6 +14,7 @@
 
 package org.codice.ui.admin.ldap.config;
 
+import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.NO_TEST_FOUND;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
 
@@ -42,7 +43,6 @@ public class EmbeddedLdapConfigurationHandler
 
     @Override
     public ProbeReport probe(String probeId, EmbeddedLdapConfiguration configuration) {
-        // TODO: tbatie - 12/1/16 - Implement embedded LDAP probe
         return null;
     }
 
@@ -61,6 +61,11 @@ public class EmbeddedLdapConfigurationHandler
                 configuration.toPropertiesMap(),
                 true);
         ConfigReport report = configurator.commit();
+
+        if(report.containsFailedResults()) {
+            return new TestReport(new ConfigurationMessage("Unable to install DDF Embedded LDAP",
+                    FAILURE));
+        }
         // TODO: tbatie - 12/2/16 - do something with this key
         return new TestReport(new ConfigurationMessage("DDF Embedded Has Successfully Been Started",
                 SUCCESS));

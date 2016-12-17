@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 
@@ -118,9 +117,11 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
     @Override
     public List<LdapConfiguration> getConfigurations() {
+
         Configurator configurator = new Configurator();
         if (configurator.isFeatureStarted("security-sts-ldaplogin")) {
             try {
+                // TODO: tbatie - 12/16/16 - Lets get a service reference and make a constructor for all of this
                 Map<String, Map<String, Object>> configs = configurator.getManagedServiceConfigs(
                         "Ldap_Login_Config");
                 if (!configs.isEmpty()) {
@@ -319,19 +320,8 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             return testLdapDirectoryStructure(ldapConfiguration);
 
         case LDAP_ATTRIBUTE_MAPPING_TEST_ID:
-            // TODO: tbatie - 12/7/16 - Figure out other tests that can be ran on attribute mapping
-            if (ldapConfiguration.attributeMappings()
-                    .isEmpty()) {
-                return new TestReport(buildMessage(FAILURE, "Attribute mappings cannot be empty."));
-            } else if (ldapConfiguration.attributeMappings()
-                    .values()
-                    .stream()
-                    .anyMatch(attriList -> attriList.isEmpty())) {
-                return new TestReport(buildMessage(FAILURE,
-                        "Cannot map a claim to an empty attribute value."));
-            } else {
-                return new TestReport(buildMessage(SUCCESS, "Successfully validated mapping."));
-            }
+            // TODO: tbatie - 12/15/16 - Make sure the attributes are in the schema, if they aren't report error. Give a warning there are no users in group or base user dn with the given attributes
+            return new TestReport(buildMessage(SUCCESS, "Successfully validated mapping."));
         default:
             return new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
         }
@@ -375,25 +365,16 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         if (config.ldapUseCase()
                 .equals(CREDENTIAL_STORE) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
-
-            // TODO: tbatie - 12/8/16 - Fields do not map directly with the ldap login fields, might want to wait to persist until they are identical
-            Map<String, Object> ldapClaimsHandlerConfig = new HashMap<>();
-
-            Map<String, String> transformedAttributeMapping = config.attributeMappings()
-                    .entrySet()
-                    .stream()
-                    .collect(Collectors.toMap(entry -> entry.getKey(),
-                            entry -> String.join(",", entry.getValue())));
-
             Path newAttributeMappingPath = Paths.get(System.getProperty("ddf.home"),
                     "etc",
                     "ws-security",
                     "ldapAttributeMap-" + UUID.randomUUID()
                             .toString() + ".props");
-            configurator.createPropertyFile(newAttributeMappingPath, transformedAttributeMapping);
+            configurator.createPropertyFile(newAttributeMappingPath, config.attributeMappings());
             String ldapUrl = getLdapUrl(config);
             boolean startTls = isStartTls(config);
 
+            Map<String, Object> ldapClaimsHandlerConfig = new HashMap<>();
             ldapClaimsHandlerConfig.put("url", ldapUrl + config.hostName() + ":" + config.port());
             ldapClaimsHandlerConfig.put("startTls", startTls);
             ldapClaimsHandlerConfig.put("ldapBindUserDn", config.bindUserDn());

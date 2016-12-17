@@ -139,7 +139,7 @@ public class LdapConfiguration extends Configuration {
         return ldapUseCase;
     }
 
-    public Map<String, List<String>> attributeMappings;
+    public Map<String, String> attributeMappings;
 
     public List<Map<String, String>> queryResults() {
         return queryResults;
@@ -157,7 +157,7 @@ public class LdapConfiguration extends Configuration {
         return membershipAttribute;
     }
 
-    public Map<String, List<String>> attributeMappings() {
+    public Map<String, String> attributeMappings() {
         return attributeMappings;
     }
 
@@ -251,7 +251,7 @@ public class LdapConfiguration extends Configuration {
         return this;
     }
 
-    public LdapConfiguration attributeMappings(Map<String, List<String>> attributeMapping) {
+    public LdapConfiguration attributeMappings(Map<String, String> attributeMapping) {
         this.attributeMappings = attributeMapping;
         return this;
     }
