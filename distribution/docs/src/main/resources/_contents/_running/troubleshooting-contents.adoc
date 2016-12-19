@@ -23,9 +23,6 @@ If, after configuration, a ${branding} is not performing as expected, consult th
 
 As a workaround, ingest files in batches smaller than 200,000.
 
-|Ingesting millions of complicated data into Solr can cause Java heap space error.
-|Complicated data has spatial types and large text.
-
 |Ingesting serialized data file with scientific notation in WKT string causes RuntimeException.
 |WKT string with scientific notation such as POINT (-34.8932113039107 -4.77974239601E-5) won't ingest. This occurs with serialized data format only.
 

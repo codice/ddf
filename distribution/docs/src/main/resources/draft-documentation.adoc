@@ -1,9 +1,7 @@
-= ${branding-expanded} Documentation
+= DRAFT ${branding-expanded} Documentation
 include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 
-:sectnums!:
-== Overview
-:sectnums:
+= Introduction
 
 == About ${branding}
 
@@ -17,13 +15,11 @@ include::{adoc-include}/_introduction/documentation-notes-contents.adoc[]
 
 <<<
 
-:sectnums!:
-== Core Concepts
-:sectnums:
+= Core Concepts
 
 include::{adoc-include}/_introduction/core-concepts-intro-contents.adoc[]
 
-
+// TODO: https://codice.atlassian.net/browse/DDF-2471
 == Search
 
 include::{adoc-include}/_core-concepts/search-intro-contents.adoc[]
@@ -64,9 +60,8 @@ include::{adoc-include}/_core-concepts/endpoints-intro-contents.adoc[]
 
 '''
 
-:sectnums!:
-== Managing
-:sectnums:
+= Managing
+[small]#Version: ${project.version}#
 
 include::{adoc-include}/_introduction/managing-intro-contents.adoc[]
 
@@ -118,6 +113,11 @@ include::{adoc-include}/_configuring/configuring-catalog-provider-contents.adoc[
 
 include::{adoc-include}/_configuring/managing-features-contents.adoc[]
 
+////
+== Hardening
+
+// Todo: Add hardening section: https://codice.atlassian.net/browse/DDF-2472
+////
 == Running
 
 include::{adoc-include}/_running/running-intro-contents.adoc[]
@@ -154,9 +154,8 @@ include::{adoc-include}/_running/ingesting-exported-metadata-contents.adoc[]
 
 include::{adoc-include}/_running/translating-exported-metadata-contents.adoc[]
 
-:sectnums!:
+// quickstart
 == Quickstart Tutorial
-:sectnums:
 
 include::{adoc-include}/_quickstart/quickstart-installing-contents.adoc[]
 
@@ -166,9 +165,7 @@ include::{adoc-include}/_quickstart/quickstart-ingesting-contents.adoc[]
 
 '''
 
-:sectnums!:
-== Using
-:sectnums:
+= Using
 
 include::{adoc-include}/_using/using-intro-contents.adoc[]
 
@@ -190,9 +187,8 @@ include::{adoc-include}/_using/using-simple-search-ui-contents.adoc[]
 
 '''
 
-:sectnums!:
-== Integrating
-:sectnums:
+= Integrating
+[small]#Version: ${project.version}#
 
 include::{adoc-include}/_introduction/integrating-intro-contents.adoc[]
 
@@ -240,8 +236,11 @@ include::{adoc-include}/_data/validation-attributes-table-contents.adoc[]
 
 include::{adoc-include}/_endpoints/endpoints-intro-contents.adoc[]
 
+=== List of endpoints
+// summary list of endpoints
 include::{adoc-include}/_endpoints/available-endpoints-contents.adoc[]
 
+// endpoint details
 include::{adoc-include}/_endpoints/application-endpoint-contents.adoc[]
 
 include::{adoc-include}/_endpoints/cometd-endpoint-contents.adoc[]
@@ -276,8 +275,8 @@ include::{adoc-include}/_sources/sources-intro-contents.adoc[]
 
 include::{adoc-include}/_sources/federation-strategy-contents.adoc[]
 
+// Federated Sources
 === Federated Sources
-
 include::{adoc-include}/_sources/federated-sources-contents.adoc[]
 
 include::{adoc-include}/_sources/csw-federated-source-contents.adoc[]
@@ -317,12 +316,12 @@ include::{adoc-include}/_sources/storage-provider-intro-contents.adoc[]
 // TODO: https://codice.atlassian.net/browse/DDF-2648
 // include::{adoc-include}/_security-framework/security-services-intro-contents.adoc[]
 
-=== Security IDP
-
+=== IDP
+// security idp
 include::{adoc-include}/_security-framework/security-idp-intro-contents.adoc[]
 
-=== Security STS
-
+=== STS
+// security sts
 include::{adoc-include}/_security-framework/security-sts-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-sts-client-config-contents.adoc[]
@@ -344,9 +343,7 @@ include::{adoc-include}/_security-framework/security-sts-service-contents.adoc[]
 
 '''
 
-:sectnums!:
-== Developing
-:sectnums:
+= Developing
 
 include::{adoc-include}/_introduction/developing-intro-contents.adoc[]
 
@@ -425,7 +422,7 @@ include::{adoc-include}/_transformers/thumbnail-metacard-transformer-contents.ad
 include::{adoc-include}/_transformers/xml-metacard-transformer-contents.adoc[]
 
 include::{adoc-include}/_transformers/developing-metacard-transformers-contents.adoc[]
-
+// query response transformers
 include::{adoc-include}/_transformers/query-response-transformers-contents.adoc[]
 
 include::{adoc-include}/_transformers/atom-query-response-transformer-contents.adoc[]
@@ -598,9 +595,9 @@ include::{adoc-include}/_resources/resource-writers-intro-contents.adoc[]
 include::{adoc-include}/_resources/resource-writers-contents.adoc[]
 
 include::{adoc-include}/_resources/developing-resource-writers-contents.adoc[]
-
+//registry clients
 include::{adoc-include}/_resources/developing-registry-clients-contents.adoc[]
-
+//content directory monitor
 include::{adoc-include}/_resources/content-directory-monitor-contents.adoc[]
 
 == Queries
@@ -632,14 +629,14 @@ include::{adoc-include}/_queries/developing-query-options-contents.adoc[]
 include::{adoc-include}/_security-framework/security-framework-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-core-intro-contents.adoc[]
-
+// security core
 include::{adoc-include}/_security-framework/security-core-api-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-core-implementation-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-core-commons-contents.adoc[]
 
-
+// security encryption
 include::{adoc-include}/_security-framework/security-encryption-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-encryption-api-contents.adoc[]
@@ -648,7 +645,7 @@ include::{adoc-include}/_security-framework/security-encryption-implementation-c
 
 include::{adoc-include}/_security-framework/security-encryption-commands-contents.adoc[]
 
-
+// security ldap
 include::{adoc-include}/_security-framework/security-ldap-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-ldap-embedded-server-contents.adoc[]
@@ -657,10 +654,10 @@ include::{adoc-include}/_security-framework/security-pdp-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-pdp-authz-realm-contents.adoc[]
 
-
+// security guest interceptor
 include::{adoc-include}/_security-framework/guest-interceptor-contents.adoc[]
 
-
+// security wss
 include::{adoc-include}/_security-framework/security-wss-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-rest-intro-contents.adoc[]
@@ -669,7 +666,7 @@ include::{adoc-include}/_security-framework/security-soap-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/developing-token-validators-contents.adoc[]
 
-
+// security pep
 include::{adoc-include}/_security-framework/security-pep-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-pep-interceptor-contents.adoc[]
@@ -715,12 +712,20 @@ include::{adoc-include}/_developing/developing-intro-contents.adoc[]
 // === OSGi NEW TICKET?
 // https://codice.atlassian.net/browse/2653
 
-// === Secure development
+=== Secure development
 // https://codice.atlassian.net/browse/2649
 
-// === Version Compatibility
+=== Version Compatibility
 
 // https://codice.atlassian.net/browse/DDF-2648
+
+= Appendices
+
+// [appendix]
+// == Dependency List
+
+// https://codice.atlassian.net/browse/DDF-1124
+// include::{adoc-include}/_dependency-list/ddf-dependency-list.adoc[]
 
 [appendix]
 == Application Reference
@@ -729,75 +734,76 @@ include::{adoc-include}/_developing/developing-intro-contents.adoc[]
 Installation and configuration details by application.
 ====
 
-=== ${catalog-ui} Reference
+== ${catalog-ui} Reference
 [small]#Version: ${project.version}#
 
 include::{adoc-include}/_catalog-ui-contents/managing-catalog-ui-contents.adoc[]
 
-=== ${ddf-admin} Reference
+== ${ddf-admin} Reference
 [small]#Version: ${project.version}#
 
-include::{adoc-include}/_admin-contents/managing-admin-contents.adoc[]
+include::{adoc-include}/_draft-admin-contents/managing-admin-contents.adoc[]
 
 <<<
 
-=== ${ddf-catalog} Reference
+== ${ddf-catalog} Reference
 [small]#Version: ${project.version}#
 
-include::{adoc-include}/_catalog-contents/managing-catalog-contents.adoc[]
+include::{adoc-include}/_draft-catalog-contents/managing-catalog-contents.adoc[]
 
 <<<
 
-=== ${ddf-geowebcache} Reference
+== ${ddf-geowebcache} Reference
 [small]#Version: ${project.version}#
 
-include::{adoc-include}/_geowebcache-contents/managing-geowebcache-contents.adoc[]
+include::{adoc-include}/_draft-geowebcache-contents/managing-geowebcache-contents.adoc[]
 
 <<<
 
-=== ${ddf-platform} Reference
+== ${ddf-platform} Reference
 [small]#Version: ${project.version}#
 
-include::{adoc-include}/_platform-contents/managing-platform-contents.adoc[]
+include::{adoc-include}/_draft-platform-contents/managing-platform-contents.adoc[]
 
 <<<
 
-=== ${ddf-registry} Application Reference
+== ${ddf-registry} Application Reference
 [small]#Version: ${project.version}#
 
-include::{adoc-include}/_registry-contents/managing-registry-contents.adoc[]
+include::{adoc-include}/_draft-registry-contents/managing-registry-contents.adoc[]
 
 <<<
 
-=== ${ddf-security} Application Reference
+== ${ddf-security} Application Reference
 [small]#Version: ${project.version}#
 
-include::{adoc-include}/_security-contents/managing-security-contents.adoc[]
+include::{adoc-include}/_draft-security-contents/managing-security-contents.adoc[]
 
 <<<
 
-=== ${ddf-solr} Application Reference
+== ${ddf-solr} Application Reference
 [small]#Version: ${project.version}#
 
-include::{adoc-include}/_solr-contents/managing-solr-contents.adoc[]
+include::{adoc-include}/_draft-solr-contents/managing-solr-contents.adoc[]
+include::{adoc-include}/_sources/solrcloud-contents.adoc[]
 
 <<<
 
-=== ${ddf-spatial} Application Reference
+== ${ddf-spatial} Application Reference
 [small]#Version: ${project.version}#
 
-include::{adoc-include}/_spatial-contents/managing-spatial-contents.adoc[]
+include::{adoc-include}/_draft-spatial-contents/managing-spatial-contents.adoc[]
 
 <<<
 
-=== ${ddf-ui} Application Reference
+== ${ddf-ui} Application Reference
 [small]#Version: ${project.version}#
 
-include::{adoc-include}/_ui-contents/managing-ui-contents.adoc[]
+include::{adoc-include}/_draft-ui-contents/managing-ui-contents.adoc[]
 
 <<<
 
-=== ${ddf-resource-management} Application Reference
+== ${ddf-resource-management} Application Reference
 [small]#Version: ${project.version}#
 
 include::{adoc-include}/_resource-management-contents/managing-resource-management-contents.adoc[]
@@ -806,6 +812,7 @@ include::{adoc-include}/_resource-management-contents/managing-resource-manageme
 
 [appendix]
 == Application Whitelists
+// define whitelist
 
 ****
 // Warning karaf version specific / upgrades may break

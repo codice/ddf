@@ -1,6 +1,34 @@
+Catalog Providers are used to interface with the data of {branding}.
 
-The following catalog providers are included with a standard installation of ${branding}:
+The Solr Catalog Provider is included with a standard installation of ${branding}.
+The Solr Catalog Provider is an implementation of Catalog Provider using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+The following are the three ways to configure the Solr Catalog Provider:
 
-<<_catalog_solr_embedded_provider,Solr Embedded Catalog Provider>>:: An implementation of the `CatalogProvider` interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+<<HTTP Solr,HTTP Solr>> (default):: Used with an external (HTTP) Solr server.
 
-<<_catalog_solr_external_provider,Solr External Catalog Provider>>:: Used with a Standalone external (HTTP) Solr Server.
+<<Embedded Solr,Embedded Solr>>:: Used with an embedded Solr server with no HTTP interface.
+
+<<Solr Cloud,Solr Cloud>>:: Used with a cluster of Solr servers.
+
+If not using Solr Cloud, whenever the {branding} Solr ingests data, it creates an index for it in the data directory.
+This data indexing enables the data to be searchable by the {branding} Solr. The data in the data directory can then be persisted by performing a `commit` on the {branding} Solr.
+When the {branding} Solr is restarted, it reloads the data to get back the index.
+
+==== Solr Configuration Files
+
+The Apache Solr product has configuration files to customize behavior for the Solr server. These files can be found at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/etc/solr`.
+Care must be taken in editing these files because they will directly affect functionality and performance of the Solr Catalog Provider.
+A restart of the distribution is necessary for changes to take effect.
+
+[WARNING]
+====
+*Solr Configuration File Changes* +
+Solr configuration files should not be changed in most cases.
+Changes to the `schema.xml` will most likely need code changes within the Solr Catalog Provider.
+====
+
+include::{adoc-include}/_sources/http-solr-contents.adoc[]
+
+include::{adoc-include}/_sources/embedded-solr-contents.adoc[]
+
+include::{adoc-include}/_sources/solrcloud-contents.adoc[]
