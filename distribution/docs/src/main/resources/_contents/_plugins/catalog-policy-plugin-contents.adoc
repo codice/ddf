@@ -8,7 +8,7 @@ The Catalog Policy Plugin is installed by default with a standard installation i
 
 ===== Configuring the Catalog Policy Plugin
 
-To configure the Catalog Backup Plugin:
+To configure the Catalog Policy Plugin:
 
 . Navigate to the *${admin-console}*.
 . Select ${ddf-catalog} application.
