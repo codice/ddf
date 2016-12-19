@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -293,7 +294,10 @@ public class DumpCommand extends CatalogCommands {
             if (StringUtils.isNotBlank(zipFileName)) {
                 zipCompression = getZipCompression();
                 if (zipCompression != null) {
-                    zipCompression.transform(response, zipArgs);
+                    BinaryContent binaryContent = zipCompression.transform(response, zipArgs);
+                    if (binaryContent != null) {
+                        IOUtils.closeQuietly(binaryContent.getInputStream());
+                    }
                     Long resultSize = (long) response.getResults()
                             .size();
                     printStatus(resultCount.addAndGet(resultSize));
