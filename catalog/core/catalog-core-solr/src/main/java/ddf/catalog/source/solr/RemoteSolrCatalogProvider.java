@@ -13,6 +13,8 @@
  */
 package ddf.catalog.source.solr;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -21,6 +23,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import javax.annotation.Nullable;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
@@ -45,15 +49,19 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.MaskableImpl;
 
+/**
+ * Common base class for all remote Solr Catalog providers. Sub-classes need to implement the
+ * {@link #createClient()} method and return a new {@code SolrClient}.
+ */
 public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements CatalogProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteSolrCatalogProvider.class);
 
     private static final String PING_ERROR_MESSAGE = "Solr ping failed.";
 
     private static final String OK_STATUS = "OK";
 
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
-
-    protected static final Logger LOGGER = LoggerFactory.getLogger(RemoteSolrCatalogProvider.class);
 
     private static Properties describableProperties = new Properties();
 
@@ -83,26 +91,48 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
     private Future<SolrClient> clientFuture;
 
     /**
-     * Simple constructor
+     * Constructor.
      *
-     * @param filterAdapter
-     * @param client        - {@link SolrClient} to handle requests
+     * @param filterAdapter             filter adaptor this provider will use
+     * @param client                    client this provider will use to connect to Solr. If set to
+     *                                  {@code null}, a new client will be created using
+     *                                  {@link #createClient()} when needed.
+     * @param solrFilterDelegateFactory Solr filter delegate factory this provider will use
+     * @param resolver                  schema resolver this provider will use. A default schema
+     *                                  resolver will be used if this parameter is {@code null}.
      */
-    public RemoteSolrCatalogProvider(FilterAdapter filterAdapter, SolrClient client,
-            SolrFilterDelegateFactory solrFilterDelegateFactory, DynamicSchemaResolver resolver) {
+    public RemoteSolrCatalogProvider(FilterAdapter filterAdapter, @Nullable SolrClient client,
+            SolrFilterDelegateFactory solrFilterDelegateFactory,
+            @Nullable DynamicSchemaResolver resolver) {
+        notNull(filterAdapter, "FilterAdapter cannot be null");
+        notNull(solrFilterDelegateFactory, "SolrFilterDelegateFactory cannot be null");
 
         this.filterAdapter = filterAdapter;
         this.client = client;
         this.solrFilterDelegateFactory = solrFilterDelegateFactory;
         this.resolver = (resolver == null) ? new DynamicSchemaResolver() : resolver;
-
     }
 
-    public RemoteSolrCatalogProvider(FilterAdapter filterAdapter, SolrClient client,
+    /**
+     * Constructor. Uses a default {@link DynamicSchemaResolver}.
+     *
+     * @param filterAdapter             filter adaptor this provider will use
+     * @param client                    client this provider will use to connect to Solr. If set to
+     *                                  {@code null}, a new client will be created using
+     *                                  {@link #createClient()} when needed.
+     * @param solrFilterDelegateFactory Solr filter delegate factory this provider will use
+     */
+    public RemoteSolrCatalogProvider(FilterAdapter filterAdapter, @Nullable SolrClient client,
             SolrFilterDelegateFactory solrFilterDelegateFactory) {
         this(filterAdapter, client, solrFilterDelegateFactory, null);
     }
 
+    /**
+     * Constructor. Creates and uses a default {@code SolrClient} and {@link DynamicSchemaResolver}.
+     *
+     * @param filterAdapter             filter adaptor this provider will use
+     * @param solrFilterDelegateFactory Solr filter delegate factory this provider will use
+     */
     public RemoteSolrCatalogProvider(FilterAdapter filterAdapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory) {
         this(filterAdapter, null, solrFilterDelegateFactory, null);
@@ -117,16 +147,21 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
     /**
      * Used to signal to the Solr client to commit on every transaction. Updates
-     * the underlying ConfigurationStore so that the property is propagated
-     * throughout the Solr Catalog Provider code
+     * the underlying {@link ConfigurationStore} so that the property is propagated
+     * throughout the Solr Catalog Provider code.
      *
-     * @param forceAutoCommit
+     * @param forceAutoCommit {@code true} to force auto-commits
      */
     public void setForceAutoCommit(boolean forceAutoCommit) {
         ConfigurationStore.getInstance()
                 .setForceAutoCommit(forceAutoCommit);
     }
 
+    /**
+     * Disables text path indexing for every subsequent update or insert.
+     *
+     * @param disableTextPath {@code true} to turn off text path indexing
+     */
     public void setDisableTextPath(boolean disableTextPath) {
         ConfigurationStore.getInstance()
                 .setDisableTextPath(disableTextPath);
@@ -187,41 +222,53 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
         return getProvider().update(updateRequest);
     }
 
+    /**
+     * Shuts down the connection to Solr and releases resources.
+     */
     public void shutdown() {
         closeSolrClient();
     }
 
     /**
-     * Shutdown the connection to Solr and releases resources.
+     * Returns the current Solr server URL. The format of the URL may vary based on the current
+     * Solr configuration (embedded, external or cloud).
+     *
+     * @return current Solr URL
      */
-    private void closeSolrClient() {
-        LOGGER.debug("Closing connection to Solr client.");
-        if (getClient() != null) {
-            try {
-                getClient().close();
-            } catch (IOException e) {
-                LOGGER.info("Unable to close Solr client", e);
-            }
-        } else if (clientFuture != null && !clientFuture.isDone() && !clientFuture.isCancelled()) {
-            clientFuture.cancel(true);
-        }
-        LOGGER.debug("Finished closing connection to Solr client.");
-    }
-
+    @Nullable
     public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
+    /**
+     * Sets Solr's URL. The format of the URL may vary based on the current Solr configuration,
+     * e.g., embedded, external or cloud. See the {@code system.properties} configuration file
+     * for the different options and formats.
+     * <br/>
+     * Changing the URL will trigger the creation of a new Solr client using {@link #createClient()}.
+     *
+     * @param url new Solr URL
+     */
+    public void setUrl(@Nullable String url) {
         updateClient(PropertyResolver.resolveProperties(url));
     }
 
     /**
-     * Updates the configuration of Solr if necessary
-     *
-     * @param urlValue - url to Solr
+     * Forces an update of the Solr client.
      */
-    public void updateClient(String urlValue) {
+    protected void updateClient() {
+        clientFuture = createClient();
+        client = null;
+    }
+
+    /**
+     * Request the creation of a new {@code SolrClient}.
+     *
+     * @return {@code Future} used to retrieve the new {@code SolrClient} created
+     */
+    protected abstract Future<SolrClient> createClient();
+
+    private void updateClient(@Nullable String urlValue) {
         LOGGER.debug("New url {}", urlValue);
 
         if (urlValue != null) {
@@ -243,12 +290,21 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
         }
     }
 
-    public void updateClient() {
-        clientFuture = createClient();
-        client = null;
-    }
+    private void closeSolrClient() {
+        LOGGER.debug("Closing connection to Solr client.");
 
-    protected abstract Future<SolrClient> createClient();
+        if (getClient() != null) {
+            try {
+                getClient().close();
+            } catch (IOException e) {
+                LOGGER.info("Unable to close Solr client", e);
+            }
+        } else if (clientFuture != null && !clientFuture.isDone() && !clientFuture.isCancelled()) {
+            clientFuture.cancel(true);
+        }
+
+        LOGGER.debug("Finished closing connection to Solr client.");
+    }
 
     private CatalogProvider getProvider() {
 
@@ -292,12 +348,20 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
     private SolrClient getClient() {
         if (client == null && clientFuture != null) {
             try {
-                return clientFuture.get(5, TimeUnit.SECONDS);
+                SolrClient solrClient = clientFuture.get(5, TimeUnit.SECONDS);
+
+                if (solrClient == null) {
+                    // If we fail to get a SolrClient after all potential retries have been
+                    // exhausted, call updateClient() to keep trying.
+                    // See SolrClientFactory.newClient() for details.
+                    updateClient();
+                }
+
+                return solrClient;
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 LOGGER.debug("Failed to get client from future", e);
             }
         }
         return client;
     }
-
 }

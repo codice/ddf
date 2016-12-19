@@ -925,9 +925,7 @@
         <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
-
         <bundle>mvn:ddf.persistence.core/persistence-core-listeners/${project.version}</bundle>
-
         <bundle>mvn:ddf.persistence.core/persistence-core-attributes-impl/${project.version}</bundle>
     </feature>
 

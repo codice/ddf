@@ -31,7 +31,7 @@ import org.junit.Test;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 
-public class TestSolrFilterDelegate {
+public class SolrFilterDelegateTest {
 
     private static final String WHITESPACE_TOKENIZED_METADATA_FIELD =
             Metacard.METADATA + SchemaFields.TEXT_SUFFIX + SchemaFields.WHITESPACE_TEXT_SUFFIX;

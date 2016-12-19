@@ -22,6 +22,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -35,41 +36,34 @@ import org.slf4j.LoggerFactory;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
+/**
+ * Factory class used to create new {@link CloudSolrClient} clients.
+ * <br/>
+ * Uses the following system properties when creating an instance:
+ * <ul>
+ * <li>solr.cloud.replicationFactor: Replication factor used when creating a new collection</li>
+ * <li>solr.cloud.shardCount: Shard count used when creating a new collection</li>
+ * <li>solr.cloud.maxShardPerNode: Maximum shard per node value used when creating a new collection</li>
+ * <li>solr.cloud.zookeeper: Comma-separated list of Zookeeper hosts</li>
+ * <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size</li>
+ * </ul>
+ */
 public class SolrCloudClientFactory implements SolrClientFactory {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(SolrCloudClientFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrCloudClientFactory.class);
 
-    private static final int SHARD_COUNT = parseSystemProperty("solr.cloud.shardCount", 2);
+    private static final int SHARD_COUNT = NumberUtils.toInt("solr.cloud.shardCount", 2);
 
-    private static final int REPLICATION_FACTOR = parseSystemProperty("solr.cloud.replicationFactor", 2);
+    private static final int REPLICATION_FACTOR = NumberUtils.toInt("solr.cloud.replicationFactor",
+            2);
 
-    private static final int MAXIMUM_SHARDS_PER_NODE = parseSystemProperty("solr.cloud.maxShardPerNode", 2);
+    private static final int MAXIMUM_SHARDS_PER_NODE = NumberUtils.toInt(
+            "solr.cloud.maxShardPerNode",
+            2);
 
     private static final int THREAD_POOL_DEFAULT_SIZE = 128;
 
     private static final ScheduledExecutorService EXECUTOR_SERVICE = createExecutorService();
-
-    private static ScheduledExecutorService createExecutorService() throws NumberFormatException {
-        Integer threadPoolSize = parseSystemProperty("org.codice.ddf.system.threadPoolSize",
-                THREAD_POOL_DEFAULT_SIZE);
-        return Executors.newScheduledThreadPool(threadPoolSize);
-    }
-
-    private static int parseSystemProperty(String propertyKey, int defaultValue) {
-        int value = defaultValue;
-        String propertyValue = System.getProperty(propertyKey);
-        if (propertyValue != null) {
-            try {
-                value = Integer.parseInt(propertyValue);
-            } catch (NumberFormatException e) {
-                LOGGER.warn("Unable to parse number from system property [{}] with value [{}]. Using default value [{}] instead.",
-                        propertyKey,
-                        System.getProperty(propertyKey),
-                        defaultValue);
-            }
-        }
-        return value;
-    }
 
     @Override
     public Future<SolrClient> newClient(String core) {
@@ -82,27 +76,45 @@ public class SolrCloudClientFactory implements SolrClientFactory {
         return getClient(zookeeperHosts, core);
     }
 
+    /**
+     * Creates a new {@link CloudSolrClient} using the list of Zookeeper hosts and collection name
+     * provided.
+     *
+     * @param zookeeperHosts comma-separate list of Zookeeper hosts managing the Solr Cloud
+     *                       configuration
+     * @param collection     name of the collection to create
+     * @return {@code Future} used to retrieve the new {@link CloudSolrClient} instance
+     */
     public static Future<SolrClient> getClient(String zookeeperHosts, String collection) {
-        RetryPolicy retryPolicy = new RetryPolicy()
-                .retryWhen(null)
-                .withBackoff(10,
-                TimeUnit.MINUTES.toMillis(1),
-                TimeUnit.MILLISECONDS);
+        RetryPolicy retryPolicy = new RetryPolicy().retryWhen(null)
+                .withBackoff(10, TimeUnit.MINUTES.toMillis(1), TimeUnit.MILLISECONDS);
         return Failsafe.with(retryPolicy)
                 .with(EXECUTOR_SERVICE)
                 .onRetry((c, failure, ctx) -> LOGGER.debug(
-                        "Attempt {} failed to create Solr Cloud client ({}). Retrying again.",
+                        "Attempt {} failed to create Solr Cloud client for collection {} using Zookeeper hosts [{}]. Retrying again.",
                         ctx.getExecutions(),
-                        collection))
+                        collection,
+                        zookeeperHosts))
                 .onFailedAttempt(failure -> LOGGER.debug(
-                        "Attempt failed to create Solr Cloud client (" + collection + ")",
+                        "Attempt failed to create Solr Cloud client for collection {} using Zookeeper hosts [{}]",
+                        collection,
+                        zookeeperHosts,
                         failure))
-                .onSuccess(client -> LOGGER.debug("Successfully created Solr Cloud client ({})",
+                .onSuccess(client -> LOGGER.debug(
+                        "Successfully created Solr Cloud client for collection {}",
                         collection))
                 .onFailure(failure -> LOGGER.warn(
-                        "All attempts failed to create Solr Cloud client (" + collection + ")",
+                        "All attempts failed to create Solr Cloud client for collection {} using Zookeeper host [{}]",
+                        collection,
+                        zookeeperHosts,
                         failure))
                 .get(() -> createSolrCloudClient(zookeeperHosts, collection));
+    }
+
+    private static ScheduledExecutorService createExecutorService() throws NumberFormatException {
+        Integer threadPoolSize = NumberUtils.toInt("org.codice.ddf.system.threadPoolSize",
+                THREAD_POOL_DEFAULT_SIZE);
+        return Executors.newScheduledThreadPool(threadPoolSize);
     }
 
     private static SolrClient createSolrCloudClient(String zookeeperHosts, String collection) {
@@ -172,13 +184,19 @@ public class SolrCloudClientFactory implements SolrClientFactory {
                     .getZkClient()
                     .exists("/configs/" + collection, true);
         } catch (KeeperException | InterruptedException e) {
-            throw new SolrFactoryException("Failed to check config status with Zookeeper for collection: " + collection,
+            throw new SolrFactoryException(
+                    "Failed to check config status with Zookeeper for collection: " + collection,
                     e);
         }
 
         if (!configExistsInZk) {
-            ConfigurationFileProxy configProxy =
-                    new ConfigurationFileProxy(ConfigurationStore.getInstance());
+            ConfigurationStore configStore = ConfigurationStore.getInstance();
+
+            if (System.getProperty("solr.data.dir") != null) {
+                configStore.setDataDirectoryPath(System.getProperty("solr.data.dir"));
+            }
+
+            ConfigurationFileProxy configProxy = new ConfigurationFileProxy(configStore);
             configProxy.writeSolrConfiguration(collection);
             Path configPath = Paths.get(configProxy.getDataDirectory()
                     .getAbsolutePath(), collection, "conf");
@@ -186,8 +204,8 @@ public class SolrCloudClientFactory implements SolrClientFactory {
             try {
                 client.uploadConfig(configPath, collection);
             } catch (IOException e) {
-                throw new SolrFactoryException("Failed to upload configurations for collection: " + collection,
-                        e);
+                throw new SolrFactoryException(
+                        "Failed to upload configurations for collection: " + collection, e);
             }
         }
     }

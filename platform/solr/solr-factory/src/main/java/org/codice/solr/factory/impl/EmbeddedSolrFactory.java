@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.Future;
 
+import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
@@ -40,22 +41,31 @@ import org.xml.sax.SAXException;
 
 import com.google.common.util.concurrent.Futures;
 
+/**
+ * Factory class used to create new {@link EmbeddedSolrServer} clients.
+ * <br/>
+ * Uses the following system properties when creating an instance:
+ * <ul>
+ *     <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored</li>
+ * </ul>
+ */
 public class EmbeddedSolrFactory implements SolrClientFactory {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedSolrFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedSolrFactory.class);
 
-    public static final String DEFAULT_EMBEDDED_CORE_NAME = "embedded";
+    private static final String DEFAULT_EMBEDDED_CORE_NAME = "embedded";
 
     public static final String IMMEMORY_SOLRCONFIG_XML = "solrconfig-inmemory.xml";
 
     @Override
     public Future<SolrClient> newClient(String core) {
         ConfigurationStore configStore = ConfigurationStore.getInstance();
+
         if (System.getProperty("solr.data.dir") != null) {
             configStore.setDataDirectoryPath(System.getProperty("solr.data.dir"));
         }
-        ConfigurationFileProxy configProxy =
-                new ConfigurationFileProxy(configStore);
+
+        ConfigurationFileProxy configProxy = new ConfigurationFileProxy(configStore);
         return Futures.immediateFuture(getEmbeddedSolrServer(core,
                 HttpSolrClientFactory.DEFAULT_SOLRCONFIG_XML,
                 null,
@@ -63,30 +73,50 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
     }
 
     /**
-     * @return {@link org.apache.solr.client.solrj.SolrClient} instance
+     * Creates a new {@link EmbeddedSolrServer} using the default Solr core name
+     * ({@value #DEFAULT_EMBEDDED_CORE_NAME}), configuration file
+     * ({@value HttpSolrClientFactory#DEFAULT_SOLRCONFIG_XML}) and schema.
+     *
+     * @return a new {@link EmbeddedSolrServer} instance
      */
     public static SolrClient getEmbeddedSolrServer() {
-        return getEmbeddedSolrServer(DEFAULT_EMBEDDED_CORE_NAME, HttpSolrClientFactory.DEFAULT_SOLRCONFIG_XML, null, null);
+        return getEmbeddedSolrServer(DEFAULT_EMBEDDED_CORE_NAME,
+                HttpSolrClientFactory.DEFAULT_SOLRCONFIG_XML,
+                null,
+                null);
     }
 
-    public static EmbeddedSolrServer getEmbeddedSolrServer(String solrConfigXml) {
+    /**
+     * Creates a new {@link EmbeddedSolrServer} using the Solr configuration file provided. Uses
+     * the default core name ({@value #DEFAULT_EMBEDDED_CORE_NAME}) and schema.
+     *
+     * @param solrConfigXml name of the Solr configuration file. Defaults to
+     *                      {@value HttpSolrClientFactory#DEFAULT_SOLRCONFIG_XML} if
+     *                      {@code null}.
+     * @return a new {@link EmbeddedSolrServer} instance
+     */
+    public static EmbeddedSolrServer getEmbeddedSolrServer(@Nullable String solrConfigXml) {
         return getEmbeddedSolrServer(DEFAULT_EMBEDDED_CORE_NAME, solrConfigXml, null, null);
     }
 
     /**
-     * Provides an already instantiated {@link org.apache.solr.client.solrj.SolrClient} object. If an instance has not already
-     * been instantiated, then the single instance will be instantiated with the provided
-     * configuration file. If an instance already exists, it cannot be overwritten with a new
-     * configuration.
+     * Creates a new {@link EmbeddedSolrServer} using the Solr core and configuration file names,
+     * schema and configuration file proxy provided.
      *
-     * @param solrConfigXml        the name of the solr configuration filename such as solrconfig.xml
-     * @param schemaXml            filename of the schema such as schema.xml
-     * @param givenConfigFileProxy a ConfigurationFileProxy instance. If instance is <code>null</code>, a new
-     *                             {@link ConfigurationFileProxy} is used instead.
-     * @return {@link org.apache.solr.client.solrj.SolrClient} instance
+     * @param coreName             name of the Solr core
+     * @param solrConfigXml        name of the Solr configuration file. Defaults to
+     *                             {@value HttpSolrClientFactory#DEFAULT_SOLRCONFIG_XML} if
+     *                             {@code null}.
+     * @param schemaXml            file name of the Solr core schema. Defaults to
+     *                             {@value HttpSolrClientFactory#DEFAULT_SCHEMA_XML} if
+     *                             {@code null}.
+     * @param givenConfigFileProxy {@link ConfigurationFileProxy} instance to use. If {@code null},
+     *                             a new {@link ConfigurationFileProxy} will be used.
+     * @return a new {@link EmbeddedSolrServer} instance
      */
-    public static EmbeddedSolrServer getEmbeddedSolrServer(String coreName, String solrConfigXml, String schemaXml,
-            ConfigurationFileProxy givenConfigFileProxy) {
+    public static EmbeddedSolrServer getEmbeddedSolrServer(String coreName,
+            @Nullable String solrConfigXml, @Nullable String schemaXml,
+            @Nullable ConfigurationFileProxy givenConfigFileProxy) {
 
         LOGGER.debug("Retrieving embedded solr with the following properties: [{},{},{}]",
                 solrConfigXml,
@@ -134,7 +164,8 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
             IndexSchema indexSchema = new IndexSchema(solrConfig,
                     schemaFileName,
                     new InputSource(FileUtils.openInputStream(solrSchemaFile)));
-            SolrResourceLoader loader = new SolrResourceLoader(Paths.get(solrConfigHome.getAbsolutePath()));
+            SolrResourceLoader loader =
+                    new SolrResourceLoader(Paths.get(solrConfigHome.getAbsolutePath()));
             SolrCoreContainer container = new SolrCoreContainer(loader);
 
             String dataDirPath = null;
@@ -181,5 +212,4 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
             String core) {
         return FileUtils.toFile(configProxy.getResource(configFileName, core));
     }
-
 }

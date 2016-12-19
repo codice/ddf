@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestConfigurationStore {
+public class ConfigurationStoreTest {
 
     private ConfigurationStore store;
 

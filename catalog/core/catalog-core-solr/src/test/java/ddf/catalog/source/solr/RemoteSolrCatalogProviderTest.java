@@ -75,9 +75,35 @@ public class RemoteSolrCatalogProviderTest {
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullFilterAdapator() {
+        new RemoteSolrCatalogProvider(null,
+                mock(SolrClient.class),
+                mock(SolrFilterDelegateFactory.class),
+                mock(DynamicSchemaResolver.class)) {
+            @Override
+            protected Future<SolrClient> createClient() {
+                return null;
+            }
+        };
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNullSolrFilterDelegateFactory() {
+        new RemoteSolrCatalogProvider(mock(FilterAdapter.class),
+                mock(SolrClient.class),
+                null,
+                mock(DynamicSchemaResolver.class)) {
+            @Override
+            protected Future<SolrClient> createClient() {
+                return null;
+            }
+        };
+    }
+
     @Test
     public void testId() {
-        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null);
 
         provider.maskId("myId");
 
@@ -87,7 +113,7 @@ public class RemoteSolrCatalogProviderTest {
     @Test
     public void testDescribableProperties() {
 
-        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null);
 
         assertNotNull(provider.getTitle());
         assertNotNull(provider.getDescription());
@@ -99,11 +125,11 @@ public class RemoteSolrCatalogProviderTest {
     @Test
     public void testUnconfiguredCreate() throws IngestException, SolrServerException, IOException {
         SolrClient givenClient = givenSolrClient(false);
-        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, givenClient, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(givenClient);
 
         try {
             provider.create(mock(CreateRequest.class));
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
             assertThat(e.getMessage(), containsString("Solr client is not connected"));
         }
 
@@ -122,13 +148,13 @@ public class RemoteSolrCatalogProviderTest {
         // given
         SolrClient givenClient = mock(SolrClient.class);
         when(givenClient.ping()).thenThrow(SolrException.class);
-        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, givenClient, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(givenClient);
 
         // when
         String message = null;
         try {
             provider.create(mock(CreateRequest.class));
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
 
             message = e.getMessage();
         }
@@ -138,25 +164,25 @@ public class RemoteSolrCatalogProviderTest {
         verify(givenClient, times(1)).ping();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     public void testUnconfiguredDelete() throws IngestException {
-        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null);
 
         provider.delete(mock(DeleteRequest.class));
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     public void testUnconfiguredUpdate() throws IngestException {
-        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null);
 
         provider.update(mock(UpdateRequest.class));
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     public void testUnconfiguredQuery() throws UnsupportedQueryException {
-        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null);
 
         provider.query(mock(QueryRequest.class));
 
@@ -164,52 +190,68 @@ public class RemoteSolrCatalogProviderTest {
 
     @Test
     public void testAvailability() throws IngestException {
-        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null);
 
         assertThat(provider.isAvailable(), is(false));
     }
 
     @Test
     public void testAvailabilitySourceMonitor() throws IngestException {
-        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null);
 
         assertThat(provider.isAvailable(null), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     public void testUnconfiguredGetContentTypes() throws IngestException {
-        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
+        CatalogProvider provider = new MockedRemoteSolrCatalogProvider(null);
 
         provider.getContentTypes();
 
     }
 
-    @Test()
-    public void testUpdateConfigurationNullProperties() throws IngestException {
-        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
-
-        provider.updateClient(null);
-
-        // should be no failures/exceptions
-
-    }
-
-    @Test()
-    public void testUpdateConfigurationUrlPropertyNull()
-            throws IngestException, SolrServerException, IOException {
+    /**
+     * Tests that property replacement is performed on the URL provided to
+     * {@link RemoteSolrCatalogProvider#setUrl(String)}.
+     */
+    @Test
+    public void testSetUrlResolvesProperties() throws Exception {
         // given
         SolrClient givenClient = givenSolrClient(true);
-        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, givenClient, null);
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(givenClient);
+        System.setProperty("test-property", "solr-url");
 
         // when
-        provider.updateClient(null);
+        provider.setUrl("https://hostname:443/${test-property}");
+
+        // then
+        assertThat(provider.getUrl(), is("https://hostname:443/solr-url"));
+        // should be no failures/exceptions
+    }
+
+    @Test
+    public void testSetUrlToNull() throws IngestException {
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null);
+
+        provider.setUrl(null);
+
+        // should be no failures/exceptions
+    }
+
+    @Test
+    public void testUpdateConfigurationUrlPropertyNull() throws Exception {
+        // given
+        SolrClient givenClient = givenSolrClient(true);
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(givenClient);
+
+        // when
+        provider.setUrl(null);
 
         // then
         assertThat(provider.getUrl(), is(nullValue()));
         verify(givenClient, times(0)).ping();
         verify(givenClient, times(0)).close();
         // should be no failures/exceptions
-
     }
 
     /**
@@ -217,10 +259,10 @@ public class RemoteSolrCatalogProviderTest {
      *
      * @throws IngestException
      */
-    @Test()
+    @Test
     public void testForceAutoCommit() throws IngestException {
 
-        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, null, null);
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null);
 
         provider.setForceAutoCommit(true);
 
@@ -236,7 +278,7 @@ public class RemoteSolrCatalogProviderTest {
      * @throws SolrServerException
      * @throws IOException
      */
-    @Test()
+    @Test
     public void testReAttemptSolrConnectionOnFail()
             throws IngestException, SolrServerException, IOException {
 
@@ -244,13 +286,15 @@ public class RemoteSolrCatalogProviderTest {
         String badAddress = "http://localhost:8183/solr";
         boolean clientStatus = false;
         SolrClient givenClient = givenSolrClient(clientStatus);
-        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, givenClient, null);
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(givenClient);
+
         // when
         try {
             provider.create(mock(CreateRequest.class));
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
         }
-        provider.updateClient(badAddress);
+
+        provider.setUrl(badAddress);
 
         // then
         verify(givenClient, times(1)).close();
@@ -258,11 +302,11 @@ public class RemoteSolrCatalogProviderTest {
 
     }
 
-    @Test()
+    @Test
     public void testShutdown() throws SolrServerException, IOException {
         boolean clientStatus = true;
         SolrClient givenClient = givenSolrClient(clientStatus);
-        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(null, givenClient, null);
+        RemoteSolrCatalogProvider provider = new MockedRemoteSolrCatalogProvider(givenClient);
 
         provider.shutdown();
         verify(givenClient, times(1)).close();
@@ -295,9 +339,11 @@ public class RemoteSolrCatalogProviderTest {
 
     private class MockedRemoteSolrCatalogProvider extends RemoteSolrCatalogProvider {
 
-        public MockedRemoteSolrCatalogProvider(FilterAdapter filterAdapter, SolrClient client,
-                SolrFilterDelegateFactory solrFilterDelegateFactory) {
-            super(filterAdapter, client, solrFilterDelegateFactory);
+        public MockedRemoteSolrCatalogProvider(SolrClient client) {
+            super(mock(FilterAdapter.class),
+                    client,
+                    mock(SolrFilterDelegateFactory.class),
+                    mock(DynamicSchemaResolver.class));
         }
 
         @Override

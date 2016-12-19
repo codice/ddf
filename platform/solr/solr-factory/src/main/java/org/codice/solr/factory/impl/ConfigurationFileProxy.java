@@ -59,8 +59,10 @@ public class ConfigurationFileProxy {
     private File dataDirectory = null;
 
     /**
-     * Constructor for the proxy
+     * Constructor.
      *
+     * @param configurationStore configuration store that will be used to retrieve the configuration
+     *                           information
      */
     public ConfigurationFileProxy(ConfigurationStore configurationStore) {
         LOGGER.debug("Creating new instance of {}", ConfigurationFileProxy.class.getSimpleName());
@@ -94,20 +96,26 @@ public class ConfigurationFileProxy {
                     long byteCount = IOUtils.copyLarge(inputStream, outputStream);
                     LOGGER.debug("Wrote out {} bytes.", byteCount);
                 } catch (IOException e) {
-                    LOGGER.info("Unable to copy Solr configuration file: " + filename, e);
+                    LOGGER.warn("Unable to copy Solr configuration file: " + filename, e);
                 }
             }
         }
     }
 
     /**
-     *
-     * @return the File of the directory where data can be written, should never return {@code null}
+     * @return directory where data can be written
      */
     public File getDataDirectory() {
         return this.dataDirectory;
     }
 
+    /**
+     * Gets the URL of a configuration file given the file and Solr core names.
+     *
+     * @param configFilename name of the configutation file to get
+     * @param core           name of the Solr core
+     * @return URL to the configuration file
+     */
     public URL getResource(String configFilename, String core) {
         File resourceFile = Paths.get(this.dataDirectory.getAbsolutePath(),
                 core,

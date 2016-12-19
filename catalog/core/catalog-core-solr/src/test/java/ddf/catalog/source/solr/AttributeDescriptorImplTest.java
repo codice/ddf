@@ -17,19 +17,19 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 
-public class TestAttributeDescriptorImpl extends AttributeDescriptorImpl {
+public class AttributeDescriptorImplTest extends AttributeDescriptorImpl {
     private static final long serialVersionUID = 1L;
 
     private String propertyName;
 
-    public TestAttributeDescriptorImpl(String name, String propertyName, boolean indexed,
+    public AttributeDescriptorImplTest(String name, String propertyName, boolean indexed,
             boolean stored, boolean tokenized, boolean multivalued, AttributeType<?> type) {
         super(name, indexed, stored, tokenized, multivalued, type);
 
         this.propertyName = propertyName;
     }
 
-    public TestAttributeDescriptorImpl(AttributeDescriptor ad) {
+    public AttributeDescriptorImplTest(AttributeDescriptor ad) {
         super(ad.getName(),
                 ad.isIndexed(),
                 ad.isStored(),
