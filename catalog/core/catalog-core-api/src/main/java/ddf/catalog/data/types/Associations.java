@@ -33,4 +33,9 @@ public interface Associations {
      * Uses original taxonomy to preserve backwards compatibility.
      */
     String DERIVED = Metacard.DERIVED;
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for accessing the external associations of the {@link Metacard}. <br/>
+     */
+    String EXTERNAL = "metacard.associations.external";
 }

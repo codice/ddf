@@ -530,5 +530,10 @@
             <artifactId>catalog-plugin-metacardingest-network</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.confluence</groupId>
+            <artifactId>catalog-confluence-source</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
