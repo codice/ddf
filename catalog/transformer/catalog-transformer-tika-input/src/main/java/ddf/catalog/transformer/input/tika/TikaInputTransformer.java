@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,14 +25,17 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.xml.transform.Templates;
@@ -81,6 +84,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
@@ -96,6 +100,54 @@ public class TikaInputTransformer implements InputTransformer {
             Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
 
     private MetacardType metacardType = null;
+
+    private static final Map<com.google.common.net.MediaType, String>
+            SPECIFIC_MIME_TYPE_DATA_TYPE_MAP;
+
+    private static final Map<com.google.common.net.MediaType, String>
+            FALLBACK_MIME_TYPE_DATA_TYPE_MAP;
+
+    private static final String OVERALL_FALLBACK_DATA_TYPE = "Dataset";
+
+    static {
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP = new HashMap<>();
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.MICROSOFT_EXCEL,
+                "Document");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.MICROSOFT_POWERPOINT,
+                "Document");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.MICROSOFT_WORD,
+                "Document");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.OPENDOCUMENT_GRAPHICS,
+                "Document");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.OPENDOCUMENT_PRESENTATION,
+                "Document");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.OPENDOCUMENT_SPREADSHEET,
+                "Document");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.OPENDOCUMENT_TEXT,
+                "Document");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.APPLICATION_BINARY,
+                "Document");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.PDF, "Document");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.APPLICATION_XML_UTF_8,
+                "Text");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.JSON_UTF_8, "Text");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.KML, "Text");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.ZIP, "Collection");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.TAR, "Collection");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.GZIP, "Collection");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.BZIP2, "Collection");
+        SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.OCTET_STREAM,
+                OVERALL_FALLBACK_DATA_TYPE);
+
+        FALLBACK_MIME_TYPE_DATA_TYPE_MAP = new HashMap<>();
+        FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.ANY_APPLICATION_TYPE,
+                "Document");
+        FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.ANY_IMAGE_TYPE,
+                "Image");
+        FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.ANY_TEXT_TYPE, "Text");
+        FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.ANY_AUDIO_TYPE,
+                "Sound");
+    }
 
     public void addContentMetadataExtractors(
             ServiceReference<ContentMetadataExtractor> contentMetadataExtractorRef) {
@@ -223,6 +275,11 @@ public class TikaInputTransformer implements InputTransformer {
             }
 
             String metacardContentType = metacard.getContentTypeName();
+            if (StringUtils.isNotBlank(metacardContentType)) {
+                metacard.setAttribute(new AttributeImpl(Core.DATATYPE, getDatatype(
+                        metacardContentType)));
+            }
+
             if (StringUtils.startsWith(metacardContentType, "image")) {
                 try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource()
                         .openStream()) {
@@ -233,6 +290,40 @@ public class TikaInputTransformer implements InputTransformer {
             LOGGER.debug("Finished transforming input stream using Tika.");
             return metacard;
         }
+    }
+
+    @Nullable
+    private String getDatatype(String mimeType) {
+        if (mimeType == null) {
+            return null;
+        }
+
+        com.google.common.net.MediaType mediaType = com.google.common.net.MediaType.parse(mimeType);
+
+        LOGGER.debug("Attempting to map {}", mimeType);
+        Optional<Map.Entry<com.google.common.net.MediaType, String>> returnType =
+                SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.entrySet()
+                        .stream()
+                        .filter(mediaTypeStringEntry -> mediaType.is(mediaTypeStringEntry.getKey()))
+                        .findFirst();
+
+        if (!returnType.isPresent()) {
+            Optional<Map.Entry<com.google.common.net.MediaType, String>> fallback =
+                    FALLBACK_MIME_TYPE_DATA_TYPE_MAP.entrySet()
+                            .stream()
+                            .filter(mediaTypeStringEntry -> mediaType.is(mediaTypeStringEntry.getKey()))
+                            .findFirst();
+
+            if (!fallback.isPresent()) {
+                return OVERALL_FALLBACK_DATA_TYPE;
+            }
+
+            return fallback.get()
+                    .getValue();
+        }
+
+        return returnType.get()
+                .getValue();
     }
 
     /**
@@ -322,9 +413,8 @@ public class TikaInputTransformer implements InputTransformer {
             try {
                 Writer xml = new StringWriter();
                 Transformer transformer = templates.newTransformer();
-                transformer.transform(
-                        new SAXSource(xmlReader, new InputSource(new StringReader(xhtml))),
-                        new StreamResult(xml));
+                transformer.transform(new SAXSource(xmlReader, new InputSource(new StringReader(
+                        xhtml))), new StreamResult(xml));
                 return xml.toString();
             } catch (TransformerException e) {
                 LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);
