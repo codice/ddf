@@ -13,7 +13,7 @@ These properties can be manually set by editing this file or set via the initial
 ====
 Any changes made to this file require a restart of the system to take effect.
 ====
-modify
+
 [IMPORTANT]
 ====
 The passwords configured in this section reflect the passwords used to decrypt JKS (Java KeyStore) files.
