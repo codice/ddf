@@ -327,18 +327,39 @@ public class SourceOperations extends DescribableImpl {
             }
 
             // Fanout will only add one source descriptor with all the contents
-            Set<ContentType> contentTypes = frameworkProperties.getFederatedSources()
+            Set<Source> availableSources = frameworkProperties.getFederatedSources()
                     .values()
                     .stream()
-                    .filter(source -> source != null && source.isAvailable()
-                            && source.getContentTypes() != null)
+                    .map(source -> frameworkProperties.getSourcePoller()
+                            .getCachedSource(source))
+                    .filter(source -> source != null && source.isAvailable())
+                    .collect(Collectors.toSet());
+
+            Set<ContentType> contentTypes = availableSources
+                    .stream()
+                    .map(source -> frameworkProperties.getSourcePoller()
+                            .getCachedSource(source))
+                    .filter(source -> source.getContentTypes() != null)
                     .map(Source::getContentTypes)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
 
+
+            if (catalog != null) {
+                Source localSource = frameworkProperties.getSourcePoller()
+                        .getCachedSource(catalog);
+                if (localSource != null && localSource.isAvailable()) {
+                    availableSources.add(localSource);
+                    contentTypes.addAll(localSource.getContentTypes());
+                }
+            }
+
             // only reveal this sourceDescriptor, not the federated sources
             sourceDescriptor = new SourceDescriptorImpl(this.getId(), contentTypes);
-            sourceDescriptor.setVersion(this.getVersion());
+            if (this.getVersion() != null) {
+                sourceDescriptor.setVersion(this.getVersion());
+            }
+            sourceDescriptor.setAvailable(availableSources.size() > 0);
             sourceDescriptors.add(sourceDescriptor);
 
             response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
@@ -363,24 +384,26 @@ public class SourceOperations extends DescribableImpl {
     private Set<SourceDescriptor> getFederatedSourceDescriptors(Collection<FederatedSource> sources,
             boolean addCatalogProviderDescriptor) {
         SourceDescriptorImpl sourceDescriptor;
-        Set<SourceDescriptor> sourceDescriptors = new HashSet<>();
+        Set<SourceDescriptor> sourceDescriptors = new TreeSet<>(new SourceDescriptorComparator());
         if (sources != null) {
             for (Source source : sources) {
                 if (source != null) {
                     String sourceId = source.getId();
                     LOGGER.debug("adding sourceId: {}", sourceId);
 
+                    Source cachedSource = null;
                     // check the poller for cached information
                     if (frameworkProperties.getSourcePoller() != null &&
                             frameworkProperties.getSourcePoller()
                                     .getCachedSource(source) != null) {
-                        source = frameworkProperties.getSourcePoller()
+                        cachedSource = frameworkProperties.getSourcePoller()
                                 .getCachedSource(source);
                     }
 
                     sourceDescriptor = new SourceDescriptorImpl(sourceId, source.getContentTypes());
                     sourceDescriptor.setVersion(source.getVersion());
-                    sourceDescriptor.setAvailable(source.isAvailable());
+                    sourceDescriptor.setAvailable(
+                            (cachedSource != null) && cachedSource.isAvailable());
 
                     sourceDescriptors.add(sourceDescriptor);
                 }
@@ -389,11 +412,7 @@ public class SourceOperations extends DescribableImpl {
         if (addCatalogProviderDescriptor) {
             addCatalogSourceDescriptor(sourceDescriptors);
         }
-
-        Set<SourceDescriptor> orderedDescriptors = new TreeSet<>(new SourceDescriptorComparator());
-
-        orderedDescriptors.addAll(sourceDescriptors);
-        return orderedDescriptors;
+        return sourceDescriptors;
 
     }
 
@@ -421,13 +440,25 @@ public class SourceOperations extends DescribableImpl {
         // But when a local catalog provider is configured, include its content types in the
         // local site info.
         if (descriptors != null) {
-            Set<ContentType> contentTypes = new HashSet<>();
+            Source cachedSource = null;
             if (catalog != null) {
-                contentTypes = catalog.getContentTypes();
+                // check the poller for cached information
+                if (frameworkProperties.getSourcePoller() != null &&
+                        frameworkProperties.getSourcePoller()
+                                .getCachedSource(catalog) != null) {
+                    cachedSource = frameworkProperties.getSourcePoller()
+                            .getCachedSource(catalog);
+                }
+                if (cachedSource != null) {
+                    SourceDescriptorImpl descriptor = new SourceDescriptorImpl(this.getId(),
+                            cachedSource.getContentTypes());
+                    if (this.getVersion() != null) {
+                        descriptor.setVersion(this.getVersion());
+                    }
+                    descriptor.setAvailable(cachedSource.isAvailable());
+                    descriptors.add(descriptor);
+                }
             }
-            SourceDescriptorImpl descriptor = new SourceDescriptorImpl(this.getId(), contentTypes);
-            descriptor.setVersion(this.getVersion());
-            descriptors.add(descriptor);
         }
     }
 }

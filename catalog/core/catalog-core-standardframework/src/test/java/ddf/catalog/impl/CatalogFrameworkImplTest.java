@@ -246,7 +246,7 @@ public class CatalogFrameworkImplTest {
     @Before
     public void setup()
             throws StopProcessingException, PluginExecutionException, URISyntaxException,
-            FederationException, IOException, CatalogTransformerException {
+            FederationException, IOException, CatalogTransformerException, InterruptedException {
         System.setProperty("bad.files",
                 "crossdomain.xml,clientaccesspolicy.xml,.htaccess,.htpasswd,hosts,passwd,group,resolv.conf,nfs.conf,ftpd.conf,ntp.conf,web.config,robots.txt");
         System.setProperty("bad.file.extensions",
@@ -349,6 +349,29 @@ public class CatalogFrameworkImplTest {
                 federatedSourceMap.put(source.getId(), source);
             }
         }
+        SourcePollerRunner runner = new SourcePollerRunner();
+        SourcePoller poller = new SourcePoller(runner);
+        for (FederatedSource source : federatedSources) {
+            runner.bind(source);
+        }
+        runner.bind(provider);
+        int wait = 0;
+        while (wait < 5) {
+            for (FederatedSource source : federatedSources) {
+                CachedSource cachedSource = poller.getCachedSource(source);
+                if (cachedSource == null || !cachedSource.isAvailable()) {
+                    Thread.sleep(100);
+                    wait++;
+                    break;
+                }
+            }
+            CachedSource cachedProvider = poller.getCachedSource(provider);
+            if (cachedProvider == null || !cachedProvider.isAvailable()) {
+                Thread.sleep(100);
+            }
+            wait++;
+        }
+        frameworkProperties.setSourcePoller(poller);
         frameworkProperties.setFederatedSources(federatedSourceMap);
 
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl();
@@ -1641,13 +1664,14 @@ public class CatalogFrameworkImplTest {
     @Test
     public void testGetUnavailableFederatedSources() {
         List<FederatedSource> federatedSources = createDefaultFederatedSourceList(false);
-
+        CatalogProvider catalogProvider = mock(CatalogProvider.class);
         // Mock register the federated sources in the container
         SourcePollerRunner runner = new SourcePollerRunner();
         SourcePoller poller = new SourcePoller(runner);
         for (FederatedSource source : federatedSources) {
             runner.bind(source);
         }
+        runner.bind(catalogProvider);
         FrameworkProperties frameworkProperties = new FrameworkProperties();
         frameworkProperties.setSourcePoller(poller);
         Map<String, FederatedSource> sources = new HashMap<>();
@@ -1655,6 +1679,7 @@ public class CatalogFrameworkImplTest {
             sources.put(federatedSource.getId(), federatedSource);
         }
         frameworkProperties.setFederatedSources(sources);
+        frameworkProperties.setCatalogProviders(Collections.singletonList(catalogProvider));
         CatalogFrameworkImpl framework = createFramework(frameworkProperties);
 
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
@@ -1726,7 +1751,7 @@ public class CatalogFrameworkImplTest {
         // should contain ONLY the original federated sites and the catalog framework's
         // site info (even though it has no local catalog provider configured) - hence,
         // the "+1"
-        assertEquals(expectedSources.size() + 1, sourceDescriptors.size());
+        assertEquals(expectedSources.size(), sourceDescriptors.size());
 
     }
 
@@ -1744,7 +1769,6 @@ public class CatalogFrameworkImplTest {
 
         // Expected Set of Names
         Set<String> expectedNameSet = new HashSet<String>();
-        expectedNameSet.add(frameworkName);
         for (FederatedSource curSite : federatedSources) {
             expectedNameSet.add(curSite.getId());
         }

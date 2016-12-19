@@ -20,6 +20,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.osgi.framework.InvalidSyntaxException;
@@ -29,10 +30,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
+import ddf.catalog.operation.impl.SourceInfoRequestLocal;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceDescriptor;
+import ddf.catalog.source.SourceUnavailableException;
 
 public class CatalogBundle {
     protected static final Logger LOGGER = LoggerFactory.getLogger(CatalogBundle.class);
@@ -58,20 +64,39 @@ public class CatalogBundle {
         serviceManager.printInactiveBundlesInfo();
 
         CatalogProvider provider = null;
+        CatalogFramework framework = null;
         long timeoutLimit = System.currentTimeMillis() + CATALOG_PROVIDER_TIMEOUT;
         boolean available = false;
 
         while (!available) {
             if (provider == null) {
+                ServiceReference<CatalogFramework> frameworkRef = serviceManager.getServiceReference(CatalogFramework.class);
                 ServiceReference<CatalogProvider> providerRef = serviceManager.getServiceReference(
                         CatalogProvider.class);
                 if (providerRef != null) {
                     provider = serviceManager.getService(providerRef);
                 }
+                if (frameworkRef != null) {
+                    framework = serviceManager.getService(frameworkRef);
+                }
             }
 
-            if (provider != null) {
-                available = provider.isAvailable();
+            if (framework != null && provider != null) {
+                SourceInfoRequestLocal sourceInfoRequestEnterprise =
+                        new SourceInfoRequestLocal(true);
+
+                try {
+                    SourceInfoResponse sources = framework.getSourceInfo(sourceInfoRequestEnterprise);
+                    Set<SourceDescriptor> sourceInfo = sources.getSourceInfo();
+                    for (SourceDescriptor sourceDescriptor : sourceInfo) {
+                        if (sourceDescriptor.getSourceId().equals(provider.getId())) {
+                            available = sourceDescriptor.isAvailable() && provider.isAvailable();
+                            LOGGER.info("CatalogProvider.isAvailable = {}", available);
+                        }
+                    }
+                } catch (SourceUnavailableException e) {
+                    available = false;
+                }
             }
 
             if (!available) {
@@ -81,7 +106,7 @@ public class CatalogBundle {
                     fail(String.format("Catalog provider timed out after %d minutes.",
                             TimeUnit.MILLISECONDS.toMinutes(CATALOG_PROVIDER_TIMEOUT)));
                 }
-                Thread.sleep(100);
+                Thread.sleep(1000);
             }
         }
 
@@ -104,10 +129,15 @@ public class CatalogBundle {
     private <T extends Source> T waitForSource(String id, Class<T> type)
             throws InterruptedException, InvalidSyntaxException {
         T source = null;
-        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        long timeoutLimit = System.currentTimeMillis() + CATALOG_PROVIDER_TIMEOUT;
         boolean available = false;
 
         while (!available) {
+            ServiceReference<CatalogFramework> frameworkRef = serviceManager.getServiceReference(CatalogFramework.class);
+            CatalogFramework framework = null;
+            if (frameworkRef != null) {
+                framework = serviceManager.getService(frameworkRef);
+            }
             if (source == null) {
                 source = serviceManager.getServiceReferences(type, null)
                         .stream()
@@ -116,14 +146,28 @@ public class CatalogBundle {
                         .findFirst()
                         .orElse(null);
             }
-            if (source != null) {
-                available = source.isAvailable();
+            if (source != null && framework != null) {
+                SourceInfoRequestEnterprise sourceInfoRequestEnterprise =
+                        new SourceInfoRequestEnterprise(true);
+
+                try {
+                    SourceInfoResponse sources = framework.getSourceInfo(sourceInfoRequestEnterprise);
+                    Set<SourceDescriptor> sourceInfo = sources.getSourceInfo();
+                    for (SourceDescriptor sourceDescriptor : sourceInfo) {
+                        if (sourceDescriptor.getSourceId().equals(source.getId())) {
+                            available = sourceDescriptor.isAvailable() && source.isAvailable();
+                            LOGGER.info("Source.isAvailable = {}", available);
+                        }
+                    }
+                } catch (SourceUnavailableException e) {
+                    available = false;
+                }
             }
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     fail("Source (" + id + ") was not created in a timely manner.");
                 }
-                Thread.sleep(100);
+                Thread.sleep(1000);
             }
         }
         LOGGER.info("Source {} is available.", id);

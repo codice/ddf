@@ -488,9 +488,12 @@ public class TestRestEndpoint {
         SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(localSourceId,
                 contentTypes);
         localDescriptor.setVersion(version);
+        localDescriptor.setAvailable(true);
         SourceDescriptorImpl fed1Descriptor = new SourceDescriptorImpl(fed1SourceId, contentTypes);
         fed1Descriptor.setVersion(version);
+        fed1Descriptor.setAvailable(true);
         SourceDescriptorImpl fed2Descriptor = new SourceDescriptorImpl(fed2SourceId, null);
+        fed2Descriptor.setAvailable(true);
 
         sourceDescriptors.add(localDescriptor);
         sourceDescriptors.add(fed1Descriptor);

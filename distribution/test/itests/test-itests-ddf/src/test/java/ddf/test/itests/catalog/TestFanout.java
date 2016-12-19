@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MediaType;
 
@@ -41,6 +42,8 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
 import com.jayway.restassured.path.json.JsonPath;
+
+import ddf.catalog.source.FederatedSource;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -59,11 +62,11 @@ public class TestFanout extends AbstractIntegrationTest {
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             getCatalogBundle().setFanout(true);
-            getCatalogBundle().waitForCatalogProvider();
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT.getUrl() + "/catalog/query?_wadl");
 
             LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body()
                     .prettyPrint());
+            getCatalogBundle().waitForCatalogProvider();
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
@@ -76,13 +79,38 @@ public class TestFanout extends AbstractIntegrationTest {
         getCatalogBundle().setFanoutTagBlacklist(Collections.emptyList());
         // Start with fanout enabled
         getCatalogBundle().setFanout(true);
+        try {
+            getCatalogBundle().waitForCatalogProvider();
+        } catch (Exception e) {
+            LOGGER.error("Failed in @Before ", e);
+            fail("Failed in @Before: " + e.getMessage());
+        }
     }
 
     private void startCswSource() throws Exception {
         getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
         getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID,
                 getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()));
-        getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
+
+        long timeout = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10);
+        boolean available = false;
+        FederatedSource source = null;
+        while (!available) {
+            if (source == null) {
+                source = getServiceManager().getServiceReferences(FederatedSource.class, null)
+                        .stream()
+                        .map(getServiceManager()::getService)
+                        .filter(src -> CSW_SOURCE_ID.equals(src.getId()))
+                        .findFirst()
+                        .orElse(null);
+            } else {
+                available = source.isAvailable();
+            }
+            if (System.currentTimeMillis() > timeout) {
+                fail ("CSW source failed to initialize in time.");
+            }
+            Thread.sleep(1000);
+        }
     }
 
     @Test

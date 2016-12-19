@@ -44,6 +44,10 @@
             <artifactId>json-smart</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-jts-wrapper</artifactId>
             <version>8.4</version>
@@ -74,7 +78,8 @@
                             json-smart,
                             catalog-core-api-impl,
                             spatial4j,
-                            platform-util
+                            platform-util,
+                            asm
                         </Embed-Dependency>
                         <Export-Package>org.codice.ddf.spatial.geocoder</Export-Package>
                     </instructions>

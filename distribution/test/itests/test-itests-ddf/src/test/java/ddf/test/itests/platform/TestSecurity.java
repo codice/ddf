@@ -339,6 +339,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             config.update(properties);
 
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+            getCatalogBundle().waitForCatalogProvider();
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());

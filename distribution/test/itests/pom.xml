@@ -31,7 +31,7 @@
         <module>test-itests-dependencies-app</module>
     </modules>
     <properties>
-        <pax.exam.version>4.8.0</pax.exam.version>
+        <pax.exam.version>4.9.2</pax.exam.version>
         <pax.tinybundles.version>2.1.1</pax.tinybundles.version>
         <pax.url.version>2.4.5</pax.url.version>
         <cometd.version>3.0.9</cometd.version>
