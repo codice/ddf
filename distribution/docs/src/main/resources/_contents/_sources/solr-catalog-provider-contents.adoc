@@ -1,43 +1,20 @@
 
-==== Catalog Solr Embedded Provider
+==== Solr Embedded Provider
 
-The Solr Catalog Embedded Provider is an embedded, local Solr Server instance used in conjunction with an Apache Solr Server data store.
-It is a local instance that is a lightweight Catalog provider solution. However, it does not provide a Solr Admin GUI or a "REST-like HTTP/XML and JSON API." If that is necessary, see Standalone Solr Server.
+The Solr Embedded Provider is an embedded, local Solr Server instance used in conjunction with an Apache Solr Server data store.
+It is a local instance that is a lightweight Catalog provider solution.
+However, it does not provide a Solr Admin GUI or a REST-like HTTP/XML and JSON API.
+If that is necessary, see Standalone Solr Server or Solr Cloud.
 
-Use the local, embedded Solr Catalog Provider when only one ${branding} instance is necessary and scalability is not an issue.
-The local, embedded Solr Catalog Provider requires no installation and little to no configuration.
+Use the local, embedded Solr Provider when only one ${branding} instance is necessary and scalability is not an issue.
+The local, embedded Solr Provider requires no installation and little to no configuration.
 It is great for demonstrations, training exercises, or for sparse querying and ingesting.
 
-===== Installing Solr Catalog Embedded Provider
+==== Configuring Embedded Solr Server and Solr Provider
 
-The Solr Catalog Embedded Provider is not installed by default with a standard installation.
+The *system.properties* file needs to be updated to use the Embedded Solr Provider.
 
-To install:
-
-. Navigate to the ${ddf-solr} application in the ${admin-console}.
-. Select *Features*.
-. Uninstall the `catalog-solr-external-provider` feature.
-. Install the `catalog-solr-embedded-provider`.
-
-==== Configuring Embedded Solr Server and Solr Catalog Provider
-
-No configuration is necessary for the embedded Solr Server and the Solr Catalog Provider.
-The standard installation described above is sufficient.
-When the `catalog-solr-embedded-provider` feature is installed, it stores the Solr index files to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr` by default.
-A user does not have to specify any parameters and the `catalog-solr-embedded-provider` feature contains all files necessary for Solr to start the server. 
-
-However, this component _can_ be configured to specify the directory to use for data storage. 
-
-The configurable properties for the SCP are accessed from the *Catalog Embedded Solr Catalog Provider* configurations in the ${admin-console}.
-
-[TIP]
-====
-The Embedded (Local) Solr Catalog Provider works on startup without any configuration because a local embedded Solr Server is automatically started and pre-configured.
-====
-
-include::{adoc-include}/_tables/ddf.catalog.source.solr.SolrCatalogProvider-table-contents.adoc[]
-
-Some notable features of the Solr Catalog Provider include:
+Some notable features of the Solr Provider include:
 
 * Supports extensible metacards
 * Fast, simple contextual searching
@@ -49,7 +26,7 @@ Some notable features of the Solr Catalog Provider include:
 * Works with a standalone Solr Server
 * Works with Solr Cloud
 
-.Embedded Solr Catalog Provider Pros and Cons
+.Embedded Solr Provider Pros and Cons
 [cols="1,4a,2a" options="header"]
 |===
 
@@ -63,10 +40,10 @@ a|* Does not scale. Only runs one single server instance.
 * Does not allow the middle tier to be scaled.
 
 |Flexibility
-a|* Can be embedded in Java easily.
-* Requires no HTTP connection.
+a|* Requires no HTTP connection.
 * Uses the same interface as the Standalone Solr Server uses under the covers.
-* Allows for full control over the Solr Server. No synchronous issues on startup; i.e., the Solr Server will synchronously start up with the Solr Catalog Provider
+* Allows for full control over the Solr Server.
+No synchronous issues on startup; i.e., the Solr Server will synchronously start up with the Solr Provider
 * Runs within the same JVM
 * Setup and Installation is simple: unzip and run.
 |* Can only be interfaced using Java
@@ -89,7 +66,7 @@ a|* Requires no HTTP or network overhead
 |
 
 |Backup/Recovery
-a|* Can manually or through custom scripts back up the indexes
+a|* Backups of indexes can be performed manually or through custom scripts
 a|* Must copy files when server is shutdown
 
 |===

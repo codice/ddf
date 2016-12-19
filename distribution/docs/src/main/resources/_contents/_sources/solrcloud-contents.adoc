@@ -1,0 +1,50 @@
+==== Solr Cloud
+
+If the ${branding} needs to be accessible for a higher than normal period with low instances of downtime, then Solr Cloud should be used.
+
+Solr Cloud is a cluster of Solr Server instances that support fault tolerance and high availability.
+Each Solr Server instance in Solr Cloud provides a Solr Admin GUI.
+
+Synchronization between Solr Server instances is managed by Zookeeper.
+Zookeeper routes client requests to the proper Solr Server instance in the the Solr Cloud cluster.
+
+.Solr Cloud Pros and Cons
+[cols="1,4a,2a" options="header"]
+|===
+
+|Feature
+|Pro
+|Con
+
+|Scalability
+a|* Scalable
+* Can run a cluster of Solr Servers
+* Indexed documents can exceed ~2 billion
+a|
+
+|Flexibility
+a|* Uses the same interface as the Standalone Solr Server uses under the covers.
+|* Requires HTTP connection.
+* Requires Zookeeper to coordinate configurations between Solr Servers.
+* Synchronous issues on startup; i.e., Zookeeper nodes needs to be up and before Solr Cloud is up.
+
+|(Administrative)Tools
+a|* Contains Solr Admin GUI, which allows admins to query, check health, see metrics, see configuration files and preferences, etc.
+a|
+
+|Security
+a|
+a|* Solr Cloud requires additional network protection to be secure.
+See Solr Cloud Hardening Guide for details.
+
+|Performance
+a|* Near real-time indexing
+* Can understand complex queries
+a|* Requires HTTP or network overhead
+* Performance degrades as more data is indexed at ~2 billion documents
+
+|Backup/Recovery
+a|
+a|* Automatic recovery from failure.
+
+|===

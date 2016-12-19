@@ -1,7 +1,7 @@
 
 This section supports integration of this application with external frameworks.
 
-Some notable features of the Solr Catalog Provider include:
+Some notable features of the Solr Provider include:
 
 * Supports extensible metacards
 * Fast, simple contextual searching
@@ -13,7 +13,7 @@ Some notable features of the Solr Catalog Provider include:
 * Works with a standalone Solr Server
 * Works with Solr Cloud
 
-=== Embedded Solr Catalog Provider Pros and Cons
+=== Embedded Solr Provider Pros and Cons
 
 [cols="1,4a,2a" options="header"]
 |===
@@ -31,7 +31,7 @@ Some notable features of the Solr Catalog Provider include:
 |* Can be embedded in Java easily.
 * Requires no HTTP connection.
 * Uses the same interface as the Standalone Solr Server uses under the covers.
-* Allows for full control over the Solr Server. No synchronous issues on startup; i.e., the Solr Server will synchronously start up with the Solr Catalog Provider
+* Allows for full control over the Solr Server. No synchronous issues on startup; i.e., the Solr Server will synchronously start up with the Solr Provider
 * Runs within the same JVM
 * Setup and Installation is simple: unzip and run.
 |* Can only be interfaced using Java
@@ -61,11 +61,11 @@ Some notable features of the Solr Catalog Provider include:
 
 ==== When to Use
 
-Use the local, embedded Solr Catalog Provider when only one ${branding} instance is necessary and scalability is not an issue.
-The local, embedded Solr Catalog Provider requires no installation and little to no configuration.
+Use the local, embedded Solr Provider when only one ${branding} instance is necessary and scalability is not an issue.
+The local, embedded Solr Provider requires no installation and little to no configuration.
 It is great for demonstrations, training exercises, or for sparse querying and ingesting.
 
-=== Solr Catalog External Provider Pros and Cons
+=== Solr External Provider Pros and Cons
 
 [cols="1,3a,3a" options="header"]
 |===
@@ -121,6 +121,6 @@ Refer to the Standalone Solr Server recommended configuration.
 
 ===== Indexing Text
 
-When storing fields, the Solr Catalog Provider will analyze and tokenize the text values of `STRING_TYPE` and `XML_TYPE` `AttributeTypes`.
+When storing fields, the Solr Provider will analyze and tokenize the text values of `STRING_TYPE` and `XML_TYPE` `AttributeTypes`.
 These types of fields are indexed in at least three ways: in raw form, analyzed with case sensitivity, and analyzed without concern to case sensitivity.
-Concerning XML, the Solr Catalog Provider will analyze and tokenize XML CDATA sections, XML element text values, and XML attribute values. 
+Concerning XML, the Solr Provider will analyze and tokenize XML CDATA sections, XML element text values, and XML attribute values. 

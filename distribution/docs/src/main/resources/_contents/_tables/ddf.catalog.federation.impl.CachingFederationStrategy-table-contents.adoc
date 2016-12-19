@@ -30,13 +30,6 @@
 |10080
 |true
 
-|Solr URL
-|url
-|String
-|HTTP URL of Solr Server
-|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr
-|true
-
 |Cache Everything
 |cachingEverything
 |Boolean
@@ -66,4 +59,3 @@
 |true
 
 |===
-

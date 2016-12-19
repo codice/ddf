@@ -2927,7 +2927,7 @@ In the case of a tie, the service with the lowest service ID (first created) is 
 
 The Catalog Fanout Framework App does not use a Catalog provider and will fail any create/update/delete operations even if there are active Catalog providers configured.
 
-The Catalog reference implementation comes with a Solr Catalog Provider out of the box.
+The Catalog reference implementation comes with a Solr Provider out of the box.
 
 ==== Remote Sources
 
@@ -5535,12 +5535,6 @@ The Catalog Federation Strategy configuration can be found in the admin console 
 |Long
 |The number of minutes a document will remain in the cache before it will expire. Default is 7 days.
 |10080
-|yes
-
-|`url`
-|String
-|HTTP URL of Solr Server
-|${secure_url}/solr
 |yes
 
 |`cachingEverything`

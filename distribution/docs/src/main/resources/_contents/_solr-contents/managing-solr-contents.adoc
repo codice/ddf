@@ -1,11 +1,11 @@
 
-The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+The Solr Provider is an implementation of the Provider interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
 
-=== ${branding} Catalog Solr External Provider
+=== ${branding} Solr External Provider
 
 ==== Using
 
-The Solr Catalog Provider is used in conjunction with an Apache Solr Server data store and acts as the client for an external Solr Server.
+The Solr Provider is used in conjunction with an Apache Solr Server data store and acts as the client for an external Solr Server.
 It is meant to be used only with the Standalone Solr Server (`catalog-solr-server`).
 
 ==== Installing
@@ -38,7 +38,7 @@ By default, the ${ddf-solr} application installs the External Solr Provider.
 
 ==== Using
 
-The Solr Catalog Embedded Provider is an embedded, local Solr Server instance used in conjunction with an Apache Solr Server data store.
+The Solr Embedded Provider is an embedded, local Solr Server instance used in conjunction with an Apache Solr Server data store.
 It is a local instance that is a lightweight Catalog provider solution. However, it does not provide a Solr Admin GUI or a "REST-like HTTP/XML and JSON API." If that is necessary, see Standalone Solr Server.
 
 ==== Installing
@@ -60,20 +60,20 @@ Before the ${ddf-solr} Application can be installed:
 
 `solr.client = EmbeddedSolrServer`
 
-==== Configuring Embedded Solr Server and Solr Catalog Provider
+==== Configuring the Embedded Solr Server and the Solr Provider
 
-No configuration is necessary for the embedded Solr Server and the Solr Catalog Provider.
+No configuration is necessary for the embedded Solr Server and the Solr Provider.
 The standard installation described above is sufficient.
 When the `catalog-solr-embedded-provider` feature is installed, it stores the Solr index files to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr` by default.
 A user does not have to specify any parameters and the `catalog-solr-embedded-provider` feature contains all files necessary for Solr to start the server. 
 
 However, this component _can_ be configured to specify the directory to use for data storage. 
 
-The configurable properties for the SCP are accessed from the *Catalog Embedded Solr Catalog Provider* configurations in the Web Console.
+The configurable properties for the Solr Provider are accessed from the *Catalog Embedded Solr Provider* configurations in the Web Console.
 
 [TIP]
 ====
-The Embedded (Local) Solr Catalog Provider works on startup without any configuration because a local embedded Solr Server is automatically started and pre-configured.
+The Embedded (Local) Solr Provider works on startup without any configuration because a local embedded Solr Server is automatically started and pre-configured.
 ====
 
 ===== Configurable Properties
@@ -91,13 +91,13 @@ The Embedded (Local) Solr Catalog Provider works on startup without any configur
 |Data Directory File Path
 |`dataDirectoryPath`
 |String
-|Specifies the directory to use for data storage. The server must be shutdown for this property to take effect. If a filepath is provided with directories that don't exist, SCP will attempt to create those directories. Out of the box (without configuration), the SCP writes to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr`.
+|Specifies the directory to use for data storage. The server must be shutdown for this property to take effect. If a filepath is provided with directories that don't exist, Solr Provider will attempt to create those directories. Out of the box (without configuration), the Solr Provider writes to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr`.
 
 If `dataDirectoryPath` is left blank (empty string), it will default to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr`.
 
-If data directory file path is a relative string, the SCP will write the data files starting at the installation directory. For instance, if the string `scp/solr_data` is provided, the data directory will be at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/scp/solr_data`.
+If data directory file path is a relative string, the Solr Provider will write the data files starting at the installation directory. For instance, if the string `scp/solr_data` is provided, the data directory will be at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/scp/solr_data`.
 
-If data directory file path is `/solr_data` in Windows, the Solr Catalog Provider will write the data files starting at the beginning of the drive, e.g., `C:\solr_data`.
+If data directory file path is `/solr_data` in Windows, the Solr Provider will write the data files starting at the beginning of the drive, e.g., `C:\solr_data`.
 
 It is recommended that an absolute filepath be used to minimize confusion, e.g., `/opt/solr_data` in Linux or `C:\solr_data` in Windows. Permissions are necessary to write to the directory.
 |
@@ -119,31 +119,31 @@ Only in special cases should auto-commit be forced. Forcing auto-commit makes th
 ==== Solr Configuration Files
 
 The Apache Solr product has Configuration files to customize behavior for the Solr Server. These files can be found at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/etc/solr`.
-Care must be taken in editing these files because they will directly affect functionality and performance of the Solr Catalog Provider.
+Care must be taken in editing these files because they will directly affect functionality and performance of the Solr Provider.
 A restart of the distribution is necessary for changes to take effect. 
  
 [WARNING]
 ====
 *Solr Configuration File Changes* +
 Solr Configuration files should not be changed in most cases.
-Changes to the `schema.xml` will most likely need code changes within the Solr Catalog Provider.
+Changes to the `schema.xml` will most likely need code changes within the Solr Provider.
 ====
 
 ==== Move Solr Data to a New Location
 
-If SCP has been installed for the first time, changing the Data Directory File Path property and restarting the distribution is all that is necessary because no data had been written into Solr previously.
+If the Solr Provider has been installed for the first time, changing the Data Directory File Path property and restarting the distribution is all that is necessary because no data had been written into Solr previously.
 Nonetheless, if a user needs to change the location after the user has already ingested data in a previous location, complete the following procedure:
 
-. Change the data directory file path property within the *Catalog Embedded Solr Catalog Provider* configuration in the Admin Console to the desired future location of the Solr data files.
+. Change the data directory file path property within the *Catalog Embedded Solr Provider* configuration in the Admin Console to the desired future location of the Solr data files.
 . Shut down the distribution.
 . Find the future location on the drive. If the current location does not exist, create the directories.
 . Find the location of where the current Solr data files exist and copy all the directories in that location to the future the location. For instance, if the previous Solr data files existed at C:\solr_data and it is necessary to move it to C:\solr_data_new, copy all directories within `C:\solr_data` into `C:\solr_data_new`. Usually this consists of copying the index and tlog directories into the new data directory.
-. Start the distribution. SCP should recognize the index files and be able to query them again.
+. Start the distribution. The Solr Provider should recognize the index files and be able to query them again.
 
 [WARNING]
 ====
 *Changes Require a Distribution Restart* +
-If the Data Directory File Path property is changed, no changes will occur to the SCP until the distribution has been restarted.
+If the Data Directory File Path property is changed, no changes will occur to the Solr Provider until the distribution has been restarted.
 ====
 
 [NOTE]
@@ -165,8 +165,8 @@ Users can use this feature to create a data store.
 Users would use this style of deployment over an embedded Java Solr Server when the user wants to install a Solr Server on a separate, dedicated machine for the purpose of isolated data storage or ease of maintenance. 
 The Standalone Solr Server can now run in its own JVM (separate from endpoints and other frameworks) and accept calls with its "REST-like HTTP/XML and JSON API." 
 
-This Standalone Solr Server is meant to be used in conjunction with the Solr Catalog Provider for External Solr.
-The Solr Catalog Provider acts as a client to the Solr Server.
+This Standalone Solr Server is meant to be used in conjunction with the Solr Provider for External Solr.
+The Solr Provider acts as a client to the Solr Server.
 
 ==== Installing and Uninstalling
 
@@ -181,7 +181,7 @@ If clustering is necessary, the Solr Server application can run alongside the Pl
 
 ==== Installing
 
-By default, the features for the Standalone Solr Server and External Solr Catalog Provider are installed.
+By default, the features for the Standalone Solr Server and External Solr Provider are installed.
 
 ===== Remove Data from Solr Core
 
@@ -202,7 +202,7 @@ ${secure_url}/solr
 
 ==== Configuring
 
-The Standalone Solr Server comes pre-configured to work with Solr Catalog External Provider implementations.
+The Standalone Solr Server comes pre-configured to work with Solr External Provider implementations.
 For most use cases, no other configuration to the Solr Server is necessary with the standard distribution.
 
 ==== Known Issues
@@ -336,7 +336,6 @@ The jars are needed to support geospatial and xpath queries and need to be insta
 .. http://artifacts.codice.org/service/local/repositories/releases/content/org/codice/thirdparty/jts/1.12_1/jts-1.12_1.jar
 .. http://artifacts.codice.org/service/local/artifact/maven/content?r=snapshots&g=ddf.platform.solr&a=solr-xpath&v=${ddf.version}
 
-
 . Copy downloaded jar files to: `/opt/solr/server/solr-webapp/webapp/WEB-INF/lib/`
 
 [NOTE]
@@ -351,3 +350,14 @@ Minimum 2 Solr Cloud instances required with each Solr Cloud instance with a two
 .. Set solr.cloud.zookeeper to <ZOOKEEPER_1_HOSTNAME>:<PORT_NUMBER>, <ZOOKEEPER_2_HOSTNAME>:<PORT_NUMBER>, <ZOOKEEPER_n_HOSTNAME>:<PORT_NUMBER>
 Example: `solr.cloud.zookeeper = zk1:2181,zk2:2181,zk3:2181`
 .. Comment out `solr.http.url` and `solr.data.dir`
+
+==== Reconfiguring Solr Cloud
+If the default Solr Cloud configuration does not meet the ${branding} requirements, you can reconfigure Solr Cloud:
+
+. Shutdown the ${branding}.
+
+. Export all the data you require from Solr Cloud.
+
+. Reconfigure Solr Cloud using the Solr Cloud Console.
+
+. Restart the ${branding}.

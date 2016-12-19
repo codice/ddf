@@ -555,9 +555,9 @@ Event event = new Event("${ddf-branding-lowercase}/notification/catalog/download
 eventAdmin.postEvent(event);
 ----
 
-===== Configuring Solr Catalog Provider Data Directory
+===== Configuring Solr Provider Data Directory
 
-The Solr Catalog Provider writes index files to the file system.
+The Solr Provider and the Embedded Solr Provider writes index files to the file system.
 By default, these files are stored under `${branding}_HOME/data/solr/catalog/data`.
 If there is inadequate space in `${branding}_HOME`, or if it is desired to maintain backups of the indexes only, this directory can be changed.
 
@@ -609,4 +609,3 @@ The `system.properties` file found under `${branding}_HOME/etc` contains propert
 By default, this value is set to 128.
 It is not recommended to set this value extremely high.
 If unsure, leave this setting at it's default value of 128.
-

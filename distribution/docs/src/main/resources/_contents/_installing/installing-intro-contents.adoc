@@ -256,7 +256,7 @@ To run ${branding} as a service, see <<_starting_${branding-lowercase}_as_a_serv
 
 ==== Verifying Startup
 
-At this point, ${branding} should be configured and running with a Solr Catalog Provider.
+At this point, ${branding} should be configured and running with a Solr Provider.
 New features (endpoints, services, and sites) can be added as needed.
 
 Verification is achieved by checking that all of the ${branding} bundles are in an *Active* state (excluding fragment bundles which remain in a *Resolved* state).
