@@ -21,7 +21,8 @@ import {
   editRealm,
   updatePolicyBins,
   persistChanges,
-  addAttributeMapping
+  addAttributeMapping,
+  removeAttributeMapping
 } from './actions'
 
 import Flexbox from 'flexbox-react'
@@ -55,21 +56,17 @@ import {
   realmNameStyle
 } from './styles.less'
 
-export const InfoField = ({ id, label, value }) => (
-  <div style={{ fontSize: '16px', lineHeight: '24px', width: '100%', display: 'inline-block', position: 'relative', height: '200ms' }}>
-    <label htmlFor={id} style={{ color: 'rgba(0, 0, 0, 0.541176)', position: 'absolute', lineHeight: '22px', top: '30px', transform: 'scale(0.75) translate(10px, -28px)', transformOrigin: 'left top 0px' }}>{label}</label>
-    <p id={id} style={{ position: 'relative', height: '100%', margin: '28px 10px 7px', whiteSpace: 'nowrap' }}>{value}</p>
-  </div>
-)
+let Edit = ({editing, binNumber, editModeOn}) => {
+  return !editing ? (
+    <div style={{ width: '100%' }}>
+      <Flexbox className={editPaneStyle} justifyContent='center' alignItems='center' onClick={editModeOn}>
+        <IconButton tooltip={'Edit Attributes'} tooltipPosition='top-center'><EditModeIcon /></IconButton>
+      </Flexbox>
+    </div>
+  ) : null
+}
 
-let Info = ({id, name, realm, authenticationTypes, requiredAttributes, binNumber, editModeOn}) => (
-  <div style={{ width: '100%' }}>
-    <Flexbox className={editPaneStyle} justifyContent='center' alignItems='center' onClick={editModeOn}>
-      <IconButton tooltip={'Edit Attributes'} tooltipPosition='top-center'><EditModeIcon /></IconButton>
-    </Flexbox>
-  </div>
-)
-Info = connect(null, (dispatch, { binNumber }) => ({ editModeOn: () => dispatch(editModeOn(binNumber)) }))(Info)
+Edit = connect(null, (dispatch, { binNumber }) => ({ editModeOn: () => dispatch(editModeOn(binNumber)) }))(Edit)
 
 let ContextPathItem = ({ contextPath, binNumber, pathNumber, removePath, editing, attribute }) => (
   <div>
@@ -96,6 +93,15 @@ NewContextPathItem = connect(null, (dispatch, { binNumber, attribute }) => ({
   onEdit: (value) => dispatch(editAttribute(attribute)(binNumber, value))
 }))(NewContextPathItem)
 
+let ContextPathGroup = ({ bin, binNumber }) => (
+  <Flexbox style={{ width: '20%', padding: '5px', borderRight: '1px solid grey' }} flexDirection='column'>
+    <p className={infoSubtitleLeft}>Context Paths</p>
+    {bin.contextPaths.map((contextPath, pathNumber) => (<ContextPathItem attribute='contextPaths' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} editing={bin.editing} />))}
+    {bin.editing ? <NewContextPathItem binNumber={binNumber} attribute='contextPaths' newPath={bin['newcontextPaths']} /> : null}
+    <Divider />
+  </Flexbox>
+)
+
 let NewSelectItem = ({ binNumber, addPath, onEdit, newPath, attribute, options, addButtonVisible = true }) => (
   <div>
     <Divider />
@@ -112,141 +118,127 @@ NewSelectItem = connect(null, (dispatch, { binNumber, attribute }) => ({
   onEdit: (value) => dispatch(editAttribute(attribute)(binNumber, value))
 }))(NewSelectItem)
 
-const PolicyBin = ({ policyBin, binNumber }) => (
-  <Paper className={policyBinOuterStyle} >
+let Realm = ({ bin, binNumber, policyOptions, editRealm }) => {
+  return bin.editing ? (
     <Flexbox flexDirection='row'>
-      <Flexbox style={{ width: '20%', padding: '5px', borderRight: '1px solid grey' }} flexDirection='column'>
-        <p className={infoSubtitleLeft}>Context Paths</p>
-        {policyBin.contextPaths.map((contextPath, pathNumber) => (<ContextPathItem contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} />))}
-        <Divider />
-      </Flexbox>
-      <Flexbox style={{ width: '20%', padding: '5px' }} flexDirection='column'>
-        <p className={infoSubtitleLeft}>Realm</p>
-        <Divider />
-        <p className={realmNameStyle}>{policyBin.realm}</p>
-        <p className={infoSubtitleLeft}>Authentication Types</p>
-        <Flexbox flexDirection='column'>
-          {policyBin.authenticationTypes.map((authType, pathNumber) => (<ContextPathItem editing={false} attribute='authenticationTypes' key={pathNumber} contextPath={authType} binNumber={binNumber} pathNumber={pathNumber} />))}
-        </Flexbox>
-      </Flexbox>
-      <Flexbox style={{ width: '60%', padding: '5px' }} flexDirection='column'>
-        <p className={infoSubtitleLeft}>Required Attributes</p>
-        <Divider />
-        <Flexbox flexDirection='column'>
-          <Table>
-            <TableHeader style={{ padding: '1px' }} displaySelectAll={false} adjustForCheckbox={false}>
-              <TableRow>
-                <TableHeaderColumn>STS Claim</TableHeaderColumn>
-                <TableHeaderColumn style={{ width: 120 }}>Attribute Mapping</TableHeaderColumn>
-              </TableRow>
-            </TableHeader>
-            <TableBody displayRowCheckbox={false}>
-              {Object.keys(policyBin.requiredAttributes).map((key, i) =>
-                <TableRow key={i}>
-                  <TableRowColumn>
-                    <span style={{cursor: 'help'}}>{key}</span>
-                  </TableRowColumn>
-                  <TableRowColumn style={{ width: 120 }}>{policyBin.requiredAttributes[key]}</TableRowColumn>
-                </TableRow>)}
-            </TableBody>
-          </Table>
-        </Flexbox>
-      </Flexbox>
+      <SelectField fullWidth style={{margin: '0px 10px'}} id='realm' value={bin.realm} onChange={(event, i, value) => editRealm(value)}>
+        {policyOptions.realms.map((realm, i) => (<MenuItem value={realm} primaryText={realm} key={i} />))}
+      </SelectField>
     </Flexbox>
-    <Info name={policyBin.name} realm={policyBin.realm} binNumber={binNumber} authenticationTypes={policyBin.authenticationTypes} requiredAttributes={policyBin.requiredAttributes} />
-  </Paper>
-)
+  ) : (
+    <p className={realmNameStyle}>{bin.realm}</p>
+  )
+}
+Realm = connect(
+  (state) => ({
+    policyOptions: getOptions(state)
+  }),
+  (dispatch, { binNumber }) => ({
+    editRealm: (value) => dispatch(editRealm(binNumber, value))
+  }))(Realm)
 
-let EditPolicyBin = ({ policyBin, policyOptions, binNumber, removeBin, editModeSave, editModeCancel, editRealm, editName, addAttributeMapping, editAttribute, removeAttribute }) => (
-  <Paper className={policyBinOuterStyle} >
-    <Flexbox flexDirection='row'>
-      <Flexbox style={{ width: '20%', padding: '5px', borderRight: '1px solid grey' }} flexDirection='column'>
-        <p className={infoSubtitleLeft}>Context Paths</p>
-        {policyBin.contextPaths.map((contextPath, pathNumber) => (<ContextPathItem editing attribute='contextPaths' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} />))}
-        <NewContextPathItem binNumber={binNumber} attribute='contextPaths' newPath={policyBin['newcontextPaths']} />
-      </Flexbox>
-      <Flexbox style={{ width: '20%', padding: '5px' }} flexDirection='column'>
-        <p className={infoSubtitleLeft}>Realm</p>
-        <Divider />
-        <Flexbox flexDirection='row'>
-          <SelectField fullWidth style={{ margin: '0px 10px' }} id='realm' value={policyBin.realm} onChange={(event, i, value) => editRealm(value)}>
-            {policyOptions.realms.map((realm, i) => (<MenuItem value={realm} primaryText={realm} key={i} />))}
-          </SelectField>
-        </Flexbox>
-        <p className={infoSubtitleLeft}>Authentication Types</p>
-        <Flexbox flexDirection='column'>
-          {policyBin.authenticationTypes.map((contextPath, pathNumber) => (<ContextPathItem editing attribute='authenticationTypes' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} />))}
-          <NewSelectItem binNumber={binNumber} attribute='authenticationTypes' options={policyOptions.authenticationTypes.filter((option) => !policyBin.authenticationTypes.includes(option))} newPath={policyBin['newauthenticationTypes']} />
-        </Flexbox>
-      </Flexbox>
-      <Flexbox style={{ width: '60%', padding: '5px' }} flexDirection='column'>
-        <p className={infoSubtitleLeft}>Required Attributes</p>
-        <Divider />
-        <Flexbox flexDirection='column'>
-          <Table selectable={false}>
-            <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
-              <TableRow>
-                <TableHeaderColumn>STS Claim</TableHeaderColumn>
-                <TableHeaderColumn style={{ width: 120 }}>Attribute Mapping</TableHeaderColumn>
-              </TableRow>
-            </TableHeader>
-            <TableBody displayRowCheckbox={false}>
-              {Object.keys(policyBin.requiredAttributes).map((key, i) =>
-                <TableRow key={i}>
-                  <TableRowColumn>
-                    <span style={{cursor: 'help'}}>{key}</span>
-                  </TableRowColumn>
-                  <TableRowColumn style={{ width: 120, position: 'relative' }}>
-                    <span>{policyBin.requiredAttributes[key]}</span>
-                    <IconButton style={{ position: 'absolute', right: 0, top: 0 }} tooltip={'Add This Path'} tooltipPosition='top-center' onClick={() => removeAttribute('requiredAttributes', i)}><CancelIcon /></IconButton>
-                  </TableRowColumn>
-                </TableRow>)}
-              <TableRow>
-                <TableRowColumn>
-                  <SelectField style={{ margin: '0px', width: '100%', fontSize: '14px' }} id='claims' value={policyBin.newrequiredClaim || ''} onChange={(event, i, value) => editAttribute('requiredClaim', value)}>
-                    {policyOptions.claims.map((claim, i) => (<MenuItem style={{ fontSize: '12px' }} value={claim} primaryText={claim} key={i} />))}
-                  </SelectField>
-                </TableRowColumn>
-                <TableRowColumn style={{ width: 120, position: 'relative' }}>
-                  <TextField fullWidth style={{ margin: '0px', fontSize: '14px' }} id='claims' value={policyBin.newrequiredAttribute || ''} onChange={(event, value) => editAttribute('requiredAttribute', value)} />
-                  <IconButton style={{ position: 'absolute', right: 0, top: 0 }} tooltip={'Add Item'} tooltipPosition='top-center' onClick={addAttributeMapping}><AddIcon color={cyanA700} /></IconButton>
-                </TableRowColumn>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </Flexbox>
-      </Flexbox>
-    </Flexbox>
-    <Divider />
+let ConfirmationPanel = ({ bin, binNumber, removeBin, editModeSave, editModeCancel }) => {
+  return bin.editing ? (
     <Flexbox flexDirection='row' justifyContent='center' style={{ padding: '10px 0px 5px' }}>
       <FlatButton style={{ margin: '0 10' }} label='Cancel' labelPosition='after' secondary onClick={editModeCancel} />
       <RaisedButton style={{ margin: '0 10' }} label='Done' primary onClick={editModeSave} />
       <IconButton style={{ position: 'absolute', right: '0px', bottom: '0px' }} onClick={removeBin} tooltip={'Delete'} tooltipPosition='top-center' ><DeleteIcon /></IconButton>
     </Flexbox>
-  </Paper>
+  ) : null
+}
+ConfirmationPanel = connect(null, (dispatch, { binNumber }) => ({
+  removeBin: () => dispatch(removeBin(binNumber)),
+  editModeSave: () => dispatch(editModeSave(binNumber)),
+  editModeCancel: () => dispatch(editModeCancel(binNumber))
+}))(ConfirmationPanel)
+
+let AuthTypesGroup = ({ bin, binNumber, policyOptions }) => (
+  <Flexbox flexDirection='column'>
+    {bin.authenticationTypes.map((contextPath, pathNumber) => (<ContextPathItem attribute='authenticationTypes' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} editing={bin.editing} />))}
+    {bin.editing ? (
+      <NewSelectItem binNumber={binNumber} attribute='authenticationTypes' options={policyOptions.authenticationTypes.filter((option) => !bin.authenticationTypes.includes(option))} newPath={bin['newauthenticationTypes']} />
+    ) : null }
+  </Flexbox>
 )
-EditPolicyBin = connect(
+AuthTypesGroup = connect(
+  (state) => ({
+    policyOptions: getOptions(state)
+  }))(AuthTypesGroup)
+
+let AttributeTableGroup = ({ bin, binNumber, policyOptions, editAttribute, removeAttributeMapping, addAttributeMapping }) => (
+  <Table selectable={false}>
+    <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+      <TableRow>
+        <TableHeaderColumn>STS Claim</TableHeaderColumn>
+        <TableHeaderColumn style={{ width: 120 }}>Attribute Mapping</TableHeaderColumn>
+      </TableRow>
+    </TableHeader>
+    <TableBody displayRowCheckbox={false}>
+      {Object.keys(bin.requiredAttributes).map((key, i) =>
+        <TableRow key={i}>
+          <TableRowColumn>
+            <span style={{cursor: 'help'}}>{key}</span>
+          </TableRowColumn>
+          <TableRowColumn style={{ width: 120, position: 'relative' }}>
+            <span>{bin.requiredAttributes[key]}</span>
+            {bin.editing ? (
+              <IconButton style={{ position: 'absolute', right: 0, top: 0 }} tooltip={'Add This Path'} tooltipPosition='top-center' onClick={() => removeAttributeMapping(key)}><CancelIcon /></IconButton>
+            ) : null }
+          </TableRowColumn>
+        </TableRow>)}
+      {bin.editing ? (
+        <TableRow>
+          <TableRowColumn>
+            <SelectField style={{ margin: '0px', width: '100%', fontSize: '14px' }} id='claims' value={bin.newrequiredClaim || ''} onChange={(event, i, value) => editAttribute('requiredClaim', value)}>
+              {policyOptions.claims.map((claim, i) => (<MenuItem style={{ fontSize: '12px' }} value={claim} primaryText={claim} key={i} />))}
+            </SelectField>
+          </TableRowColumn>
+          <TableRowColumn style={{ width: 120, position: 'relative' }}>
+            <TextField fullWidth style={{ margin: '0px', fontSize: '14px' }} id='claims' value={bin.newrequiredAttribute || ''} onChange={(event, value) => editAttribute('requiredAttribute', value)} />
+            <IconButton style={{ position: 'absolute', right: 0, top: 0 }} tooltip={'Add Item'} tooltipPosition='top-center' onClick={addAttributeMapping}><AddIcon color={cyanA700} /></IconButton>
+          </TableRowColumn>
+        </TableRow>
+      ) : null }
+    </TableBody>
+  </Table>
+)
+AttributeTableGroup = connect(
   (state) => ({
     policyOptions: getOptions(state)
   }),
   (dispatch, { binNumber }) => ({
-    removeBin: () => dispatch(removeBin(binNumber)),
-    editModeSave: () => dispatch(editModeSave(binNumber)),
-    editModeCancel: () => dispatch(editModeCancel(binNumber)),
-    editRealm: (value) => dispatch(editRealm(binNumber, value)),
     addAttributeMapping: () => dispatch(addAttributeMapping(binNumber)),
-    editAttribute: (attribute, value) => dispatch(editAttribute(attribute)(binNumber, value)),
-    removeAttribute: (attribute, pathNumber) => dispatch(removeAttribute(attribute)(binNumber, pathNumber))
-  }))(EditPolicyBin)
+    removeAttributeMapping: (claim) => dispatch(removeAttributeMapping(binNumber, claim)),
+    editAttribute: (attribute, value) => dispatch(editAttribute(attribute)(binNumber, value))
+  }))(AttributeTableGroup)
+
+const PolicyBin = ({ policyBin, binNumber }) => (
+  <Paper className={policyBinOuterStyle} >
+    <Flexbox flexDirection='row'>
+      <ContextPathGroup binNumber={binNumber} bin={policyBin} editing={policyBin.editing} />
+      <Flexbox style={{ width: '20%', padding: '5px' }} flexDirection='column'>
+        <p className={infoSubtitleLeft}>Realm</p>
+        <Divider />
+        <Realm bin={policyBin} binNumber={binNumber} />
+        <p className={infoSubtitleLeft}>Authentication Types</p>
+        <AuthTypesGroup bin={policyBin} binNumber={binNumber} />
+      </Flexbox>
+      <Flexbox style={{ width: '60%', padding: '5px' }} flexDirection='column'>
+        <p className={infoSubtitleLeft}>Required Attributes</p>
+        <Divider />
+        <Flexbox flexDirection='column'>
+          <AttributeTableGroup bin={policyBin} binNumber={binNumber} />
+        </Flexbox>
+      </Flexbox>
+    </Flexbox>
+    <Edit editing={policyBin.editing} binNumber={binNumber} />
+    <ConfirmationPanel bin={policyBin} binNumber={binNumber} />
+  </Paper>
+)
 
 let PolicyBins = ({ policies }) => (
   <Flexbox style={{ height: '100%', width: '100%', overflowY: 'scroll', padding: '0px 5px', boxSizing: 'border-box' }} flexDirection='column' alignItems='center' >
-    { policies.map((policyBin, binNumber) => {
-      if (policyBin.editing !== undefined && policyBin.editing) {
-        return (<EditPolicyBin policyBin={policyBin} key={binNumber} binNumber={binNumber} />)
-      }
-      return (<PolicyBin policyBin={policyBin} key={binNumber} binNumber={binNumber} />)
-    })}
+    { policies.map((policyBin, binNumber) => (<PolicyBin policyBin={policyBin} key={binNumber} binNumber={binNumber} />)) }
     <NewBin />
   </Flexbox>
 )

@@ -19,6 +19,7 @@ export const editAttribute = (attribute) => (binNumber, value) => ({ type: 'WCPM
 
 // Attribute mapping reducers
 export const addAttributeMapping = (binNumber) => ({ type: 'WCPM_ADD_ATTRIBUTE_MAPPING', binNumber })
+export const removeAttributeMapping = (binNumber, claim) => ({ type: 'WCPM_REMOVE_ATTRIBUTE_MAPPING', binNumber, claim })
 
 // Set Options
 export const setPolicyOptions = (options) => ({ type: 'WCPM_SET_OPTIONS', options })

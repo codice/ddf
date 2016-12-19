@@ -10,7 +10,7 @@ const emptyEditBin = fromJS({
   editing: true
 })
 
-const bins = (state = List(), { type, bin, bins, path, binNumber, pathNumber, value, attribute }) => {
+const bins = (state = List(), { type, bin, bins, path, binNumber, pathNumber, value, attribute, claim }) => {
   switch (type) {
     case 'REPLACE_ALL_BINS':
       return fromJS(bins)
@@ -46,14 +46,21 @@ const bins = (state = List(), { type, bin, bins, path, binNumber, pathNumber, va
     // Attribute Mappings
     case 'WCPM_ADD_ATTRIBUTE_MAPPING':
       // TODO: don't allow adding a key that already exists
-      return state.updateIn([binNumber, 'requiredAttributes', state.getIn([binNumber, 'newrequiredClaim'])], () => state.getIn([binNumber, 'newrequiredAttribute'])).updateIn([binNumber, 'newrequiredAttribute'], () => '').updateIn([binNumber, 'newrequiredClaim'], () => '')
+      return state.setIn([binNumber, 'requiredAttributes', state.getIn([binNumber, 'newrequiredClaim'])], state.getIn([binNumber, 'newrequiredAttribute'])).setIn([binNumber, 'newrequiredAttribute'], '').setIn([binNumber, 'newrequiredClaim'], '')
+    case 'WCPM_REMOVE_ATTRIBUTE_MAPPING':
+      return state.deleteIn([binNumber, 'requiredAttributes', claim])
 
     default:
       return state
   }
 }
+const emptyClaims = ({
+  realms: [],
+  authenticationTypes: [],
+  claims: []
+})
 
-const options = (state = {}, { type, options }) => {
+const options = (state = fromJS(emptyClaims), { type, options }) => {
   switch (type) {
     case 'WCPM_SET_OPTIONS':
       return fromJS(options)
