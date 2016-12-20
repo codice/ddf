@@ -21,8 +21,23 @@ import org.codice.ui.admin.sources.config.SourceConfiguration;
 
 public class WfsSourceConfiguration extends SourceConfiguration {
 
+    //** Wfs Service Properties
+    public static final String ID = "id";
+    public static final String WFS_URL = "wfsUrl";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    // ----
+
     private static final String WFS_SOURCE_DISPLAY_NAME = "WFS Source";
     //TODO: Needs WFS specific properties
+
+    public WfsSourceConfiguration(String factoryPid, Map<String, Object> wfsProps) {
+        factoryPid(factoryPid);
+        sourceName(wfsProps.get(ID) == null ? null : (String) wfsProps.get(ID));
+        endpointUrl(wfsProps.get(WFS_URL) == null ? null : (String) wfsProps.get(WFS_URL));
+        sourceUserName(wfsProps.get(USERNAME) == null ? null : (String) wfsProps.get(USERNAME));
+        sourceUserPassword(wfsProps.get(PASSWORD) == null ? null : (String) wfsProps.get(PASSWORD));
+    }
 
     public WfsSourceConfiguration(SourceConfiguration baseConfig) {
         displayName(WFS_SOURCE_DISPLAY_NAME);
@@ -37,13 +52,13 @@ public class WfsSourceConfiguration extends SourceConfiguration {
 
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
-        config.put("id", sourceName());
-        config.put("wfsUrl", endpointUrl());
+        config.put(ID, sourceName());
+        config.put(WFS_URL, endpointUrl());
         if (sourceUserName() != null) {
-            config.put("username", sourceUserName());
+            config.put(USERNAME, sourceUserName());
         }
         if (sourceUserPassword() != null) {
-            config.put("password", sourceUserPassword());
+            config.put(PASSWORD, sourceUserPassword());
         }
         return config;
     }

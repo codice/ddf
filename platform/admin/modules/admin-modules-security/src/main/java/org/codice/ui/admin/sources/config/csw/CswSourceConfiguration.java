@@ -20,11 +20,31 @@ import java.util.Map;
 import org.codice.ui.admin.sources.config.SourceConfiguration;
 
 public class CswSourceConfiguration extends SourceConfiguration {
+    //** Csw Service Properties
+    public static final String ID = "id";
+    public static final String CSW_URL = "cswUrl";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    public static final String OUTPUT_SCHEMA = "outputSchema";
+    public static final String FORCE_SPATIAL_FILTER = "forceSpatialFilter";
+
+    // TODO: tbatie - 12/20/16 - Include service properties for registering for events and the even service address
+    // TODO: tbatie - 12/20/16 - Do we want to add the insane amount of extra fields offered in the CSW Specification Profile Federated Source?
+    // TODO: tbatie - 12/20/16 - Do we want to add the insane amount of extra fields offered in the GMD CSW ISO Federated Source?
+    //----
+
     private static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
 
     private String outputSchema;
 
     private String forceSpatialFilter;
+
+    public CswSourceConfiguration(String factoryPid, Map<String, Object> cswSourceProps) {
+        factoryPid(factoryPid);
+        sourceName(cswSourceProps.get(ID) == null ? null : (String) cswSourceProps.get(ID));
+        endpointUrl(cswSourceProps.get(CSW_URL) == null ? null : (String) cswSourceProps.get(CSW_URL));
+        outputSchema(cswSourceProps.get(OUTPUT_SCHEMA) == null ? null : (String) cswSourceProps.get(OUTPUT_SCHEMA));
+    }
 
     public CswSourceConfiguration(SourceConfiguration baseConfig) {
         displayName(CSW_SOURCE_DISPLAY_NAME);
@@ -61,19 +81,19 @@ public class CswSourceConfiguration extends SourceConfiguration {
 
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
-        config.put("id", sourceName());
-        config.put("cswUrl", endpointUrl());
+        config.put(ID, sourceName());
+        config.put(CSW_URL, endpointUrl());
         if (sourceUserName() != null) {
-            config.put("username", sourceUserName());
+            config.put(USERNAME, sourceUserName());
         }
         if (sourceUserPassword() != null) {
-            config.put("password", sourceUserPassword());
+            config.put(PASSWORD, sourceUserPassword());
         }
         if (outputSchema() != null) {
-            config.put("outputSchema", outputSchema());
+            config.put(OUTPUT_SCHEMA, outputSchema());
         }
         if (forceSpatialFilter() != null) {
-            config.put("forceSpatialFilter", forceSpatialFilter());
+            config.put(FORCE_SPATIAL_FILTER, forceSpatialFilter());
         }
         return config;
     }

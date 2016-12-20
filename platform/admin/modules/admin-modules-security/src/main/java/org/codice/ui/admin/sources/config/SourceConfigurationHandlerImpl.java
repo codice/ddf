@@ -125,19 +125,11 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
     }
 
     @Override
-    public List<SourceConfiguration> getConfigurations() {
-        SourceConfiguration sampleSrcConfig = new SourceConfiguration().displayName(
-                "Same display name")
-                .endpointUrl("endpoint url")
-                .factoryPid("pid")
-                .sourceHostName("host name")
-                .sourceName("Source name")
-                .sourceUserName("Source User Name")
-                .sourceUserPassword("*******")
-                .sourcePort(8993)
-                .trustedCertAuthority(false);
-
-        return Arrays.asList(sampleSrcConfig);
+    public List getConfigurations() {
+        return sourceConfigurationHandlers.stream()
+                .map(configHandler -> configHandler.getConfigurations())
+                .flatMap(List<Object>::stream)
+                .collect(Collectors.toList());
     }
 
     @Override

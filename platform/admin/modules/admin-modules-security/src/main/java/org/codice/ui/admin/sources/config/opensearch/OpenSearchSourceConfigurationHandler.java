@@ -31,6 +31,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -130,9 +131,13 @@ public class OpenSearchSourceConfigurationHandler
 
     @Override
     public List<SourceConfiguration> getConfigurations() {
-        // TODO: tbatie - 11/22/16 - Return configurations based on back end
-        throw new UnsupportedOperationException(
-                "The open search getConfigurations is not implemented yet");
+        Configurator configurator = new Configurator();
+        return configurator.getManagedServiceConfigs(OPENSEARCH_FACTORY_PID)
+                .entrySet()
+                .stream()
+                .map(serviceEntry -> new OpenSearchSourceConfiguration(serviceEntry.getKey(),
+                        serviceEntry.getValue()))
+                .collect(Collectors.toList());
     }
 
     @Override

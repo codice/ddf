@@ -32,6 +32,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -73,6 +74,8 @@ public class WfsSourceConfigurationHandler
     private static final String WFS1_FACTORY_PID = "Wfs_v1_0_0_Federated_Source";
 
     private static final String WFS2_FACTORY_PID = "Wfs_v2_0_0_Federated_Source";
+
+    private static final List<String> WFS_FACTORY_PIDS = Arrays.asList(WFS1_FACTORY_PID, WFS2_FACTORY_PID);
 
     @Override
     public ProbeReport probe(String probeId, SourceConfiguration baseConfiguration) {
@@ -153,9 +156,11 @@ public class WfsSourceConfigurationHandler
 
     @Override
     public List<SourceConfiguration> getConfigurations() {
-        // TODO: tbatie - 11/22/16 - Return configurations based on back end
-        throw new UnsupportedOperationException(
-                "The wfs source getCOnfigurations is not implemented yet");
+        Configurator configurator = new Configurator();
+        return WFS_FACTORY_PIDS.stream()
+                .flatMap(factoryPid -> configurator.getManagedServiceConfigs(factoryPid).entrySet().stream())
+                .map(serviceEntry -> new WfsSourceConfiguration(serviceEntry.getKey(), serviceEntry.getValue()))
+                .collect(Collectors.toList());
     }
 
     @Override

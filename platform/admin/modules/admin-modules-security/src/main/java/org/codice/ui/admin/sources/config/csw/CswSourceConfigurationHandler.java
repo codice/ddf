@@ -32,6 +32,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -71,6 +72,10 @@ public class CswSourceConfigurationHandler
     public static final String CSW_GMD_FACTORY_PID = "Gmd_Csw_Federated_Source";
 
     public static final String CSW_SPEC_FACTORY_PID = "Csw_Federated_Source";
+
+    private static final List<String> CSW_FACTORY_PIDS = Arrays.asList(CSW_PROFILE_FACTORY_PID,
+            CSW_GMD_FACTORY_PID,
+            CSW_SPEC_FACTORY_PID);
 
     private static final List<String> URL_FORMATS = Arrays.asList("https://%s:%d/services/csw",
             "https://%s:%d/csw",
@@ -168,8 +173,14 @@ public class CswSourceConfigurationHandler
 
     @Override
     public List<SourceConfiguration> getConfigurations() {
-        // TODO: tbatie - 11/22/16 - Return configurations based on back end
-        throw new UnsupportedOperationException("The csw getConfigurations is not implemented yet");
+        Configurator configurator = new Configurator();
+        return CSW_FACTORY_PIDS.stream()
+                .flatMap(factoryPid -> configurator.getManagedServiceConfigs(factoryPid)
+                        .entrySet()
+                        .stream())
+                .map(serviceEntry -> new CswSourceConfiguration(serviceEntry.getKey(),
+                        serviceEntry.getValue()))
+                .collect(Collectors.toList());
     }
 
     @Override

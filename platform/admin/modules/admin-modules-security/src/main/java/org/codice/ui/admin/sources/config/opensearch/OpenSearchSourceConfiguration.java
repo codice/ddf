@@ -21,7 +21,22 @@ import org.codice.ui.admin.sources.config.SourceConfiguration;
 
 public class OpenSearchSourceConfiguration extends SourceConfiguration {
 
+    // Open Search Service Properties
+    public static final String ID = "id";
+    public static final String ENDPOINT_URL = "endpointUrl";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    // ----
+
     private static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";
+
+    public OpenSearchSourceConfiguration(String factoryPid, Map<String, Object> props) {
+        factoryPid(factoryPid);
+        sourceName(props.get(ID) == null ? null : (String) props.get(ID));
+        endpointUrl(props.get(ENDPOINT_URL) == null ? null : (String) props.get(ENDPOINT_URL));
+        sourceUserName(props.get(USERNAME) == null ? null : (String) props.get(USERNAME));
+        sourceUserPassword(props.get(PASSWORD) == null ? null : (String) props.get(PASSWORD));
+    }
 
     public OpenSearchSourceConfiguration(SourceConfiguration baseConfig) {
         displayName(OPENSEARCH_SOURCE_DISPLAY_NAME);
@@ -36,13 +51,13 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
 
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
-        config.put("id", sourceName());
-        config.put("endpointUrl", endpointUrl());
+        config.put(ID, sourceName());
+        config.put(ENDPOINT_URL, endpointUrl());
         if (sourceUserName() != null) {
-            config.put("username", sourceUserName());
+            config.put(USERNAME, sourceUserName());
         }
         if (sourceUserPassword() != null) {
-            config.put("password", sourceUserPassword());
+            config.put(PASSWORD, sourceUserPassword());
         }
         return config;
     }
