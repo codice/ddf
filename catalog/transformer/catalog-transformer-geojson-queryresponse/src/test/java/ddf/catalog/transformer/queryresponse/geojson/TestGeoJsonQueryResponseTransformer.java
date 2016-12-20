@@ -102,7 +102,7 @@ public class TestGeoJsonQueryResponseTransformer {
     public void testNullMetacard() throws CatalogTransformerException {
 
         List<Result> results = new LinkedList<Result>();
-        Result result = new ResultImpl(null);
+        Result result = new ResultImpl((Metacard)null);
 
         results.add(result);
 

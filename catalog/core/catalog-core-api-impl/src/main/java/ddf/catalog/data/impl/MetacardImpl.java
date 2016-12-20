@@ -110,7 +110,7 @@ public class MetacardImpl implements Metacard {
          * serialized object is maintained. For instance, if a null check is added in the
          * constructor, the same check should be added in the readObject() method.
          */
-        map = new HashMap<String, Attribute>();
+        map = new HashMap<>();
         if (type != null) {
             this.type = type;
         } else {
@@ -158,12 +158,17 @@ public class MetacardImpl implements Metacard {
                     MetacardType.class.getName() + " instance should not be null.");
         }
         map = new HashMap<>();
-        for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
-            Attribute metacardAttribute = metacard.getAttribute(descriptor.getName());
-            if (metacardAttribute == null || metacardAttribute.getValue() == null) {
-                continue;
+
+        if (metacard.getSourceId() != null) {
+            setSourceId(metacard.getSourceId());
+        }
+
+        map = new HashMap<>();
+        for (AttributeDescriptor attribute : metacard.getMetacardType()
+                .getAttributeDescriptors()) {
+            if(attribute != null && attribute.getName() != null) {
+                map.put(attribute.getName(), metacard.getAttribute(attribute.getName()));
             }
-            map.put(descriptor.getName(), metacardAttribute);
         }
     }
 
@@ -555,9 +560,9 @@ public class MetacardImpl implements Metacard {
 
         Attribute attribute = getAttribute(attributeName);
 
-        if (attribute == null) {
+        if (attribute == null || attribute.getValue() == null) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Attribute {} was not found, returning null", attributeName);
+                LOGGER.debug("Attribute {} was not found or value was missing.  Returning null.", attributeName);
             }
             return null;
         }
@@ -816,7 +821,7 @@ public class MetacardImpl implements Metacard {
          */
         stream.defaultReadObject();
 
-        map = new HashMap<String, Attribute>();
+        map = new HashMap<>();
 
         wrappedMetacard = null;
 

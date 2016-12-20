@@ -15,6 +15,7 @@ package ddf.catalog.transformer.xml.adapter;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -188,11 +189,11 @@ public class AdaptedMetacard implements Metacard {
         if (Metacard.ID.equals(name)) {
             return this.id;
         }
-        for (Attribute attribute : attributes) {
-            if (attribute == null || StringUtils.isEmpty(attribute.getName())) {
-                continue;
-            } else if (name.equals(attribute.getName())) {
-                return attribute;
+        for (Attribute attribute : Arrays.asList((attributes.toArray(new Attribute[0])))) {
+            if (attribute != null && !StringUtils.isEmpty(attribute.getName())) {
+                if (name.equals(attribute.getName())) {
+                    return attribute;
+                }
             }
         }
         return null;

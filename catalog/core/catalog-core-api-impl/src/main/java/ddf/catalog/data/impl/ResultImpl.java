@@ -42,6 +42,21 @@ public class ResultImpl implements Result {
     }
 
     /**
+     * This constructor creates a clone of the provided result
+     *
+     * @param result
+     */
+    public ResultImpl(final Result result) {
+        if (result.getMetacard() != null) {
+            this.metacard = new MetacardImpl(result.getMetacard(),
+                    result.getMetacard()
+                            .getMetacardType());
+        }
+        this.distance = result.getDistanceInMeters();
+        this.relevance = result.getRelevanceScore();
+    }
+
+    /**
      * Instantiates a new metacard result.
      *
      * @param metacard
@@ -51,10 +66,9 @@ public class ResultImpl implements Result {
         this.metacard = metacard;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ddf.catalog.Result#getDistanceInMeters()
+    /**
+     * @return distance in meters
+     * @see ddf.catalog.data.Result#getDistanceInMeters()
      */
     @Override
     public Double getDistanceInMeters() {
@@ -64,7 +78,7 @@ public class ResultImpl implements Result {
     /**
      * Sets the distance in meters.
      *
-     * @param distance
+     * @param inDistance
      *            the new distance in meters
      */
     public void setDistanceInMeters(Double inDistance) {
@@ -82,7 +96,7 @@ public class ResultImpl implements Result {
     /**
      * Sets the relevance score.
      *
-     * @param relevance
+     * @param inRelevance
      *            the new relevance score
      */
     public void setRelevanceScore(Double inRelevance) {

@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -29,6 +30,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.configuration.SystemInfo;
@@ -41,6 +43,7 @@ import com.google.common.collect.ImmutableList;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
@@ -553,7 +556,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                         @Override
                         public void run() {
                             try {
-                                cacheBulkProcessor.add(sourceResponse.getResults());
+                                cacheBulkProcessor.add(copyResults(sourceResponse.getResults()));
                             } catch (Throwable throwable) {
                                 LOGGER.warn("Unable to add results for bulk processing", throwable);
                             }
@@ -564,6 +567,14 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
             return sourceResponse;
         }
+    }
+
+    private List<Result> copyResults(final List<Result> inResults) {
+
+        return inResults.stream()
+                .filter(Objects::nonNull)
+                .map(ResultImpl::new)
+                .collect(Collectors.toList());
     }
 
     /**
