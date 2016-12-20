@@ -121,6 +121,10 @@
             <version>3.4</version>
         </dependency>
         <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
@@ -163,6 +167,7 @@
                             javax.imageio.*,
                             javax.xml.*,
                             org.apache.commons.logging.*
+                            org.slf4j.LoggerFactory,
                             org.slf4j.*,
                             org.w3c.dom.*,
                             org.xml.sax.*,
@@ -172,6 +177,7 @@
                             catalog-transformer-common,
                             commons-io,
                             commons-lang3,
+                            commons-logging,
                             failsafe,
                             fontbox,
                             pdfbox,
