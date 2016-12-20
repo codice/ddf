@@ -68,8 +68,10 @@ class MetacardFactoryTest extends Specification {
                 [itXml, itXml2, itBad]
             } else if (m.baseType == 'application/xml2') {
                 [itXml2, itXml, itBad]
+            } else if (m.baseType == 'application/xml3') {
+                [itBad, itXml]
             } else if (m.baseType == 'application/xml-bad') {
-                [itBad, itXml, itXml2]
+                [itBad]
             } else if (m.baseType == 'text/plain') {
                 [itPlain]
             }
@@ -84,6 +86,18 @@ class MetacardFactoryTest extends Specification {
 
         then:
         thrown(MetacardCreationException)
+    }
+
+    def 'test metacard generation with xformer failure'() {
+        when:
+        def metacard = metacardFactory.generateMetacard('application/xml3', 'test-id', 'filename', path)
+
+        then:
+        1 * metacardXml.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
+        1 * metacardXml.getTitle() >> { 'this is a title' }
+        0 * metacardXml.setAttribute({ it.name == Metacard.TITLE })
+
+        metacard == metacardXml
     }
 
     def 'test plain text metacard with no id or title'() {
@@ -117,7 +131,6 @@ class MetacardFactoryTest extends Specification {
         def metacard = metacardFactory.generateMetacard('application/xml', 'test-id', 'filename', path)
 
         then:
-        then:
         1 * metacardXml.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
         1 * metacardXml.getTitle() >> { 'this is a title' }
         0 * metacardXml.setAttribute({ it.name == Metacard.TITLE })
@@ -129,7 +142,6 @@ class MetacardFactoryTest extends Specification {
         when:
         def metacard = metacardFactory.generateMetacard('application/xml2', 'test-id', 'filename', path)
 
-        then:
         then:
         1 * metacardXml2.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
         1 * metacardXml2.getTitle() >> { 'this is a title' }
