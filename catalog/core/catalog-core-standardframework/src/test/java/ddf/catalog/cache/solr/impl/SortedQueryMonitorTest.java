@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -37,15 +38,12 @@ import java.util.concurrent.TimeoutException;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.source.Source;
 
 public class SortedQueryMonitorTest {
 
@@ -57,7 +55,7 @@ public class SortedQueryMonitorTest {
 
     private QueryRequest queryRequest;
 
-    private Map<Future<SourceResponse>, Source> futures;
+    private Map<Future<SourceResponse>, QueryRequest> futures;
 
     private Query query;
 
@@ -72,11 +70,10 @@ public class SortedQueryMonitorTest {
         // Enforce insertion order for testing purposes
         futures = new LinkedHashMap<>();
         for (int i = 0; i < 4; i++) {
-            Source sourceMock = mock(Source.class);
-            when(sourceMock.getId()).thenReturn("Source-" + i);
-
             SourceResponse sourceResponseMock = null;
             Future futureMock = mock(Future.class);
+            QueryRequest queryRequest = mock(QueryRequest.class);
+            when(queryRequest.getSourceIds()).thenReturn(Collections.singleton("Source-" + i));
 
             switch (i) {
             case 1:
@@ -99,7 +96,7 @@ public class SortedQueryMonitorTest {
             }
 
             when(futureMock.get()).thenReturn(sourceResponseMock);
-            futures.put(futureMock, sourceMock);
+            futures.put(futureMock, queryRequest);
         }
     }
 
@@ -112,15 +109,11 @@ public class SortedQueryMonitorTest {
                 completionService,
                 futures,
                 queryResponse,
-                queryRequest);
+                queryRequest,
+                new ArrayList<>());
 
         final Iterator<Future<SourceResponse>> futureIter = getFutureIterator();
-        when(completionService.take()).thenAnswer(new Answer<Future>() {
-            @Override
-            public Future answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return futureIter.next();
-            }
-        });
+        when(completionService.take()).thenAnswer((invocationOnMock -> futureIter.next()));
         queryMonitor.run();
         verify(completionService, times(4)).take();
         verify(completionService, never()).poll(anyLong(), eq(TimeUnit.MILLISECONDS));
@@ -151,7 +144,8 @@ public class SortedQueryMonitorTest {
                 completionService,
                 futures,
                 queryResponse,
-                queryRequest);
+                queryRequest,
+                new ArrayList<>());
 
         // Put the first two futures into the list and then set the third
         // value to be null in order to mock the effect of a null return from
@@ -163,13 +157,8 @@ public class SortedQueryMonitorTest {
                 null);
         final Iterator<Future<SourceResponse>> futureIter = futureKeys.iterator();
 
-        when(completionService.poll(anyLong(), eq(TimeUnit.MILLISECONDS)))
-                .thenAnswer(new Answer<Future>() {
-                    @Override
-                    public Future answer(InvocationOnMock invocationOnMock) throws Throwable {
-                        return futureIter.next();
-                    }
-                });
+        when(completionService.poll(anyLong(),
+                eq(TimeUnit.MILLISECONDS))).thenAnswer((invocationOnMock -> futureIter.next()));
         queryMonitor.run();
         verify(completionService, times(3)).poll(anyLong(), eq(TimeUnit.MILLISECONDS));
         verify(completionService, never()).take();
@@ -204,16 +193,12 @@ public class SortedQueryMonitorTest {
                 completionService,
                 futures,
                 queryResponse,
-                queryRequest);
+                queryRequest,
+                new ArrayList<>());
 
         final Iterator<Future<SourceResponse>> futureIter = getFutureIterator();
-        when(completionService.poll(anyLong(), eq(TimeUnit.MILLISECONDS)))
-                .thenAnswer(new Answer<Future>() {
-                    @Override
-                    public Future answer(InvocationOnMock invocationOnMock) throws Throwable {
-                        return futureIter.next();
-                    }
-                });
+        when(completionService.poll(anyLong(),
+                eq(TimeUnit.MILLISECONDS))).thenAnswer((invocationOnMock -> futureIter.next()));
         queryMonitor.run();
         verify(completionService, times(3)).poll(anyLong(), eq(TimeUnit.MILLISECONDS));
         verify(completionService, never()).take();
