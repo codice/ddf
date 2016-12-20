@@ -502,11 +502,13 @@ public class QueryOperations extends DescribableImpl {
                 })
                 .collect(Collectors.toList());
 
-        return new QueryResponseImpl(response.getRequest(),
+        QueryResponseImpl queryResponse = new QueryResponseImpl(response.getRequest(),
                 results,
                 true,
                 response.getHits(),
                 response.getProperties());
+        queryResponse.setProcessingDetails(response.getProcessingDetails());
+        return queryResponse;
     }
 
     /**
