@@ -25,17 +25,7 @@
 +------------------------------------------------------------+
 ....
 
-Federation provides the capability to extend the ${branding} enterprise to include <<_sources,Remote Sources>>, which may include other instances of ${branding}. 
-The Catalog handles all aspects of federated queries as they are sent to the Catalog Provider and Remote Sources, as they are processed, and as the query results are returned.
-Queries can be scoped to include only the local Catalog Provider (and any Connected Sources), only specific Federated Sources, or the
-entire enterprise (which includes all local and Remote Sources).
-If the query is supposed to be federated, the Catalog Framework passes the query to a Federation Strategy, which is responsible for querying each federated source that is specified.
-The Catalog Framework is also responsible for receiving the query results from each federated source and returning them to the client in the order specified by the particular federation strategy used.
-After the federation strategy handles the results, the Catalog returns them to the client through the Endpoint.
-Query results returned from a federated query are a list of metacards.
-The source ID in each metacard identifies the Source from which the metacard originated.
-
-The Catalog normalizes the incoming query into an OGC Filter format.
+The Catalog normalizes incoming queries into an OGC Filter format.
 When the query is disseminated by the Catalog Framework to the sources, each source is responsible for denormalizing the OGC Filter formatted query into the format understood by the external store that the source is acting as a proxy.
 This normalization/denormalization is what allows any endpoint to interface with any type of source.
 For example, a query received by the OpenSearch Endpoint can be executed against an OpenSearch Source.
@@ -110,7 +100,7 @@ If a metadata record in the query results contains null values for the sorting c
 
 ===== Configuring Federation Strategy
 
-The Catalog Federation Strategy configuration can be found in the ${admin-console} under *Configuration -> Catalog Federation Strategy*.
+The Catalog Federation Strategy configuration can be found in the ${admin-console}.
 
 . Navigate to ${admin-console}.
 . Select *${ddf-catalog}*

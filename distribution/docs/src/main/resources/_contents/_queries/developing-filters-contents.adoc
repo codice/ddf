@@ -1,5 +1,5 @@
 
-=== Developing Filters
+==== Directly Implementing the Filter (Advanced)
 
 The common way to create a `Filter` is to use the GeoTools `FilterFactoryImpl` object, which provides Java implementations for the various types of filters in the Filter Specification.
 Examples are the easiest way to understand how to properly create a `Filter` and a `Query`. 
@@ -8,6 +8,37 @@ Examples are the easiest way to understand how to properly create a `Filter` a
 ====
 Refer to the http://docs.geotools.org/latest/javadocs/[GeoTools javadoc] for more information on `FilterFactoryImpl`.
 ====
+
+[WARNING]
+====
+Implementing the Filter interface directly is only for extremely advanced use cases and is highly discouraged.
+Instead, use of the ${branding}-specific `FilterBuilder` API is recommended.
+====
+
+Developers create a `Filter` object in order to filter or constrain the amount of records returned from a `Source`.
+The OGC Filter Specification has several types of filters that can be combined in a tree-like structure to describe the set of metacards that should be returned. 
+
+.Categories of Filters
+* Comparison Operators
+* Logical Operators
+* Expressions
+* Literals
+* Functions
+* Spatial Operators
+* Temporal Operators
+
+==== Units of Measure
+
+According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 09-026r1] and http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 04-095], units of measure can be expressed as a URI.
+To fulfill that requirement, ${branding} utilizes the GeoTools class `org.geotools.styling.UomOgcMapping` for spatial filters requiring a standard for units of measure for scalar distances.
+Essentially, the `UomOgcMapping` maps the http://www.opengeospatial.org/standards/symbol[OGC Symbology Encoding] standard URIs to Java Units.
+This class provides three options for units of measure: 
+
+* FOOT
+* METRE
+* PIXEL
+
+${branding} only supports FOOT and METRE since they are the most applicable to scalar distances.
 
 ==== Filter Examples
 

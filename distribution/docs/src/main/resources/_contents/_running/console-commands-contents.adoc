@@ -8,7 +8,6 @@ This ${command-console} can be used to manage services, install new features and
 
 The Command Line Console is the console that is available to the user when the distribution is started manually.
 It may also be accessed by using the `bin/client.bat` or `bin/client.sh` scripts.
-For more information on how to use the `client` scripts or how to remote into the the shell console, see <<_using_remote_instances, Using Remote Instances>>.
 
 [NOTE]
 ====

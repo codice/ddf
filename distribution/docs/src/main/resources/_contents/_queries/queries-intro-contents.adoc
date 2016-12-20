@@ -1,5 +1,5 @@
 
-Clients use `${ddf-branding}.catalog.operation.Query` objects to describe which metacards are needed from <<_sources,Sources>>. 
+Clients use `ddf.catalog.operation.Query` objects to describe which metacards are needed from <<_sources,Sources>>. 
 
 Query objects have two major components:
 

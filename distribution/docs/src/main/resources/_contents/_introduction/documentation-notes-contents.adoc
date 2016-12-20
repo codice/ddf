@@ -5,16 +5,21 @@
 This introduction section is intended to give a high level overview of the concepts and capabilities of ${branding}.
 
 Administrators::
-<<Managing ${branding}>> |
+<<_managing,Managing>> |
 Administrators will be installing, maintaining, and supporting existing applications.
 Use this section to prepare, install, configure, run, and monitor a ${branding}.
 
+Users::
+<<_using,Using>> |
+Users interact with the system to search data stores.
+Use this section to navigate the various user interfaces available in ${branding}.
+
 Integrators::
-<<Integrating ${branding}>> |
+<<_integrating,Integrating>> |
 Integrators will use the existing applications to support their external frameworks. This section will provide details for finding, accessing and using the components of ${branding}.
 
 Developers::
-<<Developing ${branding}>> |
+<<_developing,Developing>> |
 Developers will build or extend the functionality of the applications. 
 
 === Documentation Conventions

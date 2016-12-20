@@ -59,7 +59,7 @@ Storage providers provide the capability to the Catalog Framework to create, re
 |                 | Catalog Framework |cDEFStorage Plugins    |                |
 |                 |                   +-----------------------+                |
 |                 |                   |                                        |
-|                 +-------------------|                                        |
+|                 +-------------------+                                        |
 |                 |cDEF               |                                        |
 |                 | Storage Provider  |                                        |
 |                 \-------------------/                                        |
@@ -68,7 +68,7 @@ Storage providers provide the capability to the Catalog Framework to create, re
 |                           v                                                  |
 |                   +-=-------------+                LEGEND                    |
 |                   |{s}            |                /--------------------\    |
-|                   |   Content     |                |cDEF${branding} Component   |    |
+|                   |   Content     |                |cDEF DDF Component  |    |
 |                   |  Repository   |                \--------------------/    |
 |                   +---------------+                /-=------------------\    |
 |                                                    | External Component |    |
