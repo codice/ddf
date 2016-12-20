@@ -126,6 +126,7 @@ import ddf.catalog.data.types.Validation;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestCatalog extends AbstractIntegrationTest {
+
     private static final String METACARD_X_PATH = "/metacards/metacard[@id='%s']";
 
     private static final String SAMPLE_DATA = "sample data";
@@ -139,6 +140,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     private static KarafConsole console;
 
     private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
+    public static final String ADMIN = "admin";
 
     @Rule
     public TestName testName = new TestName();
@@ -257,7 +259,38 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .log()
                 .all()
                 .assertThat()
-                .body(hasXPath("/metacard[@id='" + id + "']"));
+                .body(hasXPath("/metacard[@id='" + id + "']"))
+                .body(hasXPath("/metacard/string[@name='point-of-contact']"),
+                        containsString("Guest@Guest"));
+
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testPointOfContactSetOnIngestWhenLoggedIn() {
+        String id = given().auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .body(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"))
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        String url = REST_PATH.getUrl() + id;
+        LOGGER.info("Getting response to {}", url);
+        when().get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .body(hasXPath("/metacard[@id='" + id + "']"))
+                .body(hasXPath("/metacard/string[@name='point-of-contact']/value[text()='" + ADMIN
+                        + "']"));
 
         deleteMetacard(id);
     }
@@ -2287,8 +2320,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         Path tmpFile = definitionsDirPath.resolve(filename);
         tmpFile.toFile()
                 .deleteOnExit();
-        Files.copy(IOUtils.toInputStream(getFileContent(filename)),
-                tmpFile);
+        Files.copy(IOUtils.toInputStream(getFileContent(filename)), tmpFile);
         return tmpFile.toFile();
     }
 
@@ -2334,9 +2366,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .assertThat()
                     .body(hasXPath(newMetacardXpath + "/type", is(newMetacardTypeName)))
                     .body(hasXPath("count(" + newMetacardXpath
-                            + "/string[@name=\"validation-errors\"]/value)", is("2")))
-                    .body(hasXPath(newMetacardXpath
-                            + "/string[@name=\"validation-errors\"]/value[text()=\"point-of-contact is required\"]"))
+                            + "/string[@name=\"validation-errors\"]/value)", is("1")))
                     .body(hasXPath(newMetacardXpath
                             + "/string[@name=\"validation-errors\"]/value[text()=\"new-attribute-required-1 is required\"]"))
                     .body(hasXPath(
@@ -2517,7 +2547,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
             expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                            null), hasSize(2));
+                            null), hasSize(3));
             return null;
         });
 
@@ -2541,9 +2571,13 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .assertThat()
                     .body(hasXPath(basicMetacardXpath + "/type", is(basicMetacardTypeName)))
                     .body(hasXPath(basicMetacardXpath + "/int[@name='page-count']/value", is("55")))
+                    .body(hasXPath(basicMetacardXpath + "/string[@name='point-of-contact']"),
+                            containsString("Guest@Guest"))
                     .body(not(hasXPath(basicMetacardXpath + "/double[@name='temperature']")))
                     .body(hasXPath(otherMetacardXpath + "/type", is(otherMetacardTypeName)))
                     .body(hasXPath(otherMetacardXpath + "/int[@name='page-count']/value", is("55")))
+                    .body(hasXPath(otherMetacardXpath + "/string[@name='point-of-contact']"),
+                            containsString("Guest@Guest"))
                     .body(hasXPath(otherMetacardXpath + "/double[@name='temperature']/value",
                             is("-12.541")));
         } finally {
@@ -2552,7 +2586,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             uninstallDefinitionJson(file, () -> {
                 expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
                         .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                                null), is(empty()));
+                                null), hasSize(1));
                 return null;
             });
         }
@@ -2563,7 +2597,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
             expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
                     .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                            null), hasSize(2));
+                            null), hasSize(3));
             return null;
         });
 
@@ -2591,17 +2625,20 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .body(hasXPath(basicMetacardXpath + "/type", is(basicMetacardTypeName)))
                     .body(hasXPath(basicMetacardXpath + "/int[@name='page-count']/value", is("55")))
                     .body(not(hasXPath(basicMetacardXpath + "/double[@name='temperature']")))
+                    .body(not(hasXPath(basicMetacardXpath + "/string[@name='point-of-contact']")))
                     .body(hasXPath(otherMetacardXpath + "/type", is(otherMetacardTypeName)))
                     .body(hasXPath(otherMetacardXpath + "/int[@name='page-count']/value", is("55")))
                     .body(hasXPath(otherMetacardXpath + "/double[@name='temperature']/value",
-                            is("-12.541")));
+                            is("-12.541")))
+                    .body(not(hasXPath(basicMetacardXpath + "/string[@name='point-of-contact']")));
+
         } finally {
             deleteMetacard(id);
             deleteMetacard(id2);
             uninstallDefinitionJson(file, () -> {
                 expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
                         .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                                null), is(empty()));
+                                null), hasSize(1));
                 return null;
             });
         }

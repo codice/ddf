@@ -1,0 +1,7 @@
+{
+  "inject": [
+    {
+      "attribute": "point-of-contact"
+    }
+  ]
+}

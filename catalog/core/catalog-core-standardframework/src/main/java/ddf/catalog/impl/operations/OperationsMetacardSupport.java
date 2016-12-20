@@ -47,11 +47,10 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.source.IngestException;
 import ddf.mime.MimeTypeResolutionException;
-import ddf.security.Subject;
 
 /**
  * Support class for working with {@code Metacard}s for the {@code CatalogFrameworkImpl}.
- *
+ * <p>
  * This class contains methods for management/manipulation for metacards for the CFI and its
  * support classes. No operations/support methods should be added to this class except in support
  * of CFI, specific to metacards.
@@ -87,7 +86,7 @@ public class OperationsMetacardSupport {
         return metacard;
     }
 
-    void generateMetacardAndContentItems(List<ContentItem> incomingContentItems, Subject subject,
+    void generateMetacardAndContentItems(List<ContentItem> incomingContentItems,
             Map<String, Metacard> metacardMap, List<ContentItem> contentItems,
             Map<String, Path> tmpContentPaths) throws IngestException {
         for (ContentItem contentItem : incomingContentItems) {
@@ -124,7 +123,6 @@ public class OperationsMetacardSupport {
                 Metacard metacard = metacardFactory.generateMetacard(mimeTypeRaw,
                         contentItem.getId(),
                         fileName,
-                        subject,
                         tmpPath);
                 metacardMap.put(metacard.getId(), metacard);
 
@@ -143,7 +141,6 @@ public class OperationsMetacardSupport {
             }
         }
     }
-
 
     /**
      * Updates any empty metacard attributes with those defined in the
