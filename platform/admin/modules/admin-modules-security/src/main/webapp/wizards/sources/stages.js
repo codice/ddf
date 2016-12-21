@@ -47,7 +47,9 @@ const WelcomeStageView = ({ changeStage }) => (
     </CenteredElements>
   </Flexbox>
 )
-export const WelcomeStage = connect(null, { changeStage: changeStage })(WelcomeStageView)
+export const WelcomeStage = connect(null, {
+  changeStage: changeStage
+})(WelcomeStageView)
 
 // Discovery Stage
 const discoveryTitle = 'Discover Available Sources'
@@ -71,7 +73,12 @@ const DiscoveryStageView = ({ testSources, setDefaults, messages }) => (
     </NavPanes>
   </Mount>
 )
-export const DiscoveryStage = connect((state) => ({ messages: getMessages(state, 'source') }), { testSources, setDefaults })(DiscoveryStageView)
+export const DiscoveryStage = connect((state) => ({
+  messages: getMessages(state, 'source')
+}), {
+  testSources,
+  setDefaults
+})(DiscoveryStageView)
 
 // Source Selection Stage
 const sourceSelectionTitle = 'Sources Found!'
@@ -110,7 +117,7 @@ export const SourceSelectionStage = connect((state) => ({
 const confirmationTitle = 'Finalize Source Configuration'
 const confirmationSubtitle = 'Name your source, confirm details, and press finish to add source'
 const sourceNameDescription = 'Use a unique name to identify this source'
-const ConfirmationStageView = ({selectedSource, persistConfig, sourceName}) => (
+const ConfirmationStageView = ({ selectedSource, persistConfig, sourceName, configType }) => (
   <NavPanes backClickTarget='sourceSelectionStage' forwardClickTarget='completedStage'>
     <CenteredElements>
       <Info title={confirmationTitle} subtitle={confirmationSubtitle} />
@@ -118,11 +125,17 @@ const ConfirmationStageView = ({selectedSource, persistConfig, sourceName}) => (
       <ConstrainedSourceInfo label='Source Address' value={selectedSource.endpointUrl} />
       <ConstrainedSourceInfo label='Username' value={selectedSource.sourceUserName || 'none'} />
       <ConstrainedSourceInfo label='Password' value={selectedSource.sourceUserPassword || 'none'} />
-      <Submit label='Finish' disabled={sourceName === undefined || sourceName === ''} onClick={() => persistConfig('/admin/wizard/persist/' + selectedSource.configurationHandlerId + '/create', null, 'completedStage')} />
+      <Submit label='Finish' disabled={sourceName === undefined || sourceName === ''} onClick={() => persistConfig('/admin/wizard/persist/' + (selectedSource.configurationHandlerId || configType) + '/create', null, 'completedStage', configType)} />
     </CenteredElements>
   </NavPanes>
 )
-export const ConfirmationStage = connect((state) => ({selectedSource: getAllConfig(state), sourceName: getSourceName(state)}), { persistConfig })(ConfirmationStageView)
+export const ConfirmationStage = connect((state) => ({
+  selectedSource: getAllConfig(state),
+  sourceName: getSourceName(state),
+  configType: configUnmapper(getConfig(state, 'manualEntryConfigTypeInput').stateValue.value)
+}), ({
+  persistConfig
+}))(ConfirmationStageView)
 
 // Completed Stage
 const completedTitle = 'All Done!'

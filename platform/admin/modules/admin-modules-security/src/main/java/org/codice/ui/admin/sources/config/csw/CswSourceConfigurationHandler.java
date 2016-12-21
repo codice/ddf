@@ -74,6 +74,8 @@ public class CswSourceConfigurationHandler
 
     public static final String CSW_SPEC_FACTORY_PID = "Csw_Federated_Source";
 
+    public static final String RETRIEVE_CONFIGURATION  = "retrieveConfiguration";
+
     private static final List<String> CSW_FACTORY_PIDS = Arrays.asList(CSW_PROFILE_FACTORY_PID,
             CSW_GMD_FACTORY_PID,
             CSW_SPEC_FACTORY_PID);
@@ -99,6 +101,12 @@ public class CswSourceConfigurationHandler
         CswSourceConfiguration configuration = new CswSourceConfiguration(baseConfiguration);
         List<ConfigurationMessage> results = new ArrayList<>();
         switch (probeId) {
+        case RETRIEVE_CONFIGURATION:
+            SourceConfiguration mockedCswSource =
+                    new CswSourceConfiguration(baseConfiguration).sourceUserName("exampleUserName")
+                            .factoryPid(CSW_PROFILE_FACTORY_PID)
+                            .sourceUserPassword("exampleUserPassword");
+            return new ProbeReport(buildMessage(SUCCESS, "Found and create CSW Source configuration")).addProbeResult(RETRIEVE_CONFIGURATION, mockedCswSource);
         case DISCOVER_SOURCES_ID:
             configuration.endpointUrl(confirmCswEndpointUrl(configuration));
             if (configuration.endpointUrl()

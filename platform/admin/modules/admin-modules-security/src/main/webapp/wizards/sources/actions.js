@@ -64,13 +64,13 @@ const discoverSources = (url, opts, dispatch, id, nextStageId, body) => {
     })
 }
 
-export const persistConfig = (url, config, nextStageId) => (dispatch, getState) => {
+export const persistConfig = (url, config, nextStageId, configType) => (dispatch, getState) => {
   dispatch(startSubmitting())
-  const config = getAllConfig(getState())
+  const body = { configurationType: configType, ...getAllConfig(getState()) }
 
   const opts = {
     method: 'POST',
-    body: JSON.stringify(config),
+    body: JSON.stringify(body),
     credentials: 'same-origin'
   }
 
@@ -82,6 +82,8 @@ export const persistConfig = (url, config, nextStageId) => (dispatch, getState) 
 //        dispatch(setConfigErrors(json.results))
       } else if (status === 200) {
         dispatch(changeStage(nextStageId))
+      } else if (status === 500) {
+        dispatch(backendError({ ...json, url, method: 'POST', opts }))
       }
       dispatch(endSubmitting())
     })
@@ -125,7 +127,7 @@ export const testManualUrl = (endpointUrl, configType, nextStageId, id) => (disp
   dispatch(clearMessages(id))
   const config = getAllConfig(getState())
   const body = { ...config, configurationType: configType, endpointUrl: endpointUrl }
-  const url = '/admin/wizard/test/' + configType + '/testManualUrl'
+  const url = '/admin/wizard/probe/' + configType + '/retrieveConfiguration'
 
   const opts = {
     method: 'POST',
@@ -139,12 +141,11 @@ export const testManualUrl = (endpointUrl, configType, nextStageId, id) => (disp
       if (status === 400) {
         dispatch(setMessages(id, json.messages))
       } else if (status === 200) {
+        dispatch(setConfigSource(json.probeResults.retrieveConfiguration))
         dispatch(changeStage(nextStageId))
       } else if (status === 500) {
         dispatch(backendError({ ...json, url, method: 'POST', body }))
       }
       dispatch(endSubmitting())
-    }, () => {
-      console.log('HURR DURR')
     })
 }

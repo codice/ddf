@@ -14,6 +14,7 @@
 
 package org.codice.ui.admin.wizard.api;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,9 @@ public class ProbeReport extends TestReport {
 
     public ProbeReport(List<ConfigurationMessage> messages) {
         super(messages);
+    }
+    public ProbeReport(ConfigurationMessage... messages) {
+        super(Arrays.asList(messages));
     }
 
     public ProbeReport addProbeResult(String key, Object value) {
