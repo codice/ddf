@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,6 +57,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.tika.detect.DefaultProbDetector;
@@ -662,50 +664,36 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throws MetacardCreationException, MimeTypeParseException {
 
         Metacard generatedMetacard = null;
-        InputTransformer transformer = null;
-        StringBuilder causeMessage = new StringBuilder("Could not create metacard with mimeType ");
-        try {
-            MimeType mimeType = new MimeType(mimeTypeRaw);
 
-            List<InputTransformer> listOfCandidates =
-                    frameworkProperties.getMimeTypeToTransformerMapper()
-                            .findMatches(InputTransformer.class, mimeType);
+        MimeType mimeType = new MimeType(mimeTypeRaw);
 
-            LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
+        List<InputTransformer> listOfCandidates =
+                frameworkProperties.getMimeTypeToTransformerMapper()
+                        .findMatches(InputTransformer.class, mimeType);
+        List<String> stackTraceList = new ArrayList<>();
 
-            for (InputTransformer candidate : listOfCandidates) {
-                transformer = candidate;
+        LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
 
-                try (InputStream transformerStream = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream()) {
-                    generatedMetacard = transformer.transform(transformerStream);
-                }
-                if (generatedMetacard != null) {
-                    break;
-                }
+        for (InputTransformer candidate : listOfCandidates) {
+            try (InputStream transformerStream = com.google.common.io.Files.asByteSource(
+                    tmpContentPath.toFile())
+                    .openStream()) {
+                generatedMetacard = candidate.transform(transformerStream);
+            } catch (CatalogTransformerException | IOException e) {
+                List<String> stackTraces = Arrays.asList(ExceptionUtils.getRootCauseStackTrace(e));
+                stackTraceList.add(String.format("Transformer [%s] could not create metacard.", candidate));
+                stackTraceList.addAll(stackTraces);
+                LOGGER.debug("Transformer [{}] could not create metacard.", candidate, e);
             }
-        } catch (CatalogTransformerException | IOException e) {
-            causeMessage.append(mimeTypeRaw)
-                    .append(". Reason: ")
-                    .append(System.lineSeparator())
-                    .append(e.getMessage());
 
-            // The caught exception more than likely does not have the root cause message
-            // that is needed to inform the caller as to why things have failed.  Therefore
-            // we need to iterate through the chain of cause exceptions and gather up
-            // all of their message details.
-            Throwable cause = e.getCause();
-            while (cause != null && cause != cause.getCause()) {
-                causeMessage.append(System.lineSeparator())
-                        .append(cause.getMessage());
-                cause = cause.getCause();
+            if (generatedMetacard != null) {
+                break;
             }
-            LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
         }
 
         if (generatedMetacard == null) {
-            throw new MetacardCreationException(causeMessage.toString());
+            throw new MetacardCreationException(String.format("Could not create metacard with mimeType %s : %s", mimeTypeRaw, stackTraceList.stream()
+                    .collect(Collectors.joining("\n"))));
         }
 
         if (id != null) {
@@ -1075,8 +1063,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             createRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
+                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
+                                    OperationTransaction.OperationType.CREATE,
                                     new ArrayList<>()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -1354,8 +1342,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     new UpdateRequestImpl(Iterables.toArray(metacardMap.values()
                             .stream()
                             .map(Metacard::getId)
-                            .collect(Collectors.toList()), String.class),
-                            new ArrayList<>(metacardMap.values()));
+                            .collect(Collectors.toList()), String.class), new ArrayList<>(
+                            metacardMap.values()));
             updateRequest.setProperties(streamUpdateRequest.getProperties());
             updateResponse = update(updateRequest);
         } catch (Exception e) {
@@ -1477,8 +1465,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             updateRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
+                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
+                                    OperationTransaction.OperationType.UPDATE,
                                     metacardMap.values()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -1643,8 +1631,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             deleteRequest = rewriteRequestToAvoidHistoryConflicts(deleteRequest, query);
             deleteRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
+                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
+                                    OperationTransaction.OperationType.DELETE,
                                     metacards));
 
             deleteStorageRequest = new DeleteStorageRequestImpl(metacards,
@@ -1668,8 +1656,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             deleteRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
+                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
+                                    OperationTransaction.OperationType.DELETE,
                                     metacards));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -2225,8 +2213,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
 
                     if (!sourceFound) {
-                        exceptions.add(new ProcessingDetailsImpl(id,
-                                new SourceUnavailableException("Source id is not found")));
+                        exceptions.add(new ProcessingDetailsImpl(id, new SourceUnavailableException(
+                                "Source id is not found")));
                     }
                 }
             }
@@ -2760,10 +2748,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     String metacardId = (String) value;
                     LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
                     QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(
-                            metacardId),
-                            isEnterprise,
-                            Collections.singletonList(site == null ? this.getId() : site),
-                            resourceRequest.getProperties());
+                            metacardId), isEnterprise, Collections.singletonList(
+                            site == null ? this.getId() : site), resourceRequest.getProperties());
 
                     QueryResponse queryResponse = query(queryRequest, null, true);
                     if (queryResponse.getResults()
