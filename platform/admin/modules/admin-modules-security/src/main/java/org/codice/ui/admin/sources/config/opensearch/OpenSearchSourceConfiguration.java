@@ -28,8 +28,9 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
     public static final String PASSWORD = "password";
     // ----
 
-    public OpenSearchSourceConfiguration(String factoryPid, Map<String, Object> props) {
-        factoryPid(factoryPid);
+    public OpenSearchSourceConfiguration(Map<String, Object> props) {
+        factoryPid(props.get(FACTORY_PID_KEY) == null ? null : (String)props.get(FACTORY_PID_KEY));
+        servicePid(props.get(SERVICE_PID_KEY) == null ? null : (String)props.get(SERVICE_PID_KEY));
         sourceName(props.get(ID) == null ? null : (String) props.get(ID));
         endpointUrl(props.get(ENDPOINT_URL) == null ? null : (String) props.get(ENDPOINT_URL));
         sourceUserName(props.get(USERNAME) == null ? null : (String) props.get(USERNAME));

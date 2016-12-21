@@ -128,6 +128,7 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
     }
 
     public TestReport persist(SourceConfiguration config, String persistId) {
+
         return new TestReport(buildMessage(FAILURE, "Cannot persist a SourceConfiguration."));
     }
 

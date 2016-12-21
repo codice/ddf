@@ -36,8 +36,9 @@ public class CswSourceConfiguration extends SourceConfiguration {
 
     private String forceSpatialFilter;
 
-    public CswSourceConfiguration(String factoryPid, Map<String, Object> cswSourceProps) {
-        factoryPid(factoryPid);
+    public CswSourceConfiguration(Map<String, Object> cswSourceProps) {
+        factoryPid(cswSourceProps.get(FACTORY_PID_KEY) == null ? null : (String)cswSourceProps.get(FACTORY_PID_KEY));
+        servicePid(cswSourceProps.get(SERVICE_PID_KEY) == null ? null : (String)cswSourceProps.get(SERVICE_PID_KEY));
         sourceName(cswSourceProps.get(ID) == null ? null : (String) cswSourceProps.get(ID));
         endpointUrl(cswSourceProps.get(CSW_URL) == null ? null : (String) cswSourceProps.get(CSW_URL));
         outputSchema(cswSourceProps.get(OUTPUT_SCHEMA) == null ? null : (String) cswSourceProps.get(OUTPUT_SCHEMA));

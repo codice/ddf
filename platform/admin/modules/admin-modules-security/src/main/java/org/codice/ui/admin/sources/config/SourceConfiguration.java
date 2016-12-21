@@ -32,6 +32,8 @@ public class SourceConfiguration extends Configuration {
 
     private String factoryPid;
 
+    private String servicePid;
+
     private String sourceName;
 
     private boolean certError;
@@ -115,6 +117,15 @@ public class SourceConfiguration extends Configuration {
 
     public SourceConfiguration sourcePort(int sourcePort) {
         this.sourcePort = sourcePort;
+        return this;
+    }
+
+    public String servicePid() {
+        return servicePid;
+    }
+
+    public SourceConfiguration servicePid(String servicePid) {
+        this.servicePid = servicePid;
         return this;
     }
 

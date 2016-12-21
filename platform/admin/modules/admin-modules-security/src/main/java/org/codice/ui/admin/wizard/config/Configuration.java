@@ -16,6 +16,10 @@ package org.codice.ui.admin.wizard.config;
 
 public class Configuration {
 
+    public static final String SERVICE_PID_KEY = "service.pid";
+
+    public static final String FACTORY_PID_KEY = "service.factoryPid";
+
     String configurationHandlerId;
 
     public String configurationHandlerId() {

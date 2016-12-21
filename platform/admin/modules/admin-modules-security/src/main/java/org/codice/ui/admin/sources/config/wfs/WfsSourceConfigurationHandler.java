@@ -55,6 +55,7 @@ import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.ProbeReport;
 import org.codice.ui.admin.wizard.api.TestReport;
+import org.codice.ui.admin.wizard.config.ConfigReport;
 import org.codice.ui.admin.wizard.config.Configurator;
 import org.w3c.dom.Document;
 
@@ -149,17 +150,31 @@ public class WfsSourceConfigurationHandler
 
     public TestReport persist(SourceConfiguration configuration, String persistId) {
         Configurator configurator = new Configurator();
-        configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
-        configurator.commit();
-        return new TestReport(buildMessage(SUCCESS, "WFS Source Created"));
+        ConfigReport report;
+
+        switch(persistId) {
+        case "create":
+            configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
+            report = configurator.commit();
+            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to create WFS Source")) :
+                                                    new TestReport(buildMessage(SUCCESS, "WFS Source Created"));
+        case "delete":
+            // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
+            configurator.deleteManagedService(configuration.servicePid());
+            report = configurator.commit();
+            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to delete WFS Source")) :
+                                                    new TestReport(buildMessage(SUCCESS, "WFS Source Deleted"));
+        default:
+            return new TestReport(buildMessage(FAILURE, "Uknown persist id: " + persistId));
+        }
     }
 
     @Override
     public List<SourceConfiguration> getConfigurations() {
         Configurator configurator = new Configurator();
         return WFS_FACTORY_PIDS.stream()
-                .flatMap(factoryPid -> configurator.getManagedServiceConfigs(factoryPid).entrySet().stream())
-                .map(serviceEntry -> new WfsSourceConfiguration(serviceEntry.getKey(), serviceEntry.getValue()))
+                .flatMap(factoryPid -> configurator.getManagedServiceConfigs(factoryPid).values().stream())
+                .map(serviceProps -> new WfsSourceConfiguration(serviceProps))
                 .collect(Collectors.toList());
     }
 

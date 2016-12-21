@@ -13,6 +13,8 @@ import Divider from 'material-ui/Divider'
 import { cyan500 } from 'material-ui/styles/colors'
 import IconButton from 'material-ui/IconButton'
 import { Link } from 'react-router'
+import RaisedButton from 'material-ui/RaisedButton'
+import AppBar from 'material-ui/AppBar'
 
 // map state to props
 const setSourceConfigs = (value) => ({type: 'SET_SOURCE_CONFIGS', value})
@@ -35,34 +37,79 @@ const TileSubtitle = ({id, text}) => (
   </div>
 )
 
-const SourceTile = ({ sourceName, type, sourceHostName, sourcePort, sourceUserName, sourceUserPassword, endpointUrl }) => {
-  return (
-    <Paper className={styles.main}>
-      <div>{sourceName}</div>
-      <div>{type}</div>
-      <div>{sourceHostName}</div>
-      <div>{sourcePort}</div>
-      <div>{sourceUserName}</div>
-      <div>{sourceUserPassword}</div>
-      <div>{endpointUrl}</div>
-    </Paper>)
+const getSourceTypeFromFactoryPid = (factoryPid) => {
+  if (factoryPid.includes('Wfs_v1_0_0')) {
+    return 'WFS v1 Source'
+  } else if (factoryPid.includes('Wfs_v2_0_0')) {
+    return 'WFS v2 Source'
+  } else if (factoryPid.includes('Csw_Federation_Profile_Source')) {
+    return 'DDF Extended Capabilities CSW Source'
+  } else if (factoryPid.includes('Gmd_Csw_Federated_Source')) {
+    return 'GMD CSW Specification Source'
+  } else if (factoryPid.includes('Csw_Federated_Source')) {
+    return 'CSW Specification Source'
+  } else if (factoryPid.includes('OpenSearchSource')) {
+    return 'Open Search Source'
+  } else {
+    return 'Unknown'
+  }
 }
 
-const LdapTile = ({ sourceName, type, hostName, port, encryptionMethod, bindUserDn, bindUserPassword, userNameAttribute, baseGroupDn, baseUserDn }) => {
+export const deleteConfig = (url, configurationType, factoryPid, servicePid, dispatch) => {
+  const body = { configurationType, factoryPid, servicePid }
+  const opts = {
+    method: 'POST',
+    body: JSON.stringify(body),
+    credentials: 'same-origin'
+  }
+  window.fetch(url, opts)
+    .then((res) => Promise.all([ res.status, res.json() ]))
+    .then(([status, json]) => {
+      if (status === 200) {
+        console.log('Successfully deleted config')
+        refresh()(dispatch)
+      }
+    })
+}
+
+const SourceTileView = ({ sourceName, factoryPid, servicePid, sourceUserName, sourceUserPassword, endpointUrl, deleteConfig }) => {
   return (
     <Paper className={styles.main}>
-      <div>{sourceName}</div>
-      <div>{type}</div>
-      <div>{hostName}</div>
-      <div>{port}</div>
-      <div>{encryptionMethod}</div>
-      <div>{bindUserDn}</div>
-      <div>{bindUserPassword}</div>
-      <div>{userNameAttribute}</div>
-      <div>{baseGroupDn}</div>
-      <div>{baseUserDn}</div>
+      <div>Source Name: {sourceName}</div>
+      <div>Service Pid: {servicePid}</div>
+      <div>Type: {getSourceTypeFromFactoryPid(factoryPid)}</div>
+      <div>Username: {sourceUserName === undefined || sourceUserName === '' ? 'none' : sourceUserName}</div>
+      <div>Password: {sourceUserPassword === undefined || sourceUserPassword === '' ? 'none' : sourceUserPassword}</div>
+      <div>Query Endpoint: {endpointUrl}</div>
+      <RaisedButton label='Delete' primary onClick={deleteConfig} />
     </Paper>)
 }
+export const SourceTile = connect(
+  null,
+  (dispatch, { configurationType, factoryPid, servicePid }) => ({
+    deleteConfig: () => deleteConfig('/admin/wizard/persist/' + configurationType + '/delete', configurationType, factoryPid, servicePid, dispatch)
+  }))(SourceTileView)
+
+const LdapTileView = ({ type, hostName, port, encryptionMethod, bindUserDn, bindUserPassword, userNameAttribute, baseGroupDn, baseUserDn, deleteConfig }) => {
+  return (
+    <Paper className={styles.main}>
+      <div>Ldap Type: {type}</div>
+      <div>Hostname: {hostName}</div>
+      <div>Port: {port}</div>
+      <div>Encryption Method: {encryptionMethod}</div>
+      <div>Bind User DN: {bindUserDn}</div>
+      <div>Bind User Password: {bindUserPassword}</div>
+      <div>UserName Attribute: {userNameAttribute}</div>
+      <div>Base Group DN: {baseGroupDn}</div>
+      <div>Base User DN: {baseUserDn}</div>
+      <RaisedButton label='Delete' primary onClick={deleteConfig} />
+    </Paper>)
+}
+export const LdapTile = connect(
+  null,
+  (dispatch, { configurationType, factoryPid, servicePid }) => ({
+    deleteConfig: () => deleteConfig('/admin/wizard/persist/' + configurationType + '/delete', configurationType, factoryPid, servicePid, dispatch)
+  }))(LdapTileView)
 
 const SourceWizardTile = () => (
   <Link to='/sources/'>
@@ -118,6 +165,10 @@ const SourcesHomeView = ({sourceConfigs = [], ldapConfigs = [], refresh}) => (
   <div style={{width: '100%'}}>
     <Flexbox flexDirection='row' style={{width: '100%'}}>
       <span style={{width: '100%', height: '100%'}}>
+        <AppBar title={<span style={styles.title}>Setup Wizards</span>}
+          iconElementLeft={<div />}
+          iconElementRight={<IconButton onClick={refresh}><RefreshIcon /></IconButton>}
+          showMenuIconButton />
         <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
           <SourceWizardTile />
           <LdapWizardTile />
@@ -125,29 +176,26 @@ const SourcesHomeView = ({sourceConfigs = [], ldapConfigs = [], refresh}) => (
         </Flexbox>
         <Divider />
         <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
-          {sourceConfigs.length === 0 ? null : getSourceConfigTiles(sourceConfigs)}
+          <AppBar title={<span style={styles.title}>Source Configurations</span>} showMenuIconButton={false} />
+          {sourceConfigs.length === 0 ? <div style={{margin: '20px'}}>No Sources Configured </div> : getSourceConfigTiles(sourceConfigs)}
         </Flexbox>
         <Divider />
         <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
-          {ldapConfigs.length === 0 ? null : getLdapConfigTiles(ldapConfigs)}
+          <AppBar title={<span style={styles.title}>LDAP Configurations</span>} showMenuIconButton={false} />
+          {ldapConfigs.length === 0 ? <div style={{margin: '20px'}}>No LDAP's Configured</div> : getLdapConfigTiles(ldapConfigs)}
         </Flexbox>
-        <Paper circle style={{width: '50px', height: '50px', marginLeft: '25px'}}>
-          <IconButton onClick={refresh}>
-            <RefreshIcon style={{width: '50px', height: '50px'}} />
-          </IconButton>
-        </Paper>
       </span>
     </Flexbox>
   </div>
 )
 
-const refresh = () => (dispatch, getState) => {
-  retrieveConfigurations('/admin/wizard/configurations/sources', setSourceConfigs)(dispatch, getState)
-  retrieveConfigurations('/admin/wizard/configurations/ldap', setLdapConfigs)(dispatch, getState)
+const refresh = () => (dispatch) => {
+  retrieveConfigurations('/admin/wizard/configurations/sources', setSourceConfigs)(dispatch)
+  retrieveConfigurations('/admin/wizard/configurations/ldap', setLdapConfigs)(dispatch)
 }
 
 // actions
-const retrieveConfigurations = (url, action) => (dispatch, getState) => {
+const retrieveConfigurations = (url, action) => (dispatch) => {
   const opts = {
     method: 'GET',
     credentials: 'same-origin'

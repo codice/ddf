@@ -30,8 +30,9 @@ public class WfsSourceConfiguration extends SourceConfiguration {
 
     //TODO: Needs WFS specific properties
 
-    public WfsSourceConfiguration(String factoryPid, Map<String, Object> wfsProps) {
-        factoryPid(factoryPid);
+    public WfsSourceConfiguration(Map<String, Object> wfsProps) {
+        factoryPid(wfsProps.get(FACTORY_PID_KEY) == null ? null : (String)wfsProps.get(FACTORY_PID_KEY));
+        servicePid(wfsProps.get(SERVICE_PID_KEY) == null ? null : (String)wfsProps.get(SERVICE_PID_KEY));
         sourceName(wfsProps.get(ID) == null ? null : (String) wfsProps.get(ID));
         endpointUrl(wfsProps.get(WFS_URL) == null ? null : (String) wfsProps.get(WFS_URL));
         sourceUserName(wfsProps.get(USERNAME) == null ? null : (String) wfsProps.get(USERNAME));
