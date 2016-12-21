@@ -107,7 +107,7 @@ public class TestFanout extends AbstractIntegrationTest {
                 available = source.isAvailable();
             }
             if (System.currentTimeMillis() > timeout) {
-                fail ("CSW source failed to initialize in time.");
+                fail("CSW source failed to initialize in time.");
             }
             Thread.sleep(1000);
         }
