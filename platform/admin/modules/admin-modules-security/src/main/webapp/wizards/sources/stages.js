@@ -132,7 +132,9 @@ const ConfirmationStageView = ({ selectedSource, persistConfig, sourceName, conf
 export const ConfirmationStage = connect((state) => ({
   selectedSource: getAllConfig(state),
   sourceName: getSourceName(state),
-  configType: configUnmapper(getConfig(state, 'manualEntryConfigTypeInput').stateValue.value)
+  configType: (getConfig(state, 'manualEntryConfigTypeInput').stateValue)
+    ? configUnmapper(getConfig(state, 'manualEntryConfigTypeInput').stateValue.value)
+    : null
 }), ({
   persistConfig
 }))(ConfirmationStageView)
