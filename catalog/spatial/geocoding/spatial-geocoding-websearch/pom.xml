@@ -44,6 +44,10 @@
             <artifactId>json-smart</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -80,7 +84,8 @@
                             spatial4j,
                             spatial-geocoding-api-impl,
                             noggit,
-                            geospatial
+                            geospatial,
+                            asm
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

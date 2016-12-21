@@ -56,6 +56,11 @@
             <artifactId>json-smart</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>asm</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.mime.core</groupId>
             <artifactId>mime-core-api</artifactId>
         </dependency>
@@ -132,7 +137,8 @@
                             catalog-core-actions,
                             common-system,
                             platform-util,
-                            commons-lang3
+                            commons-lang3,
+                            asm
                         </Embed-Dependency>
                         <Import-Package>
                             javax.ws.rs.*,

@@ -63,7 +63,11 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
-            <version>1.1.1</version>
+            <version>${json-smart.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>asm</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -137,7 +141,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Embed-Dependency>json-smart</Embed-Dependency>
+                        <Embed-Dependency>json-smart,asm</Embed-Dependency>
                         <Web-ContextPath>/login</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>

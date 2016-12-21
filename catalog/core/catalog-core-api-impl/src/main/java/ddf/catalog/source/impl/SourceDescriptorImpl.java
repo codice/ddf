@@ -32,7 +32,7 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
     /** The content types contained in this source */
     protected Set<ContentType> catalogedTypes = null;
 
-    protected boolean isAvailable = true;
+    protected boolean isAvailable = false;
 
     protected Date lastAvailableDate = null;
 
@@ -47,7 +47,6 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
     public SourceDescriptorImpl(String sourceId, Set<ContentType> catalogedTypes) {
         this.sourceId = sourceId;
         this.catalogedTypes = catalogedTypes;
-        this.isAvailable = true;
     }
 
     @Override

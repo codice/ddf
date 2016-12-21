@@ -61,6 +61,8 @@
                     availability="optional">
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="catalogStoreMap"/>
+        <reference-listener bind-method="bind"
+                            unbind-method="unbind" ref="sourcePollerRunner"/>
     </reference-list>
 
     <bean id="sourceListener" class="ddf.catalog.util.impl.Masker"/>

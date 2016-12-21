@@ -77,11 +77,11 @@ public class TestRegistry extends AbstractIntegrationTest {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
+            getCatalogBundle().waitForCatalogProvider();
             getServiceManager().startFeature(true, CATALOG_REGISTRY);
             getServiceManager().waitForAllBundles();
             getServiceManager().startFeature(true, CATALOG_REGISTRY_CORE);
             getServiceManager().waitForAllBundles();
-            getCatalogBundle().waitForCatalogProvider();
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
             getServiceManager().createManagedService(FACTORY_PID,
                     getCswRegistryStoreProperties(REGISTRY_CATALOG_STORE_ID,

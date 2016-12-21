@@ -25,7 +25,7 @@
     <packaging>pom</packaging>
     <properties>
         <jasypt.version>1.9.0</jasypt.version>
-        <wss4j.version>2.1.4</wss4j.version>
+        <wss4j.version>2.1.7</wss4j.version>
         <opensaml.version>3.1.1</opensaml.version>
         <powermock.agent>${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar</powermock.agent>
     </properties>
@@ -34,7 +34,7 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.9.2</version>
+                <version>1.9.3</version>
             </dependency>
             <dependency>
                 <groupId>javax.validation</groupId>
