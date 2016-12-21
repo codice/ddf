@@ -71,7 +71,7 @@ public interface SubscriptionsPersistentStore {
     Set<String> getEmails(String id);
 
     /**
-     * Get the set of ids that have been associated with an email.
+     * Get the set of subscription ids that have been associated with an email.
      *
      * @param email must be non-null and non-blank
      * @return a non-null set of email addresses

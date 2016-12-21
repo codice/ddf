@@ -21,29 +21,6 @@
         <feature prerequisite="true">camel-http</feature>
         <feature prerequisite="true">catalog-ui-app</feature>
 
-        <!-- setup subscriptions store -->
-        <configfile finalname="/data/solr/subscriptions/conf/solr.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
-        </configfile>
-        <configfile finalname="/data/solr/subscriptions/conf/solrconfig.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
-        </configfile>
-        <configfile finalname="/data/solr/subscriptions/conf/schema.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
-        </configfile>
-        <configfile finalname="/data/solr/subscriptions/conf/protwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
-        </configfile>
-        <configfile finalname="/data/solr/subscriptions/conf/stopwords_en.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
-        </configfile>
-        <configfile finalname="/data/solr/subscriptions/conf/stopwords.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
-        </configfile>
-        <configfile finalname="/data/solr/subscriptions/conf/synonyms.txt">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
-        </configfile>
-
         <configfile finalname="/etc/org.codice.ddf.catalog.ui.config" override="true">
             mvn:ddf.ui/catalog-ui-app/${project.version}/properties/catalog-ui-config
         </configfile>

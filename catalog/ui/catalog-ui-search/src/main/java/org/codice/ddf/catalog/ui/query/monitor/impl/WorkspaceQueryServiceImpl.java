@@ -329,31 +329,31 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
         return queriesGroupedBySource.map(this::queryMetacardsToFilters)
                 .map(filterBuilder::anyOf)
                 .map(filter -> filterBuilder.allOf(modifiedFilter, filter))
-                .map(this::filter2query)
-                .map(this::query2queryRequest)
+                .map(this::filterToQuery)
+                .map(this::queryToQueryRequest)
                 .collect(Collectors.toList());
     }
 
     private List<Filter> queryMetacardsToFilters(List<QueryMetacardImpl> queriesForSource) {
         return queriesForSource.stream()
-                .map(this::metacard2Filter)
+                .map(this::metacardToFilter)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
-    private QueryRequestImpl query2queryRequest(QueryImpl query) {
+    private QueryRequestImpl queryToQueryRequest(QueryImpl query) {
         final Map<String, Serializable> properties =
                 securityService.addSystemSubject(new HashMap<>());
         return new QueryRequestImpl(query, properties);
     }
 
-    private QueryImpl filter2query(And filter) {
+    private QueryImpl filterToQuery(And filter) {
         final QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(true);
         return query;
     }
 
-    private Filter metacard2Filter(QueryMetacardImpl queryMetacard) {
+    private Filter metacardToFilter(QueryMetacardImpl queryMetacard) {
         try {
             return ECQL.toFilter(queryMetacard.getCql());
         } catch (CQLException e) {

@@ -95,14 +95,14 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
      * @return
      */
     public static WorkspaceMetacardImpl clone(Metacard metacard) {
-        WorkspaceMetacardImpl worksapce = new WorkspaceMetacardImpl();
+        WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
 
         metacard.getMetacardType()
                 .getAttributeDescriptors()
                 .stream()
-                .forEach(descriptor -> worksapce.setAttribute(metacard.getAttribute(descriptor.getName())));
+                .forEach(descriptor -> workspace.setAttribute(metacard.getAttribute(descriptor.getName())));
 
-        return worksapce;
+        return workspace;
     }
 
     /**

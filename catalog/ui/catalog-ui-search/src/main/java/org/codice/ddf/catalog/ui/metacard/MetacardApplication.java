@@ -482,7 +482,6 @@ public class MetacardApplication implements SparkApplication {
         Action action = Action.fromKey((String) versionMetacard.getAttribute(MetacardVersion.ACTION)
                 .getValue());
         if (DELETE_ACTIONS.contains(action)) {
-            // TODO (RCZ) - Semantics for failing the delete? want to still let the recreate happen?
             attemptDeleteDeletedMetacard(id);
             catalogFramework.create(new CreateStorageRequestImpl(Collections.singletonList(
                     contentItem), id, new HashMap<>()));
