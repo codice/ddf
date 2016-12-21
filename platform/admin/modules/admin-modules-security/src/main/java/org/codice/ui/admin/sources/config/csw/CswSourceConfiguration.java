@@ -32,9 +32,6 @@ public class CswSourceConfiguration extends SourceConfiguration {
     // TODO: tbatie - 12/20/16 - Do we want to add the insane amount of extra fields offered in the CSW Specification Profile Federated Source?
     // TODO: tbatie - 12/20/16 - Do we want to add the insane amount of extra fields offered in the GMD CSW ISO Federated Source?
     //----
-
-    private static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
-
     private String outputSchema;
 
     private String forceSpatialFilter;
@@ -47,7 +44,6 @@ public class CswSourceConfiguration extends SourceConfiguration {
     }
 
     public CswSourceConfiguration(SourceConfiguration baseConfig) {
-        displayName(CSW_SOURCE_DISPLAY_NAME);
         factoryPid(baseConfig.factoryPid());
         sourceName(baseConfig.sourceName());
         sourceHostName(baseConfig.sourceHostName());

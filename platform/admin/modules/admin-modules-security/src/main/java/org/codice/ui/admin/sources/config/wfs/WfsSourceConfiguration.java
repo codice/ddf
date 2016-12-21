@@ -28,7 +28,6 @@ public class WfsSourceConfiguration extends SourceConfiguration {
     public static final String PASSWORD = "password";
     // ----
 
-    private static final String WFS_SOURCE_DISPLAY_NAME = "WFS Source";
     //TODO: Needs WFS specific properties
 
     public WfsSourceConfiguration(String factoryPid, Map<String, Object> wfsProps) {
@@ -40,7 +39,6 @@ public class WfsSourceConfiguration extends SourceConfiguration {
     }
 
     public WfsSourceConfiguration(SourceConfiguration baseConfig) {
-        displayName(WFS_SOURCE_DISPLAY_NAME);
         factoryPid(baseConfig.factoryPid());
         sourceName(baseConfig.sourceName());
         sourceHostName(baseConfig.sourceHostName());

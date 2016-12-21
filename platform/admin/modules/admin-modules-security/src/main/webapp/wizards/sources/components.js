@@ -85,9 +85,9 @@ export const ConstrainedPortInput = ({ id, label, description }) => (
   </WidthConstraint>
 )
 
-export const ConstrainedSelectInput = ({ id, label, description }) => (
+export const ConstrainedSelectInput = ({ id, label, description, options }) => (
   <WidthConstraint>
-    <Select id={id} label={label} />
+    <Select id={id} label={label} options={options} />
     <DescriptionIcon description={description} />
   </WidthConstraint>
 )
@@ -155,16 +155,16 @@ export const SourceInfo = ({ id, label, value }) => (
   </div>
 )
 
-const SourceRadioButtonsView = ({ disabled, options = [], onEdits, displayName, setSource }) => {
+const SourceRadioButtonsView = ({ disabled, options = [], onEdits, configurationType, setSource }) => {
   return (
     <div style={{display: 'inline-block', margin: '10px'}}>
       {options.map((item, i) => (
-        <SourceRadioButton key={i} value={item.displayName} disabled={disabled} valueSelected={displayName} item={item} onSelect={() => setSource(options[i])} />
+        <SourceRadioButton key={i} value={configMap[item.configurationType]} disabled={disabled} valueSelected={configMap[configurationType]} item={item} onSelect={() => setSource(options[i])} />
       ))}
     </div>
   )
 }
-export const SourceRadioButtons = connect(mapStateToProps('displayName'), mapDispatchToProps)(SourceRadioButtonsView)
+export const SourceRadioButtons = connect(mapStateToProps('configurationType'), mapDispatchToProps)(SourceRadioButtonsView)
 
 const alertMessage = 'SSL certificate is untrusted and possibly insecure'
 
@@ -264,4 +264,16 @@ export const NavPanes = connect(null, { setNavStage: setNavStage })(NavPanesView
 export const Submit = ({ label = 'Submit', onClick, disabled = false }) => (
   <RaisedButton className={submit} label={label} disabled={disabled} primary onClick={onClick} />
 )
+
+export const configMap = ({
+  CswSourceConfigurationHandler: 'CSW Source',
+  OpenSearchSourceConfigurationHandler: 'OpenSearch Source',
+  WfsSourceConfigurationHandler: 'WFS Source'
+})
+
+export const configUnmapper = (value) => {
+  let unmappedConfig = {}
+  Object.keys(configMap).forEach((key) => { unmappedConfig[configMap[key]] = key })
+  return unmappedConfig[value]
+}
 

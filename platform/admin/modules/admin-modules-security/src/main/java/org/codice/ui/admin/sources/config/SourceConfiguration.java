@@ -34,8 +34,6 @@ public class SourceConfiguration extends Configuration {
 
     private String sourceName;
 
-    private String displayName;
-
     private boolean certError;
 
     private boolean trustedCertAuthority;
@@ -54,15 +52,6 @@ public class SourceConfiguration extends Configuration {
     }
     public SourceConfiguration trustedCertAuthority(boolean trustedCertAuthority) {
         this.trustedCertAuthority = trustedCertAuthority;
-        return this;
-    }
-
-    public String displayName() {
-        return displayName;
-    }
-
-    public SourceConfiguration displayName(String displayName) {
-        this.displayName = displayName;
         return this;
     }
 
@@ -141,7 +130,6 @@ public class SourceConfiguration extends Configuration {
                 .sourceHostName(sourceHostName)
                 .sourcePort(sourcePort)
                 .endpointUrl(endpointUrl)
-                .displayName(displayName)
                 .trustedCertAuthority(trustedCertAuthority);
     }
 }

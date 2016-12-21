@@ -17,6 +17,7 @@ export const clearMessages = (id) => ({ type: 'CLEAR_MESSAGES', id })
 export const startSubmitting = () => ({ type: 'START_SUBMITTING' })
 export const endSubmitting = () => ({ type: 'END_SUBMITTING' })
 export const setConfigSource = (source) => ({ type: 'SET_CONFIG_SOURCE', value: source })
+export const setConfigIds = (ids) => ({ type: 'SOURCES/SET_CONFIG_IDS', ids })
 
 export const testSources = (url, configType, nextStageId, id) => (dispatch, getState) => {
   dispatch(startSubmitting())
@@ -42,15 +43,14 @@ export const testSources = (url, configType, nextStageId, id) => (dispatch, getS
           dispatch(backendError({ ...json, url, method: 'POST', body }))
           dispatch(endSubmitting())
         }
-      }, () => {
       })
 }
 
 const discoverSources = (url, opts, dispatch, id, nextStageId, body) => {
+  dispatch(startSubmitting())
   window.fetch(url, opts)
     .then((res) => Promise.all([ res.status, res.json() ]))
     .then(([status, json]) => {
-      dispatch(endSubmitting())
       if (status === 400) {
         dispatch(setMessages(id, json.messages))
       } else if (status === 200) {
@@ -60,12 +60,12 @@ const discoverSources = (url, opts, dispatch, id, nextStageId, body) => {
       } else if (status === 500) {
         dispatch(backendError({ ...json, url, method: 'POST', body }))
       }
-    }, () => {
       dispatch(endSubmitting())
     })
 }
 
 export const persistConfig = (url, config, nextStageId) => (dispatch, getState) => {
+  dispatch(startSubmitting())
   const config = getAllConfig(getState())
 
   const opts = {
@@ -83,10 +83,68 @@ export const persistConfig = (url, config, nextStageId) => (dispatch, getState) 
       } else if (status === 200) {
         dispatch(changeStage(nextStageId))
       }
+      dispatch(endSubmitting())
+    })
+}
+
+export const fetchConfigIds = (nextStageId) => (dispatch, getState) => {
+  dispatch(startSubmitting())
+  const config = getAllConfig(getState())
+  const body = { configurationType: 'sources', ...config }
+
+  const opts = {
+    method: 'POST',
+    body: JSON.stringify(body),
+    credentials: 'same-origin'
+  }
+
+  window.fetch('/admin/wizard/probe/sources/getSourceConfigIds', opts)
+    .then((res) => Promise.all([ res.status, res.json() ]))
+    .then(([status, json]) => {
+      if (status === 400) {
+//      TODO dispatch error messages
+//        dispatch(setConfigErrors(json.results))
+      } else if (status === 200) {
+        console.log(json)
+        dispatch(setConfigIds(json.probeResults.sourceConfigIds))
+        dispatch(changeStage(nextStageId))
+      } else if (status === 500) {
+        dispatch(backendError({ ...json, url: '/admin/wizard/probe/sources/getSourceConfigIds', method: 'POST', body: JSON.stringify(config) }))
+      }
+      dispatch(endSubmitting())
     })
 }
 
 export const resetSourceWizardState = () => (dispatch) => {
   dispatch(clearWizard())
   dispatch(clearConfiguration())
+}
+
+export const testManualUrl = (endpointUrl, configType, nextStageId, id) => (dispatch, getState) => {
+  dispatch(startSubmitting())
+  dispatch(clearMessages(id))
+  const config = getAllConfig(getState())
+  const body = { ...config, configurationType: configType, endpointUrl: endpointUrl }
+  const url = '/admin/wizard/test/' + configType + '/testManualUrl'
+
+  const opts = {
+    method: 'POST',
+    body: JSON.stringify(body),
+    credentials: 'same-origin'
+  }
+
+  window.fetch(url, opts)
+    .then((res) => Promise.all([ res.status, res.json() ]))
+    .then(([status, json]) => {
+      if (status === 400) {
+        dispatch(setMessages(id, json.messages))
+      } else if (status === 200) {
+        dispatch(changeStage(nextStageId))
+      } else if (status === 500) {
+        dispatch(backendError({ ...json, url, method: 'POST', body }))
+      }
+      dispatch(endSubmitting())
+    }, () => {
+      console.log('HURR DURR')
+    })
 }

@@ -28,8 +28,6 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
     public static final String PASSWORD = "password";
     // ----
 
-    private static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";
-
     public OpenSearchSourceConfiguration(String factoryPid, Map<String, Object> props) {
         factoryPid(factoryPid);
         sourceName(props.get(ID) == null ? null : (String) props.get(ID));
@@ -39,7 +37,6 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
     }
 
     public OpenSearchSourceConfiguration(SourceConfiguration baseConfig) {
-        displayName(OPENSEARCH_SOURCE_DISPLAY_NAME);
         factoryPid(baseConfig.factoryPid());
         sourceName(baseConfig.sourceName());
         sourceHostName(baseConfig.sourceHostName());

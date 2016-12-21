@@ -49,6 +49,10 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
     public static final String NONE_FOUND = "None found";
 
+    public static final String GET_SOURCE_CONFIG_IDS = "getSourceConfigIds";
+
+    public static final String SOURCE_CONFIG_IDS = "sourceConfigIds";
+
     public static final int PING_TIMEOUT = 500;
 
     /*********************************************************
@@ -94,7 +98,6 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
         // TODO: tbatie - 11/23/16 - Do check for required fields
         switch (probeId) {
         case DISCOVER_SOURCES_ID:
-
             ProbeReport sourcesProbeReport = new ProbeReport();
 
             List<ProbeReport> sourceProbeReports = sourceConfigurationHandlers.stream()
@@ -115,6 +118,10 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
             sourcesProbeReport.addProbeResult(DISCOVER_SOURCES_ID, discoveredSources);
             sourcesProbeReport.addMessages(probeSourceMessages);
             return sourcesProbeReport;
+
+        case GET_SOURCE_CONFIG_IDS:
+            return new ProbeReport().addProbeResult(SOURCE_CONFIG_IDS, sourceConfigurationHandlers.stream().map(handler -> handler.getConfigurationHandlerId()).collect(Collectors.toList()));
+
         default:
             return new ProbeReport(Arrays.asList(buildMessage(FAILURE, "No such probe.")));
         }

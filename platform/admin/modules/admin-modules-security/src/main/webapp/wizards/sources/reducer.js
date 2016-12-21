@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux-immutable'
-import { Map } from 'immutable'
+import { fromJS, Map } from 'immutable'
 
 const sourceStage = (state = 'welcomeStage', { type, stage }) => {
   switch (type) {
@@ -52,9 +52,6 @@ export const getStagesClean = (state) => state.getIn(['sourceWizard', 'sourceSta
 
 export const getConfig = (state, id) => state.getIn(['wizard', 'config', id], Map()).toJS()
 
-export const getSelectedSourceDisplayName = (state, id) => state.getIn(['wizard', 'sourceWizard', ''])
-export const getProbeValue = (state) => state.getIn(['probeValue'])
-
 const sourceSelections = (state = Map(), { type, sourceConfigs }) => {
   switch (type) {
     case 'SET_SOURCE_SELECTIONS':
@@ -79,6 +76,19 @@ const isSubmitting = (state = false, { type }) => {
   }
 }
 
+const configIds = (state = fromJS([]), { type, ids }) => {
+  switch (type) {
+    case 'SOURCES/SET_CONFIG_IDS':
+      return fromJS(ids)
+
+    default:
+      return state
+  }
+}
+
+// TODO: replace these absolute paths with relative ones like the other wizards
+export const getConfigIds = (state) => state.getIn(['sourceWizard', 'configIds']).toJS()
+
 export const getSourceSelections = (state) => state.getIn(['sourceWizard', 'sourceSelections'])
 
 export const getConfigurationHandlerId = (state) => state.getIn(['wizard', 'config', 'configurationHandlerId'])
@@ -87,5 +97,5 @@ export const getSourceName = (state) => state.getIn(['wizard', 'config', 'source
 
 export const getIsSubmitting = (state) => state.getIn(['sourceWizard', 'isSubmitting'])
 
-export default combineReducers({ sourceStage, sourceStagesClean, sourceStageProgress, sourceSelections, isSubmitting })
+export default combineReducers({ sourceStage, sourceStagesClean, sourceStageProgress, sourceSelections, isSubmitting, configIds })
 

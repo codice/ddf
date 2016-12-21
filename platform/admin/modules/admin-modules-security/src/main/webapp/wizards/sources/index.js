@@ -14,7 +14,7 @@ import {
   SourceSelectionStage,
   ConfirmationStage,
   CompletedStage,
-  ManualEntryPage
+  ManualEntryStage
 } from './stages'
 
 /*
@@ -33,7 +33,7 @@ let StageRouter = ({ stage }) => {
     sourceSelectionStage: <SourceSelectionStage />,
     confirmationStage: <ConfirmationStage />,
     completedStage: <CompletedStage />,
-    manualEntryStage: <ManualEntryPage />
+    manualEntryStage: <ManualEntryStage />
   }
   return (stageMapping[stage])
 }

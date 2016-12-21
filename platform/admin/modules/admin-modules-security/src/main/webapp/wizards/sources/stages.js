@@ -1,9 +1,9 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { getSourceSelections, getConfigurationHandlerId, getSourceName } from './reducer'
-import { getMessages, getAllConfig } from '../../reducer'
-import { changeStage, testSources, persistConfig, resetSourceWizardState } from './actions'
+import { getSourceSelections, getConfigurationHandlerId, getSourceName, getConfigIds } from './reducer'
+import { getMessages, getAllConfig, getConfig } from '../../reducer'
+import { changeStage, testSources, persistConfig, resetSourceWizardState, fetchConfigIds, testManualUrl } from './actions'
 
 import Flexbox from 'flexbox-react'
 import { Link } from 'react-router'
@@ -28,7 +28,9 @@ import {
   SourceRadioButtons,
   NavPanes,
   Submit,
-  Message
+  Message,
+  configMap,
+  configUnmapper
 } from './components'
 
 // Welcome Stage
@@ -77,7 +79,7 @@ const sourceSelectionSubtitle = 'Choose which source to add'
 const noSourcesFoundTitle = 'No Sources Were Found'
 const noSourcesFoundSubtitle = 'Click below to enter source information manually, or go back to enter a different hostname/port.'
 
-const SourceSelectionStageView = ({sourceSelections = [], changeStage, selectedSourceConfigHandlerId}) => {
+const SourceSelectionStageView = ({sourceSelections = [], selectedSourceConfigHandlerId, changeStage, fetchConfigIds}) => {
   if (sourceSelections.length !== 0) {
     return (<NavPanes backClickTarget='discoveryStage' forwardClickTarget='confirmationStage'>
       <CenteredElements>
@@ -90,12 +92,19 @@ const SourceSelectionStageView = ({sourceSelections = [], changeStage, selectedS
     return (<NavPanes backClickTarget='discoveryStage' forwardClickTarget='manualEntryStage'>
       <CenteredElements>
         <Info title={noSourcesFoundTitle} subtitle={noSourcesFoundSubtitle} />
-        <Submit label='Enter Information Manually' onClick={() => changeStage('manualEntryStage')} />
+        <Submit label='Enter Information Manually' onClick={fetchConfigIds} />
       </CenteredElements>
     </NavPanes>)
   }
 }
-export const SourceSelectionStage = connect((state) => ({sourceSelections: getSourceSelections(state), selectedSourceConfigHandlerId: getConfigurationHandlerId(state)}), { changeStage })(SourceSelectionStageView)
+export const SourceSelectionStage = connect((state) => ({
+  sourceSelections: getSourceSelections(state),
+  selectedSourceConfigHandlerId: getConfigurationHandlerId(state),
+  getConfigIds: getConfigIds(state)
+}), {
+  changeStage,
+  fetchConfigIds: () => fetchConfigIds('manualEntryStage')
+})(SourceSelectionStageView)
 
 // Confirmation Stage
 const confirmationTitle = 'Finalize Source Configuration'
@@ -137,13 +146,21 @@ export const CompletedStage = connect(null, { resetSourceWizardState })(Complete
 // Manual Entry Page
 const manualEntryTitle = 'Manual Source Entry'
 const manualEntrySubtitle = 'Choose a source configuration type and enter a source URL'
-export const ManualEntryPage = () => (
+const ManualEntryStageView = ({ configIds, endpointUrl, configType, testManualUrl }) => (
   <NavPanes backClickTarget='sourceSelectionStage' forwardClickTarget='confirmationStage'>
     <CenteredElements>
       <Info title={manualEntryTitle} subtitle={manualEntrySubtitle} />
-      <ConstrainedSelectInput id='ManualEntryStageSourceConfigurationTypeInput' label='Source Configuration Type' />
-      <ConstrainedInput id='ManualEntryStageSourceUrlInput' label='Source URL' />
-      <Submit label='Next' nextStage='confirmationStage' />
+      <ConstrainedSelectInput id='manualEntryConfigTypeInput' label='Source Configuration Type' options={configIds.map((id) => configMap[id])} />
+      <ConstrainedInput id='endpointUrl' label='Source URL' />
+      <Submit label='Next' onClick={() => testManualUrl(endpointUrl, configType, 'confirmationStage', 'manualEntryStage')} />
     </CenteredElements>
   </NavPanes>
 )
+
+export const ManualEntryStage = connect((state) => ({
+  configIds: getConfigIds(state),
+  endpointUrl: getConfig(state, 'endpointUrl').value,
+  configType: configUnmapper(getConfig(state, 'manualEntryConfigTypeInput').value)
+}), {
+  testManualUrl: testManualUrl
+})(ManualEntryStageView)
