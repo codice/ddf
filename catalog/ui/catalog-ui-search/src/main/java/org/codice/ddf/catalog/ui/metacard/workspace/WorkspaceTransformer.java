@@ -194,7 +194,6 @@ public class WorkspaceTransformer {
                 }
             }
         } catch (Exception ex) {
-            // TODO (RCZ) - just throw?
             throw new RuntimeException(ex);
         }
 

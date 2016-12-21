@@ -196,7 +196,7 @@ public class MetacardEditEndpoint {
 
         if (metacardAttribute == null) {
             return Response.ok()
-                    .build(); // TODO (RCZ) - if it wasn't there is that an okay or bad?
+                    .build();
         }
 
 

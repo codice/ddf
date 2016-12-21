@@ -187,7 +187,6 @@ public class EndpointUtil {
         return results;
     }
 
-    // TODO (RCZ) - This method could do with some immutable/persistant objects
     @SuppressWarnings("unchecked")
     public Map<String, Object> getMetacardTypeMap() {
         Map<String, Object> resultTypes = new HashMap<>();
@@ -261,7 +260,6 @@ public class EndpointUtil {
             typeMap.put("type-name", type);
             typeMap.put("type", getMetacardTypeMap().get(type));
 
-            // TODO (RCZ) - optimize this since might be hit a lot
             typeMap.put("ids",
                     metacards.stream()
                             .filter(mc -> type.equals(mc.getMetacardType()

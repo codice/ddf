@@ -31,9 +31,10 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.violation.ValidationViolation;
-import spark.Experimental;
 
-@Experimental // TODO (RCZ) - This is sparks experimental iface, could we use?
+/**
+ * This class is Experimental and subject to change
+ */
 public class ExperimentalEnumerationExtractor {
     private final AttributeValidatorRegistry attributeValidatorRegistry;
 

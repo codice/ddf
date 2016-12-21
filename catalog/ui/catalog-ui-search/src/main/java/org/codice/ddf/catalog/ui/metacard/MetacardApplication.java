@@ -231,7 +231,6 @@ public class MetacardApplication implements SparkApplication {
             return util.getJson(validator.validateAttribute(attribute, value));
         });
 
-        // TODO (RCZ) - this could use some help
         get("/history/:id", (req, res) -> {
             String id = req.params(":id");
             List<Result> queryResponse = getMetacardHistory(id);
