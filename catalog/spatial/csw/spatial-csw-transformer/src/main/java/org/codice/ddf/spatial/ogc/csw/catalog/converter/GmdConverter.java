@@ -44,6 +44,7 @@ import ddf.catalog.data.types.DateTime;
 import ddf.catalog.data.types.Location;
 import ddf.catalog.data.types.Media;
 import ddf.catalog.data.types.Topic;
+import ddf.catalog.data.types.constants.core.DataType;
 
 public class GmdConverter extends AbstractGmdConverter {
 
@@ -78,9 +79,10 @@ public class GmdConverter extends AbstractGmdConverter {
             pathValueTracker.add(new Path(GmdConstants.METADATA_LANGUAGE_PATH),
                     Locale.ENGLISH.getISO3Language());
         }
-        
+
         pathValueTracker.add(new Path(GmdConstants.CODE_LIST_VALUE_PATH),
-                StringUtils.defaultIfEmpty(metacard.getContentTypeName(), "dataset"));
+                StringUtils.defaultIfEmpty(metacard.getContentTypeName(),
+                        DataType.DATASET.toString()));
         pathValueTracker.add(new Path(GmdConstants.CODE_LIST_PATH), GmdConstants.METACARD_URI);
 
         addStringAttributeToXml(metacard,

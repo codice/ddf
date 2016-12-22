@@ -29,13 +29,16 @@ import org.junit.Test;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.constants.core.DataType;
 
 public class VideoInputTransformerTest {
+
     @Test
     public void testMp4Video() throws Exception {
-        InputStream stream = Thread.currentThread()
-                .getContextClassLoader()
-                .getResourceAsStream("testMP4Video.mp4");
+        InputStream stream = getVideoInputStream();
+
         Metacard metacard = transform(stream);
 
         assertThat(metacard, notNullValue());
@@ -46,6 +49,22 @@ public class VideoInputTransformerTest {
         assertThat(metadata, containsString("<meta name=\"tiff:ImageLength\" content=\"360\"/>"));
         assertThat(metadata, containsString("<meta name=\"tiff:ImageWidth\" content=\"480\"/>"));
         assertThat(metacard.getContentTypeName(), is("video/mp4"));
+    }
+
+    @Test
+    public void testDataTypeAttribute() throws Exception {
+        InputStream stream = getVideoInputStream();
+
+        Metacard metacard = transform(stream);
+
+        assertThat(metacard.getAttribute(Core.DATATYPE),
+                is(new AttributeImpl(Core.DATATYPE, DataType.VIDEO.toString())));
+    }
+
+    private InputStream getVideoInputStream() {
+        return Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("testMP4Video.mp4");
     }
 
     private Metacard transform(InputStream stream) throws Exception {
