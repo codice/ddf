@@ -485,7 +485,7 @@ define([
                         data.src = [Sources.localCatalog];
                         break;
                     case 'enterprise':
-                        data.src = _.pluck(Sources.where({'available': true}), 'id');
+                        data.src = _.pluck(Sources.toJSON(), 'id');
                         break;
                     case 'selected':
                         // already in correct format
@@ -580,10 +580,11 @@ define([
                     data.cql = (src === 'cache') ?
                         CacheSourceSelector.trimCacheSources(cqlString, sources) :
                         cqlString;
+                    var payload = JSON.stringify(data);
 
                     return result.fetch({
                         customErrorHandling: true,
-                        data: JSON.stringify(data),
+                        data: payload,
                         remove: false,
                         dataType: "json",
                         contentType: "application/json",
@@ -595,7 +596,7 @@ define([
                                 model.get('results').fullCollection.sort();
                             }
                         },
-                        error: function () {
+                        error: function (model, response, options) {
                             var srcStatus = result.get('status').get(src);
                             if (srcStatus) {
                                 srcStatus.set({
@@ -603,6 +604,7 @@ define([
                                     pending: false
                                 });
                             }
+                            response.options = options;
                         }
                     });
                 });
