@@ -317,7 +317,7 @@ During ${branding} installation, the major directories and files shown in the ta
 |Log file that records user interactions with the system for auditing purposes.
 
 |`data/log/solr.log`
-|Log file for any info coming from solr.
+|Log file for any info coming from Standalone Solr Server.
 
 |`deploy`
 |Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon ${branding} installation)
