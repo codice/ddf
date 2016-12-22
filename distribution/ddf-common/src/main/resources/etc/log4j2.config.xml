@@ -78,7 +78,7 @@
 
         <RollingFile name="solr" append="true"
                      fileName="${sys:karaf.data}/log/solr.log"
-                     filePattern="${sys:karaf.data}/log/ingest_error.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+                     filePattern="${sys:karaf.data}/log/solr.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
             <PatternLayout pattern="%d{ABSOLUTE} | ${log-pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="200 MB"/>
@@ -106,9 +106,14 @@
             <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
 
+        <Logger name="org.apache.lucene" level="info" additivity="false">
+            <AppenderRef ref="solr"/>
+            <AppenderRef ref="syslog"/>
+            <AppenderRef ref="osgi-platformLogging"/>
+        </Logger>
+
         <!-- CXF and Solr logging is verbose.  Default setting to WARN.  This can be changed in the karaf console. -->
         <Logger name="org.apache.cxf" level="warn"/>
-        <Logger name="org.apache.lucene" level="warn"/>
         <Logger name="lux.solr" level="warn"/>
         <Logger name="org.ops4j.pax.web.jsp" level="warn"/>
         <Logger name="org.apache.aries.spifly" level="warn"/>

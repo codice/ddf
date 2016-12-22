@@ -310,7 +310,7 @@ Apache Karaf is a FOSS product that includes an OSGi framework and adds extra fu
 
 ${admin-console}:: Useful for configuring applications, installing/uninstalling features, and viewing services such as metrics.
 ${command-console}:: Provides command line administration of the OSGi container. All functionality in the ${command-console} can also be performed via this command line console.
-Logging:: Provides centralized logging to `data/log/${branding-lowercase}.log`. Security logging is provided at `data/log/security.log`. Ingest error logging can be viewed in `data/log/ingest_error.log`.
+Logging:: Provides centralized logging to `data/log/${branding-lowercase}.log`. Security logging is provided at `data/log/security.log`. Ingest error logging can be viewed in `data/log/ingest_error.log`. Solr logging can be viewed in `data/log/solr.log`.
 Provisioning:: Of libraries or applications.
 Security:: Provides a security framework based on Java Authentication and Authorization Service (JAAS).
 Deployer:: Provides hot deployment of new bundles by dropping them into the `<INSTALL_DIR>/deploy` directory.
