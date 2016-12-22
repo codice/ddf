@@ -38,7 +38,7 @@ import javax.ws.rs.core.UriBuilderException;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.ddf.branding.BrandingRegistry;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.junit.BeforeClass;
@@ -83,7 +83,7 @@ public class TestKmlEndpoint {
 
     private static Set<SourceDescriptor> descriptors = new HashSet<>();
 
-    private static BrandingPlugin mockBranding = mock(BrandingPlugin.class);
+    private static BrandingRegistry mockBranding = mock(BrandingRegistry.class);
 
     private static byte[] bomberBytes;
 

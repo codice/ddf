@@ -19,8 +19,7 @@
 
   http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
-    <!-- The BrandingPlugin gives access to the Product name and version -->
-    <reference id="branding" interface="org.codice.ddf.branding.BrandingPlugin"/>
+   <reference id="brandingRegistry" interface="org.codice.ddf.branding.BrandingRegistry"/>
 
     <reference id="framework" interface="ddf.catalog.CatalogFramework"/>
 
@@ -37,7 +36,7 @@
     </jaxrs:server>
 
     <bean id="kmlEndpoint" class="org.codice.ddf.spatial.kml.endpoint.KmlEndpoint">
-        <argument ref="branding"/>
+        <argument ref="brandingRegistry"/>
         <argument ref="framework"/>
         <cm:managed-properties persistent-id="org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"
                                update-strategy="container-managed"/>

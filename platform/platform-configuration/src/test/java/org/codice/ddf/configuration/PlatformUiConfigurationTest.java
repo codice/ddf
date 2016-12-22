@@ -15,13 +15,16 @@ package org.codice.ddf.configuration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.Collections;
 
 import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.ddf.branding.BrandingRegistryImpl;
 import org.junit.Test;
 
 import net.minidev.json.JSONObject;
@@ -37,15 +40,15 @@ public class PlatformUiConfigurationTest {
         if (!(obj instanceof JSONObject)) {
             fail("PlatformUiConfiguration is not a JSON Object.");
         }
-
-        BrandingPlugin brandingPlugin = mock(BrandingPlugin.class);
-        when(brandingPlugin.getProductName()).thenReturn("product");
-        when(brandingPlugin.getBase64ProductImage()).thenReturn(Base64.getEncoder()
-                .encodeToString("image".getBytes()));
-        when(brandingPlugin.getBase64FavIcon()).thenReturn(Base64.getEncoder()
+        BrandingPlugin branding = mock(BrandingPlugin.class);
+        when(branding.getBase64FavIcon()).thenReturn(Base64.getEncoder()
                 .encodeToString("fav".getBytes()));
-
-        configuration.setProvider();
+        when(branding.getBase64ProductImage()).thenReturn(Base64.getEncoder()
+                .encodeToString("image".getBytes()));
+        BrandingRegistryImpl brandingPlugin = mock(BrandingRegistryImpl.class);
+        when(brandingPlugin.getProductName()).thenReturn("product");
+        when(brandingPlugin.getBrandingPlugins()).thenReturn(Collections.singletonList(branding));
+        when(brandingPlugin.getAttributeFromBranding(any())).thenCallRealMethod();
 
         configuration.setBranding(brandingPlugin);
 
@@ -64,7 +67,7 @@ public class PlatformUiConfigurationTest {
         assertEquals("footer", jsonObject.get(PlatformUiConfiguration.FOOTER));
         assertEquals("background", jsonObject.get(PlatformUiConfiguration.BACKGROUND));
         assertEquals("color", jsonObject.get(PlatformUiConfiguration.COLOR));
-        assertEquals("product", jsonObject.get(PlatformUiConfiguration.VERSION));
+        assertEquals("product", jsonObject.get(PlatformUiConfiguration.TITLE));
         assertEquals("image",
                 new String(Base64.getMimeDecoder()
                         .decode((String) jsonObject.get(PlatformUiConfiguration.PRODUCT_IMAGE))));

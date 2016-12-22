@@ -13,14 +13,14 @@
  */
 package org.codice.ddf.configuration;
 
-import java.io.IOException;
+import java.util.Optional;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.ddf.branding.BrandingRegistry;
 
 import net.minidev.json.JSONObject;
 
@@ -70,15 +70,7 @@ public class PlatformUiConfiguration {
 
     private String background;
 
-    private BrandingPlugin branding;
-
-    private String title;
-
-    private String version;
-
-    private String productImage;
-
-    private String favicon;
+    private Optional<BrandingRegistry> branding = Optional.empty();
 
     @GET
     @Path("/config/ui")
@@ -96,30 +88,25 @@ public class PlatformUiConfiguration {
         jsonObject.put(FOOTER, this.footer);
         jsonObject.put(COLOR, this.color);
         jsonObject.put(BACKGROUND, this.background);
-        jsonObject.put(TITLE, this.title);
-        jsonObject.put(VERSION, this.version);
-        jsonObject.put(PRODUCT_IMAGE, this.productImage);
-        jsonObject.put(FAV_ICON, this.favicon);
+        jsonObject.put(TITLE, getTitle());
+        jsonObject.put(VERSION, getVersion());
+        jsonObject.put(PRODUCT_IMAGE, getProductImage());
+        jsonObject.put(FAV_ICON, getFavIcon());
         return jsonObject.toJSONString();
     }
 
-    private void setVersion() {
-        if (branding != null) {
-            version = branding.getProductName();
-        }
+    private String getVersion() {
+        return branding.map(BrandingRegistry::getProductVersion)
+                .orElse("");
     }
 
-    private void setTitle() {
-        if (StringUtils.isNotBlank(version)) {
-            title = StringUtils.substringBeforeLast(version, " ");
-        } else {
-            title = "DDF";
-        }
+    private String getTitle() {
+        return branding.map(BrandingRegistry::getProductName)
+                .orElse("");
     }
 
-    public void setBranding(BrandingPlugin branding) throws IOException {
-        this.branding = branding;
-        setInfo();
+    public void setBranding(BrandingRegistry branding) {
+        this.branding = Optional.ofNullable(branding);
     }
 
     public boolean getSystemUsageEnabled() {
@@ -186,16 +173,13 @@ public class PlatformUiConfiguration {
         this.background = background;
     }
 
-    public void setProvider() throws IOException {
-        setInfo();
+    public String getProductImage() {
+        return branding.map(branding -> branding.getAttributeFromBranding(BrandingPlugin::getBase64ProductImage))
+                .orElse("");
     }
 
-    private void setInfo() throws IOException {
-        if (branding != null) {
-            setVersion();
-            setTitle();
-            this.productImage = branding.getBase64ProductImage();
-            this.favicon = branding.getBase64FavIcon();
-        }
+    public String getFavIcon() {
+        return branding.map(branding -> branding.getAttributeFromBranding(BrandingPlugin::getBase64FavIcon))
+                .orElse("");
     }
 }

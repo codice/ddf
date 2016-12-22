@@ -15,7 +15,7 @@
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <service interface="org.codice.ddf.branding.BrandingPlugin">
+    <service interface="org.codice.ddf.branding.BrandingPlugin" ranking="-1">
         <bean class="org.codice.ddf.branding.impl.DdfBrandingPlugin" init-method="init">
             <argument value="/META-INF/branding.properties"/>
         </bean>

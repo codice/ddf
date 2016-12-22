@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Optional;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -35,7 +36,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.ddf.branding.BrandingRegistry;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
@@ -105,8 +106,6 @@ public class KmlEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KmlEndpoint.class);
 
-    private BrandingPlugin branding;
-
     private CatalogFramework framework;
 
     private Kml styleDoc;
@@ -131,15 +130,15 @@ public class KmlEndpoint {
 
     private ClassPathTemplateLoader templateLoader;
 
-    public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework) {
+    public KmlEndpoint(BrandingRegistry brandingPlugin, CatalogFramework catalogFramework) {
+        Optional<BrandingRegistry> brandingRegistry = Optional.ofNullable(brandingPlugin);
         LOGGER.trace("ENTERING: KML Endpoint Constructor");
-        this.branding = brandingPlugin;
         this.framework = catalogFramework;
         templateLoader = new ClassPathTemplateLoader();
         templateLoader.setPrefix("/templates");
         templateLoader.setSuffix(".hbt");
-        this.productName = branding.getProductName()
-                .split(" ")[0];
+        this.productName = brandingRegistry.map(BrandingRegistry::getProductName)
+                .orElse("");
         LOGGER.trace("EXITING: KML Endpoint Constructor");
     }
 

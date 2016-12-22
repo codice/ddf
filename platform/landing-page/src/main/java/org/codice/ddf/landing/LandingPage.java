@@ -19,11 +19,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +36,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.ddf.branding.BrandingRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ import com.github.jknack.handlebars.io.TemplateLoader;
 public class LandingPage extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private transient BrandingPlugin branding;
+    private transient Optional<BrandingRegistry> branding = Optional.empty();
 
     private String title;
 
@@ -93,63 +94,24 @@ public class LandingPage extends HttpServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LandingPage.class);
 
-    private String productImage;
+    private String logo;
 
-    private String favicon;
+    private String logoToUse;
 
     private String background;
 
     private String foreground;
 
-    private String logo;
-
-    private String logoToUse;
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getProductImage() {
-        return productImage;
-    }
-
-    public String getFavicon() {
-        return favicon;
-    }
-
     public List<String> getAnnouncements() {
         return announcements;
     }
 
-    private void setVersion() {
-        if (branding != null) {
-            version = branding.getProductName();
-        }
+    public void setBranding(BrandingRegistry branding) {
+        this.branding = Optional.ofNullable(branding);
     }
 
-    private void setTitle() {
-        if (StringUtils.isNotBlank(version)) {
-            // The Product name looks like: "Product 1.0.0.ALPHA12-SNAPSHOT"
-            // we want to remove the "version" from the general title.
-            String[] productNameParts = version.split(" ");
-            productNameParts[productNameParts.length - 1] = "";
-            title = StringUtils.join(productNameParts, " ")
-                    .trim();
-        } else {
-            title = "DDF";
-        }
-    }
-
-    public void setBranding(BrandingPlugin branding) throws IOException {
-        this.branding = branding;
-        setVersion();
-        setTitle();
-        this.productImage = branding.getBase64ProductImage();
-        this.favicon = branding.getBase64FavIcon();
+    public BrandingRegistry getBranding() {
+        return branding.orElse(null);
     }
 
     public void setDescription(String description) {
@@ -191,14 +153,16 @@ public class LandingPage extends HttpServlet {
         parsedLinks = new HashMap<>();
         for (String link : links) {
             if (StringUtils.countMatches(link, ",") != 1) {
-                LOGGER.warn("Unable to parse link (" + link + "). Links should have exactly one comma.");
+                LOGGER.warn("Unable to parse link (" + link
+                        + "). Links should have exactly one comma.");
                 continue;
             }
             String[] parts = link.split(",");
             String text = parts[0].trim();
             String url = parts[1].trim();
             if (text.isEmpty() || url.isEmpty()) {
-                LOGGER.warn("Unable to parse link (" + link + "). Neither the text nor the URL can be empty.");
+                LOGGER.warn("Unable to parse link (" + link
+                        + "). Neither the text nor the URL can be empty.");
                 continue;
             }
             parsedLinks.put(text, url);
@@ -217,6 +181,11 @@ public class LandingPage extends HttpServlet {
         this.logo = logo;
     }
 
+    public String getProductImage() {
+        return branding.map(registry -> registry.getAttributeFromBranding(BrandingPlugin::getBase64ProductImage))
+                .orElse("");
+    }
+
     public String getLinksTitle() {
         return linksTitle;
     }
@@ -225,19 +194,31 @@ public class LandingPage extends HttpServlet {
         this.linksTitle = linksTitle.trim();
     }
 
-    private void sortAnnouncementsByDate() {
-        Collections.sort(announcements, new Comparator<String>() {
-            @Override
-            public int compare(String firstAnnouncement, String secondAnnouncement) {
-                // Try to extract the dates from the announcements.
-                String firstDateString = extractDate(firstAnnouncement, false);
-                String secondDateString = extractDate(secondAnnouncement, false);
+    public String getTitle() {
+        return branding.map(BrandingRegistry::getProductName)
+                .orElse("");
+    }
 
-                final Date firstDate = dateFromString(firstDateString);
-                final Date secondDate = dateFromString(secondDateString);
-                // Sort the dates in descending order (most recent first).
-                return secondDate.compareTo(firstDate);
-            }
+    public String getVersion() {
+        return branding.map(BrandingRegistry::getProductVersion)
+                .orElse("");
+    }
+
+    public String getFavicon() {
+        return branding.map(registry -> registry.getAttributeFromBranding(BrandingPlugin::getBase64FavIcon))
+                .orElse("");
+    }
+
+    private void sortAnnouncementsByDate() {
+        Collections.sort(announcements, (firstAnnouncement, secondAnnouncement) -> {
+            // Try to extract the dates from the announcements.
+            String firstDateString = extractDate(firstAnnouncement, false);
+            String secondDateString = extractDate(secondAnnouncement, false);
+
+            final Date firstDate = dateFromString(firstDateString);
+            final Date secondDate = dateFromString(secondDateString);
+            // Sort the dates in descending order (most recent first).
+            return secondDate.compareTo(firstDate);
         });
     }
 
@@ -270,7 +251,11 @@ public class LandingPage extends HttpServlet {
 
     // package-private for unit testing
     String compileTemplateWithProperties() {
-        logoToUse = StringUtils.isNotEmpty(logo) ? logo : productImage;
+        title = getTitle();
+        version =
+                branding.map(registry -> registry.getAttributeFromBranding(BrandingPlugin::getProductName))
+                        .orElse("");
+        logoToUse = StringUtils.isNotEmpty(logo) ? logo : getProductImage();
         // FieldValueResolver so this class' fields can be accessed in the template.
         // MapValueResolver so we can access {{@index}} in the #each helper in the template.
         final Context context = Context.newBuilder(this)

@@ -99,6 +99,7 @@
                         </Import-Package>
                         <Export-Package/>
                         <Embed-Dependency>
+                            platform-util,
                             handlebars,
                             commons-lang3,
                             antlr4-runtime

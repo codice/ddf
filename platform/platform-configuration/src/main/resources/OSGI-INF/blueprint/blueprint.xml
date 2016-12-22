@@ -20,8 +20,6 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <reference id="branding" interface="org.codice.ddf.branding.BrandingPlugin"/>
-
     <!--
     The list of managedServices that are interested in updates to the DDF System Settings.
     These managedServices register their interest in updates to the DDF System Settings as they
@@ -47,10 +45,12 @@
         <argument ref="configurationAdmin"/>
     </bean>
 
+    <reference id="brandingRegistry" interface="org.codice.ddf.branding.BrandingRegistry" />
+
     <bean id="PlatformUiConfiguration" class="org.codice.ddf.configuration.PlatformUiConfiguration">
         <cm:managed-properties persistent-id="ddf.platform.ui.config"
                                update-strategy="container-managed"/>
-        <property name="branding" ref="branding"/>
+        <property name="branding" ref="brandingRegistry"/>
     </bean>
 
     <jaxrs:server id="platformConfigurationService" address="/platform">
