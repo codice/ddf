@@ -14,11 +14,14 @@
 package ddf.catalog.cache.solr.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -41,6 +44,7 @@ import com.google.common.collect.ImmutableList;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.federation.Federatable;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
@@ -217,7 +221,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
         final QueryResponseImpl queryResponseQueue = new QueryResponseImpl(queryRequest, null);
 
-        Map<Future<SourceResponse>, Source> futures = new HashMap<Future<SourceResponse>, Source>();
+        Map<Future<SourceResponse>, QueryRequest> futures = new HashMap<>();
 
         Query modifiedQuery = getModifiedQuery(originalQuery, sources.size(), offset, pageSize);
         QueryRequest modifiedQueryRequest = new QueryRequestImpl(modifiedQuery,
@@ -231,15 +235,17 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         // Do NOT call source.isAvailable() when checking sources
         for (final Source source : sources) {
             if (source != null) {
-                if (!futures.containsValue(source)) {
+                if (!futuresContainsSource(source, futures)) {
                     LOGGER.debug("running query on source: {}", source.getId());
 
-                    QueryRequest sourceQueryRequest = modifiedQueryRequest;
+                    QueryRequest sourceQueryRequest = new QueryRequestImpl(modifiedQuery,
+                            queryRequest.isEnterprise(),
+                            Collections.singleton(source.getId()),
+                            new HashMap<>(queryRequest.getProperties()));
                     try {
                         for (PreFederatedQueryPlugin service : preQuery) {
                             try {
-                                sourceQueryRequest = service.process(source,
-                                        sourceQueryRequest);
+                                sourceQueryRequest = service.process(source, sourceQueryRequest);
                             } catch (PluginExecutionException e) {
                                 LOGGER.info("Error executing PreFederatedQueryPlugin", e);
                             }
@@ -259,7 +265,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     }
 
                     futures.put(queryCompletion.submit(new CallableSourceResponse(source,
-                            sourceQueryRequest)), source);
+                            sourceQueryRequest)), sourceQueryRequest);
                 } else {
                     LOGGER.info("Duplicate source found with name {}. Ignoring second one.",
                             source.getId());
@@ -285,7 +291,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 queryResponseQueue,
                 modifiedQueryRequest));
 
-        QueryResponse queryResponse = null;
+        QueryResponse queryResponse;
         if (offset > 1 && sources.size() > 1) {
             queryResponse = offsetResults;
             LOGGER.debug("returning offsetResults");
@@ -294,26 +300,25 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             LOGGER.debug("returning returnResults: {}", queryResponse);
         }
 
-        try {
-            for (PostFederatedQueryPlugin service : postQuery) {
-                try {
-                    queryResponse = service.process(queryResponse);
-                } catch (PluginExecutionException e) {
-                    LOGGER.info("Error executing PostFederatedQueryPlugin", e);
-                }
-            }
-        } catch (StopProcessingException e) {
-            LOGGER.info("Plugin stopped processing", e);
-        }
-
         LOGGER.debug("returning Query Results: {}", queryResponse);
         return queryResponse;
+    }
+
+    private boolean futuresContainsSource(Source source,
+            Map<Future<SourceResponse>, QueryRequest> futures) {
+        return futures.entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .map(Federatable::getSourceIds)
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .anyMatch(s -> s.contains(source.getId()));
     }
 
     private Query getModifiedQuery(Query originalQuery, int numberOfSources, int offset,
             int pageSize) {
 
-        Query query = null;
+        Query query;
 
         // If offset is not specified, our offset is 1
         if (offset > 1 && numberOfSources > 1) {
@@ -410,7 +415,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     private List<Metacard> getMetacards(List<Result> results) {
-        List<Metacard> metacards = new ArrayList<Metacard>(results.size());
+        List<Metacard> metacards = new ArrayList<>(results.size());
 
         for (Result result : results) {
             metacards.add(result.getMetacard());
@@ -460,10 +465,15 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     protected Runnable createMonitor(final CompletionService<SourceResponse> completionService,
-            final Map<Future<SourceResponse>, Source> futures,
+            final Map<Future<SourceResponse>, QueryRequest> futures,
             final QueryResponseImpl returnResults, final QueryRequest request) {
 
-        return new SortedQueryMonitor(this, completionService, futures, returnResults, request);
+        return new SortedQueryMonitor(this,
+                completionService,
+                futures,
+                returnResults,
+                request,
+                postQuery);
     }
 
     public void shutdown() {
@@ -549,19 +559,15 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             } else if (!NATIVE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
                 if (isCachingEverything || UPDATE_QUERY_MODE.equals(request.getPropertyValue(
                         QUERY_MODE))) {
-                    cacheExecutorService.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                cacheBulkProcessor.add(sourceResponse.getResults());
-                            } catch (Throwable throwable) {
-                                LOGGER.warn("Unable to add results for bulk processing", throwable);
-                            }
+                    cacheExecutorService.submit(() -> {
+                        try {
+                            cacheBulkProcessor.add(sourceResponse.getResults());
+                        } catch (Throwable throwable) {
+                            LOGGER.warn("Unable to add results for bulk processing", throwable);
                         }
                     });
                 }
             }
-
             return sourceResponse;
         }
     }

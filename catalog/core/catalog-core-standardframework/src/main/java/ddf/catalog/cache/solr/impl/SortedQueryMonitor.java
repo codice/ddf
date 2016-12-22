@@ -15,17 +15,20 @@ package ddf.catalog.cache.solr.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Stream;
 
 import org.codice.ddf.platform.util.Exceptions;
 import org.opengis.filter.expression.PropertyName;
@@ -36,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.federation.Federatable;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -43,7 +47,10 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.source.Source;
+import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.PostFederatedQueryPlugin;
+import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.util.impl.DistanceResultComparator;
 import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
@@ -59,7 +66,9 @@ class SortedQueryMonitor implements Runnable {
 
     private QueryResponseImpl returnResults;
 
-    private Map<Future<SourceResponse>, Source> futures;
+    private Map<Future<SourceResponse>, QueryRequest> futures;
+
+    private List<PostFederatedQueryPlugin> postQuery;
 
     private Query query;
 
@@ -67,16 +76,15 @@ class SortedQueryMonitor implements Runnable {
 
     public SortedQueryMonitor(CachingFederationStrategy cachingFederationStrategy,
             CompletionService<SourceResponse> completionService,
-            Map<Future<SourceResponse>, Source> futures, QueryResponseImpl returnResults,
-            QueryRequest request) {
+            Map<Future<SourceResponse>, QueryRequest> futures, QueryResponseImpl returnResults,
+            QueryRequest request, List<PostFederatedQueryPlugin> postQuery) {
         this.cachingFederationStrategy = cachingFederationStrategy;
-
         this.completionService = completionService;
         this.returnResults = returnResults;
         this.request = request;
         this.query = request.getQuery();
         this.futures = futures;
-
+        this.postQuery = postQuery;
         deadline = System.currentTimeMillis() + query.getTimeoutMillis();
     }
 
@@ -113,7 +121,8 @@ class SortedQueryMonitor implements Runnable {
 
         for (int i = futures.size(); i > 0; i--) {
             String sourceId = "Unknown Source";
-            Source source = null;
+            QueryRequest queryRequest = null;
+            SourceResponse sourceResponse = null;
             try {
                 Future<SourceResponse> future;
                 if (query.getTimeoutMillis() < 1) {
@@ -127,18 +136,20 @@ class SortedQueryMonitor implements Runnable {
                     }
                 }
 
-                source = futures.remove(future);
-                if (source != null) {
-                    sourceId = source.getId();
-                }
+                queryRequest = futures.remove(future);
+                sourceId = getSourceIdFromRequest(queryRequest);
 
-                SourceResponse sourceResponse = future.get();
+                sourceResponse = future.get();
 
                 if (sourceResponse == null) {
                     LOGGER.debug("Source {} returned null response", sourceId);
-                    processingDetails.add(new ProcessingDetailsImpl(sourceId,
-                            new NullPointerException()));
+                    executePostFederationQueryPluginsWithSourceError(queryRequest,
+                            sourceId,
+                            new NullPointerException(),
+                            processingDetails);
                 } else {
+                    sourceResponse = executePostFederationQueryPlugins(sourceResponse,
+                            queryRequest);
                     resultList.addAll(sourceResponse.getResults());
                     long hits = sourceResponse.getHits();
                     totalHits += hits;
@@ -148,10 +159,13 @@ class SortedQueryMonitor implements Runnable {
                     returnProperties.putAll(properties);
                 }
             } catch (InterruptedException e) {
-                if (source != null) {
+                if (queryRequest != null) {
                     // First, add interrupted processing detail for this source
-                    LOGGER.debug("Search interrupted for {}", source.getId());
-                    processingDetails.add(new ProcessingDetailsImpl(source.getId(), e));
+                    LOGGER.debug("Search interrupted for {}", sourceId);
+                    executePostFederationQueryPluginsWithSourceError(queryRequest,
+                            sourceId,
+                            e,
+                            processingDetails);
                 }
 
                 // Then add the interrupted exception for the remaining sources
@@ -162,8 +176,10 @@ class SortedQueryMonitor implements Runnable {
                         sourceId,
                         Exceptions.getFullMessage(e),
                         e);
-
-                processingDetails.add(new ProcessingDetailsImpl(sourceId, e));
+                executePostFederationQueryPluginsWithSourceError(queryRequest,
+                        sourceId,
+                        e,
+                        processingDetails);
             }
         }
         returnProperties.put("hitsPerSource", hitsPerSource);
@@ -191,22 +207,22 @@ class SortedQueryMonitor implements Runnable {
     }
 
     private void timeoutRemainingSources(Set<ProcessingDetails> processingDetails) {
-        for (Source expiredSource : futures.values()) {
+        for (QueryRequest expiredSource : futures.values()) {
             if (expiredSource != null) {
-                LOGGER.info("Search timed out for {}", expiredSource.getId());
-                processingDetails.add(new ProcessingDetailsImpl(expiredSource.getId(),
-                        new TimeoutException()));
+                String sourceId = getSourceIdFromRequest(expiredSource);
+                LOGGER.info("Search timed out for {}", sourceId);
+                processingDetails.add(new ProcessingDetailsImpl(sourceId, new TimeoutException()));
             }
         }
     }
 
     private void interruptRemainingSources(Set<ProcessingDetails> processingDetails,
             InterruptedException interruptedException) {
-        for (Source interruptedSource : futures.values()) {
+        for (QueryRequest interruptedSource : futures.values()) {
             if (interruptedSource != null) {
-                LOGGER.info("Search interrupted for {}", interruptedSource.getId());
-                processingDetails.add(new ProcessingDetailsImpl(interruptedSource.getId(),
-                        interruptedException));
+                String sourceId = getSourceIdFromRequest(interruptedSource);
+                LOGGER.info("Search interrupted for {}", sourceId);
+                processingDetails.add(new ProcessingDetailsImpl(sourceId, interruptedException));
             }
         }
     }
@@ -219,6 +235,55 @@ class SortedQueryMonitor implements Runnable {
             timeLeft = deadline - System.currentTimeMillis();
         }
         return timeLeft;
+    }
+
+    private String getSourceIdFromRequest(QueryRequest queryRequest) {
+        String unkSource = "Unknown Source";
+        if (queryRequest == null) {
+            return unkSource;
+        }
+
+        return Stream.of(queryRequest)
+                .map(Federatable::getSourceIds)
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .findFirst()
+                .orElse(unkSource);
+    }
+
+    private void executePostFederationQueryPluginsWithSourceError(
+            QueryRequest queryRequest, String sourceId, Exception e,
+            Set<ProcessingDetails> processingDetails) {
+
+        ProcessingDetails processingDetail = new ProcessingDetailsImpl(sourceId, e);
+        SourceResponse sourceResponse = new SourceResponseImpl(queryRequest, new ArrayList<>());
+        sourceResponse.getProcessingErrors()
+                .add(processingDetail);
+        processingDetails.add(processingDetail);
+        executePostFederationQueryPlugins(sourceResponse, queryRequest);
+    }
+
+    private SourceResponse executePostFederationQueryPlugins(SourceResponse sourceResponse,
+            QueryRequest queryRequest) {
+
+        QueryResponse queryResponse = new QueryResponseImpl(queryRequest,
+                sourceResponse.getResults(),
+                true,
+                sourceResponse.getHits(),
+                queryRequest.getProperties());
+
+        try {
+            for (PostFederatedQueryPlugin service : postQuery) {
+                try {
+                    queryResponse = service.process(queryResponse);
+                } catch (PluginExecutionException e) {
+                    LOGGER.info("Error executing PostFederatedQueryPlugin", e);
+                }
+            }
+        } catch (StopProcessingException e) {
+            LOGGER.info("Plugin stopped processing", e);
+        }
+        return new SourceResponseImpl(queryRequest, queryResponse.getResults());
     }
 
 }
