@@ -28,6 +28,8 @@ define([
     'properties'
 ], function (wreqr, $, _, Marionette, CustomElements, template, Plotly, Property, PropertyView, metacardDefinitions, Common, properties) {
 
+    var zeroWidthSpace = "\u200B";
+
     function calculateAvailableAttributes(results){
         var availableAttributes = [];
         results.forEach(function(result){
@@ -91,13 +93,12 @@ define([
             switch(metacardDefinitions.metacardTypes[attribute].type){
                 case 'DATE':
                     return values.indexOf(Common.getHumanReadableDate(value)) >= 0;
-                    break;
+                case 'BOOLEAN':
+                case 'STRING':
+                return values.indexOf(value.toString() + zeroWidthSpace) >= 0;
                 default:
-                    return values.indexOf(value.toString()) >= 0;
-                    break;
+                    return value >= values[0] && value <= values[1];
             }
-        } else {
-            return values.indexOf("") >= 0;
         }
     }
 
@@ -107,41 +108,67 @@ define([
                 case 'DATE':
                     valueArray.push(Common.getHumanReadableDate(value));
                     break;
+                case 'BOOLEAN':
+                case 'STRING':
+                    valueArray.push(value.toString() + zeroWidthSpace);
+                    break;
                 default:
-                    valueArray.push(value.toString());
+                    valueArray.push(parseFloat(value));
                     break;
             }
-        } else {
-            valueArray.push("");
         }
     }
 
-    var layout = {
-        autosize: true,
-        paper_bgcolor:'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)',
-        font: {
-            family: '"Open Sans Light","Helvetica Neue",Helvetica,Arial,sans-serif',
-            size: 18,
-            color: 'white'
-        },
-        margin: {
-            l: 100,
-            r: 100,
-            t: 100,
-            b: 200,
-            pad: 20,
-            autoexpand: true
-        },
-        barmode: 'overlay',
-        xaxis: {
-            fixedrange: true
-        },
-        yaxis: {
-            fixedrange: true
-        },
-        showlegend: true
-    };
+    function getIndexClicked(data){
+        return Math.max.apply(this, data.points.map(function(point){
+            return point.pointNumber;
+        }));
+    }
+
+    function getValueFromClick(data){
+        if (data.points[0].x.constructor === Number){
+            var spread = data.points[0].data.xbins.size*0.5;
+            return [data.points[0].x - spread, data.points[0].x + spread];
+        } else {
+            return [data.points[0].x];
+        }
+    }
+
+    function getLayout(plot){
+        var baseLayout = {
+            autosize: true,
+            paper_bgcolor:'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: {
+                family: '"Open Sans Light","Helvetica Neue",Helvetica,Arial,sans-serif',
+                size: 18,
+                color: 'white'
+            },
+            margin: {
+                l: 100,
+                r: 100,
+                t: 100,
+                b: 200,
+                pad: 20,
+                autoexpand: true
+            },
+            barmode: 'overlay',
+            xaxis: {
+                fixedrange: true
+            },
+            yaxis: {
+                fixedrange: true
+            },
+            showlegend: true
+        };
+        if (plot){
+            baseLayout.xaxis.autorange = false;
+            baseLayout.xaxis.range = plot._fullLayout.xaxis.range;
+            baseLayout.yaxis.range = plot._fullLayout.yaxis.range;
+            baseLayout.yaxis.autorange = false;
+        }
+        return baseLayout;
+    }
 
     return Marionette.LayoutView.extend({
         tagName: CustomElements.register('histogram'),
@@ -158,13 +185,18 @@ define([
             this.setupListeners();
         },
         showHistogram: function(){
-            if (this.histogramAttribute.currentView.getCurrentValue()[0]){
+            if (this.histogramAttribute.currentView.getCurrentValue()[0] && this.options.selectionInterface.getActiveSearchResults().length !== 0){
                 var histogramElement = this.el.querySelector('.histogram-container');
-                Plotly.newPlot(histogramElement, this.determineData(), layout, {
+                //Plotly.purge(histogramElement);
+                Plotly.newPlot(histogramElement, this.determineInitialData(), getLayout(), {
                     displayModeBar: false
-                });
-                this.handleResize();
-                this.listenToHistogram();
+                }).then(function(plot){
+                    Plotly.newPlot(histogramElement, this.determineData(plot), getLayout(plot), {
+                        displayModeBar: false
+                    });
+                    this.handleResize();
+                    this.listenToHistogram();
+                }.bind(this));
             } else {
                 this.el.querySelector('.histogram-container').innerHTML = '';
             }
@@ -191,11 +223,9 @@ define([
             this.showHistogram();
             this.handleEmpty();
         },
-        determineData: function(){
+        determineInitialData: function(){
             var activeResults = this.options.selectionInterface.getActiveSearchResults();
-            var selectedResults = this.options.selectionInterface.getSelectedResults();
-
-            return [
+             return [
                 {
                     x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
                     opacity: 1,
@@ -208,6 +238,29 @@ define([
                             width: '2'
                         }
                     }
+                }
+             ];
+        },
+        determineData: function(plot){
+            var activeResults = this.options.selectionInterface.getActiveSearchResults();
+            var selectedResults = this.options.selectionInterface.getSelectedResults();
+            var xbins = Common.duplicate(plot._fullData[0].xbins);
+            xbins.end = xbins.end + xbins.size; //https://github.com/plotly/plotly.js/issues/1229
+            return [
+                {
+                    x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
+                    opacity: 1,
+                    type: 'histogram',
+                    name: 'Hits        ',
+                    marker: {
+                        color: 'rgba(255, 255, 255, .05)',
+                        line: {
+                            color: 'rgba(255,255,255,.2)',
+                            width: '2'
+                        }
+                    },
+                    autobinx: false,
+                    xbins: xbins
                 }, {
                     x: calculateAttributeArray(selectedResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
                     opacity: 1,
@@ -215,7 +268,9 @@ define([
                     name: 'Selected',
                     marker: {
                         color: 'rgba(255, 255, 255, .2)'
-                    }
+                    },
+                    autobinx: false,
+                    xbins: xbins
                 }
             ]
 
@@ -258,7 +313,8 @@ define([
             this.el.querySelector('.histogram-container').on('plotly_click', this.plotlyClickHandler.bind(this));
         },
         plotlyClickHandler: function(data){
-            var alreadySelected = this.pointsSelected.indexOf(data.points[0].pointNumber) >= 0;
+            var indexClicked = getIndexClicked(data);
+            var alreadySelected = this.pointsSelected.indexOf(indexClicked) >= 0;
             if (this.shiftKey){
                 this.handleShiftClick(data);
             } else if (this.ctrlKey || this.metaKey){
@@ -276,24 +332,20 @@ define([
                 this.options.selectionInterface.removeSelectedResult(findMatchesForAttributeValues(
                     this.options.selectionInterface.getActiveSearchResults(),
                     attributeToCheck,
-                    [data.points[0].x]
+                    getValueFromClick(data)
                 ));
-                this.pointsSelected.splice(this.pointsSelected.indexOf(data.points[0].pointNumber), 1);
+                this.pointsSelected.splice(this.pointsSelected.indexOf(getIndexClicked(data)), 1);
             } else {
                 this.options.selectionInterface.addSelectedResult(findMatchesForAttributeValues(
                     this.options.selectionInterface.getActiveSearchResults(),
                     attributeToCheck,
-                    [data.points[0].x]
+                    getValueFromClick(data)
                 ));
-                this.pointsSelected.push(Math.max.apply(this, data.points.map(function(point){
-                    return point.pointNumber;
-                })));
+                this.pointsSelected.push(getIndexClicked(data));
             }
         },
         handleShiftClick: function(data, alreadySelected){
-            var indexClicked = Math.max.apply(this, data.points.map(function(point){
-                return point.pointNumber;
-            }));
+            var indexClicked = getIndexClicked(data);
             var firstIndex = this.pointsSelected.length === 0 ? -1 : this.pointsSelected.reduce(function(currentMin, point){
                 return Math.min(currentMin, point);
             }, this.pointsSelected[0]);
@@ -312,19 +364,44 @@ define([
             }
         },
         selectBetween: function(firstIndex, lastIndex){
+            for (var i = firstIndex; i<=lastIndex; i++){
+                if (this.pointsSelected.indexOf(i) === -1){
+                    this.pointsSelected.push(i);
+                }
+            }
             var attributeToCheck = this.histogramAttribute.currentView.getCurrentValue()[0];
             var categories = this.retrieveCategoriesFromPlotly();
             var validCategories = categories.slice(firstIndex, lastIndex);
-            this.options.selectionInterface.addSelectedResult(findMatchesForAttributeValues(
-                this.options.selectionInterface.getActiveSearchResults(),
-                attributeToCheck,
-                validCategories
-            ));
+            var activeSearchResults = this.options.selectionInterface.getActiveSearchResults();
+            this.options.selectionInterface.addSelectedResult(validCategories.reduce(function(results, category){
+                results = results.concat(findMatchesForAttributeValues(
+                    activeSearchResults,
+                    attributeToCheck,
+                    category.constructor === Array ? category: [category]
+                ));
+                return results;
+            }, []));
         },
+        // This is an internal variable for Plotly, so it might break if we update Plotly in the future.
+        // Regardless, there was no other way to reliably get the categories.
         retrieveCategoriesFromPlotly: function(){
-            // This is an internal variable for Plotly, so it might break if we update Plotly in the future.
-            // Regardless, there was no other way to reliably get the categories.
-            return this.el.querySelector('.histogram-container')._fullLayout.xaxis._categories;
+            var histogramElement = this.el.querySelector('.histogram-container');
+            var xaxis = histogramElement._fullLayout.xaxis;
+            if (xaxis._categories.length > 0){
+                return xaxis._categories;
+            } else {
+                var xbins = histogramElement._fullData[0].xbins;
+                var min = xbins.start;
+                var max = xbins.end;
+                var binSize = xbins.size;
+                var categories = [];
+                var start = min;
+                while(start < max) {
+                    categories.push([start, start+binSize]);
+                    start+=binSize;
+                }
+                return categories;
+            }
         },
         resetKeyTracking: function(){
             this.shiftKey = false;
