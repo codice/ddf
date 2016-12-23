@@ -116,6 +116,11 @@
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
+            <artifactId>gt-opengis</artifactId>
+            <version>14.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
             <version>14.4</version>
             <exclusions>
@@ -205,6 +210,12 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
+            <version>14.4</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
