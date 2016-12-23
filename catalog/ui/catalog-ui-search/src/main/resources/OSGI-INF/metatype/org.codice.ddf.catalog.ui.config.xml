@@ -64,13 +64,6 @@
             default="60000"
             required="true"/>
 
-        <AD id="helpUrl"
-            name="Help Location"
-            description="URL to help documentation"
-            type="String"
-            default="help.html"
-            required="false"/>
-
         <AD id="signIn"
             name="Show Sign In"
             description="Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected."

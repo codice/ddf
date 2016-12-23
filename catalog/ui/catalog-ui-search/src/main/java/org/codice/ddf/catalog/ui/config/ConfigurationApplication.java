@@ -96,8 +96,6 @@ public class ConfigurationApplication implements SparkApplication {
 
     private String bingKey = "";
 
-    private String helpUrl = "help.html";
-
     private Boolean isExternalAuthentication = false;
 
     private List<Long> scheduleFrequencyList;
@@ -229,7 +227,6 @@ public class ConfigurationApplication implements SparkApplication {
         config.put("gazetteer", isGazetteer);
         config.put("showIngest", isIngest);
         config.put("projection", projection);
-        config.put("helpUrl", helpUrl);
         config.put("bingKey", bingKey);
         config.put("externalAuthentication", isExternalAuthentication);
         config.put("readOnly", readOnly);
@@ -554,14 +551,6 @@ public class ConfigurationApplication implements SparkApplication {
 
     public void setBingKey(String bingKey) {
         this.bingKey = bingKey;
-    }
-
-    public String getHelpUrl() {
-        return helpUrl;
-    }
-
-    public void setHelpUrl(String helpUrl) {
-        this.helpUrl = helpUrl;
     }
 
     public Boolean getExternalAuthentication() {
