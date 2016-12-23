@@ -200,18 +200,21 @@
         <argument ref="endpointUtil"/>
     </bean>
 
-    <bean id="querySparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
-        <argument>
+    <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
+    <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
+        <property name="sparkApplications">
             <list>
                 <ref component-id="queryApplication"/>
                 <ref component-id="metacardApplication"/>
                 <ref component-id="userApplication"/>
                 <ref component-id="configurationApplication"/>
             </list>
-        </argument>
+        </property>
+        <property name="requestSupplier" ref="rootReqSupplier"/>
+        <property name="filterMappingPattern" value="/search/catalog/internal/*"/>
     </bean>
 
-    <service ref="querySparkServlet" interface="javax.servlet.Servlet">
+    <service ref="sparkServlet" interface="javax.servlet.Servlet">
         <service-properties>
             <entry key="urlPatterns" value="/search/catalog/internal/*"/>
         </service-properties>
