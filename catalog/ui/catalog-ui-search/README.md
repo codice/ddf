@@ -32,28 +32,4 @@ Automated tests are executed as part of the maven build but it is also possible 
 the tests.
 
 ####Headless
-Run `grunt test` to execute the automated tests against PhantomJS.
-
-####Selenium
-Automated tests can execute against a local Selenium server and target locally installed browsers.
-
-* Install and start a local Selenium server.  [Webdrvr](https://www.npmjs.org/package/webdrvr) can automate this process.
-
-```
-npm install -g webdrvr
-webdrvr
-```
-* Use the `test:selenium` task with the `--browser` parameter.  You can specify `chrome`, `firefox`, `safari`, and `ie` as target browsers.
-
-```
-grunt test:selenium --browser=chrome
-```
-
-####Sauce Labs
-Additionally, tests can execute against [Sauce Labs](https://saucelabs.com/opensauce).
-
-* Use the `test:sauce` task and provide Sauce Lab credentials as `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` environment variables.
-
-```
-SAUCE_USERNAME=<username> SAUCE_ACCESS_KEY=<key> grunt test:sauce
-```
+Run `npm test` to execute the automated tests using PhantomJS.
