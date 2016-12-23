@@ -194,7 +194,7 @@ const NetworkSettings = ({ id, disabled }) => (
   </Stage>
 )
 
-const BindSettingsView = ({id, disabled}) => (
+const BindSettingsView = ({id, disabled, probeLdapAndChangeStage}) => (
   <Stage id={id} defaults={{bindUserDn: 'cn=admin', bindUserPassword: 'secret', bindUserMethod: 'Simple'}}>
     <Title>LDAP Bind User Settings</Title>
     <Description>
@@ -217,11 +217,13 @@ const BindSettingsView = ({id, disabled}) => (
 
     <StageControls>
       <Back disabled={disabled} />
-      <Next id={id} disabled={disabled} url='/admin/wizard/test/ldap/testLdapBind' nextStageId='directorySettings' />
+      <Submit id={id} label='Next' onClick={() => probeLdapAndChangeStage(id, 'directorySettings')} />
     </StageControls>
   </Stage>
 )
-const BindSettings = connect()(BindSettingsView)
+const BindSettings = connect(null, {
+  probeLdapAndChangeStage: probeLdapDir
+})(BindSettingsView)
 
 const QueryResult = (props) => {
   const {name, uid, cn, ou} = props
@@ -386,9 +388,9 @@ const LdapAttributeMappingStageView = (props) => {
 }
 
 const toAttributeMapping = (tableMappings) => {
-  return tableMappings.reduce((prevObj, mapping) => {
+  return (tableMappings.length !== 0) ? tableMappings.reduce((prevObj, mapping) => {
     prevObj[mapping.subjectClaim] = mapping.userAttribute
-  })
+  }) : {}
 }
 // todo Need to transform map into a string, list map
 const mapDispatchToPropsNextAttributeMapping = (dispatch, {id, url, nextStageId, attributeMappings}) => ({

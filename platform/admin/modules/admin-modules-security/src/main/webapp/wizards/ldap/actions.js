@@ -64,7 +64,8 @@ export const probeAttributeMapping = (url, nextStageId) => (dispatch, getState) 
         })
 }
 
-export const probeLdapDir = () => (dispatch, getState) => {
+export const probeLdapDir = (id, nextStageId) => (dispatch, getState) => {
+  (id) ? dispatch(submittingStart(id)) : null
   const config = getAllConfig(getState())
 
   const opts = {
@@ -77,14 +78,31 @@ export const probeLdapDir = () => (dispatch, getState) => {
     .then((res) => Promise.all([ res.status, res.json() ]))
     .then(([status, json]) => {
       if (status === 200) {
-        console.log(json)
         dispatch(setOptions(json.probeResults))
+        dispatch(editConfig('baseUserDn', json.probeResults.baseUserDn[0]))
+        dispatch(editConfig('userNameAttribute', json.probeResults.userNameAttribute[0]))
+        dispatch(editConfig('baseGroupDn', json.probeResults.baseGroupDn[0]))
+        if (json.probeResults.groupObjectClass) dispatch(editConfig('groupObjectClass', json.probeResults.groupObjectClass[0]))
+        if (json.probeResults.membershipAttribute) dispatch(editConfig('membershipAttribute', json.probeResults.membershipAttribute[0]))
+        if (nextStageId) dispatch(nextStage(nextStageId))
       }
+      dispatch(submittingEnd())
     })
     .catch(() => {
     //    TODO handle probe errors
     })
 }
+/*
+ <InputAuto id='baseUserDn' disabled={disabled} label='Base User DN' />
+ <InputAuto id='userNameAttribute' disabled={disabled} label='User Name Attribute' />
+ <InputAuto id='baseGroupDn' disabled={disabled} label='Base Group DN' />
+ {ldapUseCase === 'loginAndCredentialStore' || ldapUseCase === 'credentialStore'
+ ? <div>
+ <InputAuto id='groupObjectClass' disabled={disabled} label='LDAP Group ObjectClass' />
+ <InputAuto id='membershipAttribute' disabled={disabled} label='LDAP Membership Attribute' />
+ </div>
+ : null}
+ */
 
 export const testConfig = (id, url, nextStageId, configType = 'ldap') => (dispatch, getState) => {
   dispatch(clearMessages(id))
