@@ -63,8 +63,8 @@ define([
                     radius = Math.abs(Cesium.Cartesian3.distance(startCartographic, stopCart));
 
                 var modelProp = {
-                    lat: (mn.latitude * 180 / Math.PI).toFixed(4),
-                    lon: (mn.longitude * 180 / Math.PI).toFixed(4),
+                    lat: (mn.latitude * 180 / Math.PI).toFixed(14),
+                    lon: (mn.longitude * 180 / Math.PI).toFixed(14),
                     radius: radius
 
                 };

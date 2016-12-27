@@ -57,7 +57,7 @@ define([
             setModelFromClicks: function(mn, mx) {
 
                 var e = new Cesium.Rectangle(),
-                    epsilon = Cesium.Math.EPSILON6,
+                    epsilon = Cesium.Math.EPSILON14,
                     modelProps;
 
                 if (!this.lastLongitude) {
@@ -146,7 +146,7 @@ define([
 
                 modelProps = _.pick(e, 'north', 'east', 'west', 'south');
                 _.each(modelProps, function(val, key) {
-                    modelProps[key] = (val * 180 / Math.PI).toFixed(4);
+                    modelProps[key] = (val * 180 / Math.PI).toFixed(14);
                 });
                 this.model.set(modelProps);
 

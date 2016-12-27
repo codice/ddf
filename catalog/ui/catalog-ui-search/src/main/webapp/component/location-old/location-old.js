@@ -199,7 +199,7 @@ define([
                 lon = this.get('lon');
             if (lat && lon) {
                 try {
-                    var usngsStr = converter.LLtoUSNG(lat, lon, 5);
+                    var usngsStr = converter.LLtoUSNG(lat, lon, 6);
                     this.set('usng', usngsStr, {silent: true});
                 } catch(err){
 
