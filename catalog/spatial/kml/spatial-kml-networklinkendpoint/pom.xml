@@ -120,11 +120,7 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.46</minimum>
                                         </limit>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.69</minimum>
-                                        </limit>
+
                                     </limits>
                                 </rule>
                             </rules>

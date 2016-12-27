@@ -166,11 +166,6 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.09</minimum>
                                         </limit>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.20</minimum>
-                                        </limit>
                                     </limits>
                                 </rule>
                             </rules>
