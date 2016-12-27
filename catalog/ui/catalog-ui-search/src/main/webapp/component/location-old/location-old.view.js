@@ -54,6 +54,19 @@ define([
             this.modelBinder = new Backbone.ModelBinder();
             this.deserialize();
             this.setupListeners();
+            this.handleCurrentMode();
+        },
+        handleCurrentMode: function(){
+            this.$el.toggleClass('is-line', Boolean(this.model.get('line')));
+            this.$el.toggleClass('is-polygon', Boolean(this.model.get('polygon')));
+            this.$el.toggleClass('is-circle', Boolean(this.model.get('lat')));
+            this.$el.toggleClass('is-bbox', Boolean(this.model.get('bbox')));
+        },
+        changeMode: function(mode){
+            this.$el.toggleClass('is-line', mode === "line");
+            this.$el.toggleClass('is-polygon', mode === "polygon");
+            this.$el.toggleClass('is-circle', mode === "circle");
+            this.$el.toggleClass('is-bbox', mode === "bbox");
         },
         setupListeners: function () {
             this.listenTo(this.propertyModel.get('property'), 'change:isEditing', this.handleEdit);
@@ -302,18 +315,22 @@ define([
         drawLine: function () {
             this.clearLocation();
             wreqr.vent.trigger('search:drawline', this.model);
+            this.changeMode("line");
         },
         drawCircle: function () {
             this.clearLocation();
             wreqr.vent.trigger('search:drawcircle', this.model);
+            this.changeMode("circle");
         },
         drawPolygon: function () {
             this.clearLocation();
             wreqr.vent.trigger('search:drawpoly', this.model);
+            this.changeMode("polygon");
         },
         drawBbox: function () {
             this.clearLocation();
             wreqr.vent.trigger('search:drawbbox', this.model);
+            this.changeMode("bbox");
         },
         onLineUnitsChanged: function () {
             this.$('#lineWidthValue').val(this.getDistanceFromMeters(this.model.get('lineWidth'), this.$('#lineUnits').val()));
