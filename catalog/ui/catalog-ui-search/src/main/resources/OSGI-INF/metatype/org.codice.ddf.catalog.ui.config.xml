@@ -111,7 +111,7 @@
             description="List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as Javascript regular expressions when matched against metacard attributes."
             type="String"
             cardinality="10000"
-            default="^checksum$,^checksum-algorithm$,^id$,^metadata$,^source-id$,^metacard\\.,^version\\.,^validation\\."
+            default="^checksum$,^checksum-algorithm$,^id$,^metadata$,^metacard-type$,^source-id$,^metacard\\.,^version\\.,^validation\\."
             required="false"/>
 
         <AD id="summaryShow"
