@@ -54,7 +54,7 @@ define([
         results.forEach(function(result){
             if (metacardDefinitions.metacardTypes[attribute].multivalued){
                 var resultValues = result.get('metacard').get('properties').get(attribute);
-                if (resultValues) {
+                if (resultValues && resultValues.forEach) {
                     resultValues.forEach(function (value) {
                         addValueForAttributeToArray(attributes, attribute, value);
                     });
@@ -72,7 +72,7 @@ define([
         return results.filter(function(result){
             if (metacardDefinitions.metacardTypes[attribute].multivalued) {
                 var resultValues = result.get('metacard').get('properties').get(attribute);
-                if (resultValues) {
+                if (resultValues && resultValues.forEach) {
                     for (var i = 0; i < resultValues.length; i++) {
                         if (checkIfValueIsValid(values, attribute, resultValues[i])){
                             return true;

@@ -21,8 +21,10 @@ define([
     './property.view',
     './property.collection',
     'properties',
-    'component/singletons/metacard-definitions'
-], function(Marionette, _, $, CustomElements, PropertyView, PropertyCollection, properties, metacardDefinitions) {
+    'component/singletons/metacard-definitions',
+    'component/announcement'
+], function(Marionette, _, $, CustomElements, PropertyView, PropertyCollection, properties, metacardDefinitions,
+        announcement) {
 
     return Marionette.CollectionView.extend({
         tagName: CustomElements.register('property-collection'),
@@ -89,73 +91,54 @@ define([
         }
     }, {
         //contains methods for generating property collection views from service responses
-        bulkHiddenTypes: ['BINARY'],
-        hiddenTypes: ['XML', 'OBJECT'],
-        blacklist: ['metacard-type', 'source-id', 'cached'],
-        thumbnail: 'thumbnail',
         summaryWhiteList: ['created', 'modified', 'thumbnail'],
-        generateSummaryPropertyCollectionView: function(types, metacards) {
-            var propertyCollection = new PropertyCollection();
+        generateSummaryPropertyCollectionView: function(metacards) {
             var propertyArray = [];
             this.summaryWhiteList.forEach(function(property) {
-                if (Boolean(types[0][property])) {
+                if (Boolean(metacardDefinitions.metacardTypes[property])) {
                     propertyArray.push({
                         enumFiltering: true,
                         enum: metacardDefinitions.enums[property],
                         label: properties.attributeAliases[property],
                         readOnly: properties.isReadOnly(property),
                         id: property,
-                        type: types[0][property].format,
+                        type: metacardDefinitions.metacardTypes[property].type,
                         values: {},
-                        multivalued: types[0][property].multivalued
+                        multivalued: metacardDefinitions.metacardTypes[property].multivalued
+                    });
+                } else {
+                    announcement.announce({
+                        title: 'Missing Attribute Definition',
+                        message: 'Could not find information for '+property+' in definitions.  If this problem persists, contact your Administrator.',
+                        type: 'warn'
                     });
                 }
             });
-            properties.summaryShow.filter(function(property) {
-                return types[0][property] !== undefined;
-            }).forEach(function(property) {
-                propertyArray.push({
-                    enumFiltering: true,
-                    enum: metacardDefinitions.enums[property],
-                    label: properties.attributeAliases[property],
-                    readOnly: properties.isReadOnly(property),
-                    id: property,
-                    type: types[0][property].format,
-                    values: {},
-                    multivalued: types[0][property].multivalued
-                });
-            });
-            propertyArray.forEach(function(property) {
-                metacards.forEach(function(metacard) {
-                    var value = metacard[property.id];
-                    if (!types[0][property.id].multivalued) {
-                        value = [value];
-                    }
-                    value.sort();
-                    property.value = value;
-                    property.values[value] = property.values[value] || {
-                        value: value,
-                        hits: 0,
-                        ids: []
-                    };
-                    property.values[value].ids.push(metacard.id);
-                    property.values[value].hits++;
-                });
-                if (metacards.length > 1) {
-                    property.bulk = true;
-                    if (Object.keys(property.values).length > 1) {
-                        property.value = [''];
-                    }
+            properties.summaryShow.forEach(function(property) {
+                if (Boolean(metacardDefinitions.metacardTypes[property])){
+                    propertyArray.push({
+                        enumFiltering: true,
+                        enum: metacardDefinitions.enums[property],
+                        label: properties.attributeAliases[property],
+                        readOnly: properties.isReadOnly(property),
+                        id: property,
+                        type: metacardDefinitions.metacardTypes[property].type,
+                        values: {},
+                        multivalued: metacardDefinitions.metacardTypes[property].multivalued
+                    });
+                } else {
+                    announcement.announce({
+                        title: 'Missing Attribute Definition',
+                        message: 'Could not find information for '+property+' in definitions.  If this problem persists, contact your Administrator.',
+                        type: 'warn'
+                    });
                 }
             });
-            propertyCollection.add(propertyArray);
-            return new this({
-                collection: propertyCollection
-            });
+            return this.generateCollectionView(propertyArray, metacards);
         },
-        generatePropertyCollectionView: function(types, metacards) {
+        generatePropertyCollectionView: function(metacards) {
             var propertyCollection = new PropertyCollection();
-            var propertyIntersection = this.determinePropertyIntersection(types, metacards);
+            var propertyIntersection = this.determinePropertyIntersection(metacards);
             var propertyArray = [];
             propertyIntersection.forEach(function(property) {
                 propertyArray.push({
@@ -164,15 +147,37 @@ define([
                     label: properties.attributeAliases[property],
                     readOnly: properties.isReadOnly(property),
                     id: property,
-                    type: types[0][property].format,
+                    type: metacardDefinitions.metacardTypes[property].type,
                     values: {},
-                    multivalued: types[0][property].multivalued
+                    multivalued: metacardDefinitions.metacardTypes[property].multivalued
                 });
             });
+            return this.generateCollectionView(propertyArray, metacards);
+        },
+        generateCollectionView: function(propertyArray, metacards){
             propertyArray.forEach(function(property) {
                 metacards.forEach(function(metacard) {
                     var value = metacard[property.id];
-                    if (!types[0][property.id].multivalued) {
+                    if (value !== undefined) {
+                        if (!metacardDefinitions.metacardTypes[property.id].multivalued){
+                            if (value.sort === undefined){
+                                value = [value];
+                            } else {
+                                announcement.announce({
+                                    title: 'Conflicting Attribute Definition',
+                                    message: property.id+' claims to be singlevalued by definition, but the value on the result is not.  If this problem persists, contact your Administrator.',
+                                    type: 'warn'
+                                });
+                            }
+                        } else if (value.sort === undefined){
+                            announcement.announce({
+                                title: 'Conflicting Attribute Definition',
+                                message: property.id+' claims to be multivalued by definition, but the value on the result is not.  If this problem persists, contact your Administrator.',
+                                type: 'warn'
+                            });
+                            value = [value];
+                        }
+                    } else {
                         value = [value];
                     }
                     value.sort();
@@ -192,27 +197,28 @@ define([
                     }
                 }
             });
-            propertyCollection.add(propertyArray);
             return new this({
-                collection: propertyCollection
+                collection: new PropertyCollection(propertyArray)
             });
         },
-        determinePropertyIntersection: function(types, metacards) {
+        determinePropertyIntersection: function(metacards) {
             var self = this;
             var attributeKeys = metacards.map(function(metacard) {
                 return Object.keys(metacard);
             });
-            var typeKeys = types.map(function(type) {
-                return Object.keys(type);
-            });
-            var propertyIntersection = attributeKeys.concat(typeKeys);
-            propertyIntersection = _.intersection.apply(_, propertyIntersection);
+            var propertyIntersection = _.intersection.apply(_, attributeKeys);
             propertyIntersection = propertyIntersection.filter(function(property) {
-                return (!properties.isHidden(property)
-                && !metacardDefinitions.isHiddenType(property)
-                && self.blacklist.indexOf(property) === -1
-                && self.hiddenTypes.indexOf(types[0][property].format) === -1
-                && self.bulkHiddenTypes.indexOf(types[0][property].format) === -1);
+                if (metacardDefinitions.metacardTypes[property]){
+                    return (!properties.isHidden(property)
+                    && !metacardDefinitions.isHiddenType(property));
+                } else {
+                    announcement.announce({
+                        title: 'Missing Attribute Definition',
+                        message: 'Could not find information for '+property+' in definitions.  If this problem persists, contact your Administrator.',
+                        type: 'warn'
+                    });
+                    return false;
+                }
             }).sort();
             return propertyIntersection;
         }

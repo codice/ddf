@@ -38,13 +38,10 @@ define([
         },
         onBeforeShow: function() {
             var results = this.selectionInterface.getSelectedResults();
-            var types = results.map(function (result) {
-                return result.get('propertyTypes');
-            });
             var metacards = results.map(function (result) {
                 return result.get('metacard>properties').toJSON();
             });
-            this.editorProperties.show(PropertyCollectionView.generatePropertyCollectionView(types, metacards));
+            this.editorProperties.show(PropertyCollectionView.generatePropertyCollectionView(metacards));
             this.editorProperties.currentView.turnOnLimitedWidth();
             this.editorProperties.currentView.$el.addClass("is-list");
             this.getValidation();
