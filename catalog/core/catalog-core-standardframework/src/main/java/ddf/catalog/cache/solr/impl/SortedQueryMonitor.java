@@ -283,7 +283,7 @@ class SortedQueryMonitor implements Runnable {
         } catch (StopProcessingException e) {
             LOGGER.info("Plugin stopped processing", e);
         }
-        return new SourceResponseImpl(queryRequest, queryResponse.getResults());
+        return new SourceResponseImpl(queryRequest, queryResponse.getResults(), queryResponse.getHits());
     }
 
 }
