@@ -311,7 +311,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 .map(Map.Entry::getValue)
                 .map(Federatable::getSourceIds)
                 .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
                 .anyMatch(s -> s.contains(source.getId()));
     }
 
