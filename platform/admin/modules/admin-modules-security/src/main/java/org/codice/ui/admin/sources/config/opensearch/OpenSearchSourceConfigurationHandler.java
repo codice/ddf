@@ -59,6 +59,8 @@ public class OpenSearchSourceConfigurationHandler
     public static final String OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID =
             "OpenSearchSourceConfigurationHandler";
 
+    private static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";
+
     public static final String OPENSEARCH_FACTORY_PID = "OpenSearchSource";
 
     private static final List<String> URL_FORMATS = Arrays.asList(
@@ -77,14 +79,14 @@ public class OpenSearchSourceConfigurationHandler
             configuration.endpointUrl(confirmOpenSearchEndpointUrl(configuration));
             if (configuration.endpointUrl()
                     .equals(NONE_FOUND)) {
-                results.add(buildMessage(FAILURE, "No OpenSearch endpoint found."));
+                results.add(buildMessage(FAILURE, "No opensearch endpoint found."));
                 return new ProbeReport(results);
             } else if(configuration.certError()) {
                 results.add(buildMessage(WARNING, "The discovered URL has incorrectly configured SSL certificates and is likely insecure."));
                 return new ProbeReport(results);
             }
             configuration.factoryPid(OPENSEARCH_FACTORY_PID);
-            results.add(new ConfigurationMessage("Discovered OpenSearch endpoint.", SUCCESS));
+            results.add(new ConfigurationMessage("Discovered opensearch endpoint.", SUCCESS));
             return new ProbeReport(results).addProbeResult(DISCOVER_SOURCES_ID,
                     configuration.configurationHandlerId(OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID));
         }
@@ -111,10 +113,10 @@ public class OpenSearchSourceConfigurationHandler
             }
             if (isAvailable(configuration.endpointUrl(), configuration)) {
                 results.add(buildMessage(SUCCESS,
-                        "Specified URL has been verified as an OpenSearch endpoint."));
+                        "Specified URL has been verified as an opensearch endpoint."));
             } else {
                 results.add(buildMessage(WARNING,
-                        "Specified URL could not be verified as an OpenSearch endpoint."));
+                        "Specified URL could not be verified as an opensearch endpoint."));
             }
             return new TestReport(results);
         }
@@ -233,5 +235,10 @@ public class OpenSearchSourceConfigurationHandler
             }
         }
 
+    }
+
+    @Override
+    public String getSourceDisplayName() {
+        return OPENSEARCH_SOURCE_DISPLAY_NAME;
     }
 }

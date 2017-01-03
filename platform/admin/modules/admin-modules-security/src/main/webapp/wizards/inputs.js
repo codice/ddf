@@ -75,18 +75,28 @@ const Port = ({ value = 0, label = 'Port', ...rest }) => (
   <InputAuto type='number' value={value} label={label} {...rest} />
 )
 
-const SelectView = ({ value = '', options = [], label = 'Select', onEdit, error, ...rest }) => (
-  <SelectField
-    fullWidth
-    errorText={error}
-    value={options.indexOf(value)}
-    onChange={(e, i) => onEdit(options[i])}
-    floatingLabelText={label}
-    {...rest}>
-    {options.map((d, i) =>
-      <MenuItem key={i} value={i} primaryText={d} />)}
-  </SelectField>
-)
+const SelectView = ({ value = '', options = [], label = 'Select', onEdit, error, ...rest }) => {
+  const i = options.findIndex((option) => (typeof option === 'object') ? option.name === value.name : option === value)
+  return (
+    <SelectField
+      fullWidth
+      errorText={error}
+      value={i}
+      onChange={(e, i) => onEdit(options[i])}
+      floatingLabelText={label}
+      {...rest}>
+      {options.map((d, i) => {
+        if (typeof d === 'string') {
+          return <MenuItem key={i} value={i} primaryText={d} />
+        } else if (typeof d === 'object') {
+          return <MenuItem key={i} value={i} primaryText={d.name} />
+        } else {
+          return null
+        }
+      })}
+    </SelectField>
+  )
+}
 
 const Select = connect(mapStateToProps, mapDispatchToProps)(SelectView)
 

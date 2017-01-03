@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { getSourceStage, getStagesClean, getConfig, getStageProgress } from './reducer'
+import { getSourceStage, getStagesClean, getConfig, getStageProgress, getConfigTypeById } from './reducer'
 import { setNavStage, setConfigSource } from './actions'
 
 import IconButton from 'material-ui/IconButton'
@@ -41,15 +41,6 @@ import {
   Port,
   Select
 } from '../inputs'
-
-const mapStateToProps = (key) => (state, { id }) => ({
-  [key]: getConfig(state, key) === undefined ? undefined : getConfig(state, key).value
-})
-
-const mapDispatchToProps = (dispatch, { id }) => ({
-  setSource: (source) => dispatch(setConfigSource(source)),
-  onEdits: (values) => dispatch(editConfigs(values))
-})
 
 export const WidthConstraint = ({ children }) => (
   <div className={widthConstraintStyle}>
@@ -155,16 +146,31 @@ export const SourceInfo = ({ id, label, value }) => (
   </div>
 )
 
-const SourceRadioButtonsView = ({ disabled, options = [], onEdits, configurationType, setSource }) => {
+const SourceRadioButtonsView = ({ disabled, options = [], onEdits, configurationType, setSource, displayName }) => {
   return (
     <div style={{display: 'inline-block', margin: '10px'}}>
       {options.map((item, i) => (
-        <SourceRadioButton key={i} value={configMap[item.configurationType]} disabled={disabled} valueSelected={configMap[configurationType]} item={item} onSelect={() => setSource(options[i])} />
+        <SourceRadioButton key={i} value={displayName(item.configurationType)} disabled={disabled} valueSelected={displayName(configurationType)} item={item} onSelect={() => setSource(options[i])} />
       ))}
     </div>
   )
 }
-export const SourceRadioButtons = connect(mapStateToProps('configurationType'), mapDispatchToProps)(SourceRadioButtonsView)
+
+const mapStateToProps = (state) => {
+  const config = getConfig(state, 'configurationType')
+
+  return {
+    configurationType: config === undefined ? undefined : config.value,
+    displayName: (id) => getConfigTypeById(state, id)
+  }
+}
+
+const mapDispatchToProps = (dispatch, { id }) => ({
+  setSource: (source) => dispatch(setConfigSource(source)),
+  onEdits: (values) => dispatch(editConfigs(values))
+})
+
+export const SourceRadioButtons = connect(mapStateToProps, mapDispatchToProps)(SourceRadioButtonsView)
 
 const alertMessage = 'SSL certificate is untrusted and possibly insecure'
 
@@ -264,16 +270,3 @@ export const NavPanes = connect(null, { setNavStage: setNavStage })(NavPanesView
 export const Submit = ({ label = 'Submit', onClick, disabled = false }) => (
   <RaisedButton className={submit} label={label} disabled={disabled} primary onClick={onClick} />
 )
-
-export const configMap = ({
-  CswSourceConfigurationHandler: 'CSW Source',
-  OpenSearchSourceConfigurationHandler: 'OpenSearch Source',
-  WfsSourceConfigurationHandler: 'WFS Source'
-})
-
-export const configUnmapper = (value) => {
-  let unmappedConfig = {}
-  Object.keys(configMap).forEach((key) => { unmappedConfig[configMap[key]] = key })
-  return unmappedConfig[value]
-}
-

@@ -17,7 +17,7 @@ export const clearMessages = (id) => ({ type: 'CLEAR_MESSAGES', id })
 export const startSubmitting = () => ({ type: 'START_SUBMITTING' })
 export const endSubmitting = () => ({ type: 'END_SUBMITTING' })
 export const setConfigSource = (source) => ({ type: 'SET_CONFIG_SOURCE', value: source })
-export const setConfigIds = (ids) => ({ type: 'SOURCES/SET_CONFIG_IDS', ids })
+export const setConfigTypes = (types) => ({ type: 'SOURCES/SET_CONFIG_IDS', types })
 
 export const testSources = (url, configType, nextStageId, id) => (dispatch, getState) => {
   dispatch(startSubmitting())
@@ -56,11 +56,10 @@ const discoverSources = (url, opts, dispatch, id, nextStageId, body) => {
       } else if (status === 200) {
         dispatch(setSourceSelections(json.probeResults.discoverSources))
         dispatch(clearMessages(id))
-        dispatch(changeStage(nextStageId))
+        dispatch(fetchConfigTypes(nextStageId))
       } else if (status === 500) {
         dispatch(backendError({ ...json, url, method: 'POST', body }))
       }
-      dispatch(endSubmitting())
     })
 }
 
@@ -89,7 +88,7 @@ export const persistConfig = (url, config, nextStageId, configType) => (dispatch
     })
 }
 
-export const fetchConfigIds = (nextStageId) => (dispatch, getState) => {
+export const fetchConfigTypes = (nextStageId) => (dispatch, getState) => {
   dispatch(startSubmitting())
   const config = getAllConfig(getState())
   const body = { configurationType: 'sources', ...config }
@@ -100,16 +99,17 @@ export const fetchConfigIds = (nextStageId) => (dispatch, getState) => {
     credentials: 'same-origin'
   }
 
-  window.fetch('/admin/wizard/probe/sources/getSourceConfigIds', opts)
+  window.fetch('/admin/wizard/probe/sources/sourceConfigurationHandlers', opts)
     .then((res) => Promise.all([ res.status, res.json() ]))
     .then(([status, json]) => {
       if (status === 400) {
 //      TODO dispatch error messages
 //        dispatch(setConfigErrors(json.results))
       } else if (status === 200) {
-        console.log(json)
-        dispatch(setConfigIds(json.probeResults.sourceConfigIds))
-        dispatch(changeStage(nextStageId))
+        dispatch(setConfigTypes(json.probeResults.sourceConfigurationHandlers))
+        if (nextStageId) {
+          dispatch(changeStage(nextStageId))
+        }
       } else if (status === 500) {
         dispatch(backendError({ ...json, url: '/admin/wizard/probe/sources/getSourceConfigIds', method: 'POST', body: JSON.stringify(config) }))
       }

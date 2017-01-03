@@ -66,7 +66,6 @@ export const deleteConfig = (url, configurationType, factoryPid, servicePid, dis
     .then((res) => Promise.all([ res.status, res.json() ]))
     .then(([status, json]) => {
       if (status === 200) {
-        console.log('Successfully deleted config')
         refresh()(dispatch)
       }
     })

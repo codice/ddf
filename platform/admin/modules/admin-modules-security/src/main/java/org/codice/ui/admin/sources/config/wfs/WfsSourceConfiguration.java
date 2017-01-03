@@ -21,7 +21,7 @@ import org.codice.ui.admin.sources.config.SourceConfiguration;
 
 public class WfsSourceConfiguration extends SourceConfiguration {
 
-    //** Wfs Service Properties
+    //** wfs Service Properties
     public static final String ID = "id";
     public static final String WFS_URL = "wfsUrl";
     public static final String USERNAME = "username";

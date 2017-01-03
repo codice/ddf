@@ -32,6 +32,7 @@ public class CswSourceConfiguration extends SourceConfiguration {
     // TODO: tbatie - 12/20/16 - Do we want to add the insane amount of extra fields offered in the CSW Specification Profile Federated Source?
     // TODO: tbatie - 12/20/16 - Do we want to add the insane amount of extra fields offered in the GMD CSW ISO Federated Source?
     //----
+
     private String outputSchema;
 
     private String forceSpatialFilter;

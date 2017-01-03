@@ -18,4 +18,5 @@ import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 
 public interface SourceConfigurationHandler<S extends SourceConfiguration>
         extends ConfigurationHandler<S> {
+    String getSourceDisplayName();
 }

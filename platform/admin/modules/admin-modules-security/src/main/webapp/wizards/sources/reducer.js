@@ -52,6 +52,10 @@ export const getStagesClean = (state) => state.getIn(['sourceWizard', 'sourceSta
 
 export const getConfig = (state, id) => state.getIn(['wizard', 'config', id], Map()).toJS()
 
+export const getSelectedSourceDisplayName = (state, id) => state.getIn(['wizard', 'sourceWizard', ''])
+
+export const getProbeValue = (state) => state.getIn(['probeValue'])
+
 const sourceSelections = (state = Map(), { type, sourceConfigs }) => {
   switch (type) {
     case 'SET_SOURCE_SELECTIONS':
@@ -76,10 +80,10 @@ const isSubmitting = (state = false, { type }) => {
   }
 }
 
-const configIds = (state = fromJS([]), { type, ids }) => {
+const configTypes = (state = fromJS([]), { type, types }) => {
   switch (type) {
     case 'SOURCES/SET_CONFIG_IDS':
-      return fromJS(ids)
+      return fromJS(types)
 
     default:
       return state
@@ -87,7 +91,14 @@ const configIds = (state = fromJS([]), { type, ids }) => {
 }
 
 // TODO: replace these absolute paths with relative ones like the other wizards
-export const getConfigIds = (state) => state.getIn(['sourceWizard', 'configIds']).toJS()
+export const getConfigTypes = (state) => state.getIn(['sourceWizard', 'configTypes']).toJS()
+
+export const getConfigTypeById = (state, id) => {
+  const found = getConfigTypes(state).filter((config) => config.id === id)
+  if (found.length > 0) {
+    return found[0].name
+  }
+}
 
 export const getSourceSelections = (state) => state.getIn(['sourceWizard', 'sourceSelections'])
 
@@ -97,5 +108,5 @@ export const getSourceName = (state) => state.getIn(['wizard', 'config', 'source
 
 export const getIsSubmitting = (state) => state.getIn(['sourceWizard', 'isSubmitting'])
 
-export default combineReducers({ sourceStage, sourceStagesClean, sourceStageProgress, sourceSelections, isSubmitting, configIds })
+export default combineReducers({ sourceStage, sourceStagesClean, sourceStageProgress, sourceSelections, isSubmitting, configTypes })
 

@@ -66,6 +66,8 @@ public class CswSourceConfigurationHandler
     public static final String CSW_SOURCE_CONFIGURATION_HANDLER_ID =
             "CswSourceConfigurationHandler";
 
+    private static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
+
     public static final String GET_CAPABILITIES_PARAMS = "?service=CSW&request=GetCapabilities";
 
     public static final String CSW_PROFILE_FACTORY_PID = "Csw_Federation_Profile_Source";
@@ -321,4 +323,8 @@ public class CswSourceConfigurationHandler
         }
     }
 
+    @Override
+    public String getSourceDisplayName() {
+        return CSW_SOURCE_DISPLAY_NAME;
+    }
 }

@@ -36,6 +36,8 @@ import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.ProbeReport;
 import org.codice.ui.admin.wizard.api.TestReport;
 
+import com.google.common.collect.ImmutableMap;
+
 // TODO: tbatie - 12/14/16 - Let's figure out a better name than impl
 public class SourceConfigurationHandlerImpl implements ConfigurationHandler<SourceConfiguration> {
 
@@ -49,9 +51,11 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
     public static final String NONE_FOUND = "None found";
 
-    public static final String GET_SOURCE_CONFIG_IDS = "getSourceConfigIds";
+    public static final String SOURCE_CONFIGURATION_HANDLERS_ID = "sourceConfigurationHandlers";
 
-    public static final String SOURCE_CONFIG_IDS = "sourceConfigIds";
+    public static final String SOURCE_CONFIG_HANDLER_ID_KEY = "id";
+
+    public static final String SOURCE_CONFIG_HANDLER_NAME_KEY = "name";
 
     public static final int PING_TIMEOUT = 500;
 
@@ -74,8 +78,6 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
             return null;
         }
     };
-
-
 
     List<SourceConfigurationHandler> sourceConfigurationHandlers;
 
@@ -106,7 +108,8 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
             List<Object> discoveredSources = sourceProbeReports.stream()
                     .filter(probeReport -> !probeReport.containsUnsuccessfulMessages())
-                    .map(report -> report.getProbeResults().get(DISCOVER_SOURCES_ID))
+                    .map(report -> report.getProbeResults()
+                            .get(DISCOVER_SOURCES_ID))
                     .collect(Collectors.toList());
 
             List<ConfigurationMessage> probeSourceMessages = sourceProbeReports.stream()
@@ -119,8 +122,15 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
             sourcesProbeReport.addMessages(probeSourceMessages);
             return sourcesProbeReport;
 
-        case GET_SOURCE_CONFIG_IDS:
-            return new ProbeReport().addProbeResult(SOURCE_CONFIG_IDS, sourceConfigurationHandlers.stream().map(handler -> handler.getConfigurationHandlerId()).collect(Collectors.toList()));
+        case SOURCE_CONFIGURATION_HANDLERS_ID:
+            List<ImmutableMap> collect = sourceConfigurationHandlers.stream()
+                    .map(handler -> ImmutableMap.builder()
+                            .put(SOURCE_CONFIG_HANDLER_ID_KEY, handler.getConfigurationHandlerId())
+                            .put(SOURCE_CONFIG_HANDLER_NAME_KEY, handler.getSourceDisplayName())
+                            .build())
+                    .collect(Collectors.toList());
+
+            return new ProbeReport().addProbeResult(SOURCE_CONFIGURATION_HANDLERS_ID, collect);
 
         default:
             return new ProbeReport(Arrays.asList(buildMessage(FAILURE, "No such probe.")));
@@ -142,7 +152,8 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(SourceConfiguration.class.getSimpleName(), SourceConfiguration.class);
+        return new CapabilitiesReport(SourceConfiguration.class.getSimpleName(),
+                SourceConfiguration.class);
     }
 
     @Override

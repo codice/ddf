@@ -12,7 +12,7 @@ const config = (state = Map(), { type, id, value, values, messages, options }) =
     case 'SET_CONFIG_SOURCE':
       var formattedSource = {}
       Object.keys(value).map((key) => { formattedSource[key] = { value: value[key] } })
-      return fromJS(state).map((stateValue) => fromJS({stateValue})).merge(formattedSource)
+      return fromJS(state).map((value) => fromJS({value})).merge(formattedSource)
     case 'SET_DEFAULTS':
       return fromJS(values).map((value) => fromJS({ value })).merge(state)
     case 'SET_OPTIONS':

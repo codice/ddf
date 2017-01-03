@@ -65,6 +65,8 @@ public class WfsSourceConfigurationHandler
     public static final String WFS_SOURCE_CONFIGURATION_HANDLER_ID =
             "WfsSourceConfigurationHandler";
 
+    private static final String WFS_SOURCE_DISPLAY_NAME = "WFS Source";
+
     public static final String GET_CAPABILITIES_PARAMS = "?service=WFS&request=GetCapabilities";
 
     private static final List<String> URL_FORMATS = Arrays.asList("https://%s:%d/services/wfs",
@@ -280,5 +282,10 @@ public class WfsSourceConfigurationHandler
             return false;
         }
         return false;
+    }
+
+    @Override
+    public String getSourceDisplayName() {
+        return WFS_SOURCE_DISPLAY_NAME;
     }
 }

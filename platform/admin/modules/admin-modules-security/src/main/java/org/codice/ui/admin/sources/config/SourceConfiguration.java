@@ -132,15 +132,4 @@ public class SourceConfiguration extends Configuration {
     public Map<String, Object> configMap() {
         return null;
     }
-
-    // TODO: tbatie - 11/29/16 - Do we need this method still?
-    public SourceConfiguration copy() {
-        return new SourceConfiguration().factoryPid(factoryPid)
-                .sourceUserName(sourceUserName)
-                .sourceUserPassword(sourceUserPassword)
-                .sourceHostName(sourceHostName)
-                .sourcePort(sourcePort)
-                .endpointUrl(endpointUrl)
-                .trustedCertAuthority(trustedCertAuthority);
-    }
 }
