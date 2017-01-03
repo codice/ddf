@@ -562,14 +562,14 @@ public class WfsSource extends MaskableImpl
                                     "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
                                     getId(),
                                     ftName);
-                            featureConverter = new GenericFeatureConverter();
+                            featureConverter = new GenericFeatureConverter(featureTypeType.getSRS());
                         }
                     } else {
                         LOGGER.debug(
                                 "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
                                 getId(),
                                 ftName);
-                        featureConverter = new GenericFeatureConverter();
+                        featureConverter = new GenericFeatureConverter(featureTypeType.getSRS());
 
                     }
                     featureConverter.setSourceId(getId());
