@@ -232,7 +232,7 @@ define([
                                     };
                                 }).concat({
                                     type: '=',
-                                    value: -1,
+                                    value: '-1',
                                     property: '"id"'
                                 })
                             })
