@@ -128,7 +128,7 @@ define([
                     }
                     break;
                 default:
-                    if (['CONTAINS', 'MATCHCASE', 'EQUALS'].indexOf(currentComparator) === -1) {
+                    if (['CONTAINS', 'MATCHCASE', '='].indexOf(currentComparator) === -1) {
                         this.model.set('comparator', 'CONTAINS');
                     }
                     break;
