@@ -19,14 +19,27 @@ define([
     'jquery',
     './input-enum.hbs',
     'js/CustomElements',
-    'moment',
+    'js/Common',
     '../input.view',
     'component/dropdown/dropdown.view'
-], function (Marionette, _, $, template, CustomElements, moment, InputView, DropdownView) {
+], function (Marionette, _, $, template, CustomElements, Common, InputView, DropdownView) {
 
-    var format = 'DD MMM YYYY HH:mm:ss.SSS';
-    function getHumanReadableDate(date) {
-        return moment(date).format(format);
+    function getValue(model){
+        var multivalued = model.get('property').get('enumMulti');
+        var value = model.get('value');
+        if (value !== undefined && model.get('property').get('type') === 'DATE'){
+            if (multivalued && value.map){
+                value = value.map(function(subvalue){
+                    return Common.getHumanReadableDate(subvalue);
+                });
+            } else {
+                value = Common.getHumanReadableDate(value);
+            }
+        }
+        if (!multivalued){
+            value = [value];
+        }
+        return value; 
     }
 
     return InputView.extend({
@@ -38,26 +51,25 @@ define([
             enumRegion: '.enum-region'
         },
         serializeData: function () {
-            var value = this.model.get('value');
-            switch(this.model.getCalculatedType()){
-                case 'date':
-                    value = getHumanReadableDate(value);
-                    break;
-                default:
-                    break;
-            }
+            var value = getValue(this.model);
             var choice = this.model.get('property').get('enum').filter(function(choice){
-                return JSON.stringify(choice.value) === JSON.stringify(value) || JSON.stringify(choice) === JSON.stringify(value);
-            })[0];
+                return value.filter(function(subvalue){
+                    return JSON.stringify(choice.value) === JSON.stringify(subvalue) || JSON.stringify(choice) === JSON.stringify(subvalue);
+                }).length > 0;
+            });
             return {
-                label: choice ? choice.label || choice : value
+                label: choice ? choice.reduce(function(label, subchoice){
+                    label += subchoice.label || subchoice;
+                    return label;
+                }, '') : value
             };
         },
         onRender: function () {
-            this.initializeEnum()
+            this.initializeEnum();
             InputView.prototype.onRender.call(this);
         },
         initializeEnum: function(){
+            var value = getValue(this.model);
             this.enumRegion.show(DropdownView.createSimpleDropdown(
                 {
                     list: this.model.get('property').get('enum').map(function(value){
@@ -73,7 +85,7 @@ define([
                             };
                         }
                     }),
-                    defaultSelection: this.model.get('property').get('enumMulti') ? this.model.get('value') : [this.model.get('value')],
+                    defaultSelection: value,
                     isMultiSelect: this.model.get('property').get('enumMulti'),
                     hasFiltering: this.model.get('property').get('enumFiltering')
                 }
@@ -84,31 +96,7 @@ define([
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
         },
         handleValue: function(){
-            var value = this.model.get('value');
-            if (value !== undefined && !this.model.get('property').get('enumMulti')){
-                value = [value];
-            } else if (!value) {
-                value = [];
-            }
-            this.enumRegion.currentView.model.set('value', value);
-        },
-        save: function(){
-            /*var value = this.$el.find('input').val();
-            this.model.save(moment(value).toJSON());*/
-        },
-        focus: function(){
-           // this.$el.find('input').select();
-        },
-        hasChanged: function(){
-            var value = this.enumRegion.currentView.model.get('value')[0];
-            switch(this.model.getCalculatedType()){
-                case 'date':
-                    return value !== getHumanReadableDate(this.model.getInitialValue());
-                    break;
-                default:
-                    return value !== this.model.getInitialValue();
-                    break;
-            }
+            this.enumRegion.currentView.model.set('value', getValue(this.model));
         },
         getCurrentValue: function(){
             var currentValue = this.model.get('property').get('enumMulti') ?
@@ -116,14 +104,13 @@ define([
             switch(this.model.getCalculatedType()){
                 case 'date':
                     if (currentValue){
-                        return (new Date(this.$el.find('input').val())).toISOString();
+                        return (new Date(currentValue)).toISOString();
                     } else {
                         return null;
                     }
                     break;
                 default:
                     return currentValue;
-                    break;
             }
         },
         triggerChange: function(){

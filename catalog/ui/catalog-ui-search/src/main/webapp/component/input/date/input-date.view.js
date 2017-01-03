@@ -21,13 +21,9 @@ define([
     'js/CustomElements',
     'moment',
     '../input.view',
+    'js/Common',
     'bootstrapDatepicker'
-], function (Marionette, _, $, template, CustomElements, moment, InputView) {
-
-    var format = 'DD MMM YYYY HH:mm:ss.SSS';
-    function getHumanReadableDate(date) {
-        return moment(date).format(format);
-    }
+], function (Marionette, _, $, template, CustomElements, moment, InputView, Common) {
 
     return InputView.extend({
         template: template,
@@ -41,7 +37,7 @@ define([
         serializeData: function () {
             return _.extend(this.model.toJSON(), {
                 cid: this.cid,
-                humanReadableDate: this.model.getValue() ? getHumanReadableDate(this.model.getValue()) : this.model.getValue()
+                humanReadableDate: this.model.getValue() ? Common.getHumanReadableDate(this.model.getValue()) : this.model.getValue()
             });
         },
         onRender: function () {
@@ -50,7 +46,7 @@ define([
         },
         initializeDatepicker: function(){
             this.$el.find('.input-group.date').datetimepicker({
-                format: format,
+                format: Common.getDateFormat(),
                 widgetParent: 'body'
             });
         },
@@ -58,7 +54,7 @@ define([
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
         },
         handleValue: function(){
-            this.$el.find('.input-group.date').data('DateTimePicker').date(getHumanReadableDate(this.model.getValue()));
+            this.$el.find('.input-group.date').data('DateTimePicker').date(Common.getHumanReadableDate(this.model.getValue()));
         },
         save: function(){
             var value = this.$el.find('input').val();
@@ -69,7 +65,7 @@ define([
         },
         hasChanged: function(){
             var value = this.$el.find('input').val();
-            return value !== getHumanReadableDate(this.model.getInitialValue());
+            return value !== Common.getHumanReadableDate(this.model.getInitialValue());
         },
         handleOpen: function(){
             this.updatePosition();

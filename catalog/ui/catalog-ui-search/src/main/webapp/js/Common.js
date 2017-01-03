@@ -17,6 +17,8 @@ define([
     'js/requestAnimationFramePolyfill'
 ], function ($, moment) {
 
+    var format = 'DD MMM YYYY HH:mm:ss.SSS';
+
     return {
         coreTransitionTime: 250,
         generateUUID: function(){
@@ -54,8 +56,10 @@ define([
             });
         },
         getHumanReadableDate: function(date) {
-            var format = 'DD MMM YYYY HH:mm:ss.SSS';
-            return moment(date).format(format);
+            return moment(date).format(this.getDateFormat());
+        },
+        getDateFormat: function(){
+            return format;
         },
         getNiceDate: function(date){
             var niceDiff;

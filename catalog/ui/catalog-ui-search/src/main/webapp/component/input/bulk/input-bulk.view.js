@@ -22,13 +22,8 @@ define([
     'component/input/input.view',
     'component/multivalue/multivalue.view',
     'component/dropdown/dropdown.view',
-    'moment'
-], function (Marionette, _, $, template, CustomElements, InputView, MultivalueView, DropdownView, moment) {
-
-    var format = 'DD MMM YYYY HH:mm:ss.SSS';
-    function getHumanReadableDate(date) {
-        return moment(date).format(format);
-    }
+    'js/Common'
+], function (Marionette, _, $, template, CustomElements, InputView, MultivalueView, DropdownView, Common) {
 
     return InputView.extend({
         className: 'is-bulk',
@@ -59,7 +54,7 @@ define([
                 switch(this.model.getCalculatedType()){
                     case 'date':
                         label = label.map(function(text){
-                           return getHumanReadableDate(text);
+                           return Common.getHumanReadableDate(text);
                         });
                         break;
                     default:
