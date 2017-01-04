@@ -68,10 +68,10 @@ module.exports = Marionette.ItemView.extend({
                         case 'DATE':
                             if (value.constructor === Array) {
                                 value = value.map(function(val) {
-                                    return Common.getMomentDate(val);
+                                    return Common.getHumanReadableDate(val);
                                 });
                             } else {
-                                value = Common.getMomentDate(value);
+                                value = Common.getHumanReadableDate(value);
                             }
                             break;
                         default:
