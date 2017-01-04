@@ -144,21 +144,6 @@ public class TestRegistry extends AbstractIntegrationTest {
 
     }
 
-    // TODO: tbatie - 9/18/16 - REMOVE ME
-    //
-    //    public static String getCswRegistryDelete(String id) throws IOException {
-    //        return "<csw:Transaction service=\"CSW\"\n"
-    //                + "   version=\"2.0.2\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
-    //                + "   xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
-    //                + "  <csw:Delete typeName=\"rim:RegistryPackage\" handle=\"something\">\n"
-    //                + "    <csw:Constraint version=\"2.0.0\">\n" + "      <ogc:Filter>\n"
-    //                + "        <ogc:PropertyIsEqualTo>\n"
-    //                + "            <ogc:PropertyName>registry.local.remote-metacard-id</ogc:PropertyName>\n"
-    //                + "            <ogc:Literal>" + id + "</ogc:Literal>\n"
-    //                + "        </ogc:PropertyIsEqualTo>\n" + "      </ogc:Filter>\n"
-    //                + "    </csw:Constraint>\n" + "  </csw:Delete>\n" + "</csw:Transaction>";
-    //    }
-
     @Test
     @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DIB-5645
     public void testCswRegistryIngest() throws Exception {
