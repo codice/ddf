@@ -145,14 +145,14 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DIB-5645
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryIngest() throws Exception {
         createRegistryEntry("2014ca7f59ac46f495e32b4a67a51279",
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51279");
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DIB-5645
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryUpdate() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51285";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51285";
@@ -181,7 +181,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DIB-5645
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryUpdateFailure() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51280";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51280";
@@ -203,7 +203,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DIB-5645
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryDelete() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51281";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51281";
@@ -233,7 +233,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DIB-5645
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryStoreCreate() throws Exception {
 
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51277";
@@ -252,7 +252,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DIB-5645
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryStoreUpdate() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51290";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51290";
@@ -287,7 +287,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DIB-5645
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryStoreDelete() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51291";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51291";
@@ -321,7 +321,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DIB-5645
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testRestEndpoint() throws Exception {
         final String regId = "urn:uuid:2014ca7f59ac46f495e32b4a67a51292";
         final String mcardId = "2014ca7f59ac46f495e32b4a67a51292";
