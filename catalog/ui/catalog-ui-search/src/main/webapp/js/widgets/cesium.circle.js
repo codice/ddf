@@ -19,9 +19,11 @@ define([
         'wreqr',
         'js/widgets/cesium.bbox',
         'maptype',
-        './notification.view'
+        './notification.view',
+        '@turf/turf',
+        '@turf/circle'
     ],
-    function(Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView) {
+    function(Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView, Turf, TurfCircle) {
         "use strict";
         var DrawCircle = {};
 
@@ -100,7 +102,7 @@ define([
             drawBorderedCircle: function(model) {
                 // if model has been reset
                 var modelProp = model.toJSON();
-                if (this.isModelReset(modelProp)) {
+                if (this.isModelReset(modelProp) || modelProp.lat === undefined || modelProp.lon === undefined) {
                     return;
                 }
 
@@ -111,26 +113,19 @@ define([
 
                 var color = this.model.get('color');
 
-                this.primitive = new Cesium.Primitive({
-                    asynchronous: false,
-                    geometryInstances: [new Cesium.GeometryInstance({
-                        geometry: new Cesium.CircleOutlineGeometry({
-                            center: this.options.map.scene.globe.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(modelProp.lon, modelProp.lat)),
-                            radius: modelProp.radius
-                        }),
-                        attributes: {
-                            color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
-                        }
-                    })],
-                    appearance: new Cesium.PerInstanceColorAppearance({
-                        flat: true,
-                        renderState: {
-                            depthTest: {
-                                enabled: true
-                            },
-                            lineWidth: Math.min(4.0, this.options.map.scene.maximumAliasedLineWidth)
-                        }
-                    })
+                var centerPt = Turf.point([modelProp.lon, modelProp.lat]);
+                var circleToCheck = new TurfCircle(centerPt, modelProp.radius, 64, 'meters');
+
+                this.primitive = new Cesium.PolylineCollection();
+                this.primitive.add({
+                    width: 8,
+                    material: Cesium.Material.fromType('PolylineOutline', {
+                        color: color ? Cesium.Color.fromCssColorString(color) : Cesium.Color.KHAKI,
+                        outlineColor: Cesium.Color.WHITE,
+                        outlineWidth: 4
+                    }),
+                    id: 'userDrawing',
+                   positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(circleToCheck.geometry.coordinates))
                 });
 
                 this.options.map.scene.primitives.add(this.primitive);

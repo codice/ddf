@@ -158,9 +158,8 @@ define([
                 result.south = this.get('mapSouth');
                 result.west = this.get('mapWest');
                 result.east = this.get('mapEast');
-                if (!(result.north && result.south && result.west && result.east)) {
+                if (!(result.north && result.south && result.west && result.east) && this.get('usngbb')) {
                     result = converter.USNGtoLL(this.get('usngbb'));
-
                 }
                 this.set(result);
             }
@@ -235,8 +234,11 @@ define([
         },
 
         setRadiusUsng: function () {
-            var result = converter.USNGtoLL(this.get('usng'), true);
-            this.set(result);
+            var usng = this.get('usng');
+            if (usng){
+                var result = converter.USNGtoLL(usng, true);
+                this.set(result);
+            }
         },
         handleLocationType: function(){
             if (this.get('locationType') === 'latlon') {

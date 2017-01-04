@@ -32,7 +32,7 @@ var GeometryCollectionView = Marionette.CollectionView.extend({
         this.render();
     },
     onMapLeftClick: function(event, mapEvent) {
-        if (mapEvent.mapTarget && !store.get('content').get('drawing')) {
+        if (mapEvent.mapTarget && mapEvent.mapTarget !== 'userDrawing' && !store.get('content').get('drawing')) {
             if (event.shiftKey) {
                 this.handleShiftClick(mapEvent.mapTarget);
             } else if (event.ctrlKey || event.metaKey) {

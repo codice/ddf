@@ -83,7 +83,7 @@ module.exports = Marionette.LayoutView.extend({
         this.map.onMouseMove(this.onMapHover.bind(this));
     },
     onMapHover: function(event, mapEvent) {
-        this.$el.toggleClass('is-hovering', Boolean(mapEvent.mapTarget));
+        this.$el.toggleClass('is-hovering', Boolean(mapEvent.mapTarget && mapEvent.mapTarget !== ('userDrawing')));
     },
     /*
         Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and 

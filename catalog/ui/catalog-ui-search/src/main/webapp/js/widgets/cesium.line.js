@@ -9,6 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/*global window*/
 define([
         'marionette',
         'backbone',
@@ -23,10 +24,31 @@ define([
         "use strict";
         var Draw = {};
 
+        var threshold = 8000000;
+
+        function getCurrentMagnitude(view) {
+            return view.options.map.camera.getMagnitude();
+        }
+
+        // redrawing is expensive, so only do it if necessary (at the threshold)
+        function needsRedraw(view){
+            var currentMagnitude = getCurrentMagnitude(view);
+            if (view.cameraMagnitude < threshold && currentMagnitude > threshold) {
+                return true;
+            }
+            if (view.cameraMagnitude > threshold && currentMagnitude < threshold) {
+                return true;
+            }
+            return false;
+        }
+
         Draw.LineRenderView = Marionette.View.extend({
+            cameraMagnitude: undefined,
+            animationFrameId: undefined,
             initialize: function() {
                 this.updatePrimitive();
                 this.listenTo(this.model, 'change:line change:lineWidth', this.updatePrimitive);
+                this.listenForCameraChange();
             },
             modelEvents: {
                 'changed': 'updatePrimitive'
@@ -46,7 +68,11 @@ define([
                 }
 
                 var turfLine = Turf.lineString(setArr);
-                var bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters');
+                var bufferedLine = turfLine;
+                this.cameraMagnitude = this.options.map.camera.getMagnitude();
+                if (lineWidth > 100 || this.cameraMagnitude < threshold) {
+                    bufferedLine = Turf.buffer(turfLine, Math.max(lineWidth, 1), 'meters');
+                }
 
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
@@ -54,40 +80,46 @@ define([
                 }
 
                 var color = this.model.get('color');
-
-                this.primitive = new Cesium.Primitive({
-                    asynchronous: false,
-                    geometryInstances: [
-                        new Cesium.GeometryInstance({
-                            geometry: new Cesium.PolygonOutlineGeometry({
-                                polygonHierarchy: {
-                                    positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(bufferedLine.geometry.coordinates)),
-                                    perPositionHeight: true
-                                }
-                            }),
-                            attributes: {
-                                color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
-                            }
-                        })
-                    ],
-                    appearance: new Cesium.PerInstanceColorAppearance({
-                        flat: true,
-                        renderState: {
-                            depthTest: {
-                                enabled: true
-                            },
-                            lineWidth: Math.min(4.0, this.options.map.scene.maximumAliasedLineWidth)
-                        }
-                    })
+                this.primitive = new Cesium.PolylineCollection();
+                this.primitive.add({
+                    width: 8,
+                    material: Cesium.Material.fromType('PolylineOutline', {
+                        color: color ? Cesium.Color.fromCssColorString(color) : Cesium.Color.KHAKI,
+                        outlineColor: Cesium.Color.WHITE,
+                        outlineWidth: 4
+                    }),
+                    id: 'userDrawing',
+                    positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(bufferedLine.geometry.coordinates))
                 });
 
                 this.options.map.scene.primitives.add(this.primitive);
             },
             destroy: function() {
+                this.options.map.scene.camera.moveStart.removeEventListener(this.handleCameraMoveStart, this);
+                this.options.map.scene.camera.moveEnd.removeEventListener(this.handleCameraMoveEnd, this);
+                window.cancelAnimationFrame(this.animationFrameId);
                 if (this.primitive) {
                     this.options.map.scene.primitives.remove(this.primitive);
                 }
                 this.remove(); // backbone cleanup.
+            },
+            listenForCameraChange: function() {
+                this.options.map.scene.camera.moveStart.addEventListener(this.handleCameraMoveStart, this);
+                this.options.map.scene.camera.moveEnd.addEventListener(this.handleCameraMoveEnd, this);
+            },
+            handleCameraMoveStart: function(){
+                this.animationFrameId = window.requestAnimationFrame(function() {
+                    if (needsRedraw(this)){
+                        this.updatePrimitive();
+                    }
+                    this.handleCameraMoveStart();
+                }.bind(this));
+            },
+            handleCameraMoveEnd: function(){
+                window.cancelAnimationFrame(this.animationFrameId);
+                if (needsRedraw(this)) {
+                    this.updatePrimitive();
+                }
             }
         });
 

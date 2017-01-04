@@ -212,27 +212,35 @@ define([
                     this.options.map.scene.primitives.remove(this.primitive);
                 }
 
+                var coordinates = [[
+                    rectangle.east,
+                    rectangle.north
+                ], [
+                    rectangle.west,
+                    rectangle.north
+                ], [
+                    rectangle.west,
+                    rectangle.south
+                ], [
+                    rectangle.east,
+                    rectangle.south
+                ], [
+                    rectangle.east,
+                    rectangle.north
+                ]];
+
                 var color = this.model.get('color');
 
-                this.primitive = new Cesium.Primitive({
-                    asynchronous: false,
-                    geometryInstances: [new Cesium.GeometryInstance({
-                        geometry: new Cesium.RectangleOutlineGeometry({
-                            rectangle: rectangle
-                        }),
-                        attributes: {
-                            color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
-                        }
-                    })],
-                    appearance: new Cesium.PerInstanceColorAppearance({
-                        flat: true,
-                        renderState: {
-                            depthTest: {
-                                enabled: true
-                            },
-                            lineWidth: Math.min(4.0, this.options.map.scene.maximumAliasedLineWidth)
-                        }
-                    })
+                this.primitive = new Cesium.PolylineCollection();
+                this.primitive.add({
+                    width: 8,
+                    material: Cesium.Material.fromType('PolylineOutline', {
+                        color: color ? Cesium.Color.fromCssColorString(color) : Cesium.Color.KHAKI,
+                        outlineColor: Cesium.Color.WHITE,
+                        outlineWidth: 4
+                    }),
+                    id: 'userDrawing',
+                    positions: Cesium.Cartesian3.fromRadiansArray(_.flatten(coordinates))
                 });
 
                 this.options.map.scene.primitives.add(this.primitive);

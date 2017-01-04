@@ -37,10 +37,11 @@ define([
                 if (!polygonPoints) {
                     return;
                 }
-                var setArr = _.uniq(polygonPoints);
+                var setArr = polygonPoints;
                 if (setArr.length < 3) {
                     return;
                 }
+                polygonPoints.push(polygonPoints[0]);
 
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
@@ -49,29 +50,16 @@ define([
 
                 var color = this.model.get('color');
 
-                this.primitive = new Cesium.Primitive({
-                    asynchronous: false,
-                    geometryInstances: [
-                        new Cesium.GeometryInstance({
-                            geometry: new Cesium.PolygonOutlineGeometry({
-                                polygonHierarchy: {
-                                    positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(setArr))
-                                }
-                            }),
-                            attributes: {
-                                color: color ? Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromCssColorString(this.model.get('color'))) : Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
-                            }
-                        })
-                    ],
-                    appearance: new Cesium.PerInstanceColorAppearance({
-                        flat: true,
-                        renderState: {
-                            depthTest: {
-                                enabled: true
-                            },
-                            lineWidth: Math.min(4.0, this.options.map.scene.maximumAliasedLineWidth)
-                        }
-                    })
+                this.primitive = new Cesium.PolylineCollection();
+                this.primitive.add({
+                    width: 8,
+                    material: Cesium.Material.fromType('PolylineOutline', {
+                        color: color ? Cesium.Color.fromCssColorString(color) : Cesium.Color.KHAKI,
+                        outlineColor: Cesium.Color.WHITE,
+                        outlineWidth: 4
+                    }),
+                    id: 'userDrawing',
+                    positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(setArr))
                 });
 
                 this.options.map.scene.primitives.add(this.primitive);
