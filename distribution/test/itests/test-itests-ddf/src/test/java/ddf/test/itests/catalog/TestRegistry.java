@@ -13,6 +13,7 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswRegistryStoreProperties;
@@ -37,10 +38,13 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
+import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.security.common.Security;
 import org.hamcrest.CoreMatchers;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -57,6 +61,8 @@ import com.jayway.restassured.response.ValidatableResponse;
 @ExamReactorStrategy(PerClass.class)
 public class TestRegistry extends AbstractIntegrationTest {
 
+    public static final String FACTORY_PID = "Csw_Registry_Store";
+
     private static final String CATALOG_REGISTRY = "registry-app";
 
     private static final String CATALOG_REGISTRY_CORE = "registry-core";
@@ -65,11 +71,48 @@ public class TestRegistry extends AbstractIntegrationTest {
 
     private static final String ADMIN = "admin";
 
-    private Set<String> destinations;
-
     private static final String CSW_REGISTRY_TYPE = "CSW Registry Store";
 
-    public static final String FACTORY_PID = "Csw_Registry_Store";
+    @Rule
+    public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
+
+    private Set<String> destinations;
+
+    public static String getCswRegistryInsert(String id, String regId) throws IOException {
+        return getCswInsertRequest("rim:RegistryPackage", getRegistryNode(id, regId, regId));
+    }
+
+    public static String getCswRegistryUpdate(String id, String nodeName, String date, String uuid)
+            throws IOException {
+        return "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
+                + "    verboseResponse=\"true\"\n"
+                + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
+                + "    <csw:Update typeName=\"rim:RegistryPackage\">\n" + getRegistryNode(id,
+                uuid,
+                uuid,
+                nodeName,
+                date) + "\n" + "    </csw:Update>\n" + "</csw:Transaction>";
+    }
+
+    public static String getRegistryNode(String id, String regId, String remoteRegId)
+            throws IOException {
+        return getRegistryNode(id, regId, remoteRegId, "Node Name", "2016-01-26T17:16:34.996Z");
+    }
+
+    public static String getRegistryNode(String mcardId, String regId, String remoteReg,
+            String nodeName, String date) throws IOException {
+        return getFileContent("csw-rim-node.xml",
+                ImmutableMap.of("mcardId",
+                        mcardId,
+                        "nodeName",
+                        nodeName,
+                        "lastUpdated",
+                        date,
+                        "regId",
+                        regId,
+                        "remoteReg",
+                        remoteReg));
+    }
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -102,12 +145,14 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryIngest() throws Exception {
         createRegistryEntry("2014ca7f59ac46f495e32b4a67a51279",
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51279");
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryUpdate() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51285";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51285";
@@ -136,6 +181,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryUpdateFailure() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51280";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51280";
@@ -157,6 +203,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryDelete() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51281";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51281";
@@ -185,22 +232,8 @@ public class TestRegistry extends AbstractIntegrationTest {
                         CoreMatchers.is("1")));
     }
 
-    // TODO: tbatie - 9/18/16 - REMOVE ME
-    //
-    //    public static String getCswRegistryDelete(String id) throws IOException {
-    //        return "<csw:Transaction service=\"CSW\"\n"
-    //                + "   version=\"2.0.2\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
-    //                + "   xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
-    //                + "  <csw:Delete typeName=\"rim:RegistryPackage\" handle=\"something\">\n"
-    //                + "    <csw:Constraint version=\"2.0.0\">\n" + "      <ogc:Filter>\n"
-    //                + "        <ogc:PropertyIsEqualTo>\n"
-    //                + "            <ogc:PropertyName>registry.local.remote-metacard-id</ogc:PropertyName>\n"
-    //                + "            <ogc:Literal>" + id + "</ogc:Literal>\n"
-    //                + "        </ogc:PropertyIsEqualTo>\n" + "      </ogc:Filter>\n"
-    //                + "    </csw:Constraint>\n" + "  </csw:Delete>\n" + "</csw:Transaction>";
-    //    }
-
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryStoreCreate() throws Exception {
 
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51277";
@@ -219,6 +252,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryStoreUpdate() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51290";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51290";
@@ -253,6 +287,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryStoreDelete() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51291";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51291";
@@ -286,6 +321,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testRestEndpoint() throws Exception {
         final String regId = "urn:uuid:2014ca7f59ac46f495e32b4a67a51292";
         final String mcardId = "2014ca7f59ac46f495e32b4a67a51292";
@@ -366,42 +402,6 @@ public class TestRegistry extends AbstractIntegrationTest {
         ValidatableResponse validatableResponse = response.then();
 
         return validatableResponse;
-    }
-
-    public static String getCswRegistryInsert(String id, String regId) throws IOException {
-        return getCswInsertRequest("rim:RegistryPackage", getRegistryNode(id, regId, regId));
-    }
-
-    public static String getCswRegistryUpdate(String id, String nodeName, String date, String uuid)
-            throws IOException {
-        return "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
-                + "    verboseResponse=\"true\"\n"
-                + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
-                + "    <csw:Update typeName=\"rim:RegistryPackage\">\n" + getRegistryNode(id,
-                uuid,
-                uuid,
-                nodeName,
-                date) + "\n" + "    </csw:Update>\n" + "</csw:Transaction>";
-    }
-
-    public static String getRegistryNode(String id, String regId, String remoteRegId)
-            throws IOException {
-        return getRegistryNode(id, regId, remoteRegId, "Node Name", "2016-01-26T17:16:34.996Z");
-    }
-
-    public static String getRegistryNode(String mcardId, String regId, String remoteReg,
-            String nodeName, String date) throws IOException {
-        return getFileContent("csw-rim-node.xml",
-                ImmutableMap.of("mcardId",
-                        mcardId,
-                        "nodeName",
-                        nodeName,
-                        "lastUpdated",
-                        date,
-                        "regId",
-                        regId,
-                        "remoteReg",
-                        remoteReg));
     }
 }
 

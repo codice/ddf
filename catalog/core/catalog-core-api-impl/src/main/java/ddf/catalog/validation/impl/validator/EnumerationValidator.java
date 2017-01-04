@@ -72,8 +72,7 @@ public class EnumerationValidator implements AttributeValidator {
 
         String name = attribute.getName();
 
-        for (final Serializable rawValue : attribute.getValues()) {
-            String value = String.valueOf(rawValue);
+        for (final Serializable value : attribute.getValues()) {
             if (!values.contains(value)) {
                 final AttributeValidationReportImpl report = new AttributeValidationReportImpl();
                 // TODO (jrnorth) - escape the value.
