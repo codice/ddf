@@ -38,11 +38,13 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.security.common.Security;
 import org.hamcrest.CoreMatchers;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -70,6 +72,9 @@ public class TestRegistry extends AbstractIntegrationTest {
     private static final String ADMIN = "admin";
 
     private static final String CSW_REGISTRY_TYPE = "CSW Registry Store";
+
+    @Rule
+    public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
 
     private Set<String> destinations;
 
