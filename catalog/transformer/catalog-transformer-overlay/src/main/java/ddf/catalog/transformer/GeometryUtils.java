@@ -14,9 +14,7 @@
 package ddf.catalog.transformer;
 
 import org.apache.commons.lang.StringUtils;
-import org.geotools.referencing.GeodeticCalculator;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -41,18 +39,4 @@ class GeometryUtils {
         return geometry.getCoordinates().length == 5;
     }
 
-    static double getRotationAngle(String wkt) throws CatalogTransformerException {
-        final Geometry geometry = parseGeometry(wkt);
-        if (!canHandleGeometry(geometry)) {
-            throw new CatalogTransformerException("The metacard geometry is not a rectangle.");
-        }
-
-        final Coordinate[] coordinates = geometry.getCoordinates();
-        final GeodeticCalculator calculator = new GeodeticCalculator();
-        final Coordinate lowerLeft = coordinates[3];
-        calculator.setStartingGeographicPoint(lowerLeft.x, lowerLeft.y);
-        final Coordinate upperLeft = coordinates[0];
-        calculator.setDestinationGeographicPoint(upperLeft.x, upperLeft.y);
-        return calculator.getAzimuth();
-    }
 }
