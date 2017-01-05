@@ -1,0 +1,42 @@
+@{customElementNamespace}result-sort {
+  display: block;
+  padding: 10px;
+  min-width: 500px;
+
+  > .sort-add {
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  > .editor-footer {
+    padding-top: 30px;
+  }
+
+  > .editor-footer {
+    white-space: nowrap;
+    button {
+      display: inline-block;
+      width: 100%;
+    }
+
+    .footer-remove {
+      display: none;
+    }
+  }
+
+}
+
+@{customElementNamespace}result-sort.has-sort {
+
+  > .editor-footer {
+
+    button {
+      display: inline-block;
+      width: 50%;
+    }
+
+    .footer-remove {
+      display: inline-block;
+    }
+  }
+}

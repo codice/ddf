@@ -1,0 +1,17 @@
+@{customElementNamespace}dropdown.is-resultSort {
+  cursor: pointer;
+  display: block;
+  padding-left: 10px;
+
+  .dropdown-text {
+    color: lighten(@warning-color, 20%);
+    display: none;
+  }
+
+}
+
+@{customElementNamespace}dropdown.is-resultSort.has-sort {
+  .dropdown-text {
+    display: inline-block;
+  }
+}

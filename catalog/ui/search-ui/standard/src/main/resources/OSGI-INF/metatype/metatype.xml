@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD name="Standard Search UI" id="org.codice.ddf.ui.search.standard.properties">
+    <OCD name="Standard Search UI" id="org.codice.ddf.ui.search.standard.properties">
         <AD
                 description="Specifies the number of results to request from each source"
                 name="Result Count" id="resultCount" required="true" type="Integer"
@@ -25,13 +25,13 @@
             required="false" type="String" cardinality="10000"
             description='List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: {"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}'
             default='{"type" "WMS" "url" "http://geoint.nrlssc.navy.mil/nrltileserver/wms" "layers" ["bluemarble"]  "alpha" 1},{"type" "OSM" "url" "http://a.tile.openstreetmap.org" "fileExtension" "png" "alpha" 0.3 }'
-                />
+        />
 
         <AD name="Terrain Provider" id="terrainProvider"
             required="false" type="String"
             description='Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: {"type" "CT" "url" "http://example.com"}'
             default='{"type" "CT" "url" "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'
-                />
+        />
 
         <AD description="Projection of imagery providers" name="Map Projection" id="projection"
             required="false" type="String" default="EPSG:3857"/>
@@ -63,16 +63,16 @@
         <AD description="Use an external authentication point, such as IdP"
             name="Use External Authentication" id="externalAuthentication"
             required="false" type="Boolean" default="false"
-                />
+        />
 
         <AD name="Type Name Mapping" id="typeNameMapping"
             required="false" type="String" cardinality="10000"
             description="Mapping of display names to content types in the form name=type."
-                />
-	    </OCD>
+        />
+    </OCD>
 
-	<Designate pid="org.codice.ddf.ui.search.standard.properties">
-		<Object ocdref="org.codice.ddf.ui.search.standard.properties"/>
-	</Designate>
+    <Designate pid="org.codice.ddf.ui.search.standard.properties">
+        <Object ocdref="org.codice.ddf.ui.search.standard.properties"/>
+    </Designate>
 
 </metatype:MetaData>

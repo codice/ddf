@@ -1,0 +1,27 @@
+@{customElementNamespace}help {
+  .customElement;
+
+  position: fixed;
+  z-index: @zIndexHelp;
+  left: 0px;
+  top: 0px;
+  height: 100%;
+
+  background: @heavily-darken-inherited-background-color;
+  mix-blend-mode: hard-light;
+
+  opacity: 0;
+  transform: translateX(-100%);
+  @{customElementNamespace}dropdown.is-hint {
+    display: none;
+  }
+}
+
+@{customElementNamespace}help.is-shown {
+  opacity: 1;
+  transition: opacity @coreTransitionTime linear;
+  transform: translateX(0%);
+  @{customElementNamespace}dropdown {
+    display: block;
+  }
+}

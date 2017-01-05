@@ -1,0 +1,52 @@
+@{customElementNamespace}editable-rows {
+    display: block;
+    overflow: hidden;
+    height: 100%;
+
+    .editable-rows-item {
+        position: relative;
+        margin-top: 10px;
+        min-height: 50px;
+    }
+
+    .editable-rows-item:first-child {
+        margin-top: 0;
+    }
+
+    .embed {
+        width: ~'calc(100% - 50px - 40px)';
+    }
+
+    .remove {
+        width: 50px;
+        position: absolute;
+        right: 10px;
+        top: 0;
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .add-row {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .rows {
+        max-height: ~'calc(100% - @{minimumButtonSize} - 10px)';
+        overflow: auto;
+    }
+
+}
+
+@{customElementNamespace}editable-rows.is-empty {
+
+    .add-row {
+        margin: 0px;
+    }
+
+    .rows {
+        max-height: ~'calc(100% - @{minimumButtonSize})';
+    }
+}

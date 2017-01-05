@@ -1,0 +1,112 @@
+@{customElementNamespace}metacard {
+  .customElement;
+  overflow: hidden;
+
+  > .metacard-menu {
+    margin: auto;
+  }
+
+  > .metacard-menu {
+    height: 2*@minimumLineSize;
+  }
+
+  > .metacard-details {
+    height: ~'calc(100% - 2*@{minimumLineSize})';
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+  }
+
+  > .metacard-details > .details-tabular,
+  > .metacard-details > .details-visual {
+    white-space: normal;
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    background: @background-color;
+  }
+
+  > .metacard-details > .details-tabular {
+    width: 50%;
+    min-width: 400px;
+  }
+
+  > .metacard-details > .details-visual {
+    width: 50%;
+  }
+
+  > .metacard-details > .details-searching,
+  > .metacard-details > .details-not-found {
+    transform: translateY(-100%);
+    background: @dropdown-background-color;
+    position: absolute;
+    z-index: @zIndexConfirmation;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    .is-large-font();
+    text-align: center;
+  }
+
+   > .metacard-details > .details-searching:after {
+     position: absolute;
+     content: 'Searching . . .';
+     left: ~'calc(50% - 4.136875rem)';
+     animation: metacard-is-searching 5*@coreTransitionTime infinite linear;
+   }
+
+}
+
+@{customElementNamespace}metacard.is-searching {
+
+  > .metacard-details > .details-searching {
+    transform: translateY(0%);
+  }
+}
+
+@{customElementNamespace}metacard.not-found:not(.is-searching) {
+
+  > .metacard-details > .details-not-found {
+    transform: translateY(0%);
+  }
+}
+
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
+  @{customElementNamespace}metacard {
+    > .metacard-menu,
+    > .metacard-details {
+      max-width: 100%;
+    }
+    > .metacard-menu {
+      padding: 0px 0px;
+    }
+    > .metacard-details {
+      padding: 0px 0px;
+    }
+  }
+}
+
+@keyframes metacard-is-searching{
+    0% {
+      content: 'Searching';
+    }
+    16% {
+       content: 'Searching .';
+    } 
+    32% {
+       content: 'Searching . .';
+    } 
+    48% {
+      content: 'Searching . . .';
+    } 
+    64% {
+       content: 'Searching . .';
+    } 
+    80% {
+       content: 'Searching .';
+    } 
+    100% {
+       content: 'Searching';
+    } 
+}

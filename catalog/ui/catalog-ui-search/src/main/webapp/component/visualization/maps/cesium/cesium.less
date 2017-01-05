@@ -1,0 +1,47 @@
+@{customElementNamespace}map.is-cesium {
+  .customElement;
+
+  position: relative;
+  
+  canvas {
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+  }
+
+  canvas:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+  }
+
+  .fa-cube {
+    display: none;
+  }
+}
+
+@{customElementNamespace}map.is-cesium.is-hovering {
+
+  canvas {
+    cursor: pointer;
+  }
+}
+
+@{customElementNamespace}map.is-cesium.is-drawing {
+
+  canvas,
+  canvas:active {
+    cursor: crosshair;
+  }
+}
+
+@{customElementNamespace}map.is-cesium.is-clustering {
+  .fa-cubes {
+    display: none;
+  }
+
+  .fa-cube {
+    display: inline-block;
+  }
+}

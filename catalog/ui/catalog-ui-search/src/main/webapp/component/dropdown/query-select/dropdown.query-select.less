@@ -1,0 +1,37 @@
+@{customElementNamespace}dropdown.is-querySelect {
+  cursor: pointer;
+  display: block;
+  text-align: center;
+
+  .dropdown-icon,
+  .querySelect-default {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .querySelect-default {
+    text-align: center;
+    padding: 30px 0px 30px 30px;
+  }
+
+  .querySelect-item {
+    width: ~'calc(100% - 1.25rem)';
+  }
+
+  .querySelect-default {
+    max-width: ~'calc(100% - 1.25rem)';
+  }
+}
+
+@{customElementNamespace}dropdown.is-querySelect.query-selected {
+  text-align: initial;
+  > .querySelect-item,
+  > .dropdown-icon {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  > .querySelect-default {
+    display: none;
+  }
+}

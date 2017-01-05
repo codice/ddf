@@ -1,0 +1,157 @@
+@{customElementNamespace}tabs {
+
+  .customElement;
+  .tabs-list {
+    .inlineFix;
+
+    z-index: @zIndexContent;
+    height: @minimumButtonSize;
+    padding: 0px 50px;
+    white-space: nowrap;
+    overflow: visible;
+    width: 100%;
+    position: relative;
+    text-align: center;
+
+    &.is-collapsed {
+      .tabs-dropdown {
+        display: inline-block;
+        vertical-align: top;
+        line-height: @minimumButtonSize;
+        height: @minimumButtonSize;
+      }
+    }
+
+    &.is-open {
+      .tabs-dropdown {
+        color: @text-color;
+      }
+
+      .tabs-collapsed {
+        display: block;
+        width: 100%;
+        text-align: center;
+        .boxShadow;
+
+        > div.is-merged {
+          display: block;
+          color: @text-color;
+          width: 100%;
+          padding: 10px;
+        }
+        > div.is-merged.is-active {
+          display: none;
+        }
+      }
+    }
+
+    .tabs-expanded {
+      height: 100%;
+    }
+
+    .tabs-collapsed {
+      display: none;
+      background: @dropdown-background-color;
+      > div {
+        display: none;
+      }
+    }
+
+    .tabs-title {
+
+      display: none;
+
+      &.is-active.is-merged {
+        display: inline-block;
+      }
+    }
+
+    .tabs-dropdown {
+      display: none;
+      height: 100%;
+      padding: 0px 10px;
+      border-bottom: 1px solid transparent;
+
+      > span {
+        vertical-align: top;
+        line-height: @minimumButtonSize;
+        height: @minimumButtonSize;
+      }
+
+      &.has-activeTab {
+
+        opacity: 1;
+        .is-bold();
+        border-bottom: 1px solid @text-color;
+        .hint {
+          display: none;
+        }
+      }
+
+      &:hover {
+        background: none;
+      }
+
+      .hint {
+        display: inline;
+      }
+    }
+
+    .tabs-tab {
+      padding: 0px 10px;
+      line-height: @minimumButtonSize;
+      height: @minimumButtonSize;
+      display: inline-block;
+      border-bottom: 1px solid transparent;
+
+      &.is-active {
+        opacity: 1;
+        .is-bold();
+        border-bottom: 1px solid @text-color;
+      }
+
+      &:hover {
+        opacity: 1;
+        border-bottom: 1px solid @text-color;
+      }
+
+      &.is-merged {
+        display: none;
+      }
+    }
+  }
+
+  .tabs-content {
+    height: ~"calc(100% - @{minimumButtonSize})";
+    .boxShadowTop;
+  }
+
+}
+
+.is-mobile-screen {
+  @{customElementNamespace}tabs {
+    .tabs-list {
+
+      &.is-open {
+        .tabs-dropdown {
+          position: fixed;
+          left: 0px;
+          top: 0px;
+          width: 100%;
+          text-align: center;
+          background: @background-color;
+          color: white;
+          z-index: @zIndexContent;
+        }
+
+        .tabs-collapsed {
+          position: fixed;
+          left: 0px;
+          top: 50px;
+          z-index: @zIndexContent;
+        }
+      }
+    }
+  }
+
+}

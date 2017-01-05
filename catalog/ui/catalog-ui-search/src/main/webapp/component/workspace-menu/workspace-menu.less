@@ -1,0 +1,35 @@
+@{customElementNamespace}workspace-menu {
+  .customElement;
+  overflow: hidden;
+  position: relative;
+  height: 2*@minimumLineSize;
+  white-space: nowrap;
+
+  > .content-title {
+    height: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: auto;
+    max-width: ~'calc(100% - @{minimumButtonSize})';
+    transition: width @coreTransitionTime ease-out;
+  }
+
+  > .content-interactions {
+    width: @minimumButtonSize;
+    height: 100%;
+    text-align: center;
+  }
+
+  > div {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+}
+
+@{customElementNamespace}workspace-menu.is-blank {
+
+  > .content-title {
+    min-width: 11.25rem;
+  }
+}

@@ -1,0 +1,43 @@
+@{customElementNamespace}select-collection {
+  display: block;
+
+  > .select-collection-empty {
+    text-align: center;
+    padding: 10px;
+    color: lighten(@warning-color, 20%);
+  }
+
+  .choice {
+    padding: 0px @minimumButtonSize 0px 20px;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    cursor: pointer;
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .choice.is-active {
+    background: @lighten-inherited-background-color;
+  }
+
+  .choice-text {
+    padding-right: 30px;
+  }
+
+  .choice.is-selected::after {
+    display: inline-block;
+    content: "\f00c";
+    font-family: FontAwesome;
+    font-style: normal;
+    position: absolute;
+    top: ~'calc(50% - 1.375rem)';
+    right: 0px;
+    width: @minimumButtonSize;
+    text-align: center;
+  }
+
+  .choice.is-selected .choice-text{
+    .is-bold();
+  }
+}

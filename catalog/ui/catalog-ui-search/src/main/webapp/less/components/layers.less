@@ -1,0 +1,24 @@
+.layerPickers .table > thead > tr > td,
+.layerPickers .table > tbody > tr > td,
+.layerPickers .table > tfoot > tr > td {
+    padding: 0px;
+    vertical-align: middle;
+    max-width: 6.25rem;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    label {
+        cursor: pointer;
+        padding: 20px;
+        width: 100%;
+        margin-bottom: 0px;
+    }
+    input[type="checkbox"] {
+        display: none;
+    }
+}
+
+.layerPickers .table > tbody > tr.is-disabled {
+    opacity: @minimumOpacity;
+}

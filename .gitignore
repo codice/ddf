@@ -6,6 +6,9 @@
 *.idea
 *.checkstyle
 *.DS_Store
+.history
+jsconfig.json
+.vscode/
 node_modules/
 node/
 bin/

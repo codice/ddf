@@ -1,0 +1,53 @@
+@{customElementNamespace}filter {
+  .customElement;
+  white-space: nowrap;
+  margin: 10px;
+
+  > .filter-remove,
+  > .filter-attribute,
+  > .filter-comparator,
+  > .filter-input {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 20px;
+  }
+
+  > .filter-comparator,
+  > .filter-attribute {
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+  }
+
+  > .filter-remove {
+    width: @minimumButtonSize;
+    height: @minimumButtonSize;
+    display: none;
+  }
+
+  > .filter-input {
+    min-width: 200px;
+  }
+}
+
+@{customElementNamespace}filter-collection.can-delete {
+
+  > @{customElementNamespace}filter.is-editing {
+    > .filter-remove {
+      display: inline-block;
+    }
+  }
+}
+
+@{customElementNamespace}filter-collection {
+  > @{customElementNamespace}filter.is-editing {
+    > .filter-remove {
+      display: none;
+    }
+  }
+
+  > @{customElementNamespace}filter {
+    > .filter-remove {
+      display: none;
+    }
+  }
+}

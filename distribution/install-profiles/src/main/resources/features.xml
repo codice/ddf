@@ -20,6 +20,7 @@
         <feature>security-services-app</feature>
         <feature>catalog-app</feature>
         <feature>search-ui-app</feature>
+        <feature>catalog-ui-app</feature>
         <feature>solr-app</feature>
         <feature>spatial-app</feature>
     </feature>
@@ -33,6 +34,7 @@
         <feature>catalog-app</feature>
         <feature>solr-app</feature>
         <feature>search-ui-app</feature>
+        <feature>catalog-ui-app</feature>
         <feature>spatial-app</feature>
         <feature>resourcemanagement-app</feature>
         <feature>geowebcache-app</feature>

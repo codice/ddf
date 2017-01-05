@@ -1,0 +1,47 @@
+@{customElementNamespace}workspace-interactions {
+  display: block;
+
+  .workspace-interaction,
+  .interaction-icon,
+  .interaction-text {
+    line-height: @minimumButtonSize;
+    height: @minimumButtonSize;
+  }
+
+  .workspace-interaction {
+    white-space: nowrap;
+    padding: 0px 10px;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .interaction-icon {
+    text-align: center;
+    width: @minimumButtonSize;
+  }
+
+  .interaction-icon,
+  .interaction-text {
+    display: inline-block;
+  }
+
+  .workspace-interaction:hover,
+  .workspace-interaction.is-active {
+    background: @lighten-inherited-background-color;
+  }
+
+  .interaction-unsubscribe {
+    display: none;
+  }
+
+}
+
+@{customElementNamespace}workspace-interactions.is-subscribed {
+  .interaction-unsubscribe {
+    display: block;
+  }
+
+  .interaction-subscribe {
+    display: none;
+  }
+}

@@ -1,0 +1,149 @@
+@{customElementNamespace}property {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  padding: 10px;
+  position: relative;
+
+  .property-label,
+  .property-value {
+    width: 50%;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    z-index: 1;
+  }
+
+
+  .property-label {
+    text-align: right;
+  }
+
+  .property-label label {
+    cursor: auto;
+    color: grey;
+    .is-bold();
+    max-width: ~'calc(100% - @{minimumButtonSize})';
+    margin: 0px;
+    line-height: @minimumButtonSize;
+    padding-right: 10px;
+    word-wrap: normal;
+    white-space: normal;
+  }
+
+  .property-revert {
+    display: none;
+  }
+
+  .property-revert {
+    font-size: @mediumFontSize;
+    vertical-align: bottom;
+    color: orange;
+  }
+
+  .property-revert:hover {
+    color: shade(orange, 10%);
+  }
+
+  .property-revert:focus {
+    color: shade(orange, 25%);
+  }
+
+  .input-validation:nth-of-type(2){
+    display: none;
+  }
+
+  .input-validation {
+    line-height: @minimumButtonSize;
+    padding: 0px 10px;
+  }
+
+  .property-readOnly {
+    display: none;
+  }
+}
+
+@{customElementNamespace}property.is-readOnly.is-editing {
+  .property-readOnly {
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    position: absolute;
+    text-align: center;
+    font-size: @largeFontSize;
+    line-height: @minimumButtonSize;
+    height: 100%;
+    padding-right: 20px;
+    padding-top: 10px;
+    display: inline-block;
+    color: @heavily-lighten-inherited-background-color;
+    opacity: @minimumOpacity;
+    .background-gradient(@lighten-inherited-background-color, @darken-inherited-background-color);
+    z-index: 0;
+  }
+}
+
+@{customElementNamespace}property.is-editing:not(.is-readOnly) {
+  .property-label label {
+    cursor: pointer;
+  }
+}
+
+@{customElementNamespace}property.is-editing.is-changed:not(.is-readOnly) {
+  .property-revert {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}property.has-limited-width {
+  white-space: normal;
+
+  .property-value,
+  .property-label {
+    width: 100%;
+  }
+
+  .property-label {
+    text-align: left;
+  }
+
+  .property-label label {
+    padding-right: 0px;
+  }
+
+  .if-inline {
+    display: none;
+  }
+
+  .if-block {
+    display: inherit;
+  }
+}
+
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
+  @{customElementNamespace}property {
+
+    white-space: normal;
+
+    .property-value,
+    .property-label {
+      width: 100%;
+    }
+
+    .property-label {
+      text-align: left;
+    }
+
+    .property-label > label {
+      padding-right: 0px;
+    }
+
+    .if-inline {
+      display: none;
+    }
+
+    .if-block {
+      display: inherit;
+    }
+  }
+}

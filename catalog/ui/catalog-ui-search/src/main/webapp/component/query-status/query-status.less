@@ -1,0 +1,33 @@
+@{customElementNamespace}query-status {
+
+  display: block;
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+
+  .is-list > div {
+    height: @minimumLineSize;
+    line-height: @minimumLineSize;
+  }
+
+  .details {
+    .is-bold();
+  }
+
+  .status > div {
+    height: 100%;
+    width: 50%;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .status-source {
+    float: left;
+    .is-bold();
+  }
+
+  .status-result {
+    float: right;
+    text-align: right;
+  }
+}

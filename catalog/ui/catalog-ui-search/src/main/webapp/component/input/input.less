@@ -1,0 +1,45 @@
+@{customElementNamespace}input {
+  .customElement;
+  padding-right: 10px;
+  white-space: nowrap;
+  line-height: @minimumButtonSize;
+  position: relative;
+
+  > .if-editing {
+    display: none;
+    width: 100%;
+  }
+  > .if-viewing {
+    display: block;
+  }
+}
+
+@{customElementNamespace}input.is-editing {
+  > .if-editing {
+    display: block;
+    position: absolute;
+    top: ~'calc(50% - 1.375rem)';
+    z-index: 1;
+  }
+  > .if-viewing {
+    display: block;
+    opacity: 0;
+  }
+}
+
+@{customElementNamespace}input.is-text,
+@{customElementNamespace}input.is-number,
+@{customElementNamespace}input.is-boolean {
+  input {
+    height: @minimumButtonSize;
+    width: 100%;
+  }
+  .if-viewing label {
+    padding-left: 10px;
+    line-height: @minimumButtonSize;
+    margin: 0px;
+    white-space: normal;
+    word-break: break-all;
+    min-height: @minimumButtonSize;
+  }
+}

@@ -1,0 +1,141 @@
+@{customElementNamespace}workspace-item.as-grid {
+  .customElement;
+  display: inline-block;
+  width: auto;
+  color: @text-color;
+  margin-bottom: 10px;
+  margin-right: 20px;
+
+  .choice.as-grid {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .choice.as-list {
+    display: none;
+  }
+
+  .choice {
+    position: relative;
+    display: inline-block;
+    width: 19rem;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.07);
+    cursor: pointer;
+  }
+
+  .choice-preview {
+    line-height: 15.5625rem;
+    height: 16.8125rem;
+    text-align: center;
+    width: 100%;
+    background: @lighten-inherited-background-color;
+    font-size: @largeFontSize;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .choice-preview > img {
+    width: 100%;
+  }
+
+  .choice-preview-icon {
+    line-height: 16.8125rem;
+  }
+
+  .choice-footer {
+    white-space: nowrap;
+    text-align: center;
+    height: 2*@minimumLineSize;
+  }
+
+  .choice-details,
+  .choice-actions {
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+  }
+
+  .choice-details {
+    width: ~'calc(100% - @{minimumButtonSize})';
+    text-align: left;
+  }
+
+  .choice-details > div:not(:first-of-type) {
+    opacity: @minimumOpacity;
+  }
+
+  .choice-actions {
+    width: @minimumButtonSize;
+    text-align: center;
+    line-height: 2*@minimumLineSize;
+  }
+
+  .choice-title,
+  .choice-date {
+    line-height: @minimumLineSize;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 10px;
+  }
+
+  .choice-title {
+    .is-bold();
+  }
+}
+
+@{customElementNamespace}workspace-item.as-list {
+  display: block;
+  margin-bottom: 10px;
+
+  .choice.as-grid {
+    display: none;
+  }
+
+  .choice.as-list {
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+
+  .choice {
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    white-space: nowrap;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.07);
+    cursor: pointer;
+  }
+
+  .choice-details,
+  .choice-actions {
+    display: inline-block;
+  }
+
+  .choice-details {
+    width: ~'calc(100% - @{minimumButtonSize})';
+    white-space: nowrap;
+    vertical-align: top;
+    height: @minimumButtonSize;
+  }
+
+  .choice-actions {
+    width: @minimumButtonSize;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .choice-title,
+  .choice-date {
+    padding: 0px 20px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .choice-title {
+    width: 50%;
+  }
+
+  .choice-date {
+    width: 50%;
+    text-align: center;
+  }
+}

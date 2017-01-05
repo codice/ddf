@@ -1,0 +1,46 @@
+@{customElementNamespace}query-selector {
+  @buttonMargin: 10px;
+
+  .resetIconLineHeight;
+  .customElement;
+  overflow: auto;
+
+
+  > button {
+    margin-top: @buttonMargin;
+    display: none;
+    width: 100%;
+    padding: 10px;
+    height: @minimumButtonSize;
+  }
+
+  .querySelector-list {
+    max-height: ~"calc(100%)";
+    overflow: auto;
+  }
+
+  &.can-addQuery {
+    > button {
+      display: block;
+    }
+    .querySelector-list {
+      max-height: ~"calc(100% - @{minimumButtonSize} - @{buttonMargin})";
+    }
+  }
+
+  .if-empty {
+    display: none;
+  }
+}
+
+@{customElementNamespace}query-selector.is-empty {
+  .if-empty {
+    display: block;
+  }
+}
+
+ .is-small-screen, .is-mobile-screen {
+  @{customElementNamespace}query-selector {
+
+  }
+}

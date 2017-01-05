@@ -1,0 +1,26 @@
+@{customElementNamespace}slideout.is-right {
+
+    > .slideout-cover {
+        left: 100%;
+        transform: translateX(0%);
+        background: @heavily-darken-inherited-background-color;
+    }
+
+    > .slideout-content {
+        left: 100%;
+        transform: translateX(0%);
+        top: 0%;
+        height: 100%;
+    }
+
+}
+
+@{customElementNamespace}slideout.is-right.is-open {
+
+    > .slideout-cover {
+        transform: translateX(-100%);
+    }
+    > .slideout-content {
+        transform: translateX(-100%);
+    }
+}

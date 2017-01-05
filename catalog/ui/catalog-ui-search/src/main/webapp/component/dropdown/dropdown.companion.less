@@ -1,0 +1,68 @@
+@{customElementNamespace}dropdown-companion {
+  position: absolute;
+  transform: scale(0);
+  opacity: 0;
+  z-index: @zIndexDropdown;
+  overflow: visible;
+  background: @dropdown-background-color;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 2px;
+  .dropshadow;
+  margin: 3px 0px;
+  max-width: 90vw;
+  max-height: 90vh;
+
+  > input {
+    width: ~'calc(100% - 20px)';
+    margin: 0px 10px 10px 10px;
+    height: @minimumButtonSize;
+    display: none;
+  }
+
+  > .dropdown-companion-component {
+    position: relative;
+    overflow: auto;
+    max-height: 50vh;
+    z-index: 100;
+  }
+
+}
+
+@{customElementNamespace}dropdown-companion:focus {
+    outline: none;
+}
+
+@{customElementNamespace}dropdown-companion.has-filtering {
+  > input {
+    display: block;
+  }
+
+  > .dropdown-companion-component {
+    max-height: ~'calc(50vh - @{minimumButtonSize})';
+  }
+}
+
+@{customElementNamespace}dropdown-companion.is-open {
+  opacity: 1;
+  transition: opacity @coreTransitionTime ease-in-out;
+
+  &.is-bottom {
+    transform: scale(1);
+  }
+
+  &.is-top {
+    transform: translateY(-100%) scaleY(1);
+  }
+}
+
+@{customElementNamespace}dropdown-companion.has-tail {
+
+  &.is-bottom > .if-bottom {
+    //display: block;
+  }
+
+  &.is-top > .if-top {
+    //display: block;
+  }
+}

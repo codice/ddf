@@ -1,0 +1,52 @@
+@{customElementNamespace}result-thead {
+    display: table-header-group;
+    background: inherit;
+
+    th {
+     white-space: nowrap;
+     padding: 10px 20px;
+     position: relative;
+     background: inherit;
+    }
+
+    th.is-sortable {
+      cursor: pointer;
+    }
+
+    th .column-absolute {
+      left: 0px;
+      top: 0px;
+      position: absolute;
+      padding: 10px 20px;
+      z-index: 1;
+      background: inherit;
+      width: 100%;
+      height: 100%;
+      background: inherit;
+      border-bottom: 1px solid @heavily-lighten-inherited-background-color;
+    }
+
+    th.is-hidden-column {
+      display: none;
+    }
+
+    .fa-sort-asc,
+    .fa-sort-desc {
+      opacity: 0;
+    }
+
+    th.is-sorted-asc {
+      .fa-sort-asc {
+        opacity: 1;
+      }
+    }
+
+    th.is-sorted-desc {
+      .fa-sort-desc {
+        opacity: 1;
+      }
+    }
+
+    position: relative;
+
+}

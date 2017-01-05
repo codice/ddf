@@ -1,0 +1,18 @@
+input[type="checkbox"], input[type="radio"] {
+  cursor: pointer;
+}
+
+.input-group {
+  margin: 0px;
+}
+
+input,
+input.form-control {
+  padding: 6px 10px 5px 10px;
+  .is-input;
+  height: @minimumButtonSize;
+}
+
+.form-control[disabled], .form-control[readonly], fieldset[disabled] {
+  background: @medium-lighten-inherited-background-color;
+}

@@ -1,0 +1,211 @@
+@{customElementNamespace}result-item {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  cursor: pointer;
+  position: relative;
+  opacity: 1;
+
+  .result-container {
+    position: relative;
+  }
+
+  .result-container > .result-details {
+    width: ~'calc(100% - 2*@{minimumButtonSize} - @{mediumSpacing} - 2*@{minimumSpacing} - 30px)';
+    margin-left: @mediumSpacing;
+    height: 100%;
+    padding: 0 @minimumSpacing;
+  }
+
+  .result-container > .result-indicator {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: .5*@minimumSpacing;
+    height: 100%;
+  }
+
+   .result-container > .result-type {
+     opacity: @minimumOpacity;
+    position: absolute;
+    left: .5*@minimumSpacing;
+    top: 0px;
+    text-align: center;
+    height: 100%;
+    line-height: @minimumLineSize;
+    padding: 0px .5*@minimumSpacing;
+
+    span {
+      position: relative;
+      line-height: @minimumLineSize;
+      //top: ~'calc(50% - 0.625rem)';
+    }
+  }
+
+  .result-container > .result-validation {
+    position: absolute;
+    right: 2*@minimumButtonSize;
+    top: 0px;
+    width: @minimumButtonSize;
+    text-align: center;
+    height: 100%;
+
+    span {
+      position: relative;
+      top: ~'calc(50% - 0.625rem)';
+    }
+  }
+
+  .result-container > .result-actions {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    height: 100%;
+    width: @minimumButtonSize;
+    text-align: center;
+  }
+
+  .result-container > .result-actions > @{customElementNamespace}dropdown {
+    height: 100%;
+  }
+
+  .result-container > .result-save,
+  .result-container > .result-unsave {
+    position: absolute;
+    right: @minimumButtonSize;
+    top: 0px;
+    width: @minimumButtonSize;
+    text-align: center;
+    height: 100%;
+  }
+
+  .result-container > .result-unsave,
+  .result-container > .result-save {
+    display: none;
+  }
+
+  .result-container > .result-unsave:before,
+  .result-container > .result-save:before {
+    position: relative;
+    top: ~'calc(50% - 0.47rem)';
+  }
+
+  span {
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    max-height: 100%;
+    max-width: 100%;
+    display: inline-block;
+    white-space: nowrap;
+    line-height: inherit !important;
+  }
+
+  .result-container > .result-details .details-property {
+    width: 100%;
+    height: @minimumLineSize;
+    line-height: @minimumLineSize;
+  }
+
+  .result-container > .result-details .details-property:not(:first-of-type) {
+    opacity: @minimumOpacity;
+  }
+
+  .result-container > .result-validation .resultError {
+    color: @negative-color !important;
+  }
+
+  .result-container > .result-validation .resultWarning {
+    color: @warning-color !important;
+  }
+
+  .result-container > .result-details .detail-thumbnail {
+    display: none;
+  }
+
+  .result-container > .result-type > span {
+    display: none;
+  }
+}
+
+@{customElementNamespace}result-item.in-workspace {
+  .result-container > .result-save {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}result-item.is-saved {
+  .result-container > .result-unsave {
+    display: inline-block;
+  }
+
+  .result-container > .result-save {
+    display: none;
+  }
+
+}
+
+@{customElementNamespace}result-item.is-blacklisted {
+  opacity: .4;
+}
+
+@{customElementNamespace}result-item.is-grid {
+  .result-container > .result-details .detail-thumbnail {
+    opacity: 1;
+    display: block;
+    height: auto;
+    padding: 10px 0px;
+
+    img {
+      max-width: 100%;
+      max-height: 120px;
+    }
+  }
+}
+
+@{customElementNamespace}result-item.is-workspace {
+
+  .result-container > .result-type > .fa-book {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}result-item.is-resource {
+  .result-container > .result-type > .fa-file {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}result-item.is-revision {
+  .result-container > .result-type > .fa-history {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}result-item.is-deleted {
+  .result-container > .result-type > .fa-trash {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}result-item.hide-color {
+
+}
+
+@{customElementNamespace}result-item.hide-actions {
+
+}
+
+ .is-small-screen, .is-mobile-screen {
+    @{customElementNamespace}result-item {
+      .result-container > .result-details .details-property {
+        height: auto;
+      }
+
+       span {
+        display: inline-block;
+        white-space: normal;
+        line-height: inherit !important;
+      }
+    }
+}

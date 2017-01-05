@@ -1,0 +1,107 @@
+@{customElementNamespace}filter-builder {
+  display: table;
+  width: 100%;
+  position: relative;
+
+  white-space: nowrap;
+
+  > .filter-remove,
+  > .filter-operator,
+  > .filter-contents {
+    margin-right: 20px;
+  }
+
+    > .filter-remove {
+      display: none;
+      vertical-align: middle;
+    }
+
+    > .filter-operator,
+    > .filter-contents {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    > .filter-operator {
+      height: @minimumButtonSize;
+      line-height: @minimumButtonSize;
+    }
+
+    > .filter-contents:before {
+      content: '';
+      position: absolute;
+      border-left: 1px solid @text-color;
+      border-top: 1px solid @text-color;
+      border-bottom: 1px solid @text-color;
+      height:100%;
+      width: 10px;
+    }
+
+    > .filter-contents > .contents-filters,
+    > .filter-contents > .contents-buttons{
+      padding-left: 10px;
+    }
+
+    > .filter-contents > .contents-buttons > button{
+      padding: 0px 10px;
+    }
+
+    > .filter-contents > .contents-buttons {
+      display: none;
+    }
+
+    > .filter-remove {
+      width: @minimumButtonSize;
+      height: @minimumButtonSize;
+    }
+
+  .contents-buttons {
+    margin-left: 10px;
+    margin-bottom: 10px;
+
+    .add-filter {
+      margin-right: 10px;
+    }
+  }
+
+  @{customElementNamespace}filter-builder {
+    margin: 10px;
+  }
+
+}
+
+@{customElementNamespace}filter-builder.is-editing {
+
+  > .filter-contents > .contents-buttons {
+    display: block;
+  }
+
+}
+
+@{customElementNamespace}filter-builder.hide-nesting {
+  > .filter-contents > .contents-buttons > .add-filterBuilder {
+    display: none;
+  }
+}
+
+@{customElementNamespace}filter-collection.can-delete {
+  > @{customElementNamespace}filter-builder.is-editing {
+    > .filter-remove {
+      display: inline-block;
+    }
+  }
+}
+
+@{customElementNamespace}filter-collection {
+  > @{customElementNamespace}filter-builder.is-editing {
+    > .filter-remove {
+      display: none;
+    }
+  }
+
+  > @{customElementNamespace}filter-builder {
+    > .filter-remove {
+      display: none;
+    }
+  }
+}

@@ -1,0 +1,18 @@
+@{customElementNamespace}loading-companion {
+  .customElement;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  line-height: 100vh;
+  font-size: @largeFontSize;
+  text-align: center;
+  background: @background-color;
+  opacity: 0;
+}
+
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
+  @{customElementNamespace}loading-companion {
+    line-height: 50vh;
+  }
+
+}

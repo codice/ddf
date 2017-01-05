@@ -1,0 +1,74 @@
+@{customElementNamespace}alert-settings {
+  .customElement;
+
+  overflow: auto;
+  padding: @minimumSpacing @minimumSpacing;
+  font-size: @largeFontSize;
+
+  .editor-properties {
+    overflow: auto;
+    max-height: ~"calc(100% - @{minimumButtonSize} - 2*@{minimumSpacing})";
+    text-align: center;
+
+    .property-label {
+      text-align: center;
+    }
+  }
+
+  .property-expiration {
+    display: none;
+  }
+
+  .editor-properties {
+    .property-label {
+      height: @minimumButtonSize;
+      line-height: @minimumButtonSize;
+      color: grey;
+      .is-bold();
+    }
+  }
+
+  .editor-footer {
+    margin-top: @minimumSpacing;
+    height: @minimumButtonSize;
+    white-space: nowrap;
+    .inlineFix;
+
+    > button {
+      height: 100%;
+      display: inline-block;
+    }
+    > .editor-edit {
+      width: 100%;
+    }
+    > .editor-cancel {
+      width: 50%;
+      display: none;
+    }
+    > .editor-save {
+      width: 50%;
+      display: none;
+    }
+  }
+
+  &.is-editing {
+    .editor-footer {
+
+      > .editor-edit {
+        display: none;
+      }
+      > .editor-cancel {
+        display: inline-block;
+      }
+      > .editor-save {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+@{customElementNamespace}alert-settings.is-persisted {
+  .property-expiration {
+    display: block;
+  }
+}

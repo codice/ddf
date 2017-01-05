@@ -1,0 +1,39 @@
+@{customElementNamespace}navigation {
+  .customElement;
+  position: relative;
+  background: @navigation-background-color;
+  vertical-align: top;
+  color: @text-color;
+  height: 2*@minimumLineSize;
+  overflow: hidden;
+  white-space: nowrap;
+  .vertical-borders(1px, @heavily-lighten-inherited-background-color);
+
+  > .navigation-left,
+  > .navigation-middle,
+  > .navigation-right {
+    display: inline-block;
+    vertical-align: top;
+    font-size: @largeFontSize;
+    line-height: 2*@minimumLineSize;
+    height: 2*@minimumLineSize;
+  }
+
+  > .navigation-left {
+    width: @minimumButtonSize;
+  }
+
+  > .navigation-right {
+    position: absolute;
+    right: 0px;
+    max-width: 7*@minimumButtonSize;
+  }
+
+  > .navigation-middle {
+    width: ~'calc(100% - 8*@{minimumButtonSize})';
+    overflow-x: auto;
+    overflow-y: hidden;
+    text-overflow: ellipsis;
+  }
+
+}

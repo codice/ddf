@@ -1,0 +1,92 @@
+@{customElementNamespace}query-item-collection {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  overflow-x: hidden;
+
+  @{customElementNamespace}query-item + @{customElementNamespace}query-item {
+    margin-top: 10px;
+  }
+}
+
+@{customElementNamespace}query-item {
+  display: block;
+  cursor: pointer;
+  position: relative;
+
+  .query-container {
+    height: 3*@minimumLineSize;
+    white-space: nowrap;
+    overflow: visible;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .query-color,
+  .query-details,
+  .query-actions {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .details-title {
+    .is-bold();
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .details-feed,
+  .details-title {
+    padding: 0px 10px;
+  }
+
+  .query-color {
+    width: 20px;
+    height: 100%;
+  }
+
+  .query-details {
+    width: ~'calc(100% - @{minimumButtonSize} - 20px)';
+    margin: 0px @minimumButtonSize 0px 20px;
+    line-height: @minimumLineSize;
+    height: 3*@minimumLineSize;
+  }
+
+  .query-actions {
+    height: 100%;
+    width: @minimumButtonSize;
+    text-align: center;
+  }
+
+  .query-color,
+  .query-actions {
+    position: absolute;
+  }
+
+  .query-color {
+    left: 0px;
+    top: 0px;
+  }
+
+  .query-actions {
+    right: 0px;
+    top: 0px;
+  }
+
+  .is-queryInteractions {
+    height: 100%;
+    font-size: @minimumFontSize;
+  }
+}
+
+@{customElementNamespace}query-item.hide-actions {
+  .query-actions {
+    display: none;
+  }
+
+  .query-details {
+    width: ~'calc(100% - 20px)';
+    margin: 0px 0px 0px 20px;
+    padding: 10px;
+  }
+}
