@@ -212,7 +212,7 @@
                                         <doctype>book</doctype>
                                         <outputDirectory>${project.build.directory}/docs/html
                                         </outputDirectory>
-                                        <imagesDir>./images</imagesDir>
+                                        <imagesDir>${project.build.directory}/doc-contents/images</imagesDir>
                                     </configuration>
                                 </execution>
                                 <execution>
@@ -225,9 +225,6 @@
                                         <backend>pdf</backend>
                                         <outputDirectory>${project.build.directory}/docs/pdf
                                         </outputDirectory>
-                                        <requires>
-                                            <require>asciidoctor-diagram</require>
-                                        </requires>
                                         <!-- WARNING callout bullets don't yet work with CodeRay -->
                                         <attributes>
                                             <pagenums/>
@@ -235,7 +232,7 @@
                                             <idprefix>_</idprefix>
                                             <idseparator>_</idseparator>
                                         </attributes>
-                                        <imagesDir>images</imagesDir>
+                                        <imagesDir>${project.build.directory}/doc-contents/images</imagesDir>
                                     </configuration>
                                 </execution>
                             </executions>

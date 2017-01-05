@@ -623,7 +623,7 @@ Storage providers provide the capability to the Catalog Framework to create, re
 |                           v                                                  |
 |                   +-=-------------+                LEGEND                    |
 |                   |{s}            |                /--------------------\    |
-|                   |   Content     |                |cDEF${branding} Component   |    |
+|                   |   Content     |                |cDEF DDF Component  |    |
 |                   |  Repository   |                \--------------------/    |
 |                   +---------------+                /-=------------------\    |
 |                                                    | External Component |    |
