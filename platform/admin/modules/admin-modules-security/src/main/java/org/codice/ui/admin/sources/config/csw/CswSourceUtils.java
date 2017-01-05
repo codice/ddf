@@ -44,7 +44,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
-import org.codice.ui.admin.wizard.api.TestReport;
+import org.codice.ui.admin.wizard.api.test.TestReport;
 import org.w3c.dom.Document;
 
 public class CswSourceUtils {

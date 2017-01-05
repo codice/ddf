@@ -24,6 +24,8 @@ import org.codice.ui.admin.wizard.config.ConfiguratorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 public class LdapConfiguration extends Configuration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapConfiguration.class);
@@ -31,13 +33,13 @@ public class LdapConfiguration extends Configuration {
     public static final String LDAPS = "ldaps";
     public static final String TLS = "tls";
     public static final String NONE = "none";
-    static final String[] LDAP_ENCRYPTION_METHODS = new String[] {LDAPS, TLS, NONE};
+    public static final ImmutableList LDAP_ENCRYPTION_METHODS = ImmutableList.of(LDAPS, TLS, NONE);
+
     public static final String LOGIN = "login";
     public static final String CREDENTIAL_STORE = "credentialStore";
     public static final String LOGIN_AND_CREDENTIAL_STORE = "loginAndCredentialStore";
-    static final String[] LDAP_USE_CASES = new String[] {LOGIN, CREDENTIAL_STORE, LOGIN_AND_CREDENTIAL_STORE};
+    public static final ImmutableList LDAP_USE_CASES = ImmutableList.of(LOGIN, CREDENTIAL_STORE, LOGIN_AND_CREDENTIAL_STORE);
 
-    // TODO: tbatie - 12/20/16 - There will need to be a servicePid and factory pid for the sts claims and login
     private String servicePid;
     private String factoryPid;
     private String hostName;
@@ -57,7 +59,7 @@ public class LdapConfiguration extends Configuration {
     private String ldapUseCase;
     private String groupObjectClass;
     private String membershipAttribute;
-    // TODO: tbatie - 12/20/16 - I think we should change the probe method to take in a probe request and not stick this stuff into the configuration, it's not essential for persisting
+    public Map<String, String> attributeMappings;
     private List<Map<String, String>> queryResults;
 
     public LdapConfiguration() {
@@ -82,6 +84,7 @@ public class LdapConfiguration extends Configuration {
         }
     }
 
+    //Getters
     public String factoryPid() {
         return factoryPid;
     }
@@ -133,7 +136,7 @@ public class LdapConfiguration extends Configuration {
     public String ldapUseCase() {
         return ldapUseCase;
     }
-    public Map<String, String> attributeMappings;
+
     public List<Map<String, String>> queryResults() {
         return queryResults;
     }
@@ -155,6 +158,8 @@ public class LdapConfiguration extends Configuration {
     public Map<String, String> attributeMappings() {
         return attributeMappings;
     }
+
+    //Setters
     public LdapConfiguration hostName(String hostName) {
         this.hostName = hostName;
         return this;
@@ -246,6 +251,7 @@ public class LdapConfiguration extends Configuration {
         }
         return URI.create(ldapUrl);
     }
+
     public LdapConfiguration copy() {
         return new LdapConfiguration().hostName(hostName)
                 .port(port)

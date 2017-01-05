@@ -33,8 +33,8 @@ import javax.xml.namespace.NamespaceContext;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
-import org.codice.ui.admin.wizard.api.ProbeReport;
-import org.codice.ui.admin.wizard.api.TestReport;
+import org.codice.ui.admin.wizard.api.probe.ProbeReport;
+import org.codice.ui.admin.wizard.api.test.TestReport;
 
 import com.google.common.collect.ImmutableMap;
 

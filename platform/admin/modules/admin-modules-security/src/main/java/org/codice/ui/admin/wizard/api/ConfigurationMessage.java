@@ -21,11 +21,10 @@ import java.util.List;
 public class ConfigurationMessage {
 
     private MessageType type;
-
+    private String subType;
     private String message;
 
     private String configId;
-
     private List<Exception> exceptions;
 
     public ConfigurationMessage(MessageType type, Exception... exceptions) {
@@ -34,6 +33,7 @@ public class ConfigurationMessage {
         this.exceptions.addAll(Arrays.asList(exceptions));
     }
 
+    // TODO: tbatie - 1/3/17 - Pet peeve, let's change the message signature around here, messageType should go first
     public ConfigurationMessage(String message, MessageType type, Exception... exceptions) {
         this.message = message;
         this.type = type;
@@ -41,6 +41,13 @@ public class ConfigurationMessage {
         this.exceptions.addAll(Arrays.asList(exceptions));
     }
 
+    public ConfigurationMessage(MessageType type, String subType, String message) {
+        this.message = message;
+        this.type = type;
+        this.subType = subType;
+    }
+
+    // TODO: tbatie - 1/3/17 - Why do we have methods that just wrap the constructors
     public static ConfigurationMessage buildMessage(MessageType type) {
         return new ConfigurationMessage(type);
     }
@@ -51,6 +58,14 @@ public class ConfigurationMessage {
 
     public void addException(Exception e) {
         this.exceptions.add(e);
+    }
+
+    public String subType() {
+        return subType;
+    }
+
+    public String configId() {
+        return configId;
     }
 
     public String getMessage() {
@@ -64,11 +79,6 @@ public class ConfigurationMessage {
     //
     // Builder Methods
     //
-
-    public String getConfigId() {
-        return configId;
-    }
-
     public ConfigurationMessage configId(String configId) {
         this.configId = configId;
         return this;

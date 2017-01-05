@@ -32,8 +32,8 @@ import org.codice.ui.admin.sources.config.SourceConfigurationHandler;
 import org.codice.ui.admin.sources.config.SourceUtils;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
-import org.codice.ui.admin.wizard.api.ProbeReport;
-import org.codice.ui.admin.wizard.api.TestReport;
+import org.codice.ui.admin.wizard.api.probe.ProbeReport;
+import org.codice.ui.admin.wizard.api.test.TestReport;
 import org.codice.ui.admin.wizard.config.ConfigReport;
 import org.codice.ui.admin.wizard.config.Configurator;
 

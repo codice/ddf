@@ -12,12 +12,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ui.admin.wizard.api;
+package org.codice.ui.admin.wizard.api.probe;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.codice.ui.admin.wizard.api.ConfigurationMessage;
+import org.codice.ui.admin.wizard.api.test.TestReport;
 
 public class ProbeReport extends TestReport {
 

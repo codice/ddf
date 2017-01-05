@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
-import org.codice.ui.admin.wizard.api.ProbeReport;
-import org.codice.ui.admin.wizard.api.TestReport;
+import org.codice.ui.admin.wizard.api.probe.ProbeReport;
+import org.codice.ui.admin.wizard.api.test.TestReport;
 import org.codice.ui.admin.wizard.config.Configuration;
 import org.codice.ui.admin.wizard.config.RuntimeTypeAdapterFactory;
 import org.slf4j.Logger;
@@ -97,6 +97,16 @@ public class ConfigurationRouter implements SparkApplication {
             return results;
         }, this::toJson);
 
+        get("/probe/:configHandlerId/:probeId", (req, res) -> {
+            ProbeReport report = getConfigurationHandler(new ArrayList<>(handlers.values()),
+                    req.params("configHandlerId")).probe(req.params("probeId"), null);
+
+            if (report.containsUnsuccessfulMessages()) {
+                res.status(400);
+            }
+
+            return report;
+        }, this::toJson);
         post("/probe/:configHandlerId/:probeId", (req, res) -> {
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
             ProbeReport report = getConfigurationHandler(new ArrayList<>(handlers.values()),

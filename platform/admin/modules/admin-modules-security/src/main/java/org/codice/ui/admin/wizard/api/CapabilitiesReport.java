@@ -13,32 +13,59 @@
  */
 package org.codice.ui.admin.wizard.api;
 
+import java.util.List;
+
+import org.codice.ui.admin.wizard.api.persist.PersistMethod;
+import org.codice.ui.admin.wizard.api.probe.ProbeMethod;
+import org.codice.ui.admin.wizard.api.test.TestMethod;
+
 public class CapabilitiesReport {
+
     private String configurationType;
-    private Class configurationClass;
+    private String configurationHandlerId;
+
+    private List<TestMethod> testMethods;
+    private List<ProbeMethod> probeMethods;
+    private List<PersistMethod> persistMethods;
 
     public CapabilitiesReport(String configurationType, Class configurationClass){
-        this.configurationType = configurationType;
-        this.configurationClass = configurationClass;
+        // TODO: tbatie - 1/4/17 - This constructor should be removed, once everyone is properly implementing the other constructors
     }
 
-    public String configurationType() {
+
+    public CapabilitiesReport(String configurationType, String configurationHandlerId,
+            List<TestMethod> testMethods) {
+        this.configurationType = configurationType;
+        this.configurationHandlerId = configurationHandlerId;
+        this.testMethods = testMethods;
+    }
+
+    public CapabilitiesReport(String configurationType, String configurationHandlerId,
+            List<TestMethod> testMethods, List<ProbeMethod> probeMethods, List<PersistMethod> persistMethods) {
+        this.configurationType = configurationType;
+        this.configurationHandlerId = configurationHandlerId;
+        this.testMethods = testMethods;
+        this.probeMethods = probeMethods;
+        this.persistMethods = persistMethods;
+    }
+
+    public String getConfigurationType() {
         return configurationType;
     }
 
-    public CapabilitiesReport configurationType(String configurationType) {
-        this.configurationType = configurationType;
-        return this;
+    public String getConfigurationHandlerId() {
+        return configurationHandlerId;
     }
 
-    public Class configurationClass() {
-        return configurationClass;
+    public List<TestMethod> getTestMethods() {
+        return testMethods;
     }
 
-    public CapabilitiesReport configurationClass(Class configurationClass) {
-        this.configurationClass = configurationClass;
-        return this;
+    public List<ProbeMethod> getProbeMethods() {
+        return probeMethods;
     }
 
+    public List<PersistMethod> getPersistMethods() {
+        return persistMethods;
+    }
 }
-
