@@ -39,7 +39,7 @@
     full operational capabilities including configuration are limited. This feature has unresolved security
      issues would that would need to be resolved before it can be installed in a production environment -->
     <feature name="geowebcache-app" install="auto" version="${project.version}"
-             description="The GeoWebCache application provides tile caching and tile service aggregation.::DDF GeoWebCache">
+             description="The GeoWebCache application provides tile caching and tile service aggregation.::GeoWebCache">
         <feature>geowebcache-server-standalone</feature>
         <bundle>mvn:org.codice.ddf.spatial/geowebcache-admin-plugin/${project.version}</bundle>
     </feature>
