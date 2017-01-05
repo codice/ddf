@@ -77,10 +77,7 @@ public interface ProcessResource {
     long getSize();
 
     /**
-     * Determines if the {@code ProcessResource} has been modified or created by any of the {@link PostProcessPlugin}s
-     * during processing by the {@link ProcessingFramework}. This is used to determine whether or not a
-     * {@link ddf.catalog.content.operation.UpdateStorageRequest} for this {@code ProcessResource} needs
-     * to be made back to the {@link ddf.catalog.CatalogFramework}.
+     * Determines if the {@code ProcessResource} has been modified during processing.
      *
      * @return {@code true} if modified, {@code false} otherwise
      */
