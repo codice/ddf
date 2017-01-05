@@ -51,7 +51,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Export-Package>
-                            org.codice.ddf.catalog.async.plugin.api*
+                            org.codice.ddf.catalog.async.plugin.api.internal.*
                         </Export-Package>
                     </instructions>
                 </configuration>

@@ -14,7 +14,7 @@
 package org.codice.ddf.catalog.async.data.api.internal;
 
 /**
- * The {@code ProcessResourceItem} represents the the data that will be processed by the {@link ProcessingFramework}.
+ * The {@code ProcessResourceItem} represents the data that will be processed by the {@link ProcessingFramework}.
  * It maps a specific {@link ddf.catalog.data.Metacard} to an associated {@link ProcessResource}.
  */
 public interface ProcessResourceItem extends ProcessItem {
@@ -29,8 +29,9 @@ public interface ProcessResourceItem extends ProcessItem {
 
     /**
      * Determines whether or not the metacard from {@link ProcessItem#getMetacard()} has been modified
-     * by any of the {@link PostProcessPlugin}s during processing by the {@link ProcessingFramework}. This
-     * is used to determine whether or not any updates need to be made back to the {@link ddf.catalog.CatalogFramework}.
+     * by any of the {@link PostProcessPlugin}s during processing by the {@link ProcessingFramework}.
+     * This is used to determine whether or not a (@link ddf.catalog.operation.UpdateRequest} for this
+     * {@link ProcessItem#getMetacard()} needs to be made back to the {@link ddf.catalog.CatalogFramework}.
      *
      * @return {@code true} if modified, {@code false} otherwise
      */

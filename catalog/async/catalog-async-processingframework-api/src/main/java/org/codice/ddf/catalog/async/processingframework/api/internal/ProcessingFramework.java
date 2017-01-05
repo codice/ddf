@@ -24,9 +24,8 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
  * removed in a future version of the library. </b>
  * </p>
  * <p>
- * The {@code ProcessingFramework} processes all requests submitted to it. In the default implementation,
- * requests are received from a {@link ddf.catalog.plugin.PostIngestPlugin} that converts {@link ddf.catalog.operation.Request}s
- * to the appropriate data recognized by the {@code ProcessingFramework}.
+ * The {@code ProcessingFramework} processes all requests submitted to it. A {@link ddf.catalog.operation.Request}
+ * is converted to the appropriate data recognized by the {@code ProcessingFramework}.
  *
  * Available requests for processing are as follows:
  * <ul>

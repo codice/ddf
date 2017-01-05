@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.async.data.api.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 
 /**
  * <p>
@@ -28,30 +29,36 @@ import java.io.InputStream;
  */
 public interface ProcessResource {
 
-    String DEFAULT_MIME_TYPE = "application/octet-stream";
-
-    String DEFAULT_FILE_NAME = "content_store_file.bin";
+    /**
+     * Gets a URI that represents the resource in the catalog.
+     *
+     * @return the URI of the {@link ProcessResource}
+     */
+    URI getUri();
 
     /**
-     * An optional field to provide additional information about a {@link ProcessResource}
+     * A human friendly readable name.
+     *
+     * @return name of the {@link ProcessResource}
+     */
+    String getName();
+
+    /**
+     * An optional field to provide additional information about a {@link ProcessResource}, that if present,
+     * indicates that this {@link ProcessResource} is derived from another {@link ddf.catalog.resource.Resource}.
+     * The parent content of this {@link ProcessResource} is this {@link ProcessResource}'s {@link URI} without
+     * the qualifier.
      *
      * @return the qualifier of the {@link ProcessResource}
      */
     String getQualifier();
 
     /**
-     * The filename of the {@link ProcessResource}. If not set it will default to {@link #DEFAULT_FILE_NAME}
-     *
-     * @return the filename of the {@link ProcessResource}
-     */
-    String getFilename();
-
-    /**
      * Return the mime type raw data for the {@link ProcessResource}, e.g., image/nitf or application/json;id=geojson
      *
      * @return the mime type raw data for the {@link ProcessResource}
      */
-    String getMimeTypeRawData();
+    String getMimeType();
 
     /**
      * Return the input stream containing the {@link ProcessResource}'s actual data content.
@@ -70,7 +77,10 @@ public interface ProcessResource {
     long getSize();
 
     /**
-     * Determines if the {@code ProcessResource} has been modified during processing.
+     * Determines if the {@code ProcessResource} has been modified or created by any of the {@link PostProcessPlugin}s
+     * during processing by the {@link ProcessingFramework}. This is used to determine whether or not a
+     * {@link ddf.catalog.content.operation.UpdateStorageRequest} for this {@code ProcessResource} needs
+     * to be made back to the {@link ddf.catalog.CatalogFramework}.
      *
      * @return {@code true} if modified, {@code false} otherwise
      */

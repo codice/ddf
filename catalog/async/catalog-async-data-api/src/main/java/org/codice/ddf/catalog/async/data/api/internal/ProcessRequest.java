@@ -25,17 +25,18 @@ import ddf.catalog.operation.Operation;
  */
 
 /**
- * The {@code ProcessRequest} is a request that is capable of being processed by the {@link ProcessingFramework}.
+ * The {@code ProcessRequest} is a request that is capable of being processed by {@link PostProcessPlugin}s
+ * in a {@link ProcessingFramework}.
  *
  * @param <T> A {@link ProcessItem} that contains the data to be processed.
  */
 public interface ProcessRequest<T extends ProcessItem> extends Operation {
 
     /**
-     * Gets the {@link ProcessItem} that will contain the data required for processing by the {@link ProcessingFramework}.
+     * Gets the {@link ProcessItem}s that contain the data required for processing by the {@link ProcessingFramework}.
      * The available {@link ProcessItem}s are:
      * <ul>
-     *   <li>{@link ProcessCreateItem} which contains a {@link ddf.catalog.data.Metacard} and {@link ProcessResource}</li>
+     *   <li>{@link ProcessCreateItem} which contains a {@link ddf.catalog.data.Metacard} and the {@link ProcessResource}</li>
      *   <li>{@link ProcessUpdateItem} which contains an updated {@link ddf.catalog.data.Metacard}, the
      *   original {@link ddf.catalog.data.Metacard}, and the {@link ProcessResource}</li>
      *   <li>{@link ProcessDeleteItem} which contains the {@link ddf.catalog.data.Metacard} being deleted</li>

@@ -26,16 +26,16 @@ import ddf.catalog.plugin.PluginExecutionException;
  * removed in a future version of the library. </b>
  * </p>
  * <p>
- * A {@code PostProcessPlugin} represents a process that will be run asynchronously by the {@link ProcessingFramework}.
- * The {@code PostProcessPlugin}s may only be run after the {@link ddf.catalog.data.Metacard}s have been
- * ingested into the catalog. This will allow the {@code PostProcessPlugin}s to be able to use a copy
+ * A {@link PostProcessPlugin} represents a process that will be run asynchronously by the {@link ProcessingFramework}.
+ * The {@link PostProcessPlugin}s may only be run after the {@link ddf.catalog.data.Metacard}s have been
+ * ingested into the catalog. This will allow the {@link PostProcessPlugin}s to be able to use a copy
  * of the {@link ddf.catalog.data.Metacard}, and optionally a copy of the associated {@link ddf.catalog.resource.Resource}
  * of the catalog-stored record, in order to perform processing asynchronously.
  */
 public interface PostProcessPlugin {
 
     /**
-     * Submits a {@link ProcessRequest<ProcessCreateItem>} to be processed by the {@code PostProcessPlugin}.
+     * Submits a {@link ProcessRequest<ProcessCreateItem>} to be processed by the {@link PostProcessPlugin}.
      * The returned {@link ProcessRequest<ProcessCreateItem>} must be the same instance as the {@param input}.
      *
      * @param input the {@link ProcessRequest<ProcessCreateItem>} to be processed
@@ -45,7 +45,7 @@ public interface PostProcessPlugin {
             throws PluginExecutionException;
 
     /**
-     * Submits a {@link ProcessRequest<ProcessUpdateItem>} to be processed by the {@code PostProcessPlugin}.
+     * Submits a {@link ProcessRequest<ProcessUpdateItem>} to be processed by the {@link PostProcessPlugin}.
      * The returned {@link ProcessRequest<ProcessUpdateItem>} must be the same instance as the {@param input}.
      *
      * @param input the {@link ProcessRequest<ProcessUpdateItem>} to be processed
@@ -55,7 +55,7 @@ public interface PostProcessPlugin {
             throws PluginExecutionException;
 
     /**
-     * Submits a {@link ProcessRequest<ProcessDeleteItem>} to be processed by the {@code PostProcessPlugin}.
+     * Submits a {@link ProcessRequest<ProcessDeleteItem>} to be processed by the {@link PostProcessPlugin}.
      * The returned {@link ProcessRequest<ProcessDeleteItem>} must be the same instance as the {@param input}.
      *
      * @param input the {@link ProcessRequest<ProcessDeleteItem>} to be processed
