@@ -252,9 +252,9 @@ global configuration in Admin Console.
 
 Saved searches are search criteria that are created and saved by a user. Each saved search has a
 name that was defined by the user, and the search can be executed at a later time or be scheduled
-for execution. Saved records (metacards) that the user elected to save for future use are returned
+for execution. Bookmarked records that the user elected to save for future use are returned
 as part of a search. These queries can be saved to a <<Workspaces, workspace>>, which is a
-collection of searches and metacards created by a user. Complete the following procedure to create
+collection of searches and records created by a user. Complete the following procedure to create
 a saved search.
 
 . Select the Search tab at the bottom of the left pane.
@@ -262,7 +262,7 @@ a saved search.
 . Select the *Save* button. The Select Workspace pane opens.
 . Type a name for the query in the *ENTER NAME FOR SEARCH* field.
 . Select a workspace in which to save the query, or create a workspace by typing a title for the new workspace in the *New Workspace* field.
-. Select the Save button.
+. Select the *Save* button.
 
 
 [NOTE]
@@ -279,17 +279,14 @@ the download link.
 
 === Workspaces
 
-Each user can create multiple workspaces and assign each of them a descriptive name. Each workspace
-can contain multiple <<Save a Search, saved searches>> and contain multiple saved records
-(metacards). Workspaces are saved for each user and are loaded when the user logs in. Workspaces
-and their contents are persisted, so they survive if {branding} is restarted. Currently, workspaces
-are private and cannot be viewed by other users.
+Each user can create multiple workspaces and assign each of them a descriptive name.
+Each workspace can contain multiple <<Save a Search, saved searches>> and contain multiple saved records.
+Workspaces are saved for each user and are loaded when the user logs in.
+Workspaces and their contents are persisted, so they survive if {branding} is restarted. Within the Standard Search UI, workspaces are private and cannot be viewed by other users.
 
 ==== Create a Workspace
 
-. Select the Workspaces tab at the bottom of the Search UI's left pane. The Workspaces pane opens,
-  which displays the existing workspaces that were created by the user. At the top of the pane, an
-  option to *Add* and an option to *Edit* are displayed.
+. Select the Workspaces tab at the bottom of the Search UI's left pane. The Workspaces pane opens, which displays the existing workspaces that were created by the user. At the top of the pane, an option to *Add* and an option to *Edit* are displayed.
 . Select the *Add* button at the top of the left pane. A new workspace is created.
 . In the *Workspace Name* field, enter a descriptive name for the workspace.
 
