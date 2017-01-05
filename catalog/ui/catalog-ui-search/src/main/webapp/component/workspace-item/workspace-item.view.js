@@ -73,7 +73,6 @@ define([
         },
         serializeData: function() {
             var workspacesJSON = this.model.toJSON();
-            workspacesJSON.previewImage = workspacesJSON.metacards[0];
             workspacesJSON.niceDate = moment(workspacesJSON.modified).fromNow();
             return workspacesJSON;
         },
