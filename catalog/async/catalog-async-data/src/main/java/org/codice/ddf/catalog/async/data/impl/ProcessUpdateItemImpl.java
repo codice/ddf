@@ -11,35 +11,44 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.async.data;
+package org.codice.ddf.catalog.async.data.impl;
 
-import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResource;
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessUpdateItem;
 
 import ddf.catalog.data.Metacard;
 
-public class ProcessCreateItemImpl implements ProcessCreateItem {
+public class ProcessUpdateItemImpl implements ProcessUpdateItem {
 
     private ProcessResource processResource;
 
-    private Metacard metacard;
+    private Metacard oldMetacard;
+
+    private Metacard newMetacard;
 
     private boolean isMetacardModified;
 
-    public ProcessCreateItemImpl(ProcessResource processResource, Metacard metacard) {
-        this(processResource, metacard, true);
+    public ProcessUpdateItemImpl(ProcessResource processResource, Metacard newMetacard,
+            Metacard oldMetacard) {
+        this(processResource, newMetacard, oldMetacard, true);
     }
 
-    public ProcessCreateItemImpl(ProcessResource processResource, Metacard metacard,
-            boolean isMetacardModified) {
+    public ProcessUpdateItemImpl(ProcessResource processResource, Metacard newMetacard,
+            Metacard oldMetacard, boolean isMetacardModified) {
         this.processResource = processResource;
-        this.metacard = metacard;
+        this.newMetacard = newMetacard;
+        this.oldMetacard = oldMetacard;
         this.isMetacardModified = isMetacardModified;
     }
 
     @Override
     public Metacard getMetacard() {
-        return metacard;
+        return newMetacard;
+    }
+
+    @Override
+    public Metacard getOldMetacard() {
+        return oldMetacard;
     }
 
     @Override

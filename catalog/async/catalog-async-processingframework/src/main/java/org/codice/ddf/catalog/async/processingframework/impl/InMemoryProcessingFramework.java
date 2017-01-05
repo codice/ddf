@@ -31,13 +31,13 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.catalog.async.data.ProcessResourceImpl;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
+import org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl;
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessCreateItem;
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessDeleteItem;
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessRequest;
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResource;
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResourceItem;
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessUpdateItem;
 import org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin;
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
@@ -223,7 +223,7 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                             processResource.getQualifier(),
                             byteSource,
                             processResource.getMimeType(),
-                            processResource.getFilename(),
+                            processResource.getName(),
                             processResource.getSize(),
                             item.getMetacard());
 

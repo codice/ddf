@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.async.data.api.internal;
+package org.codice.ddf.catalog.async.data.impl.api.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,7 +77,10 @@ public interface ProcessResource {
     long getSize();
 
     /**
-     * Determines if the {@code ProcessResource} has been modified during processing.
+     * Determines if the {@code ProcessResource} has been modified or created by any of the {@link PostProcessPlugin}s
+     * during processing by the {@link ProcessingFramework}. This is used to determine whether or not a
+     * {@link ddf.catalog.content.operation.UpdateStorageRequest} for this {@code ProcessResource} needs
+     * to be made back to the {@link ddf.catalog.CatalogFramework}.
      *
      * @return {@code true} if modified, {@code false} otherwise
      */

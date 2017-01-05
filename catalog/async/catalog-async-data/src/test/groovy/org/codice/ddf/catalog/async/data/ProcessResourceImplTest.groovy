@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.async.data
 
-import org.codice.ddf.catalog.async.data.api.internal.ProcessResource
+import org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl
 import spock.lang.Specification
 
 class ProcessResourceImplTest extends Specification {
@@ -39,7 +39,7 @@ class ProcessResourceImplTest extends Specification {
         then:
         processResource.getQualifier() == ''
         processResource.isModified()
-        processResource.getUri() == RESOURCE_URI
+        processResource.getUri().toString() == RESOURCE_URI
     }
 
     def 'process resource unknown size'() {
@@ -57,7 +57,7 @@ class ProcessResourceImplTest extends Specification {
         then:
         processResource.getQualifier() == ''
         !processResource.isModified()
-        processResource.getUri() == RESOURCE_URI
+        processResource.getUri().toString() == RESOURCE_URI
     }
 
     def 'test process resource qualified'() {
@@ -67,7 +67,7 @@ class ProcessResourceImplTest extends Specification {
         then:
         processResource.getQualifier() == QUALIFIER
         processResource.isModified()
-        processResource.getUri() == RESOURCE_URI + "#" + QUALIFIER
+        processResource.getUri().toString() == RESOURCE_URI + "#" + QUALIFIER
     }
 
     def 'test process resource'() {
@@ -77,21 +77,21 @@ class ProcessResourceImplTest extends Specification {
 
         then:
         if (mimeType == null && fileName == null) {
-            assert processResource.getFilename() == ProcessResource.DEFAULT_FILE_NAME
-            assert processResource.getMimeType() == ProcessResource.DEFAULT_MIME_TYPE
+            assert processResource.getName() == ProcessResourceImpl.DEFAULT_NAME
+            assert processResource.getMimeType() == ProcessResourceImpl.DEFAULT_MIME_TYPE
         } else {
             assert processResource.getQualifier() == qualifier
             assert !processResource.isModified()
-            assert processResource.getFilename() == fileName
+            assert processResource.getName() == fileName
             assert processResource.getMimeType() == mimeType
             assert processResource.getInputStream() == stream
             assert processResource.getSize() == SIZE
         }
 
         if (qualifier == null) {
-            assert processResource.getUri() == RESOURCE_URI
+            assert processResource.getUri().toString() == RESOURCE_URI
         } else {
-            assert processResource.getUri() == RESOURCE_URI + "#" + QUALIFIER
+            assert processResource.getUri().toString() == RESOURCE_URI + "#" + QUALIFIER
         }
 
         where:

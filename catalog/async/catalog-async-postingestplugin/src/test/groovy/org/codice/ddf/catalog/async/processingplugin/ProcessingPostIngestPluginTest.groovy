@@ -19,10 +19,10 @@ import ddf.catalog.operation.*
 import ddf.catalog.resource.Resource
 import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.resource.ResourceNotSupportedException
-import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem
-import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem
-import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
-import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessCreateItem
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessDeleteItem
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessRequest
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessUpdateItem
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework
 import org.codice.ddf.catalog.async.processingplugin.ProcessingPostIngestPlugin
 import spock.lang.Specification

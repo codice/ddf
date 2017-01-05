@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.async.data;
+package org.codice.ddf.catalog.async.data.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,17 +19,21 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResource;
 
 public class ProcessResourceImpl implements ProcessResource {
 
     private static final String CONTENT_SCHEME = "content";
 
+    private static final String DEFAULT_NAME = "application/octet-stream";
+
+    private static final String DEFAULT_MIME_TYPE = "content_store_file.bin";
+
     private static final int UNKNOWN_SIZE = -1;
 
     private URI uri;
 
-    private String filename;
+    private String name;
 
     private String mimeTypeRawData;
 
@@ -42,35 +46,35 @@ public class ProcessResourceImpl implements ProcessResource {
     private boolean isModified;
 
     public ProcessResourceImpl(String metacardId, InputStream inputStream, String mimeTypeRawData,
-            String filename) {
-        this(metacardId, inputStream, mimeTypeRawData, filename, UNKNOWN_SIZE, "", true);
+            String name) {
+        this(metacardId, inputStream, mimeTypeRawData, name, UNKNOWN_SIZE, "", true);
     }
 
     public ProcessResourceImpl(String metacardId, InputStream inputStream, String mimeTypeRawData,
-            String filename, long size) {
-        this(metacardId, inputStream, mimeTypeRawData, filename, size, "", true);
+            String name, long size) {
+        this(metacardId, inputStream, mimeTypeRawData, name, size, "", true);
     }
 
     public ProcessResourceImpl(String metacardId, InputStream inputStream, String mimeTypeRawData,
-            String filename, long size, boolean isModified) {
-        this(metacardId, inputStream, mimeTypeRawData, filename, size, "", isModified);
+            String name, long size, boolean isModified) {
+        this(metacardId, inputStream, mimeTypeRawData, name, size, "", isModified);
     }
 
     public ProcessResourceImpl(String metacardId, InputStream inputStream, String mimeTypeRawData,
-            String filename, long size, String qualifier) {
-        this(metacardId, inputStream, mimeTypeRawData, filename, size, qualifier, true);
+            String name, long size, String qualifier) {
+        this(metacardId, inputStream, mimeTypeRawData, name, size, qualifier, true);
     }
 
     public ProcessResourceImpl(String metacardId, InputStream inputStream, String mimeTypeRawData,
-            String filename, long size, String qualifier, boolean isModified) {
+            String name, long size, String qualifier, boolean isModified) {
         this.isModified = isModified;
         this.qualifier = qualifier;
         this.inputStream = inputStream;
         this.size = size;
-        if (StringUtils.isNotBlank(filename)) {
-            this.filename = filename;
+        if (StringUtils.isNotBlank(name)) {
+            this.name = name;
         } else {
-            this.filename = DEFAULT_FILE_NAME;
+            this.name = DEFAULT_NAME;
         }
         this.mimeTypeRawData = DEFAULT_MIME_TYPE;
         if (StringUtils.isNotBlank(mimeTypeRawData)) {
@@ -88,8 +92,8 @@ public class ProcessResourceImpl implements ProcessResource {
     }
 
     @Override
-    public String getUri() {
-        return uri.toString();
+    public URI getUri() {
+        return uri;
     }
 
     @Override
@@ -98,8 +102,8 @@ public class ProcessResourceImpl implements ProcessResource {
     }
 
     @Override
-    public String getFilename() {
-        return filename;
+    public String getName() {
+        return name;
     }
 
     @Override

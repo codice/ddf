@@ -20,10 +20,10 @@ import ddf.catalog.operation.UpdateRequest
 import ddf.catalog.plugin.PluginExecutionException
 import ddf.catalog.source.IngestException
 import ddf.catalog.source.SourceUnavailableException
-import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem
-import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
-import org.codice.ddf.catalog.async.data.api.internal.ProcessResource
-import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessDeleteItem
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessRequest
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResource
+import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResourceItem
 import org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream
 import spock.lang.Specification

@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.async.data.api.internal;
+package org.codice.ddf.catalog.async.data.impl.api.internal;
 
 import ddf.catalog.data.Metacard;
 
@@ -20,19 +20,17 @@ import ddf.catalog.data.Metacard;
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  * </p>
+ * <p>
+ *
+ * The {@code ProcessUpdateItem} represents the data that will be processed by the {@link PostProcessPlugin}s
+ * after a {@link ddf.catalog.data.Metacard} has been updated in the catalog.
  */
-
-/**
- * A {@code ProcessItem} is used by the {@link ProcessRequest} to store the necessary data needed for
- * processing by the {@code ProcessingFramework}.
- * @see ProcessResourceItem
- */
-public interface ProcessItem {
+public interface ProcessUpdateItem extends ProcessResourceItem {
 
     /**
-     * Gets the {@link Metacard} associated with this {@code ProcessItem}
+     * Gets the original {@link Metacard} before the update.
      *
-     * @return {@link Metacard}
+     * @return the original {@link Metacard}
      */
-    Metacard getMetacard();
+    Metacard getOldMetacard();
 }
