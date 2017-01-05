@@ -14,7 +14,6 @@
 package ddf.catalog.cache.solr.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -311,7 +310,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 .map(Map.Entry::getValue)
                 .map(Federatable::getSourceIds)
                 .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
                 .anyMatch(s -> s.contains(source.getId()));
     }
 
