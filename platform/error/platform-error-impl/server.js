@@ -20,14 +20,12 @@ var app = express();
 app.use(require('connect-livereload')());
 
 // our compiled css gets moved to /target/webapp/css so use it there
-app.use('/css',express.static(__dirname + '/target/webapp/css'));
-app.use('/lib',express.static(__dirname + '/target/webapp/lib'));
+app.use('/css', express.static(__dirname + '/target/webapp/css'));
+app.use('/lib', express.static(__dirname + '/target/webapp/lib'));
 app.use(express.static(__dirname + '/src/main/webapp'));
 
 app.all('/error/*', server.requestProxy);
 
-exports = module.exports = app;
-
-exports.use = function() {
-	app.use.apply(app, arguments);
-};
+const launcher = app.listen(process.env.PORT || 8282, function () {
+    console.log('Server listening on port ' + launcher.address().port);
+});

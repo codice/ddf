@@ -56,7 +56,7 @@ proxy.on('error', function (error) {
     console.error('http-proxy', error);
 });
 
-proxy.on('proxyRes', function(proxyRes, req, res) {
+proxy.on('proxyRes', function (proxyRes, req, res) {
     var cookie = proxyRes.headers['set-cookie'];
     if (cookie !== undefined) {
         // force the cookie to be insecure since the proxy is over http
@@ -66,11 +66,9 @@ proxy.on('proxyRes', function(proxyRes, req, res) {
 
 //if we're mocking, it is being run by grunt
 app.use(function (req, res) {
-    proxy.web(req, res, { target: 'https://localhost:8993' });
+    proxy.web(req, res, {target: 'https://localhost:8993'});
 });
 
-exports = module.exports = app;
-
-exports.use = function() {
-	app.use.apply(app, arguments);
-};
+const launcher = app.listen(process.env.PORT || 8282, function () {
+    console.log('Server listening on port ' + launcher.address().port);
+});
