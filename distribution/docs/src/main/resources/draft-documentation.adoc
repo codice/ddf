@@ -204,6 +204,14 @@ include::{adoc-include}/_validation/validation-intro-contents.adoc[]
 
 include::{adoc-include}/_validation/schematron-intro-contents.adoc[]
 
+=== Neutral Taxonomy
+
+include::{adoc-include}/_data/neutral-taxonomy-intro-contents.adoc[]
+
+include::{adoc-include}/_data/neutral-taxonomy-categories-contents.adoc[]
+
+include::{adoc-include}/_data/neutral-taxonomy-tables-contents.adoc[]
+
 == Endpoints
 
 include::{adoc-include}/_endpoints/endpoints-intro-contents.adoc[]

@@ -1,0 +1,14 @@
+
+==== Attribute Categories
+
+* <<_core_attributes_table,Core Attributes>>
+* <<_metacard_attributes_table,Metacard Attributes>>
+* <<_history_attributes_table,History Attributes>>
+* <<_associations_attributes_table,Associations Attributes>>
+* <<_datetime_attributes_table,DateTime Attributes>>
+* <<_contact_attributes_table,Contact Attributes>>
+* <<_location_attributes_table,Location Attributes>>
+* <<_media_attributes_table,Media Attributes>>
+* <<_security_attributes_table,Security Attributes>>
+* <<_topic_attributes_table,Topic Attributes>>
+* <<_validation_attributes_table,Validation Attributes>>
