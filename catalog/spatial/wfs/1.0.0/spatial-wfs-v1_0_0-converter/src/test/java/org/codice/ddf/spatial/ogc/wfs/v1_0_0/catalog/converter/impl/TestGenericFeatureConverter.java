@@ -13,8 +13,11 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -100,62 +103,91 @@ public class TestGenericFeatureConverter {
 
         xstream.alias(FEATURE_TYPE, MetacardImpl.class);
         InputStream is =
-                TestGenericFeatureConverter.class.getResourceAsStream("/video_data_set.xml");
+                TestGenericFeatureConverter.class.getResourceAsStream("/video_data_set_1.xml");
         Metacard mc = (Metacard) xstream.fromXML(is);
 
-        assertEquals("video_data_set.2", mc.getId());
-        assertEquals(FEATURE_TYPE, mc.getContentTypeName());
-        assertEquals(metacardType.getName(),
-                mc.getMetacardType()
-                        .getName());
-        assertEquals(SOURCE_ID, mc.getSourceId());
-        assertEquals("video_data_set.2", mc.getAttribute(Core.TITLE).getValue());
+        assertThat(mc.getId(), is("video_data_set.2"));
+        assertThat(mc.getContentTypeName(), is(FEATURE_TYPE));
+        assertThat(mc.getMetacardType().getName(), is(metacardType.getName()));
+        assertThat(mc.getSourceId(), is(SOURCE_ID));
+        assertThat(mc.getAttribute(Core.TITLE).getValue(), is("video_data_set.2"));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + ID_ELEMENT).getValue(), is(2L));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + VERSION_ELEMENT).getValue(), is(1L));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + END_DATE_ELEMENT).getValue(), is(DatatypeConverter.parseDateTime("2005-04-07T09:54:38.983").getTime()));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + FILENAME_ELEMENT).getValue(), is("/data/test_suite/video/video/videoFile.mpg"));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + HEIGHT_ELEMENT).getValue(), is(720L));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + INDEX_ID_ELEMENT).getValue(), is("a8a55092f0afae881099637ef7746cd8d7066270d9af4cf0f52c41dab53c4005"));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + OTHER_TAGS_XML_ELEMENT).getValue(), is(getOtherTagsXml()));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + REPOSITORY_ID_ELEMENT).getValue(), is(26L));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + START_DATE_ELEMENT).getValue(), is(
+                DatatypeConverter.parseDateTime("2005-04-07T09:53:39.000")
+                        .getTime()));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + WIDTH_ELEMENT).getValue(), is(1280L));
+        assertThat(mc.getAttribute(Core.LOCATION).getValue(), is(getLocation()));
+        assertThat(mc.getAttribute(PROPERTY_PREFIX + GROUND_GEOM_ELEMENT).getValue(), is(mc.getLocation()));
 
-        assertEquals(2L,
-                mc.getAttribute(PROPERTY_PREFIX + ID_ELEMENT)
-                        .getValue());
-        assertEquals(Long.valueOf(1L),
-                mc.getAttribute(PROPERTY_PREFIX + VERSION_ELEMENT)
-                        .getValue());
-        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:54:38.983")
-                        .getTime(),
-                mc.getAttribute(PROPERTY_PREFIX + END_DATE_ELEMENT)
-                        .getValue());
-        assertEquals("/data/test_suite/video/video/videoFile.mpg",
-                mc.getAttribute(PROPERTY_PREFIX + FILENAME_ELEMENT)
-                        .getValue());
-        assertEquals(720L,
-                mc.getAttribute(PROPERTY_PREFIX + HEIGHT_ELEMENT)
-                        .getValue());
-        assertEquals("a8a55092f0afae881099637ef7746cd8d7066270d9af4cf0f52c41dab53c4005",
-                mc.getAttribute(PROPERTY_PREFIX + INDEX_ID_ELEMENT)
-                        .getValue());
-        assertEquals(getOtherTagsXml(),
-                mc.getAttribute(PROPERTY_PREFIX + OTHER_TAGS_XML_ELEMENT)
-                        .getValue());
-        assertEquals(26L,
-                mc.getAttribute(PROPERTY_PREFIX + REPOSITORY_ID_ELEMENT)
-                        .getValue());
-        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:53:39.000")
-                        .getTime(),
-                mc.getAttribute(PROPERTY_PREFIX + START_DATE_ELEMENT)
-                        .getValue());
-        assertEquals(1280L,
-                mc.getAttribute(PROPERTY_PREFIX + WIDTH_ELEMENT)
-                        .getValue());
+        assertThat(mc.getEffectiveDate(), notNullValue());
+        assertThat(mc.getAttribute(Core.CREATED), notNullValue());
+        assertThat(mc.getAttribute(Core.MODIFIED), notNullValue());
 
-        assertEquals(getLocation(), mc.getAttribute(Core.LOCATION).getValue());
-        assertEquals(mc.getLocation(),
-                mc.getAttribute(PROPERTY_PREFIX + GROUND_GEOM_ELEMENT)
-                        .getValue());
+        assertThat(mc.getContentTypeNamespace(), notNullValue());
+        assertThat(mc.getContentTypeNamespace().toString(), is(WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName()));
+    }
 
-        assertNotNull(mc.getEffectiveDate());
-        assertNotNull(mc.getAttribute(Core.CREATED));
-        assertNotNull(mc.getAttribute(Core.MODIFIED));
+    @Test
+    public void testUnmarshalFeatureCollectionNonWGS84XmlToObject() {
+        XStream xstream = new XStream(new WstxDriver());
+        FeatureCollectionConverterWfs10 fcConverter = new FeatureCollectionConverterWfs10();
+        Map<String, FeatureConverter> fcMap = new HashMap<>();
 
-        assertNotNull(mc.getContentTypeNamespace());
-        assertEquals(mc.getContentTypeNamespace()
-                .toString(), WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName());
+        GenericFeatureConverter converter = new GenericFeatureConverter("EPSG:26713");
+
+        fcMap.put("video_data_set", converter);
+        fcConverter.setFeatureConverterMap(fcMap);
+
+        xstream.registerConverter(fcConverter);
+
+        converter.setMetacardType(buildMetacardType());
+        xstream.registerConverter(converter);
+        xstream.registerConverter(new GmlGeometryConverter());
+        xstream.alias("FeatureCollection", WfsFeatureCollection.class);
+        InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
+                "/video_data_set_2.xml");
+
+        WfsFeatureCollection wfc = (WfsFeatureCollection) xstream.fromXML(is);
+        assertThat(wfc.getFeatureMembers(), hasSize(1));
+        Metacard mc = wfc.getFeatureMembers()
+                .get(0);
+        assertThat(mc.getId(), is("video_data_set.1"));
+        assertThat(mc.getLocation(), is("MULTILINESTRING ((-103.85275410013904 44.48520433037816, -103.85142707963864 44.48544013668279))"));
+    }
+
+    @Test
+    public void testUnmarshalFeatureCollectionUnsupportedProjectionXmlToObject() {
+        XStream xstream = new XStream(new WstxDriver());
+        FeatureCollectionConverterWfs10 fcConverter = new FeatureCollectionConverterWfs10();
+        Map<String, FeatureConverter> fcMap = new HashMap<>();
+
+        GenericFeatureConverter converter = new GenericFeatureConverter("CUSTOM UNSUPPORTED PROJECTION");
+
+        fcMap.put("video_data_set", converter);
+        fcConverter.setFeatureConverterMap(fcMap);
+
+        xstream.registerConverter(fcConverter);
+
+        converter.setMetacardType(buildMetacardType());
+        xstream.registerConverter(converter);
+        xstream.registerConverter(new GmlGeometryConverter());
+        xstream.alias("FeatureCollection", WfsFeatureCollection.class);
+        InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
+                "/video_data_set_2.xml");
+
+        WfsFeatureCollection wfc = (WfsFeatureCollection) xstream.fromXML(is);
+        assertThat(wfc.getFeatureMembers(), hasSize(1));
+        Metacard mc = wfc.getFeatureMembers()
+                .get(0);
+        assertThat(mc.getId(), is("video_data_set.1"));
+        assertThat(mc.getLocation(), nullValue());
     }
 
     @Test
@@ -179,12 +211,9 @@ public class TestGenericFeatureConverter {
                 "/video_data_set_collection.xml");
 
         WfsFeatureCollection wfc = (WfsFeatureCollection) xstream.fromXML(is);
-        assertEquals(4,
-                wfc.getFeatureMembers()
-                        .size());
-        Metacard mc = wfc.getFeatureMembers()
-                .get(0);
-        assertEquals(mc.getId(), "video_data_set.1");
+        assertThat(wfc.getFeatureMembers(), hasSize(4));
+        Metacard mc = wfc.getFeatureMembers().get(0);
+        assertThat(mc.getId(), is("video_data_set.1"));
 
     }
 
@@ -195,9 +224,9 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.alias(FEATURE_TYPE, Metacard.class);
         InputStream is =
-                TestGenericFeatureConverter.class.getResourceAsStream("/video_data_set.xml");
+                TestGenericFeatureConverter.class.getResourceAsStream("/video_data_set_1.xml");
         try {
-            WfsFeatureCollection wfs = (WfsFeatureCollection) xstream.fromXML(is);
+            xstream.fromXML(is);
         } catch (Exception e) {
             throw e.getCause();
         }
@@ -242,7 +271,7 @@ public class TestGenericFeatureConverter {
         wfc.getFeatureMembers()
                 .add(mc2);
 
-        String xml = xstream.toXML(wfc);
+        xstream.toXML(wfc);
     }
 
     @Test
@@ -253,7 +282,7 @@ public class TestGenericFeatureConverter {
         String xml = "<string><![CDATA[" + contents + "]]></string>";
         String results = (String) xstream.fromXML(xml);
 
-        assertEquals(contents, results);
+        assertThat(contents, is(results));
     }
 
     private MetacardType buildMetacardType() {
@@ -264,13 +293,13 @@ public class TestGenericFeatureConverter {
 
         return new FeatureMetacardType(schema,
                 new QName(FEATURE_TYPE),
-                new ArrayList<String>(),
+                new ArrayList<>(),
                 Wfs10Constants.GML_NAMESPACE);
 
     }
 
     private Map<QName, XmlSchemaElement> buildElementMap(XmlSchema schema) {
-        Map<QName, XmlSchemaElement> elementMap = new HashMap<QName, XmlSchemaElement>();
+        Map<QName, XmlSchemaElement> elementMap = new HashMap<>();
         elementMap.put(new QName(ID_ELEMENT),
                 buildSchemaElement(ID_ELEMENT, schema, Constants.XSD_LONG));
         elementMap.put(new QName(VERSION_ELEMENT),

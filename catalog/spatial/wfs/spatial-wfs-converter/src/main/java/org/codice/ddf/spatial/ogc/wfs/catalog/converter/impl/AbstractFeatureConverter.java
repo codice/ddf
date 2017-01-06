@@ -44,8 +44,18 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
+import org.geotools.factory.Hints;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.ReferencingFactoryFinder;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CRSAuthorityFactory;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -98,6 +108,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     private NoNameCoder noNameCoder = new NoNameCoder();
 
     private MetacardMapper metacardMapper = null;
+
+    private String srs = WfsConstants.EPSG_4326;
 
     public AbstractFeatureConverter() {
 
@@ -281,6 +293,9 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             Geometry geo = null;
             try {
                 geo = gmlReader.read(xml, null);
+                if (StringUtils.isNotBlank(srs) && !srs.equals(WfsConstants.EPSG_4326)) {
+                    geo = transformToEPSG4326(geo);
+                }
             } catch (SAXException | IOException | ParserConfigurationException e) {
                 LOGGER.debug(ERROR_PARSING_MESSAGE, e);
             }
@@ -305,6 +320,26 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         }
         return ser;
 
+    }
+
+    private Geometry transformToEPSG4326(Geometry geometry) {
+        Geometry transformedGeometry = null;
+        try {
+            Hints hints = new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE);
+            CRSAuthorityFactory factory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG",
+                    hints);
+            CoordinateReferenceSystem targetCRS = factory.createCoordinateReferenceSystem(
+                    WfsConstants.EPSG_4326);
+
+            CoordinateReferenceSystem sourceCRS = CRS.decode(srs);
+
+            MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS);
+            transformedGeometry = JTS.transform(geometry, transform);
+            LOGGER.debug("Converted CRS {} into {} : {}", srs, WfsConstants.EPSG_4326, geometry);
+        } catch (FactoryException | TransformException e) {
+            LOGGER.debug("Unable to convert {} into {}", srs, WfsConstants.EPSG_4326, e);
+        }
+        return transformedGeometry;
     }
 
     private String convertToBytes(HierarchicalStreamReader reader, String unit) {
@@ -404,6 +439,10 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     private boolean isBasicMetacardAttribute(String attrName) {
         return basicAttributeNames.contains(attrName);
+    }
+
+    public void setSrs(String srs) {
+        this.srs = srs;
     }
 
 }
