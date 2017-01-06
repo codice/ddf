@@ -18,5 +18,7 @@ import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 
 public interface SourceConfigurationHandler<S extends SourceConfiguration>
         extends ConfigurationHandler<S> {
+    String CREATE = "create";
+    String DELETE = "delete";
     String getSourceDisplayName();
 }

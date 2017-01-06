@@ -15,8 +15,8 @@
 package org.codice.ui.admin.sources.config.wfs;
 
 import static org.codice.ui.admin.sources.config.SourceConfigurationHandlerImpl.DISCOVER_SOURCES_ID;
-import static org.codice.ui.admin.sources.config.SourceConfigurationHandlerImpl.MANUAL_URL_TEST_ID;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.NO_TEST_FOUND;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
 
@@ -29,16 +29,19 @@ import java.util.stream.Collectors;
 
 import org.codice.ui.admin.sources.config.SourceConfiguration;
 import org.codice.ui.admin.sources.config.SourceConfigurationHandler;
-import org.codice.ui.admin.sources.config.SourceUtils;
+import org.codice.ui.admin.sources.config.test.WfsUrlTestMethod;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.probe.ProbeReport;
+import org.codice.ui.admin.wizard.api.test.TestMethod;
 import org.codice.ui.admin.wizard.api.test.TestReport;
 import org.codice.ui.admin.wizard.config.ConfigReport;
 import org.codice.ui.admin.wizard.config.Configurator;
 
 public class WfsSourceConfigurationHandler
         implements SourceConfigurationHandler<SourceConfiguration> {
+
+    List<TestMethod> testMethods = Arrays.asList(new WfsUrlTestMethod());
 
     public static final String WFS_SOURCE_CONFIGURATION_HANDLER_ID =
             "WfsSourceConfigurationHandler";
@@ -80,18 +83,15 @@ public class WfsSourceConfigurationHandler
 
 
     @Override
-    public TestReport test(String testId, SourceConfiguration configuration) {
-        switch (testId) {
-        case MANUAL_URL_TEST_ID:
-            WfsSourceConfiguration config = new WfsSourceConfiguration(configuration);
-            Optional<ConfigurationMessage> message = SourceUtils.endpointIsReachable(config);
-            if (message.isPresent()){
-                return new TestReport(message.get());
-            }
-            return WfsSourceUtils.discoverUrlCapabilities(config);
-        default:
-            return new TestReport(buildMessage(FAILURE, "No such test."));
-        }
+    public TestReport test(String testId, SourceConfiguration baseConfiguration) {
+        WfsSourceConfiguration configuration = new WfsSourceConfiguration(baseConfiguration);
+        Optional<TestMethod> testMethod = testMethods.stream()
+                .filter(method -> method.id().equals(testId))
+                .findFirst();
+
+        return testMethod.isPresent() ?
+                testMethod.get().test(configuration) :
+                new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
     }
 
     public TestReport persist(SourceConfiguration configuration, String persistId) {
@@ -99,19 +99,19 @@ public class WfsSourceConfigurationHandler
         ConfigReport report;
 
         switch(persistId) {
-        case "create":
+        case CREATE:
             configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
             report = configurator.commit();
             return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to create WFS Source")) :
-                                                    new TestReport(buildMessage(SUCCESS, "WFS Source Created"));
-        case "delete":
+                                                    new TestReport(buildMessage(SUCCESS, "WFS Source created"));
+        case DELETE:
             // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
             configurator.deleteManagedService(configuration.servicePid());
             report = configurator.commit();
             return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to delete WFS Source")) :
-                                                    new TestReport(buildMessage(SUCCESS, "WFS Source Deleted"));
+                                                    new TestReport(buildMessage(SUCCESS, "WFS Source deleted"));
         default:
-            return new TestReport(buildMessage(FAILURE, "Uknown persist id: " + persistId));
+            return new TestReport(buildMessage(FAILURE, "Unknown persist id: " + persistId));
         }
     }
 

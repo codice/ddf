@@ -15,22 +15,24 @@
 package org.codice.ui.admin.sources.config.opensearch;
 
 import static org.codice.ui.admin.sources.config.SourceConfigurationHandlerImpl.DISCOVER_SOURCES_ID;
-import static org.codice.ui.admin.sources.config.SourceConfigurationHandlerImpl.MANUAL_URL_TEST_ID;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.NO_TEST_FOUND;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.codice.ui.admin.sources.config.SourceConfiguration;
 import org.codice.ui.admin.sources.config.SourceConfigurationHandler;
-import org.codice.ui.admin.sources.config.SourceUtils;
+import org.codice.ui.admin.sources.config.test.OpenSearchUrlTestMethod;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.probe.ProbeReport;
+import org.codice.ui.admin.wizard.api.test.TestMethod;
 import org.codice.ui.admin.wizard.api.test.TestReport;
 import org.codice.ui.admin.wizard.config.ConfigReport;
 import org.codice.ui.admin.wizard.config.Configurator;
@@ -44,6 +46,8 @@ public class OpenSearchSourceConfigurationHandler
     private static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";
 
     public static final String OPENSEARCH_FACTORY_PID = "OpenSearchSource";
+
+    private List<TestMethod> testMethods = Arrays.asList(new OpenSearchUrlTestMethod());
 
     @Override
     public ProbeReport probe(String probeId, SourceConfiguration baseConfiguration) {
@@ -73,18 +77,15 @@ public class OpenSearchSourceConfigurationHandler
     }
 
     @Override
-    public TestReport test(String testId, SourceConfiguration configuration) {
-        switch (testId) {
-        case MANUAL_URL_TEST_ID:
-            OpenSearchSourceConfiguration config = new OpenSearchSourceConfiguration(configuration);
-            Optional<ConfigurationMessage> message = SourceUtils.endpointIsReachable(config);
-            if(message.isPresent()) {
-                return new TestReport(message.get());
-            }
-            return OpenSearchSourceUtils.discoverUrlCapabilities(config);
-        default:
-            return new TestReport(buildMessage(FAILURE, "No such test."));
-        }
+    public TestReport test(String testId, SourceConfiguration baseConfiguration) {
+        OpenSearchSourceConfiguration configuration = new OpenSearchSourceConfiguration(baseConfiguration);
+        Optional<TestMethod> testMethod = testMethods.stream()
+                .filter(method -> method.id().equals(testId))
+                .findFirst();
+
+        return testMethod.isPresent() ?
+                testMethod.get().test(configuration) :
+                new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
     }
 
     @Override
@@ -94,17 +95,17 @@ public class OpenSearchSourceConfigurationHandler
         ConfigReport report;
 
         switch(persistId) {
-        case "create":
+        case CREATE:
             configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
             report = configurator.commit();
-            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to create Open Search Source")) :
-                    new TestReport(buildMessage(SUCCESS, "Open Search Source created"));
-        case "delete":
+            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to create OpenSearch Source")) :
+                    new TestReport(buildMessage(SUCCESS, "OpenSearch Source created"));
+        case DELETE:
             // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
             configurator.deleteManagedService(configuration.servicePid());
             report = configurator.commit();
-            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to delete Open Search Source")) :
-                    new TestReport(buildMessage(SUCCESS, "Open Search Source deleted"));
+            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to delete OpenSearch Source")) :
+                    new TestReport(buildMessage(SUCCESS, "OpenSearch Source deleted"));
         default:
             return new TestReport(buildMessage(FAILURE, "Uknown persist id: " + persistId));
         }

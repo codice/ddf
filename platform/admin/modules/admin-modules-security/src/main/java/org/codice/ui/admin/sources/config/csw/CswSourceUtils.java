@@ -71,7 +71,7 @@ public class CswSourceUtils {
     // Given a config with a endpoint URL, finds the most specific applicable CSW source type and
     //   mutates the config's factoryPid appropriately, defaulting to generic specification with feedback
     //   if unable to determine CSW type
-    public static TestReport discoverUrlCapabilites(CswSourceConfiguration config) {
+    public static TestReport discoverUrlCapabilities(CswSourceConfiguration config) {
         if (isAvailable(config.endpointUrl(), config)) {
             try {
                 getPreferredConfig(config);

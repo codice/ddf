@@ -17,6 +17,7 @@ package org.codice.ui.admin.sources.config.csw;
 import static org.codice.ui.admin.sources.config.SourceConfigurationHandlerImpl.DISCOVER_SOURCES_ID;
 import static org.codice.ui.admin.sources.config.SourceConfigurationHandlerImpl.MANUAL_URL_TEST_ID;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.NO_TEST_FOUND;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
 
@@ -28,10 +29,11 @@ import java.util.stream.Collectors;
 
 import org.codice.ui.admin.sources.config.SourceConfiguration;
 import org.codice.ui.admin.sources.config.SourceConfigurationHandler;
-import org.codice.ui.admin.sources.config.SourceUtils;
+import org.codice.ui.admin.sources.config.test.CswUrlTestMethod;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.probe.ProbeReport;
+import org.codice.ui.admin.wizard.api.test.TestMethod;
 import org.codice.ui.admin.wizard.api.test.TestReport;
 import org.codice.ui.admin.wizard.config.ConfigReport;
 import org.codice.ui.admin.wizard.config.Configurator;
@@ -41,6 +43,8 @@ public class CswSourceConfigurationHandler
 
     public static final String CSW_SOURCE_CONFIGURATION_HANDLER_ID =
             "CswSourceConfigurationHandler";
+
+    List<TestMethod> testMethods = Arrays.asList(new CswUrlTestMethod());
 
     private static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
 
@@ -101,11 +105,13 @@ public class CswSourceConfigurationHandler
         switch (testId) {
         case MANUAL_URL_TEST_ID:
             CswSourceConfiguration configuration = new CswSourceConfiguration(baseConfiguration);
-            Optional<ConfigurationMessage> message = SourceUtils.endpointIsReachable(configuration);
-            if(message.isPresent()){
-                return new TestReport(message.get());
-            }
-            return CswSourceUtils.discoverUrlCapabilites(configuration);
+            Optional<TestMethod> testMethod = testMethods.stream()
+                    .filter(method -> method.id().equals(testId))
+                    .findFirst();
+
+            return testMethod.isPresent() ?
+                    testMethod.get().test(configuration) :
+                    new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
         default:
             return new TestReport(buildMessage(FAILURE, "No such test."));
         }
@@ -117,19 +123,19 @@ public class CswSourceConfigurationHandler
         ConfigReport report;
 
         switch(persistId) {
-        case "create":
+        case CREATE:
             configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
             report = configurator.commit();
             return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to create CSW Source")) :
                     new TestReport(buildMessage(SUCCESS, "CSW Source created"));
-        case "delete":
+        case DELETE:
             // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
             configurator.deleteManagedService(configuration.servicePid());
             report = configurator.commit();
             return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to delete CSW Source")) :
                     new TestReport(buildMessage(SUCCESS, "CSW Source deleted"));
         default:
-            return new TestReport(buildMessage(FAILURE, "Uknown persist id: " + persistId));
+            return new TestReport(buildMessage(FAILURE, "Unknown persist id: " + persistId));
         }
     }
 

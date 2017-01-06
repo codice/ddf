@@ -16,24 +16,23 @@ package org.codice.ui.admin.sources.config;
 
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.NO_TEST_FOUND;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.xml.namespace.NamespaceContext;
 
+import org.codice.ui.admin.sources.config.test.ValidUrlTestMethod;
 import org.codice.ui.admin.wizard.api.CapabilitiesReport;
 import org.codice.ui.admin.wizard.api.ConfigurationHandler;
 import org.codice.ui.admin.wizard.api.ConfigurationMessage;
 import org.codice.ui.admin.wizard.api.probe.ProbeReport;
+import org.codice.ui.admin.wizard.api.test.TestMethod;
 import org.codice.ui.admin.wizard.api.test.TestReport;
 
 import com.google.common.collect.ImmutableMap;
@@ -48,8 +47,6 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
     public static final String MANUAL_URL_TEST_ID = "testManualUrl";
 
     public static final String DISCOVER_SOURCES_ID = "discoverSources";
-
-    public static final String NONE_FOUND = "None found";
 
     public static final String SOURCE_CONFIGURATION_HANDLERS_ID = "sourceConfigurationHandlers";
 
@@ -81,18 +78,23 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
     List<SourceConfigurationHandler> sourceConfigurationHandlers;
 
+    private List<TestMethod> testMethods = Arrays.asList(new ValidUrlTestMethod());
+
     /*********************************************************
      * ConfigurationHandler methods
      *********************************************************/
 
     @Override
     public TestReport test(String testId, SourceConfiguration config) {
-        switch (testId) {
-        case VALID_URL_TEST_ID:
-            return validUrlTest(config);
-        default:
-            return new TestReport(buildMessage(NO_TEST_FOUND));
-        }
+        Optional<TestMethod> testMethod = testMethods.stream()
+                .filter(method -> method.id()
+                        .equals(testId))
+                .findFirst();
+
+        return testMethod.isPresent() ?
+                testMethod.get()
+                        .test(config) :
+                new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
     }
 
     public ProbeReport probe(String probeId, SourceConfiguration config) {
@@ -152,8 +154,9 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(SourceConfiguration.class.getSimpleName(),
-                SourceConfiguration.class);
+        return new CapabilitiesReport(SOURCE_CONFIGURATION_HANDLER_ID,
+                SOURCE_CONFIGURATION_HANDLER_ID,
+                testMethods);
     }
 
     @Override
@@ -169,18 +172,6 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
     /*********************************************************
      * Helper methods
      *********************************************************/
-
-    private TestReport validUrlTest(SourceConfiguration config) {
-        try (Socket connection = new Socket()) {
-            connection.connect(new InetSocketAddress(config.sourceHostName(), config.sourcePort()),
-                    PING_TIMEOUT);
-            connection.close();
-            return new TestReport(buildMessage(SUCCESS, "Was able to reach source successfully"));
-        } catch (IOException e) {
-            return new TestReport(buildMessage(FAILURE,
-                    "Unable to reach specified hostname and port."));
-        }
-    }
 
     public void setSourceConfigurationHandlers(
             List<SourceConfigurationHandler> sourceConfigurationHandlers) {
