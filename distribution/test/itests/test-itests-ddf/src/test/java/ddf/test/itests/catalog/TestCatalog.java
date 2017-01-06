@@ -83,6 +83,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.KarafConsole;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
@@ -135,6 +136,10 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
 
+    private static KarafConsole console;
+
+    private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
+
     @Rule
     public TestName testName = new TestName();
 
@@ -149,6 +154,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+            console = new KarafConsole(getServiceManager().getBundleContext(), features, sessionFactory);
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
@@ -863,6 +869,9 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testCachedContentLengthHeader() throws IOException {
+
+        console.runCommand(CLEAR_CACHE);
+
         String fileName = "testCachedContentLengthHeader" + ".jpg";
         File tmpFile = createTemporaryFile(fileName,
                 IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
@@ -887,7 +896,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .headers();
 
         //Get again to hit the cache
-        get(url).then()
+        get(url + "&mode=cache").then()
                 .log()
                 .headers()
                 .assertThat()
