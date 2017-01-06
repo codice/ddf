@@ -21,16 +21,26 @@ module.exports = function (grunt) {
             build: ['target/webapp']
         },
         bower: {
-            install: {
-
-            }
+            install: {}
         },
-        sed: {
-            imports: {
-                path: 'target/webapp/lib/bootswatch/flatly',
-                pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Lato:400,700,400italic"\\);',
-                replacement: '',
-                recursive: true
+        replace: {
+            dist: {
+                options: {
+                    patterns: [
+                        {
+                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Lato:400,700,400italic"\);/g,
+                            replace: ''
+                        }
+                    ]
+                },
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: 'target/webapp/lib/bootswatch/flatly/*',
+                        dest: 'target/webapp/lib/bootswatch/flatly'
+                    }
+                ]
             }
         },
         cssmin: {
@@ -79,17 +89,17 @@ module.exports = function (grunt) {
                 files: ['<%= jshint.all.src %>'],
                 tasks: ['newer:jshint']
             },
-            livereload : {
-                options : {livereload :true},
-                files : ['target/webapp/css/index.css'
+            livereload: {
+                options: {livereload: true},
+                files: ['target/webapp/css/index.css'
                     // this one is more dangerous, tends to reload the page if one file changes
                     // probably too annoying to be useful, uncomment if you want to try it out
                     // '<%= jshint.files %>'
                 ]
             },
-            cssFiles : {
-                files :['src/main/webapp/css/*.css'],
-                tasks : ['cssmin']
+            cssFiles: {
+                files: ['src/main/webapp/css/*.css'],
+                tasks: ['cssmin']
             },
             bowerFile: {
                 files: ['src/main/webapp/bower.json'],
@@ -98,7 +108,9 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('build', ['bower-offline-install', 'sed', 'newer:cssmin', 'newer:jshint']);
-    grunt.registerTask('default', ['build','watch']);
+    grunt.loadNpmTasks('grunt-replace');
+
+    grunt.registerTask('build', ['bower-offline-install', 'replace', 'newer:cssmin', 'newer:jshint']);
+    grunt.registerTask('default', ['build', 'watch']);
 
 };
