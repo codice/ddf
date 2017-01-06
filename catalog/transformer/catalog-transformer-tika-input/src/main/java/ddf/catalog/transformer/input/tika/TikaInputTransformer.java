@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -352,19 +352,30 @@ public class TikaInputTransformer implements InputTransformer {
     }
 
     private List<String> getSupportedMimeTypes() {
-        SortedSet<MediaType> mediaTypes = MediaTypeRegistry.getDefaultRegistry()
-                .getTypes();
+        MediaTypeRegistry mediaTypeRegistry = MediaTypeRegistry.getDefaultRegistry();
+
+        Set<MediaType> mediaTypes = mediaTypeRegistry.getTypes();
+        Set<MediaType> mediaTypeAliases = new HashSet<>();
         List<String> mimeTypes = new ArrayList<>(mediaTypes.size());
 
         for (MediaType mediaType : mediaTypes) {
-            String mimeType = mediaType.getType() + "/" + mediaType.getSubtype();
-            mimeTypes.add(mimeType);
+            addMediaTypetoMimeTypes(mediaType, mimeTypes);
+            mediaTypeAliases.addAll(mediaTypeRegistry.getAliases(mediaType));
         }
+
+        for (MediaType mediaType : mediaTypeAliases) {
+            addMediaTypetoMimeTypes(mediaType, mimeTypes);
+        }
+
         mimeTypes.add("image/jp2");
-        mimeTypes.add("image/bmp");
 
         LOGGER.debug("supported mime types: {}", mimeTypes);
         return mimeTypes;
+    }
+
+    private void addMediaTypetoMimeTypes(MediaType mediaType, List<String> mimeTypes) {
+        String mimeType = mediaType.getType() + "/" + mediaType.getSubtype();
+        mimeTypes.add(mimeType);
     }
 
     private void createThumbnail(InputStream input, Metacard metacard) {
