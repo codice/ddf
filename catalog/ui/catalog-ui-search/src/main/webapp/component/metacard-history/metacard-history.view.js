@@ -21,8 +21,10 @@ define([
     'js/CustomElements',
     'component/loading-companion/loading-companion.view',
     'js/store',
-    'js/Common'
-], function (Marionette, _, $, template, CustomElements, LoadingCompanionView, store, Common) {
+    'js/Common',
+    'js/ResultUtils',
+    'component/announcement'
+], function (Marionette, _, $, template, CustomElements, LoadingCompanionView, store, Common, ResultUtils, announcement) {
 
     var selectedVersion;
 
@@ -32,9 +34,6 @@ define([
         },
         template: template,
         tagName: CustomElements.register('metacard-history'),
-        modelEvents: {
-            'all': 'render'
-        },
         events: {
             'click .metacardHistory-body .metacardHistory-row': 'clickWorkspace',
             'click button': 'revertToSelectedVersion'
@@ -96,13 +95,22 @@ define([
         revertToSelectedVersion: function(){
             LoadingCompanionView.beginLoading(this);
             var self = this;
-            $.get('/search/catalog/internal/history/revert/'+this.model.get('metacard').get('id')+'/'+selectedVersion).then(function(response){
-                self.model.get('metacard').get('properties').set(response.metacards[0]);
+            $.get('/search/catalog/internal/history/revert/'+this.model.get('metacard').get('id')+'/'+selectedVersion).then(function(){
+                self.model.get('metacard').get('properties').set('metacard-tags', ['revision']);
+                ResultUtils.refreshResult(self.model);
             }).always(function(){
                 setTimeout(function(){  //let solr flush
                     LoadingCompanionView.endLoading(self);
+                    self.model.trigger('refreshdata');
+                    if (self.model.isRevision()){
+                        announcement.announce({
+                            title: 'Waiting on Reverted Data',
+                            message: 'It\'s taking an unusually long time for the reverted data to come back.  The item will be put in a revisionlike state (read-only) until data returns.',
+                            type: 'warn'
+                        });
+                    }
                     self.loadData();
-                }, 1000);
+                }, 2000);
             });
         }
     });
