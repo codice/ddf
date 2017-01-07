@@ -70,6 +70,9 @@
                                     mvn:ddf.platform/platform-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
+                                    mvn:org.codice.ddf.admin.beta/admin-beta-app/${project.version}/xml/features
+                                </descriptor>
+                                <descriptor>
                                     mvn:ddf.security/security-services-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
@@ -263,7 +266,6 @@
         </profile>
     </profiles>
     <dependencies>
-
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>kernel</artifactId>
@@ -274,6 +276,13 @@
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-app</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.admin.beta</groupId>
+            <artifactId>admin-beta-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>

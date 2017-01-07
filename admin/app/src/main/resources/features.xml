@@ -1,0 +1,55 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<features name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <feature name="admin-beta-all" install="manual" version="${project.version}"
+             description="DDF Admin All (Beta)">
+        <feature prerequisite="true">admin-core</feature>
+        <feature>admin-beta-ui</feature>
+        <feature>admin-beta-federation</feature>
+        <feature>admin-beta-security</feature>
+        <feature>admin-beta-embedded-ldap</feature>
+    </feature>
+
+    <feature name="admin-beta-core" install="manual" version="${project.version}" description="DDF Admin Core (Beta)">
+        <bundle>mvn:org.codice.ddf.admin.beta/admin-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.admin.beta/config-handler-router/${project.version}</bundle>
+    </feature>
+
+    <feature name="admin-beta-federation" install="manual" version="${project.version}"
+             description="DDF Admin Federation (Beta)">
+        <feature prerequisite="true">admin-beta-core</feature>
+        <bundle>mvn:org.codice.ddf.admin.beta/sources-config-handler/${project.version}</bundle>
+    </feature>
+
+    <feature name="admin-beta-security" install="manual" version="${project.version}"
+             description="DDF Admin Security (Beta)">
+        <feature prerequisite="true">admin-beta-core</feature>
+        <bundle>mvn:org.codice.ddf.admin.beta/contextpolicy-config-handler/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.admin.beta/ldap-config-handler/${project.version}</bundle>
+    </feature>
+
+    <feature name="admin-beta-embedded-ldap" install="manual" version="${project.version}"
+             description="DDF Admin Embedded LDAP (Beta)">
+        <feature prerequisite="true">admin-beta-core</feature>
+        <bundle>mvn:org.codice.ddf.admin.beta/embedded-ldap-config-handler/${project.version}</bundle>
+    </feature>
+    
+    <feature name="admin-beta-ui" install="manual" version="${project.version}" description="DDF Admin UI (Beta)">
+        <bundle>mvn:org.codice.ddf.admin.beta/admin-ui/${project.version}</bundle>
+    </feature>
+</features>

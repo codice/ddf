@@ -1,0 +1,40 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <reference-list id="configurationHandlers" interface="org.codice.ddf.admin.api.handler.ConfigurationHandler" availability="optional">
+        <reference-listener bind-method="registerConfigType" ref="configurationRouter"/>
+    </reference-list>
+
+    <bean id="configurationRouter" class="org.codice.admin.router.ConfigurationHandlerRouter">
+        <property name="contextPath" value="/admin/wizard"/>
+        <property name="configurationHandlers" ref="configurationHandlers"/>
+    </bean>
+
+
+    <bean id="sparkServlet" class="org.codice.admin.router.SparkServlet">
+        <property name="sparkApplications">
+            <list>
+                <ref component-id="configurationRouter"/>
+            </list>
+        </property>
+        <property name="filterMappingPattern" value="/admin/wizard/*"/>
+    </bean>
+
+    <service ref="sparkServlet" interface="javax.servlet.Servlet">
+        <service-properties>
+            <entry key="urlPatterns" value="/admin/wizard/*"/>
+        </service-properties>
+    </service>
+</blueprint>

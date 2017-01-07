@@ -31,6 +31,5 @@
         <module>admin-metrics-ui</module>
         <module>admin-security-ui</module>
         <module>admin-security-certificate-ui</module>
-        <module>admin-modules-security</module>
     </modules>
 </project>

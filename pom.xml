@@ -926,6 +926,7 @@
     <modules>
         <module>libs</module>
         <module>platform</module>
+        <module>admin</module>
         <module>catalog</module>
         <module>distribution</module>
     </modules>
