@@ -260,7 +260,7 @@ let wcpm = ({ updatePolicyBins, persistChanges }) => (
     <Flexbox flexDirection='column' style={{ width: '100%', height: '100%' }}>
       <Paper style={{ backgroundColor: '#EEE', width: '100%' }}>
         <p className={infoTitle}>Web Context Policy Manager</p>
-        <p className={infoSubtitle}>This is the web context policy manager. Hopefully it's nicer to use than the other one.</p>
+        <p className={infoSubtitle}>The Web Context Policy Manager defines all security policies for REST endpoints. It defines the realms a context should authenticate against, the type of authentication that a context requires, and any user attributes that are required for authorization.</p>
       </Paper>
       <Divider />
       <PolicyBins />
