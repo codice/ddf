@@ -31,4 +31,22 @@ public interface Security {
      * {@link ddf.catalog.data.Attribute} name for storing the email addresses of users to enforce access controls upon
      */
     String ACCESS_INDIVIDUALS = "security.access-individuals";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for identifying whether the resource contains personally
+     * identifying data.
+     */
+    String PRIVACY = "security.privacy";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for identifying whether the resource contains data under
+     * protection from reproduction and/or distribution without permission of the rights owner.
+     */
+    String INTELLECTUAL_PROPERTY = "security.intellectual-property";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for identifying whether the resource contains data under
+     * protection from reproduction and/or distribution without the permission of the copyright owner.
+     */
+    String COPYRIGHT = "security.copyright";
 }
