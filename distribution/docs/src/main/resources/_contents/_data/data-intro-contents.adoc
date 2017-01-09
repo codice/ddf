@@ -138,13 +138,13 @@ Though the following attributes are required on all metacard types, setting thei
 |metacard.created
 |Date
 |The creation date of the metacard.
-|Must be before metacard.modified
+|None
 
 |METACARD_MODIFIED
 |metacard.modified
 |Date
 |The modified date of the metacard.
-|Must be after metacard.created
+|None
 
 |METACARD_OWNER
 |metacard.owner
