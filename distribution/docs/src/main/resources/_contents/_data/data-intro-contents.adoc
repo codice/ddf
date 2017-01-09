@@ -65,7 +65,7 @@ Though the following attributes are required on all metacard types, setting thei
 |CHECKSUM
 |checksum
 |String
-|Checksum value for the primary resource for the metacard
+|Checksum value for the primary resource for the metacard.
 |< 1024 characters
 
 |CHECKSUM_ALGORITHM
@@ -76,13 +76,13 @@ Though the following attributes are required on all metacard types, setting thei
 
 |CREATED
 |created
-|DATE
-|Attribute name for the date/time *this metacard* was created.
+|Date
+|The date/time *this metacard* was created.
 |None
 
 |DATATYPE
 |datatype
-|String
+|String List
 |The generic type of the resource.
 |Collection, Dataset, Event, Image, Interactive Resource, Service, Software, Sound, Text, Video, Document
 
@@ -94,63 +94,57 @@ Though the following attributes are required on all metacard types, setting thei
 
 |EXPIRATION
 |expiration
-|DATE
+|Date
 |The expiration date of the resource.
 |None
 
 |DERIVED_RESOURCE_URI
 |resource-derived-uri
-|String
+|String List
 |Location of the derived formats for the metacard resource.
 |Valid URI per RFC 2396
 
 |DERIVED_RESOURCE_DOWNLOAD_URL
 |resource-derived-download-url
-|String
+|String List
 |Download URL for accessing the derived formats for the metacard resource.
 |Valid URL per RFC 2396
 
-|DESCRIPTION
-|description
-|String
-|An account of the resource.
-|None
-
 |EXPIRATION
 |expiration
-|DATE
+|Date
 |The expiration date of the resource.
 |None
 
 |ID
 |id
-|STRING
-|Attribute name for the ID of the metacard.
+|String
+|The ID of the metacard.
 |< 1024 characters
 
 |LANGUAGE
 |language
-|String
+|String List
 |The language of the resource.
 |Alpha-3 language code per ISO_639-2
 
 |LOCATION
 |location
-|GEOMETRY
-|Attribute name for the location for this metacard.
+|Geometry
+|The location for this metacard.
 |Valid Well Known Text (WKT)
 
 |METACARD_CREATED
 |metacard.created
 |Date
-|The creation date of the metacard
-|None
+|The creation date of the metacard.
+|Must be before metacard.modified
 
 |METACARD_MODIFIED
 |metacard.modified
 |Date
-|The modified date of the metacard
-|None
+|The modified date of the metacard.
+|Must be after metacard.created
 
 |METACARD_OWNER
 |metacard.owner
@@ -158,9 +152,9 @@ Though the following attributes are required on all metacard types, setting thei
 |The email address of the metacard owner.
 |< 1024 characters
 
-|METACARD-TAGS
-|metacard.TAGS
-|String
+|METACARD_TAGS
+|metacard-tags
+|String List
 |Collections of data that go together, used for filtering query results.
 |< 1024 characters
 
@@ -172,7 +166,7 @@ Though the following attributes are required on all metacard types, setting thei
 
 |MODIFIED
 |modified
-|DATE
+|Date
 |The modification date of the resource.
 |None
 
@@ -184,14 +178,14 @@ Though the following attributes are required on all metacard types, setting thei
 
 |RESOURCE_SIZE
 |resource-size
-|STRING
+|String
 |Size in bytes of resource.
 |None
 
 |RESOURCE_URI
 |resource-uri
-|STRING
-|Location of the resource for the metacard
+|String
+|Location of the resource for the metacard.
 |Valid URI per RFC 2396
 
 |SOURCE_ID
@@ -202,14 +196,14 @@ Though the following attributes are required on all metacard types, setting thei
 
 |THUMBNAIL
 |thumbnail
-|BINARY
+|Binary
 |The thumbnail for the resource in JPEG format.
 |<= 128 KB
 
 |TITLE
 |title
-|STRING
-|A name for the resource
+|String
+|A name for the resource.
 |< 1024 characters
 
 |===
@@ -395,7 +389,7 @@ The Catalog includes definitions of several basic types all found in the `ddf.c
 
 |`BASIC_METACARD`
 |MetacardType
-|representing all required Metacard Attributes
+|Represents all required Metacard Attributes.
 
 |`BINARY_TYPE`
 |AttributeType
