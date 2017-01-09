@@ -255,7 +255,7 @@
         <argument
                 value="The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/search/catalog/#workspaces/%[attribute=id]."/>
         <argument value="Workspace '%[attribute=title]' notification"/>
-        <argument value="donotreply@test.com"/>
+        <argument value="donotreply@example.com"/>
         <argument value="localhost"/>
         <argument>
             <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.ListMetacardFormatter">

@@ -33,7 +33,7 @@
 
         <AD description="Set the 'from' email address."
             name="From Address" id="fromEmail" required="true" type="String"
-            default="donotreply@test.com"/>
+            default="donotreply@example.com"/>
 
     </OCD>
 
