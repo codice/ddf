@@ -18,7 +18,7 @@
 
     <feature name="admin-beta-all" install="manual" version="${project.version}"
              description="DDF Admin All (Beta)">
-        <feature prerequisite="true">admin-core</feature>
+        <feature prerequisite="true">admin-beta-core</feature>
         <feature>admin-beta-ui</feature>
         <feature>admin-beta-federation</feature>
         <feature>admin-beta-security</feature>
@@ -26,6 +26,7 @@
     </feature>
 
     <feature name="admin-beta-core" install="manual" version="${project.version}" description="DDF Admin Core (Beta)">
+        <feature prerequisite="true">admin-core</feature>
         <bundle>mvn:org.codice.ddf.admin.beta/admin-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.admin.beta/config-handler-router/${project.version}</bundle>
     </feature>
@@ -50,6 +51,7 @@
     </feature>
     
     <feature name="admin-beta-ui" install="manual" version="${project.version}" description="DDF Admin UI (Beta)">
+        <feature prerequisite="true">admin-beta-core</feature>
         <bundle>mvn:org.codice.ddf.admin.beta/admin-ui/${project.version}</bundle>
     </feature>
 </features>
