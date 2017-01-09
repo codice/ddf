@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.security;
 
-import static ddf.catalog.Constants.LOCAL_DESTINATION_KEY;
 import static ddf.catalog.Constants.OPERATION_TRANSACTION_KEY;
 
 import java.io.Serializable;
@@ -36,6 +35,7 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
+import ddf.catalog.util.impl.Requests;
 import ddf.security.permission.Permissions;
 
 /**
@@ -63,7 +63,7 @@ public class ResourceUriPolicy implements PolicyPlugin {
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
-        if (!isLocalRequest(properties)) {
+        if (!Requests.isLocal(properties)) {
             return new PolicyResponseImpl();
         }
 
@@ -80,7 +80,7 @@ public class ResourceUriPolicy implements PolicyPlugin {
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
 
-        if (!isLocalRequest(properties)) {
+        if (!Requests.isLocal(properties)) {
             return new PolicyResponseImpl();
         }
 
@@ -106,10 +106,6 @@ public class ResourceUriPolicy implements PolicyPlugin {
         return requiresPermission(input.getResourceURI(), previous.getResourceURI()) ?
                 policyResponse :
                 new PolicyResponseImpl();
-    }
-
-    private boolean isLocalRequest(Map<String, Serializable> properties) {
-        return (boolean) properties.get(LOCAL_DESTINATION_KEY);
     }
 
     private boolean requiresPermission(URI input, URI catalog) {
