@@ -147,7 +147,7 @@ public class SourcePollerRunner implements Runnable {
     public void bind(Source source) {
 
         LOGGER.debug("Binding source: {}", source);
-        if (source != null) {
+        if (source != null  && !sources.contains(source)) {
             LOGGER.debug("Marking new source {} as UNCHECKED.", source);
             sources.add(source);
             sourceStatusThreadLocks.put(source, new ReentrantLock());

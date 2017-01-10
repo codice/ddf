@@ -14,7 +14,9 @@
 package org.codice.ddf.registry.federationadmin.service.impl;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -60,6 +62,7 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.UpdateRequest;
@@ -149,7 +152,9 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             if (!createResponse.getProcessingErrors()
                     .isEmpty()) {
                 throw new FederationAdminException(
-                        "Processing error occurred while creating registry entry.");
+                        "Processing error occurred while creating registry entry. Details:"
+                                + System.lineSeparator()
+                                + stringifyProcessingErrors(createResponse.getProcessingErrors()));
             }
             registryIds = createResponse.getCreatedMetacards()
                     .stream()
@@ -237,7 +242,9 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             if (!updateResponse.getProcessingErrors()
                     .isEmpty()) {
                 throw new FederationAdminException(
-                        "Processing error occurred while updating registry entry.");
+                        "Processing error occurred while updating registry entry. Details:"
+                                + System.lineSeparator()
+                                + stringifyProcessingErrors(updateResponse.getProcessingErrors()));
             }
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error updating registry entry.";
@@ -301,7 +308,9 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             if (!deleteResponse.getProcessingErrors()
                     .isEmpty()) {
                 throw new FederationAdminException(
-                        "Processing error occurred while deleting registry entry.");
+                        "Processing error occurred while deleting registry entry. Details:"
+                                + System.lineSeparator()
+                                + stringifyProcessingErrors(deleteResponse.getProcessingErrors()));
             }
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error deleting registry entries by registry id.";
@@ -336,7 +345,9 @@ public class FederationAdminServiceImpl implements FederationAdminService {
             if (!deleteResponse.getProcessingErrors()
                     .isEmpty()) {
                 throw new FederationAdminException(
-                        "Processing error occurred while deleting registry entry.");
+                        "Processing error occurred while deleting registry entry. Details"
+                                + System.lineSeparator()
+                                + stringifyProcessingErrors(deleteResponse.getProcessingErrors()));
             }
         } catch (SecurityServiceException | InvocationTargetException e) {
             String message = "Error deleting registry entries by metacard ids.";
@@ -606,6 +617,19 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         }
 
         return null;
+    }
+
+    private String stringifyProcessingErrors(Set<ProcessingDetails> details){
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        for(ProcessingDetails detail : details){
+            pw.append(detail.getSourceId());
+            pw.append(":");
+            detail.getException().printStackTrace(pw);
+            pw.append(System.lineSeparator());
+        }
+        return pw.toString();
     }
 
     private List<Filter> getBasicFilter() {

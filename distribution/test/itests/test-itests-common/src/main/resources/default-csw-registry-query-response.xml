@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<csw:GetRecordsResponse xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+                        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                        version="2.0.2">
+    <csw:SearchStatus timestamp="2017-01-17T09:34:28.597-07:00"/>
+    <csw:SearchResults numberOfRecordsMatched="1" numberOfRecordsReturned="1" nextRecord="0"
+                       recordSchema="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" elementSet="full">
+        <rim:RegistryPackage xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
+                             objectType="urn:registry:federation:node"
+                             id="$regId$">
+            <rim:ExternalIdentifier registryObject="urn:uuid:70809f17782c42b8ba15747b86b50ebf"
+                                    identificationScheme="MetacardId" value="$mcardId$"
+                                    id="urn:registry:metacard:local-id"/>
+            <rim:ExternalIdentifier registryObject="urn:uuid:70809f17782c42b8ba15747b86b50ebf"
+                                    identificationScheme="MetacardId" value="$mcardId$"
+                                    id="urn:registry:metacard:origin-id"/>
+            <rim:ExternalIdentifier registryObject="urn:uuid:70809f17782c42b8ba15747b86b50ebf"
+                                    identificationScheme="RegistryId" value="$regId$"
+                                    id="urn:registry:origin-id"/>
+            <rim:RegistryObjectList>
+                <rim:Identifiable xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+                                  xs:type="rim:ExtrinsicObjectType"
+                                  objectType="urn:registry:federation:node" id="someid"
+                                  home="https://localhost:8993">
+                    <rim:Slot name="lastUpdated" slotType="xs:dateTime">
+                        <rim:ValueList>
+                            <rim:Value>$lastUpdated$</rim:Value>
+                        </rim:ValueList>
+                    </rim:Slot>
+                    <rim:Slot name="liveDate" slotType="xs:dateTime">
+                        <rim:ValueList>
+                            <rim:Value>2017-01-17T16:28:38.071Z</rim:Value>
+                        </rim:ValueList>
+                    </rim:Slot>
+                    <rim:Name>
+                        <rim:LocalizedString value="$nodeName$"/>
+                    </rim:Name>
+                    <rim:VersionInfo versionName="2.10.0-SNAPSHOT"/>
+                </rim:Identifiable>
+            </rim:RegistryObjectList>
+        </rim:RegistryPackage>
+    </csw:SearchResults>
+</csw:GetRecordsResponse>
