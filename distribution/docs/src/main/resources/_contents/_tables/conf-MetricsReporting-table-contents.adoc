@@ -1,4 +1,4 @@
-|<<MetricsReporting,Metrics Reporting>>
+|Metrics Reporting
 |MetricsReporting
 |Metrics Reporting
 

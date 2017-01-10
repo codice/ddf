@@ -23,7 +23,6 @@ include::{adoc-include}/_introduction/documentation-notes-contents.adoc[]
 
 include::{adoc-include}/_introduction/core-concepts-intro-contents.adoc[]
 
-
 == Search
 
 include::{adoc-include}/_core-concepts/search-intro-contents.adoc[]
@@ -70,53 +69,139 @@ include::{adoc-include}/_core-concepts/endpoints-intro-contents.adoc[]
 
 include::{adoc-include}/_introduction/managing-intro-contents.adoc[]
 
-//installing
 == Installing
 
 include::{adoc-include}/_installing/installing-intro-contents.adoc[]
 
-//configuring
+include::{adoc-include}/_installing/controlling-file-system-access-contents.adoc[]
+
+include::{adoc-include}/_installing/initial-startup-contents.adoc[]
+
+include::{adoc-include}/_installing/installing-from-admin-console-contents.adoc[]
+
+include::{adoc-include}/_installing/configuring-guest-claims-attributes-contents.adoc[]
+
+include::{adoc-include}/_installing/ddf-setup-types-contents.adoc[]
+
+include::{adoc-include}/_installing/system-configuration-settings-contents.adoc[]
+
+include::{adoc-include}/_installing/finish-page-contents.adoc[]
+
 == Configuring
 
 include::{adoc-include}/_configuring/configuring-intro-contents.adoc[]
+
+include::{adoc-include}/_securing/securing-intro-contents.adoc[]
+
+include::{adoc-include}/_securing/hardening-intro-contents.adoc[]
+
+<<<
+include::{adoc-include}/_securing/hardening-checklist-contents.adoc[]
+<<<
+
+include::{adoc-include}/_securing/managing-certificates-contents.adoc[]
 
 === Configuring from the ${admin-console}
 
 include::{adoc-include}/_configuring/admin-console-intro-contents.adoc[]
 
-include::{adoc-include}/_configuring/configuring-from-the-admin-console-contents.adoc[]
+include::{adoc-include}/_configuring/admin-console-tutorial-contents.adoc[]
+////
+TODO: document configuration Wizard (https://codice.atlassian.net/browse/DDF-2736)
+////
 
-include::{adoc-include}/_configuring/managing-applications-from-the-admin-console-contents.adoc[]
+include::{adoc-include}/_securing/securing-admin-console-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-for-an-ldap-server-contents.adoc[]
+
+include::{adoc-include}/_securing/hardening-user-access-contents.adoc[]
+
+include::{adoc-include}/_securing/hardening-guest-user-access-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-http-port-admin-console-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-http-proxy-admin-console-contents.adoc[]
+
+include::{adoc-include}/_securing/configuring-web-context-policy-manager-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-catalog-provider-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-as-fanout-proxy-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-product-cache-contents.adoc[]
+
+include::{adoc-include}/_solr-contents/configuring-solr-from-admin-console.adoc[]
+
+include::{adoc-include}/_securing/securing-idp-sp-contents.adoc[]
+
+include::{adoc-include}/_securing/catalog-filtering-contents.adoc[]
+
+include::{adoc-include}/_securing/auditing-contents.adoc[]
 
 include::{adoc-include}/_configuring/configuring-landing-page-contents.adoc[]
 
 === Configuring from the ${command-console}
 
-include::{adoc-include}/_configuring/configuring-from-the-command-console-contents.adoc[]
+include::{adoc-include}/_configuring/command-console-intro-contents.adoc[]
+
+include::{adoc-include}/_configuring/managing-apps-from-command-console-contents.adoc[]
+
+include::{adoc-include}/_configuring/managing-features-from-command-console-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-http-proxy-command-console-contents.adoc[]
+
+include::{adoc-include}/_solr-contents/configuring-solr-from-command-console.adoc[]
+
+include::{adoc-include}/_configuring/standalone-sts-contents.adoc[]
+
+include::{adoc-include}/_securing/hardening-solr-index-contents.adoc[]
 
 === Configuring from Configuration Files
 
-include::{adoc-include}/_configuring/configuring-from-configuration-files-contents.adoc[]
+include::{adoc-include}/_configuring/configuration-files-intro-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-global-settings-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-with-config-files-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-using-config-template-contents.adoc[]
+
+include::{adoc-include}/_securing/configuring-wss-using-standalone-servers-contents.adoc[]
+
+
+include::{adoc-include}/_configuring/configuring-managed-service-factory-bundles-contents.adoc[]
+
+include::{adoc-include}/_configuring/installing-multiple-installations-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-files-in-home-directory-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-solr-data-directory-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-thread-pools-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-web-service-providers-contents.adoc[]
+
+include::{adoc-include}/_securing/isolating-solrcloud-zookeeper-contents.adoc[]
 
 === Importing Configurations
 
-include::{adoc-include}/_configuring/configuring-from-import-contents.adoc[]
+include::{adoc-include}/_configuring/configuring-from-import-intro-contents.adoc[]
 
-=== Configuring Security
+include::{adoc-include}/_configuring/exporting-existing-configurations-contents.adoc[]
 
-include::{adoc-include}/_securing/securing-contents.adoc[]
-
-include::{adoc-include}/_securing/managing-certificates-contents.adoc[]
-
-include::{adoc-include}/_securing/standalone-sts-contents.adoc[]
+include::{adoc-include}/_configuring/importing-exported-configurations-contents.adoc[]
 
 === Other Configurations
 
-include::{adoc-include}/_configuring/configuring-as-fanout-proxy-contents.adoc[]
+include::{adoc-include}/_securing/environment-hardening-contents.adoc[]
 
-include::{adoc-include}/_configuring/configuring-catalog-provider-contents.adoc[]
+== Quick Start Tutorial
 
-include::{adoc-include}/_configuring/managing-features-contents.adoc[]
+include::{adoc-include}/_quickstart/quickstart-installing-contents.adoc[]
+
+include::{adoc-include}/_quickstart/quickstart-configuring-contents.adoc[]
+
+include::{adoc-include}/_quickstart/quickstart-ingesting-contents.adoc[]
 
 == Running
 
@@ -153,16 +238,6 @@ include::{adoc-include}/_running/exporting-metadata-contents.adoc[]
 include::{adoc-include}/_running/ingesting-exported-metadata-contents.adoc[]
 
 include::{adoc-include}/_running/translating-exported-metadata-contents.adoc[]
-
-:sectnums!:
-== Quickstart Tutorial
-:sectnums:
-
-include::{adoc-include}/_quickstart/quickstart-installing-contents.adoc[]
-
-include::{adoc-include}/_quickstart/quickstart-configuring-contents.adoc[]
-
-include::{adoc-include}/_quickstart/quickstart-ingesting-contents.adoc[]
 
 '''
 
@@ -208,7 +283,7 @@ include::{adoc-include}/_validation/validation-intro-contents.adoc[]
 
 include::{adoc-include}/_validation/schematron-intro-contents.adoc[]
 
-=== Neutral Taxonomy
+=== Catalog Taxonomy
 
 include::{adoc-include}/_data/neutral-taxonomy-intro-contents.adoc[]
 
@@ -274,6 +349,8 @@ include::{adoc-include}/_eventing/subscriptions-contents.adoc[]
 
 include::{adoc-include}/_sources/sources-intro-contents.adoc[]
 
+=== Federation Strategy
+
 include::{adoc-include}/_sources/federation-strategy-contents.adoc[]
 
 === Federated Sources
@@ -294,6 +371,12 @@ include::{adoc-include}/_sources/wfs-20-source-contents.adoc[]
 
 include::{adoc-include}/_sources/wfs-sources-services-contents.adoc[]
 
+=== Connected Sources
+
+include::{adoc-include}/_sources/connected-sources-contents.adoc[]
+
+include::{adoc-include}/_sources/csw-connected-source-contents.adoc[]
+
 === Catalog Stores
 
 include::{adoc-include}/_sources/catalog-stores-contents.adoc[]
@@ -302,7 +385,11 @@ include::{adoc-include}/_sources/registry-store-contents.adoc[]
 
 === Catalog Providers
 
+include::{adoc-include}/_sources/catalog-provider-intro-contents.adoc[]
+
 include::{adoc-include}/_sources/catalog-providers-contents.adoc[]
+
+include::{adoc-include}/_sources/solr-catalog-provider-contents.adoc[]
 
 === Storage Providers
 
@@ -312,6 +399,10 @@ include::{adoc-include}/_sources/storage-provider-intro-contents.adoc[]
 
 // TODO: https://codice.atlassian.net/browse/DDF-2648
 // include::{adoc-include}/_security-framework/security-services-intro-contents.adoc[]
+
+include::{adoc-include}/_securing/encryption-service-contents.adoc[]
+
+include::{adoc-include}/_securing/expansion-service-contents.adoc[]
 
 === Security IDP
 
@@ -562,7 +653,9 @@ include::{adoc-include}/_plugins/access-plugin-intro-contents.adoc[]
 include::{adoc-include}/_plugins/access-plugins-contents.adoc[]
 
 include::{adoc-include}/_plugins/operation-plugin-contents.adoc[]
-//developing
+
+include::{adoc-include}/_plugins/metacardingest-network-contents.adoc[]
+
 include::{adoc-include}/_plugins/developing-plugins-contents.adoc[]
 
 == Operations
@@ -635,7 +728,6 @@ include::{adoc-include}/_security-framework/security-core-implementation-content
 
 include::{adoc-include}/_security-framework/security-core-commons-contents.adoc[]
 
-
 include::{adoc-include}/_security-framework/security-encryption-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-encryption-api-contents.adoc[]
@@ -643,7 +735,6 @@ include::{adoc-include}/_security-framework/security-encryption-api-contents.ado
 include::{adoc-include}/_security-framework/security-encryption-implementation-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-encryption-commands-contents.adoc[]
-
 
 include::{adoc-include}/_security-framework/security-ldap-intro-contents.adoc[]
 
@@ -653,9 +744,7 @@ include::{adoc-include}/_security-framework/security-pdp-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/security-pdp-authz-realm-contents.adoc[]
 
-
 include::{adoc-include}/_security-framework/guest-interceptor-contents.adoc[]
-
 
 include::{adoc-include}/_security-framework/security-wss-intro-contents.adoc[]
 
@@ -664,7 +753,6 @@ include::{adoc-include}/_security-framework/security-rest-intro-contents.adoc[]
 include::{adoc-include}/_security-framework/security-soap-intro-contents.adoc[]
 
 include::{adoc-include}/_security-framework/developing-token-validators-contents.adoc[]
-
 
 include::{adoc-include}/_security-framework/security-pep-intro-contents.adoc[]
 
@@ -708,7 +796,8 @@ include::{adoc-include}/_developing/contributing-intro-contents.adoc[]
 
 include::{adoc-include}/_developing/developing-intro-contents.adoc[]
 
-// === OSGi NEW TICKET?
+include::{adoc-include}/_securing/assuring-authenticity-of-bundles-and-applications-contents.adoc[]
+// === OSGi Basics
 // https://codice.atlassian.net/browse/2653
 
 // === Secure development
@@ -726,75 +815,64 @@ Installation and configuration details by application.
 ====
 
 === ${catalog-ui} Reference
-[small]#Version: ${project.version}#
 
 include::{adoc-include}/_catalog-ui-contents/managing-catalog-ui-contents.adoc[]
 
 === ${ddf-admin} Reference
-[small]#Version: ${project.version}#
 
 include::{adoc-include}/_admin-contents/managing-admin-contents.adoc[]
 
 <<<
 
 === ${ddf-catalog} Reference
-[small]#Version: ${project.version}#
 
 include::{adoc-include}/_catalog-contents/managing-catalog-contents.adoc[]
 
 <<<
 
 === ${ddf-geowebcache} Reference
-[small]#Version: ${project.version}#
 
 include::{adoc-include}/_geowebcache-contents/managing-geowebcache-contents.adoc[]
 
 <<<
 
 === ${ddf-platform} Reference
-[small]#Version: ${project.version}#
 
 include::{adoc-include}/_platform-contents/managing-platform-contents.adoc[]
 
 <<<
 
-=== ${ddf-registry} Application Reference
-[small]#Version: ${project.version}#
+=== ${ddf-registry} Reference
 
 include::{adoc-include}/_registry-contents/managing-registry-contents.adoc[]
 
 <<<
 
-=== ${ddf-security} Application Reference
-[small]#Version: ${project.version}#
+=== ${ddf-security} Reference
 
 include::{adoc-include}/_security-contents/managing-security-contents.adoc[]
 
 <<<
 
-=== ${ddf-solr} Application Reference
-[small]#Version: ${project.version}#
+=== ${ddf-solr} Reference
 
 include::{adoc-include}/_solr-contents/managing-solr-contents.adoc[]
 
 <<<
 
-=== ${ddf-spatial} Application Reference
-[small]#Version: ${project.version}#
+=== ${ddf-spatial} Reference
 
 include::{adoc-include}/_spatial-contents/managing-spatial-contents.adoc[]
 
 <<<
 
-=== ${ddf-ui} Application Reference
-[small]#Version: ${project.version}#
+=== ${ddf-ui} Reference
 
 include::{adoc-include}/_ui-contents/managing-ui-contents.adoc[]
 
 <<<
 
-=== ${ddf-resource-management} Application Reference
-[small]#Version: ${project.version}#
+=== ${ddf-resource-management} Reference
 
 include::{adoc-include}/_resource-management-contents/managing-resource-management-contents.adoc[]
 

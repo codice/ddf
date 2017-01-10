@@ -169,7 +169,7 @@ It is possible to retrieve products from specific remote Sources by specifyin
 ===== Product Caching
 
 The Catalog Framework optionally provides caching of products, so future requests to retrieve the same product will be serviced much quicker.
-If caching is enabled, each time a retrieve product request is received, the Catalog Framework will look in its cache (default location `<INSTALL_DIR>/data/product-cache`) to see if the product has been cached locally.
+If caching is enabled, each time a retrieve product request is received, the Catalog Framework will look in its cache (default location `<${branding}_HOME>/data/product-cache`) to see if the product has been cached locally.
 If it has, the product is retrieved from the local site and returned to the client, providing a much quicker turnaround because remote product retrieval and network traffic was avoided.
 If the requested product is not in the cache, the product is retrieved from the Source (local or remote) and cached locally while returning the product to the client.
 The caching to a local file of the product and the streaming of the product to the client are done simultaneously so that the client does not have to wait for the caching to complete before receiving the product.

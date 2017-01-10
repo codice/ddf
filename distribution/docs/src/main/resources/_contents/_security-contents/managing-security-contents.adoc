@@ -52,4 +52,4 @@ include::{adoc-include}/_tables/conf-org.codice.ddf.security.policy.context.impl
 
 |===
 
-
+include::{adoc-include}/_tables/org.codice.ddf.security.policy.context.impl.PolicyManager.adoc[]

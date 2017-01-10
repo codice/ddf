@@ -22,7 +22,7 @@ The ${branding} supports a dynamic and customizable logging system including log
 
 ===== Configuring Logging
 
-Edit the configuration file `[${branding-lowercase}_install_dir]/etc/org.ops4j.pax.logging.cfg]`
+Edit the configuration file `<${branding}_HOME>/etc/org.ops4j.pax.logging.cfg]`
 
 ===== ${branding} log file
 

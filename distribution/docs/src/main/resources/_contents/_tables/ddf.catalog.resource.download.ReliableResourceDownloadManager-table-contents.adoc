@@ -19,7 +19,7 @@
 |Enable Product Caching
 |cacheEnabled
 |Boolean
-|Product Download feature will attempt to create those directories. Out of the box (without configuration), the product cache directory is INSTALL_DIR/data/product-cache. If a relative path is provided it will be relative to the INSTALL_DIR. It is recommended to enter an absolute directory path such as /opt/product-cache in Linux or C:\product-cache in Windows.
+|Product Download feature will attempt to create those directories. Out of the box (without configuration), the product cache directory is <${branding}_HOME>/data/product-cache. If a relative path is provided it will be relative to the ${branding}_HOME. It is recommended to enter an absolute directory path such as /opt/product-cache in Linux or C:\product-cache in Windows.
 |10
 |false
 

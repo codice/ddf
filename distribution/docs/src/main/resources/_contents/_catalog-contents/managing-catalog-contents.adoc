@@ -44,6 +44,4 @@ include::{adoc-include}/_tables/conf-org.codice.ddf.catalog.security.policy.xml.
 
 include::{adoc-include}/_tables/conf-ddf.catalog.transformer.xml.XmlResponseQueueTransformer-table-contents.adoc[]
 
-include::{adoc-include}/_tables/conf-ddf.catalog.metacard.duplication.DuplicationValidator-table-contents.adoc[]
-
 |===

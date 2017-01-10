@@ -1,4 +1,0 @@
-|<<org.codice.ddf.persistence.internal.PersistentStoreImpl,Persistent Store>>
-|org.codice.ddf.persistence.internal.PersistentStoreImpl
-|null
-

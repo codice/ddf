@@ -1,0 +1,2 @@
+
+Catalog Providers are used to interface with the data of {branding}.

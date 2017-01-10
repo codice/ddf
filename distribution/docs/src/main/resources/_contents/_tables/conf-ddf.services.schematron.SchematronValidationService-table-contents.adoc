@@ -1,4 +1,4 @@
-|<<ddf.services.schematron.SchematronValidationService,Schematron Validation Services>>
+|Schematron Validation Services
 |ddf.services.schematron.SchematronValidationService
 |Schematron Validators
 

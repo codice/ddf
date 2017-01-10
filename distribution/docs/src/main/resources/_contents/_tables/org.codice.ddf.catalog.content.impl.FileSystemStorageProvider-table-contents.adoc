@@ -12,7 +12,10 @@
 |Content Repository File Path
 |baseContentDirectory
 |String
-|Specifies the directory to use for the content repository. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist, File System Provider will attempt to create them. Without configuration, the content repository is `<INSTALL_DIR>/content/store`.
+|Specifies the directory to use for the content repository.
+A shutdown of the server is necessary for this property to take effect.
+If a filepath is provided with directories that don't exist, File System Provider will attempt to create them.
+Without configuration, the content repository is `<${branding}_HOME>/content/store`.
 |null
 |true
 

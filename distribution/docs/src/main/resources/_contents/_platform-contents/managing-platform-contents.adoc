@@ -34,8 +34,6 @@ include::{adoc-include}/_tables/conf-ddf_Custom_Mime_Type_Resolver-table-content
 
 include::{adoc-include}/_tables/conf-MetricsReporting-table-contents.adoc[]
 
-include::{adoc-include}/_tables/conf-org.codice.ddf.persistence.internal.PersistentStoreImpl-table-contents.adoc[]
-
 include::{adoc-include}/_tables/conf-ddf.platform.scheduler.Command-table-contents.adoc[]
 
 include::{adoc-include}/_tables/conf-ddf.platform.ui.config-table-contents.adoc[]
