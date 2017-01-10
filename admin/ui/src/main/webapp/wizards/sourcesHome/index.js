@@ -25,18 +25,6 @@ const getSourceConfigs = (state) => {
 const setLdapConfigs = (value) => ({type: 'SET_LDAP_CONFIGS', value})
 const getLdapConfigs = (state) => state.getIn(['sourcesHome', 'ldapConfigs'])
 
-const TileTitle = ({id, text}) => (
-  <div>
-    <p id={id} className={styles.titleTitle}>{text}</p>
-  </div>
-)
-
-const TileSubtitle = ({id, text}) => (
-  <div>
-    <p id={id} className={styles.tileSubtitle}>{text}</p>
-  </div>
-)
-
 const getSourceTypeFromFactoryPid = (factoryPid) => {
   if (factoryPid.includes('Wfs_v1_0_0')) {
     return 'WFS v1 Source'
@@ -71,27 +59,51 @@ export const deleteConfig = (url, configurationType, factoryPid, servicePid, dis
     })
 }
 
-const SourceTileView = ({ sourceName, factoryPid, servicePid, sourceUserName, sourceUserPassword, endpointUrl, deleteConfig }) => {
+const SourceTileView = (props) => {
+  const {
+    sourceName,
+    factoryPid,
+    servicePid,
+    sourceUserName,
+    sourceUserPassword,
+    endpointUrl,
+    deleteConfig
+  } = props
+
   return (
-    <Paper className={styles.main}>
-      <div>Source Name: {sourceName}</div>
-      <div>Service Pid: {servicePid}</div>
+    <Paper className={styles.config}>
+      <div title={servicePid} className={styles.tileTitle}>{sourceName} - {endpointUrl}</div>
       <div>Type: {getSourceTypeFromFactoryPid(factoryPid)}</div>
-      <div>Username: {sourceUserName === undefined || sourceUserName === '' ? 'none' : sourceUserName}</div>
-      <div>Password: {sourceUserPassword === undefined || sourceUserPassword === '' ? 'none' : sourceUserPassword}</div>
-      <div>Query Endpoint: {endpointUrl}</div>
-      <RaisedButton label='Delete' primary onClick={deleteConfig} />
-    </Paper>)
+      <div>Username: {sourceUserName || 'none'}</div>
+      <div>Password: {sourceUserPassword || 'none'}</div>
+
+      <RaisedButton style={{marginTop: 20}} label='Delete' secondary onClick={deleteConfig} />
+    </Paper>
+  )
 }
+
 export const SourceTile = connect(
   null,
   (dispatch, { configurationType, factoryPid, servicePid }) => ({
     deleteConfig: () => deleteConfig('/admin/beta/config/persist/' + configurationType + '/delete', configurationType, factoryPid, servicePid, dispatch)
   }))(SourceTileView)
 
-const LdapTileView = ({ type, hostName, port, encryptionMethod, bindUserDn, bindUserPassword, userNameAttribute, baseGroupDn, baseUserDn, deleteConfig }) => {
+const LdapTileView = (props) => {
+  const {
+    type,
+    hostName,
+    port,
+    encryptionMethod,
+    bindUserDn,
+    bindUserPassword,
+    userNameAttribute,
+    baseGroupDn,
+    baseUserDn,
+    deleteConfig
+  } = props
+
   return (
-    <Paper className={styles.main}>
+    <Paper className={styles.config}>
       <div>Ldap Type: {type}</div>
       <div>Hostname: {hostName}</div>
       <div>Port: {port}</div>
@@ -101,8 +113,10 @@ const LdapTileView = ({ type, hostName, port, encryptionMethod, bindUserDn, bind
       <div>UserName Attribute: {userNameAttribute}</div>
       <div>Base Group DN: {baseGroupDn}</div>
       <div>Base User DN: {baseUserDn}</div>
-      <RaisedButton label='Delete' primary onClick={deleteConfig} />
-    </Paper>)
+
+      <RaisedButton style={{marginTop: 20}} label='Delete' primary onClick={deleteConfig} />
+    </Paper>
+  )
 }
 export const LdapTile = connect(
   null,
@@ -110,81 +124,89 @@ export const LdapTile = connect(
     deleteConfig: () => deleteConfig('/admin/beta/config/persist/' + configurationType + '/delete', configurationType, factoryPid, servicePid, dispatch)
   }))(LdapTileView)
 
-const SourceWizardTile = () => (
-  <Link to='/sources/'>
+const TileLink = ({ to, title, subtitle, children }) => (
+  <Link to={to}>
     <Paper className={styles.main}>
       <div style={{width: '100%', height: '100%'}}>
-        <Flexbox alignItems='center' flexDirection='column' justifyContent='center' style={{width: '100%', height: '100%'}}>
-          <TileTitle text='Source Setup Wizard' />
-          <LanguageIcon style={{color: cyan500, width: '50%', height: '50%'}} />
-          <TileSubtitle text='Setup a new source for federating' />
+        <Flexbox
+          alignItems='center'
+          flexDirection='column'
+          justifyContent='center'
+          style={{width: '100%', height: '100%'}}>
+
+          <p className={styles.titleTitle}>{title}</p>
+          {children}
+          <p className={styles.tileSubtitle}>{subtitle}</p>
+
         </Flexbox>
       </div>
     </Paper>
   </Link>
 )
 
-const ContextPolicyManagerTile = () => (
-  <Link to='/webContextPolicyManager/'>
-    <Paper className={styles.main}>
-      <div style={{width: '100%', height: '100%'}}>
-        <Flexbox alignItems='center' flexDirection='column' justifyContent='center' style={{width: '100%', height: '100%'}}>
-          <TileTitle text='Endpoint Security' />
-          <VpnLockIcon style={{color: cyan500, width: '50%', height: '50%'}} />
-          <TileSubtitle text='Web context policy management' />
-        </Flexbox>
-      </div>
-    </Paper>
-  </Link>
-)
+const SourceConfigTiles = ({ sourceConfigs }) => {
+  if (sourceConfigs.length === 0) {
+    return <div style={{margin: '20px'}}>No Sources Configured </div>
+  }
 
-const LdapWizardTile = () => (
-  <Link to='/ldap/'>
-    <Paper className={styles.main}>
-      <div style={{width: '100%', height: '100%'}}>
-        <Flexbox alignItems='center' flexDirection='column' justifyContent='center' style={{width: '100%', height: '100%'}}>
-          <TileTitle text='LDAP Setup Wizard' />
-          <AccountIcon style={{color: cyan500, width: '50%', height: '50%'}} />
-          <TileSubtitle text='Configure LDAP as a login' />
-        </Flexbox>
-      </div>
-    </Paper>
-  </Link>
-)
-
-const getSourceConfigTiles = (sourceConfigs) => {
-  return sourceConfigs.map((v, i) => (<SourceTile key={i} {...v} />))
-}
-
-const getLdapConfigTiles = (ldapConfigs) => {
-  return ldapConfigs.map((v, i) => (<LdapTile key={i} {...v} />))
-}
-
-const SourcesHomeView = ({sourceConfigs = [], ldapConfigs = [], refresh}) => (
-  <div style={{width: '100%'}}>
-    <Flexbox flexDirection='row' style={{width: '100%'}}>
-      <span style={{width: '100%', height: '100%'}}>
-        <AppBar title={<span style={styles.title}>Setup Wizards</span>}
-          iconElementLeft={<div />}
-          iconElementRight={<IconButton onClick={refresh}><RefreshIcon /></IconButton>}
-          showMenuIconButton />
-        <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
-          <SourceWizardTile />
-          <LdapWizardTile />
-          <ContextPolicyManagerTile />
-        </Flexbox>
-        <Divider />
-        <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
-          <AppBar title={<span style={styles.title}>Source Configurations</span>} showMenuIconButton={false} />
-          {sourceConfigs.length === 0 ? <div style={{margin: '20px'}}>No Sources Configured </div> : getSourceConfigTiles(sourceConfigs)}
-        </Flexbox>
-        <Divider />
-        <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
-          <AppBar title={<span style={styles.title}>LDAP Configurations</span>} showMenuIconButton={false} />
-          {ldapConfigs.length === 0 ? <div style={{margin: '20px'}}>No LDAP's Configured</div> : getLdapConfigTiles(ldapConfigs)}
-        </Flexbox>
-      </span>
+  return (
+    <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
+      {sourceConfigs.map((v, i) => (<SourceTile key={i} {...v} />))}
     </Flexbox>
+  )
+}
+
+const LdapConfigTiles = ({ ldapConfigs }) => {
+  if (ldapConfigs.length === 0) {
+    return <div style={{margin: '20px'}}>No LDAP's Configured</div>
+  }
+
+  return (
+    <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
+      {ldapConfigs.map((v, i) => (<LdapTile key={i} {...v} />))}
+    </Flexbox>
+  )
+}
+
+const SourcesHomeView = ({ sourceConfigs = [], ldapConfigs = [], refresh }) => (
+  <div style={{width: '100%'}}>
+    <AppBar title={<span style={styles.title}>Setup Wizards</span>}
+      iconElementLeft={<div />}
+      iconElementRight={<IconButton onClick={refresh}><RefreshIcon /></IconButton>}
+      showMenuIconButton />
+
+    <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
+      <TileLink
+        to='/sources/'
+        title='Source Setup Wizard'
+        subtitle='Setup a new source for federating'>
+        <LanguageIcon style={{color: cyan500, width: '50%', height: '50%'}} />
+      </TileLink>
+
+      <TileLink
+        to='/webContextPolicyManager/'
+        title='Endpoint Security'
+        subtitle='Web context policy management'>
+        <VpnLockIcon style={{color: cyan500, width: '50%', height: '50%'}} />
+      </TileLink>
+
+      <TileLink
+        to='/ldap/'
+        title='LDAP Setup Wizard'
+        subtitle='Configure LDAP as a login'>
+        <AccountIcon style={{color: cyan500, width: '50%', height: '50%'}} />
+      </TileLink>
+    </Flexbox>
+
+    <Divider />
+
+    <AppBar title={<span style={styles.title}>Source Configurations</span>} showMenuIconButton={false} />
+    <SourceConfigTiles sourceConfigs={sourceConfigs} />
+
+    <Divider />
+
+    <AppBar title={<span style={styles.title}>LDAP Configurations</span>} showMenuIconButton={false} />
+    <LdapConfigTiles ldapConfigs={ldapConfigs} />
   </div>
 )
 
