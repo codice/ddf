@@ -45,6 +45,12 @@
                         <Embed-Dependency>
                             platform-error-servlet
                         </Embed-Dependency>
+                        <Import-Package>
+                            org.eclipse.jetty.server,
+                            org.eclipse.jetty.server.handler,
+                            org.eclipse.jetty.servlets,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

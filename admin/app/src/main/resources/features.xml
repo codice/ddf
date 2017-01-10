@@ -16,8 +16,8 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="admin-beta-all" install="manual" version="${project.version}"
-             description="DDF Admin All (Beta)">
+    <feature name="admin-beta-app" install="auto" version="${project.version}"
+             description="DDF Admin App (Beta) includes a source setup wizard, LDAP setup wizard and a new GUI for the web context policy manager. Go to /admin/beta to access the UI.">
         <feature prerequisite="true">admin-beta-core</feature>
         <feature>admin-beta-ui</feature>
         <feature>admin-beta-federation</feature>
