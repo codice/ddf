@@ -16,9 +16,8 @@ package org.codice.ddf.admin.api.handler.method;
 
 import java.util.Map;
 
-import org.codice.ui.admin.wizard.api.ConfigurationHandlerMethod;
-import org.codice.ui.admin.wizard.api.test.TestReport;
-import org.codice.ui.admin.wizard.config.Configuration;
+import org.codice.ddf.admin.api.handler.Configuration;
+import org.codice.ddf.admin.api.handler.report.TestReport;
 
 public abstract class PersistMethod<S extends Configuration> extends ConfigurationHandlerMethod {
     public PersistMethod(String id, String description, Map<String, String> requiredFields, Map<String, String> optionalFields,

@@ -11,25 +11,27 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ui.admin.sources.config.opensearch.probe;
+package org.codice.ddf.admin.sources.opensearch.probe;
 
-import static org.codice.ui.admin.sources.config.SourceConfigurationHandlerImpl.DISCOVER_SOURCES_ID;
-import static org.codice.ui.admin.sources.config.opensearch.OpenSearchSourceConfigurationHandler.OPENSEARCH_FACTORY_PID;
-import static org.codice.ui.admin.sources.config.opensearch.OpenSearchSourceConfigurationHandler.OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
+
+
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.sources.SourceConfigurationHandlerImpl.DISCOVER_SOURCES_ID;
+import static org.codice.ddf.admin.sources.opensearch.OpenSearchSourceConfigurationHandler.OPENSEARCH_FACTORY_PID;
+import static org.codice.ddf.admin.sources.opensearch.OpenSearchSourceConfigurationHandler.OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.codice.ui.admin.sources.config.opensearch.OpenSearchSourceConfiguration;
-import org.codice.ui.admin.sources.config.opensearch.OpenSearchSourceUtils;
-import org.codice.ui.admin.wizard.api.ConfigurationMessage;
-import org.codice.ui.admin.wizard.api.probe.ProbeMethod;
-import org.codice.ui.admin.wizard.api.probe.ProbeReport;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.method.ProbeMethod;
+import org.codice.ddf.admin.api.handler.report.ProbeReport;
+import org.codice.ddf.admin.sources.opensearch.OpenSearchSourceConfiguration;
+import org.codice.ddf.admin.sources.opensearch.OpenSearchSourceUtils;
 
 import com.google.common.collect.ImmutableMap;
 

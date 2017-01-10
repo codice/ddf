@@ -11,31 +11,31 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ui.admin.sources.config.opensearch.persist;
+package org.codice.ddf.admin.sources.wfs.persist;
 
-import static org.codice.ui.admin.sources.config.SourceConfigurationHandler.DELETE;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.sources.SourceConfigurationHandler.DELETE;
 
 import java.util.Map;
 
-import org.codice.ui.admin.sources.config.opensearch.OpenSearchSourceConfiguration;
-import org.codice.ui.admin.wizard.api.persist.PersistMethod;
-import org.codice.ui.admin.wizard.api.test.TestReport;
-import org.codice.ui.admin.wizard.config.ConfigReport;
-import org.codice.ui.admin.wizard.config.Configurator;
+import org.codice.ddf.admin.api.handler.method.PersistMethod;
+import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.persist.ConfigReport;
+import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.sources.wfs.WfsSourceConfiguration;
 
 import com.google.common.collect.ImmutableMap;
 
-public class DeleteOpenSearchSourcePersistMethod
-        extends PersistMethod<OpenSearchSourceConfiguration> {
-    public static final String DELETE_OPENSEARCH_SOURCE_ID = DELETE;
+public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfiguration> {
+
+    public static final String DELETE_WFS_SOURCE_ID = DELETE;
 
     public static final String DESCRIPTION =
-            "Attempts to delete an OpenSearch source with the given configuration.";
+            "Attempts to delete a WFS Source with the given configuration.";
 
-    public static final String SERVICE_PID = "servicePid";
+    private static final String SERVICE_PID = "servicePid";
 
     private static final String SOURCE_DELETED = "sourceDeleted";
 
@@ -50,8 +50,8 @@ public class DeleteOpenSearchSourcePersistMethod
     private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(DELETE_FAILED,
             "Failed to delete CSW source.");
 
-    public DeleteOpenSearchSourcePersistMethod() {
-        super(DELETE_OPENSEARCH_SOURCE_ID,
+    public DeleteWfsSourcePersistMethod() {
+        super(DELETE_WFS_SOURCE_ID,
                 DESCRIPTION,
                 REQUIRED_FIELDS,
                 null,
@@ -61,14 +61,14 @@ public class DeleteOpenSearchSourcePersistMethod
     }
 
     @Override
-    public TestReport persist(OpenSearchSourceConfiguration configuration) {
+    public TestReport persist(WfsSourceConfiguration configuration) {
         Configurator configurator = new Configurator();
         ConfigReport report;
         // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
         configurator.deleteManagedService(configuration.servicePid());
         report = configurator.commit();
-        return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE,
-                "Failed to delete OpenSearch Source")) : new TestReport(buildMessage(SUCCESS,
-                "OpenSearch Source deleted"));
+        return report.containsFailedResults() ?
+                new TestReport(buildMessage(FAILURE, "Failed to delete WFS Source")) :
+                new TestReport(buildMessage(SUCCESS, "WFS Source deleted"));
     }
 }

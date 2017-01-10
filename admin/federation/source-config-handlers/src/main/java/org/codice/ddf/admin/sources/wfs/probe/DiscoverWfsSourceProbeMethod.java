@@ -11,25 +11,25 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ui.admin.sources.config.wfs.probe;
+package org.codice.ddf.admin.sources.wfs.probe;
 
-import static org.codice.ui.admin.sources.config.SourceConfigurationHandlerImpl.DISCOVER_SOURCES_ID;
-import static org.codice.ui.admin.sources.config.wfs.WfsSourceConfigurationHandler.WFS_SOURCE_CONFIGURATION_HANDLER_ID;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.sources.SourceConfigurationHandlerImpl.DISCOVER_SOURCES_ID;
+import static org.codice.ddf.admin.sources.wfs.WfsSourceConfigurationHandler.WFS_SOURCE_CONFIGURATION_HANDLER_ID;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.codice.ui.admin.sources.config.wfs.WfsSourceConfiguration;
-import org.codice.ui.admin.sources.config.wfs.WfsSourceCreationException;
-import org.codice.ui.admin.sources.config.wfs.WfsSourceUtils;
-import org.codice.ui.admin.wizard.api.ConfigurationMessage;
-import org.codice.ui.admin.wizard.api.probe.ProbeMethod;
-import org.codice.ui.admin.wizard.api.probe.ProbeReport;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.method.ProbeMethod;
+import org.codice.ddf.admin.api.handler.report.ProbeReport;
+import org.codice.ddf.admin.sources.wfs.WfsSourceConfiguration;
+import org.codice.ddf.admin.sources.wfs.WfsSourceCreationException;
+import org.codice.ddf.admin.sources.wfs.WfsSourceUtils;
 
 import com.google.common.collect.ImmutableMap;
 

@@ -11,20 +11,20 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ui.admin.sources.config.opensearch.persist;
+package org.codice.ddf.admin.sources.opensearch.persist;
 
-import static org.codice.ui.admin.sources.config.SourceConfigurationHandler.CREATE;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.sources.SourceConfigurationHandler.CREATE;
 
 import java.util.Map;
 
-import org.codice.ui.admin.sources.config.opensearch.OpenSearchSourceConfiguration;
-import org.codice.ui.admin.wizard.api.persist.PersistMethod;
-import org.codice.ui.admin.wizard.api.test.TestReport;
-import org.codice.ui.admin.wizard.config.ConfigReport;
-import org.codice.ui.admin.wizard.config.Configurator;
+import org.codice.ddf.admin.api.handler.method.PersistMethod;
+import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.persist.ConfigReport;
+import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.sources.opensearch.OpenSearchSourceConfiguration;
 
 import com.google.common.collect.ImmutableMap;
 

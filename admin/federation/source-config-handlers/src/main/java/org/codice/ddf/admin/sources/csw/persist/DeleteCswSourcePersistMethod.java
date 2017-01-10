@@ -11,20 +11,20 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ui.admin.sources.config.csw.persist;
+package org.codice.ddf.admin.sources.csw.persist;
 
-import static org.codice.ui.admin.sources.config.SourceConfigurationHandler.DELETE;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ui.admin.wizard.api.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.sources.SourceConfigurationHandler.DELETE;
 
 import java.util.Map;
 
-import org.codice.ui.admin.sources.config.csw.CswSourceConfiguration;
-import org.codice.ui.admin.wizard.api.persist.PersistMethod;
-import org.codice.ui.admin.wizard.api.test.TestReport;
-import org.codice.ui.admin.wizard.config.ConfigReport;
-import org.codice.ui.admin.wizard.config.Configurator;
+import org.codice.ddf.admin.api.handler.method.PersistMethod;
+import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.persist.ConfigReport;
+import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.sources.csw.CswSourceConfiguration;
 
 import com.google.common.collect.ImmutableMap;
 

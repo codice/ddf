@@ -14,11 +14,8 @@
 
 package org.codice.ddf.admin.sources.wfs;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.sources.SourceUtils.DISCOVER_SOURCES_ID;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,14 +23,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.method.PersistMethod;
+import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 import org.codice.ddf.admin.api.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.sources.SourceConfigurationHandler;
+import org.codice.ddf.admin.sources.wfs.persist.CreateWfsSourcePersistMethod;
+import org.codice.ddf.admin.sources.wfs.persist.DeleteWfsSourcePersistMethod;
+import org.codice.ddf.admin.sources.wfs.probe.DiscoverWfsSourceProbeMethod;
 import org.codice.ddf.admin.sources.wfs.test.WfsUrlTestMethod;
 
 public class WfsSourceConfigurationHandler
