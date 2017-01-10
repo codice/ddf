@@ -20,7 +20,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.sources.SourceUtils.DISCOVER_SOURCES_ID;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +40,8 @@ public class WfsSourceConfigurationHandler
         implements SourceConfigurationHandler<SourceConfiguration> {
 
     List<TestMethod> testMethods = Arrays.asList(new WfsUrlTestMethod());
+    List<ProbeMethod> probeMethods = Arrays.asList(new DiscoverWfsSourceProbeMethod());
+    List<PersistMethod> persistMethods = Arrays.asList(new CreateWfsSourcePersistMethod(), new DeleteWfsSourcePersistMethod());
 
     public static final String WFS_SOURCE_CONFIGURATION_HANDLER_ID =
             "WfsSourceConfigurationHandler";
@@ -54,29 +55,12 @@ public class WfsSourceConfigurationHandler
     @Override
     public ProbeReport probe(String probeId, SourceConfiguration baseConfiguration) {
         WfsSourceConfiguration configuration = new WfsSourceConfiguration(baseConfiguration);
-        List<ConfigurationMessage> results = new ArrayList<>();
-        switch (probeId) {
-        case DISCOVER_SOURCES_ID:
-            Optional<String> url = WfsSourceUtils.confirmEndpointUrl(configuration);
-            if(url.isPresent()) {
-                configuration.endpointUrl(url.get());
-            } else {
-                results.add(buildMessage(FAILURE, "No WFS endpoint found."));
-                return new ProbeReport(results);
-            }
-            try {
-                configuration = WfsSourceUtils.getPreferredConfig(configuration);
-            } catch (WfsSourceCreationException e) {
-                results.add(buildMessage(FAILURE, "Failed to create configuration from valid request to valid endpoint."));
-                return new ProbeReport(results);
-            }
-            results.add(buildMessage(SUCCESS, "Discovered WFS endpoint."));
-            return new ProbeReport(results).addProbeResult(DISCOVER_SOURCES_ID,
-                    configuration.configurationHandlerId(WFS_SOURCE_CONFIGURATION_HANDLER_ID));
-        default:
-            results.add(new ConfigurationMessage("No such probe.", FAILURE));
-            return new ProbeReport(results);
-        }
+        Optional<ProbeMethod> probeMethod = probeMethods.stream()
+                .filter(method -> method.id().equals(probeId))
+                .findFirst();
+        return probeMethod.isPresent() ?
+                probeMethod.get().probe(configuration) :
+                new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
     }
 
 
@@ -94,24 +78,14 @@ public class WfsSourceConfigurationHandler
     }
 
     public TestReport persist(SourceConfiguration configuration, String persistId) {
-        Configurator configurator = new Configurator();
-        ConfigReport report;
+        WfsSourceConfiguration config = new WfsSourceConfiguration(configuration);
+        Optional<PersistMethod> persistMethod = persistMethods.stream()
+                .filter(method -> method.id().equals(persistId))
+                .findFirst();
 
-        switch(persistId) {
-        case CREATE:
-            configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
-            report = configurator.commit();
-            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to create WFS Source")) :
-                                                    new TestReport(buildMessage(SUCCESS, "WFS Source created"));
-        case DELETE:
-            // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
-            configurator.deleteManagedService(configuration.servicePid());
-            report = configurator.commit();
-            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to delete WFS Source")) :
-                                                    new TestReport(buildMessage(SUCCESS, "WFS Source deleted"));
-        default:
-            return new TestReport(buildMessage(FAILURE, "Unknown persist id: " + persistId));
-        }
+        return persistMethod.isPresent() ?
+                persistMethod.get().persist(config) :
+                new TestReport(new ConfigurationMessage(NO_PROBE_FOUND));
     }
 
     @Override

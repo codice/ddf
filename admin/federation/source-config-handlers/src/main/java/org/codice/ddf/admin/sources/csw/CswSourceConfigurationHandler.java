@@ -46,6 +46,11 @@ public class CswSourceConfigurationHandler
 
     List<TestMethod> testMethods = Arrays.asList(new CswUrlTestMethod());
 
+    List<ProbeMethod> probeMethods = Arrays.asList(new DiscoverCswSourceProbeMethod());
+
+    List<PersistMethod> persistMethods = Arrays.asList(new CreateCswSourcePersistMethod(),
+            new DeleteCswSourcePersistMethod());
+
     private static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
 
     public static final String CSW_PROFILE_FACTORY_PID = "Csw_Federation_Profile_Source";
@@ -54,89 +59,57 @@ public class CswSourceConfigurationHandler
 
     public static final String CSW_SPEC_FACTORY_PID = "Csw_Federated_Source";
 
-    public static final String RETRIEVE_CONFIGURATION  = "retrieveConfiguration";
+    //public static final String RETRIEVE_CONFIGURATION = "retrieveConfiguration";
 
-    private static final List<String> CSW_FACTORY_PIDS = Arrays.asList(
-            CSW_PROFILE_FACTORY_PID,
+    private static final List<String> CSW_FACTORY_PIDS = Arrays.asList(CSW_PROFILE_FACTORY_PID,
             CSW_GMD_FACTORY_PID,
             CSW_SPEC_FACTORY_PID);
 
     @Override
     public ProbeReport probe(String probeId, SourceConfiguration baseConfiguration) {
         CswSourceConfiguration configuration = new CswSourceConfiguration(baseConfiguration);
-        List<ConfigurationMessage> results = new ArrayList<>();
-        switch (probeId) {
-        case RETRIEVE_CONFIGURATION:
+        /*case RETRIEVE_CONFIGURATION:
             SourceConfiguration mockedCswSource =
                     new CswSourceConfiguration(baseConfiguration).sourceUserName("exampleUserName")
                             .factoryPid(CSW_PROFILE_FACTORY_PID)
                             .sourceUserPassword("exampleUserPassword");
-            return new ProbeReport(buildMessage(SUCCESS, "Found and create CSW Source configuration")).addProbeResult(RETRIEVE_CONFIGURATION, mockedCswSource);
-        case DISCOVER_SOURCES_ID:
-            Optional<String> url = CswSourceUtils.confirmEndpointUrl(configuration);
-            if (url.isPresent()) {
-                configuration.endpointUrl(url.get());
-            } else if(configuration.certError()) {
-                results.add(buildMessage(FAILURE, "The discovered URL has incorrectly configured SSL certificates and is insecure."));
-                return new ProbeReport(results);
-            } else {
-                results.add(buildMessage(FAILURE, "No CSW endpoint found."));
-                return new ProbeReport(results);
-            }
-            try {
-                configuration = CswSourceUtils.getPreferredConfig(configuration);
-            } catch (CswSourceCreationException e) {
-                results.add(new ConfigurationMessage(
-                        "Failed to create configuration from valid request to valid endpoint.",
-                        FAILURE));
-                return new ProbeReport(results);
-            }
-            results.add(new ConfigurationMessage("Discovered CSW endpoint.", SUCCESS));
-            return new ProbeReport(results).addProbeResult(DISCOVER_SOURCES_ID,
-                    configuration.configurationHandlerId(CSW_SOURCE_CONFIGURATION_HANDLER_ID));
-        default:
-            results.add(new ConfigurationMessage("No such probe.", FAILURE));
-            return new ProbeReport(results);
-        }
+            return new ProbeReport(buildMessage(SUCCESS, "Found and created CSW Source configuration"))
+                    .addProbeResult(RETRIEVE_CONFIGURATION, mockedCswSource);
+        */
+        Optional<ProbeMethod> probeMethod = probeMethods.stream()
+                .filter(method -> method.id()
+                        .equals(probeId))
+                .findFirst();
+
+        return probeMethod.isPresent() ?
+                probeMethod.get()
+                        .probe(configuration) :
+                new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
     }
 
     @Override
     public TestReport test(String testId, SourceConfiguration baseConfiguration) {
-        switch (testId) {
-        case MANUAL_URL_TEST_ID:
-            CswSourceConfiguration configuration = new CswSourceConfiguration(baseConfiguration);
-            Optional<TestMethod> testMethod = testMethods.stream()
-                    .filter(method -> method.id().equals(testId))
-                    .findFirst();
+        CswSourceConfiguration configuration = new CswSourceConfiguration(baseConfiguration);
+        Optional<TestMethod> testMethod = testMethods.stream()
+                .filter(method -> method.id()
+                        .equals(testId))
+                .findFirst();
 
-            return testMethod.isPresent() ?
-                    testMethod.get().test(configuration) :
-                    new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
-        default:
-            return new TestReport(buildMessage(FAILURE, "No such test."));
-        }
+        return testMethod.isPresent() ?
+                testMethod.get()
+                        .test(configuration) :
+                new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
     }
 
     @Override
     public TestReport persist(SourceConfiguration configuration, String persistId) {
-        Configurator configurator = new Configurator();
-        ConfigReport report;
-
-        switch(persistId) {
-        case CREATE:
-            configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
-            report = configurator.commit();
-            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to create CSW Source")) :
-                    new TestReport(buildMessage(SUCCESS, "CSW Source created"));
-        case DELETE:
-            // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
-            configurator.deleteManagedService(configuration.servicePid());
-            report = configurator.commit();
-            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to delete CSW Source")) :
-                    new TestReport(buildMessage(SUCCESS, "CSW Source deleted"));
-        default:
-            return new TestReport(buildMessage(FAILURE, "Unknown persist id: " + persistId));
-        }
+        CswSourceConfiguration config = new CswSourceConfiguration(configuration);
+        Optional<PersistMethod> persistMethod = persistMethods.stream()
+                .filter(method -> method.id()
+                        .equals(persistId))
+                .findFirst();
+        return persistMethod.isPresent() ? persistMethod.get().persist(config) :
+                new TestReport(new ConfigurationMessage(NO_PERSIST_FOUND));
     }
 
     @Override

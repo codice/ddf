@@ -47,6 +47,7 @@ public class CswSourceConfiguration extends SourceConfiguration {
 
     public CswSourceConfiguration(SourceConfiguration baseConfig) {
         factoryPid(baseConfig.factoryPid());
+        servicePid(baseConfig.servicePid());
         sourceName(baseConfig.sourceName());
         sourceHostName(baseConfig.sourceHostName());
         sourcePort(baseConfig.sourcePort());

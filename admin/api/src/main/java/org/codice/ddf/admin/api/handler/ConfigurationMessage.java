@@ -90,6 +90,6 @@ public class ConfigurationMessage {
     }
 
     public enum MessageType {
-        SUCCESS, WARNING, FAILURE, NO_TEST_FOUND, REQUIRED_FIELDS
+        SUCCESS, WARNING, FAILURE, NO_TEST_FOUND, NO_PROBE_FOUND, NO_PERSIST_FOUND, REQUIRED_FIELDS
     }
 }

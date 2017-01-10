@@ -19,7 +19,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -39,8 +38,6 @@ import org.codice.ddf.admin.sources.opensearch.test.OpenSearchUrlTestMethod;
 public class OpenSearchSourceConfigurationHandler
         implements SourceConfigurationHandler<SourceConfiguration> {
 
-    public static final String DISCOVER_SOURCES_ID = "discoverSources";
-
     public static final String OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID =
             "OpenSearchSourceConfigurationHandler";
 
@@ -50,66 +47,54 @@ public class OpenSearchSourceConfigurationHandler
 
     private List<TestMethod> testMethods = Arrays.asList(new OpenSearchUrlTestMethod());
 
+    private List<ProbeMethod> probeMethods =
+            Arrays.asList(new DiscoverOpenSearchSourceProbeMethod());
+
+    private List<PersistMethod> persistMethods =
+            Arrays.asList(new CreateOpenSearchSourcePersistMethod(),
+                    new DeleteOpenSearchSourcePersistMethod());
+
     @Override
     public ProbeReport probe(String probeId, SourceConfiguration baseConfiguration) {
-        OpenSearchSourceConfiguration configuration = new OpenSearchSourceConfiguration(baseConfiguration);
-        List<ConfigurationMessage> results = new ArrayList<>();
-        switch (probeId) {
-        case DISCOVER_SOURCES_ID:
-            Optional<String> url = OpenSearchSourceUtils.confirmEndpointUrl(configuration);
-            if (url.isPresent()) {
-                configuration.endpointUrl(url.get());
-                configuration.factoryPid(OPENSEARCH_FACTORY_PID);
-                results.add(new ConfigurationMessage("Discovered OpenSearch endpoint.", SUCCESS));
-                return new ProbeReport(results).addProbeResult(DISCOVER_SOURCES_ID,
-                        configuration.configurationHandlerId(OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID));
+        OpenSearchSourceConfiguration configuration = new OpenSearchSourceConfiguration(
+                baseConfiguration);
+        Optional<ProbeMethod> probeMethod = probeMethods.stream()
+                .filter(method -> method.id()
+                        .equals(probeId))
+                .findFirst();
 
-            } else if(configuration.certError()) {
-                results.add(buildMessage(FAILURE, "The discovered URL has incorrectly configured SSL certificates and is insecure."));
-                return new ProbeReport(results);
-            } else {
-                results.add(buildMessage(FAILURE, "No OpenSearch endpoint found."));
-                return new ProbeReport(results);
-            }
-        default:
-            results.add(new ConfigurationMessage("No such probe.", FAILURE));
-            return new ProbeReport(results);
-        }
+        return probeMethod.isPresent() ?
+                probeMethod.get()
+                        .probe(configuration) :
+                new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
     }
 
     @Override
     public TestReport test(String testId, SourceConfiguration baseConfiguration) {
-        OpenSearchSourceConfiguration configuration = new OpenSearchSourceConfiguration(baseConfiguration);
+        OpenSearchSourceConfiguration configuration = new OpenSearchSourceConfiguration(
+                baseConfiguration);
         Optional<TestMethod> testMethod = testMethods.stream()
-                .filter(method -> method.id().equals(testId))
+                .filter(method -> method.id()
+                        .equals(testId))
                 .findFirst();
 
         return testMethod.isPresent() ?
-                testMethod.get().test(configuration) :
+                testMethod.get()
+                        .test(configuration) :
                 new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
     }
 
     @Override
     public TestReport persist(SourceConfiguration configuration, String persistId) {
-        //TODO: add reflection methods to make configMap work
-        Configurator configurator = new Configurator();
-        ConfigReport report;
-
-        switch(persistId) {
-        case CREATE:
-            configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
-            report = configurator.commit();
-            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to create OpenSearch Source")) :
-                    new TestReport(buildMessage(SUCCESS, "OpenSearch Source created"));
-        case DELETE:
-            // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
-            configurator.deleteManagedService(configuration.servicePid());
-            report = configurator.commit();
-            return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, "Failed to delete OpenSearch Source")) :
-                    new TestReport(buildMessage(SUCCESS, "OpenSearch Source deleted"));
-        default:
-            return new TestReport(buildMessage(FAILURE, "Uknown persist id: " + persistId));
-        }
+        OpenSearchSourceConfiguration config = new OpenSearchSourceConfiguration(configuration);
+        Optional<PersistMethod> persistMethod = persistMethods.stream()
+                .filter(method -> method.id()
+                        .equals(persistId))
+                .findFirst();
+        return persistMethod.isPresent() ?
+                persistMethod.get()
+                        .persist(config) :
+                new ProbeReport((new ConfigurationMessage(NO_PERSIST_FOUND)));
     }
 
     @Override
@@ -124,7 +109,8 @@ public class OpenSearchSourceConfigurationHandler
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(OpenSearchSourceConfiguration.class.getSimpleName(), OpenSearchSourceConfiguration.class);
+        return new CapabilitiesReport(OpenSearchSourceConfiguration.class.getSimpleName(),
+                OpenSearchSourceConfiguration.class);
     }
 
     @Override
