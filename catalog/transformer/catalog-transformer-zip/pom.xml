@@ -24,6 +24,16 @@
     <name>DDF :: Catalog :: Transformer :: ZIP</name>
     <dependencies>
         <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.9.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-launcher</artifactId>
+            <version>1.9.7</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -65,11 +75,12 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Embed-Dependency>
+                            ant,
+                            ant-launcher,
                             catalog-core-api-impl,
                             platform-util,
                             zip4j
                         </Embed-Dependency>
-
                         <Export-Package/>
                     </instructions>
                 </configuration>
@@ -92,19 +103,18 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.79</minimum>
+                                            <minimum>0.80</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.69</minimum>
+                                            <minimum>0.71</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.64</minimum>
+                                            <minimum>0.67</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>

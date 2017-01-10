@@ -58,12 +58,17 @@ import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 
 public class ZipCompression implements QueryResponseTransformer {
-
-    public CatalogFramework catalogFramework;
-
     public static final String METACARD_PATH = "metacards" + File.separator;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZipCompression.class);
+
+    private CatalogFramework catalogFramework;
+
+    private JarSigner jarSigner;
+
+    public ZipCompression(JarSigner jarSigner) {
+        this.jarSigner = jarSigner;
+    }
 
     /**
      * Transforms a SourceResponse with a list of {@link Metacard}s into a {@link BinaryContent} item
@@ -141,6 +146,11 @@ public class ZipCompression implements QueryResponseTransformer {
             InputStream fileInputStream =
                     new ZipInputStream(new FileInputStream(zipFile.getFile()));
             binaryContent = new BinaryContentImpl(fileInputStream);
+            jarSigner.signJar(zipFile.getFile(),
+                    System.getProperty("org.codice.ddf.system.hostname"),
+                    System.getProperty("javax.net.ssl.keyStorePassword"),
+                    System.getProperty("javax.net.ssl.keyStore"),
+                    System.getProperty("javax.net.ssl.keyStorePassword"));
         } catch (FileNotFoundException e) {
             throw new CatalogTransformerException("Unable to get ZIP file from ZipInputStream.", e);
         }

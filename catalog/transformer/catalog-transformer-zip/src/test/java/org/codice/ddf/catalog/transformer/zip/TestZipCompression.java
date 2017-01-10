@@ -17,7 +17,9 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -119,20 +121,19 @@ public class TestZipCompression {
 
     private CatalogFramework catalogFramework;
 
-    private InputStream resourceFileStream;
-
     @Before
     public void setUp() throws Exception {
-        zipCompression = new ZipCompression();
+        JarSigner jarSigner = mock(JarSigner.class);
+        doNothing().when(jarSigner).signJar(any(File.class), anyString(), anyString(), anyString(), anyString());
+        zipCompression = new ZipCompression(jarSigner);
         sourceResponse = createSourceResponseWithURISchemes(null, null);
         filePathArgument = new HashMap<>();
         filePathArgument.put("filePath",
                 temporaryFolder.getRoot()
                         .getAbsolutePath() + File.separator + "signed.zip");
         catalogFramework = mock(CatalogFramework.class);
-
         Resource resource = mock(Resource.class);
-        resourceFileStream = new FileInputStream(new File(LOCAL_RESOURCE_PATH));
+        InputStream resourceFileStream = new FileInputStream(new File(LOCAL_RESOURCE_PATH));
         when(resource.getName()).thenReturn(LOCAL_RESOURCE_FILENAME);
         when(resource.getInputStream()).thenReturn(resourceFileStream);
         ResourceResponse resourceResponse = new ResourceResponseImpl(resource);

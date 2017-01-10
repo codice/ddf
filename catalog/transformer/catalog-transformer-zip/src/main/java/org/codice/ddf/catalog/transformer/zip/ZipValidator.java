@@ -63,7 +63,6 @@ public class ZipValidator {
      * @return true when the zip file is valid (signed by a trusted entity).
      */
     public boolean validateZipFile(String filePath) throws ZipValidationException {
-
         try (JarFile jarFile = new JarFile(filePath)) {
 
             Manifest man = jarFile.getManifest();
