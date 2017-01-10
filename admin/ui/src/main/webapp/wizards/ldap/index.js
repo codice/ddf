@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { connect } from 'react-redux'
+import { Link } from 'react-router'
 import { getProbeValue, isSubmitting, getMessages, getConfig, getDisplayedLdapStages } from '../../reducer'
 import { setDefaults, editConfig } from '../../actions'
 
@@ -194,7 +195,7 @@ const NetworkSettings = ({ id, disabled }) => (
   </Stage>
 )
 
-const BindSettingsView = ({id, disabled, probeLdapAndChangeStage}) => (
+const BindSettingsView = ({id, disabled, probeLdapAndChangeStage, bindUserMethod}) => (
   <Stage id={id} defaults={{bindUserDn: 'cn=admin', bindUserPassword: 'secret', bindUserMethod: 'Simple'}}>
     <Title>LDAP Bind User Settings</Title>
     <Description>
@@ -207,13 +208,17 @@ const BindSettingsView = ({id, disabled, probeLdapAndChangeStage}) => (
     <Select id='bindUserMethod'
       label='Bind User Method'
       disabled={disabled}
-      options={[ 'Simple', 'SASL', 'GSSAPI SASL', 'Digest MD5 SASL' ]} />
-
+      options={[ 'Simple', 'Digest MD5 SASL' ]} />
+    {/* removed options: 'SASL', 'GSSAPI SASL' */}
     {/* TODO GSSAPI SASL only */}
-    <Input id='bindKdcAddress' disabled={disabled} label='KDC Address (for Kerberos authentication)' />
+    {/* <Input id='bindKdcAddress' disabled={disabled} label='KDC Address (for Kerberos authentication)' /> */}
 
     {/* TODO GSSAPI and Digest MD5 SASL only */}
-    <Input id='bindRealm' disabled={disabled} label='Realm (for Kerberos and Digest MD5 authentication)' />
+    {
+      (bindUserMethod === 'Digest MD5 SASL')
+        ? (<Input id='bindRealm' disabled={disabled} label='Realm (for Kerberos and Digest MD5 authentication)' />)
+        : null
+    }
 
     <StageControls>
       <Back disabled={disabled} />
@@ -221,7 +226,9 @@ const BindSettingsView = ({id, disabled, probeLdapAndChangeStage}) => (
     </StageControls>
   </Stage>
 )
-const BindSettings = connect(null, {
+const BindSettings = connect((state) => ({
+  bindUserMethod: getConfig(state, 'bindUserMethod').value
+}), {
   probeLdapAndChangeStage: probeLdapDir
 })(BindSettingsView)
 
@@ -282,7 +289,6 @@ const DirectorySettingsView = ({probe, probeAttributeMapping, probeValue = [], i
     </Card>
 
     <StageControls>
-      <RaisedButton label='Lookup LDAP Directory' disabled={disabled} primary onClick={() => probeLdapDir()} />
       <Back disabled={disabled} />
       {ldapUseCase === 'loginAndCredentialStore' || ldapUseCase === 'credentialStore'
         ? (<ProbeAndNext id={id} disabled={disabled}
@@ -298,7 +304,7 @@ const DirectorySettingsView = ({probe, probeAttributeMapping, probeValue = [], i
 
 const DirectorySettings = connect(
     (state) => ({probeValue: getProbeValue(state), ldapUseCase: getLdapUseCase(state)}),
-    {probe, probeAttributeMapping, probeLdapDir}
+    {probe, probeAttributeMapping}
 )(DirectorySettingsView)
 
 const LdapAttributeMappingStageView = (props) => {
@@ -432,7 +438,27 @@ const Confirm = ({id}) => (
 
     <StageControls>
       <Back />
-      <Save id={id} url='/admin/wizard/persist/ldap/create' />
+      <Save id={id} url='/admin/wizard/persist/ldap/create' nextStageId='finalStage' />
+    </StageControls>
+  </Stage>
+)
+
+const FinalStage = ({id}) => (
+  <Stage id={id}>
+    <Title>Success!</Title>
+
+    <Description>
+      The LDAP configuration has been successfully saved! Would you like to go to
+      the Web Context Policy Manager or back to the home page?
+    </Description>
+
+    <StageControls>
+      <Link to='/'>
+        <Submit label='Home' />
+      </Link>
+      <Link to='/webContextPolicyManager'>
+        <Submit label='Web Context Policy Manager' />
+      </Link>
     </StageControls>
   </Stage>
 )
@@ -446,7 +472,8 @@ let stageMapper = (stage, key) => {
     bindSettings: <BindSettings id='bind-settings' key={key} />,
     directorySettings: <DirectorySettings id='dir-settings' key={key} />,
     attributeMapping: <LdapAttributeMappingStage id='attribute-mapping' key={key} />,
-    confirm: <Confirm id='ldap-save' key={key} />
+    confirm: <Confirm id='ldap-save' key={key} />,
+    finalStage: <FinalStage id='final-stage' key={key} />
   }
   return (stageMapping[stage] || (<div>Undefined Stage</div>))
 }

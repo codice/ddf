@@ -84,6 +84,8 @@ export const probeLdapDir = (id, nextStageId) => (dispatch, getState) => {
         dispatch(editConfig('baseGroupDn', json.probeResults.baseGroupDn[0]))
         if (json.probeResults.groupObjectClass) dispatch(editConfig('groupObjectClass', json.probeResults.groupObjectClass[0]))
         if (json.probeResults.membershipAttribute) dispatch(editConfig('membershipAttribute', json.probeResults.membershipAttribute[0]))
+        dispatch(editConfig('query', json.probeResults.query[0]))
+        dispatch(editConfig('queryBase', json.probeResults.queryBase[0]))
         if (nextStageId) dispatch(nextStage(nextStageId))
       }
       dispatch(submittingEnd())
