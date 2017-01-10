@@ -264,7 +264,8 @@
                             hazelcast;scope=runtime|compile,
                             notifications,
                             platform-util,
-                            versioning-common
+                            versioning-common,
+                            tika-core
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.cache.impl,

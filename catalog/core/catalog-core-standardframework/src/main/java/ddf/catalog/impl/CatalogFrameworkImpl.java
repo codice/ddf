@@ -62,6 +62,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.tika.detect.DefaultProbDetector;
 import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.codice.ddf.configuration.SystemInfo;
@@ -681,7 +682,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 generatedMetacard = candidate.transform(transformerStream);
             } catch (CatalogTransformerException | IOException e) {
                 List<String> stackTraces = Arrays.asList(ExceptionUtils.getRootCauseStackTrace(e));
-                stackTraceList.add(String.format("Transformer [%s] could not create metacard.", candidate));
+                stackTraceList.add(String.format("Transformer [%s] could not create metacard.",
+                        candidate));
                 stackTraceList.addAll(stackTraces);
                 LOGGER.debug("Transformer [{}] could not create metacard.", candidate, e);
             }
@@ -692,8 +694,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
 
         if (generatedMetacard == null) {
-            throw new MetacardCreationException(String.format("Could not create metacard with mimeType %s : %s", mimeTypeRaw, stackTraceList.stream()
-                    .collect(Collectors.joining("\n"))));
+            throw new MetacardCreationException(String.format(
+                    "Could not create metacard with mimeType %s : %s",
+                    mimeTypeRaw,
+                    stackTraceList.stream()
+                            .collect(Collectors.joining("\n"))));
         }
 
         if (id != null) {
@@ -753,9 +758,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
             if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
                 Detector detector = new DefaultProbDetector();
-                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream()) {
+                try (InputStream inputStreamMessageCopy = TikaInputStream.get(tmpContentPath)) {
                     MediaType mediaType = detector.detect(inputStreamMessageCopy, new Metadata());
                     mimeTypeRaw = mediaType.toString();
                 } catch (IOException e) {
@@ -1063,8 +1066,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             createRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
-                                    OperationTransaction.OperationType.CREATE,
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
                                     new ArrayList<>()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -1342,8 +1345,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     new UpdateRequestImpl(Iterables.toArray(metacardMap.values()
                             .stream()
                             .map(Metacard::getId)
-                            .collect(Collectors.toList()), String.class), new ArrayList<>(
-                            metacardMap.values()));
+                            .collect(Collectors.toList()), String.class),
+                            new ArrayList<>(metacardMap.values()));
             updateRequest.setProperties(streamUpdateRequest.getProperties());
             updateResponse = update(updateRequest);
         } catch (Exception e) {
@@ -1465,8 +1468,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             updateRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
-                                    OperationTransaction.OperationType.UPDATE,
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
                                     metacardMap.values()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -1631,8 +1634,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             deleteRequest = rewriteRequestToAvoidHistoryConflicts(deleteRequest, query);
             deleteRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
-                                    OperationTransaction.OperationType.DELETE,
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
                                     metacards));
 
             deleteStorageRequest = new DeleteStorageRequestImpl(metacards,
@@ -1656,8 +1659,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             deleteRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
-                                    OperationTransaction.OperationType.DELETE,
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
                                     metacards));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -2213,8 +2216,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
 
                     if (!sourceFound) {
-                        exceptions.add(new ProcessingDetailsImpl(id, new SourceUnavailableException(
-                                "Source id is not found")));
+                        exceptions.add(new ProcessingDetailsImpl(id,
+                                new SourceUnavailableException("Source id is not found")));
                     }
                 }
             }
@@ -2748,8 +2751,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     String metacardId = (String) value;
                     LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
                     QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(
-                            metacardId), isEnterprise, Collections.singletonList(
-                            site == null ? this.getId() : site), resourceRequest.getProperties());
+                            metacardId),
+                            isEnterprise,
+                            Collections.singletonList(site == null ? this.getId() : site),
+                            resourceRequest.getProperties());
 
                     QueryResponse queryResponse = query(queryRequest, null, true);
                     if (queryResponse.getResults()
