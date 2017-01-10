@@ -448,16 +448,12 @@ const FinalStage = ({id}) => (
     <Title>Success!</Title>
 
     <Description>
-      The LDAP configuration has been successfully saved! Would you like to go to
-      the Web Context Policy Manager or back to the home page?
+      The LDAP configuration has been successfully saved! Now that your LDAP is configured, the final step is to use it to secure REST endpoints.
     </Description>
 
     <StageControls>
-      <Link to='/'>
-        <Submit label='Home' />
-      </Link>
       <Link to='/webContextPolicyManager'>
-        <Submit label='Web Context Policy Manager' />
+        <Submit label='Go to Web Context Policy Manager' />
       </Link>
     </StageControls>
   </Stage>
