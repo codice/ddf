@@ -1,3 +1,4 @@
+
 .Resources Architecture
 [ditaa, catalog_architecture_resources, png, ${image-width}]
 ....
@@ -29,14 +30,6 @@ Resources are the data that is represented by the cataloged metadata in ${brandi
 Metacards are used to describe those resources through metadata. 
 This metadata includes the time the resource was created, the location where the resource was created, etc. 
 A ${branding} `Metacard` contains the `getResourceUri` method, which is used to locate and retrieve its corresponding resource.
-
-The Catalog Framework can interface with Storage providers to provide storage of resources to specific types of storage, e.g., file system, relational database, XML database.
-A default file system provider is provided by default.
-Storage plugins provide pluggable functionality that can be executed either immediately before or immediately after content has been stored or updated.
-Storage providers act as a proxy between the Catalog Framework and the mechanism storing the content, e.g., file system, relational database.
-Storage providers expose the storage mechanism to the Catalog Framework.
-
-Storage providers provide the capability to the Catalog Framework to create, read, update, and delete content in the content repository.
 
 .Content Data Component Architecture
 [ditaa, content_data_components, png,${image.width}]

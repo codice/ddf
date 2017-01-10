@@ -6,8 +6,3 @@ The ${ddf-catalog} stores this metadata and allows access to it.
 Metacards are single instances of metadata, representing a single resource, in the Catalog.
 Metacards follow one of several schemas to ensure reliable, accurate, and complete metadata.
 Essentially, Metacards function as containers of metadata.
-
-=== Populating Metacards During Ingest
-
-Upon ingest, a transformer will read the metadata from the ingested file and populate the fields of the metacard.
-Exactly how this is accomplished depends on the origin of the data, but most fields (except id) are imported directly.

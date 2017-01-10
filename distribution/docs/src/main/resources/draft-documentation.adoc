@@ -36,9 +36,9 @@ include::{adoc-include}/_core-concepts/ingest-intro-contents.adoc[]
 
 include::{adoc-include}/_core-concepts/content-intro-contents.adoc[]
 
-== Requests
+== Catalog Framework
 
-include::{adoc-include}/_core-concepts/requests-intro-contents.adoc[]
+include::{adoc-include}/_core-concepts/catalog-framework-intro-contents.adoc[]
 
 == Federation
 
