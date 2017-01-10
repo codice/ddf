@@ -20,15 +20,24 @@ package ddf.catalog.data.types;
  * removed in a future version of the library. </b>
  * </p>
  */
-public interface Security {
+
+public interface Rights {
 
     /**
-     * {@link ddf.catalog.data.Attribute} name for storing groups to enforce access controls upon
+     * {@link ddf.catalog.data.Attribute} name for identifying whether the resource contains personally
+     * identifying data.
      */
-    String ACCESS_GROUPS = "security.access-groups";
+    String PRIVACY = "security.privacy";
 
     /**
-     * {@link ddf.catalog.data.Attribute} name for storing the email addresses of users to enforce access controls upon
+     * {@link ddf.catalog.data.Attribute} name for identifying whether the resource contains data under
+     * protection from reproduction and/or distribution without permission of the rights owner.
      */
-    String ACCESS_INDIVIDUALS = "security.access-individuals";
+    String INTELLECTUAL_PROPERTY = "security.intellectual-property";
+
+    /**
+     * {@link ddf.catalog.data.Attribute} name for identifying whether the resource contains data under
+     * protection from reproduction and/or distribution without the permission of the copyright owner.
+     */
+    String COPYRIGHT = "security.copyright";
 }
