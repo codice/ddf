@@ -27,17 +27,17 @@ public interface Rights {
      * {@link ddf.catalog.data.Attribute} name for identifying whether the resource contains personally
      * identifying data.
      */
-    String PRIVACY = "security.privacy";
+    String PRIVACY = "rights.privacy";
 
     /**
      * {@link ddf.catalog.data.Attribute} name for identifying whether the resource contains data under
      * protection from reproduction and/or distribution without permission of the rights owner.
      */
-    String INTELLECTUAL_PROPERTY = "security.intellectual-property";
+    String INTELLECTUAL_PROPERTY = "rights.intellectual-property";
 
     /**
      * {@link ddf.catalog.data.Attribute} name for identifying whether the resource contains data under
      * protection from reproduction and/or distribution without the permission of the copyright owner.
      */
-    String COPYRIGHT = "security.copyright";
+    String COPYRIGHT = "rights.copyright";
 }
