@@ -50,11 +50,6 @@ public interface Core {
     String EXPIRATION = "expiration";
 
     /**
-     * {@link ddf.catalog.data.Attribute} name for accessing the date/time of the most recent information used to generate the {@link ddf.catalog.resource.Resource}.
-     */
-    String INFO_CUT_OFF = "info-cut-off";
-
-    /**
      * {@link ddf.catalog.data.Attribute} name for accessing the ID of the {@link ddf.catalog.data.Metacard}. <br/>
      * Every {@link ddf.catalog.source.Source} is required to return this ddf.catalog.data.Attribute.
      */

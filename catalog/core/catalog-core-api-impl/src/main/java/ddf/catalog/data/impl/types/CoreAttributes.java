@@ -63,12 +63,6 @@ public class CoreAttributes implements Core, MetacardType {
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.DATE_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(INFO_CUT_OFF,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.DATE_TYPE));
         descriptors.add(new AttributeDescriptorImpl(ID,
                 true /* indexed */,
                 true /* stored */,
