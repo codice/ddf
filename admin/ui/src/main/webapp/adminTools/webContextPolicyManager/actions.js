@@ -40,7 +40,7 @@ export const updatePolicyBins = (url) => (dispatch, getState) => {
       if (status === 200) {
         dispatch(replaceAllBins(json[0].contextPolicyBins))
         dispatch(replaceWhitelist(json[0].whiteListContexts))
-        dispatch(fetchOptions('/admin/wizard/probe/contextPolicyManager/options'))
+        dispatch(fetchOptions('/admin/beta/config/probe/contextPolicyManager/options'))
       }
     })
     .catch(() => {

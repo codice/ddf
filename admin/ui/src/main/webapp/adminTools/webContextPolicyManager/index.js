@@ -256,7 +256,7 @@ let NewBin = ({ policies, addNewBin }) => (
 NewBin = connect(null, { addNewBin })(NewBin)
 
 let wcpm = ({ updatePolicyBins, persistChanges }) => (
-  <Mount on={updatePolicyBins('/admin/wizard/configurations/contextPolicyManager')}>
+  <Mount on={updatePolicyBins('/admin/beta/config/configurations/contextPolicyManager')}>
     <Flexbox flexDirection='column' style={{ width: '100%', height: '100%' }}>
       <Paper style={{ backgroundColor: '#EEE', width: '100%' }}>
         <p className={infoTitle}>Web Context Policy Manager</p>
@@ -264,7 +264,7 @@ let wcpm = ({ updatePolicyBins, persistChanges }) => (
       </Paper>
       <Divider />
       <PolicyBins />
-      <FloatingActionButton style={{ position: 'absolute', right: 20, bottom: 20 }} onClick={() => persistChanges('/admin/wizard/persist/contextPolicyManager/create')}>
+      <FloatingActionButton style={{ position: 'absolute', right: 20, bottom: 20 }} onClick={() => persistChanges('/admin/beta/config/persist/contextPolicyManager/create')}>
         <SaveIcon />
       </FloatingActionButton>
     </Flexbox>

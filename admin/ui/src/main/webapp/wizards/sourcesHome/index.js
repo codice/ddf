@@ -86,7 +86,7 @@ const SourceTileView = ({ sourceName, factoryPid, servicePid, sourceUserName, so
 export const SourceTile = connect(
   null,
   (dispatch, { configurationType, factoryPid, servicePid }) => ({
-    deleteConfig: () => deleteConfig('/admin/wizard/persist/' + configurationType + '/delete', configurationType, factoryPid, servicePid, dispatch)
+    deleteConfig: () => deleteConfig('/admin/beta/config/persist/' + configurationType + '/delete', configurationType, factoryPid, servicePid, dispatch)
   }))(SourceTileView)
 
 const LdapTileView = ({ type, hostName, port, encryptionMethod, bindUserDn, bindUserPassword, userNameAttribute, baseGroupDn, baseUserDn, deleteConfig }) => {
@@ -107,7 +107,7 @@ const LdapTileView = ({ type, hostName, port, encryptionMethod, bindUserDn, bind
 export const LdapTile = connect(
   null,
   (dispatch, { configurationType, factoryPid, servicePid }) => ({
-    deleteConfig: () => deleteConfig('/admin/wizard/persist/' + configurationType + '/delete', configurationType, factoryPid, servicePid, dispatch)
+    deleteConfig: () => deleteConfig('/admin/beta/config/persist/' + configurationType + '/delete', configurationType, factoryPid, servicePid, dispatch)
   }))(LdapTileView)
 
 const SourceWizardTile = () => (
@@ -189,8 +189,8 @@ const SourcesHomeView = ({sourceConfigs = [], ldapConfigs = [], refresh}) => (
 )
 
 const refresh = () => (dispatch) => {
-  retrieveConfigurations('/admin/wizard/configurations/sources', setSourceConfigs)(dispatch)
-  retrieveConfigurations('/admin/wizard/configurations/ldap', setLdapConfigs)(dispatch)
+  retrieveConfigurations('/admin/beta/config/configurations/sources', setSourceConfigs)(dispatch)
+  retrieveConfigurations('/admin/beta/config/configurations/ldap', setLdapConfigs)(dispatch)
 }
 
 // actions

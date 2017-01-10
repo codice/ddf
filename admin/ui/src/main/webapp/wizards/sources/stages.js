@@ -66,7 +66,7 @@ const DiscoveryStageView = ({ testSources, setDefaults, messages }) => (
         <ConstrainedInput id='sourceUserName' label='Username (optional)' />
         <ConstrainedPasswordInput id='sourceUserPassword' label='Password (optional)' />
         {messages.map((msg, i) => <Message key={i} {...msg} />)}
-        <Submit label='Check' onClick={() => testSources('/admin/wizard/probe/sources/discoverSources', 'sources', 'sourceSelectionStage', 'source')} />
+        <Submit label='Check' onClick={() => testSources('/admin/beta/config/probe/sources/discoverSources', 'sources', 'sourceSelectionStage', 'source')} />
       </CenteredElements>
     </NavPanes>
   </Mount>
@@ -122,7 +122,7 @@ const ConfirmationStageView = ({ selectedSource, persistConfig, sourceName, conf
       <ConstrainedSourceInfo label='Source Address' value={selectedSource.endpointUrl} />
       <ConstrainedSourceInfo label='Username' value={selectedSource.sourceUserName || 'none'} />
       <ConstrainedSourceInfo label='Password' value={selectedSource.sourceUserPassword || 'none'} />
-      <Submit label='Finish' disabled={sourceName === undefined || sourceName === ''} onClick={() => persistConfig('/admin/wizard/persist/' + (selectedSource.configurationHandlerId || configType) + '/create', null, 'completedStage', configType)} />
+      <Submit label='Finish' disabled={sourceName === undefined || sourceName === ''} onClick={() => persistConfig('/admin/beta/config/persist/' + (selectedSource.configurationHandlerId || configType) + '/create', null, 'completedStage', configType)} />
     </CenteredElements>
   </NavPanes>
 )
