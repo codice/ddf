@@ -142,7 +142,7 @@ define([
                 columnHide: [],
                 columnOrder: ['title', 'created', 'modified', 'thumbnail'],
                 uploads: [],
-                fontSize: 16
+                fontSize: '16'
             };
         },
         relations: [

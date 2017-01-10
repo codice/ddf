@@ -15,12 +15,14 @@ var express = require('express');
 var httpProxy = require('http-proxy');
 var morgan = require('morgan');
 var webpack = require('webpack');
+var cors = require('cors');
 
 var app = express();
 
 app.use(compression());
 // enable the live reload
 app.use(require('connect-livereload')());
+app.get('*/css/*', cors());
 
 
 var devCompiler = webpack(require('./webpack/config/dev'));

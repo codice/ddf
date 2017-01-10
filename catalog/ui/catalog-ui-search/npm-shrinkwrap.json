@@ -2106,6 +2106,12 @@
       "from": "core-util-is@>=1.0.0 <1.1.0",
       "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.2.tgz"
     },
+    "cors": {
+      "version": "2.8.1",
+      "from": "cors@2.8.1",
+      "resolved": "https://registry.npmjs.org/cors/-/cors-2.8.1.tgz",
+      "dev": true
+    },
     "country-regex": {
       "version": "1.0.3",
       "from": "country-regex@>=1.0.0 <2.0.0",
@@ -7258,7 +7264,14 @@
     "openlayers": {
       "version": "3.15.1",
       "from": "openlayers@3.15.1",
-      "resolved": "https://registry.npmjs.org/openlayers/-/openlayers-3.15.1.tgz"
+      "resolved": "https://registry.npmjs.org/openlayers/-/openlayers-3.15.1.tgz",
+      "dependencies": {
+        "glob": {
+          "version": "6.0.4",
+          "from": "glob@6.0.4",
+          "resolved": "https://registry.npmjs.org/glob/-/glob-6.0.4.tgz"
+        }
+      }
     },
     "opn": {
       "version": "1.0.2",

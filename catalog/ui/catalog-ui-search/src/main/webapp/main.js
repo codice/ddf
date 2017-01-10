@@ -29,7 +29,8 @@ require([
     'cesium.css',
     'js/MediaQueries',
     'js/Theming',
-    'js/Autocomplete'
+    'js/Autocomplete',
+    'js/SystemUsage'
 ], function (_, $, Backbone, Marionette, MarionetteRegion, app, properties, hbs, announcement) {
 
     $(window.document).ajaxError(function (event, jqxhr, settings, throwError) {
