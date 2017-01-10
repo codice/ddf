@@ -16,6 +16,9 @@ package org.codice.ddf.admin.sources.csw;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.codice.ddf.admin.api.commons.SourceUtils.OWS_NAMESPACE_CONTEXT;
 import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_GMD_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_PROFILE_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SPEC_FACTORY_PID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -75,12 +78,12 @@ public class CswSourceUtils {
                 return new TestReport(buildMessage(SUCCESS,
                         "Specified URL has been verified as a CSW endpoint."));
             } catch (CswSourceCreationException e) {
-                config.factoryPid(CswSourceConfigurationHandler.CSW_SPEC_FACTORY_PID);
+                config.factoryPid(CSW_SPEC_FACTORY_PID);
                 return new TestReport(buildMessage(WARNING,
                         "Cannot discover CSW profile, defaulting to Specification."));
             }
         } else {
-            config.factoryPid(CswSourceConfigurationHandler.CSW_SPEC_FACTORY_PID);
+            config.factoryPid(CSW_SPEC_FACTORY_PID);
             return new TestReport(buildMessage(WARNING,
                     "Specified URL could not be verified as a CSW endpoint, configuration will default to Specification."));
         }
@@ -165,13 +168,13 @@ public class CswSourceUtils {
                     .getContent());
             if ((Boolean) xpath.compile(HAS_CATALOG_METACARD_EXP)
                     .evaluate(capabilitiesXml, XPathConstants.BOOLEAN)) {
-                return (CswSourceConfiguration) config.factoryPid(CswSourceConfigurationHandler.CSW_PROFILE_FACTORY_PID);
+                return (CswSourceConfiguration) config.factoryPid(CSW_PROFILE_FACTORY_PID);
             } else if ((Boolean) xpath.compile(HAS_GMD_ISO_EXP)
                     .evaluate(capabilitiesXml, XPathConstants.BOOLEAN)) {
-                return ((CswSourceConfiguration) config.factoryPid(CswSourceConfigurationHandler.CSW_GMD_FACTORY_PID)).outputSchema(
+                return ((CswSourceConfiguration) config.factoryPid(CSW_GMD_FACTORY_PID)).outputSchema(
                         GMD_OUTPUT_SCHEMA);
             } else {
-                return ((CswSourceConfiguration) (config.factoryPid(CswSourceConfigurationHandler.CSW_SPEC_FACTORY_PID))).outputSchema(
+                return ((CswSourceConfiguration) (config.factoryPid(CSW_SPEC_FACTORY_PID))).outputSchema(
                         xpath.compile(GET_FIRST_OUTPUT_SCHEMA)
                                 .evaluate(capabilitiesXml));
             }

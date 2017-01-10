@@ -14,6 +14,8 @@
 
 package org.codice.ddf.admin.sources.opensearch;
 
+import static org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration.OPENSEARCH_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration.OPENSEARCH_SOURCE_DISPLAY_NAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PERSIST_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
@@ -44,10 +46,6 @@ public class OpenSearchSourceConfigurationHandler
 
     public static final String OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID =
             "OpenSearchSourceConfigurationHandler";
-
-    private static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";
-
-    public static final String OPENSEARCH_FACTORY_PID = "OpenSearchSource";
 
     private List<TestMethod> testMethods = Arrays.asList(new OpenSearchUrlTestMethod());
 
@@ -95,6 +93,7 @@ public class OpenSearchSourceConfigurationHandler
                 .filter(method -> method.id()
                         .equals(persistId))
                 .findFirst();
+
         return persistMethod.isPresent() ?
                 persistMethod.get()
                         .persist(config) :

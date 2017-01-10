@@ -34,4 +34,5 @@ public abstract class TestMethod<S extends Configuration> extends ConfigurationH
     }
 
     public abstract TestReport test(S configuration);
+
 }

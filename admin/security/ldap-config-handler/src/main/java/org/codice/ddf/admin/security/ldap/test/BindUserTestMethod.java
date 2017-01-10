@@ -107,4 +107,5 @@ public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
                 Arrays.asList(bindConnectionAttempt.result()
                         .name()));
     }
+
 }

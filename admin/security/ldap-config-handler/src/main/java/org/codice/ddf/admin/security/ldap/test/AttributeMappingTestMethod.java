@@ -36,4 +36,5 @@ public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
         // TODO: tbatie - 12/15/16 - Make sure the attributes are in the schema, if they aren't report error. Give a warning there are no users in group or base user dn with the given attributes
         return new TestReport(buildMessage(SUCCESS, "Successfully validated mapping."));
     }
+
 }

@@ -16,6 +16,8 @@ package org.codice.ddf.admin.sources.wfs;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.codice.ddf.admin.api.commons.SourceUtils.OWS_NAMESPACE_CONTEXT;
 import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
+import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS1_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS2_FACTORY_PID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -152,9 +154,9 @@ public class WfsSourceUtils {
                     .evaluate(capabilitiesXml);
             if (wfsVersion.equals("2.0.0")) {
                 return (WfsSourceConfiguration) configuration.factoryPid(
-                        WfsSourceConfigurationHandler.WFS2_FACTORY_PID);
+                        WFS2_FACTORY_PID);
             }
-            return (WfsSourceConfiguration) configuration.factoryPid(WfsSourceConfigurationHandler.WFS1_FACTORY_PID);
+            return (WfsSourceConfiguration) configuration.factoryPid(WFS1_FACTORY_PID);
         } catch (Exception e) {
             throw new WfsSourceCreationException();
         }

@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import javax.xml.namespace.NamespaceContext;
 
+import org.apache.commons.validator.UrlValidator;
 import org.apache.cxf.common.util.StringUtils;
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -67,6 +68,20 @@ public class SourceUtils {
                         "Field cannot be empty").configId(field.getKey())));
 
         return new TestReport(missingFields);
+    }
+
+    public static boolean validUrlFormat(String url) {
+        String [] schemes = {"http", "https"};
+        UrlValidator validator = new UrlValidator(schemes);
+        return validator.isValid(url);
+    }
+
+    public static boolean validHostnameFormat(String hostname) {
+        return hostname.matches("[0-9a-zA-Z\\.-]+");
+    }
+
+    public static boolean validPortFormat(int port) {
+        return port > 0 && port < 65536;
     }
 
     /*********************************************************

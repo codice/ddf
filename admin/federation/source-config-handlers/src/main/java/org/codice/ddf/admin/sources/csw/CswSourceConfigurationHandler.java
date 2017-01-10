@@ -14,6 +14,10 @@
 
 package org.codice.ddf.admin.sources.csw;
 
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_GMD_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_PROFILE_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SOURCE_DISPLAY_NAME;
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SPEC_FACTORY_PID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PERSIST_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
@@ -52,13 +56,6 @@ public class CswSourceConfigurationHandler
     List<PersistMethod> persistMethods = Arrays.asList(new CreateCswSourcePersistMethod(),
             new DeleteCswSourcePersistMethod());
 
-    private static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
-
-    public static final String CSW_PROFILE_FACTORY_PID = "Csw_Federation_Profile_Source";
-
-    public static final String CSW_GMD_FACTORY_PID = "Gmd_Csw_Federated_Source";
-
-    public static final String CSW_SPEC_FACTORY_PID = "Csw_Federated_Source";
 
     //public static final String RETRIEVE_CONFIGURATION = "retrieveConfiguration";
 

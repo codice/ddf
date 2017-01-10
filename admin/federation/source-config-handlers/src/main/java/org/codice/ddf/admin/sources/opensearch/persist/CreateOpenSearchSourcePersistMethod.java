@@ -13,14 +13,21 @@
  */
 package org.codice.ddf.admin.sources.opensearch.persist;
 
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ID;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
@@ -35,25 +42,15 @@ public class CreateOpenSearchSourcePersistMethod
     public static final String DESCRIPTION =
             "Attempts to create and persist a OpenSearch source given a configuration.";
 
-    //Required fields
-    public static final String SOURCE_NAME = "id";
-
-    public static final String OPENSEARCH_URL = "endpointUrl";
-
-    //Optional fields
-    public static final String USERNAME = "username";
-
-    public static final String PASSWORD = "password";
-
     //Result types
     private static final String SOURCE_CREATED = "sourceCreated";
 
     private static final String CREATION_FAILED = "creationFailed";
 
     // Field -> Description maps
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(SOURCE_NAME,
+    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(ID,
             "A descriptive name for the source to be configured.",
-            OPENSEARCH_URL,
+            ENDPOINT_URL,
             "The URL at which the OpenSearch endpoint is located.");
 
     private static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(USERNAME,
@@ -79,6 +76,11 @@ public class CreateOpenSearchSourcePersistMethod
 
     @Override
     public TestReport persist(OpenSearchSourceConfiguration configuration) {
+        List<ConfigurationMessage> results =
+                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        if (!results.isEmpty()) {
+            return new TestReport(results);
+        }
         Configurator configurator = new Configurator();
         ConfigReport report;
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
@@ -87,4 +89,5 @@ public class CreateOpenSearchSourcePersistMethod
                 "Failed to create OpenSearch Source")) : new TestReport(buildMessage(SUCCESS,
                 "OpenSearch Source created"));
     }
+
 }

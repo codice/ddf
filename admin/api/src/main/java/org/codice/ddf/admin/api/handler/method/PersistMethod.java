@@ -33,4 +33,5 @@ public abstract class PersistMethod<S extends Configuration> extends Configurati
     }
 
     public abstract TestReport persist(S configuration);
+
 }

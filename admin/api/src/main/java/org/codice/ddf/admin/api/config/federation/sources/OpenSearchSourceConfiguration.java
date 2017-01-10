@@ -14,21 +14,21 @@
 
 package org.codice.ddf.admin.api.config.federation.sources;
 
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class OpenSearchSourceConfiguration extends SourceConfiguration {
 
     // Open Search Service Properties
-    public static final String ID = "id";
+    public static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";
+    public static final String OPENSEARCH_FACTORY_PID = "OpenSearchSource";
 
-    public static final String ENDPOINT_URL = "endpointUrl";
-
-    public static final String USERNAME = "username";
-
-    public static final String PASSWORD = "password";
     // ----
 
     public OpenSearchSourceConfiguration(Map<String, Object> props) {
@@ -42,12 +42,30 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
 
     public OpenSearchSourceConfiguration(SourceConfiguration baseConfig) {
         factoryPid(baseConfig.factoryPid());
+        servicePid(baseConfig.servicePid());
         sourceName(baseConfig.sourceName());
         sourceHostName(baseConfig.sourceHostName());
         sourcePort(baseConfig.sourcePort());
         sourceUserName(baseConfig.sourceUserName());
         sourceUserPassword(baseConfig.sourceUserPassword());
         endpointUrl(baseConfig.endpointUrl());
+    }
+
+    public List<ConfigurationMessage> validate(List<String> fields) {
+        List<ConfigurationMessage> errors = super.validate(fields);
+        for (String field : fields) {
+            switch (field) {
+            case FACTORY_PID:
+                if (factoryPid() == null) {
+                    errors.add(new ConfigurationMessage("Configuration does not contain a factory PID.", FAILURE));
+                }
+                if (!factoryPid().equals(OPENSEARCH_FACTORY_PID)) {
+                    errors.add(new ConfigurationMessage("Configuration factory PID does not belong to an OpenSearch Source.", FAILURE));
+                }
+                break;
+            }
+        }
+        return errors;
     }
 
     public Map<String, Object> configMap() {

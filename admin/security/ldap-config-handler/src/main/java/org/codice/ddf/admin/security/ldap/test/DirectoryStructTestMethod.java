@@ -169,4 +169,5 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
                 WARNING_TYPES,
                 resultsWithConfigIds);
     }
+
 }

@@ -14,6 +14,10 @@
 package org.codice.ddf.admin.sources.csw.probe;
 
 import static org.codice.ddf.admin.api.commons.SourceUtils.DISCOVER_SOURCES_ID;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.HOSTNAME;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -36,17 +40,8 @@ import com.google.common.collect.ImmutableMap;
 public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfiguration> {
 
     public static final String CSW_DISCOVER_SOURCES_ID = DISCOVER_SOURCES_ID;
-
     public static final String DESCRIPTION =
             "Attempts to discover a CSW endpoint based on a hostname and port using optional authentication information.";
-
-    public static final String HOSTNAME = "hostname";
-
-    public static final String PORT = "port";
-
-    public static final String USERNAME = "username";
-
-    public static final String PASSWORD = "password";
 
     public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(HOSTNAME,
             "The hostname to query for CSW capabilities.",
@@ -59,11 +54,8 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
             "A password to use for basic auth connections when searching for CSW capabilities.");
 
     private static final String ENDPOINT_DISCOVERED = "endpointDiscovered";
-
     private static final String CERT_ERROR = "certError";
-
     private static final String NO_ENDPOINT = "noEndpoint";
-
     private static final String BAD_CONFIG = "badConfig";
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED,
@@ -88,7 +80,10 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
 
     @Override
     public ProbeReport probe(CswSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = new ArrayList();
+        List<ConfigurationMessage> results = configuration.validate((new ArrayList(REQUIRED_FIELDS.keySet())));
+        if(!results.isEmpty()) {
+            return new ProbeReport(results);
+        }
         Optional<String> url = CswSourceUtils.confirmEndpointUrl(configuration);
         if (url.isPresent()) {
             configuration.endpointUrl(url.get());
@@ -112,4 +107,5 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
         return new ProbeReport(results).addProbeResult(DISCOVER_SOURCES_ID,
                 configuration.configurationHandlerId(CSW_SOURCE_CONFIGURATION_HANDLER_ID));
     }
+
 }

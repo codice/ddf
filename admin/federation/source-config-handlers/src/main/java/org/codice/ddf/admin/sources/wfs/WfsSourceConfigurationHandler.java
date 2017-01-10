@@ -14,6 +14,9 @@
 
 package org.codice.ddf.admin.sources.wfs;
 
+import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS1_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS2_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS_SOURCE_DISPLAY_NAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
 
@@ -50,12 +53,6 @@ public class WfsSourceConfigurationHandler
 
     public static final String WFS_SOURCE_CONFIGURATION_HANDLER_ID =
             "WfsSourceConfigurationHandler";
-
-    private static final String WFS_SOURCE_DISPLAY_NAME = "WFS Source";
-
-    public static final String WFS1_FACTORY_PID = "Wfs_v1_0_0_Federated_Source";
-
-    public static final String WFS2_FACTORY_PID = "Wfs_v2_0_0_Federated_Source";
 
     private static final List<String> WFS_FACTORY_PIDS = Arrays.asList(WFS1_FACTORY_PID,
             WFS2_FACTORY_PID);

@@ -14,9 +14,10 @@
 package org.codice.ddf.admin.sources.opensearch.test;
 
 import static org.codice.ddf.admin.api.commons.SourceUtils.MANUAL_URL_TEST_ID;
-import static org.codice.ddf.admin.api.commons.SourceUtils.cannotBeNullFields;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,9 +37,7 @@ public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfigur
     public static final String DESCRIPTION =
             "Attempts to verify a given URL is an OpenSearch endpoint.";
 
-    public static final String TEST_URL = "testUrl";
-
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(TEST_URL,
+    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(ENDPOINT_URL,
             "The URL to attempt to verify as an OpenSearch Endpoint.");
 
     private static final String VERIFIED_URL = "urlVerified";
@@ -68,11 +67,10 @@ public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfigur
 
     @Override
     public TestReport test(OpenSearchSourceConfiguration configuration) {
-        Map<String, Object> requiredFields = new HashMap<>();
-        requiredFields.put(TEST_URL, configuration.endpointUrl());
-        TestReport cannotBeNullFieldsTest = cannotBeNullFields(requiredFields);
-        if (cannotBeNullFieldsTest.containsUnsuccessfulMessages()) {
-            return cannotBeNullFieldsTest;
+        List<ConfigurationMessage> results =
+                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        if (!results.isEmpty()) {
+            return new TestReport(results);
         }
         Optional<ConfigurationMessage> message = SourceUtils.endpointIsReachable(configuration);
         if (message.isPresent()) {
@@ -80,4 +78,5 @@ public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfigur
         }
         return OpenSearchSourceUtils.discoverUrlCapabilities(configuration);
     }
+
 }

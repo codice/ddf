@@ -13,14 +13,18 @@
  */
 package org.codice.ddf.admin.sources.wfs.persist;
 
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SERVICE_PID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.DELETE;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
@@ -34,8 +38,6 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
 
     public static final String DESCRIPTION =
             "Attempts to delete a WFS Source with the given configuration.";
-
-    private static final String SERVICE_PID = "servicePid";
 
     private static final String SOURCE_DELETED = "sourceDeleted";
 
@@ -62,13 +64,19 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
 
     @Override
     public TestReport persist(WfsSourceConfiguration configuration) {
+        List<ConfigurationMessage> results =
+                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        if (!results.isEmpty()) {
+            return new TestReport(results);
+        }
         Configurator configurator = new Configurator();
         ConfigReport report;
         // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
         configurator.deleteManagedService(configuration.servicePid());
         report = configurator.commit();
-        return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE,
-                "Failed to delete WFS Source")) : new TestReport(buildMessage(SUCCESS,
-                "WFS Source deleted"));
+        return report.containsFailedResults() ?
+                new TestReport(buildMessage(FAILURE, "Failed to delete WFS Source")) :
+                new TestReport(buildMessage(SUCCESS, "WFS Source deleted"));
     }
+
 }

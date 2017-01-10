@@ -14,23 +14,25 @@
 
 package org.codice.ddf.admin.api.config.federation.sources;
 
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class CswSourceConfiguration extends SourceConfiguration {
     //** Csw Service Properties
-    public static final String ID = "id";
 
+    public static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
+    public static final String CSW_PROFILE_FACTORY_PID = "Csw_Federation_Profile_Source";
+    public static final String CSW_GMD_FACTORY_PID = "Gmd_Csw_Federated_Source";
+    public static final String CSW_SPEC_FACTORY_PID = "Csw_Federated_Source";
     public static final String CSW_URL = "cswUrl";
-
-    public static final String USERNAME = "username";
-
-    public static final String PASSWORD = "password";
-
+    public static final String EVENT_SERVICE_ADDRESS = "eventServiceAddress";
     public static final String OUTPUT_SCHEMA = "outputSchema";
-
     public static final String FORCE_SPATIAL_FILTER = "forceSpatialFilter";
 
     // TODO: tbatie - 12/20/16 - Include service properties for registering for events and the even service address
@@ -90,6 +92,23 @@ public class CswSourceConfiguration extends SourceConfiguration {
         return forceSpatialFilter;
     }
 
+    public List<ConfigurationMessage> validate(List<String> fields) {
+        List<ConfigurationMessage> errors = super.validate(fields);
+        for(String field : fields) {
+            switch (field) {
+            case FACTORY_PID:
+                if (factoryPid() == null) {
+                    errors.add(new ConfigurationMessage("Configuration does not contain a factory PID", FAILURE));
+                }
+                if (!(factoryPid().equals(CSW_PROFILE_FACTORY_PID) || factoryPid().equals(CSW_GMD_FACTORY_PID) || factoryPid().equals(CSW_SPEC_FACTORY_PID))) {
+                    errors.add(new ConfigurationMessage("Configuration factory PID does not belong to a CSW Source factory.", FAILURE));
+                }
+                break;
+            }
+        }
+        return errors;
+    }
+
     // TODO: tbatie - 1/11/17 - Let's do this in the probe method or source utils instead, this is external to the configuration class since these keys a specific to the Csw Source MSF and hopefully we can pass structured data instead of maps of strings one day
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
@@ -109,4 +128,5 @@ public class CswSourceConfiguration extends SourceConfiguration {
         }
         return config;
     }
+
 }

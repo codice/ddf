@@ -116,4 +116,5 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
         //        testResults.addMessage(buildMessage(FAILURE,
         //                "Unable to reach the specified host. We tried the other available encryption methods without success. Make sure your host and port are correct, your LDAP is running and that your network is not restricting access."));
     }
+
 }

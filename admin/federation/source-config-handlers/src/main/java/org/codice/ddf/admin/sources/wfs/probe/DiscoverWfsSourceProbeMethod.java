@@ -14,6 +14,10 @@
 package org.codice.ddf.admin.sources.wfs.probe;
 
 import static org.codice.ddf.admin.api.commons.SourceUtils.DISCOVER_SOURCES_ID;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.HOSTNAME;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -38,14 +42,6 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
 
     public static final String DESCRIPTION =
             "Attempts to discover a Wfs endpoint based on a hostname and port using optional authentication information.";
-
-    public static final String HOSTNAME = "hostname";
-
-    public static final String PORT = "port";
-
-    public static final String USERNAME = "username";
-
-    public static final String PASSWORD = "password";
 
     public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(HOSTNAME,
             "The hostname to query for Wfs capabilites.",
@@ -87,7 +83,11 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
 
     @Override
     public ProbeReport probe(WfsSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = new ArrayList<>();
+        List<ConfigurationMessage> results =
+                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        if (!results.isEmpty()) {
+            return new ProbeReport(results);
+        }
         Optional<String> url = WfsSourceUtils.confirmEndpointUrl(configuration);
         if (url.isPresent()) {
             configuration.endpointUrl(url.get());
@@ -106,5 +106,6 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
         return new ProbeReport(results).addProbeResult(DISCOVER_SOURCES_ID,
                 configuration.configurationHandlerId(WFS_SOURCE_CONFIGURATION_HANDLER_ID));
     }
+
 }
 

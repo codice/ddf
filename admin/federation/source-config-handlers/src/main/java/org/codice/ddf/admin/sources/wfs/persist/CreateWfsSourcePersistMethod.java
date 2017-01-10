@@ -13,14 +13,22 @@
  */
 package org.codice.ddf.admin.sources.wfs.persist;
 
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.FACTORY_PID;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ID;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
@@ -34,26 +42,14 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
     public static final String DESCRIPTION =
             "Attempts to create and persist a WFS source given a configuration.";
 
-    //Required fields
-    public static final String SOURCE_NAME = "id";
-
-    public static final String WFS_URL = "endpointUrl";
-
-    public static final String FACTORY_PID = "factoryPid";
-
-    //Optional fields
-    public static final String USERNAME = "username";
-
-    public static final String PASSWORD = "password";
-
     //Result types
     private static final String SOURCE_CREATED = "sourceCreated";
 
     private static final String CREATION_FAILED = "creationFailed";
 
-    private static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(SOURCE_NAME,
+    private static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(ID,
             "A unique name to identify the source.",
-            WFS_URL,
+            ENDPOINT_URL,
             "The URL at which the WFS endpoint is located",
             FACTORY_PID,
             "The pid of the managed service factory to use to create the WFS Source.");
@@ -81,12 +77,18 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
 
     @Override
     public TestReport persist(WfsSourceConfiguration configuration) {
+        List<ConfigurationMessage> results =
+                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        if (!results.isEmpty()) {
+            return new TestReport(results);
+        }
         Configurator configurator = new Configurator();
         ConfigReport report;
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
         report = configurator.commit();
-        return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE,
-                "Failed to create WFS Source")) : new TestReport(buildMessage(SUCCESS,
-                "WFS Source created"));
+        return report.containsFailedResults() ?
+                new TestReport(buildMessage(FAILURE, "Failed to create WFS Source")) :
+                new TestReport(buildMessage(SUCCESS, "WFS Source created"));
     }
+
 }

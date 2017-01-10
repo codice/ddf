@@ -13,14 +13,25 @@
  */
 package org.codice.ddf.admin.sources.csw.persist;
 
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.FACTORY_PID;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ID;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_URL;
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.EVENT_SERVICE_ADDRESS;
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.FORCE_SPATIAL_FILTER;
+import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.OUTPUT_SCHEMA;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
@@ -35,31 +46,13 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
     public static final String DESCRIPTION =
             "Attempts to create and persist a CSW source given a configuration.";
 
-    //Required fields
-    public static final String SOURCE_NAME = "id";
-
-    public static final String CSW_URL = "cswUrl";
-
-    public static final String EVENT_SERVICE_ADDRESS = "eventServiceAddress";
-
-    public static final String FACTORY_PID = "factoryPid";
-
-    //Optional fields
-    public static final String USERNAME = "username";
-
-    public static final String PASSWORD = "password";
-
-    public static final String OUTPUT_SCHEMA = "outputSchema";
-
-    public static final String FORCE_SPATIAL_FILTER = "forceSpatialFilter";
-
     //Result types
     public static final String SOURCE_CREATED = "sourceCreated";
 
     private static final String CREATION_FAILED = "creationFailed";
 
     // Field -> Description maps
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(SOURCE_NAME,
+    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(ID,
             "A descriptive name for the source to be configured.",
             CSW_URL,
             "The URL at which the CSW endpoint is located.",
@@ -96,6 +89,10 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
 
     @Override
     public TestReport persist(CswSourceConfiguration configuration) {
+        List<ConfigurationMessage> results = configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        if (!results.isEmpty()) {
+            return new TestReport(results);
+        }
         Configurator configurator = new Configurator();
         ConfigReport report;
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
@@ -104,4 +101,5 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
                 "Failed to create CSW Source")) : new TestReport(buildMessage(SUCCESS,
                 "CSW Source created"));
     }
+
 }

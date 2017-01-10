@@ -14,31 +14,90 @@
 
 package org.codice.ddf.admin.api.config.federation;
 
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import org.codice.ddf.admin.api.commons.SourceUtils;
 import org.codice.ddf.admin.api.handler.Configuration;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class SourceConfiguration extends Configuration {
 
-    private String sourceHostName;
-
-    private int sourcePort;
-
-    private String sourceUserName;
-
-    private String sourceUserPassword;
-
-    private String endpointUrl;
-
-    private String factoryPid;
-
-    private String servicePid;
+    public static final String ID = "id";
+    public static final String HOSTNAME = "hostname";
+    public static final String PORT = "port";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    public static final String ENDPOINT_URL = "url";
+    public static final String FACTORY_PID = "factoryPid";
+    public static final String SERVICE_PID = "servicePid";
 
     private String sourceName;
+    private String sourceHostName;
+    private int sourcePort;
+    private String sourceUserName;
+    private String sourceUserPassword;
+    private String endpointUrl;
+    private String factoryPid;
+    private String servicePid;
 
     private boolean certError;
-
     private boolean trustedCertAuthority;
+
+    public List<ConfigurationMessage> validate(List<String> fields) {
+        //TODO adimka Add subtypes to error messages once they are available
+        List<ConfigurationMessage> errors = new ArrayList<>();
+        for (String field : fields) {
+            switch (field) {
+            case ID:
+                if (sourceName() == null || sourceName().isEmpty()) {
+                    errors.add(new ConfigurationMessage("Configuration does not contain a source name.", FAILURE));
+                    //TODO confirm ID being added is unique
+                }
+                break;
+            case HOSTNAME:
+                if (sourceHostName() == null) {
+                    errors.add(new ConfigurationMessage("Configuration does not contain a hostname.", FAILURE));
+                } else {
+                    if(!SourceUtils.validHostnameFormat(sourceHostName())) {
+                        errors.add(new ConfigurationMessage("Hostname format is invalid.", FAILURE));
+                    }
+                }
+                break;
+            case PORT:
+                if (!SourceUtils.validPortFormat(sourcePort())) {
+                    errors.add(new ConfigurationMessage("Port is not in valid range.", FAILURE));
+                }
+                break;
+            case USERNAME:
+                if (sourceUserName() == null) {
+                    errors.add(new ConfigurationMessage("Configuration does not contain a username", FAILURE));
+                }
+                break;
+            case PASSWORD:
+                if (sourceUserPassword() == null) {
+                    errors.add(new ConfigurationMessage("Configuration does not contain a password", FAILURE));
+                }
+                break;
+            case ENDPOINT_URL:
+                if (endpointUrl() == null) {
+                    errors.add(new ConfigurationMessage("Configuration does not contain an endpoint URL.", FAILURE));
+                }
+                if (SourceUtils.validUrlFormat(endpointUrl())) {
+                    errors.add(new ConfigurationMessage("Endpoint URL is not in a valid format.", FAILURE));
+                }
+                break;
+            case SERVICE_PID:
+                if (servicePid() == null) {
+                    errors.add(new ConfigurationMessage("Configuration does not contain a service PID", FAILURE));
+                }
+            }
+        }
+        return errors;
+    }
 
     public boolean trustedCertAuthority() {
         return trustedCertAuthority;
@@ -133,4 +192,5 @@ public class SourceConfiguration extends Configuration {
     public Map<String, Object> configMap() {
         return null;
     }
+
 }

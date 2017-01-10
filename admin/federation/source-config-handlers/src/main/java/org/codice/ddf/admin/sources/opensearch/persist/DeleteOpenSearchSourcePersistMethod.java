@@ -13,14 +13,18 @@
  */
 package org.codice.ddf.admin.sources.opensearch.persist;
 
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SERVICE_PID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.DELETE;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
@@ -34,8 +38,6 @@ public class DeleteOpenSearchSourcePersistMethod
 
     public static final String DESCRIPTION =
             "Attempts to delete an OpenSearch source with the given configuration.";
-
-    public static final String SERVICE_PID = "servicePid";
 
     private static final String SOURCE_DELETED = "sourceDeleted";
 
@@ -62,6 +64,11 @@ public class DeleteOpenSearchSourcePersistMethod
 
     @Override
     public TestReport persist(OpenSearchSourceConfiguration configuration) {
+        List<ConfigurationMessage> results =
+                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        if (!results.isEmpty()) {
+            return new TestReport(results);
+        }
         Configurator configurator = new Configurator();
         ConfigReport report;
         // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
@@ -71,4 +78,5 @@ public class DeleteOpenSearchSourcePersistMethod
                 "Failed to delete OpenSearch Source")) : new TestReport(buildMessage(SUCCESS,
                 "OpenSearch Source deleted"));
     }
+
 }

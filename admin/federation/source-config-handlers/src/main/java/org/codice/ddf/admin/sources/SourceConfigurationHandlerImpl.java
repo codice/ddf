@@ -69,7 +69,6 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
     }
 
     public ProbeReport probe(String probeId, SourceConfiguration config) {
-
         // TODO: tbatie - 11/23/16 - Do check for required fields
         switch (probeId) {
         case DISCOVER_SOURCES_ID:
@@ -111,7 +110,6 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
     }
 
     public TestReport persist(SourceConfiguration config, String persistId) {
-
         return new TestReport(buildMessage(FAILURE, "Cannot persist a SourceConfiguration."));
     }
 

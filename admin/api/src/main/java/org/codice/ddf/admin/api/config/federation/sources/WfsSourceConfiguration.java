@@ -14,21 +14,22 @@
 
 package org.codice.ddf.admin.api.config.federation.sources;
 
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class WfsSourceConfiguration extends SourceConfiguration {
 
     //** wfs Service Properties
-    public static final String ID = "id";
-
     public static final String WFS_URL = "wfsUrl";
-
-    public static final String USERNAME = "username";
-
-    public static final String PASSWORD = "password";
+    public static final String WFS_SOURCE_DISPLAY_NAME = "WFS Source";
+    public static final String WFS1_FACTORY_PID = "Wfs_v1_0_0_Federated_Source";
+    public static final String WFS2_FACTORY_PID = "Wfs_v2_0_0_Federated_Source";
     // ----
 
     //TODO: Needs WFS specific properties
@@ -54,6 +55,23 @@ public class WfsSourceConfiguration extends SourceConfiguration {
         sourceUserName(baseConfig.sourceUserName());
         sourceUserPassword(baseConfig.sourceUserPassword());
         endpointUrl(baseConfig.endpointUrl());
+    }
+
+    public List<ConfigurationMessage> validate(List<String> fields) {
+        List<ConfigurationMessage> errors = super.validate(fields);
+        for (String field : fields) {
+            switch (field) {
+            case FACTORY_PID:
+                if (factoryPid() == null) {
+                    errors.add(new ConfigurationMessage("Configuration does not contain a factory PID.", FAILURE));
+                }
+                if (!(factoryPid().equals(WFS1_FACTORY_PID) || factoryPid().equals(WFS2_FACTORY_PID))) {
+                    errors.add(new ConfigurationMessage("Configuration does not contain a factory PID.", FAILURE));
+                }
+                break;
+            }
+        }
+        return errors;
     }
 
     public Map<String, Object> configMap() {
