@@ -78,8 +78,6 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 
 /**
  * Support class for update delegate operations for the {@code CatalogFrameworkImpl}.
@@ -168,7 +166,6 @@ public class UpdateOperations {
 
         // Operation populates the metacardMap, contentItems, and tmpContentPaths
         opsMetacardSupport.generateMetacardAndContentItems(streamUpdateRequest.getContentItems(),
-                (Subject) streamUpdateRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
                 metacardMap,
                 contentItems,
                 tmpContentPaths);
@@ -303,7 +300,8 @@ public class UpdateOperations {
         // building
         if (INGEST_LOGGER.isDebugEnabled()) {
             INGEST_LOGGER.debug("{} metacards were successfully updated. {}",
-                    updateResponse.getRequest().getUpdates()
+                    updateResponse.getRequest()
+                            .getUpdates()
                             .size(),
                     buildUpdateLog(updateResponse.getRequest()));
         }
@@ -719,8 +717,8 @@ public class UpdateOperations {
             LOGGER.debug(
                     "While rewriting the query, did not get a metacardId corresponding to every attribute.");
             LOGGER.debug("Original Update By attribute was: {}", attributeName);
-            LOGGER.debug(
-                    "Metacards unable to get Metacard ID from are: {}", updateRequest.getUpdates()
+            LOGGER.debug("Unable to get Metacard IDs from metacards:: {}",
+                    updateRequest.getUpdates()
                             .stream()
                             .map(Map.Entry::getKey)
                             .map(Object::toString)

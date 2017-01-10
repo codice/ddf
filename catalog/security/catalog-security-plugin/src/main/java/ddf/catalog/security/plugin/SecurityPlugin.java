@@ -13,6 +13,7 @@
  */
 package ddf.catalog.security.plugin;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
@@ -33,6 +35,7 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
+import ddf.security.SubjectUtils;
 
 /**
  * Security-based plugin that looks for a subject using SecurityUtils and adds it to the current
@@ -44,20 +47,32 @@ public class SecurityPlugin implements AccessPlugin {
 
     @Override
     public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
-        setSubject(input);
+        setSubjectOnRequestProperties(input);
+
+        Serializable subjectName = input.getProperties()
+                .get(SecurityConstants.SECURITY_SUBJECT);
+
+        if (input.getMetacards() != null && subjectName != null) {
+            input.getMetacards()
+                    .forEach(metacard -> {
+                        metacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
+                                SubjectUtils.getName((ddf.security.Subject) subjectName)));
+                    });
+        }
+
         return input;
     }
 
     @Override
     public UpdateRequest processPreUpdate(UpdateRequest input,
             Map<String, Metacard> existingMetacards) throws StopProcessingException {
-        setSubject(input);
+        setSubjectOnRequestProperties(input);
         return input;
     }
 
     @Override
     public DeleteRequest processPreDelete(DeleteRequest input) throws StopProcessingException {
-        setSubject(input);
+        setSubjectOnRequestProperties(input);
         return input;
     }
 
@@ -68,7 +83,7 @@ public class SecurityPlugin implements AccessPlugin {
 
     @Override
     public QueryRequest processPreQuery(QueryRequest input) throws StopProcessingException {
-        setSubject(input);
+        setSubjectOnRequestProperties(input);
         return input;
     }
 
@@ -80,7 +95,7 @@ public class SecurityPlugin implements AccessPlugin {
     @Override
     public ResourceRequest processPreResource(ResourceRequest input)
             throws StopProcessingException {
-        setSubject(input);
+        setSubjectOnRequestProperties(input);
         return input;
     }
 
@@ -90,7 +105,7 @@ public class SecurityPlugin implements AccessPlugin {
         return input;
     }
 
-    private void setSubject(Operation operation) {
+    private void setSubjectOnRequestProperties(Operation operation) {
         try {
             Object requestSubject = operation.getProperties()
                     .get(SecurityConstants.SECURITY_SUBJECT);

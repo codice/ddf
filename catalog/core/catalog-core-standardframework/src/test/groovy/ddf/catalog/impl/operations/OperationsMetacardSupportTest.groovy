@@ -83,7 +83,7 @@ class OperationsMetacardSupportTest extends Specification {
         def contentPaths = [:]
 
         when:
-        opsMetacard.generateMetacardAndContentItems([], null, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems([], metacardMap, contentItems, contentPaths)
 
         then:
         metacardMap.isEmpty()
@@ -101,7 +101,7 @@ class OperationsMetacardSupportTest extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, null, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
 
         then:
         thrown(IngestException)
@@ -117,7 +117,7 @@ class OperationsMetacardSupportTest extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, null, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
 
         then:
         thrown(IngestException)
@@ -136,7 +136,7 @@ class OperationsMetacardSupportTest extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, null, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
 
         then:
         thrown(IngestException)
@@ -147,7 +147,6 @@ class OperationsMetacardSupportTest extends Specification {
         def metacardMap = [:]
         List<ContentItem> contentItems = []
         Map<String, Path> contentPaths = [:]
-        def subject = Mock(Subject)
         frameworkProperties.mimeTypeMapper.guessMimeType(_, _) >> { 'text/plain' }
         def item = Mock(ContentItem)
         item.getFilename() >> 'joe.txt'
@@ -157,7 +156,7 @@ class OperationsMetacardSupportTest extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, subject, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
 
         then:
         metacardMap.size() == 1
@@ -175,7 +174,6 @@ class OperationsMetacardSupportTest extends Specification {
         def metacardMap = [:]
         List<ContentItem> contentItems = []
         Map<String, Path> contentPaths = [:]
-        def subject = Mock(Subject)
         frameworkProperties.mimeTypeMapper.guessMimeType(_, _) >> { 'text/plain' }
         def item = Mock(ContentItem)
         item.getFilename() >> 'joe.txt'
@@ -185,7 +183,7 @@ class OperationsMetacardSupportTest extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, subject, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
 
         then:
         1 * transformer.transform(_) >> { throw new IOException() }
