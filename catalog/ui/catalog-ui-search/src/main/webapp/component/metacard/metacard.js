@@ -50,6 +50,7 @@ define([
         initialize: function(){
             this.set('currentResult', new Metacard.SearchResult());
             this.listenTo(this, 'change:currentMetacard', this.handleUpdate);
+            this.listenTo(this, 'change:currentMetacard', this.handleCurrentMetacard);
             this.listenTo(this, 'change:currentResult', this.handleResultChange);
             this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
         },
@@ -73,6 +74,11 @@ define([
             this.clearSelectedResults();
             this.setActiveSearchResults(this.get('currentResult').get('results'));
             this.addSelectedResult(this.get('currentMetacard'));
+        },
+        handleCurrentMetacard: function(){
+            if (this.get('currentMetacard') !== undefined){
+                this.get('currentQuery').cancelCurrentSearches();
+            }
         },
         getActiveSearchResults: function(){
             return this.get('activeSearchResults');
