@@ -5,6 +5,7 @@ import Wizard from '../components/wizard'
 
 import Flexbox from 'flexbox-react'
 import CircularProgress from 'material-ui/CircularProgress'
+import Paper from 'material-ui/Paper'
 
 import styles from './styles.less'
 
@@ -41,7 +42,7 @@ StageRouter = connect((state) => ({ stage: getSourceStage(state) }))(StageRouter
 
 let SourceApp = ({ isSubmitting = false, value = {}, setDefaults }) => (
   <Wizard id='sources'>
-    <div style={{width: '100%', height: '100%'}}>
+    <Paper className={styles.main}>
       {isSubmitting
         ? <div className={styles.submitting}>
           <Flexbox justifyContent='center' alignItems='center' width='100%'>
@@ -50,7 +51,7 @@ let SourceApp = ({ isSubmitting = false, value = {}, setDefaults }) => (
         </div>
         : null}
       <StageRouter />
-    </div>
+    </Paper>
   </Wizard>
 )
 SourceApp = connect((state) => ({ isSubmitting: getIsSubmitting(state) }))(SourceApp)

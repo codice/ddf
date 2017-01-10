@@ -5,9 +5,7 @@ import { clearWizard } from '../../actions'
 import Mount from '../../components/mount'
 
 const Wizard = ({ id, children, clearWizard }) => (
-  <Mount key={id} off={clearWizard}>
-    <div style={{ width: '100%', height: '100%' }}>{children}</div>
-  </Mount>
+  <Mount key={id} off={clearWizard}>{children}</Mount>
 )
 
 export default connect(null, { clearWizard })(Wizard)

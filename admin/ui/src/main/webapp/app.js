@@ -10,6 +10,7 @@ import Wcpm from './adminTools/webContextPolicyManager'
 
 import { Router, Route, hashHistory, IndexRoute } from 'react-router'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import AppBar from 'material-ui/AppBar'
 import Flexbox from 'flexbox-react'
 
 const fixed = {
@@ -21,12 +22,15 @@ const fixed = {
 }
 
 const App = ({ children }) => (
-  <Flexbox flexDirection='column' height='100vh' style={fixed}>
-    <Flexbox flex='1' style={{ overflowY: 'scroll', width: '100%' }}>
-      {children}
+  <div>
+    <Flexbox flexDirection='column' height='100vh' style={fixed}>
+      <AppBar title='Admin UI (BETA)' />
+      <Flexbox flex='1' style={{ overflowY: 'scroll', width: '100%' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto' }}>{children}</div>
+      </Flexbox>
+      <Exception />
     </Flexbox>
-    <Exception />
-  </Flexbox>
+  </div>
 )
 
 var DevTools

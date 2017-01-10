@@ -1,13 +1,13 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { getBackendErrors } from '../reducer'
+import { getException } from '../reducer'
 
 import * as styles from './exceptions.less'
 
 import { Tabs, Tab } from 'material-ui/Tabs'
 
-import { clearBackendError } from '../actions'
+import { clearException } from '../fetch'
 
 import Http from 'material-ui/svg-icons/action/http'
 import Code from 'material-ui/svg-icons/action/code'
@@ -52,15 +52,14 @@ const Exception = ({ cause, stackTrace, method, url, body, onClear }) => {
         <Tab label='Request' icon={<Http />}>
           <div className={styles.message}>
             <div>{method} {url}</div>
-            <pre>{JSON.stringify(body, null, 2)}</pre>
+            <pre>{JSON.stringify(JSON.parse(body), null, 2)}</pre>
           </div>
         </Tab>
       </Tabs>
-
     </div>
   )
 }
 
-const mapStateToProps = (state) => getBackendErrors(state)
+const mapStateToProps = (state) => getException(state) || {}
 
-export default connect(mapStateToProps, { onClear: clearBackendError })(Exception)
+export default connect(mapStateToProps, { onClear: clearException })(Exception)

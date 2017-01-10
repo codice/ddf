@@ -68,7 +68,7 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
 
     private static final String SUBJECT_CLAIMS_ID = "subjectClaims";
 
-    private static final String LDAP_USER_ATTRIBUTES = "ldapUserAttributes";
+    private static final String USER_ATTRIBUTES = "userAttributes";
 
     public SubjectAttributeProbe() {
         super(SUBJECT_ATTRIBUTES_PROBE_ID,
@@ -116,6 +116,6 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
         }
 
         return new ProbeReport(new ArrayList<>()).probeResult(SUBJECT_CLAIMS_ID, subjectClaims)
-                .probeResult(LDAP_USER_ATTRIBUTES, ldapEntryAttributes);
+                .probeResult(USER_ATTRIBUTES, ldapEntryAttributes);
     }
 }

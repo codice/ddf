@@ -16,7 +16,7 @@ const config = (state = Map(), { type, id, value, values, messages, options }) =
     case 'SET_DEFAULTS':
       return fromJS(values).map((value) => fromJS({ value })).merge(state)
     case 'SET_OPTIONS':
-      return state.merge(fromJS(options).map((options) => fromJS({ options })))
+      return state.mergeDeep(fromJS(options).map((options) => fromJS({ options })))
     case 'CLEAR_CONFIG':
       return state.clear()
     case 'SET_MESSAGES':
@@ -141,20 +141,20 @@ const submitting = (state = null, { type, id } = {}) => {
 
 export const isSubmitting = (state, id) => state.get('submitting') === id
 
-const ldapDisplayedStages = (state = ['introductionStage'], { type, stage }) => {
+const ldapDisplayedStages = (state = List.of('introduction-stage'), { type, stage }) => {
   switch (type) {
     case 'LDAP_ADD_STAGE':
-      return [...state, stage]
+      return state.push(stage)
     case 'LDAP_REMOVE_STAGE':
-      return state.slice(0, -1)
+      return state.pop()
     case 'CLEAR_WIZARD':
-      return ['introductionStage']
+      return List.of('introduction-stage')
     default:
       return state
   }
 }
 
-export const getDisplayedLdapStages = (state) => state.getIn(['ldapDisplayedStages'])
+export const getDisplayedLdapStage = (state) => state.getIn(['ldapDisplayedStages']).last()
 
 export default combineReducers({ config, probeValue, step, submitting, messages, ldapDisplayedStages, mappingToAdd, tableMappings, selectedRemoveAttributeMapping })
 

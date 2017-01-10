@@ -2,12 +2,29 @@ import React from 'react'
 
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { getProbeValue, isSubmitting, getMessages, getConfig, getDisplayedLdapStages } from '../../reducer'
+
+import {
+  getProbeValue,
+  isSubmitting,
+  getMessages,
+  getConfig,
+  getDisplayedLdapStage
+} from '../../reducer'
+
 import { setDefaults, editConfig } from '../../actions'
 
 import Mount from '../../components/mount'
 import {Card, CardActions, CardHeader} from 'material-ui/Card'
-import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
+
+import {
+  Table,
+  TableBody,
+  TableHeader,
+  TableHeaderColumn,
+  TableRow,
+  TableRowColumn
+} from 'material-ui/Table'
+
 import Paper from 'material-ui/Paper'
 import RaisedButton from 'material-ui/RaisedButton'
 import FlatButton from 'material-ui/FlatButton'
@@ -17,8 +34,29 @@ import {List, ListItem} from 'material-ui/List'
 import SelectField from 'material-ui/SelectField'
 import MenuItem from 'material-ui/MenuItem'
 import * as styles from './styles.less'
-import {testConfig, probe, probeLdapDir, nextStage, prevStage, probeAttributeMapping, setMappingToAdd, addMapping, setSelectedMappings, removeSelectedMappings, testAndProbeConfig} from './actions'
-import {Input, InputAuto, Password, Hostname, Port, Select, RadioSelection} from '../inputs'
+
+import {
+  testConfig,
+  probe,
+  probeOptions,
+  nextStage,
+  prevStage,
+  setMappingToAdd,
+  addMapping,
+  setSelectedMappings,
+  removeSelectedMappings
+} from './actions'
+
+import {
+  Input,
+  InputAuto,
+  Password,
+  Hostname,
+  Port,
+  Select,
+  RadioSelection
+} from '../inputs'
+
 import Wizard from '../components/wizard'
 
 const Title = ({children}) => <h1 className={styles.title}>{children}</h1>
@@ -34,18 +72,10 @@ const mapDispatchToPropsNext = (dispatch, {id, url, nextStageId}) => ({
   next: () => dispatch(testConfig(id, url, nextStageId))
 })
 
-const NextView = ({next, disabled, nextStageId}) => <RaisedButton label='Next' disabled={disabled} primary onClick={next} />
+const NextView = ({next, disabled, nextStageId}) =>
+  <RaisedButton label='Next' disabled={disabled} primary onClick={next} />
 
 const Next = connect(null, mapDispatchToPropsNext)(NextView)
-
-const mapDispatchToPropsProbeAndNext = (dispatch, {id, url, nextStageId, probe}) => ({
-  nextAndProbe: () => dispatch(testAndProbeConfig(id, url, nextStageId, 'ldap', probe))
-})
-const ProbeAndNextView = ({nextAndProbe, disabled, nextStageId}) => <RaisedButton label='Next'
-  disabled={disabled}
-  primary
-  onClick={nextAndProbe} />
-const ProbeAndNext = connect(null, mapDispatchToPropsProbeAndNext)(ProbeAndNextView)
 
 const Save = connect(null, (dispatch, {id, url, nextStageId, configType}) => ({
   saveConfig: () => dispatch(testConfig(id, url, nextStageId, configType))
@@ -53,11 +83,12 @@ const Save = connect(null, (dispatch, {id, url, nextStageId, configType}) => ({
   <RaisedButton label='Save' primary onClick={saveConfig} />
 ))
 
-const BeginView = ({onBegin, disabled, next}) => <RaisedButton disabled={disabled} primary
-  label='begin'
-  onClick={next} />
+const BeginView = ({onBegin, disabled, next}) =>
+  <RaisedButton disabled={disabled} primary label='begin' onClick={next} />
 
-const Begin = connect(null, (dispatch, {nextStageId}) => ({next: () => dispatch(nextStage(nextStageId))}))(BeginView)
+const Begin = connect(null, (dispatch, { nextStageId }) => ({
+  next: () => dispatch(nextStage(nextStageId))
+}))(BeginView)
 
 const Message = ({type, message}) => (
   <div className={type === 'FAILURE' ? styles.error : styles.success}>{message}</div>
@@ -72,13 +103,12 @@ const StageView = (props) => {
     children,
     submitting = false,
     messages = [],
-    defaults = {},
 
-    setDefaults
+    onInit
   } = props
 
   return (
-    <Mount on={() => setDefaults(defaults)}>
+    <Mount on={onInit}>
       <Paper className={styles.main}>
         {submitting
           ? <div className={styles.submitting}>
@@ -99,7 +129,16 @@ const StageView = (props) => {
 const Stage = connect((state, {id}) => ({
   messages: getMessages(state, id),
   submitting: isSubmitting(state, id)
-}), {setDefaults, testConfig})(StageView)
+}), (dispatch, { id, probeUrl, defaults }) => ({
+  onInit: () => {
+    if (defaults !== undefined) {
+      dispatch(setDefaults(defaults))
+    }
+    if (probeUrl !== undefined) {
+      dispatch(probeOptions(id, probeUrl))
+    }
+  }
+}))(StageView)
 
 const StageControls = ({children, style = {}, ...rest}) => (
   <Flexbox style={{marginTop: 20, ...style}} justifyContent='space-between' {...rest}>
@@ -107,35 +146,77 @@ const StageControls = ({children, style = {}, ...rest}) => (
   </Flexbox>
 )
 
-const LdapUseCases = [{value: 'login', label: 'Login'},
-{value: 'credentialStore', label: 'Credential store'},
-{value: 'loginAndCredentialStore', label: 'Login and Credential Store'}
+const LdapUseCases = [
+  {
+    value: 'login',
+    label: 'Login'
+  },
+  {
+    value: 'credentialStore',
+    label: 'Credential store'
+  },
+  {
+    value: 'loginAndCredentialStore',
+    label: 'Login and Credential Store'
+  }
 ]
+
 // TODO update description to described LDAP as a login or credential store
 // TODO Make the value selected from the radio button persist
-const IntroductionStageView = ({id, disabled, ldapUseCase}) => (
+const IntroductionStageView = ({ id, disabled, ldapUseCase }) => (
   <Stage id={id}>
     <Title>Welcome to the LDAP Configuration Wizard</Title>
     <Description>
       This guide will walk through setting up the LDAP as an
       authentication source for users. To begin, make sure you
-      have the hostname and port of the LDAP you plan to. How do you plan to use LDAP?
+      have the hostname and port of the LDAP you plan to. How
+      do you plan to use LDAP?
     </Description>
-    <RadioSelection id='ldapUseCase' options={LdapUseCases} name='LDAP Use Cases' disabled={disabled} />
+    <RadioSelection
+      id='ldapUseCase'
+      options={LdapUseCases}
+      name='LDAP Use Cases'
+      disabled={disabled} />
     <StageControls justifyContent='center'>
-      <Begin disabled={disabled || !ldapUseCase} nextStageId='ldapTypeSelection' />
+      <Begin disabled={disabled || !ldapUseCase} nextStageId='ldap-type-selection' />
     </StageControls>
   </Stage>
 )
-const getLdapUseCase = (state) => (getConfig(state, 'ldapUseCase') !== undefined ? getConfig(state, 'ldapUseCase').value : undefined)
-const IntroductionStage = connect((state) => ({ ldapUseCase: getLdapUseCase(state) }))(IntroductionStageView)
+
+const getLdapUseCase = (state) => {
+  const useCase = getConfig(state, 'ldapUseCase')
+  if (useCase !== undefined) {
+    return useCase.value
+  }
+}
+
+const IntroductionStage = connect((state) => ({
+  ldapUseCase: getLdapUseCase(state)
+}))(IntroductionStageView)
 
 // TODO Make the value selected from the radio button persist
-const LdapTypes = [{value: 'activeDirectory', label: 'Active Directory'},
-{value: 'openDj', label: 'OpenDJ'},
-{value: 'openLdap', label: 'OpenLDAP'},
-{value: 'embeddedLdap', label: 'Embedded LDAP (For testing purposes only)'},
-{value: 'unknown', label: 'Not Sure/None Of The Above'}]
+const LdapTypes = [
+  {
+    value: 'activeDirectory',
+    label: 'Active Directory'
+  },
+  {
+    value: 'openDj',
+    label: 'OpenDJ'
+  },
+  {
+    value: 'openLdap',
+    label: 'OpenLDAP'
+  },
+  {
+    value: 'embeddedLdap',
+    label: 'Embedded LDAP (For testing purposes only)'
+  },
+  {
+    value: 'unknown',
+    label: 'Not Sure/None Of The Above'
+  }
+]
 
 const LdapTypeSelectionView = ({ id, disabled, ldapType }) => (
   <Stage id={id}>
@@ -143,41 +224,61 @@ const LdapTypeSelectionView = ({ id, disabled, ldapType }) => (
     <Description>
       Select the type of LDAP you plan to connect to.
     </Description>
-    <RadioSelection id='ldapType' options={LdapTypes} name='LDAP Type Selections' disabled={disabled} />
+    <RadioSelection
+      id='ldapType'
+      options={LdapTypes}
+      name='LDAP Type Selections'
+      disabled={disabled} />
     <StageControls>
       <Back disabled={disabled} />
-      <Begin disabled={disabled || !ldapType} nextStageId={ldapType === 'embeddedLdap' ? 'configureEmbeddedLdap' : 'networkSettings'} />
+      <Begin
+        disabled={disabled || !ldapType}
+        nextStageId={ldapType === 'embeddedLdap' ? 'configure-embedded-ldap' : 'network-settings'} />
     </StageControls>
   </Stage>
 )
-const getLdapType = (state) => (getConfig(state, 'ldapType') !== undefined ? getConfig(state, 'ldapType').value : undefined)
-const LdapTypeSelection = connect((state) => ({ldapType: getLdapType(state)}))(LdapTypeSelectionView)
 
-const ConfigureEmbeddedLdapView = ({ id, disabled, ldapUseCase }) => {
-  var description = 'Installing Embedded LDAP will start up the internal LDAP and configure it as '
-  description = description + (ldapUseCase === 'loginAndCredentialStore' ? 'a login source & credential store.' : (ldapUseCase === 'login' ? 'a login source.' : 'a credential store.'))
-  return (<Stage id={id} defaults={{ embeddedLdapPort: 1389, embeddedLdapsPort: 1636, embeddedLdapAdminPort: 4444, embeddedLdapStorageLocation: 'etc/org.codice.opendj/ldap', ldifPath: 'etc/org.codice.opendj/ldap' }}>
+const getLdapType = (state) =>
+  (getConfig(state, 'ldapType') !== undefined ? getConfig(state, 'ldapType').value : undefined)
+
+const LdapTypeSelection = connect((state) => ({
+  ldapType: getLdapType(state)
+}))(LdapTypeSelectionView)
+
+const useCaseDescription = (ldapUseCase) => {
+  switch (ldapUseCase) {
+    case 'loginAndCredentialStore':
+      return 'login source & credential store'
+    case 'login' :
+      return 'login source'
+    default:
+      return 'credential store'
+  }
+}
+
+const embeddedDefaults = {
+  embeddedLdapPort: 1389,
+  embeddedLdapsPort: 1636,
+  embeddedLdapAdminPort: 4444,
+  embeddedLdapStorageLocation: 'etc/org.codice.opendj/ldap',
+  ldifPath: 'etc/org.codice.opendj/ldap'
+}
+
+const ConfigureEmbeddedLdapView = ({ id, disabled, ldapUseCase }) => (
+  <Stage id={id} defaults={embeddedDefaults}>
     <Title>Install Embedded LDAP</Title>
     <Description>
-      {description}
+      Installing Embedded LDAP will start up the internal LDAP and
+      configure it as a {useCaseDescription(ldapUseCase)}.
     </Description>
-    {/* <Port id='embeddedLdapPort' label='LDAP port' disabled={disabled} /> */}
-    {/* <Port id='embeddedLdapsPort' label='LDAPS port' disabled={disabled} /> */}
-    {/* <Port id='embeddedLdapAdminPort' label='Admin port' disabled={disabled} /> */}
-    {/* <div style={{textAlign: 'right', marginTop: 20}} > */}
-    {/* <Input id='ldifPath' disabled={disabled} label='LDIF Path' /> */}
-    {/* <RaisedButton disabled={disabled} label='Import Users' /> */}
-    {/* </div> */}
-    {/* <div style={{textAlign: 'right', marginTop: 20}} > */}
-    {/* <Input id='embeddedLdapStorageLocation' disabled label='Storage Location' /> */}
-    {/* <RaisedButton disabled={disabled} label='Set LDAP Storage Directory' /> */}
-    {/* </div> */}
+
     <StageControls>
       <Back disabled={disabled} />
       <Save id={id} disabled={disabled} url='/admin/beta/config/persist/embedded-ldap/defaults' configType='embedded-ldap' nextStageId='finalStage' />
     </StageControls>
-  </Stage>)
-}
+  </Stage>
+)
+
 const ConfigureEmbeddedLdap = connect(
   (state) => ({ldapUseCase: getLdapUseCase(state)})
 )(ConfigureEmbeddedLdapView)
@@ -198,16 +299,20 @@ const NetworkSettings = ({ id, disabled }) => (
 
     <StageControls>
       <Back disabled={disabled} />
-      <Next id={id} disabled={disabled} url='/admin/beta/config/test/ldap/connection' nextStageId='bindSettings' />
+      <Next id={id}
+        disabled={disabled}
+        url='/admin/beta/config/test/ldap/connection'
+        nextStageId='bind-settings' />
     </StageControls>
   </Stage>
 )
 
-const BindSettingsView = ({ id, disabled, probeLdapAndChangeStage, bindUserMethod, encryptionMethod }) => {
+const BindSettingsView = ({ id, disabled, bindUserMethod, encryptionMethod }) => {
   let bindUserMethodOptions = ['Simple']
-  encryptionMethod === 'LDAPS' || encryptionMethod === 'StartTLS'
-    ? bindUserMethodOptions.push('Digest MD5 SASL')
-    : null
+
+  if (encryptionMethod === 'LDAPS' || encryptionMethod === 'StartTLS') {
+    bindUserMethodOptions.push('Digest MD5 SASL')
+  }
 
   return (
     <Stage id={id} defaults={{bindUserDn: 'cn=admin', bindUserPassword: 'secret', bindUserMethod: 'Simple'}}>
@@ -235,17 +340,19 @@ const BindSettingsView = ({ id, disabled, probeLdapAndChangeStage, bindUserMetho
 
       <StageControls>
         <Back disabled={disabled} />
-        <Submit id={id} label='Next' onClick={() => probeLdapAndChangeStage(id, 'directorySettings')} />
+        <Next id={id}
+          disabled={disabled}
+          url='/admin/beta/config/test/ldap/bind'
+          nextStageId='directory-settings' />
       </StageControls>
     </Stage>
   )
 }
+
 const BindSettings = connect((state) => ({
   bindUserMethod: getConfig(state, 'bindUserMethod').value,
   encryptionMethod: getConfig(state, 'encryptionMethod').value
-}), {
-  probeLdapAndChangeStage: probeLdapDir
-})(BindSettingsView)
+}))(BindSettingsView)
 
 const QueryResult = (props) => {
   const {name, uid, cn, ou} = props
@@ -261,8 +368,8 @@ const QueryResult = (props) => {
   )
 }
 
-const DirectorySettingsView = ({probe, probeAttributeMapping, probeValue = [], id, disabled, ldapUseCase, probeLdapDir}) => (
-  <Stage id={id}>
+const DirectorySettingsView = ({ probe, probeValue = [], id, disabled, ldapUseCase }) => (
+  <Stage id={id} probeUrl='/admin/beta/config/probe/ldap/dir-struct'>
     <Title>LDAP Directory Structure</Title>
     <Description>
       Next we need to configure the directories to for users/members and the attributes to use.
@@ -306,20 +413,20 @@ const DirectorySettingsView = ({probe, probeAttributeMapping, probeValue = [], i
     <StageControls>
       <Back disabled={disabled} />
       {ldapUseCase === 'loginAndCredentialStore' || ldapUseCase === 'credentialStore'
-        ? (<ProbeAndNext id={id} disabled={disabled}
+        ? (<Next id={id} disabled={disabled}
           url='/admin/beta/config/test/ldap/dir-struct'
-          probe={() => probeAttributeMapping('/admin/beta/config/probe/ldap/subject-attributes', 'attributeMapping')} />)
+          nextStageId='attribute-mapping' />)
         : (<Next id={id}
           disabled={disabled}
           url='/admin/beta/config/test/ldap/dir-struct'
-          nextStageId={'confirm'} />)}
+          nextStageId='confirm' />)}
     </StageControls>
   </Stage>
 )
 
 const DirectorySettings = connect(
     (state) => ({probeValue: getProbeValue(state), ldapUseCase: getLdapUseCase(state)}),
-    {probe, probeAttributeMapping}
+    { probe }
 )(DirectorySettingsView)
 
 const LdapAttributeMappingStageView = (props) => {
@@ -339,7 +446,7 @@ const LdapAttributeMappingStageView = (props) => {
   } = props
 
   return (
-    <Stage id={id}>
+    <Stage id={id} probeUrl='/admin/beta/config/probe/ldap/subject-attributes'>
       <Title>LDAP User Attribute Mapping</Title>
       <Description>
         In order to authenticate users, the attributes of the users must be mapped to the STS
@@ -421,8 +528,8 @@ const mapDispatchToPropsNextAttributeMapping = (dispatch, {id, url, nextStageId,
 const NextAttributeMappingView = ({next, disabled, nextStageId}) => <RaisedButton label='Next' disabled={disabled} primary onClick={next} />
 const NextAttributeMapping = connect(null, mapDispatchToPropsNextAttributeMapping)(NextAttributeMappingView)
 
-const getSubjectClaims = (state) => (getConfig(state, 'subjectClaims') !== undefined ? getConfig(state, 'subjectClaims').value : undefined)
-const getUserAttributes = (state) => (getConfig(state, 'userAttributes') !== undefined ? getConfig(state, 'userAttributes').value : undefined)
+const getSubjectClaims = (state) => (getConfig(state, 'subjectClaims') !== undefined ? getConfig(state, 'subjectClaims').options : undefined)
+const getUserAttributes = (state) => (getConfig(state, 'userAttributes') !== undefined ? getConfig(state, 'userAttributes').options : undefined)
 const getTableMappings = (state) => state.getIn(['wizard', 'tableMappings'])
 const getMappingToAdd = (state) => state.getIn(['wizard', 'mappingToAdd'])
 const LdapAttributeMappingStage = connect(
@@ -434,7 +541,6 @@ const LdapAttributeMappingStage = connect(
   }),
 
   {
-    probeAttributeMapping,
     setMappingToAdd,
     addMapping,
     setSelectedMappings,
@@ -453,7 +559,7 @@ const Confirm = ({id}) => (
 
     <StageControls>
       <Back />
-      <Save id={id} url='/admin/beta/config/persist/ldap/create' nextStageId='finalStage' />
+      <Save id={id} url='/admin/beta/config/persist/ldap/create' nextStageId='final-stage' />
     </StageControls>
   </Stage>
 )
@@ -463,7 +569,9 @@ const FinalStage = ({id}) => (
     <Title>Success!</Title>
 
     <Description>
-      The LDAP configuration has been successfully saved! Now that your LDAP is configured, the final step is to use it to secure REST endpoints.
+      The LDAP configuration has been successfully saved! Now that your
+      LDAP is configured, the final step is to use it to secure REST
+      endpoints.
     </Description>
 
     <StageControls>
@@ -474,30 +582,26 @@ const FinalStage = ({id}) => (
   </Stage>
 )
 
-let stageMapper = (stage, key) => {
-  const stageMapping = {
-    introductionStage: <IntroductionStage key={key} />,
-    ldapTypeSelection: <LdapTypeSelection id='ldap-type-selection' key={key} />,
-    configureEmbeddedLdap: <ConfigureEmbeddedLdap id='configure-embedded-ldap' key={key} />,
-    networkSettings: <NetworkSettings id='network-settings' key={key} />,
-    bindSettings: <BindSettings id='bind-settings' key={key} />,
-    directorySettings: <DirectorySettings id='dir-settings' key={key} />,
-    attributeMapping: <LdapAttributeMappingStage id='attribute-mapping' key={key} />,
-    confirm: <Confirm id='ldap-save' key={key} />,
-    finalStage: <FinalStage id='final-stage' key={key} />
-  }
-  return (stageMapping[stage] || (<div>Undefined Stage</div>))
+const stageMapping = {
+  'introduction-stage': IntroductionStage,
+  'ldap-type-selection': LdapTypeSelection,
+  'configure-embedded-ldap': ConfigureEmbeddedLdap,
+  'network-settings': NetworkSettings,
+  'bind-settings': BindSettings,
+  'directory-settings': DirectorySettings,
+  'attribute-mapping': LdapAttributeMappingStage,
+  'confirm': Confirm,
+  'final-stage': FinalStage
 }
 
-const LdapWizardView = ({ stages, isSubmitting = false }) => (
+const LdapWizardView = ({ id }) => (
   <Wizard id='ldap'>
-    {stages.map((id, key) =>
-      React.cloneElement(stageMapper(id), {key, disabled: key !== stages.length - 1}))}
+    {React.createElement(stageMapping[id], { id })}
   </Wizard>
 )
 
 const LdapWizard = connect((state) => ({
-  stages: getDisplayedLdapStages(state)
+  id: getDisplayedLdapStage(state)
 }))(LdapWizardView)
 
 export default LdapWizard

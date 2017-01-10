@@ -1,29 +1,73 @@
 import React from 'react'
 
-import Paper from 'material-ui/Paper'
-import * as styles from './styles.less'
 import { connect } from 'react-redux'
-import { combineReducers } from 'redux-immutable'
+import { Map } from 'immutable'
+import Flexbox from 'flexbox-react'
+import { Link } from 'react-router'
+
+import Paper from 'material-ui/Paper'
 import AccountIcon from 'material-ui/svg-icons/action/account-circle'
 import LanguageIcon from 'material-ui/svg-icons/action/language'
 import RefreshIcon from 'material-ui/svg-icons/navigation/refresh'
 import VpnLockIcon from 'material-ui/svg-icons/notification/vpn-lock'
-import Flexbox from 'flexbox-react'
 import Divider from 'material-ui/Divider'
 import { cyan500 } from 'material-ui/styles/colors'
 import IconButton from 'material-ui/IconButton'
-import { Link } from 'react-router'
 import RaisedButton from 'material-ui/RaisedButton'
-import AppBar from 'material-ui/AppBar'
 
-// map state to props
-const setSourceConfigs = (value) => ({type: 'SET_SOURCE_CONFIGS', value})
-const getSourceConfigs = (state) => {
-  return state.getIn(['home', 'sourceConfigs'])
+import * as styles from './styles.less'
+import { get, post } from '../fetch'
+
+// actions
+
+const setConfigs = (id, value) => ({type: 'SET_CONFIGS', id, value})
+
+// async actions
+
+const retrieve = (id) => async (dispatch) => {
+  const res = await dispatch(get('/admin/beta/config/configurations/' + id))
+  const json = await res.json()
+
+  if (res.status === 200) {
+    dispatch(setConfigs(id, json))
+  }
 }
 
-const setLdapConfigs = (value) => ({type: 'SET_LDAP_CONFIGS', value})
-const getLdapConfigs = (state) => state.getIn(['home', 'ldapConfigs'])
+const refresh = () => (dispatch) => {
+  dispatch(retrieve('sources'))
+  dispatch(retrieve('ldap'))
+}
+
+export const deleteConfig = ({ configurationType, factoryPid, servicePid }) => async (dispatch) => {
+  const url = '/admin/beta/config/persist/' + configurationType + '/delete'
+  const body = JSON.stringify({ configurationType, factoryPid, servicePid })
+
+  const res = await dispatch(post(url, { body }))
+
+  if (res.status === 200) {
+    dispatch(refresh())
+  }
+}
+
+// selectors
+
+const getSourceConfigs = (state) => state.getIn(['home', 'sources'])
+const getLdapConfigs = (state) => state.getIn(['home', 'ldap'])
+
+// reducers
+
+const configs = (state = Map(), { type, id, value = [] }) => {
+  switch (type) {
+    case 'SET_CONFIGS':
+      return state.set(id, value)
+    default:
+      return state
+  }
+}
+
+export default configs
+
+// views
 
 // todo tbatie - we need to revisist the vocabulary of this stuff
 const getSourceTypeFromFactoryPid = (factoryPid) => {
@@ -44,22 +88,6 @@ const getSourceTypeFromFactoryPid = (factoryPid) => {
   }
 }
 
-export const deleteConfig = (url, configurationType, factoryPid, servicePid, dispatch) => {
-  const body = { configurationType, factoryPid, servicePid }
-  const opts = {
-    method: 'POST',
-    body: JSON.stringify(body),
-    credentials: 'same-origin'
-  }
-  window.fetch(url, opts)
-    .then((res) => Promise.all([ res.status, res.json() ]))
-    .then(([status, json]) => {
-      if (status === 200) {
-        refresh()(dispatch)
-      }
-    })
-}
-
 const SourceTileView = (props) => {
   const {
     sourceName,
@@ -68,7 +96,7 @@ const SourceTileView = (props) => {
     sourceUserName,
     sourceUserPassword,
     endpointUrl,
-    deleteConfig
+    onDeleteConfig
   } = props
 
   return (
@@ -78,16 +106,14 @@ const SourceTileView = (props) => {
       <div>Username: {sourceUserName || 'none'}</div>
       <div>Password: {sourceUserPassword || 'none'}</div>
 
-      <RaisedButton style={{marginTop: 20}} label='Delete' secondary onClick={deleteConfig} />
+      <RaisedButton style={{marginTop: 20}} label='Delete' secondary onClick={onDeleteConfig} />
     </Paper>
   )
 }
 
-export const SourceTile = connect(
-  null,
-  (dispatch, { configurationType, factoryPid, servicePid }) => ({
-    deleteConfig: () => deleteConfig('/admin/beta/config/persist/' + configurationType + '/delete', configurationType, factoryPid, servicePid, dispatch)
-  }))(SourceTileView)
+export const SourceTile = connect(null, (dispatch, props) => ({
+  onDeleteConfig: () => dispatch(deleteConfig(props))
+}))(SourceTileView)
 
 const LdapTileView = (props) => {
   const {
@@ -99,7 +125,7 @@ const LdapTileView = (props) => {
     userNameAttribute,
     baseGroupDn,
     baseUserDn,
-    deleteConfig
+    onDeleteConfig
   } = props
 
   return (
@@ -113,15 +139,13 @@ const LdapTileView = (props) => {
       <div>Base Group DN: {baseGroupDn}</div>
       <div>Base User DN: {baseUserDn}</div>
 
-      <RaisedButton style={{marginTop: 20}} label='Delete' primary onClick={deleteConfig} />
+      <RaisedButton style={{marginTop: 20}} label='Delete' secondary onClick={onDeleteConfig} />
     </Paper>
   )
 }
-export const LdapTile = connect(
-  null,
-  (dispatch, { configurationType, factoryPid, servicePid }) => ({
-    deleteConfig: () => deleteConfig('/admin/beta/config/persist/' + configurationType + '/delete', configurationType, factoryPid, servicePid, dispatch)
-  }))(LdapTileView)
+export const LdapTile = connect(null, (dispatch, props) => ({
+  onDeleteConfig: () => dispatch(deleteConfig(props))
+}))(LdapTileView)
 
 const TileLink = ({ to, title, subtitle, children }) => (
   <Link to={to}>
@@ -167,30 +191,34 @@ const LdapConfigTiles = ({ ldapConfigs }) => {
   )
 }
 
-const SourcesHomeView = ({ sourceConfigs = [], ldapConfigs = [], refresh }) => (
+const Title = ({ children }) => (
+  <h1 className={styles.title}>{children}</h1>
+)
+
+const SourcesHomeView = ({ sourceConfigs = [], ldapConfigs = [], onRefresh }) => (
   <div style={{width: '100%'}}>
-    <AppBar title={<span style={styles.title}>Setup Wizards</span>}
-      iconElementLeft={<div />}
-      iconElementRight={<IconButton onClick={refresh}><RefreshIcon /></IconButton>}
-      showMenuIconButton />
+    <Title>
+      Setup Wizards
+      <IconButton onClick={onRefresh}><RefreshIcon /></IconButton>
+    </Title>
 
     <Flexbox flexDirection='row' flexWrap='wrap' style={{width: '100%'}}>
       <TileLink
-        to='/sources/'
+        to='/sources'
         title='Source Setup Wizard'
         subtitle='Setup a new source for federating'>
         <LanguageIcon style={{color: cyan500, width: '50%', height: '50%'}} />
       </TileLink>
 
       <TileLink
-        to='/web-context-policy-manager/'
+        to='/web-context-policy-manager'
         title='Endpoint Security'
         subtitle='Web context policy management'>
         <VpnLockIcon style={{color: cyan500, width: '50%', height: '50%'}} />
       </TileLink>
 
       <TileLink
-        to='/ldap/'
+        to='/ldap'
         title='LDAP Setup Wizard'
         subtitle='Configure LDAP as a login'>
         <AccountIcon style={{color: cyan500, width: '50%', height: '50%'}} />
@@ -199,58 +227,18 @@ const SourcesHomeView = ({ sourceConfigs = [], ldapConfigs = [], refresh }) => (
 
     <Divider />
 
-    <AppBar title={<span style={styles.title}>Source Configurations</span>} showMenuIconButton={false} />
+    <Title>Source Configurations</Title>
     <SourceConfigTiles sourceConfigs={sourceConfigs} />
 
     <Divider />
 
-    <AppBar title={<span style={styles.title}>LDAP Configurations</span>} showMenuIconButton={false} />
+    <Title>LDAP Configurations</Title>
     <LdapConfigTiles ldapConfigs={ldapConfigs} />
   </div>
 )
 
-const refresh = () => (dispatch) => {
-  retrieveConfigurations('/admin/beta/config/configurations/sources', setSourceConfigs)(dispatch)
-  retrieveConfigurations('/admin/beta/config/configurations/ldap', setLdapConfigs)(dispatch)
-}
+export const Home = connect((state) => ({
+  sourceConfigs: getSourceConfigs(state),
+  ldapConfigs: getLdapConfigs(state)
+}), { onRefresh: refresh })(SourcesHomeView)
 
-// actions
-const retrieveConfigurations = (url, action) => (dispatch) => {
-  const opts = {
-    method: 'GET',
-    credentials: 'same-origin'
-  }
-
-  window.fetch(url, opts)
-    .then((res) => Promise.all([ res.status, res.json() ]))
-    .then(([status, json]) => {
-      if (status === 200) {
-        dispatch(action(json))
-      }
-    })
-}
-
-export const Home = connect((state) => ({ sourceConfigs: getSourceConfigs(state), ldapConfigs: getLdapConfigs(state) }),
-  { refresh }
-)(SourcesHomeView)
-
-// reducers
-const sourceConfigs = (state = [], {type, value = []}) => {
-  switch (type) {
-    case 'SET_SOURCE_CONFIGS':
-      return value
-    default:
-      return state
-  }
-}
-
-const ldapConfigs = (state = [], {type, value}) => {
-  switch (type) {
-    case 'SET_LDAP_CONFIGS':
-      return value
-    default:
-      return state
-  }
-}
-
-export default combineReducers({ sourceConfigs, ldapConfigs })
