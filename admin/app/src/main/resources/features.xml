@@ -46,13 +46,13 @@
 
     <feature name="admin-beta-ldap-handler" install="manual" version="${project.version}"
              description="DDF Admin Security (Beta) :: LDAP Handler">
+        <feature prerequisite="true">admin-beta-core</feature>
         <bundle>mvn:org.codice.ddf.admin.beta/ldap-config-handler/${project.version}</bundle>
     </feature>
 
     <feature name="admin-beta-embedded-ldap" install="manual" version="${project.version}"
              description="DDF Admin Security (Beta) :: Embedded LDAP Handler ">
         <feature prerequisite="true">admin-beta-core</feature>
-        <feature prerequisite="true">admin-beta-ldap-handler</feature>
         <bundle>mvn:org.codice.ddf.admin.beta/embedded-ldap-config-handler/${project.version}</bundle>
     </feature>
     
