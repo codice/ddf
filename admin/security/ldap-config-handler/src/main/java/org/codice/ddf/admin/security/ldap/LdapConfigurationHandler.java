@@ -34,13 +34,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -49,22 +47,24 @@ import javax.net.ssl.SSLContext;
 import org.apache.cxf.common.util.StringUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.security.ldap.probe.BindUserExampleProbe;
+import org.codice.ddf.admin.security.ldap.probe.DefaultDirectoryStructureProbe;
+import org.codice.ddf.admin.security.ldap.probe.LdapQueryProbe;
+import org.codice.ddf.admin.security.ldap.probe.SubjectAttributeProbe;
 import org.codice.ddf.admin.security.ldap.test.AttributeMappingTestMethod;
 import org.codice.ddf.admin.security.ldap.test.BindUserTestMethod;
 import org.codice.ddf.admin.security.ldap.test.ConnectTestMethod;
 import org.codice.ddf.admin.security.ldap.test.DirectoryStructTestMethod;
-import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LDAPOptions;
-import org.forgerock.opendj.ldap.LdapException;
-import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
 import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.forgerock.opendj.ldap.requests.DigestMD5SASLBindRequest;
@@ -75,27 +75,22 @@ import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfiguration> {
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapConfigurationHandler.class);
 
-    List<TestMethod> testMethods = Arrays.asList(new ConnectTestMethod(), new BindUserTestMethod(), new DirectoryStructTestMethod(), new AttributeMappingTestMethod());
+    private List<TestMethod> testMethods = ImmutableList.of(new ConnectTestMethod(),
+            new BindUserTestMethod(),
+            new DirectoryStructTestMethod(),
+            new AttributeMappingTestMethod());
 
-    public static final String LDAP_CONFIGURATION_HANDLER_ID = "ldap";
+    private List<ProbeMethod> probeMethods = ImmutableList.of(new DefaultDirectoryStructureProbe(),
+            new BindUserExampleProbe(),
+            new LdapQueryProbe(),
+            new SubjectAttributeProbe());
 
-    // Probe Ids
-    public static final String LDAP_QUERY_PROBE_ID = "ldapQuery";
-
-    public static final String LDAP_QUERY_RESULTS_ID = "ldapQueryResults";
-
-    public static final String DISCOVER_LDAP_DIR_STRUCT_ID = "directoryStructure";
-
-    public static final String BIND_USER_EXAMPLE = "bindUserExample";
-
-    public static final String ATTRIBUTE_MAP_ID = "subjectAttributeMap";
-
-    public static final String SUBJECT_CLAIMS_ID = "subjectClaims";
-
-    public static final String LDAP_USER_ATTRIBUTES = "ldapUserAttributes";
+    private static final String LDAP_CONFIGURATION_HANDLER_ID = "ldap";
 
     @Override
     public String getConfigurationHandlerId() {
@@ -112,104 +107,44 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         return new Configurator().getManagedServiceConfigs("Ldap_Login_Config")
                 .values()
                 .stream()
-                .map(serviceProps -> new LdapConfiguration(serviceProps))
+                .map(LdapConfiguration::new)
                 .collect(Collectors.toList());
     }
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(getConfigurationHandlerId(), getConfigurationHandlerId(), testMethods);
+        return new CapabilitiesReport(getConfigurationHandlerId(),
+                getConfigurationHandlerId(),
+                testMethods,
+                probeMethods,
+                null);
     }
 
     @Override
-    public ProbeReport probe(String probeId, LdapConfiguration configuration) {
-        switch (probeId) {
-        case DISCOVER_LDAP_DIR_STRUCT_ID:
-            return getDefaultDirectoryStructure(configuration);
-        case BIND_USER_EXAMPLE:
-            switch (configuration.ldapType()) {
-            case "activeDirectory":
-                return new ProbeReport(new ArrayList<>()).addProbeResult("bindUserDn",
-                        "user@domain");
-            default:
-                return new ProbeReport(new ArrayList<>()).addProbeResult("bindUserDn", "cn=admin");
-            }
-            // TODO RAP 07 Dec 16:
+    public ProbeReport probe(String probeId, LdapConfiguration ldapConfiguration) {
+        Optional<ProbeMethod> probeMethod = probeMethods.stream()
+                .filter(method -> method.id()
+                        .equals(probeId))
+                .findFirst();
 
-        case LDAP_QUERY_PROBE_ID:
-            Map<String, Object> connectionRequiredFields = new HashMap<>();
-            connectionRequiredFields.put("hostName", configuration.hostName());
-            connectionRequiredFields.put("port", configuration.port());
-            connectionRequiredFields.put("encryptionMethod", configuration.encryptionMethod());
-            connectionRequiredFields.put("bindUserDn", configuration.bindUserDn());
-            connectionRequiredFields.put("bindUserPassword", configuration.bindUserPassword());
-            connectionRequiredFields.put("query", configuration.query());
-            connectionRequiredFields.put("queryBase", configuration.queryBase());
-
-            TestReport nullFields = cannotBeNullFields(connectionRequiredFields);
-            if (nullFields.containsUnsuccessfulMessages()) {
-                return new ProbeReport(nullFields.getMessages());
-            }
-            // TODO: 11/14/16 Do checks on the connection
-            LdapTestResult<Connection> connectionResult = bindUserToLdapConnection(configuration);
-            List<SearchResultEntry> searchResults = getLdapQueryResults(connectionResult.value(),
-                    configuration.query(),
-                    configuration.queryBase());
-            List<Map<String, String>> convertedSearchResults = new ArrayList<>();
-
-            for (SearchResultEntry entry : searchResults) {
-                Map<String, String> entryMap = new HashMap<>();
-                for (Attribute attri : entry.getAllAttributes()) {
-                    entryMap.put("name",
-                            entry.getName()
-                                    .toString());
-                    entryMap.put(attri.getAttributeDescriptionAsString(),
-                            attri.firstValueAsString());
-                }
-                convertedSearchResults.add(entryMap);
-            }
-
-            return new ProbeReport(new ArrayList<>()).addProbeResult(LDAP_QUERY_RESULTS_ID,
-                    convertedSearchResults);
-
-        case ATTRIBUTE_MAP_ID:
-            // TODO: tbatie - 12/7/16 - Need to also return a default map is embedded ldap and set
-            Object subjectClaims = new Configurator().getConfig(
-                    "ddf.security.sts.client.configuration")
-                    .get("claims");
-
-            // TODO: tbatie - 12/6/16 - Clean up this naming conventions
-            LdapTestResult<Connection> connection = bindUserToLdapConnection(configuration);
-            Set<String> ldapEntryAttributes = null;
-            try {
-                ServerGuesser serverGuesser = ServerGuesser.buildGuesser(configuration.ldapType(),
-                        connection.value());
-                ldapEntryAttributes =
-                        serverGuesser.getClaimAttributeOptions(configuration.baseGroupDn(),
-                                configuration.membershipAttribute());
-            } catch (SearchResultReferenceIOException | LdapException e) {
-                LOGGER.warn("Error retrieving attributes from LDAP server; this may indicate a "
-                                + "configuration issue with baseGroupDN {} or membershipAttribute {}",
-                        configuration.baseGroupDn(),
-                        configuration.membershipAttribute());
-            }
-
-            return new ProbeReport(new ArrayList<>()).addProbeResult(SUBJECT_CLAIMS_ID,
-                    subjectClaims)
-                    .addProbeResult(LDAP_USER_ATTRIBUTES, ldapEntryAttributes);
-        }
-
-        return new ProbeReport(Arrays.asList(buildMessage(FAILURE, "UNKNOWN PROBE ID")));
+        // TODO RAP 10 Jan 17: Clean up default path
+        return probeMethod.isPresent() ?
+                probeMethod.get()
+                        .probe(ldapConfiguration) :
+                new ProbeReport(Collections.singletonList(buildMessage(FAILURE,
+                        "UNKNOWN PROBE ID")));
     }
 
     @Override
     public TestReport test(String testId, LdapConfiguration ldapConfiguration) {
         Optional<TestMethod> testMethod = testMethods.stream()
-                .filter(method -> method.id().equals(testId))
+                .filter(method -> method.id()
+                        .equals(testId))
                 .findFirst();
 
         return testMethod.isPresent() ?
-                testMethod.get().test(ldapConfiguration) :
+                testMethod.get()
+                        .test(ldapConfiguration) :
                 new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
     }
 
@@ -221,8 +156,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         switch (persistId) {
         case "create":
             if (!LDAP_USE_CASES.contains(config.ldapUseCase())) {
-                return new TestReport(buildMessage(FAILURE,
-                        "No ldap use case specified"));
+                return new TestReport(buildMessage(FAILURE, "No ldap use case specified"));
             }
 
             if (config.ldapUseCase()
@@ -287,8 +221,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             report = configurator.commit();
             if (!report.getFailedResults()
                     .isEmpty()) {
-                return new TestReport(buildMessage(FAILURE,
-                        "Unable to persist changes"));
+                return new TestReport(buildMessage(FAILURE, "Unable to persist changes"));
             } else {
                 return new TestReport(buildMessage(ConfigurationMessage.MessageType.SUCCESS,
                         "Successfully saved LDAP settings"));
@@ -298,8 +231,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             report = configurator.commit();
             if (!report.getFailedResults()
                     .isEmpty()) {
-                return new TestReport(buildMessage(FAILURE,
-                        "Unable to delete LDAP Configuration"));
+                return new TestReport(buildMessage(FAILURE, "Unable to delete LDAP Configuration"));
             } else {
                 return new TestReport(buildMessage(ConfigurationMessage.MessageType.SUCCESS,
                         "Successfully deleted LDAP Configuration"));
@@ -308,7 +240,6 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             return new TestReport(buildMessage(FAILURE, "Uknown persist id: " + persistId));
         }
     }
-
 
     public LdapTestResult<Connection> getLdapConnection(LdapConfiguration ldapConfiguration) {
 
@@ -431,28 +362,6 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         }
 
         return new TestReport(missingFields);
-    }
-
-    ProbeReport getDefaultDirectoryStructure(LdapConfiguration configuration) {
-        ProbeReport probeReport = new ProbeReport(new ArrayList<>());
-
-        String ldapType = configuration.ldapType();
-        ServerGuesser guesser = ServerGuesser.buildGuesser(ldapType,
-                bindUserToLdapConnection(configuration).value);
-
-        if (guesser != null) {
-            probeReport.addProbeResult("baseUserDn", guesser.getUserBaseChoices());
-            probeReport.addProbeResult("baseGroupDn", guesser.getGroupBaseChoices());
-            probeReport.addProbeResult("userNameAttribute", guesser.getUserNameAttribute());
-            probeReport.addProbeResult("groupObjectClass", guesser.getGroupObjectClass());
-            probeReport.addProbeResult("membershipAttribute", guesser.getMembershipAttribute());
-
-            // TODO RAP 13 Dec 16: Better query, perhaps driven by guessers?
-            probeReport.addProbeResult("query", Collections.singletonList("objectClass=*"));
-            probeReport.addProbeResult("queryBase", guesser.getBaseContexts());
-        }
-
-        return probeReport;
     }
 
     // TODO RAP 08 Dec 16: Refactor to common location...this functionality is in BindMethodChooser

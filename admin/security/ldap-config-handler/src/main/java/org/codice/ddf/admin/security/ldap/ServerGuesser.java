@@ -45,7 +45,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
-abstract class ServerGuesser {
+public abstract class ServerGuesser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerGuesser.class);
 
     private static final Map<String, Function<Connection, ServerGuesser>> GUESSER_LOOKUP =
@@ -64,13 +64,13 @@ abstract class ServerGuesser {
         this.connection = connection;
     }
 
-    static ServerGuesser buildGuesser(String ldapType, Connection connection) {
+    public static ServerGuesser buildGuesser(String ldapType, Connection connection) {
         return Optional.ofNullable(GUESSER_LOOKUP.get(ldapType))
                 .orElse(DefaultGuesser::new)
                 .apply(connection);
     }
 
-    List<String> getBaseContexts() {
+    public List<String> getBaseContexts() {
         try {
             ConnectionEntryReader reader = connection.search("",
                     SearchScope.BASE_OBJECT,
@@ -94,27 +94,27 @@ abstract class ServerGuesser {
         }
     }
 
-    List<String> getUserNameAttribute() {
+    public List<String> getUserNameAttribute() {
         return ImmutableList.of("uid");
     }
 
-    List<String> getGroupObjectClass() {
+    public List<String> getGroupObjectClass() {
         return ImmutableList.of("groupOfNames", "group");
     }
 
-    List<String> getMembershipAttribute() {
+    public List<String> getMembershipAttribute() {
         return ImmutableList.of("member", "uniqueMember");
     }
 
-    List<String> getUserBaseChoices() {
+    public List<String> getUserBaseChoices() {
         return getChoices("(|(ou=user*)(name=user*)(cn=user*))");
     }
 
-    List<String> getGroupBaseChoices() {
+    public List<String> getGroupBaseChoices() {
         return getChoices("(|(ou=group*)(name=group*)(cn=group*)(objectClass=groupOfUniqueNames))");
     }
 
-    Set<String> getClaimAttributeOptions(String baseGroupDn, String membershipAttribute)
+    public Set<String> getClaimAttributeOptions(String baseGroupDn, String membershipAttribute)
             throws SearchResultReferenceIOException, LdapException {
 
         // Using the base group DN and membership attributes to constrain search,
@@ -202,7 +202,7 @@ abstract class ServerGuesser {
         }
 
         @Override
-        List<String> getBaseContexts() {
+        public List<String> getBaseContexts() {
             try {
                 ConnectionEntryReader reader = connection.search("",
                         SearchScope.BASE_OBJECT,
@@ -223,22 +223,22 @@ abstract class ServerGuesser {
         }
 
         @Override
-        List<String> getUserNameAttribute() {
+        public List<String> getUserNameAttribute() {
             return Collections.singletonList("sAMAccountName");
         }
 
         @Override
-        List<String> getGroupObjectClass() {
+        public List<String> getGroupObjectClass() {
             return Collections.singletonList("group");
         }
 
         @Override
-        List<String> getMembershipAttribute() {
+        public List<String> getMembershipAttribute() {
             return Collections.singletonList("member");
         }
 
         @Override
-        List<String> getUserBaseChoices() {
+        public List<String> getUserBaseChoices() {
             return super.getUserBaseChoices()
                     .stream()
                     .filter(USER_DN_EXC)
@@ -246,7 +246,7 @@ abstract class ServerGuesser {
         }
 
         @Override
-        List<String> getGroupBaseChoices() {
+        public List<String> getGroupBaseChoices() {
             return super.getGroupBaseChoices()
                     .stream()
                     .filter(GROUP_DN_EXC)
@@ -262,22 +262,22 @@ abstract class ServerGuesser {
         // TODO RAP 07 Dec 16: Will more likely execute queries for these values and remove
         // these custom overrides
         @Override
-        List<String> getUserBaseChoices() {
+        public List<String> getUserBaseChoices() {
             return Collections.singletonList("ou=users,dc=example,dc=com");
         }
 
         @Override
-        List<String> getGroupBaseChoices() {
+        public List<String> getGroupBaseChoices() {
             return Collections.singletonList("ou=groups,dc=example,dc=com");
         }
 
         @Override
-        List<String> getGroupObjectClass() {
+        public List<String> getGroupObjectClass() {
             return Collections.singletonList("groupOfNames");
         }
 
         @Override
-        List<String> getMembershipAttribute() {
+        public List<String> getMembershipAttribute() {
             return Collections.singletonList("member");
         }
     }

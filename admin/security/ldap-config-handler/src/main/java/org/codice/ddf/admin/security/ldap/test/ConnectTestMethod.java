@@ -15,15 +15,18 @@
 package org.codice.ddf.admin.security.ldap.test;
 
 import static org.codice.ddf.admin.api.handler.report.TestReport.createGeneralTestReport;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.LDAP_ENCRYPTION_METHODS;
-import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.LdapConnectionResult.CANNOT_CONFIGURE;
-import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.LdapConnectionResult.CANNOT_CONNECT;
-import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.LdapConnectionResult.SUCCESSFUL_CONNECTION;
-import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.LdapConnectionResult.toDescriptionMap;
+import static org.codice.ddf.admin.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
+import static org.codice.ddf.admin.security.ldap.LdapConfiguration.HOST_NAME;
+import static org.codice.ddf.admin.security.ldap.LdapConfiguration.PORT;
+import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
+import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
+import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.SUCCESSFUL_CONNECTION;
+import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.toDescriptionMap;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.cannotBeNullFields;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdapConnection;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,25 +34,25 @@ import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.security.ldap.LdapConfiguration;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 
 public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
 
-    public static final String LDAP_CONNECTION_TEST_ID = "testLdapConnection";
-    public static final String DESCRIPTION = "Attempts to connect to the given LDAP host";
+    private static final String LDAP_CONNECTION_TEST_ID = "testLdapConnection";
 
-    public static final String HOST_NAME = "hostName";
-    public static final String PORT = "port";
-    public static final String ENCRYPTION_METHOD = "encryptionMethod";
+    private static final String DESCRIPTION = "Attempts to connect to the given LDAP host";
 
-    // TODO: tbatie - 1/3/17 - Should we move those descriptions into configuration instead?
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(
-            HOST_NAME, "Host name of the ldap url to attempt to connect to.",
-            PORT, "Port of the ldap url to attempt to connect to.",
-            ENCRYPTION_METHOD, "Encryption method to connect over. Must be either: " + Arrays.toString(LDAP_ENCRYPTION_METHODS.toArray()));
+    private static final Map<String, String> REQUIRED_FIELDS = LdapConfiguration.buildFieldMap(
+            HOST_NAME,
+            PORT,
+            ENCRYPTION_METHOD);
 
-    public static final Map<String, String> SUCCESS_TYPES = toDescriptionMap(Arrays.asList(SUCCESSFUL_CONNECTION));
-    public static final Map<String, String> FAILURE_TYPES = toDescriptionMap(Arrays.asList(CANNOT_CONFIGURE, CANNOT_CONNECT));
+    private static final Map<String, String> SUCCESS_TYPES =
+            toDescriptionMap(Collections.singletonList(SUCCESSFUL_CONNECTION));
+
+    private static final Map<String, String> FAILURE_TYPES = toDescriptionMap(ImmutableList.of(
+            CANNOT_CONFIGURE,
+            CANNOT_CONNECT));
 
     public ConnectTestMethod() {
         super(LDAP_CONNECTION_TEST_ID,
@@ -73,42 +76,47 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
             return cannotBeNullFieldsTest;
         }
 
-        LdapTestingCommons.LdapConnectionAttempt connectionAttempt = getLdapConnection(configuration);
-        if(connectionAttempt.connection() != null) {
-            connectionAttempt.connection().close();
+        LdapTestingCommons.LdapConnectionAttempt connectionAttempt =
+                getLdapConnection(configuration);
+        if (connectionAttempt.connection() != null) {
+            connectionAttempt.connection()
+                    .close();
         }
 
-        return createGeneralTestReport(SUCCESS_TYPES, FAILURE_TYPES, null, Arrays.asList(connectionAttempt.result().name()));
+        return createGeneralTestReport(SUCCESS_TYPES,
+                FAILURE_TYPES,
+                null,
+                Arrays.asList(connectionAttempt.result()
+                        .name()));
 
-
-//      ---  Experimental code to try connecting to ldap using all other configuration options
-//
-//        List<String> encryptionMethodsToTry = new ArrayList<>();
-//        Collections.copy(Arrays.asList(LdapConfiguration.LDAP_ENCRYPTION_METHODS),
-//                encryptionMethodsToTry);
-//        encryptionMethodsToTry.remove(configuration.encryptionMethod());
-//
-//        List<LdapConfiguration> configsToTest = new ArrayList<>();
-//
-//        encryptionMethodsToTry.stream()
-//                .forEach(encryptM -> configsToTest.add(configuration.copy()
-//                        .encryptionMethod(encryptM)));
-//
-//        for (LdapConfiguration testConfig : configsToTest) {
-//            LdapConfigurationHandler.LdapTestResult<Connection> connectionTestRetryResult = getLdapConnection(testConfig);
-//
-//            if (connectionTestRetryResult.type() == SUCCESSFUL_CONNECTION) {
-//                connectionTestRetryResult.value()
-//                        .close();
-//                testResults.addMessage(buildMessage(WARNING,
-//                        "We were unable to connect to the host with the given encryption method but we were able successfully connect using the encryption method "
-//                                + testConfig.encryptionMethod()
-//                                + ". If this is acceptable, please change the encryption method field and resubmit."));
-//                return testResults;
-//            }
-//        }
-//
-//        testResults.addMessage(buildMessage(FAILURE,
-//                "Unable to reach the specified host. We tried the other available encryption methods without success. Make sure your host and port are correct, your LDAP is running and that your network is not restricting access."));
+        //      ---  Experimental code to try connecting to ldap using all other configuration options
+        //
+        //        List<String> encryptionMethodsToTry = new ArrayList<>();
+        //        Collections.copy(Arrays.asList(LdapConfiguration.LDAP_ENCRYPTION_METHODS),
+        //                encryptionMethodsToTry);
+        //        encryptionMethodsToTry.remove(configuration.encryptionMethod());
+        //
+        //        List<LdapConfiguration> configsToTest = new ArrayList<>();
+        //
+        //        encryptionMethodsToTry.stream()
+        //                .forEach(encryptM -> configsToTest.add(configuration.copy()
+        //                        .encryptionMethod(encryptM)));
+        //
+        //        for (LdapConfiguration testConfig : configsToTest) {
+        //            LdapConfigurationHandler.LdapTestResult<Connection> connectionTestRetryResult = getLdapConnection(testConfig);
+        //
+        //            if (connectionTestRetryResult.type() == SUCCESSFUL_CONNECTION) {
+        //                connectionTestRetryResult.value()
+        //                        .close();
+        //                testResults.addMessage(buildMessage(WARNING,
+        //                        "We were unable to connect to the host with the given encryption method but we were able successfully connect using the encryption method "
+        //                                + testConfig.encryptionMethod()
+        //                                + ". If this is acceptable, please change the encryption method field and resubmit."));
+        //                return testResults;
+        //            }
+        //        }
+        //
+        //        testResults.addMessage(buildMessage(FAILURE,
+        //                "Unable to reach the specified host. We tried the other available encryption methods without success. Make sure your host and port are correct, your LDAP is running and that your network is not restricting access."));
     }
 }
