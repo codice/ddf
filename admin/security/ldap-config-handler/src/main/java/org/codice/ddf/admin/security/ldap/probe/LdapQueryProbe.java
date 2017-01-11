@@ -13,17 +13,17 @@
  */
 package org.codice.ddf.admin.security.ldap.probe;
 
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_KDC;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_METHOD;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_REALM;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_USER_DN;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_USER_PASSWORD;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.HOST_NAME;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.LDAP_TYPE;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.PORT;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.QUERY;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.QUERY_BASE;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_KDC;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_METHOD;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_REALM;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_DN;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_PASSWORD;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.HOST_NAME;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_TYPE;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.QUERY;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.QUERY_BASE;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdapQueryResults;
 
@@ -33,10 +33,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.security.ldap.LdapConfiguration;
 import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;

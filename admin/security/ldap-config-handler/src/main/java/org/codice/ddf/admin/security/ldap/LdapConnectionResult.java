@@ -18,19 +18,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public enum LdapConnectionResult {
-    CANNOT_CONNECT("Unable to reach the specified host."), CANNOT_CONFIGURE(
-            "Unable to setup test environment."), CANNOT_BIND(
-            "Unable to bind the user to the LDAP connection. Try a different username or password. Make sure the username is in the format of a distinguished name."), BASE_USER_DN_NOT_FOUND(
-            "The specified base user DN does not appear to exist."), BASE_GROUP_DN_NOT_FOUND(
-            "The specified base group DN does not appear to exist."), USER_NAME_ATTRIBUTE_NOT_FOUND(
-            "No users found with the described attribute in the base user DN"), NO_USERS_IN_BASE_USER_DN(
-            "The base user DN was found, but there are no users in it."), NO_GROUPS_IN_BASE_GROUP_DN(
-            "The base group DN was found, but there are no groups in it."),
+    CANNOT_CONNECT("Unable to reach the specified host."),
+    CANNOT_CONFIGURE("Unable to setup test environment."),
+    CANNOT_BIND("Unable to bind the user to the LDAP connection. Try a different username or password. Make sure the username is in the format of a distinguished name."),
+    BASE_USER_DN_NOT_FOUND("The specified base user DN does not appear to exist."),
+    BASE_GROUP_DN_NOT_FOUND("The specified base group DN does not appear to exist."),
+    USER_NAME_ATTRIBUTE_NOT_FOUND("No users found with the described attribute in the base user DN"),
+    NO_USERS_IN_BASE_USER_DN("The base user DN was found, but there are no users in it."),
+    NO_GROUPS_IN_BASE_GROUP_DN("The base group DN was found, but there are no groups in it."),
 
-    SUCCESSFUL_CONNECTION("A connection with the LDAP was successfully established."), SUCCESSFUL_BIND(
-            "Successfully binded the user to the LDAP connection."), FOUND_BASE_USER_DN(
-            "Found users in base user dn"), FOUND_BASE_GROUP_DN("Found groups in base group DN"), FOUND_USER_NAME_ATTRIBUTE(
-            "Users with given user attribute found in base user dn");
+    SUCCESSFUL_CONNECTION("A connection with the LDAP was successfully established."),
+    SUCCESSFUL_BIND("Successfully binded the user to the LDAP connection."),
+    FOUND_BASE_USER_DN("Found users in base user dn"),
+    FOUND_BASE_GROUP_DN("Found groups in base group DN"),
+    FOUND_USER_NAME_ATTRIBUTE("Users with given user attribute found in base user dn");
 
     private String description;
 

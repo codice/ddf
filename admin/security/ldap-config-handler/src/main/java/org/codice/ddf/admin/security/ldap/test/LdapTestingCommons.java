@@ -14,8 +14,8 @@
 
 package org.codice.ddf.admin.security.ldap.test;
 
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.LDAPS;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.TLS;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAPS;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
@@ -28,7 +28,7 @@ import java.util.List;
 
 import javax.net.ssl.SSLContext;
 
-import org.codice.ddf.admin.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.security.ldap.LdapConnectionResult;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;

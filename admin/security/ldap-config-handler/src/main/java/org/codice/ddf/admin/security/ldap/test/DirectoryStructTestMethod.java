@@ -14,19 +14,19 @@
 
 package org.codice.ddf.admin.security.ldap.test;
 
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BASE_GROUP_DN;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BASE_USER_DN;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_KDC;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_METHOD;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_REALM;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_DN;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_PASSWORD;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.HOST_NAME;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.buildFieldMap;
 import static org.codice.ddf.admin.api.handler.report.TestReport.createGeneralTestReport;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BASE_GROUP_DN;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BASE_USER_DN;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_KDC;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_METHOD;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_REALM;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_USER_DN;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_USER_PASSWORD;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.HOST_NAME;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.PORT;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.buildFieldMap;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.BASE_GROUP_DN_NOT_FOUND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.BASE_USER_DN_NOT_FOUND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
@@ -50,11 +50,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.security.ldap.commons.LdapConfiguration;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 
@@ -74,7 +74,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
             BASE_GROUP_DN,
             USER_NAME_ATTRIBUTE);
 
-    private static final Map<String, String> OPTIONAL_FIELDS = LdapConfiguration.buildFieldMap(
+    private static final Map<String, String> OPTIONAL_FIELDS = buildFieldMap(
             BIND_REALM,
             BIND_KDC);
 

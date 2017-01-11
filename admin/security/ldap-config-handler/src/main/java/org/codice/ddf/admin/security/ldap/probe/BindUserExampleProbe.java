@@ -13,14 +13,15 @@
  */
 package org.codice.ddf.admin.security.ldap.probe;
 
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.LDAP_TYPE;
+
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_TYPE;
 
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.security.ldap.LdapConfiguration;
 
 public class BindUserExampleProbe extends ProbeMethod<LdapConfiguration> {
     private static final String BIND_USER_EXAMPLE = "bindUserExample";
