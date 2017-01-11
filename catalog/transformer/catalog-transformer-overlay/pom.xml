@@ -50,17 +50,22 @@
             <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.la4j</groupId>
+            <artifactId>la4j</artifactId>
+            <version>0.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jhlabs</groupId>
+            <artifactId>filters</artifactId>
+            <version>2.0.235-1</version>
+        </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.coobird</groupId>
-            <artifactId>thumbnailator</artifactId>
-            <version>0.4.8</version>
         </dependency>
     </dependencies>
 
@@ -75,7 +80,8 @@
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             platform-util,
-                            thumbnailator
+                            filters,
+                            la4j
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -103,12 +109,12 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.78</minimum>
+                                            <minimum>0.68</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.86</minimum>
+                                            <minimum>0.82</minimum>
                                         </limit>
 
                                     </limits>
