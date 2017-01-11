@@ -90,6 +90,7 @@ public class CswSourceConfiguration extends SourceConfiguration {
         return forceSpatialFilter;
     }
 
+    // TODO: tbatie - 1/11/17 - Let's do this in the probe method or source utils instead, this is external to the configuration class since these keys a specific to the Csw Source MSF and hopefully we can pass structured data instead of maps of strings one day
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
         config.put(ID, sourceName());

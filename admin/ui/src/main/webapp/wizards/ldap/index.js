@@ -154,24 +154,24 @@ const getLdapType = (state) => (getConfig(state, 'ldapType') !== undefined ? get
 const LdapTypeSelection = connect((state) => ({ldapType: getLdapType(state)}))(LdapTypeSelectionView)
 
 const ConfigureEmbeddedLdapView = ({ id, disabled, ldapUseCase }) => {
-  var description = 'Installing Embedded LDAP will start up the internal LDAP and configure it as ';
-  description = description + (ldapUseCase === 'loginAndCredentialStore' ? 'a login source & credential store.' : (ldapUseCase === 'login'  ? 'a login source.' : 'a credential store.'))
-return (<Stage id={id} defaults={{ embeddedLdapPort: 1389, embeddedLdapsPort: 1636, embeddedLdapAdminPort: 4444, embeddedLdapStorageLocation: 'etc/org.codice.opendj/ldap', ldifPath: 'etc/org.codice.opendj/ldap' }}>
+  var description = 'Installing Embedded LDAP will start up the internal LDAP and configure it as '
+  description = description + (ldapUseCase === 'loginAndCredentialStore' ? 'a login source & credential store.' : (ldapUseCase === 'login' ? 'a login source.' : 'a credential store.'))
+  return (<Stage id={id} defaults={{ embeddedLdapPort: 1389, embeddedLdapsPort: 1636, embeddedLdapAdminPort: 4444, embeddedLdapStorageLocation: 'etc/org.codice.opendj/ldap', ldifPath: 'etc/org.codice.opendj/ldap' }}>
     <Title>Install Embedded LDAP</Title>
     <Description>
       {description}
     </Description>
-    {/*<Port id='embeddedLdapPort' label='LDAP port' disabled={disabled} />*/}
-    {/*<Port id='embeddedLdapsPort' label='LDAPS port' disabled={disabled} />*/}
-    {/*<Port id='embeddedLdapAdminPort' label='Admin port' disabled={disabled} />*/}
-    {/*<div style={{textAlign: 'right', marginTop: 20}} >*/}
-      {/*<Input id='ldifPath' disabled={disabled} label='LDIF Path' />*/}
-      {/*<RaisedButton disabled={disabled} label='Import Users' />*/}
-    {/*</div>*/}
-    {/*<div style={{textAlign: 'right', marginTop: 20}} >*/}
-      {/*<Input id='embeddedLdapStorageLocation' disabled label='Storage Location' />*/}
-      {/*<RaisedButton disabled={disabled} label='Set LDAP Storage Directory' />*/}
-    {/*</div>*/}
+    {/* <Port id='embeddedLdapPort' label='LDAP port' disabled={disabled} /> */}
+    {/* <Port id='embeddedLdapsPort' label='LDAPS port' disabled={disabled} /> */}
+    {/* <Port id='embeddedLdapAdminPort' label='Admin port' disabled={disabled} /> */}
+    {/* <div style={{textAlign: 'right', marginTop: 20}} > */}
+    {/* <Input id='ldifPath' disabled={disabled} label='LDIF Path' /> */}
+    {/* <RaisedButton disabled={disabled} label='Import Users' /> */}
+    {/* </div> */}
+    {/* <div style={{textAlign: 'right', marginTop: 20}} > */}
+    {/* <Input id='embeddedLdapStorageLocation' disabled label='Storage Location' /> */}
+    {/* <RaisedButton disabled={disabled} label='Set LDAP Storage Directory' /> */}
+    {/* </div> */}
     <StageControls>
       <Back disabled={disabled} />
       <Save id={id} disabled={disabled} url='/admin/beta/config/persist/embeddedLdap/defaultConfigs' configType='embeddedLdap' nextStageId='finalStage' />
