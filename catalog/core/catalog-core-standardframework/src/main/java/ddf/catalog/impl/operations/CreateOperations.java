@@ -135,8 +135,8 @@ public class CreateOperations {
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamCreateRequest.getContentItems()
                 .size());
-        HashMap<String, Path> tmpContentPaths = new HashMap<>(streamCreateRequest.getContentItems()
-                .size());
+        HashMap<String, Map<String, Path>> tmpContentPaths = new HashMap<>();
+
         CreateResponse createResponse = null;
         CreateStorageRequest createStorageRequest = null;
         CreateStorageResponse createStorageResponse;

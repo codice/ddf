@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.activation.MimeType;
@@ -137,12 +138,16 @@ public class TestVideoThumbnailPlugin {
         doReturn(new MimeType("video/mp4")).when(mockContentItem)
                 .getMimeType();
 
-        HashMap<String, Path> contentPaths = new HashMap<>();
+        HashMap<String, Path> contentItemPaths = new HashMap<>();
         Path tmpPath = Paths.get(getClass().getResource(resource)
                 .toURI());
-        contentPaths.put(ID, tmpPath);
+        contentItemPaths.put("", tmpPath);
+
+        HashMap<String, Map> tmpContentPaths = new HashMap<>();
+        tmpContentPaths.put(ID, contentItemPaths);
+
         properties = new HashMap<>();
-        properties.put(Constants.CONTENT_PATHS, contentPaths);
+        properties.put(Constants.CONTENT_PATHS, tmpContentPaths);
     }
 
     @Test

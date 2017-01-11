@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -88,7 +89,7 @@ public class OperationsMetacardSupport {
 
     void generateMetacardAndContentItems(List<ContentItem> incomingContentItems,
             Map<String, Metacard> metacardMap, List<ContentItem> contentItems,
-            Map<String, Path> tmpContentPaths) throws IngestException {
+            Map<String, Map<String, Path>> tmpContentPaths) throws IngestException {
         for (ContentItem contentItem : incomingContentItems) {
             try {
                 Path tmpPath = null;
@@ -105,7 +106,18 @@ public class OperationsMetacardSupport {
                             FilenameUtils.getExtension(sanitizedFilename));
                     Files.copy(inputStream, tmpPath, StandardCopyOption.REPLACE_EXISTING);
                     size = Files.size(tmpPath);
-                    tmpContentPaths.put(contentItem.getId(), tmpPath);
+
+                    final String key = contentItem.getId();
+                    Map<String, Path> pathAndQualifiers = tmpContentPaths.get(key);
+
+                    if (pathAndQualifiers == null) {
+                        pathAndQualifiers = new HashMap<>();
+                        pathAndQualifiers.put(contentItem.getQualifier(), tmpPath);
+                        tmpContentPaths.put(key, pathAndQualifiers);
+                    } else {
+                        pathAndQualifiers.put(contentItem.getQualifier(), tmpPath);
+                    }
+
                 } catch (IOException e) {
                     if (tmpPath != null) {
                         FileUtils.deleteQuietly(tmpPath.toFile());
@@ -135,6 +147,9 @@ public class OperationsMetacardSupport {
                 contentItems.add(generatedContentItem);
             } catch (Exception e) {
                 tmpContentPaths.values()
+                        .stream()
+                        .flatMap(id -> id.values()
+                                .stream())
                         .forEach(path -> FileUtils.deleteQuietly(path.toFile()));
                 tmpContentPaths.clear();
                 throw new IngestException("Could not create metacard.", e);

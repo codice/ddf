@@ -173,16 +173,24 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     private void processContentItems(final List<ContentItem> contentItems,
             final Map<String, Serializable> properties)
             throws PluginExecutionException, IllegalArgumentException {
-        Map<String, Path> tmpContentPaths = (Map) properties.get(Constants.CONTENT_PATHS);
+        Map<String, Map<String, Path>> tmpContentPaths =
+                (Map<String, Map<String, Path>>) properties.get(Constants.CONTENT_PATHS);
+
         for (ContentItem contentItem : contentItems) {
             if (isVideo(contentItem)) {
-                Path contentPath = tmpContentPaths.get(contentItem.getId());
-                if (contentPath == null) {
+                Map<String, Path> contentPaths = tmpContentPaths.get(contentItem.getId());
+
+                if (contentPaths == null || contentPaths.isEmpty()) {
                     throw new IllegalArgumentException(
                             "No path for contentItem " + contentItem.getId()
                                     + " provided. Skipping.");
                 }
-                createThumbnail(contentItem, contentPath);
+
+                // create a thumbnail for the unqualified content item
+                Path tmpPath = contentPaths.get("");
+                if (tmpPath != null) {
+                    createThumbnail(contentItem, tmpPath);
+                }
             }
         }
     }

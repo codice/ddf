@@ -155,8 +155,8 @@ public class UpdateOperations {
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamUpdateRequest.getContentItems()
                 .size());
-        HashMap<String, Path> tmpContentPaths = new HashMap<>(streamUpdateRequest.getContentItems()
-                .size());
+        HashMap<String, Map<String, Path>> tmpContentPaths = new HashMap<>();
+
         UpdateResponse updateResponse = null;
         UpdateStorageRequest updateStorageRequest = null;
         UpdateStorageResponse updateStorageResponse = null;
