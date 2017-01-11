@@ -117,6 +117,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
 
+    private static final String ADMIN = "admin";
+
     private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
 
     @Rule
@@ -263,7 +265,38 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .log()
                 .all()
                 .assertThat()
-                .body(hasXPath("/metacard[@id='" + id + "']"));
+                .body(hasXPath("/metacard[@id='" + id + "']"))
+                .body(hasXPath("/metacard/string[@name='point-of-contact']"),
+                        containsString("Guest@Guest"));
+
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testPointOfContactSetOnIngestWhenLoggedIn() {
+        String id = given().auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .body(Library.getSimpleGeoJson())
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        String url = REST_PATH.getUrl() + id;
+        LOGGER.info("Getting response to {}", url);
+        when().get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .body(hasXPath("/metacard[@id='" + id + "']"))
+                .body(hasXPath("/metacard/string[@name='point-of-contact']/value[text()='" + ADMIN
+                        + "']"));
 
         deleteMetacard(id);
     }
@@ -764,8 +797,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 + "      </ogc:Filter>\n" + "    </Constraint>\n" + "  </Query>\n"
                 + "</GetRecords>\n";
 
-        given().header(HttpHeaders.CONTENT_TYPE,
-                MediaType.APPLICATION_XML)
+        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
                 .body(numericalQuery)
                 .post(CSW_PATH.getUrl())
                 .then()
@@ -1787,9 +1819,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .assertThat()
                     .body(hasXPath(newMetacardXpath + "/type", is(newMetacardTypeName)))
                     .body(hasXPath("count(" + newMetacardXpath
-                            + "/string[@name=\"validation-errors\"]/value)", is("2")))
-                    .body(hasXPath(newMetacardXpath
-                            + "/string[@name=\"validation-errors\"]/value[text()=\"point-of-contact is required\"]"))
+                            + "/string[@name=\"validation-errors\"]/value)", is("1")))
                     .body(hasXPath(newMetacardXpath
                             + "/string[@name=\"validation-errors\"]/value[text()=\"new-attribute-required-1 is required\"]"))
                     .body(hasXPath(
