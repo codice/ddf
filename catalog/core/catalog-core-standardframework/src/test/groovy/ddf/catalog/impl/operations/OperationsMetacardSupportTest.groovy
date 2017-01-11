@@ -20,9 +20,9 @@ import ddf.catalog.source.IngestException
 import ddf.catalog.transform.InputTransformer
 import ddf.mime.MimeTypeMapper
 import ddf.mime.MimeTypeToTransformerMapper
-import ddf.security.Subject
 import spock.lang.Specification
 
+import java.nio.file.Files
 import java.nio.file.Path
 
 class OperationsMetacardSupportTest extends Specification {
@@ -232,5 +232,16 @@ class OperationsMetacardSupportTest extends Specification {
         then:
         1 * registry.getDefaultValue('testtype', 'att4') >> { Optional.ofNullable('default4') }
         1 * metacard.setAttribute(_)
+    }
+
+    def 'test multiple detector fall through'() {
+        mimeTypeMapper.guessMimeType(_, _) >> null
+        def tempFile = Files.createTempFile("test", "bin")
+        Files.write(tempFile.toAbsolutePath(), "test file content".getBytes())
+        when:
+        def mimeType = opsMetacard.guessMimeType(ContentItem.DEFAULT_MIME_TYPE, tempFile.getFileName().toString(), tempFile.toAbsolutePath())
+        then:
+        !ContentItem.DEFAULT_MIME_TYPE.equals(mimeType)
+        "text/plain".equals(mimeType)
     }
 }

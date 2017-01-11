@@ -30,6 +30,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.detect.DefaultProbDetector;
 import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.codice.ddf.platform.util.InputValidation;
@@ -202,7 +203,8 @@ public class OperationsMetacardSupport {
         return fileName;
     }
 
-    private String guessMimeType(String mimeTypeRaw, String fileName, Path tmpContentPath)
+    // package-private for unit testing
+    String guessMimeType(String mimeTypeRaw, String fileName, Path tmpContentPath)
             throws IOException {
         if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
             try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
@@ -219,9 +221,7 @@ public class OperationsMetacardSupport {
             }
             if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
                 Detector detector = new DefaultProbDetector();
-                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream()) {
+                try (InputStream inputStreamMessageCopy = TikaInputStream.get(tmpContentPath)) {
                     MediaType mediaType = detector.detect(inputStreamMessageCopy, new Metadata());
                     mimeTypeRaw = mediaType.toString();
                 } catch (IOException e) {
