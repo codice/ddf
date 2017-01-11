@@ -94,7 +94,8 @@ define(['application',
                             sceneModePicker: true,
                             selectionIndicator: false,
                             infoBox: false,
-                            baseLayerPicker: false // Hide the base layer picker
+                            baseLayerPicker: false, // Hide the base layer picker,
+                            imageryProvider: false // prevent default imagery provider
                         }
                     }
                 );

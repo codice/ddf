@@ -42,12 +42,6 @@ define(['underscore',
             // must create cesium map after containing DOM is attached.
             this.map = new Cesium.Viewer(options.divId, options.cesiumOptions);
 
-            /*
-             * baseLayerPicker:false has side effect of creating default baselayer
-             * from default imageryProvider value; remove any default layer here.
-             */
-            this.map.imageryLayers.removeAll();
-
             this.collection.forEach(function (model) {
                 var type = imageryProviderTypes[model.get('type')];
                 var initObj = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid');
