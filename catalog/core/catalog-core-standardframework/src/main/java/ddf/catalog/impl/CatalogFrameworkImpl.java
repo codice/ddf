@@ -61,6 +61,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.tika.detect.DefaultProbDetector;
 import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.codice.ddf.configuration.SystemInfo;
@@ -749,9 +750,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
             if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
                 Detector detector = new DefaultProbDetector();
-                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream()) {
+                try (InputStream inputStreamMessageCopy = TikaInputStream.get(tmpContentPath)) {
                     MediaType mediaType = detector.detect(inputStreamMessageCopy, new Metadata());
                     mimeTypeRaw = mediaType.toString();
                 } catch (IOException e) {
