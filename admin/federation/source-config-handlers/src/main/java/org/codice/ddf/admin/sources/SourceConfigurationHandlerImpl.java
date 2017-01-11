@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.admin.sources;
 
+import static org.codice.ddf.admin.api.commons.SourceUtils.DISCOVER_SOURCES_ID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -39,8 +40,6 @@ import com.google.common.collect.ImmutableMap;
 public class SourceConfigurationHandlerImpl implements ConfigurationHandler<SourceConfiguration> {
 
     public static final String SOURCE_CONFIGURATION_HANDLER_ID = "sources";
-
-    public static final String DISCOVER_SOURCES_ID = "discoverSources";
 
     public static final String SOURCE_CONFIGURATION_HANDLERS_ID = "sourceConfigurationHandlers";
 

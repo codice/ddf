@@ -13,10 +13,10 @@
  */
 package org.codice.ddf.admin.sources.csw.probe;
 
+import static org.codice.ddf.admin.api.commons.SourceUtils.DISCOVER_SOURCES_ID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.sources.SourceConfigurationHandlerImpl.DISCOVER_SOURCES_ID;
 import static org.codice.ddf.admin.sources.csw.CswSourceConfigurationHandler.CSW_SOURCE_CONFIGURATION_HANDLER_ID;
 
 import java.util.ArrayList;
