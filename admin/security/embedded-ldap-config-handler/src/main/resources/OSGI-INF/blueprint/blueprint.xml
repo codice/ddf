@@ -15,7 +15,7 @@
 
     <bean id="embeddedLdapConfigurationHandler"
           class="org.codice.ddf.admin.security.ldap.embedded.EmbeddedLdapConfigurationHandler"/>
+
     <service ref="embeddedLdapConfigurationHandler"
              interface="org.codice.ddf.admin.api.handler.ConfigurationHandler"/>
-
 </blueprint>

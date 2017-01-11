@@ -46,7 +46,7 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
     public static final String FAILED_STARTING_LDAP = "FAILED_STARTING_LDAP";
 
     public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(LDAP_USE_CASE,
-            "Host name of the ldap url to attempt to connect to."
+            "How the embedded ldap is intended to be used. Must be one of:"
                     + Arrays.toString(LDAP_USE_CASES.toArray()));
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
