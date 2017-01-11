@@ -134,7 +134,7 @@ const IntroductionStage = connect((state) => ({ ldapUseCase: getLdapUseCase(stat
 const LdapTypes = [{value: 'activeDirectory', label: 'Active Directory'},
 {value: 'openDj', label: 'OpenDJ'},
 {value: 'openLdap', label: 'OpenLDAP'},
-{value: 'embeddedLdap', label: 'Embedded LDAP (For testing purpose only.)'},
+{value: 'embeddedLdap', label: 'Embedded LDAP (For testing purposes only)'},
 {value: 'unknown', label: 'Not Sure/None Of The Above'}]
 
 const LdapTypeSelectionView = ({ id, disabled, ldapType }) => (
@@ -153,26 +153,34 @@ const LdapTypeSelectionView = ({ id, disabled, ldapType }) => (
 const getLdapType = (state) => (getConfig(state, 'ldapType') !== undefined ? getConfig(state, 'ldapType').value : undefined)
 const LdapTypeSelection = connect((state) => ({ldapType: getLdapType(state)}))(LdapTypeSelectionView)
 
-const ConfigureEmbeddedLdap = ({ id, disabled }) => (
-  <Stage id={id} defaults={{ embeddedLdapPort: 1389, embeddedLdapsPort: 1636, embeddedLdapAdminPort: 4444, embeddedLdapStorageLocation: 'etc/org.codice.opendj/ldap', ldifPath: 'etc/org.codice.opendj/ldap' }}>
-    <Title>Configure DDF Embedded LDAP</Title>
-    <Port id='embeddedLdapPort' label='LDAP port' disabled={disabled} />
-    <Port id='embeddedLdapsPort' label='LDAPS port' disabled={disabled} />
-    <Port id='embeddedLdapAdminPort' label='Admin port' disabled={disabled} />
-    <div style={{textAlign: 'right', marginTop: 20}} >
-      <Input id='ldifPath' disabled={disabled} label='LDIF Path' />
-      <RaisedButton disabled={disabled} label='Import Users' />
-    </div>
-    <div style={{textAlign: 'right', marginTop: 20}} >
-      <Input id='embeddedLdapStorageLocation' disabled label='Storage Location' />
-      <RaisedButton disabled={disabled} label='Set LDAP Storage Directory' />
-    </div>
+const ConfigureEmbeddedLdapView = ({ id, disabled, ldapUseCase }) => {
+  var description = 'Installing Embedded LDAP will start up the internal LDAP and configure it as ';
+  description = description + (ldapUseCase === 'loginAndCredentialStore' ? 'a login source & credential store.' : (ldapUseCase === 'login'  ? 'a login source.' : 'a credential store.'))
+return (<Stage id={id} defaults={{ embeddedLdapPort: 1389, embeddedLdapsPort: 1636, embeddedLdapAdminPort: 4444, embeddedLdapStorageLocation: 'etc/org.codice.opendj/ldap', ldifPath: 'etc/org.codice.opendj/ldap' }}>
+    <Title>Install Embedded LDAP</Title>
+    <Description>
+      {description}
+    </Description>
+    {/*<Port id='embeddedLdapPort' label='LDAP port' disabled={disabled} />*/}
+    {/*<Port id='embeddedLdapsPort' label='LDAPS port' disabled={disabled} />*/}
+    {/*<Port id='embeddedLdapAdminPort' label='Admin port' disabled={disabled} />*/}
+    {/*<div style={{textAlign: 'right', marginTop: 20}} >*/}
+      {/*<Input id='ldifPath' disabled={disabled} label='LDIF Path' />*/}
+      {/*<RaisedButton disabled={disabled} label='Import Users' />*/}
+    {/*</div>*/}
+    {/*<div style={{textAlign: 'right', marginTop: 20}} >*/}
+      {/*<Input id='embeddedLdapStorageLocation' disabled label='Storage Location' />*/}
+      {/*<RaisedButton disabled={disabled} label='Set LDAP Storage Directory' />*/}
+    {/*</div>*/}
     <StageControls>
       <Back disabled={disabled} />
-      <Save id={id} disabled={disabled} url='/admin/beta/config/persist/embeddedLdap/create' configType='embeddedLdap' nextStageId='networkSettings' />
+      <Save id={id} disabled={disabled} url='/admin/beta/config/persist/embeddedLdap/defaultConfigs' configType='embeddedLdap' nextStageId='finalStage' />
     </StageControls>
-  </Stage>
-)
+  </Stage>)
+}
+const ConfigureEmbeddedLdap = connect(
+  (state) => ({ldapUseCase: getLdapUseCase(state)})
+)(ConfigureEmbeddedLdapView)
 
 const NetworkSettings = ({ id, disabled }) => (
   <Stage id={id} defaults={{ port: 1636, encryptionMethod: 'LDAPS', hostName: 'localhost' }}>
