@@ -40,7 +40,7 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.security.ldap.commons.LdapConfiguration;
 
 public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
 

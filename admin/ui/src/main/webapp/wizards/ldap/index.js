@@ -134,7 +134,7 @@ const IntroductionStage = connect((state) => ({ ldapUseCase: getLdapUseCase(stat
 const LdapTypes = [{value: 'activeDirectory', label: 'Active Directory'},
 {value: 'openDj', label: 'OpenDJ'},
 {value: 'openLdap', label: 'OpenLDAP'},
-{value: 'embeddedLdap', label: 'DDF Embedded LDAP'},
+{value: 'embeddedLdap', label: 'Embedded LDAP (For testing purpose only.)'},
 {value: 'unknown', label: 'Not Sure/None Of The Above'}]
 
 const LdapTypeSelectionView = ({ id, disabled, ldapType }) => (
@@ -169,7 +169,7 @@ const ConfigureEmbeddedLdap = ({ id, disabled }) => (
     </div>
     <StageControls>
       <Back disabled={disabled} />
-      <Save id={id} label='mic check check' disabled={disabled} url='/admin/beta/config/persist/embeddedLdap/create' configType='embeddedLdap' nextStageId='networkSettings' />
+      <Save id={id} disabled={disabled} url='/admin/beta/config/persist/embeddedLdap/create' configType='embeddedLdap' nextStageId='networkSettings' />
     </StageControls>
   </Stage>
 )

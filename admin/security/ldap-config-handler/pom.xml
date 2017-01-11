@@ -123,6 +123,9 @@
                             <!--ldap connection dependencies end -->
 
                         </Embed-Dependency>
+                        <Export-Package>
+                            org.codice.ddf.admin.security.ldap.commons.*
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

@@ -30,7 +30,12 @@
         <dependency>
             <groupId>org.codice.ddf.admin.beta</groupId>
             <artifactId>admin-api</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.admin.beta</groupId>
+            <artifactId>ldap-config-handler</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

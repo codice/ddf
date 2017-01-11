@@ -20,6 +20,12 @@ import java.util.List;
 
 public class ConfigurationMessage {
 
+    public static final String NO_TEST_METHOD_FOUND = "NO_TEST_METHOD_FOUND";
+    public static final String NO_PROBE_METHOD_FOUND = "NO_PROBE_METHOD_FOUND";
+    public static final String NO_PERSIST_METHOD_FOUND = "NO_PERSIST_METHOD_FOUND";
+    public static final String MISSING_REQUIRED_FIELDS = "MISSING_REQUIRED_FIELD";
+    public static final String INVALID_FIELD = "INVALID_FIELD";
+
     private MessageType type;
     private String subType;
     private String message;
@@ -27,6 +33,7 @@ public class ConfigurationMessage {
     private String configId;
     private List<Exception> exceptions;
 
+    // TODO: tbatie - 1/10/17 - Let's make a root constructor and all others call super
     public ConfigurationMessage(MessageType type, Exception... exceptions) {
         this.type = type;
         this.exceptions = new ArrayList<>();
@@ -43,6 +50,11 @@ public class ConfigurationMessage {
 
     public ConfigurationMessage(MessageType type, String subType, String message) {
         this.message = message;
+        this.type = type;
+        this.subType = subType;
+    }
+
+    public ConfigurationMessage(MessageType type, String subType) {
         this.type = type;
         this.subType = subType;
     }
@@ -89,6 +101,7 @@ public class ConfigurationMessage {
         return this;
     }
 
+    // TODO: tbatie - 1/10/17 - Replace other messageTypes other than SUCCESS, WARNING, and FAILURE as subtypes with constants at top of class
     public enum MessageType {
         SUCCESS, WARNING, FAILURE, NO_TEST_FOUND, NO_PROBE_FOUND, NO_PERSIST_FOUND, REQUIRED_FIELDS
     }

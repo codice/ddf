@@ -14,10 +14,6 @@
 
 package org.codice.ddf.admin.security.ldap.test;
 
-import static org.codice.ddf.admin.api.handler.report.TestReport.createGeneralTestReport;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.HOST_NAME;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.SUCCESSFUL_CONNECTION;
@@ -33,7 +29,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.security.ldap.commons.LdapConfiguration;
 
 import com.google.common.collect.ImmutableList;
 

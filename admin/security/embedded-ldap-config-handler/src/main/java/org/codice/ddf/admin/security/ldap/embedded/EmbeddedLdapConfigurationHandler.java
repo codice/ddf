@@ -15,23 +15,28 @@
 package org.codice.ddf.admin.security.ldap.embedded;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_PERSIST_METHOD_FOUND;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 import org.codice.ddf.admin.api.persist.ConfiguratorException;
+import org.codice.ddf.admin.security.ldap.embedded.persist.DefaultEmbeddedLdapPersistMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
 
 public class EmbeddedLdapConfigurationHandler
         implements ConfigurationHandler<EmbeddedLdapConfiguration> {
@@ -41,9 +46,11 @@ public class EmbeddedLdapConfigurationHandler
     private static final String EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID =
             "embeddedLdap";
 
+    public static final ImmutableList<PersistMethod> PERSIST_METHODS = ImmutableList.of(new DefaultEmbeddedLdapPersistMethod());
+
     @Override
     public ProbeReport probe(String probeId, EmbeddedLdapConfiguration configuration) {
-        return null;
+        return new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
     }
 
     @Override
@@ -53,22 +60,13 @@ public class EmbeddedLdapConfigurationHandler
 
     @Override
     public TestReport persist(EmbeddedLdapConfiguration configuration, String persistId) {
-        // TODO: tbatie - 12/1/16 - VALIDATE REQUIRED FIELDS
+        Optional<PersistMethod> persistMethod = PERSIST_METHODS.stream()
+                .filter(method -> method.id().equals(persistId))
+                .findFirst();
 
-        Configurator configurator = new Configurator();
-        configurator.startFeature("opendj-embedded");
-        configurator.updateConfigFile("org.codice.opendj.embedded.server.LDAPManager",
-                configuration.toPropertiesMap(),
-                true);
-        ConfigReport report = configurator.commit();
-
-        if(report.containsFailedResults()) {
-            return new TestReport(new ConfigurationMessage("Unable to install DDF Embedded LDAP",
-                    FAILURE));
-        }
-        // TODO: tbatie - 12/2/16 - do something with this key
-        return new TestReport(new ConfigurationMessage("DDF Embedded Has Successfully Been Started",
-                SUCCESS));
+        return persistMethod.isPresent() ?
+                persistMethod.get().persist(configuration) :
+                new TestReport(new ConfigurationMessage(FAILURE, NO_PERSIST_METHOD_FOUND));
     }
 
     @Override
@@ -90,8 +88,7 @@ public class EmbeddedLdapConfigurationHandler
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(EmbeddedLdapConfiguration.class.getSimpleName(),
-                EmbeddedLdapConfiguration.class);
+        return new CapabilitiesReport(EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID, EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID, null, null, PERSIST_METHODS);
     }
 
     @Override

@@ -17,17 +17,14 @@ package org.codice.ddf.admin.security.ldap.embedded;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.handler.Configuration;
+import org.codice.ddf.admin.security.ldap.commons.LdapConfiguration;
 
-public class EmbeddedLdapConfiguration extends Configuration {
+public class EmbeddedLdapConfiguration extends LdapConfiguration {
+
     private int embeddedLdapPort;
-
     private int embeddedLdapsPort;
-
     private int embeddedLdapAdminPort;
-
     private String ldifPath;
-
     private String embeddedLdapStorageLocation;
 
     public static EmbeddedLdapConfiguration fromProperties(Map<String, Object> props) {

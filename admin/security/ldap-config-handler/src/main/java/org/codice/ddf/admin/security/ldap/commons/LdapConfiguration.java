@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.security.ldap;
+package org.codice.ddf.admin.security.ldap.commons;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.REQUIRED_FIELDS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;

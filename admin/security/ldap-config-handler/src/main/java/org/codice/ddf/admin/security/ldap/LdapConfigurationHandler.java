@@ -17,12 +17,6 @@ package org.codice.ddf.admin.security.ldap;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.CREDENTIAL_STORE;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.LDAPS;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.LDAP_USE_CASES;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.LOGIN;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.TLS;
 import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.CANNOT_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.CANNOT_CONNECT;
@@ -42,7 +36,6 @@ import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 
-import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
