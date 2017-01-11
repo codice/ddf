@@ -27,9 +27,12 @@ import static org.codice.ddf.admin.security.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.persist.Configurator;
@@ -78,6 +81,18 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
 
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
+        List<ConfigurationMessage> checkMessages =
+                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
+
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new ProbeReport(checkMessages);
+        }
+
+        checkMessages = configuration.testConditionalBindFields();
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new ProbeReport(checkMessages);
+        }
+
         // TODO: tbatie - 12/7/16 - Need to also return a default map is embedded ldap and set
         Object subjectClaims = new Configurator().getConfig("ddf.security.sts.client.configuration")
                 .get("claims");

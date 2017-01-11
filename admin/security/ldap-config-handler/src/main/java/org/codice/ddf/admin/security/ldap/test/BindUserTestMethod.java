@@ -29,15 +29,16 @@ import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CON
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.SUCCESSFUL_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.toDescriptionMap;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
-import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.cannotBeNullFields;
-import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.testConditionalBindFields;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
+import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.security.ldap.LdapConfiguration;
 
@@ -80,24 +81,17 @@ public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
 
     @Override
     public TestReport test(LdapConfiguration configuration) {
-        // TODO: tbatie - 1/3/17 - Once the ldap configuration is self evaluating, this should be removed
-        Map<String, Object> bindRequiredFields = new HashMap<>();
-        bindRequiredFields.put(HOST_NAME, configuration.hostName());
-        bindRequiredFields.put(PORT, configuration.port());
-        bindRequiredFields.put(ENCRYPTION_METHOD, configuration.encryptionMethod());
-        bindRequiredFields.put(BIND_USER_DN, configuration.bindUserDn());
-        bindRequiredFields.put(BIND_USER_PASSWORD, configuration.bindUserPassword());
-        bindRequiredFields.put(BIND_METHOD, configuration.bindUserMethod());
+        List<ConfigurationMessage> checkMessages =
+                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
 
-        TestReport bindFieldsResults = cannotBeNullFields(bindRequiredFields);
-        if (bindFieldsResults.containsUnsuccessfulMessages()) {
-            return bindFieldsResults;
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new ProbeReport(checkMessages);
         }
-        bindFieldsResults = testConditionalBindFields(configuration);
-        if (bindFieldsResults.containsUnsuccessfulMessages()) {
-            return bindFieldsResults;
+
+        checkMessages = configuration.testConditionalBindFields();
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new ProbeReport(checkMessages);
         }
-        // -----
 
         LdapTestingCommons.LdapConnectionAttempt bindConnectionAttempt = bindUserToLdapConnection(
                 configuration);

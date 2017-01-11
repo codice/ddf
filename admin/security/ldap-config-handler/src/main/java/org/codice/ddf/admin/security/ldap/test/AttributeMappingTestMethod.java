@@ -27,15 +27,8 @@ public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
 
     public static final String DESCRIPTION = "Verifies that mapping values are valid and exist.";
 
-
     public AttributeMappingTestMethod() {
-        super(LDAP_ATTRIBUTE_MAPPING_TEST_ID,
-                DESCRIPTION,
-                null,
-                null,
-                null,
-                null,
-                null);
+        super(LDAP_ATTRIBUTE_MAPPING_TEST_ID, DESCRIPTION, null, null, null, null, null);
     }
 
     @Override

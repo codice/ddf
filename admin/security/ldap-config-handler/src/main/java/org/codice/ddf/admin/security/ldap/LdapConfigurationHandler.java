@@ -16,7 +16,6 @@ package org.codice.ddf.admin.security.ldap;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.REQUIRED_FIELDS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.security.ldap.LdapConfiguration.CREDENTIAL_STORE;
 import static org.codice.ddf.admin.security.ldap.LdapConfiguration.LDAPS;
@@ -29,11 +28,10 @@ import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTe
 import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.CANNOT_CONNECT;
 import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.SUCCESSFUL_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.SUCCESSFUL_CONNECTION;
+import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.selectBindMethod;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +42,6 @@ import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.cxf.common.util.StringUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
@@ -65,13 +62,7 @@ import org.codice.ddf.admin.security.ldap.test.DirectoryStructTestMethod;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LDAPOptions;
-import org.forgerock.opendj.ldap.SearchScope;
 import org.forgerock.opendj.ldap.requests.BindRequest;
-import org.forgerock.opendj.ldap.requests.DigestMD5SASLBindRequest;
-import org.forgerock.opendj.ldap.requests.GSSAPISASLBindRequest;
-import org.forgerock.opendj.ldap.requests.Requests;
-import org.forgerock.opendj.ldap.responses.SearchResultEntry;
-import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -301,111 +292,6 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         }
 
         return new LdapTestResult<>(SUCCESSFUL_BIND, connection);
-    }
-
-    public List<SearchResultEntry> getLdapQueryResults(Connection ldapConnection, String ldapQuery,
-            String ldapSearchBaseDN) {
-
-        final ConnectionEntryReader reader = ldapConnection.search(ldapSearchBaseDN,
-                SearchScope.WHOLE_SUBTREE,
-                ldapQuery);
-
-        List<SearchResultEntry> entries = new ArrayList<>();
-
-        try {
-            while (reader.hasNext()) {
-                if (!reader.isReference()) {
-                    SearchResultEntry resultEntry = reader.readEntry();
-                    entries.add(resultEntry);
-                } else {
-                    reader.readReference();
-                }
-            }
-        } catch (IOException e) {
-            reader.close();
-        }
-
-        reader.close();
-        return entries;
-    }
-
-    public TestReport cannotBeNullFields(Map<String, Object> fieldsToCheck) {
-        List<ConfigurationMessage> missingFields = new ArrayList<>();
-
-        fieldsToCheck.entrySet()
-                .stream()
-                .filter(field -> field.getValue() == null && (field.getValue() instanceof String
-                        && StringUtils.isEmpty((String) field.getValue())))
-                .forEach(field -> missingFields.add(buildMessage(REQUIRED_FIELDS,
-                        "Field cannot be empty").configId(field.getKey())));
-
-        return new TestReport(missingFields);
-    }
-
-    private TestReport testConditionalBindFields(LdapConfiguration ldapConfiguration) {
-        List<ConfigurationMessage> missingFields = new ArrayList<>();
-
-        // TODO RAP 08 Dec 16: So many magic strings
-        // TODO RAP 08 Dec 16: StringUtils
-        String bindMethod = ldapConfiguration.bindUserMethod();
-        if (bindMethod.equals("GSSAPI SASL")) {
-            if (ldapConfiguration.bindKdcAddress() == null || ldapConfiguration.bindKdcAddress()
-                    .equals("")) {
-                missingFields.add(buildMessage(REQUIRED_FIELDS,
-                        "Field cannot be empty for GSSAPI SASL bind type").configId("bindKdcAddress"));
-            }
-            if (ldapConfiguration.bindRealm() == null || ldapConfiguration.bindRealm()
-                    .equals("")) {
-                missingFields.add(buildMessage(REQUIRED_FIELDS,
-                        "Field cannot be empty for GSSAPI SASL bind type").configId("bindRealm"));
-            }
-        }
-
-        return new TestReport(missingFields);
-    }
-
-    // TODO RAP 08 Dec 16: Refactor to common location...this functionality is in BindMethodChooser
-    // and SslLdapLoginModule as well
-    private static BindRequest selectBindMethod(String bindMethod, String bindUserDN,
-            String bindUserCredentials, String realm, String kdcAddress) {
-        BindRequest request;
-        switch (bindMethod) {
-        case "Simple":
-            request = Requests.newSimpleBindRequest(bindUserDN, bindUserCredentials.toCharArray());
-            break;
-        case "SASL":
-            request = Requests.newPlainSASLBindRequest(bindUserDN,
-                    bindUserCredentials.toCharArray());
-            break;
-        case "GSSAPI SASL":
-            request = Requests.newGSSAPISASLBindRequest(bindUserDN,
-                    bindUserCredentials.toCharArray());
-            ((GSSAPISASLBindRequest) request).setRealm(realm);
-            ((GSSAPISASLBindRequest) request).setKDCAddress(kdcAddress);
-            break;
-        case "Digest MD5 SASL":
-            request = Requests.newDigestMD5SASLBindRequest(bindUserDN,
-                    bindUserCredentials.toCharArray());
-            ((DigestMD5SASLBindRequest) request).setCipher(DigestMD5SASLBindRequest.CIPHER_HIGH);
-            ((DigestMD5SASLBindRequest) request).getQOPs()
-                    .clear();
-            ((DigestMD5SASLBindRequest) request).getQOPs()
-                    .add(DigestMD5SASLBindRequest.QOP_AUTH_CONF);
-            ((DigestMD5SASLBindRequest) request).getQOPs()
-                    .add(DigestMD5SASLBindRequest.QOP_AUTH_INT);
-            ((DigestMD5SASLBindRequest) request).getQOPs()
-                    .add(DigestMD5SASLBindRequest.QOP_AUTH);
-            if (realm != null && !realm.equals("")) {
-                //            if (StringUtils.isNotEmpty(realm)) {
-                ((DigestMD5SASLBindRequest) request).setRealm(realm);
-            }
-            break;
-        default:
-            request = Requests.newSimpleBindRequest(bindUserDN, bindUserCredentials.toCharArray());
-            break;
-        }
-
-        return request;
     }
 
     private boolean isStartTls(LdapConfiguration config) {

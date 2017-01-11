@@ -14,8 +14,6 @@
 
 package org.codice.ddf.admin.security.ldap.test;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.REQUIRED_FIELDS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.security.ldap.LdapConfiguration.LDAPS;
 import static org.codice.ddf.admin.security.ldap.LdapConfiguration.TLS;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
@@ -27,13 +25,9 @@ import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.SUCCESSFUL
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.cxf.common.util.StringUtils;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
-import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.security.ldap.LdapConnectionResult;
 import org.forgerock.opendj.ldap.Connection;
@@ -112,7 +106,7 @@ public class LdapTestingCommons {
 
     // TODO RAP 08 Dec 16: Refactor to common location...this functionality is in BindMethodChooser
     // and SslLdapLoginModule as well
-    private static BindRequest selectBindMethod(String bindMethod, String bindUserDN,
+    public static BindRequest selectBindMethod(String bindMethod, String bindUserDN,
             String bindUserCredentials, String realm, String kdcAddress) {
         BindRequest request;
         switch (bindMethod) {
@@ -154,8 +148,8 @@ public class LdapTestingCommons {
         return request;
     }
 
-    public static List<SearchResultEntry> getLdapQueryResults(Connection ldapConnection, String ldapQuery,
-            String ldapSearchBaseDN) {
+    public static List<SearchResultEntry> getLdapQueryResults(Connection ldapConnection,
+            String ldapQuery, String ldapSearchBaseDN) {
 
         final ConnectionEntryReader reader = ldapConnection.search(ldapSearchBaseDN,
                 SearchScope.WHOLE_SUBTREE,
@@ -180,46 +174,10 @@ public class LdapTestingCommons {
         return entries;
     }
 
-    // TODO: tbatie - 1/3/17 - I'd like this to eventually go away and move all validation of fields to the ldap configuration class
-    public static TestReport cannotBeNullFields(Map<String, Object> fieldsToCheck) {
-        List<ConfigurationMessage> missingFields = new ArrayList<>();
-
-        fieldsToCheck.entrySet()
-                .stream()
-                .filter(field -> field.getValue() == null && (field.getValue() instanceof String
-                        && StringUtils.isEmpty((String) field.getValue())))
-                .forEach(field -> missingFields.add(buildMessage(REQUIRED_FIELDS,
-                        "Field cannot be empty").configId(field.getKey())));
-
-        return new TestReport(missingFields);
-    }
-
-    // TODO: tbatie - 1/3/17 - This validation should be done in the ldap configuration
-    public static TestReport testConditionalBindFields(LdapConfiguration ldapConfiguration) {
-        List<ConfigurationMessage> missingFields = new ArrayList<>();
-
-        // TODO RAP 08 Dec 16: So many magic strings
-        // TODO RAP 08 Dec 16: StringUtils
-        String bindMethod = ldapConfiguration.bindUserMethod();
-        if (bindMethod.equals("GSSAPI SASL")) {
-            if (ldapConfiguration.bindKdcAddress() == null || ldapConfiguration.bindKdcAddress()
-                    .equals("")) {
-                missingFields.add(buildMessage(REQUIRED_FIELDS,
-                        "Field cannot be empty for GSSAPI SASL bind type").configId("bindKdcAddress"));
-            }
-            if (ldapConfiguration.bindRealm() == null || ldapConfiguration.bindRealm()
-                    .equals("")) {
-                missingFields.add(buildMessage(REQUIRED_FIELDS,
-                        "Field cannot be empty for GSSAPI SASL bind type").configId("bindRealm"));
-            }
-        }
-
-        return new TestReport(missingFields);
-    }
-
     public static class LdapConnectionAttempt {
 
         private LdapConnectionResult result;
+
         private Connection connection;
 
         public LdapConnectionAttempt(LdapConnectionResult result) {

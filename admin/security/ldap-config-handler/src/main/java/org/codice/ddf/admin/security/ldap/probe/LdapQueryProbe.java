@@ -25,7 +25,6 @@ import static org.codice.ddf.admin.security.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.security.ldap.LdapConfiguration.QUERY;
 import static org.codice.ddf.admin.security.ldap.LdapConfiguration.QUERY_BASE;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
-import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.cannotBeNullFields;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdapQueryResults;
 
 import java.util.ArrayList;
@@ -33,9 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.security.ldap.LdapConfiguration;
 import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.Connection;
@@ -66,22 +66,17 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
 
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
-        // TODO RAP 10 Jan 17: Duplicate map keys are a problem
-        Map<String, Object> connectionRequiredFields = new HashMap<>();
-        connectionRequiredFields.put(HOST_NAME, configuration.hostName());
-        connectionRequiredFields.put(PORT, configuration.port());
-        connectionRequiredFields.put(ENCRYPTION_METHOD, configuration.encryptionMethod());
-        connectionRequiredFields.put(BIND_USER_DN, configuration.bindUserDn());
-        connectionRequiredFields.put(BIND_USER_PASSWORD, configuration.bindUserPassword());
+        List<ConfigurationMessage> checkMessages =
+                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
 
-        connectionRequiredFields.put(QUERY, configuration.query());
-        connectionRequiredFields.put(QUERY_BASE, configuration.queryBase());
-
-        TestReport nullFields = cannotBeNullFields(connectionRequiredFields);
-        if (nullFields.containsUnsuccessfulMessages()) {
-            return new ProbeReport(nullFields.getMessages());
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new ProbeReport(checkMessages);
         }
-        // TODO: 11/14/16 Do checks on the connection
+
+        checkMessages = configuration.testConditionalBindFields();
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new ProbeReport(checkMessages);
+        }
 
         Connection connection = bindUserToLdapConnection(configuration).connection();
         List<SearchResultEntry> searchResults = getLdapQueryResults(connection,

@@ -14,12 +14,21 @@
 
 package org.codice.ddf.admin.security.ldap;
 
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.REQUIRED_FIELDS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.admin.api.handler.Configuration;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.persist.ConfiguratorException;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
@@ -102,6 +111,16 @@ public class LdapConfiguration extends Configuration {
                             "The base DN against which to execute the LDAP search for users.")
                     .put(MEMBERSHIP_ATTRIBUTE,
                             "The attribute in the group object containing member references.")
+                    .build();
+
+    private static final Map<String, Function<LdapConfiguration, Object>> FIELD_FUNC_MAP =
+            new ImmutableMap.Builder<String, Function<LdapConfiguration, Object>>().put(HOST_NAME,
+                    LdapConfiguration::hostName)
+                    .put(PORT, LdapConfiguration::port)
+                    .put(ENCRYPTION_METHOD, LdapConfiguration::encryptionMethod)
+                    .put(BIND_USER_DN, LdapConfiguration::bindUserDn)
+                    .put(BIND_USER_PASSWORD, LdapConfiguration::bindUserPassword)
+                    .put(BIND_METHOD, LdapConfiguration::bindUserMethod)
                     .build();
 
     public static final ImmutableList LDAP_USE_CASES = ImmutableList.of(LOGIN,
@@ -405,28 +424,35 @@ public class LdapConfiguration extends Configuration {
         return map.build();
     }
 
-    //    private static final Map<String, Function<LdapConfiguration, Object>> FIELD_FUNC_MAP =
-    //            new ImmutableMap.Builder<String, Function<LdapConfiguration, Object>>().put(HOST_NAME,
-    //                    LdapConfiguration::hostName)
-    //                    .put(PORT, LdapConfiguration::port)
-    //                    .build();
+    public List<ConfigurationMessage> checkRequiredFields(Set<String> fields) {
+        final Function<Object, Boolean> findEmpties =
+                o -> o == null || (o instanceof String && StringUtils.isEmpty((String) o));
 
-    //    public TestReport checkRequiredFields(Set<String> fields) {
-    //        List<ConfigurationMessage> missingFields = new ArrayList<>();
-    //
-    //        Function<LdapConfiguration, Boolean> f =
-    //                ldapConfiguration -> ldapConfiguration.hostName() == null;
-    //
-    //        Function<LdapConfiguration, Object> f2 = LdapConfiguration::hostName;
-    //
-    //        fields.entrySet()
-    //                .stream()
-    //                .filter(field -> field.getValue() == null && (field.getValue() instanceof String
-    //                        && StringUtils.isEmpty((String) field.getValue())))
-    //                .forEach(field -> missingFields.add(buildMessage(REQUIRED_FIELDS,
-    //                        "Field cannot be empty").configId(field.getKey())));
-    //
-    //        return new TestReport(missingFields);
-    //
-    //    }
+        return fields.stream()
+                .filter(s -> findEmpties.apply(FIELD_FUNC_MAP.get(s)
+                        .apply(this)))
+                .map(s -> ConfigurationMessage.buildMessage(ConfigurationMessage.MessageType.REQUIRED_FIELDS,
+                        "Field cannot be empty")
+                        .configId(s))
+                .collect(Collectors.toList());
+    }
+
+    public List<ConfigurationMessage> testConditionalBindFields() {
+        List<ConfigurationMessage> missingFields = new ArrayList<>();
+
+        // TODO RAP 08 Dec 16: So many magic strings
+        String bindMethod = bindUserMethod();
+        if (bindMethod.equals("GSSAPI SASL")) {
+            if (StringUtils.isEmpty(bindKdcAddress())) {
+                missingFields.add(buildMessage(REQUIRED_FIELDS,
+                        "Field cannot be empty for GSSAPI SASL bind type").configId(bindKdcAddress));
+            }
+            if (StringUtils.isEmpty(bindRealm())) {
+                missingFields.add(buildMessage(REQUIRED_FIELDS,
+                        "Field cannot be empty for GSSAPI SASL bind type").configId(BIND_REALM));
+            }
+        }
+
+        return missingFields;
+    }
 }

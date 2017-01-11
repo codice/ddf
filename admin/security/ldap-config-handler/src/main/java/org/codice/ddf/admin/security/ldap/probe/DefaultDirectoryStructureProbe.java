@@ -31,8 +31,11 @@ import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUse
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.security.ldap.LdapConfiguration;
@@ -71,6 +74,17 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
         ProbeReport probeReport = new ProbeReport(new ArrayList<>());
+        List<ConfigurationMessage> checkMessages =
+                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
+
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new ProbeReport(checkMessages);
+        }
+
+        checkMessages = configuration.testConditionalBindFields();
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new ProbeReport(checkMessages);
+        }
 
         String ldapType = configuration.ldapType();
         ServerGuesser guesser = ServerGuesser.buildGuesser(ldapType,

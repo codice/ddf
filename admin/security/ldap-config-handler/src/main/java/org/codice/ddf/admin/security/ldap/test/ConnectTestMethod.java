@@ -22,14 +22,15 @@ import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CON
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.SUCCESSFUL_CONNECTION;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.toDescriptionMap;
-import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.cannotBeNullFields;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdapConnection;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.security.ldap.LdapConfiguration;
@@ -66,14 +67,10 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
 
     @Override
     public TestReport test(LdapConfiguration configuration) {
-        // TODO: tbatie - 1/3/17 - Once the ldap configuration is self evaluating, this should be removed
-        Map<String, Object> requiredFields = new HashMap<>();
-        requiredFields.put(HOST_NAME, configuration.hostName());
-        requiredFields.put(PORT, configuration.port());
-        requiredFields.put(ENCRYPTION_METHOD, configuration.encryptionMethod());
-        TestReport cannotBeNullFieldsTest = cannotBeNullFields(requiredFields);
-        if (cannotBeNullFieldsTest.containsUnsuccessfulMessages()) {
-            return cannotBeNullFieldsTest;
+        List<ConfigurationMessage> checkMessages =
+                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new TestReport(checkMessages);
         }
 
         LdapTestingCommons.LdapConnectionAttempt connectionAttempt =

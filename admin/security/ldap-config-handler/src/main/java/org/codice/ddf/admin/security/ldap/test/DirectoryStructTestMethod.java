@@ -42,7 +42,6 @@ import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.USER_NAME_
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.toDescriptionMap;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.LdapConnectionAttempt;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
-import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.cannotBeNullFields;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdapQueryResults;
 
 import java.util.Arrays;
@@ -50,7 +49,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
+import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.security.ldap.LdapConfiguration;
 import org.forgerock.opendj.ldap.Connection;
@@ -85,7 +87,9 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
             CANNOT_CONFIGURE,
             CANNOT_CONNECT,
             CANNOT_BIND,
-            BASE_USER_DN_NOT_FOUND, BASE_GROUP_DN_NOT_FOUND, USER_NAME_ATTRIBUTE_NOT_FOUND));
+            BASE_USER_DN_NOT_FOUND,
+            BASE_GROUP_DN_NOT_FOUND,
+            USER_NAME_ATTRIBUTE_NOT_FOUND));
 
     private static final Map<String, String> WARNING_TYPES = toDescriptionMap(Arrays.asList(
             NO_USERS_IN_BASE_USER_DN,
@@ -93,8 +97,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
 
     public DirectoryStructTestMethod() {
         super(LDAP_DIRECTORY_STRUCT_TEST_ID,
-                DESCRIPTION,
-                REQUIRED_FIELDS, OPTIONAL_FIELDS,
+                DESCRIPTION, REQUIRED_FIELDS, OPTIONAL_FIELDS,
                 SUCCESS_TYPES,
                 FAILURE_TYPES,
                 WARNING_TYPES);
@@ -102,20 +105,16 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
 
     @Override
     public TestReport test(LdapConfiguration configuration) {
-        // TODO: tbatie - 1/3/17 - Once the ldap configuration is self evaluating, this should be removed
-        Map<String, Object> requiredFields = new HashMap<>();
-        requiredFields.put(HOST_NAME, configuration.hostName());
-        requiredFields.put(PORT, configuration.port());
-        requiredFields.put(ENCRYPTION_METHOD, configuration.encryptionMethod());
-        requiredFields.put(BIND_USER_DN, configuration.bindUserDn());
-        requiredFields.put(BIND_USER_PASSWORD, configuration.bindUserPassword());
-        requiredFields.put(BIND_METHOD, configuration.bindUserMethod());
-        requiredFields.put(BASE_USER_DN, configuration.baseUserDn());
-        requiredFields.put(BASE_GROUP_DN, configuration.baseGroupDn());
-        requiredFields.put(USER_NAME_ATTRIBUTE, configuration.userNameAttribute());
-        TestReport dirFieldsResults = cannotBeNullFields(requiredFields);
-        if (dirFieldsResults.containsUnsuccessfulMessages()) {
-            return dirFieldsResults;
+        List<ConfigurationMessage> checkMessages =
+                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
+
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new ProbeReport(checkMessages);
+        }
+
+        checkMessages = configuration.testConditionalBindFields();
+        if (CollectionUtils.isNotEmpty(checkMessages)) {
+            return new ProbeReport(checkMessages);
         }
 
         LdapConnectionAttempt connectionAttempt = bindUserToLdapConnection(configuration);
