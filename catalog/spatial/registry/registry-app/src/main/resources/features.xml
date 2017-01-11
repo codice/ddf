@@ -53,7 +53,7 @@
 </feature>
 
 <feature name="registry-app" install="auto" version="${project.version}"
-         description="DDF Registry contains the base registry components, plugins, sources and interfaces needed for the registry to function.::DDF Registry">
+         description="Registry contains the base registry components, plugins, sources and interfaces needed for the registry to function.::Registry">
     <feature prerequisite="true">spatial-app</feature>
     <feature>registry-core-api</feature>
 </feature>
