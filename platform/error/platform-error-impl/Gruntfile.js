@@ -90,7 +90,7 @@ module.exports = function (grunt) {
             },
             server: {
                 options: {
-                    server: './server.js'
+                    script: './server.js'
                 }
             }
         }
@@ -101,7 +101,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-express');
+    grunt.loadNpmTasks('grunt-express-server');
     
     grunt.registerTask('build', ['clean', 'bower-offline-install', 'cssmin', 'jshint']);
     grunt.registerTask('default', ['build','express:server','watch']);

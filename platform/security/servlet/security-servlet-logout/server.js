@@ -22,16 +22,14 @@ var app = express();
 app.use(require('connect-livereload')());
 
 // our compiled css gets moved to /target/webapp/css so use it there
-app.use('/logout',express.static(__dirname + '/target/webapp'));
-app.use('/logout',express.static(__dirname + '/src/main/webapp'));
+app.use('/logout', express.static(__dirname + '/target/webapp'));
+app.use('/logout', express.static(__dirname + '/src/main/webapp'));
 
 //if we're mocking, it is being run by grunt
 console.log('setting up proxy only');
 app.use(morgan('dev'));
 app.all('*', server.requestProxy);
 
-exports = module.exports = app;
-
-exports.use = function() {
-	app.use.apply(app, arguments);
-};
+const launcher = app.listen(process.env.PORT || 8282, function () {
+    console.log('Server listening on port ' + launcher.address().port);
+});

@@ -27,8 +27,6 @@ app.use('/search/standard/', express.static(__dirname + '/src/main/webapp'));
 console.log('setting up proxy only');
 app.all('*', server.requestProxy);
 
-exports = module.exports = app;
-
-exports.use = function() {
-	app.use.apply(app, arguments);
-};
+const launcher = app.listen(process.env.PORT || 8282, function () {
+    console.log('Server listening on port ' + launcher.address().port);
+});

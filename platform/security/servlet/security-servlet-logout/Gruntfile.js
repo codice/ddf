@@ -20,11 +20,11 @@ module.exports = function (grunt) {
     grunt.loadTasks('src/main/grunt/tasks');
 
     grunt.initConfig({
-       
+
         pkg: grunt.file.readJSON('package.json'),
 
         clean: {
-          build: ['target/webapp']
+            build: ['target/webapp']
         },
         bower: {
             install: {
@@ -40,7 +40,7 @@ module.exports = function (grunt) {
                     cleancss: true
                 },
                 files: {
-                    "target/webapp/css/style.css":"src/main/webapp/less/style.less"
+                    "target/webapp/css/style.css": "src/main/webapp/less/style.less"
                 }
             }
         },
@@ -76,16 +76,16 @@ module.exports = function (grunt) {
                 files: ['<%= jshint.files %>'],
                 tasks: ['jshint']
             },
-            livereload : {
-                options : {livereload :true},
-                files : ['target/webapp/css/style.css'
+            livereload: {
+                options: {livereload: true},
+                files: ['target/webapp/css/style.css'
                     // this one is more dangerous, tends to reload the page if one file changes
                     // probably too annoying to be useful, uncomment if you want to try it out
 //                    '<%= jshint.files %>'
                 ]
             },
             lessFiles: {
-                files: ['src/main/webapp/less/*.less','src/main/webapp/less/**/*.less','src/main/webapp/less/***/*.less'],
+                files: ['src/main/webapp/less/*.less', 'src/main/webapp/less/**/*.less', 'src/main/webapp/less/***/*.less'],
                 tasks: ['less']
             },
             bowerFile: {
@@ -93,12 +93,24 @@ module.exports = function (grunt) {
                 tasks: ['bower']
             }
         },
-        sed: {
-            imports: {
-                path: 'target/webapp/lib/bootswatch/flatly',
-                pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Lato:400,700,400italic"\\);',
-                replacement: '',
-                recursive: true
+        replace: {
+            dist: {
+                options: {
+                    patterns: [
+                        {
+                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Lato:400,700,400italic"\);/g,
+                            replace: ''
+                        }
+                    ]
+                },
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: 'target/webapp/lib/bootswatch/flatly/*',
+                        dest: 'target/webapp/lib/bootswatch/flatly'
+                    }
+                ]
             }
         },
         express: {
@@ -106,10 +118,10 @@ module.exports = function (grunt) {
                 port: 8282,
                 hostname: '*'
             },
-            
+
             server: {
                 options: {
-                    server: './server.js'
+                    script: './server.js'
                 }
             }
         }
@@ -117,13 +129,14 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-replace');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-less');
-    grunt.loadNpmTasks('grunt-express');
+    grunt.loadNpmTasks('grunt-express-server');
 
-    var buildTasks = ['clean', 'bower-offline-install', 'sed', 'less', 'jshint'];
+    var buildTasks = ['clean', 'bower-offline-install', 'replace', 'less', 'jshint'];
 
     grunt.registerTask('build', buildTasks);
-    grunt.registerTask('default', ['build','express', 'watch']);
+    grunt.registerTask('default', ['build', 'express', 'watch']);
 };
