@@ -22,16 +22,18 @@ import org.codice.ddf.admin.api.handler.method.TestMethod;
 public class CapabilitiesReport {
 
     private String configurationType;
+
     private String configurationHandlerId;
 
     private List<TestMethod> testMethods;
+
     private List<ProbeMethod> probeMethods;
+
     private List<PersistMethod> persistMethods;
 
-    public CapabilitiesReport(String configurationType, Class configurationClass){
+    public CapabilitiesReport(String configurationType, Class configurationClass) {
         // TODO: tbatie - 1/4/17 - This constructor should be removed, once everyone is properly implementing the other constructors
     }
-
 
     public CapabilitiesReport(String configurationType, String configurationHandlerId,
             List<TestMethod> testMethods) {
@@ -41,7 +43,8 @@ public class CapabilitiesReport {
     }
 
     public CapabilitiesReport(String configurationType, String configurationHandlerId,
-            List<TestMethod> testMethods, List<ProbeMethod> probeMethods, List<PersistMethod> persistMethods) {
+            List<TestMethod> testMethods, List<ProbeMethod> probeMethods,
+            List<PersistMethod> persistMethods) {
         this.configurationType = configurationType;
         this.configurationHandlerId = configurationHandlerId;
         this.testMethods = testMethods;

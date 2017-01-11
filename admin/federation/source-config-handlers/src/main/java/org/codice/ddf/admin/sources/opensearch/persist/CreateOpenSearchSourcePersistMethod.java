@@ -16,15 +16,15 @@ package org.codice.ddf.admin.sources.opensearch.persist;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.sources.SourceConfigurationHandler.CREATE;
+import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
 
 import java.util.Map;
 
+import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
-import org.codice.ddf.admin.sources.opensearch.OpenSearchSourceConfiguration;
 
 import com.google.common.collect.ImmutableMap;
 

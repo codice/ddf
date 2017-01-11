@@ -12,20 +12,25 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.sources.csw;
+package org.codice.ddf.admin.api.config.federation.sources;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.sources.SourceConfiguration;
+import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 
 public class CswSourceConfiguration extends SourceConfiguration {
     //** Csw Service Properties
     public static final String ID = "id";
+
     public static final String CSW_URL = "cswUrl";
+
     public static final String USERNAME = "username";
+
     public static final String PASSWORD = "password";
+
     public static final String OUTPUT_SCHEMA = "outputSchema";
+
     public static final String FORCE_SPATIAL_FILTER = "forceSpatialFilter";
 
     // TODO: tbatie - 12/20/16 - Include service properties for registering for events and the even service address
@@ -38,11 +43,18 @@ public class CswSourceConfiguration extends SourceConfiguration {
     private String forceSpatialFilter;
 
     public CswSourceConfiguration(Map<String, Object> cswSourceProps) {
-        factoryPid(cswSourceProps.get(FACTORY_PID_KEY) == null ? null : (String)cswSourceProps.get(FACTORY_PID_KEY));
-        servicePid(cswSourceProps.get(SERVICE_PID_KEY) == null ? null : (String)cswSourceProps.get(SERVICE_PID_KEY));
+        factoryPid(cswSourceProps.get(FACTORY_PID_KEY) == null ?
+                null :
+                (String) cswSourceProps.get(FACTORY_PID_KEY));
+        servicePid(cswSourceProps.get(SERVICE_PID_KEY) == null ?
+                null :
+                (String) cswSourceProps.get(SERVICE_PID_KEY));
         sourceName(cswSourceProps.get(ID) == null ? null : (String) cswSourceProps.get(ID));
-        endpointUrl(cswSourceProps.get(CSW_URL) == null ? null : (String) cswSourceProps.get(CSW_URL));
-        outputSchema(cswSourceProps.get(OUTPUT_SCHEMA) == null ? null : (String) cswSourceProps.get(OUTPUT_SCHEMA));
+        endpointUrl(
+                cswSourceProps.get(CSW_URL) == null ? null : (String) cswSourceProps.get(CSW_URL));
+        outputSchema(cswSourceProps.get(OUTPUT_SCHEMA) == null ?
+                null :
+                (String) cswSourceProps.get(OUTPUT_SCHEMA));
     }
 
     public CswSourceConfiguration(SourceConfiguration baseConfig) {

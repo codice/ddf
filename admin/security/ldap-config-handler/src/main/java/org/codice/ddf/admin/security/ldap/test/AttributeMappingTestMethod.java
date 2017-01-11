@@ -17,9 +17,9 @@ package org.codice.ddf.admin.security.ldap.test;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
+import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.security.ldap.commons.LdapConfiguration;
 
 public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
 

@@ -13,7 +13,6 @@
  **/
 package org.codice.ddf.admin.api.persist.handlers;
 
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -172,7 +171,6 @@ public abstract class PropertyConfigHandler implements ConfigHandler<Void, Prope
             boolean keepIgnored) {
         return new PropertyConfigHandler.UpdateHandler(configFile, configs, keepIgnored);
     }
-
 
     @Override
     public Void rollback() throws ConfiguratorException {

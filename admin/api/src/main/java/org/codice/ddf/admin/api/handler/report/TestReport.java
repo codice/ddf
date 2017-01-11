@@ -70,33 +70,49 @@ public class TestReport {
                 .isPresent();
     }
 
-    public static TestReport createGeneralTestReport(Map<String, String> successTypes, Map<String, String> failureTypes, Map<String, String> warningTypes, List<String> results) {
+    public static TestReport createGeneralTestReport(Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes,
+            List<String> results) {
         TestReport testReport = new TestReport();
 
-        for(String result : results) {
-            if(successTypes != null && successTypes.containsKey(result)) {
-                testReport.addMessage(new ConfigurationMessage(SUCCESS, result, successTypes.get(result)));
-            } else if(warningTypes != null && warningTypes.containsKey(result)) {
-                testReport.addMessage(new ConfigurationMessage(WARNING, result, warningTypes.get(result)));
-            } else if(failureTypes != null && failureTypes.containsKey(result)) {
-                testReport.addMessage(new ConfigurationMessage(FAILURE, result, failureTypes.get(result)));
+        for (String result : results) {
+            if (successTypes != null && successTypes.containsKey(result)) {
+                testReport.addMessage(new ConfigurationMessage(SUCCESS,
+                        result,
+                        successTypes.get(result)));
+            } else if (warningTypes != null && warningTypes.containsKey(result)) {
+                testReport.addMessage(new ConfigurationMessage(WARNING,
+                        result,
+                        warningTypes.get(result)));
+            } else if (failureTypes != null && failureTypes.containsKey(result)) {
+                testReport.addMessage(new ConfigurationMessage(FAILURE,
+                        result,
+                        failureTypes.get(result)));
             }
         }
         return testReport;
     }
 
-    public static TestReport createGeneralTestReport(Map<String, String> successTypes, Map<String, String> failureTypes, Map<String, String> warningTypes, Map<String, String> resultsToConfigIds) {
+    public static TestReport createGeneralTestReport(Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes,
+            Map<String, String> resultsToConfigIds) {
         TestReport testReport = new TestReport();
 
-        for(Map.Entry<String, String> result : resultsToConfigIds.entrySet()) {
+        for (Map.Entry<String, String> result : resultsToConfigIds.entrySet()) {
             String resultName = result.getKey();
             String resultConfigId = result.getValue();
-            if(successTypes != null && successTypes.containsKey(resultName)) {
-                testReport.addMessage(new ConfigurationMessage(SUCCESS, resultName, successTypes.get(resultName)).configId(resultConfigId));
-            } else if(warningTypes != null && warningTypes.containsKey(resultName)) {
-                testReport.addMessage(new ConfigurationMessage(WARNING, resultName, warningTypes.get(resultName)).configId(resultConfigId));
-            } else if(failureTypes != null && failureTypes.containsKey(resultName)) {
-                testReport.addMessage(new ConfigurationMessage(FAILURE, resultName, failureTypes.get(resultName)).configId(resultConfigId));
+            if (successTypes != null && successTypes.containsKey(resultName)) {
+                testReport.addMessage(new ConfigurationMessage(SUCCESS,
+                        resultName,
+                        successTypes.get(resultName)).configId(resultConfigId));
+            } else if (warningTypes != null && warningTypes.containsKey(resultName)) {
+                testReport.addMessage(new ConfigurationMessage(WARNING,
+                        resultName,
+                        warningTypes.get(resultName)).configId(resultConfigId));
+            } else if (failureTypes != null && failureTypes.containsKey(resultName)) {
+                testReport.addMessage(new ConfigurationMessage(FAILURE,
+                        resultName,
+                        failureTypes.get(resultName)).configId(resultConfigId));
             }
         }
         return testReport;

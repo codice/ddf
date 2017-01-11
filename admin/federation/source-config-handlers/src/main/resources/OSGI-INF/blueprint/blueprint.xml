@@ -23,7 +23,7 @@
     <bean id="cswConfigurationHandler" class="org.codice.ddf.admin.sources.csw.CswSourceConfigurationHandler"/>
     <service ref="cswConfigurationHandler">
         <interfaces>
-            <value>org.codice.ddf.admin.api.sources.SourceConfigurationHandler</value>
+            <value>org.codice.ddf.admin.api.handler.SourceConfigurationHandler</value>
             <value>org.codice.ddf.admin.api.handler.ConfigurationHandler</value>
         </interfaces>
     </service>
@@ -31,7 +31,7 @@
     <bean id="wfsConfigurationHandler" class="org.codice.ddf.admin.sources.wfs.WfsSourceConfigurationHandler"/>
     <service ref="wfsConfigurationHandler">
         <interfaces>
-            <value>org.codice.ddf.admin.api.sources.SourceConfigurationHandler</value>
+            <value>org.codice.ddf.admin.api.handler.SourceConfigurationHandler</value>
             <value>org.codice.ddf.admin.api.handler.ConfigurationHandler</value>
         </interfaces>
     </service>
@@ -39,11 +39,11 @@
     <bean id="openSearchConfigurationHandler" class="org.codice.ddf.admin.sources.opensearch.OpenSearchSourceConfigurationHandler"/>
     <service ref="openSearchConfigurationHandler">
         <interfaces>
-            <value>org.codice.ddf.admin.api.sources.SourceConfigurationHandler</value>
+            <value>org.codice.ddf.admin.api.handler.SourceConfigurationHandler</value>
             <value>org.codice.ddf.admin.api.handler.ConfigurationHandler</value>
         </interfaces>
     </service>
 
-    <reference-list id="sourceConfigurationHandlers" interface="org.codice.ddf.admin.api.sources.SourceConfigurationHandler" availability="optional"/>
+    <reference-list id="sourceConfigurationHandlers" interface="org.codice.ddf.admin.api.handler.SourceConfigurationHandler" availability="optional"/>
 
 </blueprint>

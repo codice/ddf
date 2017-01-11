@@ -166,8 +166,8 @@ public class Configurator {
     /**
      * Creates a property file in the system with the given set of new key:value pairs.
      *
-     * @param propFile    the property file to create
-     * @param properties  the set of key:value pairs to save to the property file
+     * @param propFile   the property file to create
+     * @param properties the set of key:value pairs to save to the property file
      * @return a lookup key that can be used to correlate this operation in the
      * final {@link ConfigReport}
      */
@@ -178,7 +178,7 @@ public class Configurator {
     /**
      * Deletes a property file in the system.
      *
-     * @param propFile    the property file to delete
+     * @param propFile the property file to delete
      * @return a lookup key that can be used to correlate this operation in the
      * final {@link ConfigReport}
      */
@@ -286,14 +286,15 @@ public class Configurator {
 
     /**
      * Retrieves the service reference. The reference should only be used for reading purposes, any changes should be done
+     *
      * @param serviceClass - Class of service to retrieve
      * @return first found service reference of serviceClass
      * @throws ConfiguratorException
      */
-    public<S> S getServiceReference(Class<S> serviceClass) throws ConfiguratorException {
+    public <S> S getServiceReference(Class<S> serviceClass) throws ConfiguratorException {
         BundleContext context = getBundleContext();
         ServiceReference<S> ref = context.getServiceReference(serviceClass);
-        if(ref == null) {
+        if (ref == null) {
             return null;
         }
 

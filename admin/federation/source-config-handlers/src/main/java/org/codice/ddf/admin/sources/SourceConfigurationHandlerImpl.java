@@ -23,15 +23,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.api.sources.SourceConfiguration;
-import org.codice.ddf.admin.api.sources.SourceConfigurationHandler;
-import org.codice.ddf.admin.sources.test.ValidUrlTestMethod;
+import org.codice.ddf.admin.sources.commons.test.ValidUrlTestMethod;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -47,7 +47,6 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
     public static final String SOURCE_CONFIG_HANDLER_ID_KEY = "id";
 
     public static final String SOURCE_CONFIG_HANDLER_NAME_KEY = "name";
-
 
     List<SourceConfigurationHandler> sourceConfigurationHandlers;
 

@@ -15,14 +15,6 @@
 package org.codice.ddf.admin.security.ldap.test;
 
 import static org.codice.ddf.admin.api.handler.report.TestReport.createGeneralTestReport;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_KDC;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_METHOD;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_REALM;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_USER_DN;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.BIND_USER_PASSWORD;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.HOST_NAME;
-import static org.codice.ddf.admin.security.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
@@ -37,10 +29,8 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
-import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.security.ldap.commons.LdapConfiguration;
 
 public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
 

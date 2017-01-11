@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.codice.ddf.admin.api.config.security.ldap.EmbeddedLdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
@@ -43,10 +44,10 @@ public class EmbeddedLdapConfigurationHandler
     private static final Logger LOGGER =
             LoggerFactory.getLogger(EmbeddedLdapConfigurationHandler.class);
 
-    private static final String EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID =
-            "embeddedLdap";
+    private static final String EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID = "embeddedLdap";
 
-    public static final ImmutableList<PersistMethod> PERSIST_METHODS = ImmutableList.of(new DefaultEmbeddedLdapPersistMethod());
+    public static final ImmutableList<PersistMethod> PERSIST_METHODS =
+            ImmutableList.of(new DefaultEmbeddedLdapPersistMethod());
 
     @Override
     public ProbeReport probe(String probeId, EmbeddedLdapConfiguration configuration) {
@@ -61,11 +62,13 @@ public class EmbeddedLdapConfigurationHandler
     @Override
     public TestReport persist(EmbeddedLdapConfiguration configuration, String persistId) {
         Optional<PersistMethod> persistMethod = PERSIST_METHODS.stream()
-                .filter(method -> method.id().equals(persistId))
+                .filter(method -> method.id()
+                        .equals(persistId))
                 .findFirst();
 
         return persistMethod.isPresent() ?
-                persistMethod.get().persist(configuration) :
+                persistMethod.get()
+                        .persist(configuration) :
                 new TestReport(new ConfigurationMessage(FAILURE, NO_PERSIST_METHOD_FOUND));
     }
 
@@ -88,7 +91,11 @@ public class EmbeddedLdapConfigurationHandler
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID, EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID, null, null, PERSIST_METHODS);
+        return new CapabilitiesReport(EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID,
+                EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID,
+                null,
+                null,
+                PERSIST_METHODS);
     }
 
     @Override

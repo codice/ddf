@@ -14,7 +14,6 @@
 package org.codice.ddf.admin.sources.opensearch;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -36,6 +35,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
+import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 
 public class OpenSearchSourceUtils {
@@ -47,9 +47,11 @@ public class OpenSearchSourceUtils {
 
     public static TestReport discoverUrlCapabilities(OpenSearchSourceConfiguration config) {
         if (isAvailable(config.endpointUrl(), config)) {
-            return new TestReport(buildMessage(SUCCESS, "Specified URL has been verified as an OpenSearch endpoint."));
+            return new TestReport(buildMessage(SUCCESS,
+                    "Specified URL has been verified as an OpenSearch endpoint."));
         } else {
-            return new TestReport(buildMessage(WARNING, "Specified URL could not be verified as an OpenSearch endpoint."));
+            return new TestReport(buildMessage(WARNING,
+                    "Specified URL could not be verified as an OpenSearch endpoint."));
         }
     }
 

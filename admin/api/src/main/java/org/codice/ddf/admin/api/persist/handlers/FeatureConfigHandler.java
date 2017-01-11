@@ -13,7 +13,6 @@
  **/
 package org.codice.ddf.admin.api.persist.handlers;
 
-
 import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles;
 
 import java.util.EnumSet;

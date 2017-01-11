@@ -121,23 +121,25 @@ public class AdminConfigHandler implements ConfigHandler<Void, Map<String, Objec
                                 .findFirst();
 
                 List<Map<String, Object>> metatypes = new ArrayList<>();
-                if(defaultMetatypeValues.isPresent()) {
-                    metatypes = (List)defaultMetatypeValues.get().get("metatype");
+                if (defaultMetatypeValues.isPresent()) {
+                    metatypes = (List) defaultMetatypeValues.get()
+                            .get("metatype");
                 }
 
-                if(metatypes.isEmpty()) {
+                if (metatypes.isEmpty()) {
                     return new HashMap<>();
                 }
 
                 return metatypes.stream()
-                        .collect(Collectors.toMap(field -> (String) field.get("id"), field -> field.get("defaultValue")));
+                        .collect(Collectors.toMap(field -> (String) field.get("id"),
+                                field -> field.get("defaultValue")));
             } else {
                 return configResults;
             }
             // return getConfigAdminMBean().getProperties(pid);
         } catch (IOException | MalformedObjectNameException e) {
             throw new ConfiguratorException(String.format("Unable to find configuration for pid, %s",
-                pid), e);
+                    pid), e);
         }
     }
 

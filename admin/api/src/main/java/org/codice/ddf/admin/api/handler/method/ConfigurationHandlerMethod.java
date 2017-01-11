@@ -19,14 +19,23 @@ import java.util.Map;
 public abstract class ConfigurationHandlerMethod {
 
     private String id;
+
     private String description;
+
     private Map<String, String> requiredFields;
+
     private Map<String, String> optionalFields;
+
     private Map<String, String> successTypes;
+
     private Map<String, String> failureTypes;
+
     private Map<String, String> warningTypes;
 
-    public ConfigurationHandlerMethod(String id, String description, Map<String, String> requiredFields, Map<String, String> optionalFields, Map<String, String> successTypes, Map<String, String> failureTypes, Map<String, String> warningTypes) {
+    public ConfigurationHandlerMethod(String id, String description,
+            Map<String, String> requiredFields, Map<String, String> optionalFields,
+            Map<String, String> successTypes, Map<String, String> failureTypes,
+            Map<String, String> warningTypes) {
         this.id = id;
         this.description = description;
         this.requiredFields = requiredFields;
@@ -36,24 +45,30 @@ public abstract class ConfigurationHandlerMethod {
         this.warningTypes = warningTypes;
     }
 
-    public String id(){
+    public String id() {
         return id;
     }
+
     public String description() {
         return description;
     }
+
     public Map<String, String> requireFields() {
         return requiredFields;
     }
+
     public Map<String, String> optionalFields() {
         return optionalFields;
     }
+
     public Map<String, String> successTypes() {
         return successTypes;
     }
+
     public Map<String, String> failureTypes() {
         return failureTypes;
     }
+
     public Map<String, String> warningTypes() {
         return warningTypes;
     }

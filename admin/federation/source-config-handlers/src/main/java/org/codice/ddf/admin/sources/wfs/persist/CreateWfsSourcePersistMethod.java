@@ -16,15 +16,15 @@ package org.codice.ddf.admin.sources.wfs.persist;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.sources.SourceConfigurationHandler.CREATE;
+import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
 
 import java.util.Map;
 
+import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
-import org.codice.ddf.admin.sources.wfs.WfsSourceConfiguration;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -85,8 +85,8 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
         ConfigReport report;
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
         report = configurator.commit();
-        return report.containsFailedResults() ?
-                new TestReport(buildMessage(FAILURE, "Failed to create WFS Source")) :
-                new TestReport(buildMessage(SUCCESS, "WFS Source created"));
+        return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE,
+                "Failed to create WFS Source")) : new TestReport(buildMessage(SUCCESS,
+                "WFS Source created"));
     }
 }

@@ -12,9 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.security.context;
+package org.codice.ddf.admin.api.config.security.context;
 
 import java.util.List;
+
 import org.codice.ddf.admin.api.handler.Configuration;
 
 public class ContextPolicyConfiguration extends Configuration {

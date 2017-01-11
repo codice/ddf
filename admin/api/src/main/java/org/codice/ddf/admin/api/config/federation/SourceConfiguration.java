@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.api.sources;
+package org.codice.ddf.admin.api.config.federation;
 
 import java.util.Map;
 
@@ -52,6 +52,7 @@ public class SourceConfiguration extends Configuration {
         this.certError = certError;
         return this;
     }
+
     public SourceConfiguration trustedCertAuthority(boolean trustedCertAuthority) {
         this.trustedCertAuthority = trustedCertAuthority;
         return this;

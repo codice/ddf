@@ -29,6 +29,7 @@ import java.util.Optional;
 import javax.xml.namespace.NamespaceContext;
 
 import org.apache.cxf.common.util.StringUtils;
+import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 
@@ -44,8 +45,7 @@ public class SourceUtils {
 
     public static Optional<ConfigurationMessage> endpointIsReachable(SourceConfiguration config) {
         try {
-            URLConnection urlConnection =
-                    (new URL(config.endpointUrl())).openConnection();
+            URLConnection urlConnection = (new URL(config.endpointUrl())).openConnection();
             urlConnection.setConnectTimeout(PING_TIMEOUT);
             urlConnection.connect();
         } catch (MalformedURLException | IllegalArgumentException e) {

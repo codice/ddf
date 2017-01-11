@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.security.context;
+package org.codice.ddf.admin.api.config.security.context;
 
 import java.util.ArrayList;
 import java.util.HashMap;

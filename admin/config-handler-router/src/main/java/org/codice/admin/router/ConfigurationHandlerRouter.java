@@ -56,7 +56,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
                 .create();
     }
 
-    public static ConfigurationHandler getConfigurationHandler(
+    public ConfigurationHandler getConfigurationHandler(
             List<ConfigurationHandler> configurationHandlers, String configurationId) {
         Optional<ConfigurationHandler> foundConfigHandler = configurationHandlers.stream()
                 .filter(handler -> handler.getConfigurationHandlerId()

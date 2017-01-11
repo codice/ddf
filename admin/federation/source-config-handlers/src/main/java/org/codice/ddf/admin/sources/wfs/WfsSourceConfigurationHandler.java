@@ -22,7 +22,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
+import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
@@ -30,8 +33,6 @@ import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.Configurator;
-import org.codice.ddf.admin.api.sources.SourceConfiguration;
-import org.codice.ddf.admin.api.sources.SourceConfigurationHandler;
 import org.codice.ddf.admin.sources.wfs.persist.CreateWfsSourcePersistMethod;
 import org.codice.ddf.admin.sources.wfs.persist.DeleteWfsSourcePersistMethod;
 import org.codice.ddf.admin.sources.wfs.probe.DiscoverWfsSourceProbeMethod;
@@ -41,51 +42,61 @@ public class WfsSourceConfigurationHandler
         implements SourceConfigurationHandler<SourceConfiguration> {
 
     List<TestMethod> testMethods = Arrays.asList(new WfsUrlTestMethod());
+
     List<ProbeMethod> probeMethods = Arrays.asList(new DiscoverWfsSourceProbeMethod());
-    List<PersistMethod> persistMethods = Arrays.asList(new CreateWfsSourcePersistMethod(), new DeleteWfsSourcePersistMethod());
+
+    List<PersistMethod> persistMethods = Arrays.asList(new CreateWfsSourcePersistMethod(),
+            new DeleteWfsSourcePersistMethod());
 
     public static final String WFS_SOURCE_CONFIGURATION_HANDLER_ID =
             "WfsSourceConfigurationHandler";
 
     private static final String WFS_SOURCE_DISPLAY_NAME = "WFS Source";
+
     public static final String WFS1_FACTORY_PID = "Wfs_v1_0_0_Federated_Source";
+
     public static final String WFS2_FACTORY_PID = "Wfs_v2_0_0_Federated_Source";
 
-    private static final List<String> WFS_FACTORY_PIDS = Arrays.asList(WFS1_FACTORY_PID, WFS2_FACTORY_PID);
+    private static final List<String> WFS_FACTORY_PIDS = Arrays.asList(WFS1_FACTORY_PID,
+            WFS2_FACTORY_PID);
 
     @Override
     public ProbeReport probe(String probeId, SourceConfiguration baseConfiguration) {
         WfsSourceConfiguration configuration = new WfsSourceConfiguration(baseConfiguration);
         Optional<ProbeMethod> probeMethod = probeMethods.stream()
-                .filter(method -> method.id().equals(probeId))
+                .filter(method -> method.id()
+                        .equals(probeId))
                 .findFirst();
         return probeMethod.isPresent() ?
-                probeMethod.get().probe(configuration) :
+                probeMethod.get()
+                        .probe(configuration) :
                 new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
     }
-
-
 
     @Override
     public TestReport test(String testId, SourceConfiguration baseConfiguration) {
         WfsSourceConfiguration configuration = new WfsSourceConfiguration(baseConfiguration);
         Optional<TestMethod> testMethod = testMethods.stream()
-                .filter(method -> method.id().equals(testId))
+                .filter(method -> method.id()
+                        .equals(testId))
                 .findFirst();
 
         return testMethod.isPresent() ?
-                testMethod.get().test(configuration) :
+                testMethod.get()
+                        .test(configuration) :
                 new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
     }
 
     public TestReport persist(SourceConfiguration configuration, String persistId) {
         WfsSourceConfiguration config = new WfsSourceConfiguration(configuration);
         Optional<PersistMethod> persistMethod = persistMethods.stream()
-                .filter(method -> method.id().equals(persistId))
+                .filter(method -> method.id()
+                        .equals(persistId))
                 .findFirst();
 
         return persistMethod.isPresent() ?
-                persistMethod.get().persist(config) :
+                persistMethod.get()
+                        .persist(config) :
                 new TestReport(new ConfigurationMessage(NO_PROBE_FOUND));
     }
 
@@ -93,14 +104,17 @@ public class WfsSourceConfigurationHandler
     public List<SourceConfiguration> getConfigurations() {
         Configurator configurator = new Configurator();
         return WFS_FACTORY_PIDS.stream()
-                .flatMap(factoryPid -> configurator.getManagedServiceConfigs(factoryPid).values().stream())
+                .flatMap(factoryPid -> configurator.getManagedServiceConfigs(factoryPid)
+                        .values()
+                        .stream())
                 .map(serviceProps -> new WfsSourceConfiguration(serviceProps))
                 .collect(Collectors.toList());
     }
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(WfsSourceConfiguration.class.getSimpleName(), WfsSourceConfiguration.class);
+        return new CapabilitiesReport(WfsSourceConfiguration.class.getSimpleName(),
+                WfsSourceConfiguration.class);
     }
 
     @Override

@@ -13,7 +13,9 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="embeddedLdapConfigurationHandler" class="org.codice.ddf.admin.security.ldap.embedded.EmbeddedLdapConfigurationHandler"/>
-    <service ref="embeddedLdapConfigurationHandler" interface="org.codice.ddf.admin.api.handler.ConfigurationHandler"/>
+    <bean id="embeddedLdapConfigurationHandler"
+          class="org.codice.ddf.admin.security.ldap.embedded.EmbeddedLdapConfigurationHandler"/>
+    <service ref="embeddedLdapConfigurationHandler"
+             interface="org.codice.ddf.admin.api.handler.ConfigurationHandler"/>
 
 </blueprint>

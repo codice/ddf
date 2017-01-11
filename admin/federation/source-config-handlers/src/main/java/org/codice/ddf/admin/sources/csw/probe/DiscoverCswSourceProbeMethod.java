@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.sources.csw.CswSourceConfiguration;
 import org.codice.ddf.admin.sources.csw.CswSourceCreationException;
 import org.codice.ddf.admin.sources.csw.CswSourceUtils;
 

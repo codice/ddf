@@ -12,34 +12,35 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.sources.wfs;
+package org.codice.ddf.admin.api.config.federation.sources;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.sources.SourceConfiguration;
+import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 
-public class WfsSourceConfiguration extends SourceConfiguration {
+public class OpenSearchSourceConfiguration extends SourceConfiguration {
 
-    //** wfs Service Properties
+    // Open Search Service Properties
     public static final String ID = "id";
-    public static final String WFS_URL = "wfsUrl";
+
+    public static final String ENDPOINT_URL = "endpointUrl";
+
     public static final String USERNAME = "username";
+
     public static final String PASSWORD = "password";
     // ----
 
-    //TODO: Needs WFS specific properties
-
-    public WfsSourceConfiguration(Map<String, Object> wfsProps) {
-        factoryPid(wfsProps.get(FACTORY_PID_KEY) == null ? null : (String)wfsProps.get(FACTORY_PID_KEY));
-        servicePid(wfsProps.get(SERVICE_PID_KEY) == null ? null : (String)wfsProps.get(SERVICE_PID_KEY));
-        sourceName(wfsProps.get(ID) == null ? null : (String) wfsProps.get(ID));
-        endpointUrl(wfsProps.get(WFS_URL) == null ? null : (String) wfsProps.get(WFS_URL));
-        sourceUserName(wfsProps.get(USERNAME) == null ? null : (String) wfsProps.get(USERNAME));
-        sourceUserPassword(wfsProps.get(PASSWORD) == null ? null : (String) wfsProps.get(PASSWORD));
+    public OpenSearchSourceConfiguration(Map<String, Object> props) {
+        factoryPid(props.get(FACTORY_PID_KEY) == null ? null : (String) props.get(FACTORY_PID_KEY));
+        servicePid(props.get(SERVICE_PID_KEY) == null ? null : (String) props.get(SERVICE_PID_KEY));
+        sourceName(props.get(ID) == null ? null : (String) props.get(ID));
+        endpointUrl(props.get(ENDPOINT_URL) == null ? null : (String) props.get(ENDPOINT_URL));
+        sourceUserName(props.get(USERNAME) == null ? null : (String) props.get(USERNAME));
+        sourceUserPassword(props.get(PASSWORD) == null ? null : (String) props.get(PASSWORD));
     }
 
-    public WfsSourceConfiguration(SourceConfiguration baseConfig) {
+    public OpenSearchSourceConfiguration(SourceConfiguration baseConfig) {
         factoryPid(baseConfig.factoryPid());
         sourceName(baseConfig.sourceName());
         sourceHostName(baseConfig.sourceHostName());
@@ -52,7 +53,7 @@ public class WfsSourceConfiguration extends SourceConfiguration {
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
         config.put(ID, sourceName());
-        config.put(WFS_URL, endpointUrl());
+        config.put(ENDPOINT_URL, endpointUrl());
         if (sourceUserName() != null) {
             config.put(USERNAME, sourceUserName());
         }

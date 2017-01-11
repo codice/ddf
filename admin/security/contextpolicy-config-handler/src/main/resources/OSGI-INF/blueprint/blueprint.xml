@@ -13,8 +13,9 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <service id="policyManagerConfigurationHandler" interface="org.codice.ddf.admin.api.handler.ConfigurationHandler">
-        <bean class="org.codice.ddf.admin.security.context.ContextPolicyManagerHandler" />
+    <service id="policyManagerConfigurationHandler"
+             interface="org.codice.ddf.admin.api.handler.ConfigurationHandler">
+        <bean class="org.codice.ddf.admin.security.context.ContextPolicyManagerHandler"/>
     </service>
 
 </blueprint>

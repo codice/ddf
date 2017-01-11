@@ -21,16 +21,23 @@ import java.util.List;
 public class ConfigurationMessage {
 
     public static final String NO_TEST_METHOD_FOUND = "NO_TEST_METHOD_FOUND";
+
     public static final String NO_PROBE_METHOD_FOUND = "NO_PROBE_METHOD_FOUND";
+
     public static final String NO_PERSIST_METHOD_FOUND = "NO_PERSIST_METHOD_FOUND";
+
     public static final String MISSING_REQUIRED_FIELDS = "MISSING_REQUIRED_FIELD";
+
     public static final String INVALID_FIELD = "INVALID_FIELD";
 
     private MessageType type;
+
     private String subType;
+
     private String message;
 
     private String configId;
+
     private List<Exception> exceptions;
 
     // TODO: tbatie - 1/10/17 - Let's make a root constructor and all others call super

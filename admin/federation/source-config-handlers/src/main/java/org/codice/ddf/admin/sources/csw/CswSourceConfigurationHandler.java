@@ -23,7 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
+import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
@@ -31,8 +34,6 @@ import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.Configurator;
-import org.codice.ddf.admin.api.sources.SourceConfiguration;
-import org.codice.ddf.admin.api.sources.SourceConfigurationHandler;
 import org.codice.ddf.admin.sources.csw.persist.CreateCswSourcePersistMethod;
 import org.codice.ddf.admin.sources.csw.persist.DeleteCswSourcePersistMethod;
 import org.codice.ddf.admin.sources.csw.probe.DiscoverCswSourceProbeMethod;
@@ -108,7 +109,9 @@ public class CswSourceConfigurationHandler
                 .filter(method -> method.id()
                         .equals(persistId))
                 .findFirst();
-        return persistMethod.isPresent() ? persistMethod.get().persist(config) :
+        return persistMethod.isPresent() ?
+                persistMethod.get()
+                        .persist(config) :
                 new TestReport(new ConfigurationMessage(NO_PERSIST_FOUND));
     }
 

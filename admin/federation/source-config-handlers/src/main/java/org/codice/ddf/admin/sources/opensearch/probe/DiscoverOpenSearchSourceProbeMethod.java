@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.admin.sources.opensearch.probe;
 
-
-
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -27,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.sources.opensearch.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.sources.opensearch.OpenSearchSourceUtils;
 
 import com.google.common.collect.ImmutableMap;

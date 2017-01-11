@@ -14,6 +14,12 @@
 
 package org.codice.ddf.admin.security.ldap;
 
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAPS;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_USE_CASES;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;

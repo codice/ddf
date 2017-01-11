@@ -20,11 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.sources.SourceUtils;
-import org.codice.ddf.admin.sources.wfs.WfsSourceConfiguration;
 import org.codice.ddf.admin.sources.wfs.WfsSourceUtils;
 
 import com.google.common.collect.ImmutableMap;

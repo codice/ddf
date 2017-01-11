@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.admin.api.config.security.context.ContextPolicyBin;
+import org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
@@ -35,6 +37,7 @@ import org.codice.ddf.admin.api.persist.Configurator;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ddf.security.policy.context.impl.PolicyManager;
+
 import com.google.common.collect.ImmutableMap;
 
 import ddf.security.sts.client.configuration.STSClientConfiguration;
@@ -83,14 +86,15 @@ public class ContextPolicyManagerHandler
 
     @Override
     public TestReport persist(ContextPolicyConfiguration configuration, String persistId) {
-        if(configuration.contextPolicyBins()
+        if (configuration.contextPolicyBins()
                 .stream()
-                .filter(bin -> bin.contextPaths().isEmpty()
-                        || StringUtils.isEmpty(bin.realm())
-                        || bin.authenticationTypes().isEmpty())
+                .filter(bin -> bin.contextPaths()
+                        .isEmpty() || StringUtils.isEmpty(bin.realm()) || bin.authenticationTypes()
+                        .isEmpty())
                 .findFirst()
                 .isPresent()) {
-            return new TestReport(buildMessage(FAILURE, "Context paths, realm and authentication types cannot be empty"));
+            return new TestReport(buildMessage(FAILURE,
+                    "Context paths, realm and authentication types cannot be empty"));
 
             // TODO: tbatie - 12/14/16 - throw bad request?
         }
@@ -99,13 +103,15 @@ public class ContextPolicyManagerHandler
         List<String> authTypesProps = new ArrayList<>();
         List<String> reqAttrisProps = new ArrayList<>();
 
-        for(ContextPolicyBin bin : configuration.contextPolicyBins()) {
+        for (ContextPolicyBin bin : configuration.contextPolicyBins()) {
             bin.contextPaths()
                     .stream()
                     .forEach(context -> {
                         realmsProps.add(context + "=" + bin.realm());
-                        authTypesProps.add(context + "=" + String.join("|", bin.authenticationTypes()));
-                        if (bin.requiredAttributes().isEmpty()) {
+                        authTypesProps.add(
+                                context + "=" + String.join("|", bin.authenticationTypes()));
+                        if (bin.requiredAttributes()
+                                .isEmpty()) {
                             reqAttrisProps.add(context + "=");
                         } else {
                             reqAttrisProps.add(context + "={" + String.join(";",
@@ -118,10 +124,14 @@ public class ContextPolicyManagerHandler
                     });
         }
 
-        Map<String, Object> policyManagerProperties = ImmutableMap.of("authenticationTypes", authTypesProps,
-                "realms", realmsProps,
-                "requiredAttributes", reqAttrisProps,
-                "whiteListContexts", configuration.whiteListContexts());
+        Map<String, Object> policyManagerProperties = ImmutableMap.of("authenticationTypes",
+                authTypesProps,
+                "realms",
+                realmsProps,
+                "requiredAttributes",
+                reqAttrisProps,
+                "whiteListContexts",
+                configuration.whiteListContexts());
 
         Configurator configurator = new Configurator();
         configurator.updateConfigFile("org.codice.ddf.security.policy.context.impl.PolicyManager",
@@ -140,8 +150,8 @@ public class ContextPolicyManagerHandler
 
     @Override
     public List<ContextPolicyConfiguration> getConfigurations() {
-        return Arrays.asList(new ContextPolicyConfiguration()
-                .contextPolicyBins(contextPolicyManagerSettingsToBins())
+        return Arrays.asList(new ContextPolicyConfiguration().contextPolicyBins(
+                contextPolicyManagerSettingsToBins())
                 .whiteListContexts(getPolicyManager().getWhiteListContexts()));
     }
 
@@ -172,9 +182,10 @@ public class ContextPolicyManagerHandler
                             map -> map.getAttributeValue()));
 
             for (ContextPolicyBin bin : bins) {
-                if (bin.realm().equals(policy.getRealm()) &&
-                        bin.authenticationTypes().equals(policy.getAuthenticationMethods()) &&
-                        bin.hasSameRequiredAttributes(policyRequiredAttributes)) {
+                if (bin.realm()
+                        .equals(policy.getRealm()) && bin.authenticationTypes()
+                        .equals(policy.getAuthenticationMethods()) && bin.hasSameRequiredAttributes(
+                        policyRequiredAttributes)) {
                     bin.addContextPath(policy.getContextPath());
                     foundBin = true;
                 }
@@ -192,11 +203,11 @@ public class ContextPolicyManagerHandler
         return bins;
     }
 
-
     public PolicyManager getPolicyManager() {
         // TODO: tbatie - 12/16/16 - Throw exception? Something is seriously wrong if service isnt available
-        ContextPolicyManager manager = new Configurator().getServiceReference(ContextPolicyManager.class);
-        return manager == null? null : (PolicyManager) manager;
+        ContextPolicyManager manager =
+                new Configurator().getServiceReference(ContextPolicyManager.class);
+        return manager == null ? null : (PolicyManager) manager;
     }
 
     public STSClientConfiguration getStsClientConfig() {

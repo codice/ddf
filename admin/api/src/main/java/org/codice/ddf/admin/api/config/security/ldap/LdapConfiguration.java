@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.security.ldap.commons;
+package org.codice.ddf.admin.api.config.security.ldap;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.REQUIRED_FIELDS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -128,51 +128,30 @@ public class LdapConfiguration extends Configuration {
             LOGIN_AND_CREDENTIAL_STORE);
 
     private String servicePid;
-
     private String factoryPid;
-
     private String hostName;
-
     private int port;
-
     private String encryptionMethod;
-
     private String bindUserDn;
-
     private String bindUserPassword;
-
     private String bindUserMethod;
-
     private String bindKdcAddress;
-
     private String bindRealm;
-
     private String userNameAttribute;
-
     private String baseGroupDn;
-
     private String baseUserDn;
-
     private String query;
-
     private String queryBase;
-
     private String ldapType;
-
     private String ldapUseCase;
-
     private String groupObjectClass;
-
     private String membershipAttribute;
-
     public Map<String, String> attributeMappings;
-
     private List<Map<String, String>> queryResults;
 
     public LdapConfiguration() {
 
     }
-
     public LdapConfiguration(Map<String, Object> props) {
         servicePid(props.get(SERVICE_PID_KEY) == null ? null : (String) props.get(SERVICE_PID_KEY));
         bindUserDn((String) props.get("ldapBindUserDn"));

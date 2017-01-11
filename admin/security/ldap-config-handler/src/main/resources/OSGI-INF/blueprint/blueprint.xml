@@ -13,7 +13,8 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="ldapConfigurationHandler" class="org.codice.ddf.admin.security.ldap.LdapConfigurationHandler"/>
+    <bean id="ldapConfigurationHandler"
+          class="org.codice.ddf.admin.security.ldap.LdapConfigurationHandler"/>
     <service ref="ldapConfigurationHandler"
              interface="org.codice.ddf.admin.api.handler.ConfigurationHandler"/>
 </blueprint>

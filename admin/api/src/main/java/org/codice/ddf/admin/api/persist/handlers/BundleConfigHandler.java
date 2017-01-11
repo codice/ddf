@@ -13,7 +13,6 @@
  **/
 package org.codice.ddf.admin.api.persist.handlers;
 
-
 import java.util.Arrays;
 
 import org.apache.karaf.bundle.core.BundleState;

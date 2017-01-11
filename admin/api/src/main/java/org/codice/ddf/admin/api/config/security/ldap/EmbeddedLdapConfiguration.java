@@ -12,19 +12,21 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.security.ldap.embedded;
+package org.codice.ddf.admin.api.config.security.ldap;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codice.ddf.admin.security.ldap.commons.LdapConfiguration;
-
 public class EmbeddedLdapConfiguration extends LdapConfiguration {
 
     private int embeddedLdapPort;
+
     private int embeddedLdapsPort;
+
     private int embeddedLdapAdminPort;
+
     private String ldifPath;
+
     private String embeddedLdapStorageLocation;
 
     public static EmbeddedLdapConfiguration fromProperties(Map<String, Object> props) {

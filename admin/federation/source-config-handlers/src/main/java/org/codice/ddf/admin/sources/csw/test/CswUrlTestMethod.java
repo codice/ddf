@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.admin.sources.csw.test;
 
-
 import static org.codice.ddf.admin.api.sources.SourceUtils.MANUAL_URL_TEST_ID;
 import static org.codice.ddf.admin.api.sources.SourceUtils.cannotBeNullFields;
 
@@ -21,11 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.sources.SourceUtils;
-import org.codice.ddf.admin.sources.csw.CswSourceConfiguration;
 import org.codice.ddf.admin.sources.csw.CswSourceUtils;
 
 import com.google.common.collect.ImmutableMap;
@@ -33,25 +32,28 @@ import com.google.common.collect.ImmutableMap;
 public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
 
     public static final String CSW_URL_TEST_ID = MANUAL_URL_TEST_ID;
+
     public static final String DESCRIPTION = "Attempts to verify a given URL is a CSW endpoint.";
 
     public static final String TEST_URL = "testUrl";
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(
-            TEST_URL, "The URL to attempt to verify as a CSW Endpoint."
-    );
+
+    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(TEST_URL,
+            "The URL to attempt to verify as a CSW Endpoint.");
 
     private static final String VERIFIED_URL = "urlVerified";
+
     private static final String CANNOT_CONNECT = "cannotConnect";
+
     private static final String CANNOT_VERIFY = "cannotVerify";
 
-    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(
-            VERIFIED_URL, "URL has been verified as a CSW endpoint."
-    );
-    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(
-            CANNOT_CONNECT, "Could not reach specified URL.");
-    public static final Map<String, String> WARNING_TYPES = ImmutableMap.of(
-            CANNOT_VERIFY, "Reached URL, but could not verify as CSW endpoint.");
-    
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(VERIFIED_URL,
+            "URL has been verified as a CSW endpoint.");
+
+    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CANNOT_CONNECT,
+            "Could not reach specified URL.");
+
+    public static final Map<String, String> WARNING_TYPES = ImmutableMap.of(CANNOT_VERIFY,
+            "Reached URL, but could not verify as CSW endpoint.");
 
     public CswUrlTestMethod() {
         super(CSW_URL_TEST_ID,
@@ -60,9 +62,9 @@ public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
                 null,
                 SUCCESS_TYPES,
                 FAILURE_TYPES,
-                WARNING_TYPES
-        );
+                WARNING_TYPES);
     }
+
     @Override
     public TestReport test(CswSourceConfiguration configuration) {
         Map<String, Object> requiredFields = new HashMap<>();
@@ -72,7 +74,7 @@ public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
             return cannotBeNullFieldsTest;
         }
         Optional<ConfigurationMessage> message = SourceUtils.endpointIsReachable(configuration);
-        if(message.isPresent()){
+        if (message.isPresent()) {
             return new TestReport(message.get());
         }
         return CswSourceUtils.discoverUrlCapabilities(configuration);

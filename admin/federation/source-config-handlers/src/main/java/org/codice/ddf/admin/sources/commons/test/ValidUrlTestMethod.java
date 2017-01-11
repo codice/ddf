@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.sources.test;
+package org.codice.ddf.admin.sources.commons.test;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
@@ -24,9 +24,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Map;
 
+import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.api.sources.SourceConfiguration;
 
 import com.google.common.collect.ImmutableMap;
 

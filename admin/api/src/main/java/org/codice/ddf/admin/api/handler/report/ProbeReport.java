@@ -32,6 +32,7 @@ public class ProbeReport extends TestReport {
     public ProbeReport(List<ConfigurationMessage> messages) {
         super(messages);
     }
+
     public ProbeReport(ConfigurationMessage... messages) {
         super(Arrays.asList(messages));
     }

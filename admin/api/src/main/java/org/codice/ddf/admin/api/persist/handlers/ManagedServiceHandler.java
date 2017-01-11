@@ -14,7 +14,6 @@
 
 package org.codice.ddf.admin.api.persist.handlers;
 
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;

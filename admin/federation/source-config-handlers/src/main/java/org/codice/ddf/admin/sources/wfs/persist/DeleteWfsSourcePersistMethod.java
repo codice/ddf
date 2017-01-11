@@ -16,15 +16,15 @@ package org.codice.ddf.admin.sources.wfs.persist;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.sources.SourceConfigurationHandler.DELETE;
+import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.DELETE;
 
 import java.util.Map;
 
+import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
-import org.codice.ddf.admin.sources.wfs.WfsSourceConfiguration;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -67,8 +67,8 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
         // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
         configurator.deleteManagedService(configuration.servicePid());
         report = configurator.commit();
-        return report.containsFailedResults() ?
-                new TestReport(buildMessage(FAILURE, "Failed to delete WFS Source")) :
-                new TestReport(buildMessage(SUCCESS, "WFS Source deleted"));
+        return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE,
+                "Failed to delete WFS Source")) : new TestReport(buildMessage(SUCCESS,
+                "WFS Source deleted"));
     }
 }

@@ -12,13 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.api.sources;
+package org.codice.ddf.admin.api.handler;
 
-import org.codice.ddf.admin.api.handler.ConfigurationHandler;
+import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 
 public interface SourceConfigurationHandler<S extends SourceConfiguration>
         extends ConfigurationHandler<S> {
     String CREATE = "create";
     String DELETE = "delete";
+
     String getSourceDisplayName();
 }

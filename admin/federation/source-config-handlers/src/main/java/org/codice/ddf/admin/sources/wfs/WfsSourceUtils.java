@@ -14,7 +14,6 @@
 package org.codice.ddf.admin.sources.wfs;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -41,11 +40,11 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
+import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.w3c.dom.Document;
 
 public class WfsSourceUtils {
-
 
     public static final String GET_CAPABILITIES_PARAMS = "?service=WFS&request=GetCapabilities";
 
@@ -53,7 +52,6 @@ public class WfsSourceUtils {
             "https://%s:%d/wfs",
             "http://%s:%d/services/wfs",
             "http://%s:%d/wfs");
-
 
     public static Optional<String> confirmEndpointUrl(WfsSourceConfiguration config) {
         return URL_FORMATS.stream()
@@ -99,7 +97,7 @@ public class WfsSourceUtils {
                 config.trustedCertAuthority(true);
                 return true;
             }
-        } catch(SSLPeerUnverifiedException e){
+        } catch (SSLPeerUnverifiedException e) {
             config.certError(true);
             return false;
         } catch (IOException e) {

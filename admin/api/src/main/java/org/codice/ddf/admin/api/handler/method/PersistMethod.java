@@ -20,12 +20,17 @@ import org.codice.ddf.admin.api.handler.Configuration;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 
 public abstract class PersistMethod<S extends Configuration> extends ConfigurationHandlerMethod {
-    public PersistMethod(String id, String description, Map<String, String> requiredFields, Map<String, String> optionalFields,
-            Map<String, String> successTypes, Map<String, String> failureTypes,
-            Map<String, String> warningTypes) {
-        super(id, description, requiredFields, optionalFields, successTypes, failureTypes, warningTypes);
+    public PersistMethod(String id, String description, Map<String, String> requiredFields,
+            Map<String, String> optionalFields, Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes) {
+        super(id,
+                description,
+                requiredFields,
+                optionalFields,
+                successTypes,
+                failureTypes,
+                warningTypes);
     }
-
 
     public abstract TestReport persist(S configuration);
 }

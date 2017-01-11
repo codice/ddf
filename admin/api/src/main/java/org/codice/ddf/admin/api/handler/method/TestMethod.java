@@ -21,10 +21,16 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 
 public abstract class TestMethod<S extends Configuration> extends ConfigurationHandlerMethod {
 
-    public TestMethod(String id, String description, Map<String, String> requiredFields, Map<String, String> optionalFields,
-            Map<String, String> successTypes, Map<String, String> failureTypes,
-            Map<String, String> warningTypes) {
-        super(id, description, requiredFields, optionalFields, successTypes, failureTypes, warningTypes);
+    public TestMethod(String id, String description, Map<String, String> requiredFields,
+            Map<String, String> optionalFields, Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes) {
+        super(id,
+                description,
+                requiredFields,
+                optionalFields,
+                successTypes,
+                failureTypes,
+                warningTypes);
     }
 
     public abstract TestReport test(S configuration);

@@ -14,7 +14,6 @@
 package org.codice.ddf.admin.sources.csw;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -42,11 +41,11 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
+import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.w3c.dom.Document;
 
 public class CswSourceUtils {
-
 
     public static final String GET_CAPABILITIES_PARAMS = "?service=CSW&request=GetCapabilities";
 
@@ -73,10 +72,12 @@ public class CswSourceUtils {
         if (isAvailable(config.endpointUrl(), config)) {
             try {
                 getPreferredConfig(config);
-                return new TestReport(buildMessage(SUCCESS, "Specified URL has been verified as a CSW endpoint."));
+                return new TestReport(buildMessage(SUCCESS,
+                        "Specified URL has been verified as a CSW endpoint."));
             } catch (CswSourceCreationException e) {
                 config.factoryPid(CswSourceConfigurationHandler.CSW_SPEC_FACTORY_PID);
-                return new TestReport(buildMessage(WARNING, "Cannot discover CSW profile, defaulting to Specification."));
+                return new TestReport(buildMessage(WARNING,
+                        "Cannot discover CSW profile, defaulting to Specification."));
             }
         } else {
             config.factoryPid(CswSourceConfigurationHandler.CSW_SPEC_FACTORY_PID);
@@ -190,6 +191,5 @@ public class CswSourceUtils {
                 .map(Optional::of)
                 .orElse(Optional.empty());
     }
-
 
 }
