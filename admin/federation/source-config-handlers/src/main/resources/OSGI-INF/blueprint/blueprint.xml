@@ -13,14 +13,16 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="sourceConfigurationHandler" class="org.codice.ddf.admin.sources.SourceConfigurationHandlerImpl">
+    <bean id="sourceConfigurationHandler"
+          class="org.codice.ddf.admin.sources.SourceConfigurationHandlerImpl">
         <property name="sourceConfigurationHandlers" ref="sourceConfigurationHandlers"/>
     </bean>
     <service ref="sourceConfigurationHandler"
              interface="org.codice.ddf.admin.api.handler.ConfigurationHandler">
     </service>
 
-    <bean id="cswConfigurationHandler" class="org.codice.ddf.admin.sources.csw.CswSourceConfigurationHandler"/>
+    <bean id="cswConfigurationHandler"
+          class="org.codice.ddf.admin.sources.csw.CswSourceConfigurationHandler"/>
     <service ref="cswConfigurationHandler">
         <interfaces>
             <value>org.codice.ddf.admin.api.handler.SourceConfigurationHandler</value>
@@ -28,7 +30,8 @@
         </interfaces>
     </service>
 
-    <bean id="wfsConfigurationHandler" class="org.codice.ddf.admin.sources.wfs.WfsSourceConfigurationHandler"/>
+    <bean id="wfsConfigurationHandler"
+          class="org.codice.ddf.admin.sources.wfs.WfsSourceConfigurationHandler"/>
     <service ref="wfsConfigurationHandler">
         <interfaces>
             <value>org.codice.ddf.admin.api.handler.SourceConfigurationHandler</value>
@@ -36,7 +39,8 @@
         </interfaces>
     </service>
 
-    <bean id="openSearchConfigurationHandler" class="org.codice.ddf.admin.sources.opensearch.OpenSearchSourceConfigurationHandler"/>
+    <bean id="openSearchConfigurationHandler"
+          class="org.codice.ddf.admin.sources.opensearch.OpenSearchSourceConfigurationHandler"/>
     <service ref="openSearchConfigurationHandler">
         <interfaces>
             <value>org.codice.ddf.admin.api.handler.SourceConfigurationHandler</value>
@@ -44,6 +48,8 @@
         </interfaces>
     </service>
 
-    <reference-list id="sourceConfigurationHandlers" interface="org.codice.ddf.admin.api.handler.SourceConfigurationHandler" availability="optional"/>
+    <reference-list id="sourceConfigurationHandlers"
+                    interface="org.codice.ddf.admin.api.handler.SourceConfigurationHandler"
+                    availability="optional"/>
 
 </blueprint>

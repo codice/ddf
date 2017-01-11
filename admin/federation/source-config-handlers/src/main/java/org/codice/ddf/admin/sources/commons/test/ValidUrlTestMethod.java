@@ -13,11 +13,11 @@
  */
 package org.codice.ddf.admin.sources.commons.test;
 
+import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
+import static org.codice.ddf.admin.api.commons.SourceUtils.VALID_URL_TEST_ID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.sources.SourceUtils.PING_TIMEOUT;
-import static org.codice.ddf.admin.api.sources.SourceUtils.VALID_URL_TEST_ID;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

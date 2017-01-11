@@ -14,10 +14,10 @@
 package org.codice.ddf.admin.sources.opensearch;
 
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.sources.SourceUtils.PING_TIMEOUT;
 
 import java.io.IOException;
 import java.util.Arrays;

@@ -13,18 +13,18 @@
  */
 package org.codice.ddf.admin.sources.opensearch.test;
 
-import static org.codice.ddf.admin.api.sources.SourceUtils.MANUAL_URL_TEST_ID;
-import static org.codice.ddf.admin.api.sources.SourceUtils.cannotBeNullFields;
+import static org.codice.ddf.admin.api.commons.SourceUtils.MANUAL_URL_TEST_ID;
+import static org.codice.ddf.admin.api.commons.SourceUtils.cannotBeNullFields;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.codice.ddf.admin.api.commons.SourceUtils;
 import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.api.sources.SourceUtils;
 import org.codice.ddf.admin.sources.opensearch.OpenSearchSourceUtils;
 
 import com.google.common.collect.ImmutableMap;
