@@ -17,12 +17,12 @@
   },
   "scripts": {
     "start": "webpack-dev-server --progress --open",
-    "start:test": "NODE_ENV=test webpack-dev-server --progress --open",
-    "pretest": "standard ./src/**/*.js && node ./node_modules/phantomjs-prebuilt/install.js && NODE_ENV=ci webpack --bail",
+    "start:test": "cross-env NODE_ENV=test webpack-dev-server --progress --open",
+    "pretest": "standard ./src/**/*.js && node ./node_modules/phantomjs-prebuilt/install.js && cross-env NODE_ENV=ci webpack --bail",
     "test": "phantomjs ./node_modules/mocha-phantomjs-core/mocha-phantomjs-core.js target/ci/index.html",
     "format": "standard --fix ./src/**/*.js",
-    "dist": "NODE_ENV=production webpack --bail --progress",
-    "dist:stat": "NODE_ENV=production webpack --json | webpack-bundle-size-analyzer"
+    "dist": "cross-env NODE_ENV=production webpack --bail --progress",
+    "dist:stat": "cross-env NODE_ENV=production webpack --json | webpack-bundle-size-analyzer"
   },
   "peerDependencies": {
     "react": "^15.1.0",
@@ -52,6 +52,7 @@
     "babel-preset-stage-0": "^6.5.0",
     "chai": "^3.5.0",
     "concat-stream": "^1.5.2",
+    "cross-env": "^3.1.4",
     "css-loader": "^0.25.0",
     "enzyme": "^2.6.0",
     "glob": "^7.1.1",
