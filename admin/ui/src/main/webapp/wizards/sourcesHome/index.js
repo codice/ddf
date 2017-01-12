@@ -183,7 +183,7 @@ const SourcesHomeView = ({ sourceConfigs = [], ldapConfigs = [], refresh }) => (
       </TileLink>
 
       <TileLink
-        to='/webContextPolicyManager/'
+        to='/web-context-policy-manager/'
         title='Endpoint Security'
         subtitle='Web context policy management'>
         <VpnLockIcon style={{color: cyan500, width: '50%', height: '50%'}} />

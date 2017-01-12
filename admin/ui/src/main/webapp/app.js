@@ -48,7 +48,7 @@ export default () => (
             <IndexRoute component={SourcesHome} />
             <Route path='/ldap' component={Ldap} />
             <Route path='/sources' component={Sources} />
-            <Route path='/webContextPolicyManager' component={Wcpm} />
+            <Route path='/web-context-policy-manager' component={Wcpm} />
           </Route>
         </Router>
         <DevTools />
