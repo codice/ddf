@@ -20,10 +20,17 @@
         description="Shell command to be used within the container. For example, log:set DEBUG">
     </AD>
     
-    <AD name="Interval in seconds" id="intervalInSeconds"
-        description="The interval of time in seconds between each execution. Must be a positive integer. For example, 3600 is 1 hour."
-        required="true" type="Integer"/>
-    
+    <AD name="Interval" id="intervalString"
+        description="The Interval String for each execution.  Based on the Interval Type, this will either be a Cron String, or a Second Interval.  (e.x. '0 0 0 1/1 * ? *' or '12')"
+        required="true" type="String"/>
+
+    <AD name="Interval Type" id="intervalType"
+        description="Interval Type"
+        required="true" type="String" default="cronString">
+        <Option label="Cron Expression" value="cronString"/>
+        <Option label="Second Interval" value="secondInterval"/>
+    </AD>
+
   </OCD>
 
   <Designate pid="ddf.platform.scheduler.Command" factoryPid="ddf.platform.scheduler.Command">

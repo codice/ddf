@@ -44,8 +44,8 @@ import ddf.security.Subject;
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
  */
-public class TestCommandJob {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestCommandJob.class);
+public class CommandJobTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandJobTest.class);
 
     private SessionFactory sessionFactory;
 
