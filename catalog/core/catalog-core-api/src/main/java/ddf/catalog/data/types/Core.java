@@ -128,11 +128,6 @@ public interface Core {
     String DATATYPE = "datatype";
 
     /**
-     * {@link ddf.catalog.data.Attribute} name for accessing the data-store of the {@link Metacard}. <br/>
-     */
-    String DATA_STORE = "data-store";
-
-    /**
      * {@link ddf.catalog.data.Attribute} name for accessing the creation date of the {@link Metacard}. <br/>
      */
     String METACARD_CREATED = "metacard.created";
