@@ -17,6 +17,14 @@
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <bean id="workspaceMetacardType" class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardType" />
+
+    <service ref="workspaceMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="workspace"/>
+        </service-properties>
+    </service>
+
     <reference id="webBranding" interface="org.codice.ddf.branding.BrandingPlugin"/>
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="uiCamelContext"/>
@@ -48,10 +56,6 @@
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
     </bean>
-
-    <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes"/>
-    </service>
 
     <service interface="ddf.catalog.data.MetacardType">
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
