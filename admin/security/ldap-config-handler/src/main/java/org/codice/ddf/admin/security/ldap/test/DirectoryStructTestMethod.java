@@ -105,6 +105,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
 
     @Override
     public TestReport test(LdapConfiguration configuration) {
+        // TODO: tbatie - 1/11/17 - Test groupClassObject and membershipAttribute
         List<ConfigurationMessage> checkMessages =
                 configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
 

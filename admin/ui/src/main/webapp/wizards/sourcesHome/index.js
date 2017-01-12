@@ -25,6 +25,7 @@ const getSourceConfigs = (state) => {
 const setLdapConfigs = (value) => ({type: 'SET_LDAP_CONFIGS', value})
 const getLdapConfigs = (state) => state.getIn(['sourcesHome', 'ldapConfigs'])
 
+// todo tbatie - we need to revisist the vocabulary of this stuff
 const getSourceTypeFromFactoryPid = (factoryPid) => {
   if (factoryPid.includes('Wfs_v1_0_0')) {
     return 'WFS v1 Source'
@@ -90,7 +91,6 @@ export const SourceTile = connect(
 
 const LdapTileView = (props) => {
   const {
-    type,
     hostName,
     port,
     encryptionMethod,
@@ -104,7 +104,6 @@ const LdapTileView = (props) => {
 
   return (
     <Paper className={styles.config}>
-      <div>Ldap Type: {type}</div>
       <div>Hostname: {hostName}</div>
       <div>Port: {port}</div>
       <div>Encryption Method: {encryptionMethod}</div>

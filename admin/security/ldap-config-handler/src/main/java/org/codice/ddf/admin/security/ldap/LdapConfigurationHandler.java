@@ -20,6 +20,7 @@ import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LD
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
+import static org.codice.ddf.admin.api.handler.Configuration.SERVICE_PID_KEY;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
@@ -30,6 +31,7 @@ import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTe
 import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.SUCCESSFUL_CONNECTION;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.selectBindMethod;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -52,6 +54,7 @@ import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.api.persist.ConfiguratorException;
 import org.codice.ddf.admin.security.ldap.probe.BindUserExampleProbe;
 import org.codice.ddf.admin.security.ldap.probe.DefaultDirectoryStructureProbe;
 import org.codice.ddf.admin.security.ldap.probe.LdapQueryProbe;
@@ -60,6 +63,7 @@ import org.codice.ddf.admin.security.ldap.test.AttributeMappingTestMethod;
 import org.codice.ddf.admin.security.ldap.test.BindUserTestMethod;
 import org.codice.ddf.admin.security.ldap.test.ConnectTestMethod;
 import org.codice.ddf.admin.security.ldap.test.DirectoryStructTestMethod;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LDAPOptions;
@@ -99,8 +103,44 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         return new Configurator().getManagedServiceConfigs("Ldap_Login_Config")
                 .values()
                 .stream()
-                .map(LdapConfiguration::new)
+                .map(LdapConfigurationHandler::ldapLoginServiceToLdapConfiguration)
                 .collect(Collectors.toList());
+    }
+
+    private static final LdapConfiguration ldapLoginServiceToLdapConfiguration(Map<String, Object> props) {
+        //The keys below are specific to the Ldap_Login_Config service and mapped to the general LDAP configuration class fields
+        //This should eventually be cleaned up and structured data should be sent between the ldap login and claims services rather than map
+        LdapConfiguration ldapConfiguration = new LdapConfiguration();
+        ldapConfiguration.servicePid(
+                props.get(SERVICE_PID_KEY) == null ? null : (String) props.get(SERVICE_PID_KEY));
+        ldapConfiguration.bindUserDn((String) props.get("ldapBindUserDn"));
+        ldapConfiguration.bindUserPassword((String) props.get("ldapBindUserPass"));
+        ldapConfiguration.bindUserMethod((String) props.get("bindMethod"));
+        ldapConfiguration.bindKdcAddress((String) props.get("kdcAddress"));
+        ldapConfiguration.bindRealm((String) props.get("realm"));
+        ldapConfiguration.userNameAttribute((String) props.get("userNameAttribute"));
+        ldapConfiguration.baseUserDn((String) props.get("userBaseDn"));
+        ldapConfiguration.baseGroupDn((String) props.get("groupBaseDn"));
+        URI ldapUri = getUriFromProperty((String) props.get("ldapUrl"));
+        ldapConfiguration.encryptionMethod(ldapUri.getScheme());
+        ldapConfiguration.hostName(ldapUri.getHost());
+        ldapConfiguration.port(ldapUri.getPort());
+        if ((Boolean) props.get("startTls")) {
+            ldapConfiguration.encryptionMethod(TLS);
+        }
+        return ldapConfiguration;
+    }
+
+    private static final URI getUriFromProperty(String ldapUrl) {
+        try {
+            ldapUrl = PropertyResolver.resolveProperties(ldapUrl);
+            if (!ldapUrl.matches("\\w*://.*")) {
+                ldapUrl = "ldap://" + ldapUrl;
+            }
+        } catch (ConfiguratorException e) {
+            return null;
+        }
+        return URI.create(ldapUrl);
     }
 
     @Override

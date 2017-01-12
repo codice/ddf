@@ -29,9 +29,9 @@
     <modules>
         <module>api</module>
         <module>config-handler-router</module>
-        <module>ui</module>
         <module>security</module>
         <module>federation</module>
+        <module>ui</module>
         <module>app</module>
     </modules>
 </project>

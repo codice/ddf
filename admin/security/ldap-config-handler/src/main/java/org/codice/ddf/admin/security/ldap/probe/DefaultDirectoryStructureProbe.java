@@ -13,15 +13,22 @@
  */
 package org.codice.ddf.admin.security.ldap.probe;
 
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BASE_GROUP_DN;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BASE_USER_DN;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_KDC;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_METHOD;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_REALM;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_DN;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_PASSWORD;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.GROUP_OBJECT_CLASS;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.HOST_NAME;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_TYPE;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.MEMBERSHIP_ATTRIBUTE;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.QUERY;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.QUERY_BASE;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
@@ -91,15 +98,15 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
                 bindUserToLdapConnection(configuration).connection());
 
         if (guesser != null) {
-            probeReport.addProbeResult("baseUserDn", guesser.getUserBaseChoices());
-            probeReport.addProbeResult("baseGroupDn", guesser.getGroupBaseChoices());
-            probeReport.addProbeResult("userNameAttribute", guesser.getUserNameAttribute());
-            probeReport.addProbeResult("groupObjectClass", guesser.getGroupObjectClass());
-            probeReport.addProbeResult("membershipAttribute", guesser.getMembershipAttribute());
+            probeReport.addProbeResult(BASE_USER_DN, guesser.getUserBaseChoices());
+            probeReport.addProbeResult(BASE_GROUP_DN, guesser.getGroupBaseChoices());
+            probeReport.addProbeResult(USER_NAME_ATTRIBUTE, guesser.getUserNameAttribute());
+            probeReport.addProbeResult(GROUP_OBJECT_CLASS, guesser.getGroupObjectClass());
+            probeReport.addProbeResult(MEMBERSHIP_ATTRIBUTE, guesser.getMembershipAttribute());
 
             // TODO RAP 13 Dec 16: Better query, perhaps driven by guessers?
-            probeReport.addProbeResult("query", Collections.singletonList("objectClass=*"));
-            probeReport.addProbeResult("queryBase", guesser.getBaseContexts());
+            probeReport.addProbeResult(QUERY, Collections.singletonList("objectClass=*"));
+            probeReport.addProbeResult(QUERY_BASE, guesser.getBaseContexts());
         }
 
         return probeReport;

@@ -17,7 +17,6 @@ package org.codice.ddf.admin.api.config.security.ldap;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.REQUIRED_FIELDS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,8 +28,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.admin.api.handler.Configuration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
-import org.codice.ddf.admin.api.persist.ConfiguratorException;
-import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,11 +80,23 @@ public class LdapConfiguration extends Configuration {
 
     public static final String QUERY_BASE = "queryBase";
 
-    public static final String MEMBERSHIP_ATTRIBUTE = "memberNameAttribute";
+    public static final String MEMBERSHIP_ATTRIBUTE = "membershipAttribute";
+
+    public static final String LDAP_USE_CASE = "ldapUseCase";
+
+    public static final String GROUP_OBJECT_CLASS = "groupObjectClass";
+
+    public static final String ATTRIBUTE_MAPPINGS = "attributeMappings";
+
+    public static final String QUERY_RESULTS = "queryResults";
+
+    public static final ImmutableList LDAP_USE_CASES = ImmutableList.of(LOGIN,
+            CREDENTIAL_STORE,
+            LOGIN_AND_CREDENTIAL_STORE);
 
     private static final ImmutableMap<String, String> FIELD_DESCS =
-            new ImmutableMap.Builder<String, String>().put(HOST_NAME,
-                    "Host name of the LDAP server.")
+            new ImmutableMap.Builder<String, String>()
+                    .put(HOST_NAME, "Host name of the LDAP server.")
                     .put(PORT, "Port on which the LDAP server listens.")
                     .put(LDAP_TYPE, "The LDAP server type.")
                     .put(BIND_USER_DN, "User to bind to the LDAP connection.")
@@ -111,21 +120,34 @@ public class LdapConfiguration extends Configuration {
                             "The base DN against which to execute the LDAP search for users.")
                     .put(MEMBERSHIP_ATTRIBUTE,
                             "The attribute in the group object containing member references.")
+                    .put(LDAP_USE_CASE, "How the LDAP configuration is intended to be used. Must be either: " + Arrays.toString(LDAP_USE_CASES.toArray()))
+                    .put(GROUP_OBJECT_CLASS, "ObjectClass that defines structure for group membership in LDAP. Usually this is groupOfNames or groupOfUniqueNames.")
+                    .put(ATTRIBUTE_MAPPINGS, "The mapping of STS claims to LDAP user attributes.")
+                    .put(QUERY_RESULTS, "Results returned from an LDAP query.")
                     .build();
 
     private static final Map<String, Function<LdapConfiguration, Object>> FIELD_FUNC_MAP =
-            new ImmutableMap.Builder<String, Function<LdapConfiguration, Object>>().put(HOST_NAME,
-                    LdapConfiguration::hostName)
+            new ImmutableMap.Builder<String, Function<LdapConfiguration, Object>>()
+                    .put(HOST_NAME, LdapConfiguration::hostName)
                     .put(PORT, LdapConfiguration::port)
                     .put(ENCRYPTION_METHOD, LdapConfiguration::encryptionMethod)
                     .put(BIND_USER_DN, LdapConfiguration::bindUserDn)
                     .put(BIND_USER_PASSWORD, LdapConfiguration::bindUserPassword)
                     .put(BIND_METHOD, LdapConfiguration::bindUserMethod)
+                    .put(BIND_KDC, LdapConfiguration::bindKdcAddress)
+                    .put(BIND_REALM, LdapConfiguration::bindRealm)
+                    .put(USER_NAME_ATTRIBUTE, LdapConfiguration::userNameAttribute)
+                    .put(BASE_GROUP_DN, LdapConfiguration::baseGroupDn)
+                    .put(BASE_USER_DN, LdapConfiguration::baseUserDn)
+                    .put(QUERY, LdapConfiguration::query)
+                    .put(QUERY_BASE, LdapConfiguration::queryBase)
+                    .put(LDAP_TYPE, LdapConfiguration::ldapType)
+                    .put(LDAP_USE_CASE, LdapConfiguration::ldapUseCase)
+                    .put(GROUP_OBJECT_CLASS, LdapConfiguration::groupObjectClass)
+                    .put(MEMBERSHIP_ATTRIBUTE, LdapConfiguration::membershipAttribute)
+                    .put(ATTRIBUTE_MAPPINGS, LdapConfiguration::attributeMappings)
+                    .put(QUERY_RESULTS, LdapConfiguration::queryResults)
                     .build();
-
-    public static final ImmutableList LDAP_USE_CASES = ImmutableList.of(LOGIN,
-            CREDENTIAL_STORE,
-            LOGIN_AND_CREDENTIAL_STORE);
 
     private String servicePid;
     private String factoryPid;
@@ -134,6 +156,7 @@ public class LdapConfiguration extends Configuration {
     private String encryptionMethod;
     private String bindUserDn;
     private String bindUserPassword;
+    // TODO: tbatie - 1/11/17 - Lets rename this to bindMethod, need to change ui too
     private String bindUserMethod;
     private String bindKdcAddress;
     private String bindRealm;
@@ -148,28 +171,6 @@ public class LdapConfiguration extends Configuration {
     private String membershipAttribute;
     public Map<String, String> attributeMappings;
     private List<Map<String, String>> queryResults;
-
-    public LdapConfiguration() {
-
-    }
-    public LdapConfiguration(Map<String, Object> props) {
-        servicePid(props.get(SERVICE_PID_KEY) == null ? null : (String) props.get(SERVICE_PID_KEY));
-        bindUserDn((String) props.get("ldapBindUserDn"));
-        bindUserPassword((String) props.get("ldapBindUserPass"));
-        bindUserMethod((String) props.get("bindMethod"));
-        bindKdcAddress((String) props.get("kdcAddress"));
-        bindRealm((String) props.get("realm"));
-        userNameAttribute((String) props.get("userNameAttribute"));
-        baseUserDn((String) props.get("userBaseDn"));
-        baseGroupDn((String) props.get("groupBaseDn"));
-        URI ldapUri = getUriFromProperty((String) props.get("ldapUrl"));
-        encryptionMethod(ldapUri.getScheme());
-        hostName(ldapUri.getHost());
-        port(ldapUri.getPort());
-        if ((Boolean) props.get("startTls")) {
-            encryptionMethod(TLS);
-        }
-    }
 
     //Getters
     public String factoryPid() {
@@ -360,40 +361,6 @@ public class LdapConfiguration extends Configuration {
     public LdapConfiguration attributeMappings(Map<String, String> attributeMapping) {
         this.attributeMappings = attributeMapping;
         return this;
-    }
-
-    private URI getUriFromProperty(String ldapUrl) {
-        try {
-            ldapUrl = PropertyResolver.resolveProperties(ldapUrl);
-            if (!ldapUrl.matches("\\w*://.*")) {
-                ldapUrl = "ldap://" + ldapUrl;
-            }
-        } catch (ConfiguratorException e) {
-            LOGGER.info("Error retrieving factory configurations", e);
-            // TODO: tbatie - 12/20/16 - We shouldn't return null, not really sure what to do about this
-            // TODO: tbatie - 12/20/16 - Maybe we should just provide this operatio outside of the configuration class and omit the configuration or replace the fields if they are invalid
-            return null;
-        }
-        return URI.create(ldapUrl);
-    }
-
-    public LdapConfiguration copy() {
-        return new LdapConfiguration().hostName(hostName)
-                .port(port)
-                .baseUserDn(baseUserDn)
-                .encryptionMethod(encryptionMethod)
-                .bindUserDn(bindUserDn)
-                .bindUserPassword(bindUserPassword)
-                .bindUserMethod(bindUserMethod)
-                .bindKdcAddress(bindKdcAddress)
-                .bindRealm(bindRealm)
-                .query(query)
-                .queryBase(queryBase)
-                .baseUserDn(baseUserDn)
-                .baseGroupDn(baseGroupDn)
-                .userNameAttribute(userNameAttribute)
-                .groupObjectClass(groupObjectClass)
-                .membershipAttribute(membershipAttribute);
     }
 
     public static Map<String, String> buildFieldMap(String... keys) {

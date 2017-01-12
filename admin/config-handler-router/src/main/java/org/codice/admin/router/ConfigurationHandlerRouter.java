@@ -128,7 +128,6 @@ public class ConfigurationHandlerRouter implements SparkApplication {
 
         exception(Exception.class, (ex, req, res) -> {
             LOGGER.error("Configuration Handler router error: ", ex);
-            // TODO: tbatie - 10/26/16 - Remove this on merge,
             res.status(500);
             res.type(APPLICATION_JSON);
             res.body(exToJSON(ex));
