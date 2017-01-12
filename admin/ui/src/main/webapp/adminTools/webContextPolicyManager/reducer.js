@@ -87,6 +87,8 @@ const editingBinNumber = (state = null, { type, binNumber }) => {
       return null
     case 'WCPM/ADD_BIN':
       return binNumber
+    case 'WCPM/REMOVE_BIN':
+      return null
     default:
       return state
   }
