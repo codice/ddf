@@ -6,7 +6,8 @@ import { connect } from 'react-redux'
 import Mount from '../../components/mount'
 import {
   getBins,
-  getOptions
+  getOptions,
+  getEditingBinNumber
 } from '../../reducer'
 
 import {
@@ -51,7 +52,9 @@ import {
   editPaneStyle,
   newBinStyle,
   infoSubtitleLeft,
-  realmNameStyle
+  realmNameStyle,
+  disabledPanelStyle,
+  newBinDisabledStyle
 } from './styles.less'
 
 let Edit = ({editing, binNumber, editModeOn}) => {
@@ -91,11 +94,11 @@ NewContextPathItem = connect(null, (dispatch, { binNumber, attribute }) => ({
   onEdit: (value) => dispatch(editAttribute(attribute)(binNumber, value))
 }))(NewContextPathItem)
 
-let ContextPathGroup = ({ bin, binNumber }) => (
+let ContextPathGroup = ({ bin, binNumber, editing }) => (
   <Flexbox style={{ width: '20%', padding: '5px', borderRight: '1px solid grey' }} flexDirection='column'>
     <p className={infoSubtitleLeft}>Context Paths</p>
-    {bin.contextPaths.map((contextPath, pathNumber) => (<ContextPathItem attribute='contextPaths' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} editing={bin.editing} />))}
-    {bin.editing ? <NewContextPathItem binNumber={binNumber} attribute='contextPaths' newPath={bin['newcontextPaths']} /> : null}
+    {bin.contextPaths.map((contextPath, pathNumber) => (<ContextPathItem attribute='contextPaths' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} editing={editing} />))}
+    {editing ? <NewContextPathItem binNumber={binNumber} attribute='contextPaths' newPath={bin['newcontextPaths']} /> : null}
     <Divider />
   </Flexbox>
 )
@@ -116,8 +119,8 @@ NewSelectItem = connect(null, (dispatch, { binNumber, attribute }) => ({
   onEdit: (value) => dispatch(editAttribute(attribute)(binNumber, value))
 }))(NewSelectItem)
 
-let Realm = ({ bin, binNumber, policyOptions, editRealm }) => {
-  return bin.editing ? (
+let Realm = ({ bin, binNumber, policyOptions, editRealm, editing }) => {
+  return editing ? (
     <Flexbox flexDirection='row'>
       <SelectField fullWidth style={{margin: '0px 10px'}} id='realm' value={bin.realm} onChange={(event, i, value) => editRealm(value)}>
         {policyOptions.realms.map((realm, i) => (<MenuItem value={realm} primaryText={realm} key={i} />))}
@@ -135,8 +138,8 @@ Realm = connect(
     editRealm: (value) => dispatch(editRealm(binNumber, value))
   }))(Realm)
 
-let ConfirmationPanel = ({ bin, binNumber, removeBin, saveAndPersist, editModeCancel }) => {
-  return bin.editing ? (
+let ConfirmationPanel = ({ bin, binNumber, removeBin, saveAndPersist, editModeCancel, editing }) => {
+  return editing ? (
     <Flexbox flexDirection='row' justifyContent='center' style={{ padding: '10px 0px 5px' }}>
       <FlatButton style={{ margin: '0 10' }} label='Cancel' labelPosition='after' secondary onClick={editModeCancel} />
       <RaisedButton style={{ margin: '0 10' }} label='Save' primary onClick={saveAndPersist} />
@@ -150,10 +153,10 @@ ConfirmationPanel = connect(null, (dispatch, { binNumber }) => ({
   editModeCancel: () => dispatch(editModeCancel(binNumber))
 }))(ConfirmationPanel)
 
-let AuthTypesGroup = ({ bin, binNumber, policyOptions }) => (
+let AuthTypesGroup = ({ bin, binNumber, policyOptions, editing }) => (
   <Flexbox flexDirection='column'>
-    {bin.authenticationTypes.map((contextPath, pathNumber) => (<ContextPathItem attribute='authenticationTypes' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} editing={bin.editing} />))}
-    {bin.editing ? (
+    {bin.authenticationTypes.map((contextPath, pathNumber) => (<ContextPathItem attribute='authenticationTypes' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} editing={editing} />))}
+    {editing ? (
       <NewSelectItem binNumber={binNumber} attribute='authenticationTypes' options={policyOptions.authenticationTypes.filter((option) => !bin.authenticationTypes.includes(option))} newPath={bin['newauthenticationTypes']} />
     ) : null }
   </Flexbox>
@@ -163,7 +166,7 @@ AuthTypesGroup = connect(
     policyOptions: getOptions(state)
   }))(AuthTypesGroup)
 
-let AttributeTableGroup = ({ bin, binNumber, policyOptions, editAttribute, removeAttributeMapping, addAttributeMapping }) => (
+let AttributeTableGroup = ({ bin, binNumber, policyOptions, editAttribute, removeAttributeMapping, addAttributeMapping, editing }) => (
   <Table selectable={false}>
     <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
       <TableRow>
@@ -179,12 +182,12 @@ let AttributeTableGroup = ({ bin, binNumber, policyOptions, editAttribute, remov
           </TableRowColumn>
           <TableRowColumn style={{ width: 120, position: 'relative' }}>
             <span>{bin.requiredAttributes[key]}</span>
-            {bin.editing ? (
+            {editing ? (
               <IconButton style={{ position: 'absolute', right: 0, top: 0 }} tooltip={'Add This Path'} tooltipPosition='top-center' onClick={() => removeAttributeMapping(key)}><CancelIcon /></IconButton>
             ) : null }
           </TableRowColumn>
         </TableRow>)}
-      {bin.editing ? (
+      {editing ? (
         <TableRow>
           <TableRowColumn>
             <SelectField style={{ margin: '0px', width: '100%', fontSize: '14px' }} id='claims' value={bin.newrequiredClaim || ''} onChange={(event, i, value) => editAttribute('requiredClaim', value)}>
@@ -210,48 +213,70 @@ AttributeTableGroup = connect(
     editAttribute: (attribute, value) => dispatch(editAttribute(attribute)(binNumber, value))
   }))(AttributeTableGroup)
 
-const PolicyBin = ({ policyBin, binNumber }) => (
+const DisabledPanel = () => (
+  <div className={disabledPanelStyle} />
+)
+
+const PolicyBin = ({ policyBin, binNumber, editing, editingBinNumber }) => (
   <Paper className={policyBinOuterStyle} >
     <Flexbox flexDirection='row'>
-      <ContextPathGroup binNumber={binNumber} bin={policyBin} editing={policyBin.editing} />
+      <ContextPathGroup binNumber={binNumber} bin={policyBin} editing={editing} />
       <Flexbox style={{ width: '20%', padding: '5px' }} flexDirection='column'>
         <p className={infoSubtitleLeft}>Realm</p>
         <Divider />
-        <Realm bin={policyBin} binNumber={binNumber} />
+        <Realm bin={policyBin} binNumber={binNumber} editing={editing} />
         <p className={infoSubtitleLeft}>Authentication Types</p>
-        <AuthTypesGroup bin={policyBin} binNumber={binNumber} />
+        <AuthTypesGroup bin={policyBin} binNumber={binNumber} editing={editing} />
       </Flexbox>
       <Flexbox style={{ width: '60%', padding: '5px' }} flexDirection='column'>
         <p className={infoSubtitleLeft}>Required Attributes</p>
         <Divider />
         <Flexbox flexDirection='column'>
-          <AttributeTableGroup bin={policyBin} binNumber={binNumber} />
+          <AttributeTableGroup bin={policyBin} binNumber={binNumber} editing={editing} />
         </Flexbox>
       </Flexbox>
     </Flexbox>
-    <Edit editing={policyBin.editing} binNumber={binNumber} />
-    <ConfirmationPanel bin={policyBin} binNumber={binNumber} />
+    <Edit editing={editing} binNumber={binNumber} />
+    <ConfirmationPanel bin={policyBin} binNumber={binNumber} editing={editing} />
+    { (!editing && editingBinNumber !== null) ? <DisabledPanel /> : null }
   </Paper>
 )
 
-let PolicyBins = ({ policies }) => (
+let PolicyBins = ({ policies, editingBinNumber }) => (
   <Flexbox style={{ height: '100%', width: '100%', overflowY: 'scroll', padding: '0px 5px', boxSizing: 'border-box' }} flexDirection='column' alignItems='center' >
-    { policies.map((policyBin, binNumber) => (<PolicyBin policyBin={policyBin} key={binNumber} binNumber={binNumber} />)) }
-    <NewBin />
+    { policies.map((policyBin, binNumber) => (<PolicyBin policyBin={policyBin} key={binNumber} binNumber={binNumber} editing={binNumber === editingBinNumber} editingBinNumber={editingBinNumber} />)) }
+    <NewBin editing={editingBinNumber !== null} />
   </Flexbox>
 )
-PolicyBins = connect((state) => ({ policies: getBins(state) }))(PolicyBins)
+PolicyBins = connect((state) => ({
+  policies: getBins(state),
+  editingBinNumber: getEditingBinNumber(state)
+}))(PolicyBins)
 
-let NewBin = ({ policies, addNewBin }) => (
-  <Paper style={{ position: 'relative', width: '100%', height: '100px', margin: '5px 0px', textAlign: 'center', backgroundColor: '#EEE' }} onClick={addNewBin}>
-    <Flexbox className={newBinStyle} flexDirection='column' justifyContent='center' alignItems='center'>
-      <FloatingActionButton>
-        <ContentAdd />
-      </FloatingActionButton>
-    </Flexbox>
-  </Paper>
-)
-NewBin = connect(null, { addNewBin })(NewBin)
+let NewBin = ({ policies, addNewBin, nextBinNumber, editing }) => {
+  if (editing) {
+    return (
+      <Paper style={{ position: 'relative', width: '100%', height: '100px', margin: '5px 0px', textAlign: 'center', backgroundColor: '#EEE' }} >
+        <Flexbox className={newBinDisabledStyle} flexDirection='column' justifyContent='center' alignItems='center'>
+          <FloatingActionButton disabled>
+            <ContentAdd />
+          </FloatingActionButton>
+        </Flexbox>
+      </Paper>
+    )
+  } else {
+    return (
+      <Paper style={{ position: 'relative', width: '100%', height: '100px', margin: '5px 0px', textAlign: 'center', backgroundColor: '#EEE' }} onClick={() => addNewBin(nextBinNumber)}>
+        <Flexbox className={newBinStyle} flexDirection='column' justifyContent='center' alignItems='center'>
+          <FloatingActionButton>
+            <ContentAdd />
+          </FloatingActionButton>
+        </Flexbox>
+      </Paper>
+    )
+  }
+}
+NewBin = connect((state) => ({ nextBinNumber: getBins(state).length }), { addNewBin })(NewBin)
 
 let wcpm = ({ updatePolicyBins }) => (
   <Mount on={updatePolicyBins('/admin/beta/config/configurations/contextPolicyManager')}>

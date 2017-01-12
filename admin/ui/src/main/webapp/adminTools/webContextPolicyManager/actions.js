@@ -4,7 +4,7 @@ import { backendError } from '../../actions'
 // Bin level
 export const replaceAllBins = (bins) => ({ type: 'WCPM/REPLACE_ALL_BINS', bins })
 export const removeBin = (binNumber) => ({ type: 'WCPM/REMOVE_BIN', binNumber })
-export const addNewBin = () => ({ type: 'WCPM/ADD_BIN' })
+export const addNewBin = (binNumber) => ({ type: 'WCPM/ADD_BIN', binNumber })
 export const editModeOn = (binNumber) => ({ type: 'WCPM/EDIT_MODE_ON', binNumber })
 export const editModeCancel = (binNumber) => ({ type: 'WCPM/EDIT_MODE_CANCEL', binNumber })
 export const editModeSave = (binNumber) => ({ type: 'WCPM/EDIT_MODE_SAVE', binNumber })

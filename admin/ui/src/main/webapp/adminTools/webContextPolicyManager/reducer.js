@@ -1,13 +1,12 @@
 import { combineReducers } from 'redux-immutable'
 import { fromJS, List } from 'immutable'
 
-const emptyEditBin = fromJS({
+const emptyBin = fromJS({
   name: 'untitled',
   realm: '',
   authenticationTypes: [],
   requiredAttributes: {},
-  contextPaths: [],
-  editing: true
+  contextPaths: []
 })
 
 const bins = (state = List(), { type, bin, bins, path, binNumber, pathNumber, value, attribute, claim }) => {
@@ -17,11 +16,11 @@ const bins = (state = List(), { type, bin, bins, path, binNumber, pathNumber, va
 
     // Bin Level
     case 'WCPM/ADD_BIN':
-      return state.push(emptyEditBin)
+      return state.push(emptyBin)
     case 'WCPM/REMOVE_BIN':
       return state.delete(binNumber)
     case 'WCPM/EDIT_MODE_ON':
-      return state.update(binNumber, (bin) => bin.merge({ beforeEdit: bin, editing: true }))
+      return state.update(binNumber, (bin) => bin.merge({ beforeEdit: bin }))
     case 'WCPM/EDIT_MODE_CANCEL':
       if (state.hasIn([binNumber, 'beforeEdit'])) {
         return state.update(binNumber, (bin) => bin.get('beforeEdit'))
@@ -29,7 +28,7 @@ const bins = (state = List(), { type, bin, bins, path, binNumber, pathNumber, va
         return state.delete(binNumber)
       }
     case 'WCPM/EDIT_MODE_SAVE':
-      return state.update(binNumber, (bin) => bin.delete('beforeEdit').merge({ editing: false }))
+      return state.update(binNumber, (bin) => bin.delete('beforeEdit'))
 
     // Realm
     case 'WCPM/EDIT_REALM':
@@ -78,11 +77,27 @@ const whiteList = (state = [], { type, whiteList }) => {
   }
 }
 
+const editingBinNumber = (state = null, { type, binNumber }) => {
+  switch (type) {
+    case 'WCPM/EDIT_MODE_ON':
+      return binNumber
+    case 'WCPM/EDIT_MODE_CANCEL':
+      return null
+    case 'WCPM/EDIT_MODE_SAVE':
+      return null
+    case 'WCPM/ADD_BIN':
+      return binNumber
+    default:
+      return state
+  }
+}
+
 export const getOptions = (state) => state.get('options').toJS()
 export const getBins = (state) => state.get('bins').toJS()
 export const getWhiteList = (state) => state.get('whiteList').toJS()
+export const getEditingBinNumber = (state) => state.get('editingBinNumber')
 
-export default combineReducers({ bins, options, whiteList })
+export default combineReducers({ bins, options, whiteList, editingBinNumber })
 
 /*
 // Example State Data Structure
