@@ -5,7 +5,7 @@ import store from './store'
 import Exception from './containers/exceptions'
 import Ldap from './wizards/ldap'
 import Sources from './wizards/sources'
-import { SourcesHome } from './wizards/sourcesHome'
+import { Home } from './home'
 import Wcpm from './adminTools/webContextPolicyManager'
 
 import { Router, Route, hashHistory, IndexRoute } from 'react-router'
@@ -45,7 +45,7 @@ export default () => (
       <div>
         <Router history={hashHistory}>
           <Route path='/' component={App}>
-            <IndexRoute component={SourcesHome} />
+            <IndexRoute component={Home} />
             <Route path='/ldap' component={Ldap} />
             <Route path='/sources' component={Sources} />
             <Route path='/web-context-policy-manager' component={Wcpm} />

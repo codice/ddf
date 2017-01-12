@@ -14,7 +14,7 @@ export const getBackendErrors = (state) => state.get('backendError')
 
 import wizard, * as ldap from '../wizards/ldap/reducer'
 import sourceWizard from '../wizards/sources/reducer'
-import sourcesHome from '../wizards/sourcesHome/index'
+import home from '../home'
 import wcpm, * as webContext from '../adminTools/webContextPolicyManager/reducer'
 
 export const getAllConfig = (state) => ldap.getAllConfig(state.get('wizard'))
@@ -31,4 +31,4 @@ export const getWhiteList = (state) => webContext.getWhiteList(state.get('wcpm')
 export const getEditingBinNumber = (state) => webContext.getEditingBinNumber(state.get('wcpm'))
 export const getConfirmDelete = (state) => webContext.getConfirmDelete(state.get('wcpm'))
 
-export default combineReducers({ wizard, backendError, sourceWizard, sourcesHome, wcpm })
+export default combineReducers({ wizard, backendError, sourceWizard, home, wcpm })

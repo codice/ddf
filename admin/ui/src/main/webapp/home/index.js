@@ -19,11 +19,11 @@ import AppBar from 'material-ui/AppBar'
 // map state to props
 const setSourceConfigs = (value) => ({type: 'SET_SOURCE_CONFIGS', value})
 const getSourceConfigs = (state) => {
-  return state.getIn(['sourcesHome', 'sourceConfigs'])
+  return state.getIn(['home', 'sourceConfigs'])
 }
 
 const setLdapConfigs = (value) => ({type: 'SET_LDAP_CONFIGS', value})
-const getLdapConfigs = (state) => state.getIn(['sourcesHome', 'ldapConfigs'])
+const getLdapConfigs = (state) => state.getIn(['home', 'ldapConfigs'])
 
 // todo tbatie - we need to revisist the vocabulary of this stuff
 const getSourceTypeFromFactoryPid = (factoryPid) => {
@@ -230,7 +230,7 @@ const retrieveConfigurations = (url, action) => (dispatch) => {
     })
 }
 
-export const SourcesHome = connect((state) => ({ sourceConfigs: getSourceConfigs(state), ldapConfigs: getLdapConfigs(state) }),
+export const Home = connect((state) => ({ sourceConfigs: getSourceConfigs(state), ldapConfigs: getLdapConfigs(state) }),
   { refresh }
 )(SourcesHomeView)
 
