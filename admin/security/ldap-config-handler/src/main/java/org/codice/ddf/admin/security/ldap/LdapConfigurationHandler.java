@@ -110,6 +110,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     private static final LdapConfiguration ldapLoginServiceToLdapConfiguration(Map<String, Object> props) {
         //The keys below are specific to the Ldap_Login_Config service and mapped to the general LDAP configuration class fields
         //This should eventually be cleaned up and structured data should be sent between the ldap login and claims services rather than map
+        // TODO: tbatie - 1/11/17 - Make sure to use the same constants as the persist method uses
         LdapConfiguration ldapConfiguration = new LdapConfiguration();
         ldapConfiguration.servicePid(
                 props.get(SERVICE_PID_KEY) == null ? null : (String) props.get(SERVICE_PID_KEY));

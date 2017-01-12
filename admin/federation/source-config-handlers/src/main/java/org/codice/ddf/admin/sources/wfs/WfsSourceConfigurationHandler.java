@@ -87,6 +87,7 @@ public class WfsSourceConfigurationHandler
                 new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
     }
 
+    @Override
     public TestReport persist(SourceConfiguration configuration, String persistId) {
         WfsSourceConfiguration config = new WfsSourceConfiguration(configuration);
         Optional<PersistMethod> persistMethod = persistMethods.stream()

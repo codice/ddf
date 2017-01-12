@@ -58,6 +58,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
 
     public ConfigurationHandler getConfigurationHandler(
             List<ConfigurationHandler> configurationHandlers, String configurationId) {
+        // TODO: tbatie - 1/11/17 - I'd like to revisit the difference between configuration handler Id and config type
         Optional<ConfigurationHandler> foundConfigHandler = configurationHandlers.stream()
                 .filter(handler -> handler.getConfigurationHandlerId()
                         .equals(configurationId))

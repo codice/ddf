@@ -47,6 +47,7 @@ public interface ConfigurationHandler<S extends Configuration> {
      * @param configuration - Configuration to persist
      * @return Error messages resulting from persisting
      */
+    // TODO: tbatie - 1/11/17 - pet peeve, Change order of the parameters
     TestReport persist(S configuration, String persistId);
 
     /*
