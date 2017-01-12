@@ -1,0 +1,30 @@
+
+.[[_datetime_attributes_table]]DateTime: Attributes in this group reflect temporal aspects about the resource.  
+[cols="5" options="header"]
+|===
+|Term
+|Definition
+|Datatype
+|Constraints
+|Example Value
+ 
+|datetime.start
+|A start time for the resource
+|Date
+| 
+| 
+
+|datetime.end
+|An end time for the resource
+|Date
+| 
+| 
+ 
+|datetime.name
+|A descriptive name for the corresponding temporal
+attributes. See datetime.start and datetime.end.
+|String
+|< 1024 characters
+| 
+
+|===

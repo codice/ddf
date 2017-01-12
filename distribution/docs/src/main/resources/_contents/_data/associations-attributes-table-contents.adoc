@@ -1,0 +1,33 @@
+﻿
+.[[_associations_attributes_table]]Associations: Attributes in this group represent associations between products.
+
+[cols="1,2,1,1,1" options="header"]
+
+|===
+
+|Term
+|Definition
+|Datatype
+|Constraints
+|Example Value
+
+|associations.derived
+|ID of one or more metacards derived from this metacard.
+|String
+|< 1024 characters
+|
+
+|associations.related
+|ID of one or more metacards related to this metacard.
+|String
+|< 1024 characters
+|
+
+|associations.external
+|One or more URI's identifying external associated
+resources
+|String
+|< 1024 characters
+|
+
+|===
