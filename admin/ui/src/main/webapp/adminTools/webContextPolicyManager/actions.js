@@ -48,7 +48,9 @@ export const updatePolicyBins = (url) => (dispatch, getState) => {
     })
 }
 
-export const persistChanges = (url) => (dispatch, getState) => {
+export const persistChanges = (binNumber, url) => (dispatch, getState) => {
+  dispatch(editModeSave(binNumber))
+
   const formattedBody = {
     configurationType: 'contextPolicyManager',
     contextPolicyBins: getBins(getState()),

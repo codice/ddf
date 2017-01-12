@@ -59,17 +59,18 @@
 
 .editPaneStyle {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  padding: 10px;
   opacity: 0;
-  cursor: pointer;
+  transition: opacity 0.5s ease;
 }
 
 .editPaneStyle:hover {
-  background-color: rgba(0,0,0,0.1);
   opacity: 1;
+  transition: opacity 0.5s ease;
 }
 
 .newBinStyle {

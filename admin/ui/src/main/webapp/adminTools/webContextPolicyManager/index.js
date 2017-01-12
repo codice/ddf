@@ -17,7 +17,6 @@ import {
   addNewBin,
   editModeOn,
   editModeCancel,
-  editModeSave,
   editRealm,
   updatePolicyBins,
   persistChanges,
@@ -43,7 +42,6 @@ import DeleteIcon from 'material-ui/svg-icons/action/delete'
 import AddIcon from 'material-ui/svg-icons/content/add-circle-outline'
 import ContentAdd from 'material-ui/svg-icons/content/add'
 import EditModeIcon from 'material-ui/svg-icons/editor/mode-edit'
-import SaveIcon from 'material-ui/svg-icons/content/save'
 
 import {
   contextPolicyStyle,
@@ -59,8 +57,8 @@ import {
 let Edit = ({editing, binNumber, editModeOn}) => {
   return !editing ? (
     <div style={{ width: '100%' }}>
-      <Flexbox className={editPaneStyle} justifyContent='center' alignItems='center' onClick={editModeOn}>
-        <IconButton tooltip={'Edit Attributes'} tooltipPosition='top-center'><EditModeIcon /></IconButton>
+      <Flexbox className={editPaneStyle} justifyContent='flex-end' alignItems='flex-start'>
+        <FloatingActionButton onClick={editModeOn}><EditModeIcon /></FloatingActionButton>
       </Flexbox>
     </div>
   ) : null
@@ -137,18 +135,18 @@ Realm = connect(
     editRealm: (value) => dispatch(editRealm(binNumber, value))
   }))(Realm)
 
-let ConfirmationPanel = ({ bin, binNumber, removeBin, editModeSave, editModeCancel }) => {
+let ConfirmationPanel = ({ bin, binNumber, removeBin, saveAndPersist, editModeCancel }) => {
   return bin.editing ? (
     <Flexbox flexDirection='row' justifyContent='center' style={{ padding: '10px 0px 5px' }}>
       <FlatButton style={{ margin: '0 10' }} label='Cancel' labelPosition='after' secondary onClick={editModeCancel} />
-      <RaisedButton style={{ margin: '0 10' }} label='Done' primary onClick={editModeSave} />
+      <RaisedButton style={{ margin: '0 10' }} label='Save' primary onClick={saveAndPersist} />
       <IconButton style={{ position: 'absolute', right: '0px', bottom: '0px' }} onClick={removeBin} tooltip={'Delete'} tooltipPosition='top-center' ><DeleteIcon /></IconButton>
     </Flexbox>
   ) : null
 }
 ConfirmationPanel = connect(null, (dispatch, { binNumber }) => ({
   removeBin: () => dispatch(removeBin(binNumber)),
-  editModeSave: () => dispatch(editModeSave(binNumber)),
+  saveAndPersist: () => dispatch(persistChanges(binNumber, '/admin/beta/config/persist/contextPolicyManager/create')),
   editModeCancel: () => dispatch(editModeCancel(binNumber))
 }))(ConfirmationPanel)
 
@@ -255,7 +253,7 @@ let NewBin = ({ policies, addNewBin }) => (
 )
 NewBin = connect(null, { addNewBin })(NewBin)
 
-let wcpm = ({ updatePolicyBins, persistChanges }) => (
+let wcpm = ({ updatePolicyBins }) => (
   <Mount on={updatePolicyBins('/admin/beta/config/configurations/contextPolicyManager')}>
     <Flexbox flexDirection='column' style={{ width: '100%', height: '100%' }}>
       <Paper style={{ backgroundColor: '#EEE', width: '100%' }}>
@@ -264,10 +262,7 @@ let wcpm = ({ updatePolicyBins, persistChanges }) => (
       </Paper>
       <Divider />
       <PolicyBins />
-      <FloatingActionButton style={{ position: 'absolute', right: 20, bottom: 20 }} onClick={() => persistChanges('/admin/beta/config/persist/contextPolicyManager/create')}>
-        <SaveIcon />
-      </FloatingActionButton>
     </Flexbox>
   </Mount>
 )
-export default connect(null, { updatePolicyBins, persistChanges })(wcpm)
+export default connect(null, { updatePolicyBins })(wcpm)
