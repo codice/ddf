@@ -16,7 +16,7 @@ An Express application has been included to allow rapid development without havi
 * Install package.json with `npm`
 
 ```
-npm install
+yarn install
 ```
 * Make sure an instance of `ddf` is running locally on port 8181
 * Run the default `grunt` task in a separate window
@@ -40,7 +40,7 @@ Automated tests can execute against a local Selenium server and target locally i
 * Install and start a local Selenium server.  [Webdrvr](https://www.npmjs.org/package/webdrvr) can automate this process.
 
 ```
-npm install -g webdrvr
+yarn global webdrvr
 webdrvr
 ```
 * Use the `test:selenium` task with the `--browser` parameter.  You can specify `chrome`, `firefox`, `safari`, and `ie` as target browsers.

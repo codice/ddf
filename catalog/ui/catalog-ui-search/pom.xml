@@ -211,12 +211,13 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>npm install</id>
+                        <id>install node and npm</id>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install --ignore-scripts</arguments>
+                            <nodeVersion>${node.version}</nodeVersion>
+                            <npmVersion>4.1.2</npmVersion>
                         </configuration>
                     </execution>
                     <execution>

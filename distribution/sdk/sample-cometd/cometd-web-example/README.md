@@ -8,4 +8,4 @@ This example assumes that the CometD endpoint is available at `https://localhost
 To use in DDF run `mvn install` and `cp target/sample-cometd.jar $DDF_HOME/deploy` then go to `https://localhost:8993/sample/cometd`
 
 ### Grunt
-To run inside of a standalone connect server simply run `npm install` then run `grunt` and browse to `http://localhost:8000`
+To run inside of a standalone connect server simply run `yarn install` then run `grunt` and browse to `http://localhost:8000`
