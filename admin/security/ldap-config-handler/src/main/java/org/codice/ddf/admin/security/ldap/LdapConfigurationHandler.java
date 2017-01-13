@@ -100,14 +100,16 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
 
     @Override
     public List<LdapConfiguration> getConfigurations() {
+        // TODO: tbatie - 1/12/17 - Also need to show configs when only configured as a claims handler. fpid = Claims_Handler_Manager
+        // TODO: tbatie - 1/12/17 - Also need to cross reference this list with the ldap claim handler configs to only show one ldap config. LdapUseCase should be LoginAndCredientalSotre
         return new Configurator().getManagedServiceConfigs("Ldap_Login_Config")
                 .values()
                 .stream()
-                .map(LdapConfigurationHandler::ldapLoginServiceToLdapConfiguration)
+                .map(LdapConfigurationHandler::ldapLoginServiceToLdapLoginConfiguration)
                 .collect(Collectors.toList());
     }
 
-    private static final LdapConfiguration ldapLoginServiceToLdapConfiguration(Map<String, Object> props) {
+    private static final LdapConfiguration ldapLoginServiceToLdapLoginConfiguration(Map<String, Object> props) {
         //The keys below are specific to the Ldap_Login_Config service and mapped to the general LDAP configuration class fields
         //This should eventually be cleaned up and structured data should be sent between the ldap login and claims services rather than map
         // TODO: tbatie - 1/11/17 - Make sure to use the same constants as the persist method uses
@@ -129,6 +131,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         if ((Boolean) props.get("startTls")) {
             ldapConfiguration.encryptionMethod(TLS);
         }
+        ldapConfiguration.ldapUseCase(LOGIN);
         return ldapConfiguration;
     }
 

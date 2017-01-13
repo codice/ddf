@@ -285,7 +285,8 @@ public class Configurator {
     }
 
     /**
-     * Retrieves the service reference. The reference should only be used for reading purposes, any changes should be done
+     * Retrieves the service reference. The reference should only be used for reading purposes,
+     * any changes should be done through a commit
      *
      * @param serviceClass - Class of service to retrieve
      * @return first found service reference of serviceClass

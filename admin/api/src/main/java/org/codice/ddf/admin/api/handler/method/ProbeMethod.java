@@ -20,6 +20,10 @@ import org.codice.ddf.admin.api.handler.Configuration;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 
 public abstract class ProbeMethod<S extends Configuration> extends ConfigurationHandlerMethod {
+
+    private Map<String, String> returnTypes;
+
+    // TODO: tbatie - 1/12/17 - Remove this constructor and enforce the returnTypes field
     public ProbeMethod(String id, String description, Map<String, String> requiredFields,
             Map<String, String> optionalFields, Map<String, String> successTypes,
             Map<String, String> failureTypes, Map<String, String> warningTypes) {
@@ -30,6 +34,20 @@ public abstract class ProbeMethod<S extends Configuration> extends Configuration
                 successTypes,
                 failureTypes,
                 warningTypes);
+    }
+
+    public ProbeMethod(String id, String description, Map<String, String> requiredFields,
+            Map<String, String> optionalFields, Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes, Map<String, String> returnTypes) {
+        super(id,
+                description,
+                requiredFields,
+                optionalFields,
+                successTypes,
+                failureTypes,
+                warningTypes);
+
+        this.returnTypes = returnTypes;
     }
 
     public abstract ProbeReport probe(S configuration);

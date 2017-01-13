@@ -15,6 +15,7 @@
 package org.codice.ddf.admin.security.context;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,11 +31,13 @@ import org.codice.ddf.admin.api.config.security.context.ContextPolicyBin;
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.security.context.probe.AvaliableOptionsProbeMethod;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ddf.security.policy.context.impl.PolicyManager;
@@ -44,6 +48,8 @@ import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public class ContextPolicyManagerHandler
         implements ConfigurationHandler<ContextPolicyConfiguration> {
+
+    private ConfigurationHandler ldapConfigHandler;
 
     public static final String SAML = "SAML";
 
@@ -69,14 +75,15 @@ public class ContextPolicyManagerHandler
 
     @Override
     public ProbeReport probe(String probeId, ContextPolicyConfiguration configuration) {
-        switch (probeId) {
-        case POLICY_OPTIONS_ID:
-            return new ProbeReport().addProbeResult("authenticationTypes", authenticationTypes)
-                    .addProbeResult("realms", realms)
-                    .addProbeResult("claims", getStsClientConfig().getClaims());
-        }
+        Optional<ProbeMethod> probeMethod = getProbeMethods(ldapConfigHandler).stream()
+                .filter(method -> method.id()
+                        .equals(probeId))
+                .findFirst();
 
-        return null;
+        return probeMethod.isPresent() ?
+                probeMethod.get()
+                        .probe(configuration) :
+                new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
     }
 
     @Override
@@ -85,8 +92,8 @@ public class ContextPolicyManagerHandler
     }
 
     @Override
-    public TestReport persist(ContextPolicyConfiguration configuration, String persistId) {
-        if (configuration.contextPolicyBins()
+    public TestReport persist(ContextPolicyConfiguration config, String persistId) {
+        if (config.contextPolicyBins()
                 .stream()
                 .filter(bin -> bin.contextPaths()
                         .isEmpty() || StringUtils.isEmpty(bin.realm()) || bin.authenticationTypes()
@@ -99,43 +106,9 @@ public class ContextPolicyManagerHandler
             // TODO: tbatie - 12/14/16 - throw bad request?
         }
 
-        List<String> realmsProps = new ArrayList<>();
-        List<String> authTypesProps = new ArrayList<>();
-        List<String> reqAttrisProps = new ArrayList<>();
-
-        for (ContextPolicyBin bin : configuration.contextPolicyBins()) {
-            bin.contextPaths()
-                    .stream()
-                    .forEach(context -> {
-                        realmsProps.add(context + "=" + bin.realm());
-                        authTypesProps.add(
-                                context + "=" + String.join("|", bin.authenticationTypes()));
-                        if (bin.requiredAttributes()
-                                .isEmpty()) {
-                            reqAttrisProps.add(context + "=");
-                        } else {
-                            reqAttrisProps.add(context + "={" + String.join(";",
-                                    bin.requiredAttributes()
-                                            .entrySet()
-                                            .stream()
-                                            .map(entry -> entry.getKey() + "=" + entry.getValue())
-                                            .collect(Collectors.toList())) + "}");
-                        }
-                    });
-        }
-
-        Map<String, Object> policyManagerProperties = ImmutableMap.of("authenticationTypes",
-                authTypesProps,
-                "realms",
-                realmsProps,
-                "requiredAttributes",
-                reqAttrisProps,
-                "whiteListContexts",
-                configuration.whiteListContexts());
-
         Configurator configurator = new Configurator();
         configurator.updateConfigFile("org.codice.ddf.security.policy.context.impl.PolicyManager",
-                policyManagerProperties,
+                configToPolicyManagerSettings(config),
                 true);
         ConfigReport configReport = configurator.commit();
         if (!configReport.getFailedResults()
@@ -151,7 +124,7 @@ public class ContextPolicyManagerHandler
     @Override
     public List<ContextPolicyConfiguration> getConfigurations() {
         return Arrays.asList(new ContextPolicyConfiguration().contextPolicyBins(
-                contextPolicyManagerSettingsToBins())
+                policyManagerSettingsToBins())
                 .whiteListContexts(getPolicyManager().getWhiteListContexts()));
     }
 
@@ -170,7 +143,7 @@ public class ContextPolicyManagerHandler
         return ContextPolicyConfiguration.class;
     }
 
-    public List<ContextPolicyBin> contextPolicyManagerSettingsToBins() {
+    public List<ContextPolicyBin> policyManagerSettingsToBins() {
         // TODO: tbatie - 12/10/16 - Should match terminology used by the policy manager
         List<ContextPolicyBin> bins = new ArrayList<>();
         Collection<ContextPolicy> allPolicies = getPolicyManager().getAllContextPolicies();
@@ -203,6 +176,46 @@ public class ContextPolicyManagerHandler
         return bins;
     }
 
+    public Map<String, Object> configToPolicyManagerSettings(ContextPolicyConfiguration config){
+        List<String> realmsProps = new ArrayList<>();
+        List<String> authTypesProps = new ArrayList<>();
+        List<String> reqAttrisProps = new ArrayList<>();
+
+        for (ContextPolicyBin bin : config.contextPolicyBins()) {
+            bin.contextPaths()
+                    .stream()
+                    .forEach(context -> {
+                        realmsProps.add(context + "=" + bin.realm());
+                        authTypesProps.add(
+                                context + "=" + String.join("|", bin.authenticationTypes()));
+                        if (bin.requiredAttributes()
+                                .isEmpty()) {
+                            reqAttrisProps.add(context + "=");
+                        } else {
+                            reqAttrisProps.add(context + "={" + String.join(";",
+                                    bin.requiredAttributes()
+                                            .entrySet()
+                                            .stream()
+                                            .map(entry -> entry.getKey() + "=" + entry.getValue())
+                                            .collect(Collectors.toList())) + "}");
+                        }
+                    });
+        }
+
+        return ImmutableMap.of("authenticationTypes",
+                authTypesProps,
+                "realms",
+                realmsProps,
+                "requiredAttributes",
+                reqAttrisProps,
+                "whiteListContexts",
+                config.whiteListContexts());
+    }
+
+    public void setLdapConfigHandler(ConfigurationHandler ldapConfigHandler) {
+        this.ldapConfigHandler = ldapConfigHandler;
+    }
+
     public PolicyManager getPolicyManager() {
         // TODO: tbatie - 12/16/16 - Throw exception? Something is seriously wrong if service isnt available
         ContextPolicyManager manager =
@@ -211,7 +224,11 @@ public class ContextPolicyManagerHandler
     }
 
     public STSClientConfiguration getStsClientConfig() {
-        // TODO: tbatie - 12/16/16 - Throw exception? Something is seriously wrong if service isnt available
+        // TODO: tbatie - 12/16/16 - Throw exception? Something is seriously wrong if this service isnt available
         return new Configurator().getServiceReference(STSClientConfiguration.class);
+    }
+
+    public List<ProbeMethod> getProbeMethods(ConfigurationHandler ldapConfigHandler){
+        return Arrays.asList(new AvaliableOptionsProbeMethod(ldapConfigHandler));
     }
 }

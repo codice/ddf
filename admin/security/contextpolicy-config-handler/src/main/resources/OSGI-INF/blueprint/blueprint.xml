@@ -18,4 +18,6 @@
         <bean class="org.codice.ddf.admin.security.context.ContextPolicyManagerHandler"/>
     </service>
 
+    <reference id="ldapConfigHandler" interface="org.codice.ddf.admin.api.handler.ConfigurationHandler" availability="optional"/>
+
 </blueprint>
