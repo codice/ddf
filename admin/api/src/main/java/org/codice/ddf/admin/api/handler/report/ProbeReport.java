@@ -38,7 +38,9 @@ public class ProbeReport extends TestReport {
     }
 
     public ProbeReport addProbeResult(String key, Object value) {
-        probeResults.put(key, value);
+        if(value != null) {
+            probeResults.put(key, value);
+        }
         return this;
     }
 

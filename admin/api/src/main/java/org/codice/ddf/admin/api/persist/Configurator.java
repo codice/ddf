@@ -126,8 +126,12 @@ public class Configurator {
      * @return true if started; else, false
      */
     public boolean isBundleStarted(String bundleSymName) {
-        return BundleConfigHandler.forStart(bundleSymName, getBundleContext())
-                .readState();
+        try {
+            return BundleConfigHandler.forStart(bundleSymName, getBundleContext())
+                    .readState();
+        } catch (ConfiguratorException e) {
+            return false;
+        }
     }
 
     /**
