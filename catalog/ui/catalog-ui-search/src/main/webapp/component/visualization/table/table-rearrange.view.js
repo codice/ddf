@@ -49,7 +49,7 @@ module.exports = Marionette.ItemView.extend({
                 label: properties.attributeAliases[property],
                 id: property,
                 hidden: hiddenColumns.indexOf(property) >= 0,
-                notCurrentlyAvailable: (availableAttributes.indexOf(property) === -1) || (properties.isHidden(property)) || metacardDefinitions.isHiddenType(property)
+                notCurrentlyAvailable: (availableAttributes.indexOf(property) === -1) || (properties.isHidden(property)) || metacardDefinitions.isHiddenTypeExceptThumbnail(property)
             };
         });
     },
