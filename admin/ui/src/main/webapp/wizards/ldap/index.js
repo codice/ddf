@@ -460,7 +460,7 @@ const FinalStage = ({id}) => (
     </Description>
 
     <StageControls>
-      <Link to='/webContextPolicyManager'>
+      <Link to='/web-context-policy-manager'>
         <Submit label='Go to Web Context Policy Manager' />
       </Link>
     </StageControls>
