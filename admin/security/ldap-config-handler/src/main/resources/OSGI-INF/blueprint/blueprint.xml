@@ -16,5 +16,9 @@
     <bean id="ldapConfigurationHandler"
           class="org.codice.ddf.admin.security.ldap.LdapConfigurationHandler"/>
     <service ref="ldapConfigurationHandler"
-             interface="org.codice.ddf.admin.api.handler.ConfigurationHandler"/>
+             interface="org.codice.ddf.admin.api.handler.ConfigurationHandler">
+        <service-properties>
+            <entry key="configHandlerId" value="ldap"/>
+        </service-properties>
+    </service>
 </blueprint>

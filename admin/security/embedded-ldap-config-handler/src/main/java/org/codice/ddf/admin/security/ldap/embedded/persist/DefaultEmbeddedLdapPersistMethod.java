@@ -69,15 +69,19 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
     public TestReport persist(EmbeddedLdapConfiguration configuration) {
         Configurator configurator = new Configurator();
         configurator.startFeature("opendj-embedded");
-
+        // TODO: tbatie - 1/12/17 - Installing default configs should have a feature req on the features with the configs they intend to start
         switch (configuration.ldapUseCase()) {
         case LOGIN:
+            configurator.startFeature("security-sts-ldaplogin");
             configurator.startFeature("ldap-embedded-default-stslogin-config");
             break;
         case CREDENTIAL_STORE:
+            configurator.startFeature("security-sts-ldapclaimshandler");
             configurator.startFeature("ldap-embedded-default-claimshandler-config");
             break;
         case LOGIN_AND_CREDENTIAL_STORE:
+            configurator.startFeature("security-sts-ldaplogin");
+            configurator.startFeature("security-sts-ldapclaimshandler");
             configurator.startFeature("ldap-embedded-default-configs");
             break;
         }

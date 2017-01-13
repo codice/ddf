@@ -51,27 +51,7 @@ public class ContextPolicyManagerHandler
 
     private ConfigurationHandler ldapConfigHandler;
 
-    public static final String SAML = "SAML";
-
-    public static final String PKI = "PKI";
-
-    public static final String BASIC = "basic";
-
-    public static final String GUEST = "guest";
-
-    private List<String> authenticationTypes = Arrays.asList(SAML, PKI, BASIC, GUEST);
-
-    public static final String KARAF = "karaf";
-
-    public static final String LDAP = "ldap";
-
-    public static final String IDP = "idp";
-
-    private List<String> realms = Arrays.asList(KARAF, LDAP, IDP);
-
     public static final String CONTEXT_POLICY_MANAGER_HANDLER_ID = "contextPolicyManager";
-
-    public static final String POLICY_OPTIONS_ID = "options";
 
     @Override
     public ProbeReport probe(String probeId, ContextPolicyConfiguration configuration) {

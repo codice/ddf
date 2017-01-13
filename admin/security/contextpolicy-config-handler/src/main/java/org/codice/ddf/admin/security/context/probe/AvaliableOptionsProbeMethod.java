@@ -14,6 +14,7 @@
 
 package org.codice.ddf.admin.security.context.probe;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,7 @@ public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
     public List<String> getAuthTypes() {
         // TODO: tbatie - 1/12/17 - Is there a preference order we should apply with these auth types?
         // TODO: tbatie - 1/12/17 - Could do a check for these, all should be running by default though
-        List<String> authTypes = Arrays.asList(BASIC, SAML, PKI, GUEST);
+        List<String> authTypes = new ArrayList<>(Arrays.asList(BASIC, SAML, PKI, GUEST));
 
         if(configurator.isBundleStarted("security-idp-client")) {
             authTypes.add(IDP);
@@ -90,14 +91,14 @@ public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
     }
 
     public List<String> getRealms() {
-        List<String> realms = Arrays.asList(KARAF);
+        List<String> realms = new ArrayList<>(Arrays.asList(KARAF));
 
         // TODO: tbatie - 1/12/17 - If a IdpConfigurationHandler exists replace this with a service reference
         if(configurator.isBundleStarted("security-idp-server")) {
             realms.add(IDP);
         }
 
-        if (ldapConfigHandler == null && ldapConfigHandler.getConfigurations()
+        if (ldapConfigHandler == null || ldapConfigHandler.getConfigurations()
                 .stream()
                 .anyMatch(config -> ((LdapConfiguration) config).ldapUseCase()
                         .equals(LdapConfiguration.LOGIN)
