@@ -100,9 +100,10 @@ const SelectView = ({ value = '', options = [], label = 'Select', onEdit, error,
 
 const Select = connect(mapStateToProps, mapDispatchToProps)(SelectView)
 
-const RadioSelectionView = ({value, disabled, options = [], onEdit, ...rest}) => (
-  <RadioButtonGroup selectedValue={value} onChange={(e, value) => onEdit(value)} {...rest}>
-    {options.map((item, i) => <RadioButton key={i} value={item.value} label={item.label} disabled={disabled} />)}
+const RadioSelectionView = ({ value, disabled, options = [], onEdit, ...rest }) => (
+  <RadioButtonGroup valueSelected={value} onChange={(e, value) => onEdit(value)} {...rest}>
+    {options.map((item, i) =>
+      <RadioButton key={i} value={item.value} label={item.label} disabled={disabled} />)}
   </RadioButtonGroup>
 )
 
