@@ -12,7 +12,7 @@ var config = {
     path: path.resolve(__dirname, 'target', 'webapp')
   },
   devtool: 'source-map',
-  entry: './src/main/webapp',
+  entry: ['babel-polyfill'],
   module: {
     loaders: [
       {
@@ -39,6 +39,7 @@ var config = {
 
 if (process.env.NODE_ENV === 'production') {
   config = merge.smart(config, {
+    entry: ['./src/main/webapp'],
     plugins: [
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': '"production"'
