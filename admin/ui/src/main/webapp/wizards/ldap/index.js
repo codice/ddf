@@ -203,39 +203,46 @@ const NetworkSettings = ({ id, disabled }) => (
   </Stage>
 )
 
-const BindSettingsView = ({id, disabled, probeLdapAndChangeStage, bindUserMethod}) => (
-  <Stage id={id} defaults={{bindUserDn: 'cn=admin', bindUserPassword: 'secret', bindUserMethod: 'Simple'}}>
-    <Title>LDAP Bind User Settings</Title>
-    <Description>
-      Now that we've figured out the network environment, we need to
-      bind a user to the LDAP Store to retrieve additional information.
-    </Description>
+const BindSettingsView = ({ id, disabled, probeLdapAndChangeStage, bindUserMethod, encryptionMethod }) => {
+  let bindUserMethodOptions = ['Simple']
+  encryptionMethod === 'LDAPS' || encryptionMethod === 'StartTLS'
+    ? bindUserMethodOptions.push('Digest MD5 SASL')
+    : null
 
-    <Input id='bindUserDn' disabled={disabled} label='Bind User DN' />
-    <Password id='bindUserPassword' disabled={disabled} label='Bind User Password' />
-    <Select id='bindUserMethod'
-      label='Bind User Method'
-      disabled={disabled}
-      options={[ 'Simple', 'Digest MD5 SASL' ]} />
-    {/* removed options: 'SASL', 'GSSAPI SASL' */}
-    {/* TODO GSSAPI SASL only */}
-    {/* <Input id='bindKdcAddress' disabled={disabled} label='KDC Address (for Kerberos authentication)' /> */}
+  return (
+    <Stage id={id} defaults={{bindUserDn: 'cn=admin', bindUserPassword: 'secret', bindUserMethod: 'Simple'}}>
+      <Title>LDAP Bind User Settings</Title>
+      <Description>
+        Now that we've figured out the network environment, we need to
+        bind a user to the LDAP Store to retrieve additional information.
+      </Description>
 
-    {/* TODO GSSAPI and Digest MD5 SASL only */}
-    {
-      (bindUserMethod === 'Digest MD5 SASL')
-        ? (<Input id='bindRealm' disabled={disabled} label='Realm (for Kerberos and Digest MD5 authentication)' />)
-        : null
-    }
+      <Input id='bindUserDn' disabled={disabled} label='Bind User DN' />
+      <Password id='bindUserPassword' disabled={disabled} label='Bind User Password' />
+      <Select id='bindUserMethod'
+        label='Bind User Method'
+        disabled={disabled}
+        options={bindUserMethodOptions} />
+      {/* removed options: 'SASL', 'GSSAPI SASL' */}
+      {/* TODO GSSAPI SASL only */}
+      {/* <Input id='bindKdcAddress' disabled={disabled} label='KDC Address (for Kerberos authentication)' /> */}
+      {/* TODO GSSAPI and Digest MD5 SASL only */}
+      {
+        (bindUserMethod === 'Digest MD5 SASL')
+          ? (<Input id='bindRealm' disabled={disabled} label='Realm (for Kerberos and Digest MD5 authentication)' />)
+          : null
+      }
 
-    <StageControls>
-      <Back disabled={disabled} />
-      <Submit id={id} label='Next' onClick={() => probeLdapAndChangeStage(id, 'directorySettings')} />
-    </StageControls>
-  </Stage>
-)
+      <StageControls>
+        <Back disabled={disabled} />
+        <Submit id={id} label='Next' onClick={() => probeLdapAndChangeStage(id, 'directorySettings')} />
+      </StageControls>
+    </Stage>
+  )
+}
 const BindSettings = connect((state) => ({
-  bindUserMethod: getConfig(state, 'bindUserMethod').value
+  bindUserMethod: getConfig(state, 'bindUserMethod').value,
+  encryptionMethod: getConfig(state, 'encryptionMethod').value
 }), {
   probeLdapAndChangeStage: probeLdapDir
 })(BindSettingsView)
@@ -247,7 +254,7 @@ const QueryResult = (props) => {
     <ListItem
       primaryText={ou || cn || uid || name}
       nestedItems={[
-        <pre key={1}>{JSON.stringify(props, null, 2)}</pre>
+        <pre className={styles.queryResultStyle} key={1}>{JSON.stringify(props, null, 2)}</pre>
       ]}
       primaryTogglesNestedList
     />
