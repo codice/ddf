@@ -17,7 +17,7 @@ const bins = (state = List(), { type, bin, bins, path, binNumber, pathNumber, va
     // Bin Level
     case 'WCPM/ADD_BIN':
       return state.push(emptyBin)
-    case 'WCPM/REMOVE_BIN':
+    case 'WCPM/CONFIRM_REMOVE_BIN':
       return state.delete(binNumber)
     case 'WCPM/EDIT_MODE_ON':
       return state.update(binNumber, (bin) => bin.merge({ beforeEdit: bin }))
@@ -87,7 +87,24 @@ const editingBinNumber = (state = null, { type, binNumber }) => {
       return null
     case 'WCPM/ADD_BIN':
       return binNumber
+    case 'WCPM/CONFIRM_REMOVE_BIN':
+      return null
+    default:
+      return state
+  }
+}
+
+const confirmDelete = (state = false, { type, binNumber }) => {
+  switch (type) {
     case 'WCPM/REMOVE_BIN':
+      return true
+    case 'WCPM/CANCEL_REMOVE_BIN':
+      return false
+    case 'WCPM/CONFIRM_REMOVE_BIN':
+      return null
+    case 'WCPM/EDIT_MODE_CANCEL':
+      return null
+    case 'WCPM/EDIT_MODE_SAVE':
       return null
     default:
       return state
@@ -98,8 +115,9 @@ export const getOptions = (state) => state.get('options').toJS()
 export const getBins = (state) => state.get('bins').toJS()
 export const getWhiteList = (state) => state.get('whiteList').toJS()
 export const getEditingBinNumber = (state) => state.get('editingBinNumber')
+export const getConfirmDelete = (state) => state.get('confirmDelete')
 
-export default combineReducers({ bins, options, whiteList, editingBinNumber })
+export default combineReducers({ bins, options, whiteList, editingBinNumber, confirmDelete })
 
 /*
 // Example State Data Structure

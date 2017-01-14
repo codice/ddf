@@ -7,7 +7,8 @@ import Mount from '../../components/mount'
 import {
   getBins,
   getOptions,
-  getEditingBinNumber
+  getEditingBinNumber,
+  getConfirmDelete
 } from '../../reducer'
 
 import {
@@ -22,7 +23,9 @@ import {
   updatePolicyBins,
   persistChanges,
   addAttributeMapping,
-  removeAttributeMapping
+  removeAttributeMapping,
+  confirmRemoveBinAndPersist,
+  cancelRemoveBin
 } from './actions'
 
 import Flexbox from 'flexbox-react'
@@ -138,19 +141,36 @@ Realm = connect(
     editRealm: (value) => dispatch(editRealm(binNumber, value))
   }))(Realm)
 
-let ConfirmationPanel = ({ bin, binNumber, removeBin, saveAndPersist, editModeCancel, editing }) => {
+let ConfirmationPanel = ({ bin, binNumber, removeBin, saveAndPersist, editModeCancel, editing, confirmRemoveBinAndPersist, confirmDelete, cancelRemoveBin }) => {
   return editing ? (
     <Flexbox flexDirection='row' justifyContent='center' style={{ padding: '10px 0px 5px' }}>
       <FlatButton style={{ margin: '0 10' }} label='Cancel' labelPosition='after' secondary onClick={editModeCancel} />
       <RaisedButton style={{ margin: '0 10' }} label='Save' primary onClick={saveAndPersist} />
-      <IconButton style={{ position: 'absolute', right: '0px', bottom: '0px' }} onClick={removeBin} tooltip={'Delete'} tooltipPosition='top-center' ><DeleteIcon /></IconButton>
+      {
+        (confirmDelete) ? (
+          <Flexbox style={{ position: 'absolute', right: '0px', bottom: '0px', margin: '5px' }} flexDirection='column' alignItems='center' >
+            <p className={infoSubtitleLeft}>Confirm delete all?</p>
+            <Flexbox flexDirection='row'>
+              <RaisedButton label='Yes' primary onClick={confirmRemoveBinAndPersist} />
+              <RaisedButton label='No' secondary onClick={cancelRemoveBin} />
+            </Flexbox>
+          </Flexbox>
+        ) : (
+          <IconButton style={{ position: 'absolute', right: '0px', bottom: '0px' }} onClick={removeBin} tooltip={'Delete'} tooltipPosition='top-center' ><DeleteIcon /></IconButton>
+        )
+      }
     </Flexbox>
   ) : null
 }
-ConfirmationPanel = connect(null, (dispatch, { binNumber }) => ({
+
+ConfirmationPanel = connect((state) => ({
+  confirmDelete: getConfirmDelete(state)
+}), (dispatch, { binNumber }) => ({
   removeBin: () => dispatch(removeBin(binNumber)),
+  cancelRemoveBin: () => dispatch(cancelRemoveBin()),
   saveAndPersist: () => dispatch(persistChanges(binNumber, '/admin/beta/config/persist/contextPolicyManager/create')),
-  editModeCancel: () => dispatch(editModeCancel(binNumber))
+  editModeCancel: () => dispatch(editModeCancel(binNumber)),
+  confirmRemoveBinAndPersist: () => dispatch(confirmRemoveBinAndPersist(binNumber, '/admin/beta/config/persist/contextPolicyManager/create'))
 }))(ConfirmationPanel)
 
 let AuthTypesGroup = ({ bin, binNumber, policyOptions, editing }) => (
