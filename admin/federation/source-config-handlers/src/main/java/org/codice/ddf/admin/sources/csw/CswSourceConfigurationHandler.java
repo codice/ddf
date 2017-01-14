@@ -18,9 +18,8 @@ import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfig
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_PROFILE_FACTORY_PID;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SOURCE_DISPLAY_NAME;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SPEC_FACTORY_PID;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PERSIST_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
 
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +71,7 @@ public class CswSourceConfigurationHandler
                             .factoryPid(CSW_PROFILE_FACTORY_PID)
                             .sourceUserPassword("exampleUserPassword");
             return new ProbeReport(buildMessage(SUCCESS, "Found and created CSW Source configuration"))
-                    .addProbeResult(RETRIEVE_CONFIGURATION, mockedCswSource);
+                    .probeResult(RETRIEVE_CONFIGURATION, mockedCswSource);
         */
         Optional<ProbeMethod> probeMethod = probeMethods.stream()
                 .filter(method -> method.id()
@@ -82,7 +81,7 @@ public class CswSourceConfigurationHandler
         return probeMethod.isPresent() ?
                 probeMethod.get()
                         .probe(configuration) :
-                new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
+                new ProbeReport(new ConfigurationMessage(FAILURE, null, NO_METHOD_FOUND));
     }
 
     @Override
@@ -96,7 +95,7 @@ public class CswSourceConfigurationHandler
         return testMethod.isPresent() ?
                 testMethod.get()
                         .test(configuration) :
-                new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
+                new TestReport(new ConfigurationMessage(FAILURE, null, NO_METHOD_FOUND));
     }
 
     @Override
@@ -109,7 +108,7 @@ public class CswSourceConfigurationHandler
         return persistMethod.isPresent() ?
                 persistMethod.get()
                         .persist(config) :
-                new TestReport(new ConfigurationMessage(NO_PERSIST_FOUND));
+                new TestReport(new ConfigurationMessage(FAILURE, null, NO_METHOD_FOUND));
     }
 
     @Override

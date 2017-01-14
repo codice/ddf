@@ -14,7 +14,8 @@
 
 package org.codice.ddf.admin.api.config.federation.sources;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
 import java.util.HashMap;
 import java.util.List;
@@ -57,10 +58,10 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
             switch (field) {
             case FACTORY_PID:
                 if (factoryPid() == null) {
-                    errors.add(new ConfigurationMessage("Configuration does not contain a factory PID.", FAILURE));
+                    errors.add(createMissingRequiredFieldMsg(FACTORY_PID));
                 }
                 if (!factoryPid().equals(OPENSEARCH_FACTORY_PID)) {
-                    errors.add(new ConfigurationMessage("Configuration factory PID does not belong to an OpenSearch Source.", FAILURE));
+                    errors.add(createInvalidFieldMsg("Configuration factory PID does not belong to an OpenSearch Source.", FACTORY_PID));
                 }
                 break;
             }

@@ -43,23 +43,20 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
     public static final String DESCRIPTION =
             "Attempts to discover a Wfs endpoint based on a hostname and port using optional authentication information.";
 
+    private static final String ENDPOINT_DISCOVERED = "endpointDiscovered";
+    private static final String CERT_ERROR = "certError";
+    private static final String NO_ENDPOINT = "noEndpoint";
+    private static final String BAD_CONFIG = "badConfig";
+
     public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(HOSTNAME,
             "The hostname to query for Wfs capabilites.",
             PORT,
             "The port to connect over when searching for Wfs capabilities.");
 
     public static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(USERNAME,
-            "A username to use for basic auth connections when searching for Wfs capabilities.",
+            "A username to use for basic auth connections when searching for Wfs capabilities. If password is provided, username must be as well.",
             PASSWORD,
-            "A password to use for basic auth connections when searching for Wfs capabilities.");
-
-    private static final String ENDPOINT_DISCOVERED = "endpointDiscovered";
-
-    private static final String CERT_ERROR = "certError";
-
-    private static final String NO_ENDPOINT = "noEndpoint";
-
-    private static final String BAD_CONFIG = "badConfig";
+            "A password to use for basic auth connections when searching for Wfs capabilities. If username is provided, password must be as well.");
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED,
             "Discovered Wfs endpoint.");
@@ -68,6 +65,7 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
             "The discovered source has incorrectly configured SSL certificates and is insecure.",
             NO_ENDPOINT,
             "No Wfs endpoint found.",
+            // TODO: tbatie - 1/13/17 - We should be able to handle this
             BAD_CONFIG,
             "Endpoint discovered, but could not create valid configuration.");
 
@@ -83,6 +81,7 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
 
     @Override
     public ProbeReport probe(WfsSourceConfiguration configuration) {
+        // TODO: tbatie - 1/13/17 - this is really messy
         List<ConfigurationMessage> results =
                 configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
         if (!results.isEmpty()) {
@@ -92,18 +91,18 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
         if (url.isPresent()) {
             configuration.endpointUrl(url.get());
         } else {
-            results.add(buildMessage(FAILURE, "No WFS endpoint found."));
+            results.add(buildMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
             return new ProbeReport(results);
         }
+
         try {
             configuration = WfsSourceUtils.getPreferredConfig(configuration);
         } catch (WfsSourceCreationException e) {
-            results.add(buildMessage(FAILURE,
-                    "Failed to create configuration from valid request to valid endpoint."));
+            results.add(buildMessage(FAILURE, BAD_CONFIG, FAILURE_TYPES.get(BAD_CONFIG)));
             return new ProbeReport(results);
         }
-        results.add(buildMessage(SUCCESS, "Discovered WFS endpoint."));
-        return new ProbeReport(results).addProbeResult(DISCOVER_SOURCES_ID,
+        results.add(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
+        return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
                 configuration.configurationHandlerId(WFS_SOURCE_CONFIGURATION_HANDLER_ID));
     }
 

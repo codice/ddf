@@ -13,8 +13,9 @@
  */
 package org.codice.ddf.admin.api.commons;
 
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.INVALID_FIELD;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MISSING_REQUIRED_FIELD;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.REQUIRED_FIELDS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
 import java.net.MalformedURLException;
@@ -50,9 +51,10 @@ public class SourceUtils {
             urlConnection.setConnectTimeout(PING_TIMEOUT);
             urlConnection.connect();
         } catch (MalformedURLException | IllegalArgumentException e) {
-            return Optional.of(buildMessage(FAILURE, "URL is improperly formatted."));
+            return Optional.of(buildMessage(FAILURE, INVALID_FIELD, "URL is improperly formatted."));
         } catch (Exception e) {
-            Optional.of(buildMessage(FAILURE, "Unable to reach specified URL."));
+            // TODO: tbatie - 1/13/17 - Fix the subtype here. Subtype is dependent on test, consider not returning a configuration message from this method
+            Optional.of(buildMessage(FAILURE, null, "Unable to reach specified URL."));
         }
         return Optional.empty();
     }
@@ -64,8 +66,8 @@ public class SourceUtils {
                 .stream()
                 .filter(field -> field.getValue() == null && (field.getValue() instanceof String
                         && StringUtils.isEmpty((String) field.getValue())))
-                .forEach(field -> missingFields.add(buildMessage(REQUIRED_FIELDS,
-                        "Field cannot be empty").configId(field.getKey())));
+                .forEach(field -> missingFields.add(new ConfigurationMessage(FAILURE,
+                        MISSING_REQUIRED_FIELD, null).configId(field.getKey())));
 
         return new TestReport(missingFields);
     }

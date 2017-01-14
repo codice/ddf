@@ -17,8 +17,8 @@ package org.codice.ddf.admin.sources.wfs;
 import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS1_FACTORY_PID;
 import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS2_FACTORY_PID;
 import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS_SOURCE_DISPLAY_NAME;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
 
 import java.util.Arrays;
 import java.util.List;
@@ -67,7 +67,7 @@ public class WfsSourceConfigurationHandler
         return probeMethod.isPresent() ?
                 probeMethod.get()
                         .probe(configuration) :
-                new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
+                new ProbeReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
     }
 
     @Override
@@ -81,7 +81,7 @@ public class WfsSourceConfigurationHandler
         return testMethod.isPresent() ?
                 testMethod.get()
                         .test(configuration) :
-                new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
+                new TestReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
     }
 
     @Override
@@ -95,7 +95,7 @@ public class WfsSourceConfigurationHandler
         return persistMethod.isPresent() ?
                 persistMethod.get()
                         .persist(config) :
-                new TestReport(new ConfigurationMessage(NO_PROBE_FOUND));
+                new TestReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
     }
 
     @Override

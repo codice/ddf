@@ -98,15 +98,15 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
                 bindUserToLdapConnection(configuration).connection());
 
         if (guesser != null) {
-            probeReport.addProbeResult(BASE_USER_DN, guesser.getUserBaseChoices());
-            probeReport.addProbeResult(BASE_GROUP_DN, guesser.getGroupBaseChoices());
-            probeReport.addProbeResult(USER_NAME_ATTRIBUTE, guesser.getUserNameAttribute());
-            probeReport.addProbeResult(GROUP_OBJECT_CLASS, guesser.getGroupObjectClass());
-            probeReport.addProbeResult(MEMBERSHIP_ATTRIBUTE, guesser.getMembershipAttribute());
+            probeReport.probeResult(BASE_USER_DN, guesser.getUserBaseChoices());
+            probeReport.probeResult(BASE_GROUP_DN, guesser.getGroupBaseChoices());
+            probeReport.probeResult(USER_NAME_ATTRIBUTE, guesser.getUserNameAttribute());
+            probeReport.probeResult(GROUP_OBJECT_CLASS, guesser.getGroupObjectClass());
+            probeReport.probeResult(MEMBERSHIP_ATTRIBUTE, guesser.getMembershipAttribute());
 
             // TODO RAP 13 Dec 16: Better query, perhaps driven by guessers?
-            probeReport.addProbeResult(QUERY, Collections.singletonList("objectClass=*"));
-            probeReport.addProbeResult(QUERY_BASE, guesser.getBaseContexts());
+            probeReport.probeResult(QUERY, Collections.singletonList("objectClass=*"));
+            probeReport.probeResult(QUERY_BASE, guesser.getBaseContexts());
         }
 
         return probeReport;

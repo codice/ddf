@@ -13,7 +13,9 @@
  */
 package org.codice.ddf.admin.api.handler;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,15 +30,6 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 public abstract class DefaultConfigurationHandler<S extends Configuration>
         implements ConfigurationHandler<S> {
 
-    public static final TestReport NO_TEST_FOUND_REPORT = new TestReport(new ConfigurationMessage(
-            NO_TEST_FOUND));
-
-    public static final ProbeReport NO_PROBE_FOUND_REPORT =
-            new ProbeReport(new ConfigurationMessage(NO_TEST_FOUND));
-
-    public static final TestReport NO_PERSIST_FOUND_REPORT =
-            new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
-
     public abstract List<ProbeMethod> getProbeMethods();
 
     public abstract List<TestMethod> getTestMethods();
@@ -46,7 +39,7 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
     @Override
     public ProbeReport probe(String probeId, S configuration) {
         if (getProbeMethods() == null) {
-            return NO_PROBE_FOUND_REPORT;
+            return getNoProbeFoundReport(probeId);
         }
 
         Optional<ProbeMethod> probeMethod = getProbeMethods().stream()
@@ -55,15 +48,14 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
                 .findFirst();
 
         return probeMethod.isPresent() ?
-                probeMethod.get()
-                        .probe(configuration) :
-                NO_PROBE_FOUND_REPORT;
+                probeMethod.get().probe(configuration) :
+                getNoProbeFoundReport(probeId);
     }
 
     @Override
     public TestReport test(String testId, S configuration) {
         if (getTestMethods() == null) {
-            return NO_TEST_FOUND_REPORT;
+            return getNoTestFoundReport(testId);
         }
 
         Optional<TestMethod> testMethod = getTestMethods().stream()
@@ -72,16 +64,15 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
                 .findFirst();
 
         return testMethod.isPresent() ?
-                testMethod.get()
-                        .test(configuration) :
-                NO_TEST_FOUND_REPORT;
+                testMethod.get().test(configuration) :
+                getNoTestFoundReport(testId);
     }
 
     @Override
     public TestReport persist(S configuration, String persistId) {
 
         if (getPersistMethods() == null) {
-            return NO_PERSIST_FOUND_REPORT;
+            return getNoTestFoundReport(persistId);
         }
 
         Optional<PersistMethod> persistMethod = getPersistMethods().stream()
@@ -90,9 +81,19 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
                 .findFirst();
 
         return persistMethod.isPresent() ?
-                persistMethod.get()
-                        .persist(configuration) :
-                NO_PERSIST_FOUND_REPORT;
+                persistMethod.get().persist(configuration) :
+                getNoTestFoundReport(persistId);
+    }
+
+    public TestReport getNoTestFoundReport(String badId){
+        return new TestReport(buildMessage(FAILURE,
+                NO_METHOD_FOUND,
+                "Unknown id: " + (badId == null ? "null" : badId)));
+    }
+
+    public ProbeReport getNoProbeFoundReport(String badId){
+        return new ProbeReport(buildMessage(FAILURE, NO_METHOD_FOUND,
+                "Unknown probeId: " + (badId == null ? "null" : badId)));
     }
 
     @Override

@@ -18,9 +18,6 @@ import static org.codice.ddf.admin.api.commons.SourceUtils.OWS_NAMESPACE_CONTEXT
 import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
 import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS1_FACTORY_PID;
 import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS2_FACTORY_PID;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -43,7 +40,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
-import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.w3c.dom.Document;
 
 public class WfsSourceUtils {
@@ -64,16 +60,6 @@ public class WfsSourceUtils {
                 .map(Optional::of)
                 .findFirst()
                 .orElse(Optional.empty());
-    }
-
-    public static TestReport discoverUrlCapabilities(WfsSourceConfiguration configuration) {
-        if (isAvailable(configuration.endpointUrl(), configuration)) {
-            return new TestReport(buildMessage(SUCCESS,
-                    "Specified URL has been verified as a WFS endpoint."));
-        } else {
-            return new TestReport(buildMessage(WARNING,
-                    "Specified URL could not be verified as a WFS endpoint."));
-        }
     }
 
     public static boolean isAvailable(String url, WfsSourceConfiguration config) {

@@ -43,29 +43,30 @@ public class TestReport {
         this.messages = messages;
     }
 
-    public List<ConfigurationMessage> getMessages() {
+    public List<ConfigurationMessage> messages() {
         return messages;
     }
 
-    public TestReport addMessage(ConfigurationMessage result) {
+    public TestReport messages(ConfigurationMessage result) {
         this.messages.add(result);
         return this;
     }
 
-    public void addMessages(List<ConfigurationMessage> messages) {
+    public TestReport messages(List<ConfigurationMessage> messages) {
         this.messages.addAll(messages);
+        return this;
     }
 
     public boolean containsUnsuccessfulMessages() {
         return messages.stream()
-                .filter(msg -> msg.getType() != SUCCESS)
+                .filter(msg -> msg.type() != SUCCESS)
                 .findFirst()
                 .isPresent();
     }
 
     public boolean containsFailureMessages() {
         return messages.stream()
-                .filter(msg -> msg.getType() == FAILURE)
+                .filter(msg -> msg.type() == FAILURE)
                 .findFirst()
                 .isPresent();
     }
@@ -77,15 +78,15 @@ public class TestReport {
 
         for (String result : results) {
             if (successTypes != null && successTypes.containsKey(result)) {
-                testReport.addMessage(new ConfigurationMessage(SUCCESS,
+                testReport.messages(new ConfigurationMessage(SUCCESS,
                         result,
                         successTypes.get(result)));
             } else if (warningTypes != null && warningTypes.containsKey(result)) {
-                testReport.addMessage(new ConfigurationMessage(WARNING,
+                testReport.messages(new ConfigurationMessage(WARNING,
                         result,
                         warningTypes.get(result)));
             } else if (failureTypes != null && failureTypes.containsKey(result)) {
-                testReport.addMessage(new ConfigurationMessage(FAILURE,
+                testReport.messages(new ConfigurationMessage(FAILURE,
                         result,
                         failureTypes.get(result)));
             }
@@ -102,15 +103,15 @@ public class TestReport {
             String resultName = result.getKey();
             String resultConfigId = result.getValue();
             if (successTypes != null && successTypes.containsKey(resultName)) {
-                testReport.addMessage(new ConfigurationMessage(SUCCESS,
+                testReport.messages(new ConfigurationMessage(SUCCESS,
                         resultName,
                         successTypes.get(resultName)).configId(resultConfigId));
             } else if (warningTypes != null && warningTypes.containsKey(resultName)) {
-                testReport.addMessage(new ConfigurationMessage(WARNING,
+                testReport.messages(new ConfigurationMessage(WARNING,
                         resultName,
                         warningTypes.get(resultName)).configId(resultConfigId));
             } else if (failureTypes != null && failureTypes.containsKey(resultName)) {
-                testReport.addMessage(new ConfigurationMessage(FAILURE,
+                testReport.messages(new ConfigurationMessage(FAILURE,
                         resultName,
                         failureTypes.get(resultName)).configId(resultConfigId));
             }

@@ -14,7 +14,8 @@
 
 package org.codice.ddf.admin.api.config.federation.sources;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
 import java.util.HashMap;
 import java.util.List;
@@ -98,10 +99,10 @@ public class CswSourceConfiguration extends SourceConfiguration {
             switch (field) {
             case FACTORY_PID:
                 if (factoryPid() == null) {
-                    errors.add(new ConfigurationMessage("Configuration does not contain a factory PID", FAILURE));
+                    errors.add(createMissingRequiredFieldMsg(FACTORY_PID));
                 }
                 if (!(factoryPid().equals(CSW_PROFILE_FACTORY_PID) || factoryPid().equals(CSW_GMD_FACTORY_PID) || factoryPid().equals(CSW_SPEC_FACTORY_PID))) {
-                    errors.add(new ConfigurationMessage("Configuration factory PID does not belong to a CSW Source factory.", FAILURE));
+                    errors.add(createInvalidFieldMsg("Configuration factory PID does not belong to a CSW Source factory.", FACTORY_PID));
                 }
                 break;
             }

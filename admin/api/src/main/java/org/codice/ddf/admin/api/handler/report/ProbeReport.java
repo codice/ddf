@@ -37,14 +37,14 @@ public class ProbeReport extends TestReport {
         super(Arrays.asList(messages));
     }
 
-    public ProbeReport addProbeResult(String key, Object value) {
+    public ProbeReport probeResult(String key, Object value) {
         if(value != null) {
             probeResults.put(key, value);
         }
         return this;
     }
 
-    public ProbeReport addProbeResults(Map<String, Object> results) {
+    public ProbeReport probeResults(Map<String, Object> results) {
         probeResults.putAll(probeResults);
         return this;
     }

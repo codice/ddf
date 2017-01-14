@@ -14,7 +14,8 @@
 
 package org.codice.ddf.admin.api.config.federation;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,45 +55,46 @@ public class SourceConfiguration extends Configuration {
             switch (field) {
             case ID:
                 if (sourceName() == null || sourceName().isEmpty()) {
-                    errors.add(new ConfigurationMessage("Configuration does not contain a source name.", FAILURE));
+                    errors.add(createMissingRequiredFieldMsg(ID));
                     //TODO confirm ID being added is unique
                 }
                 break;
             case HOSTNAME:
                 if (sourceHostName() == null) {
-                    errors.add(new ConfigurationMessage("Configuration does not contain a hostname.", FAILURE));
+                    errors.add(createMissingRequiredFieldMsg(HOSTNAME));
                 } else {
                     if(!SourceUtils.validHostnameFormat(sourceHostName())) {
-                        errors.add(new ConfigurationMessage("Hostname format is invalid.", FAILURE));
+                        errors.add(createInvalidFieldMsg("Hostname format is invalid.", HOSTNAME));
                     }
                 }
                 break;
             case PORT:
                 if (!SourceUtils.validPortFormat(sourcePort())) {
-                    errors.add(new ConfigurationMessage("Port is not in valid range.", FAILURE));
+                    errors.add(createInvalidFieldMsg("Port is not in valid range.", PORT));
                 }
                 break;
             case USERNAME:
                 if (sourceUserName() == null) {
-                    errors.add(new ConfigurationMessage("Configuration does not contain a username", FAILURE));
+                    errors.add(createMissingRequiredFieldMsg(USERNAME));
+                    // TODO: tbatie - 1/13/17 - If the username is specified but not password error msg, maybe in enforce this at the Handler level instead
                 }
                 break;
             case PASSWORD:
                 if (sourceUserPassword() == null) {
-                    errors.add(new ConfigurationMessage("Configuration does not contain a password", FAILURE));
+                    errors.add(createMissingRequiredFieldMsg(PASSWORD));
                 }
                 break;
             case ENDPOINT_URL:
                 if (endpointUrl() == null) {
-                    errors.add(new ConfigurationMessage("Configuration does not contain an endpoint URL.", FAILURE));
+                    errors.add(createInvalidFieldMsg("Configuration does not contain an endpoint URL.", ENDPOINT_URL));
                 }
                 if (SourceUtils.validUrlFormat(endpointUrl())) {
-                    errors.add(new ConfigurationMessage("Endpoint URL is not in a valid format.", FAILURE));
+                    errors.add(createInvalidFieldMsg("Endpoint URL is not in a valid format.", ENDPOINT_URL));
                 }
                 break;
             case SERVICE_PID:
                 if (servicePid() == null) {
-                    errors.add(new ConfigurationMessage("Configuration does not contain a service PID", FAILURE));
+                    errors.add(createMissingRequiredFieldMsg(SERVICE_PID));
                 }
             }
         }
@@ -192,5 +194,4 @@ public class SourceConfiguration extends Configuration {
     public Map<String, Object> configMap() {
         return null;
     }
-
 }

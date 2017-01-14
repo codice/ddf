@@ -46,28 +46,17 @@ public class ConfigurationHandlerRouter implements SparkApplication {
 
     public static String contextPath;
 
+    // TODO: tbatie - 1/14/17 - Why do we have a map? You have access to config handler id at anypoint in time, no need to store the keys
     private Map<String, ConfigurationHandler> handlers = new HashMap<>();
 
     private Gson getGsonParser() {
         RuntimeTypeAdapterFactory rtaf = RuntimeTypeAdapterFactory.of(Configuration.class,
                 "configurationType");
-        handlers.keySet().forEach(key -> rtaf.registerSubtype(handlers.get(key).getConfigClass(), key));
+        handlers.keySet()
+                .forEach(key -> rtaf.registerSubtype(handlers.get(key)
+                        .getConfigClass(), key));
         return new GsonBuilder().registerTypeAdapterFactory(rtaf)
                 .create();
-    }
-
-    public ConfigurationHandler getConfigurationHandler(
-            List<ConfigurationHandler> configurationHandlers, String configurationId) {
-        // TODO: tbatie - 1/11/17 - I'd like to revisit the difference between configuration handler Id and config type
-        Optional<ConfigurationHandler> foundConfigHandler = configurationHandlers.stream()
-                .filter(handler -> handler.getConfigurationHandlerId()
-                        .equals(configurationId))
-                .findFirst();
-        return foundConfigHandler.isPresent() ? foundConfigHandler.get() : null;
-    }
-
-    private String toJson(Object body) {
-        return getGsonParser().toJson(body);
     }
 
     @Override
@@ -111,13 +100,15 @@ public class ConfigurationHandlerRouter implements SparkApplication {
         }, this::toJson);
 
         get("/capabilities",
-                (req, res) ->
-                    handlers.values().stream().map(handler -> handler.getCapabilities()).collect(Collectors.toList()),
+                (req, res) -> handlers.values()
+                        .stream()
+                        .map(handler -> handler.getCapabilities())
+                        .collect(Collectors.toList()),
                 this::toJson);
 
         get("/capabilities/:configHandlerId",
-                (req, res) ->
-                    getConfigurationHandler(new ArrayList<>(handlers.values()), req.params("configHandlerId")).getCapabilities(),
+                (req, res) -> getConfigurationHandler(new ArrayList<>(handlers.values()),
+                        req.params("configHandlerId")).getCapabilities(),
                 this::toJson);
 
         get("/configurations/:configHandlerId",
@@ -140,6 +131,19 @@ public class ConfigurationHandlerRouter implements SparkApplication {
         e.put("stackTrace", ex.getStackTrace());
         e.put("cause", ex.toString());
         return new Gson().toJson(e);
+    }
+
+    public ConfigurationHandler getConfigurationHandler(List<ConfigurationHandler> configurationHandlers, String configurationId) {
+        Optional<ConfigurationHandler> foundConfigHandler = configurationHandlers.stream()
+                .filter(handler -> handler.getConfigurationHandlerId()
+                        .equals(configurationId))
+                .findFirst();
+
+        return foundConfigHandler.isPresent() ? foundConfigHandler.get() : null;
+    }
+
+    private String toJson(Object body) {
+        return getGsonParser().toJson(body);
     }
 
     public void setContextPath(String contextPath) {

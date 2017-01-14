@@ -15,9 +15,6 @@ package org.codice.ddf.admin.sources.opensearch;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -36,7 +33,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
-import org.codice.ddf.admin.api.handler.report.TestReport;
 
 public class OpenSearchSourceUtils {
     private static final List<String> URL_FORMATS = Arrays.asList(
@@ -44,16 +40,6 @@ public class OpenSearchSourceUtils {
             "https://%s:%d/catalog/query",
             "http://%s:%d/services/catalog/query",
             "http://%s:%d/catalog/query");
-
-    public static TestReport discoverUrlCapabilities(OpenSearchSourceConfiguration config) {
-        if (isAvailable(config.endpointUrl(), config)) {
-            return new TestReport(buildMessage(SUCCESS,
-                    "Specified URL has been verified as an OpenSearch endpoint."));
-        } else {
-            return new TestReport(buildMessage(WARNING,
-                    "Specified URL could not be verified as an OpenSearch endpoint."));
-        }
-    }
 
     //Given a config, returns the correct URL format for the endpoint if one exists
     public static Optional<String> confirmEndpointUrl(OpenSearchSourceConfiguration config) {

@@ -40,9 +40,9 @@ public class BindUserExampleProbe extends ProbeMethod<LdapConfiguration> {
     public ProbeReport probe(LdapConfiguration configuration) {
         switch (configuration.ldapType()) {
         case "activeDirectory":
-            return new ProbeReport(new ArrayList<>()).addProbeResult("bindUserDn", "user@domain");
+            return new ProbeReport(new ArrayList<>()).probeResult("bindUserDn", "user@domain");
         default:
-            return new ProbeReport(new ArrayList<>()).addProbeResult("bindUserDn", "cn=admin");
+            return new ProbeReport(new ArrayList<>()).probeResult("bindUserDn", "cn=admin");
         }
     }
 }

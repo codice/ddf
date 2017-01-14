@@ -15,6 +15,10 @@ package org.codice.ddf.admin.sources.opensearch.test;
 
 import static org.codice.ddf.admin.api.commons.SourceUtils.MANUAL_URL_TEST_ID;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.sources.opensearch.OpenSearchSourceUtils.isAvailable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,34 +30,30 @@ import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfig
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.sources.opensearch.OpenSearchSourceUtils;
 
 import com.google.common.collect.ImmutableMap;
 
 public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfiguration> {
 
     public static final String OPENSEARCH_URL_TEST_ID = MANUAL_URL_TEST_ID;
-
     public static final String DESCRIPTION =
             "Attempts to verify a given URL is an OpenSearch endpoint.";
 
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(ENDPOINT_URL,
-            "The URL to attempt to verify as an OpenSearch Endpoint.");
-
-    private static final String VERIFIED_URL = "urlVerified";
-
     private static final String CANNOT_CONNECT = "cannotConnect";
+    private static final String VERIFIED_URL = "urlVerified";
+    private static final String CANNOT_VERIFY = "cannotVerify"; // TODO: tbatie - 1/13/17 - This isn't actually being returned anywhere and should be
 
-    private static final String CANNOT_VERIFY = "cannotVerify";
+    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(
+            ENDPOINT_URL, "The URL to attempt to verify as an OpenSearch Endpoint.");
 
-    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(VERIFIED_URL,
-            "URL has been verified as an OpenSearch endpoint.");
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(
+            VERIFIED_URL, "URL has been verified as an OpenSearch endpoint.");
 
-    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CANNOT_CONNECT,
-            "Could not reach specified URL.");
+    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(
+            CANNOT_CONNECT, "Specified URL could not be verified as an OpenSearch endpoint.");
 
-    public static final Map<String, String> WARNING_TYPES = ImmutableMap.of(CANNOT_VERIFY,
-            "Reached URL, but could not verify as an OpenSearch endpoint.");
+    public static final Map<String, String> WARNING_TYPES = ImmutableMap.of(
+            CANNOT_VERIFY, "Reached URL, but could not verify as an OpenSearch endpoint.");
 
     public OpenSearchUrlTestMethod() {
         super(OPENSEARCH_URL_TEST_ID,
@@ -67,16 +67,24 @@ public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfigur
 
     @Override
     public TestReport test(OpenSearchSourceConfiguration configuration) {
+        TestReport testReport = new TestReport();
         List<ConfigurationMessage> results =
                 configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+
         if (!results.isEmpty()) {
-            return new TestReport(results);
+            return testReport.messages(results);
         }
+
         Optional<ConfigurationMessage> message = SourceUtils.endpointIsReachable(configuration);
         if (message.isPresent()) {
-            return new TestReport(message.get());
+            return testReport.messages(message.get());
         }
-        return OpenSearchSourceUtils.discoverUrlCapabilities(configuration);
-    }
 
+
+        if (isAvailable(configuration.endpointUrl(), configuration)) {
+            return new TestReport(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
+        } else {
+            return new TestReport(buildMessage(FAILURE, CANNOT_CONNECT, FAILURE_TYPES.get(CANNOT_CONNECT)));
+        }
+    }
 }

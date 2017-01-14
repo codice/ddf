@@ -18,8 +18,10 @@ import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.FAC
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ID;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
 
@@ -42,11 +44,6 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
     public static final String DESCRIPTION =
             "Attempts to create and persist a WFS source given a configuration.";
 
-    //Result types
-    private static final String SOURCE_CREATED = "sourceCreated";
-
-    private static final String CREATION_FAILED = "creationFailed";
-
     private static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(ID,
             "A unique name to identify the source.",
             ENDPOINT_URL,
@@ -59,10 +56,10 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
             PASSWORD,
             "A password used to authenticate with the WFS Source.");
 
-    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SOURCE_CREATED,
+    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
             "WFS Source successfully created.");
 
-    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CREATION_FAILED,
+    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST,
             "Failed to create WFS Source.");
 
     public CreateWfsSourcePersistMethod() {
@@ -87,8 +84,8 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
         report = configurator.commit();
         return report.containsFailedResults() ?
-                new TestReport(buildMessage(FAILURE, "Failed to create WFS Source")) :
-                new TestReport(buildMessage(SUCCESS, "WFS Source created"));
+                new TestReport(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST))) :
+                new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
     }
 
 }

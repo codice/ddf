@@ -105,7 +105,7 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
         //            if (connectionTestRetryResult.type() == SUCCESSFUL_CONNECTION) {
         //                connectionTestRetryResult.value()
         //                        .close();
-        //                testResults.addMessage(buildMessage(WARNING,
+        //                testResults.messages(buildMessage(WARNING,
         //                        "We were unable to connect to the host with the given encryption method but we were able successfully connect using the encryption method "
         //                                + testConfig.encryptionMethod()
         //                                + ". If this is acceptable, please change the encryption method field and resubmit."));
@@ -113,7 +113,7 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
         //            }
         //        }
         //
-        //        testResults.addMessage(buildMessage(FAILURE,
+        //        testResults.messages(buildMessage(FAILURE,
         //                "Unable to reach the specified host. We tried the other available encryption methods without success. Make sure your host and port are correct, your LDAP is running and that your network is not restricting access."));
     }
 

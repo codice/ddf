@@ -95,7 +95,7 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
             convertedSearchResults.add(entryMap);
         }
 
-        return new ProbeReport(new ArrayList<>()).addProbeResult("ldapQueryResults",
+        return new ProbeReport(new ArrayList<>()).probeResult("ldapQueryResults",
                 convertedSearchResults);
     }
 }

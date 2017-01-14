@@ -15,7 +15,7 @@ package org.codice.ddf.admin.sources;
 
 import static org.codice.ddf.admin.api.commons.SourceUtils.DISCOVER_SOURCES_ID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
 import java.util.Arrays;
@@ -65,7 +65,7 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
         return testMethod.isPresent() ?
                 testMethod.get()
                         .test(config) :
-                new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
+                new TestReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
     }
 
     public ProbeReport probe(String probeId, SourceConfiguration config) {
@@ -86,12 +86,11 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
 
             List<ConfigurationMessage> probeSourceMessages = sourceProbeReports.stream()
                     .filter(probeReport -> !probeReport.containsFailureMessages())
-                    .map(ProbeReport::getMessages)
+                    .map(ProbeReport::messages)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
 
-            sourcesProbeReport.addProbeResult(DISCOVER_SOURCES_ID, discoveredSources);
-            sourcesProbeReport.addMessages(probeSourceMessages);
+            sourcesProbeReport.probeResult(DISCOVER_SOURCES_ID, discoveredSources).messages(probeSourceMessages);
             return sourcesProbeReport;
 
         case SOURCE_CONFIGURATION_HANDLERS_ID:
@@ -102,15 +101,16 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
                             .build())
                     .collect(Collectors.toList());
 
-            return new ProbeReport().addProbeResult(SOURCE_CONFIGURATION_HANDLERS_ID, collect);
+            return new ProbeReport().probeResult(SOURCE_CONFIGURATION_HANDLERS_ID, collect);
 
         default:
-            return new ProbeReport(Arrays.asList(buildMessage(FAILURE, "No such probe.")));
+            return new ProbeReport(Arrays.asList(buildMessage(FAILURE, null, "No such probe.")));
         }
     }
 
+    @Override
     public TestReport persist(SourceConfiguration config, String persistId) {
-        return new TestReport(buildMessage(FAILURE, "Cannot persist a SourceConfiguration."));
+        return new TestReport(buildMessage(FAILURE, null, "Cannot persist a SourceConfiguration."));
     }
 
     @Override

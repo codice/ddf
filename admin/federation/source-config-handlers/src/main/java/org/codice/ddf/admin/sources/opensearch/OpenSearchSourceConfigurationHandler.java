@@ -16,9 +16,8 @@ package org.codice.ddf.admin.sources.opensearch;
 
 import static org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration.OPENSEARCH_FACTORY_PID;
 import static org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration.OPENSEARCH_SOURCE_DISPLAY_NAME;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PERSIST_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,7 +67,7 @@ public class OpenSearchSourceConfigurationHandler
         return probeMethod.isPresent() ?
                 probeMethod.get()
                         .probe(configuration) :
-                new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
+                new ProbeReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
     }
 
     @Override
@@ -83,7 +82,7 @@ public class OpenSearchSourceConfigurationHandler
         return testMethod.isPresent() ?
                 testMethod.get()
                         .test(configuration) :
-                new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
+                new TestReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
     }
 
     @Override
@@ -97,7 +96,8 @@ public class OpenSearchSourceConfigurationHandler
         return persistMethod.isPresent() ?
                 persistMethod.get()
                         .persist(config) :
-                new ProbeReport((new ConfigurationMessage(NO_PERSIST_FOUND)));
+                new ProbeReport((new ConfigurationMessage(FAILURE,
+                        NO_METHOD_FOUND, null)));
     }
 
     @Override

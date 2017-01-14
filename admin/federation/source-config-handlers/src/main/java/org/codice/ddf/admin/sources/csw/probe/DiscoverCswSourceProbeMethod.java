@@ -18,9 +18,9 @@ import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.HOS
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PORT;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.INTERNAL_ERROR;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.sources.csw.CswSourceConfigurationHandler.CSW_SOURCE_CONFIGURATION_HANDLER_ID;
 
 import java.util.ArrayList;
@@ -66,7 +66,8 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
             NO_ENDPOINT,
             "No CSW endpoint found.",
             BAD_CONFIG,
-            "Endpoint discovered, but could not create valid configuration.");
+            "Endpoint discovered, but could not create valid configuration.",
+            INTERNAL_ERROR, "Failed to create configuration from valid request to valid endpoint.");
 
     public DiscoverCswSourceProbeMethod() {
         super(CSW_DISCOVER_SOURCES_ID,
@@ -88,23 +89,20 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
         if (url.isPresent()) {
             configuration.endpointUrl(url.get());
         } else if (configuration.certError()) {
-            results.add(buildMessage(FAILURE,
-                    "The discovered URL has incorrectly configured SSL certificates and is insecure."));
+            results.add(new ConfigurationMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
             return new ProbeReport(results);
         } else {
-            results.add(buildMessage(FAILURE, "No CSW endpoint found."));
+            results.add(new ConfigurationMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
             return new ProbeReport(results);
         }
         try {
             configuration = CswSourceUtils.getPreferredConfig(configuration);
         } catch (CswSourceCreationException e) {
-            results.add(new ConfigurationMessage(
-                    "Failed to create configuration from valid request to valid endpoint.",
-                    FAILURE));
+            results.add(new ConfigurationMessage(FAILURE, INTERNAL_ERROR, FAILURE_TYPES.get(INTERNAL_ERROR), e));
             return new ProbeReport(results);
         }
-        results.add(new ConfigurationMessage("Discovered CSW endpoint.", SUCCESS));
-        return new ProbeReport(results).addProbeResult(DISCOVER_SOURCES_ID,
+        results.add(new ConfigurationMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
+        return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
                 configuration.configurationHandlerId(CSW_SOURCE_CONFIGURATION_HANDLER_ID));
     }
 

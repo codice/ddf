@@ -21,15 +21,13 @@ import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LO
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
 import static org.codice.ddf.admin.api.handler.Configuration.SERVICE_PID_KEY;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.INVALID_FIELD;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.CANNOT_BIND;
-import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.CANNOT_CONFIGURE;
-import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.CANNOT_CONNECT;
-import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.SUCCESSFUL_BIND;
-import static org.codice.ddf.admin.security.ldap.LdapConfigurationHandler.LdapTestResultType.SUCCESSFUL_CONNECTION;
-import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.selectBindMethod;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -41,8 +39,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.net.ssl.SSLContext;
 
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
@@ -64,10 +60,6 @@ import org.codice.ddf.admin.security.ldap.test.BindUserTestMethod;
 import org.codice.ddf.admin.security.ldap.test.ConnectTestMethod;
 import org.codice.ddf.admin.security.ldap.test.DirectoryStructTestMethod;
 import org.codice.ddf.configuration.PropertyResolver;
-import org.forgerock.opendj.ldap.Connection;
-import org.forgerock.opendj.ldap.LDAPConnectionFactory;
-import org.forgerock.opendj.ldap.LDAPOptions;
-import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,8 +159,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         return probeMethod.isPresent() ?
                 probeMethod.get()
                         .probe(ldapConfiguration) :
-                new ProbeReport(Collections.singletonList(buildMessage(FAILURE,
-                        "UNKNOWN PROBE ID")));
+                new ProbeReport(Collections.singletonList(buildMessage(FAILURE, NO_METHOD_FOUND, null)));
     }
 
     @Override
@@ -181,7 +172,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         return testMethod.isPresent() ?
                 testMethod.get()
                         .test(ldapConfiguration) :
-                new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
+                new TestReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
     }
 
     @Override
@@ -192,7 +183,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
         switch (persistId) {
         case "create":
             if (!LDAP_USE_CASES.contains(config.ldapUseCase())) {
-                return new TestReport(buildMessage(FAILURE, "No ldap use case specified"));
+                return new TestReport(buildMessage(FAILURE, INVALID_FIELD, "No ldap use case specified or not supported."));
             }
 
             if (config.ldapUseCase()
@@ -257,9 +248,9 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             report = configurator.commit();
             if (!report.getFailedResults()
                     .isEmpty()) {
-                return new TestReport(buildMessage(FAILURE, "Unable to persist changes"));
+                return new TestReport(buildMessage(FAILURE, FAILED_PERSIST, "Unable to persist changes"));
             } else {
-                return new TestReport(buildMessage(ConfigurationMessage.MessageType.SUCCESS,
+                return new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST,
                         "Successfully saved LDAP settings"));
             }
         case "delete":
@@ -267,76 +258,14 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             report = configurator.commit();
             if (!report.getFailedResults()
                     .isEmpty()) {
-                return new TestReport(buildMessage(FAILURE, "Unable to delete LDAP Configuration"));
+                return new TestReport(buildMessage(FAILURE, FAILED_PERSIST, "Unable to delete LDAP Configuration"));
             } else {
-                return new TestReport(buildMessage(ConfigurationMessage.MessageType.SUCCESS,
+                return new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST,
                         "Successfully deleted LDAP Configuration"));
             }
         default:
-            return new TestReport(buildMessage(FAILURE, "Uknown persist id: " + persistId));
+            return new TestReport(buildMessage(FAILURE, ConfigurationMessage.NO_METHOD_FOUND, null));
         }
-    }
-
-    public LdapTestResult<Connection> getLdapConnection(LdapConfiguration ldapConfiguration) {
-
-        LDAPOptions ldapOptions = new LDAPOptions();
-
-        try {
-            if (ldapConfiguration.encryptionMethod()
-                    .equalsIgnoreCase(LDAPS)) {
-                ldapOptions.setSSLContext(SSLContext.getDefault());
-            } else if (ldapConfiguration.encryptionMethod()
-                    .equalsIgnoreCase(TLS)) {
-                ldapOptions.setUseStartTLS(true);
-            }
-
-            ldapOptions.addEnabledCipherSuite(System.getProperty("https.cipherSuites")
-                    .split(","));
-            ldapOptions.addEnabledProtocol(System.getProperty("https.protocols")
-                    .split(","));
-
-            //sets the classloader so it can find the grizzly protocol handler class
-            ldapOptions.setProviderClassLoader(LdapConfigurationHandler.class.getClassLoader());
-
-        } catch (Exception e) {
-            return new LdapTestResult<>(CANNOT_CONFIGURE);
-        }
-
-        Connection ldapConnection;
-
-        try {
-            ldapConnection = new LDAPConnectionFactory(ldapConfiguration.hostName(),
-                    ldapConfiguration.port(),
-                    ldapOptions).getConnection();
-        } catch (Exception e) {
-            return new LdapTestResult<>(CANNOT_CONNECT);
-        }
-
-        return new LdapTestResult<>(SUCCESSFUL_CONNECTION, ldapConnection);
-    }
-
-    public LdapTestResult<Connection> bindUserToLdapConnection(
-            LdapConfiguration ldapConfiguration) {
-
-        LdapTestResult<Connection> ldapConnectionResult = getLdapConnection(ldapConfiguration);
-        if (ldapConnectionResult.type() != SUCCESSFUL_CONNECTION) {
-            return ldapConnectionResult;
-        }
-
-        Connection connection = ldapConnectionResult.value();
-
-        try {
-            BindRequest bindRequest = selectBindMethod(ldapConfiguration.bindUserMethod(),
-                    ldapConfiguration.bindUserDn(),
-                    ldapConfiguration.bindUserPassword(),
-                    ldapConfiguration.bindRealm(),
-                    ldapConfiguration.bindKdcAddress());
-            connection.bind(bindRequest);
-        } catch (Exception e) {
-            return new LdapTestResult<>(CANNOT_BIND);
-        }
-
-        return new LdapTestResult<>(SUCCESSFUL_BIND, connection);
     }
 
     private boolean isStartTls(LdapConfiguration config) {
@@ -347,33 +276,5 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     private String getLdapUrl(LdapConfiguration config) {
         return config.encryptionMethod()
                 .equalsIgnoreCase(LDAPS) ? "ldaps://" : "ldap://";
-    }
-
-    public enum LdapTestResultType {
-        SUCCESSFUL_CONNECTION, CANNOT_CONNECT, CANNOT_CONFIGURE, CANNOT_BIND, SUCCESSFUL_BIND
-    }
-
-    public static class LdapTestResult<T> {
-
-        private LdapTestResultType type;
-
-        private T value;
-
-        public LdapTestResult(LdapTestResultType ldapTestResultType) {
-            this.type = ldapTestResultType;
-        }
-
-        public LdapTestResult(LdapTestResultType ldapTestResultType, T value) {
-            this.type = ldapTestResultType;
-            this.value = value;
-        }
-
-        public T value() {
-            return value;
-        }
-
-        public LdapTestResultType type() {
-            return type;
-        }
     }
 }

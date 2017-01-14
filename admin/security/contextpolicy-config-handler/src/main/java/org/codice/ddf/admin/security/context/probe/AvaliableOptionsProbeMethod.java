@@ -73,9 +73,9 @@ public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
     @Override
     public ProbeReport probe(ContextPolicyConfiguration config) {
         // TODO: tbatie - 1/12/17 - Validate fields
-        return new ProbeReport().addProbeResult(AUTH_TYPES_KEY, getAuthTypes())
-                .addProbeResult(REALMS_KEY, getRealms())
-                .addProbeResult(CLAIMS_KEY, getClaims());
+        return new ProbeReport().probeResult(AUTH_TYPES_KEY, getAuthTypes())
+                .probeResult(REALMS_KEY, getRealms())
+                .probeResult(CLAIMS_KEY, getClaims());
     }
 
     public List<String> getAuthTypes() {

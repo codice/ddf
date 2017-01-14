@@ -14,8 +14,9 @@
 
 package org.codice.ddf.admin.api.config.security.ldap;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.REQUIRED_FIELDS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MISSING_REQUIRED_FIELD;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -377,9 +378,7 @@ public class LdapConfiguration extends Configuration {
         return fields.stream()
                 .filter(s -> findEmpties.apply(FIELD_FUNC_MAP.get(s)
                         .apply(this)))
-                .map(s -> ConfigurationMessage.buildMessage(ConfigurationMessage.MessageType.REQUIRED_FIELDS,
-                        "Field cannot be empty")
-                        .configId(s))
+                .map(s -> createMissingRequiredFieldMsg(s))
                 .collect(Collectors.toList());
     }
 
@@ -390,11 +389,11 @@ public class LdapConfiguration extends Configuration {
         String bindMethod = bindUserMethod();
         if (bindMethod.equals("GSSAPI SASL")) {
             if (StringUtils.isEmpty(bindKdcAddress())) {
-                missingFields.add(buildMessage(REQUIRED_FIELDS,
+                missingFields.add(new ConfigurationMessage(FAILURE, MISSING_REQUIRED_FIELD,
                         "Field cannot be empty for GSSAPI SASL bind type").configId(bindKdcAddress));
             }
             if (StringUtils.isEmpty(bindRealm())) {
-                missingFields.add(buildMessage(REQUIRED_FIELDS,
+                missingFields.add(new ConfigurationMessage(FAILURE, MISSING_REQUIRED_FIELD,
                         "Field cannot be empty for GSSAPI SASL bind type").configId(BIND_REALM));
             }
         }

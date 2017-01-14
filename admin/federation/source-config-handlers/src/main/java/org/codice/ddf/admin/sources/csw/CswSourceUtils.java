@@ -19,9 +19,6 @@ import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_GMD_FACTORY_PID;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_PROFILE_FACTORY_PID;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SPEC_FACTORY_PID;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -45,7 +42,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
-import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.w3c.dom.Document;
 
 public class CswSourceUtils {
@@ -67,27 +63,6 @@ public class CswSourceUtils {
 
     private static final String GET_FIRST_OUTPUT_SCHEMA =
             "//ows:OperationsMetadata/ows:Operation[@name='GetRecords']/ows:Parameter[@name='OutputSchema' or @name='outputSchema']/ows:Value[1]/text()";
-
-    // Given a config with a endpoint URL, finds the most specific applicable CSW source type and
-    //   mutates the config's factoryPid appropriately, defaulting to generic specification with feedback
-    //   if unable to determine CSW type
-    public static TestReport discoverUrlCapabilities(CswSourceConfiguration config) {
-        if (isAvailable(config.endpointUrl(), config)) {
-            try {
-                getPreferredConfig(config);
-                return new TestReport(buildMessage(SUCCESS,
-                        "Specified URL has been verified as a CSW endpoint."));
-            } catch (CswSourceCreationException e) {
-                config.factoryPid(CSW_SPEC_FACTORY_PID);
-                return new TestReport(buildMessage(WARNING,
-                        "Cannot discover CSW profile, defaulting to Specification."));
-            }
-        } else {
-            config.factoryPid(CSW_SPEC_FACTORY_PID);
-            return new TestReport(buildMessage(WARNING,
-                    "Specified URL could not be verified as a CSW endpoint, configuration will default to Specification."));
-        }
-    }
 
     // Given a config with an endpoint URL, determines if that URL is a functional CSW endpoint.
     public static boolean isAvailable(String url, CswSourceConfiguration config) {

@@ -14,8 +14,11 @@
 
 package org.codice.ddf.admin.security.context;
 
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
 import java.util.ArrayList;
@@ -63,7 +66,7 @@ public class ContextPolicyManagerHandler
         return probeMethod.isPresent() ?
                 probeMethod.get()
                         .probe(configuration) :
-                new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
+                new ProbeReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
     }
 
     @Override
@@ -80,10 +83,8 @@ public class ContextPolicyManagerHandler
                         .isEmpty())
                 .findFirst()
                 .isPresent()) {
-            return new TestReport(buildMessage(FAILURE,
+            return new TestReport(buildMessage(FAILURE, FAILED_PERSIST,
                     "Context paths, realm and authentication types cannot be empty"));
-
-            // TODO: tbatie - 12/14/16 - throw bad request?
         }
 
         Configurator configurator = new Configurator();
@@ -93,10 +94,10 @@ public class ContextPolicyManagerHandler
         ConfigReport configReport = configurator.commit();
         if (!configReport.getFailedResults()
                 .isEmpty()) {
-            return new TestReport(buildMessage(ConfigurationMessage.MessageType.FAILURE,
+            return new TestReport(buildMessage(FAILURE, FAILED_PERSIST,
                     "Unable to persist changes"));
         } else {
-            return new TestReport(buildMessage(ConfigurationMessage.MessageType.SUCCESS,
+            return new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST,
                     "Successfully saved Web Context Policy Manager settings"));
         }
     }

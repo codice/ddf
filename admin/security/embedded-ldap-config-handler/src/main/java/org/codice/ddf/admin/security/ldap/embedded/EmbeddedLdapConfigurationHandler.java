@@ -15,9 +15,7 @@
 package org.codice.ddf.admin.security.ldap.embedded;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_PROBE_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.NO_TEST_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_PERSIST_METHOD_FOUND;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,12 +49,12 @@ public class EmbeddedLdapConfigurationHandler
 
     @Override
     public ProbeReport probe(String probeId, EmbeddedLdapConfiguration configuration) {
-        return new ProbeReport(new ConfigurationMessage(NO_PROBE_FOUND));
+        return new ProbeReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
     }
 
     @Override
     public TestReport test(String testId, EmbeddedLdapConfiguration configuration) {
-        return new TestReport(new ConfigurationMessage(NO_TEST_FOUND));
+        return new TestReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
     }
 
     @Override
@@ -69,7 +67,8 @@ public class EmbeddedLdapConfigurationHandler
         return persistMethod.isPresent() ?
                 persistMethod.get()
                         .persist(configuration) :
-                new TestReport(new ConfigurationMessage(FAILURE, NO_PERSIST_METHOD_FOUND));
+                new TestReport(new ConfigurationMessage(FAILURE,
+                        ConfigurationMessage.NO_METHOD_FOUND, null));
     }
 
     @Override

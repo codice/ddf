@@ -114,7 +114,7 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
                     configuration.membershipAttribute());
         }
 
-        return new ProbeReport(new ArrayList<>()).addProbeResult(SUBJECT_CLAIMS_ID, subjectClaims)
-                .addProbeResult(LDAP_USER_ATTRIBUTES, ldapEntryAttributes);
+        return new ProbeReport(new ArrayList<>()).probeResult(SUBJECT_CLAIMS_ID, subjectClaims)
+                .probeResult(LDAP_USER_ATTRIBUTES, ldapEntryAttributes);
     }
 }

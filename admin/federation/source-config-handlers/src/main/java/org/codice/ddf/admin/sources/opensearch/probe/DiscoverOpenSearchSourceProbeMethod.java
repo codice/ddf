@@ -39,38 +39,30 @@ import com.google.common.collect.ImmutableMap;
 
 public class DiscoverOpenSearchSourceProbeMethod
         extends ProbeMethod<OpenSearchSourceConfiguration> {
+
     public static final String OPENSEARCH_DISCOVER_SOURCES_ID = DISCOVER_SOURCES_ID;
+    public static final String DESCRIPTION = "Attempts to discover a OpenSearch endpoint based on a hostname and port using optional authentication information.";
 
-    public static final String DESCRIPTION =
-            "Attempts to discover a OpenSearch endpoint based on a hostname and port using optional authentication information.";
-
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(HOSTNAME,
-            "The hostname to query for OpenSearch capabilites.",
-            PORT,
-            "The port to connect over when searching for OpenSearch capabilities.");
-
-    public static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(USERNAME,
-            "A username to use for basic auth connections when searching for OpenSearch capabilities.",
-            PASSWORD,
-            "A password to use for basic auth connections when searching for OpenSearch capabilities.");
+    private static final String CERT_ERROR = "certError";
+    private static final String NO_ENDPOINT = "noEndpoint";
+    private static final String BAD_CONFIG = "badConfig";
 
     private static final String ENDPOINT_DISCOVERED = "endpointDiscovered";
 
-    private static final String CERT_ERROR = "certError";
+    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(
+            HOSTNAME, "The hostname to query for OpenSearch capabilites.",
+            PORT, "The port to connect over when searching for OpenSearch capabilities.");
 
-    private static final String NO_ENDPOINT = "noEndpoint";
+    public static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(
+            USERNAME, "A username to use for basic auth connections when searching for OpenSearch capabilities.",
+            PASSWORD, "A password to use for basic auth connections when searching for OpenSearch capabilities.");
 
-    private static final String BAD_CONFIG = "badConfig";
+    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(
+            CERT_ERROR, "The discovered source has incorrectly configured SSL certificates and is insecure.",
+            NO_ENDPOINT, "No OpenSearch endpoint found.",
+            BAD_CONFIG, "Endpoint discovered, but could not create valid configuration.");
 
-    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED,
-            "Discovered OpenSearch endpoint.");
-
-    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CERT_ERROR,
-            "The discovered source has incorrectly configured SSL certificates and is insecure.",
-            NO_ENDPOINT,
-            "No OpenSearch endpoint found.",
-            BAD_CONFIG,
-            "Endpoint discovered, but could not create valid configuration.");
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED, "Discovered OpenSearch endpoint.");
 
     public DiscoverOpenSearchSourceProbeMethod() {
         super(OPENSEARCH_DISCOVER_SOURCES_ID,
@@ -93,16 +85,15 @@ public class DiscoverOpenSearchSourceProbeMethod
         if (url.isPresent()) {
             configuration.endpointUrl(url.get());
             configuration.factoryPid(OPENSEARCH_FACTORY_PID);
-            results.add(new ConfigurationMessage("Discovered OpenSearch endpoint.", SUCCESS));
-            return new ProbeReport(results).addProbeResult(DISCOVER_SOURCES_ID,
+            results.add(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
+            return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
                     configuration.configurationHandlerId(OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID));
 
         } else if (configuration.certError()) {
-            results.add(buildMessage(FAILURE,
-                    "The discovered URL has incorrectly configured SSL certificates and is insecure."));
+            results.add(buildMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
             return new ProbeReport(results);
         } else {
-            results.add(buildMessage(FAILURE, "No OpenSearch endpoint found."));
+            results.add(buildMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
             return new ProbeReport(results);
         }
     }

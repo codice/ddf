@@ -15,6 +15,10 @@ package org.codice.ddf.admin.sources.wfs.test;
 
 import static org.codice.ddf.admin.api.commons.SourceUtils.MANUAL_URL_TEST_ID;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.sources.wfs.WfsSourceUtils.isAvailable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +30,6 @@ import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.sources.wfs.WfsSourceUtils;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -74,7 +77,11 @@ public class WfsUrlTestMethod extends TestMethod<WfsSourceConfiguration> {
         if (message.isPresent()) {
             return new TestReport(message.get());
         }
-        return WfsSourceUtils.discoverUrlCapabilities(configuration);
-    }
 
+        if (isAvailable(configuration.endpointUrl(), configuration)) {
+            return new TestReport(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
+        } else {
+            return new TestReport(buildMessage(FAILURE, CANNOT_VERIFY, FAILURE_TYPES.get(CANNOT_CONNECT)));
+        }
+    }
 }

@@ -14,102 +14,106 @@
 
 package org.codice.ddf.admin.api.handler;
 
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class ConfigurationMessage {
 
-    public static final String NO_TEST_METHOD_FOUND = "NO_TEST_METHOD_FOUND";
-
-    public static final String NO_PROBE_METHOD_FOUND = "NO_PROBE_METHOD_FOUND";
-
-    public static final String NO_PERSIST_METHOD_FOUND = "NO_PERSIST_METHOD_FOUND";
-
-    public static final String MISSING_REQUIRED_FIELDS = "MISSING_REQUIRED_FIELD";
-
+    // Default error message subtypes
+    public static final String NO_METHOD_FOUND = "NO_METHOD_FOUND";
+    public static final String MISSING_REQUIRED_FIELD = "MISSING_REQUIRED_FIELD";
     public static final String INVALID_FIELD = "INVALID_FIELD";
+    public static final String FAILED_PERSIST = "FAILED_PERSIST";
+    public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
+
+    // Default success messages subtypes
+    public static final String SUCCESSFUL_PERSIST = "SUCCESSFUL_PERSIST";
 
     private MessageType type;
-
     private String subType;
-
     private String message;
-
     private String configId;
-
     private List<Exception> exceptions;
 
-    // TODO: tbatie - 1/10/17 - Let's make a root constructor and all others call super
-    public ConfigurationMessage(MessageType type, Exception... exceptions) {
+    public ConfigurationMessage(MessageType type, String subType, String message, String configId,
+            Exception... exceptions) {
         this.type = type;
+        this.subType = subType;
+        this.message = message;
+        this.configId = configId;
         this.exceptions = new ArrayList<>();
-        this.exceptions.addAll(Arrays.asList(exceptions));
+        if (exceptions != null) {
+            this.exceptions.addAll(Arrays.asList(exceptions));
+        }
     }
 
-    // TODO: tbatie - 1/3/17 - Pet peeve, let's change the message signature around here, messageType should go first
-    public ConfigurationMessage(String message, MessageType type, Exception... exceptions) {
-        this.message = message;
-        this.type = type;
-        this.exceptions = new ArrayList<>();
-        this.exceptions.addAll(Arrays.asList(exceptions));
+    public ConfigurationMessage(MessageType type, String subType, String message, String configId) {
+        this(type, subType, message, configId, null);
+    }
+
+    public ConfigurationMessage(MessageType type, String subType, String message,
+            Exception... exceptions) {
+        this(type, subType, message, null, exceptions);
     }
 
     public ConfigurationMessage(MessageType type, String subType, String message) {
-        this.message = message;
-        this.type = type;
-        this.subType = subType;
+        this(type, subType, message, null, null);
     }
 
-    public ConfigurationMessage(MessageType type, String subType) {
-        this.type = type;
-        this.subType = subType;
+    public enum MessageType {
+        SUCCESS, WARNING, FAILURE
     }
 
-    // TODO: tbatie - 1/3/17 - Why do we have methods that just wrap the constructors
-    public static ConfigurationMessage buildMessage(MessageType type) {
-        return new ConfigurationMessage(type);
+    public static ConfigurationMessage buildMessage(MessageType type, String subtype, String message) {
+        return new ConfigurationMessage(type, subtype, message);
     }
 
-    public static ConfigurationMessage buildMessage(MessageType type, String message) {
-        return new ConfigurationMessage(message, type);
+    // Getters
+    public MessageType type() {
+        return type;
     }
 
-    public void addException(Exception e) {
-        this.exceptions.add(e);
-    }
-
-    public String subType() {
+    public String subtype() {
         return subType;
+    }
+
+    public String message() {
+        return message;
     }
 
     public String configId() {
         return configId;
     }
 
-    public String getMessage() {
-        return message;
+    public List<Exception> exceptions() {
+        return exceptions;
     }
 
-    public MessageType getType() {
-        return type;
-    }
-
-    //
-    // Builder Methods
-    //
+    // Setters
     public ConfigurationMessage configId(String configId) {
         this.configId = configId;
         return this;
     }
 
-    public ConfigurationMessage exception(Exception e) {
-        exceptions.add(e);
-        return this;
+    //Builders
+    public static ConfigurationMessage createInvalidFieldMsg(String description, String configId) {
+        return new ConfigurationMessage(FAILURE, INVALID_FIELD, description, configId);
     }
 
-    // TODO: tbatie - 1/10/17 - Replace other messageTypes other than SUCCESS, WARNING, and FAILURE as subtypes with constants at top of class
-    public enum MessageType {
-        SUCCESS, WARNING, FAILURE, NO_TEST_FOUND, NO_PROBE_FOUND, NO_PERSIST_FOUND, REQUIRED_FIELDS
+    public static ConfigurationMessage createMissingRequiredFieldMsg(String configId) {
+        return new ConfigurationMessage(FAILURE, MISSING_REQUIRED_FIELD, "Missing required field: " + configId, configId);
     }
+
+    public static ConfigurationMessage createInternalErrorMsg(String description, Exception... e) {
+        return new ConfigurationMessage(FAILURE, INTERNAL_ERROR, description, e);
+    }
+
+    public static ConfigurationMessage createInternalErrorMsg(String description, String configId,
+            Exception... e) {
+        return new ConfigurationMessage(FAILURE, INTERNAL_ERROR, description, configId, e);
+    }
+
 }

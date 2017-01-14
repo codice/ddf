@@ -21,8 +21,10 @@ import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfig
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.EVENT_SERVICE_ADDRESS;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.FORCE_SPATIAL_FILTER;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.OUTPUT_SCHEMA;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
 
@@ -70,10 +72,10 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
             FORCE_SPATIAL_FILTER,
             "Specifies a spatial filter for the source (only needed for CSW Specification sources).");
 
-    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SOURCE_CREATED,
+    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
             "CSW Source successfully created.");
 
-    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CREATION_FAILED,
+    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST,
             "Failed to create CSW Source.");
 
     public CreateCswSourcePersistMethod() {
@@ -97,9 +99,8 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
         ConfigReport report;
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
         report = configurator.commit();
-        return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE,
-                "Failed to create CSW Source")) : new TestReport(buildMessage(SUCCESS,
-                "CSW Source created"));
+        return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)))
+                 : new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
     }
 
 }

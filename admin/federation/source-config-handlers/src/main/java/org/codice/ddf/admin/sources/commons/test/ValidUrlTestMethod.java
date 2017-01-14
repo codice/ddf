@@ -67,10 +67,9 @@ public class ValidUrlTestMethod extends TestMethod<SourceConfiguration> {
             connection.connect(new InetSocketAddress(configuration.sourceHostName(),
                     configuration.sourcePort()), PING_TIMEOUT);
             connection.close();
-            return new TestReport(buildMessage(SUCCESS, "Was able to reach source successfully"));
+            return new TestReport(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
         } catch (IOException e) {
-            return new TestReport(buildMessage(FAILURE,
-                    "Unable to reach specified hostname and port."));
+            return new TestReport(buildMessage(FAILURE, CANNOT_CONNECT, FAILURE_TYPES.get(CANNOT_CONNECT)));
         }
     }
 }

@@ -14,7 +14,8 @@
 
 package org.codice.ddf.admin.api.config.federation.sources;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
 import java.util.HashMap;
 import java.util.List;
@@ -63,10 +64,10 @@ public class WfsSourceConfiguration extends SourceConfiguration {
             switch (field) {
             case FACTORY_PID:
                 if (factoryPid() == null) {
-                    errors.add(new ConfigurationMessage("Configuration does not contain a factory PID.", FAILURE));
+                    errors.add(createMissingRequiredFieldMsg(FACTORY_PID));
                 }
                 if (!(factoryPid().equals(WFS1_FACTORY_PID) || factoryPid().equals(WFS2_FACTORY_PID))) {
-                    errors.add(new ConfigurationMessage("Configuration does not contain a factory PID.", FAILURE));
+                    errors.add(createInvalidFieldMsg("Unknown factory PID type.", FACTORY_PID));
                 }
                 break;
             }

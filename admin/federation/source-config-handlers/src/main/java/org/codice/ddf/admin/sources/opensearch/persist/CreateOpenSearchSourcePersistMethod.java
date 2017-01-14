@@ -86,7 +86,9 @@ public class CreateOpenSearchSourcePersistMethod
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
         report = configurator.commit();
         return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE,
+                CREATION_FAILED,
                 "Failed to create OpenSearch Source")) : new TestReport(buildMessage(SUCCESS,
+                SOURCE_CREATED,
                 "OpenSearch Source created"));
     }
 

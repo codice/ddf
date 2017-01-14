@@ -14,8 +14,10 @@
 package org.codice.ddf.admin.sources.wfs.persist;
 
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SERVICE_PID;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.DELETE;
 
@@ -39,17 +41,13 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
     public static final String DESCRIPTION =
             "Attempts to delete a WFS Source with the given configuration.";
 
-    private static final String SOURCE_DELETED = "sourceDeleted";
-
-    private static final String DELETE_FAILED = "deleteFailed";
-
     private static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(SERVICE_PID,
             "The unique pid of the service to be deleted.");
 
-    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SOURCE_DELETED,
+    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
             "The CSW Source was successfully deleted.");
 
-    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(DELETE_FAILED,
+    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST,
             "Failed to delete CSW source.");
 
     public DeleteWfsSourcePersistMethod() {
@@ -75,8 +73,8 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
         configurator.deleteManagedService(configuration.servicePid());
         report = configurator.commit();
         return report.containsFailedResults() ?
-                new TestReport(buildMessage(FAILURE, "Failed to delete WFS Source")) :
-                new TestReport(buildMessage(SUCCESS, "WFS Source deleted"));
+                new TestReport(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST))):
+                new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
     }
 
 }
