@@ -39,11 +39,11 @@ public class SourceUtils {
 
     public static final int PING_TIMEOUT = 500;
 
-    public static final String DISCOVER_SOURCES_ID = "discoverSources";
+    public static final String DISCOVER_SOURCES_ID = "discover-sources";
 
-    public static final String VALID_URL_TEST_ID = "testValidUrl";
+    public static final String VALID_URL_TEST_ID = "valid-url";
 
-    public static final String MANUAL_URL_TEST_ID = "testManualUrl";
+    public static final String MANUAL_URL_TEST_ID = "manual-url";
 
     public static Optional<ConfigurationMessage> endpointIsReachable(SourceConfiguration config) {
         try {

@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+
 package org.codice.ddf.admin.security.ldap.persist;
 
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ATTRIBUTE_MAPPINGS;
@@ -61,11 +75,9 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
 
     public static final Map<String, String> LOGIN_OPTIONAL_FIELDS = buildFieldMap(BIND_KDC, BIND_REALM);
 
-    public static final Map<String, String> CLAIMS_REQUIRED_FIELDS = ImmutableMap.<String, String>builder().putAll(LOGIN_REQUIRED_FIELDS)
+    public static final Map<String, String> ALL_REQUIRED_FIELDS = ImmutableMap.<String, String>builder().putAll(LOGIN_REQUIRED_FIELDS)
                     .putAll(buildFieldMap(GROUP_OBJECT_CLASS, MEMBERSHIP_ATTRIBUTE, ATTRIBUTE_MAPPINGS))
                     .build();
-
-    public static final Map<String, String> ALL_REQUIRED_FIELDS = ImmutableMap.<String, String>builder().putAll(LOGIN_REQUIRED_FIELDS).putAll(CLAIMS_REQUIRED_FIELDS).build();
 
     public CreateLdapConfigMethod() {
         super(LDAP_CREATE_ID,
@@ -114,7 +126,8 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
         if (config.ldapUseCase()
                 .equals(CREDENTIAL_STORE) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
-            TestReport validationReport = new TestReport(config.checkRequiredFields(CLAIMS_REQUIRED_FIELDS.keySet()));
+            TestReport validationReport = new TestReport(config.checkRequiredFields(
+                    ALL_REQUIRED_FIELDS.keySet()));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
             }
@@ -155,7 +168,7 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
             return new TestReport(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)));
         } else {
             return new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST,
-                SUCCESS_TYPES.get(SUCCESS)));
+                SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
         }
     }
 

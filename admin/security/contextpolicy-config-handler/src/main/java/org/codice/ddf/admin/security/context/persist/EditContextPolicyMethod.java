@@ -38,9 +38,9 @@ import org.codice.ddf.admin.api.persist.Configurator;
 
 import com.google.common.collect.ImmutableMap;
 
-public class PersistContextPolicyMethod extends PersistMethod<ContextPolicyConfiguration>{
+public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfiguration>{
 
-    public static final String PERSIST_CONTEXT_POLICY_ID = "persist";
+    public static final String PERSIST_CONTEXT_POLICY_ID = "edit";
 
     public static final String DESCRIPTION =
             "Persist changes to the Web Context Policy manager.";
@@ -51,7 +51,7 @@ public class PersistContextPolicyMethod extends PersistMethod<ContextPolicyConfi
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "Successfully saved Web Context Policy Manager settings");
 
     public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Unable to persist changes");
-    public PersistContextPolicyMethod() {
+    public EditContextPolicyMethod() {
         super(PERSIST_CONTEXT_POLICY_ID,
                 DESCRIPTION,
                 REQUIRED_FIELDS,

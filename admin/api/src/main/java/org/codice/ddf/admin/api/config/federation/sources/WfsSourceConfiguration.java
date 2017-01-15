@@ -27,7 +27,7 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class WfsSourceConfiguration extends SourceConfiguration {
 
-    public static final String CONFIGURATION_TYPE = "wfs";
+    public static final String CONFIGURATION_TYPE = "wfs-source";
 
     //** wfs Service Properties
     public static final String WFS_URL = "wfsUrl";

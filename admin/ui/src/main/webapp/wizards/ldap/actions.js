@@ -74,7 +74,7 @@ export const probeLdapDir = (id, nextStageId) => (dispatch, getState) => {
     credentials: 'same-origin'
   }
 
-  window.fetch('/admin/beta/config/probe/ldap/directoryStructure', opts)
+  window.fetch('/admin/beta/config/probe/ldap/dir-struct', opts)
     .then((res) => Promise.all([ res.status, res.json() ]))
     .then(([status, json]) => {
       if (status === 200) {

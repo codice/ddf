@@ -44,10 +44,10 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 
 public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
 
-    public static final String LDAP_BIND_TEST_ID = "testLdapBind";
+    public static final String LDAP_BIND_TEST_ID = "bind";
 
     public static final String DESCRIPTION =
-            "Attempts to bind the specified user to specified ldap connection";
+            "Attempts to bind the specified user to specified ldap connection.";
 
     private static final Map<String, String> REQUIRED_FIELDS = LdapConfiguration.buildFieldMap(
             HOST_NAME,

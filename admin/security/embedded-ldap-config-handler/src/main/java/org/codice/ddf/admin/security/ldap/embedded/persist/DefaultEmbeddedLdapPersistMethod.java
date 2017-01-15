@@ -37,7 +37,7 @@ import com.google.common.collect.Sets;
 
 public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdapConfiguration> {
 
-    public static final String DEFAULT_CONFIGURATIONS_ID = "defaultConfigs";
+    public static final String DEFAULT_CONFIGURATIONS_ID = "defaults";
 
     public static final String DESCRIPTION =
             "Starts up the Opendj Embedded App and installs default realm and/or attribute store configurations.";

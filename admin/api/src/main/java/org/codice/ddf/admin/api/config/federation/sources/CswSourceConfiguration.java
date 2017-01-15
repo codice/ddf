@@ -27,7 +27,7 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class CswSourceConfiguration extends SourceConfiguration {
 
-    public static final String CONFIGURATION_TYPE = "csw";
+    public static final String CONFIGURATION_TYPE = "csw-source";
 
     //** Csw Service Properties
     public static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";

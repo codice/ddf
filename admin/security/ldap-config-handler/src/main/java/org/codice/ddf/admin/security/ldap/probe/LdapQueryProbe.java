@@ -42,6 +42,9 @@ import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 
 public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
+
+    public static final String LDAP_QUERY_ID = "query";
+
     private static final String DESCRIPTION =
             "Probe to execute arbitrary query against an LDAP server and return the results.";
 
@@ -61,7 +64,7 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
             BIND_KDC);
 
     public LdapQueryProbe() {
-        super("ldapQuery", DESCRIPTION, REQUIRED_FIELDS, OPTIONAL_FIELDS, null, null, null);
+        super(LDAP_QUERY_ID, DESCRIPTION, REQUIRED_FIELDS, OPTIONAL_FIELDS, null, null, null);
     }
 
     @Override

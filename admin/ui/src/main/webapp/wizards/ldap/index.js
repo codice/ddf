@@ -174,7 +174,7 @@ const ConfigureEmbeddedLdapView = ({ id, disabled, ldapUseCase }) => {
     {/* </div> */}
     <StageControls>
       <Back disabled={disabled} />
-      <Save id={id} disabled={disabled} url='/admin/beta/config/persist/embedded-ldap/defaultConfigs' configType='embedded-ldap' nextStageId='finalStage' />
+      <Save id={id} disabled={disabled} url='/admin/beta/config/persist/embedded-ldap/defaults' configType='embedded-ldap' nextStageId='finalStage' />
     </StageControls>
   </Stage>)
 }
@@ -198,7 +198,7 @@ const NetworkSettings = ({ id, disabled }) => (
 
     <StageControls>
       <Back disabled={disabled} />
-      <Next id={id} disabled={disabled} url='/admin/beta/config/test/ldap/testLdapConnection' nextStageId='bindSettings' />
+      <Next id={id} disabled={disabled} url='/admin/beta/config/test/ldap/connection' nextStageId='bindSettings' />
     </StageControls>
   </Stage>
 )
@@ -289,7 +289,7 @@ const DirectorySettingsView = ({probe, probeAttributeMapping, probeValue = [], i
         <InputAuto id='queryBase' disabled={disabled} label='Query Base DN' />
 
         <div style={{textAlign: 'right', marginTop: 20}}>
-          <FlatButton disabled={disabled} secondary label='run query' onClick={() => probe('/admin/beta/config/probe/ldap/ldapQuery')} />
+          <FlatButton disabled={disabled} secondary label='run query' onClick={() => probe('/admin/beta/config/probe/ldap/query')} />
         </div>
 
         {probeValue.length === 0
@@ -307,11 +307,11 @@ const DirectorySettingsView = ({probe, probeAttributeMapping, probeValue = [], i
       <Back disabled={disabled} />
       {ldapUseCase === 'loginAndCredentialStore' || ldapUseCase === 'credentialStore'
         ? (<ProbeAndNext id={id} disabled={disabled}
-          url='/admin/beta/config/test/ldap/testLdapDirStruct'
-          probe={() => probeAttributeMapping('/admin/beta/config/probe/ldap/subjectAttributeMap', 'attributeMapping')} />)
+          url='/admin/beta/config/test/ldap/dir-struct'
+          probe={() => probeAttributeMapping('/admin/beta/config/probe/ldap/subject-attributes', 'attributeMapping')} />)
         : (<Next id={id}
           disabled={disabled}
-          url='/admin/beta/config/test/ldap/testLdapDirStruct'
+          url='/admin/beta/config/test/ldap/dir-struct'
           nextStageId={'confirm'} />)}
     </StageControls>
   </Stage>
@@ -401,7 +401,7 @@ const LdapAttributeMappingStageView = (props) => {
       </Card>
       <StageControls>
         <Back disabled={disabled} />
-        <NextAttributeMapping id={id} disabled={disabled || tableMappings.length === 0} url='/admin/beta/config/test/ldap/testAttributeMapping' attributeMappings={toAttributeMapping(tableMappings)}
+        <NextAttributeMapping id={id} disabled={disabled || tableMappings.length === 0} url='/admin/beta/config/test/ldap/attribute-mapping' attributeMappings={toAttributeMapping(tableMappings)}
           nextStageId='confirm' />
       </StageControls>
     </Stage>

@@ -14,7 +14,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <bean id="sourceConfigurationHandler"
-          class="org.codice.ddf.admin.sources.SourceConfigurationHandlerImpl">
+          class="org.codice.ddf.admin.sources.impl.SourceConfigurationHandlerImpl">
         <property name="sourceConfigurationHandlers" ref="sourceConfigurationHandlers"/>
     </bean>
     <service ref="sourceConfigurationHandler"

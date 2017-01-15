@@ -59,7 +59,7 @@ import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 
 public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
-    private static final String LDAP_DIRECTORY_STRUCT_TEST_ID = "testLdapDirStruct";
+    private static final String LDAP_DIRECTORY_STRUCT_TEST_ID = "dir-struct";
 
     private static final String DESCRIPTION =
             "Verifies that the specified directory structure, entries and required attributes to configure LDAP exist.";

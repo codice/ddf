@@ -23,7 +23,7 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 
 public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
 
-    public static final String LDAP_ATTRIBUTE_MAPPING_TEST_ID = "testAttributeMapping";
+    public static final String LDAP_ATTRIBUTE_MAPPING_TEST_ID = "attribute-mapping";
 
     public static final String DESCRIPTION = "Verifies that mapping values are valid and exist.";
 

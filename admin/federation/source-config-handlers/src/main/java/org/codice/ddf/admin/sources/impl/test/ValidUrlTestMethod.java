@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.sources.commons.test;
+package org.codice.ddf.admin.sources.impl.test;
 
 import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
 import static org.codice.ddf.admin.api.commons.SourceUtils.VALID_URL_TEST_ID;
@@ -41,7 +41,7 @@ public class ValidUrlTestMethod extends TestMethod<SourceConfiguration> {
             PORT,
             "The port to use to connect.");
 
-    private static final String VERIFIED_URL = "verifiedUrl";
+    private static final String VERIFIED_URL = "verified-url";
 
     private static final String CANNOT_CONNECT = "cannotConnect";
 

@@ -18,98 +18,49 @@ import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfig
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_PROFILE_FACTORY_PID;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SOURCE_DISPLAY_NAME;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SPEC_FACTORY_PID;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
-import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
-import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 import org.codice.ddf.admin.sources.csw.persist.CreateCswSourcePersistMethod;
 import org.codice.ddf.admin.sources.csw.persist.DeleteCswSourcePersistMethod;
 import org.codice.ddf.admin.sources.csw.probe.DiscoverCswSourceProbeMethod;
 import org.codice.ddf.admin.sources.csw.test.CswUrlTestMethod;
 
-public class CswSourceConfigurationHandler
+public class CswSourceConfigurationHandler extends DefaultConfigurationHandler<SourceConfiguration>
         implements SourceConfigurationHandler<SourceConfiguration> {
 
     public static final String CSW_SOURCE_CONFIGURATION_HANDLER_ID =
             CswSourceConfiguration.CONFIGURATION_TYPE;
-
-    List<TestMethod> testMethods = Arrays.asList(new CswUrlTestMethod());
-
-    List<ProbeMethod> probeMethods = Arrays.asList(new DiscoverCswSourceProbeMethod());
-
-    List<PersistMethod> persistMethods = Arrays.asList(new CreateCswSourcePersistMethod(),
-            new DeleteCswSourcePersistMethod());
-
-
-    //public static final String RETRIEVE_CONFIGURATION = "retrieveConfiguration";
 
     private static final List<String> CSW_FACTORY_PIDS = Arrays.asList(CSW_PROFILE_FACTORY_PID,
             CSW_GMD_FACTORY_PID,
             CSW_SPEC_FACTORY_PID);
 
     @Override
-    public ProbeReport probe(String probeId, SourceConfiguration baseConfiguration) {
-        CswSourceConfiguration configuration = new CswSourceConfiguration(baseConfiguration);
-        /*case RETRIEVE_CONFIGURATION:
-            SourceConfiguration mockedCswSource =
-                    new CswSourceConfiguration(baseConfiguration).sourceUserName("exampleUserName")
-                            .factoryPid(CSW_PROFILE_FACTORY_PID)
-                            .sourceUserPassword("exampleUserPassword");
-            return new ProbeReport(buildMessage(SUCCESS, "Found and created CSW Source configuration"))
-                    .probeResult(RETRIEVE_CONFIGURATION, mockedCswSource);
-        */
-        Optional<ProbeMethod> probeMethod = probeMethods.stream()
-                .filter(method -> method.id()
-                        .equals(probeId))
-                .findFirst();
-
-        return probeMethod.isPresent() ?
-                probeMethod.get()
-                        .probe(configuration) :
-                new ProbeReport(new ConfigurationMessage(FAILURE, null, NO_METHOD_FOUND));
+    public List<ProbeMethod> getProbeMethods() {
+        return Arrays.asList(new DiscoverCswSourceProbeMethod());
     }
 
     @Override
-    public TestReport test(String testId, SourceConfiguration baseConfiguration) {
-        CswSourceConfiguration configuration = new CswSourceConfiguration(baseConfiguration);
-        Optional<TestMethod> testMethod = testMethods.stream()
-                .filter(method -> method.id()
-                        .equals(testId))
-                .findFirst();
-
-        return testMethod.isPresent() ?
-                testMethod.get()
-                        .test(configuration) :
-                new TestReport(new ConfigurationMessage(FAILURE, null, NO_METHOD_FOUND));
+    public List<TestMethod> getTestMethods() {
+        return Arrays.asList(new CswUrlTestMethod());
     }
 
     @Override
-    public TestReport persist(String persistId, SourceConfiguration configuration) {
-        CswSourceConfiguration config = new CswSourceConfiguration(configuration);
-        Optional<PersistMethod> persistMethod = persistMethods.stream()
-                .filter(method -> method.id()
-                        .equals(persistId))
-                .findFirst();
-        return persistMethod.isPresent() ?
-                persistMethod.get()
-                        .persist(config) :
-                new TestReport(new ConfigurationMessage(FAILURE, null, NO_METHOD_FOUND));
+    public List<PersistMethod> getPersistMethods() {
+        return Arrays.asList(new CreateCswSourcePersistMethod(),
+                new DeleteCswSourcePersistMethod());
     }
 
     @Override
@@ -121,11 +72,6 @@ public class CswSourceConfigurationHandler
                         .stream())
                 .map(CswSourceConfiguration::new)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public CapabilitiesReport getCapabilities() {
-        return null;
     }
 
     @Override

@@ -30,7 +30,7 @@ import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.persist.Configurator;
-import org.codice.ddf.admin.security.context.persist.PersistContextPolicyMethod;
+import org.codice.ddf.admin.security.context.persist.EditContextPolicyMethod;
 import org.codice.ddf.admin.security.context.probe.AvaliableOptionsProbeMethod;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
@@ -58,7 +58,7 @@ public class ContextPolicyManagerHandler extends DefaultConfigurationHandler<Con
 
     @Override
     public List<PersistMethod> getPersistMethods() {
-        return Arrays.asList(new PersistContextPolicyMethod());
+        return Arrays.asList(new EditContextPolicyMethod());
     }
 
     @Override

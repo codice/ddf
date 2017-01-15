@@ -27,7 +27,7 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class OpenSearchSourceConfiguration extends SourceConfiguration {
 
-    public static final String CONFIGURATION_TYPE = "open-search";
+    public static final String CONFIGURATION_TYPE = "opensearch-source";
 
     // Open Search Service Properties
     public static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";

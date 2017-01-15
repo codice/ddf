@@ -39,7 +39,7 @@ import com.google.common.collect.ImmutableList;
 
 public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
 
-    private static final String LDAP_CONNECTION_TEST_ID = "testLdapConnection";
+    private static final String LDAP_CONNECTION_TEST_ID = "connection";
 
     private static final String DESCRIPTION = "Attempts to connect to the given LDAP host";
 

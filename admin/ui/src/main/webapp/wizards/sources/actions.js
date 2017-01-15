@@ -31,7 +31,7 @@ export const testSources = (url, configType, nextStageId, id) => (dispatch, getS
     credentials: 'same-origin'
   }
 
-  window.fetch('/admin/beta/config/test/sources/testValidUrl', opts)
+  window.fetch('/admin/beta/config/test/sources/valid-url', opts)
       .then((res) => Promise.all([ res.status, res.json() ]))
       .then(([status, json]) => {
         if (status === 400) {
@@ -99,7 +99,7 @@ export const fetchConfigTypes = (nextStageId) => (dispatch, getState) => {
     credentials: 'same-origin'
   }
 
-  window.fetch('/admin/beta/config/probe/sources/sourceConfigurationHandlers', opts)
+  window.fetch('/admin/beta/config/probe/sources/config-handlers', opts)
     .then((res) => Promise.all([ res.status, res.json() ]))
     .then(([status, json]) => {
       if (status === 400) {
@@ -111,7 +111,7 @@ export const fetchConfigTypes = (nextStageId) => (dispatch, getState) => {
           dispatch(changeStage(nextStageId))
         }
       } else if (status === 500) {
-        dispatch(backendError({ ...json, url: '/admin/beta/config/probe/sources/getSourceConfigIds', method: 'POST', body: JSON.stringify(config) }))
+        dispatch(backendError({ ...json, url: '/admin/beta/config/probe/sources/config-handlers', method: 'POST', body: JSON.stringify(config) }))
       }
       dispatch(endSubmitting())
     })

@@ -66,7 +66,7 @@ const DiscoveryStageView = ({ testSources, setDefaults, messages }) => (
         <ConstrainedInput id='sourceUserName' label='Username (optional)' />
         <ConstrainedPasswordInput id='sourceUserPassword' label='Password (optional)' />
         {messages.map((msg, i) => <Message key={i} {...msg} />)}
-        <Submit label='Check' onClick={() => testSources('/admin/beta/config/probe/sources/discoverSources', 'sources', 'sourceSelectionStage', 'source')} />
+        <Submit label='Check' onClick={() => testSources('/admin/beta/config/probe/sources/discover-sources', 'sources', 'sourceSelectionStage', 'source')} />
       </CenteredElements>
     </NavPanes>
   </Mount>

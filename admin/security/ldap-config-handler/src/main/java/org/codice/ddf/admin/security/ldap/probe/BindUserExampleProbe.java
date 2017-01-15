@@ -24,7 +24,7 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 
 public class BindUserExampleProbe extends ProbeMethod<LdapConfiguration> {
-    private static final String BIND_USER_EXAMPLE = "bindUserExample";
+    private static final String BIND_USER_EXAMPLE = "bind-user-example";
 
     private static final String DESCRIPTION =
             "Returns sample username formats for the specific LDAP server type.";

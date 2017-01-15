@@ -168,9 +168,9 @@ ConfirmationPanel = connect((state) => ({
 }), (dispatch, { binNumber }) => ({
   removeBin: () => dispatch(removeBin(binNumber)),
   cancelRemoveBin: () => dispatch(cancelRemoveBin()),
-  saveAndPersist: () => dispatch(persistChanges(binNumber, '/admin/beta/config/persist/context-policy-manager/persist')),
+  saveAndPersist: () => dispatch(persistChanges(binNumber, '/admin/beta/config/persist/context-policy-manager/edit')),
   editModeCancel: () => dispatch(editModeCancel(binNumber)),
-  confirmRemoveBinAndPersist: () => dispatch(confirmRemoveBinAndPersist(binNumber, '/admin/beta/config/persist/context-policy-manager/persist'))
+  confirmRemoveBinAndPersist: () => dispatch(confirmRemoveBinAndPersist(binNumber, '/admin/beta/config/persist/context-policy-manager/edit'))
 }))(ConfirmationPanel)
 
 let AuthTypesGroup = ({ bin, binNumber, policyOptions, editing }) => (

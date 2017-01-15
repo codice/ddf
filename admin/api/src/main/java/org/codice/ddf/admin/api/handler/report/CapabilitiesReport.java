@@ -31,10 +31,6 @@ public class CapabilitiesReport {
 
     private List<PersistMethod> persistMethods;
 
-    public CapabilitiesReport(String configurationType, Class configurationClass) {
-        // TODO: tbatie - 1/4/17 - This constructor should be removed, once everyone is properly implementing the other constructors
-    }
-
     public CapabilitiesReport(String configurationType, String configurationHandlerId,
             List<TestMethod> testMethods) {
         this.configurationType = configurationType;

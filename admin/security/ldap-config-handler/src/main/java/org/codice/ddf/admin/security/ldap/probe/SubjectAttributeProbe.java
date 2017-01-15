@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubjectAttributeProbe.class);
 
+    public static final String SUBJECT_ATTRIBUTES_PROBE_ID = "subject-attributes";
     private static final String DESCRIPTION =
             "Searches for the subject attributes for claims mapping.";
 

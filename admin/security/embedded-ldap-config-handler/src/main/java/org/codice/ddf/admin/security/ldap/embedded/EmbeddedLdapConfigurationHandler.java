@@ -24,7 +24,6 @@ import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
-import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 import org.codice.ddf.admin.api.persist.ConfiguratorException;
 import org.codice.ddf.admin.security.ldap.embedded.persist.DefaultEmbeddedLdapPersistMethod;
@@ -40,8 +39,15 @@ public class EmbeddedLdapConfigurationHandler
 
     private static final String EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID = EmbeddedLdapConfiguration.CONFIGURATION_TYPE;
 
-    public static final ImmutableList<PersistMethod> PERSIST_METHODS =
-            ImmutableList.of(new DefaultEmbeddedLdapPersistMethod());
+    @Override
+    public String getConfigurationHandlerId() {
+        return EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID;
+    }
+
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new EmbeddedLdapConfiguration().getConfigurationType();
+    }
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
@@ -54,7 +60,7 @@ public class EmbeddedLdapConfigurationHandler
     }
 
     public List<PersistMethod> getPersistMethods(){
-        return  PERSIST_METHODS;
+        return  ImmutableList.of(new DefaultEmbeddedLdapPersistMethod());
     }
 
     @Override
@@ -79,24 +85,5 @@ public class EmbeddedLdapConfigurationHandler
             LOGGER.info("Error retrieving configuration", e);
             return Collections.emptyList();
         }
-    }
-
-    @Override
-    public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID,
-                EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID,
-                null,
-                null,
-                PERSIST_METHODS);
-    }
-
-    @Override
-    public String getConfigurationHandlerId() {
-        return EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID;
-    }
-
-    @Override
-    public ConfigurationType getConfigurationType() {
-        return new EmbeddedLdapConfiguration().getConfigurationType();
     }
 }

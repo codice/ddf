@@ -49,12 +49,14 @@ import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.security.ldap.ServerGuesser;
 
 public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguration> {
+
+    private static final String ID = "dir-struct";
+
     private static final String DESCRIPTION =
             "Queries the bound LDAP server, attempting to find the user and group base DNs, the "
                     + "username attribute, the group membership attribute, and the objectClass "
                     + "representing groups.";
 
-    private static final String ID = "directoryStructure";
 
     private static final Map<String, String> REQUIRED_FIELDS = LdapConfiguration.buildFieldMap(
             LDAP_TYPE,
