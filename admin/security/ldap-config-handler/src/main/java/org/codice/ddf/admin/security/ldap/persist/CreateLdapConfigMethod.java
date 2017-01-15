@@ -20,6 +20,7 @@ import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ME
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.buildFieldMap;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
@@ -30,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
@@ -39,14 +39,16 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
 
-public class CreateLdapConfigPersistMethod extends PersistMethod<LdapConfiguration>{
+public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
 
-    public static final String LDAP_CREATE_ID = "";
+    public static final String LDAP_CREATE_ID = "create";
     public static final String DESCRIPTION = "Persists the ldap configuration depending on the ldap use case.";
 
-    public static final Set<String> LOGIN_REQUIRED_FIELDS = ImmutableSet.of(LDAP_USE_CASE,
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "Successfully saved LDAP settings.");
+    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Unable to persist changes.");
+    public static final Map<String, String> LOGIN_REQUIRED_FIELDS = buildFieldMap(LDAP_USE_CASE,
             HOST_NAME,
             PORT,
             ENCRYPTION_METHOD,
@@ -57,35 +59,32 @@ public class CreateLdapConfigPersistMethod extends PersistMethod<LdapConfigurati
             BASE_USER_DN,
             BASE_GROUP_DN);
 
-    public static final Set<String> LOGIN_OPTIONAL_FIELDS = ImmutableSet.of(BIND_KDC, BIND_REALM);
+    public static final Map<String, String> LOGIN_OPTIONAL_FIELDS = buildFieldMap(BIND_KDC, BIND_REALM);
 
-    public static final Set<String> CLAIMS_REQUIRED_FIELDS =
-            ImmutableSet.<String>builder().addAll(LOGIN_REQUIRED_FIELDS)
-                    .add(GROUP_OBJECT_CLASS, MEMBERSHIP_ATTRIBUTE, ATTRIBUTE_MAPPINGS)
+    public static final Map<String, String> CLAIMS_REQUIRED_FIELDS = ImmutableMap.<String, String>builder().putAll(LOGIN_REQUIRED_FIELDS)
+                    .putAll(buildFieldMap(GROUP_OBJECT_CLASS, MEMBERSHIP_ATTRIBUTE, ATTRIBUTE_MAPPINGS))
                     .build();
 
-    public CreateLdapConfigPersistMethod(String id, String description,
-            Map<String, String> requiredFields, Map<String, String> optionalFields,
-            Map<String, String> successTypes, Map<String, String> failureTypes,
-            Map<String, String> warningTypes) {
+    public static final Map<String, String> ALL_REQUIRED_FIELDS = ImmutableMap.<String, String>builder().putAll(LOGIN_REQUIRED_FIELDS).putAll(CLAIMS_REQUIRED_FIELDS).build();
+
+    public CreateLdapConfigMethod() {
         super(LDAP_CREATE_ID,
                 DESCRIPTION,
-                LOGIN_REQUIRED_FIELDS,
-                optionalFields,
-                successTypes,
-                failureTypes,
-                warningTypes);
+                ALL_REQUIRED_FIELDS,
+                LOGIN_OPTIONAL_FIELDS,
+                SUCCESS_TYPES,
+                FAILURE_TYPES,
+                null);
     }
 
     @Override
     public TestReport persist(LdapConfiguration config) {
-
         ConfigReport report;
         Configurator configurator = new Configurator();
         if (config.ldapUseCase()
                 .equals(LOGIN) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
-            TestReport validationReport = new TestReport(config.checkRequiredFields(LOGIN_REQUIRED_FIELDS));
+            TestReport validationReport = new TestReport(config.checkRequiredFields(LOGIN_REQUIRED_FIELDS.keySet()));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
             }
@@ -115,7 +114,7 @@ public class CreateLdapConfigPersistMethod extends PersistMethod<LdapConfigurati
         if (config.ldapUseCase()
                 .equals(CREDENTIAL_STORE) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
-            TestReport validationReport = new TestReport(config.checkRequiredFields(CLAIMS_REQUIRED_FIELDS));
+            TestReport validationReport = new TestReport(config.checkRequiredFields(CLAIMS_REQUIRED_FIELDS.keySet()));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
             }
@@ -153,10 +152,10 @@ public class CreateLdapConfigPersistMethod extends PersistMethod<LdapConfigurati
         report = configurator.commit();
         if (!report.getFailedResults()
                 .isEmpty()) {
-            return new TestReport(buildMessage(FAILURE, FAILED_PERSIST, "Unable to persist changes"));
+            return new TestReport(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)));
         } else {
             return new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST,
-                    "Successfully saved LDAP settings"));
+                SUCCESS_TYPES.get(SUCCESS)));
         }
     }
 

@@ -67,6 +67,7 @@ public class LdapConfiguration extends Configuration {
     public static final String GROUP_OBJECT_CLASS = "groupObjectClass";
     public static final String ATTRIBUTE_MAPPINGS = "attributeMappings";
     public static final String QUERY_RESULTS = "queryResults";
+    public static final String SERVICE_PID ="servicePid";
 
     public static final ImmutableList LDAP_ENCRYPTION_METHODS = ImmutableList.of(LDAPS, TLS, NONE);
 
@@ -76,6 +77,7 @@ public class LdapConfiguration extends Configuration {
 
     private static final ImmutableMap<String, String> FIELD_DESCS =
             new ImmutableMap.Builder<String, String>()
+                    .put(SERVICE_PID, "Service pid of the LDAP service related to this LDAP configuration.")
                     .put(HOST_NAME, "Host name of the LDAP server.")
                     .put(PORT, "Port on which the LDAP server listens.")
                     .put(LDAP_TYPE, "The LDAP server type.")
@@ -108,6 +110,7 @@ public class LdapConfiguration extends Configuration {
 
     private static final Map<String, Function<LdapConfiguration, Object>> FIELD_FUNC_MAP =
             new ImmutableMap.Builder<String, Function<LdapConfiguration, Object>>()
+                    .put(SERVICE_PID, LdapConfiguration::servicePid)
                     .put(HOST_NAME, LdapConfiguration::hostName)
                     .put(PORT, LdapConfiguration::port)
                     .put(ENCRYPTION_METHOD, LdapConfiguration::encryptionMethod)
