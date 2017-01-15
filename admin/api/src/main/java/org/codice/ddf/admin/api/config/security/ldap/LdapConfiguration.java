@@ -352,7 +352,7 @@ public class LdapConfiguration extends Configuration {
     public List<ConfigurationMessage> checkRequiredFields(Set<String> fields) {
         final Function<Object, Boolean> findEmpties =
                 o -> o == null || (o instanceof String && StringUtils.isEmpty((String) o));
-
+        // TODO: tbatie - 1/14/17 - Need further validation of each field
         return fields.stream()
                 .filter(s -> findEmpties.apply(FIELD_FUNC_MAP.get(s)
                         .apply(this)))

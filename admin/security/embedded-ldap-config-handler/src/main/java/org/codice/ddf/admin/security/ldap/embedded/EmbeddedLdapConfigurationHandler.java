@@ -14,22 +14,17 @@
 
 package org.codice.ddf.admin.security.ldap.embedded;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.security.ldap.EmbeddedLdapConfiguration;
-import org.codice.ddf.admin.api.handler.ConfigurationHandler;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
+import org.codice.ddf.admin.api.handler.method.ProbeMethod;
+import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
-import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 import org.codice.ddf.admin.api.persist.ConfiguratorException;
 import org.codice.ddf.admin.security.ldap.embedded.persist.DefaultEmbeddedLdapPersistMethod;
@@ -39,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 public class EmbeddedLdapConfigurationHandler
-        implements ConfigurationHandler<EmbeddedLdapConfiguration> {
+        extends DefaultConfigurationHandler<EmbeddedLdapConfiguration> {
     private static final Logger LOGGER =
             LoggerFactory.getLogger(EmbeddedLdapConfigurationHandler.class);
 
@@ -49,27 +44,17 @@ public class EmbeddedLdapConfigurationHandler
             ImmutableList.of(new DefaultEmbeddedLdapPersistMethod());
 
     @Override
-    public ProbeReport probe(String probeId, EmbeddedLdapConfiguration configuration) {
-        return new ProbeReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
+    public List<ProbeMethod> getProbeMethods() {
+        return null;
     }
 
     @Override
-    public TestReport test(String testId, EmbeddedLdapConfiguration configuration) {
-        return new TestReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
+    public List<TestMethod> getTestMethods() {
+        return null;
     }
 
-    @Override
-    public TestReport persist(String persistId, EmbeddedLdapConfiguration configuration) {
-        Optional<PersistMethod> persistMethod = PERSIST_METHODS.stream()
-                .filter(method -> method.id()
-                        .equals(persistId))
-                .findFirst();
-
-        return persistMethod.isPresent() ?
-                persistMethod.get()
-                        .persist(configuration) :
-                new TestReport(new ConfigurationMessage(FAILURE,
-                        ConfigurationMessage.NO_METHOD_FOUND, null));
+    public List<PersistMethod> getPersistMethods(){
+        return  PERSIST_METHODS;
     }
 
     @Override
@@ -79,7 +64,14 @@ public class EmbeddedLdapConfigurationHandler
             if (configurator.isFeatureStarted("opendj-embedded")) {
                 Map<String, Object> props = configurator.getConfig(
                         "org.codice.opendj.embedded.server.LDAPManager");
-                return Collections.singletonList(EmbeddedLdapConfiguration.fromProperties(props));
+                EmbeddedLdapConfiguration config = new EmbeddedLdapConfiguration();
+                config.embeddedLdapPort((int) props.get("embeddedLdapPort"));
+                config.embeddedLdapsPort((int) props.get("embeddedLdapsPort"));
+                config.embeddedLdapAdminPort((int) props.get("embeddedLdapAdminPort"));
+                config.ldifPath((String) props.get("ldifPath"));
+                config.embeddedLdapStorageLocation((String) props.get("embeddedLdapStorageLocation"));
+
+                return Collections.singletonList(config);
             } else {
                 return Collections.emptyList();
             }

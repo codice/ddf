@@ -106,14 +106,4 @@ public class ConfigurationMessage {
     public static ConfigurationMessage createMissingRequiredFieldMsg(String configId) {
         return new ConfigurationMessage(FAILURE, MISSING_REQUIRED_FIELD, "Missing required field: " + configId, configId);
     }
-
-    public static ConfigurationMessage createInternalErrorMsg(String description, Exception... e) {
-        return new ConfigurationMessage(FAILURE, INTERNAL_ERROR, description, e);
-    }
-
-    public static ConfigurationMessage createInternalErrorMsg(String description, String configId,
-            Exception... e) {
-        return new ConfigurationMessage(FAILURE, INTERNAL_ERROR, description, configId, e);
-    }
-
 }

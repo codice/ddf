@@ -14,6 +14,16 @@
 
 package org.codice.ddf.admin.security.context.probe;
 
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.ALL_AUTH_TYPES;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.ALL_REALMS;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.BASIC;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.GUEST;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.IDP;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.KARAF;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.LDAP;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.PKI;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.SAML;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,34 +36,26 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import ddf.security.sts.client.configuration.STSClientConfiguration;
+
 public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfiguration>{
-
-    public static final String KARAF = "karaf";
-    public static final String LDAP = "ldap";
-    public static final String IDP = "IdP";
-    public static final List<String> REALMS = ImmutableList.of(KARAF, LDAP, IDP);
-    public static final String REALMS_KEY = "realms";
-
-    public static final String SAML = "saml";
-    public static final String BASIC = "basic";
-    public static final String PKI = "PKI";
-    public static final String CAS = "CAS"; // TODO: tbatie - 1/12/17 - Ignoring CAS for now
-    public static final String GUEST = "guest";
-    public static final List<String> AUTH_TYPES = ImmutableList.of(SAML, BASIC, PKI, GUEST);
-    public static final String AUTH_TYPES_KEY = "authenticationTypes";
-
-    public static final String CLAIMS_KEY = "claims";
 
     public static final String ID = "options";
     public static final String DESCRIPTION = "Returns the web context policy options available for configuration based on the system's state.";
 
+    public static final String REALMS_KEY = "realms";
+    public static final String AUTH_TYPES_KEY = "authenticationTypes";
+    public static final String CLAIMS_KEY = "claims";
+
+
     public static final Map<String, String> RETURN_TYPES = ImmutableMap.of(
-            REALMS_KEY, "A list of realms that are setup to be used. Will contain: " + String.join(", ", REALMS_KEY),
+            REALMS_KEY, "A list of realms that are setup to be used. Possible elements: " + String.join(", ",
+                    ALL_REALMS),
             CLAIMS_KEY, "Configured STS claims.",
-            AUTH_TYPES_KEY, "List of auth types currently configured.");
+            AUTH_TYPES_KEY, "List of auth types currently configured. Possible elements: " + String.join(", ",
+                    ALL_AUTH_TYPES));
 
     Configurator configurator = new Configurator();
     ConfigurationHandler ldapConfigHandler;
@@ -72,7 +74,6 @@ public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
 
     @Override
     public ProbeReport probe(ContextPolicyConfiguration config) {
-        // TODO: tbatie - 1/12/17 - Validate fields
         return new ProbeReport().probeResult(AUTH_TYPES_KEY, getAuthTypes())
                 .probeResult(REALMS_KEY, getRealms())
                 .probeResult(CLAIMS_KEY, getClaims());
@@ -92,7 +93,6 @@ public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
 
     public List<String> getRealms() {
         List<String> realms = new ArrayList<>(Arrays.asList(KARAF));
-
         // TODO: tbatie - 1/12/17 - If a IdpConfigurationHandler exists replace this with a service reference
         if(configurator.isBundleStarted("security-idp-server")) {
             realms.add(IDP);
@@ -118,5 +118,10 @@ public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
         Map<String, Object> stsConfig = new Configurator().getConfig(
                 "ddf.security.sts.client.configuration");
         return stsConfig == null ?  null : stsConfig.get("claims");
+    }
+
+    public STSClientConfiguration getStsClientConfig() {
+        // TODO: tbatie - 12/16/16 - Throw exception? Something is seriously wrong if this service isnt available
+        return new Configurator().getServiceReference(STSClientConfiguration.class);
     }
 }

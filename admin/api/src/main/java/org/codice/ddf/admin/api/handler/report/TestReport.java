@@ -30,17 +30,20 @@ public class TestReport {
     List<ConfigurationMessage> messages;
 
     public TestReport() {
-        this(new ArrayList<>());
+        this.messages = new ArrayList<>();
     }
 
     public TestReport(ConfigurationMessage... messages) {
-        this(new ArrayList<>());
+        this.messages = new ArrayList<>();
         Arrays.stream(messages)
                 .forEach(msg -> this.messages.add(msg));
     }
 
     public TestReport(List<ConfigurationMessage> messages) {
-        this.messages = messages;
+        this.messages = new ArrayList<>();
+        if(messages != null) {
+            this.messages.addAll(messages);
+        }
     }
 
     public List<ConfigurationMessage> messages() {
@@ -57,6 +60,7 @@ public class TestReport {
         return this;
     }
 
+    // TODO: tbatie - 1/14/17 - Rename this to something different, this was a point in time when subtypes of config messages weren't implemented
     public boolean containsUnsuccessfulMessages() {
         return messages.stream()
                 .filter(msg -> msg.type() != SUCCESS)

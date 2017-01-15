@@ -17,8 +17,10 @@ import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.CR
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_USE_CASES;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -31,6 +33,7 @@ import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdapConfiguration> {
 
@@ -41,10 +44,6 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
 
     public static final String LDAP_USE_CASE = "ldapUseCase";
 
-    public static final String SUCCESSFUL_PERSIST = "SUCCESSFUL_PERSIST";
-
-    public static final String FAILED_STARTING_LDAP = "FAILED_STARTING_LDAP";
-
     public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(LDAP_USE_CASE,
             "How the embedded ldap is intended to be used. Must be one of:"
                     + Arrays.toString(LDAP_USE_CASES.toArray()));
@@ -52,7 +51,7 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
             "Successfully started and saved Embedded LDAP configurations.");
 
-    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_STARTING_LDAP,
+    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST,
             "Failed to start Embedded LDAP or install a default configuration file.");
 
     public DefaultEmbeddedLdapPersistMethod() {
@@ -68,6 +67,11 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
     @Override
     public TestReport persist(EmbeddedLdapConfiguration configuration) {
         Configurator configurator = new Configurator();
+        TestReport testReport = new TestReport(configuration.checkRequiredFields(Sets.newHashSet(LDAP_USE_CASE)));
+        if(testReport.containsFailureMessages()) {
+            return testReport;
+        }
+
         configurator.startFeature("opendj-embedded");
         // TODO: tbatie - 1/12/17 - Installing default configs should have a feature req on the features with the configs they intend to start
         switch (configuration.ldapUseCase()) {
@@ -89,8 +93,8 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
 
         if (report.containsFailedResults()) {
             return new TestReport(new ConfigurationMessage(FAILURE,
-                    FAILED_STARTING_LDAP,
-                    FAILURE_TYPES.get(FAILED_STARTING_LDAP)));
+                    FAILED_PERSIST,
+                    FAILURE_TYPES.get(FAILED_PERSIST)));
         }
 
         return new TestReport(new ConfigurationMessage(SUCCESS,

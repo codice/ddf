@@ -14,10 +14,6 @@
 
 package org.codice.ddf.admin.api.config.security.ldap;
 
-import java.util.HashMap;
-import java.util.Map;
-
-
 import org.codice.ddf.admin.api.config.ConfigurationType;
 
 public class EmbeddedLdapConfiguration extends LdapConfiguration {
@@ -30,24 +26,24 @@ public class EmbeddedLdapConfiguration extends LdapConfiguration {
     private String ldifPath;
     private String embeddedLdapStorageLocation;
 
-    public static EmbeddedLdapConfiguration fromProperties(Map<String, Object> props) {
-        EmbeddedLdapConfiguration config = new EmbeddedLdapConfiguration();
-        config.embeddedLdapPort = (int) props.get("embeddedLdapPort");
-        config.embeddedLdapsPort = (int) props.get("embeddedLdapsPort");
-        config.embeddedLdapAdminPort = (int) props.get("embeddedLdapAdminPort");
-        config.ldifPath = (String) props.get("ldifPath");
-        config.embeddedLdapStorageLocation = (String) props.get("embeddedLdapStorageLocation");
-        return config;
+    public void embeddedLdapPort(int embeddedLdapPort) {
+        this.embeddedLdapPort = embeddedLdapPort;
     }
 
-    public Map<String, Object> toPropertiesMap() {
-        Map<String, Object> props = new HashMap<>();
-        props.put("embeddedLdapPort", embeddedLdapPort);
-        props.put("embeddedLdapsPort", embeddedLdapsPort);
-        props.put("embeddedLdapAdminPort", embeddedLdapAdminPort);
-        props.put("ldifPath", ldifPath);
-        props.put("embeddedLdapStorageLocation", embeddedLdapStorageLocation);
-        return props;
+    public void embeddedLdapsPort(int embeddedLdapsPort) {
+        this.embeddedLdapsPort = embeddedLdapsPort;
+    }
+
+    public void embeddedLdapAdminPort(int embeddedLdapAdminPort) {
+        this.embeddedLdapAdminPort = embeddedLdapAdminPort;
+    }
+
+    public void ldifPath(String ldifPath) {
+        this.ldifPath = ldifPath;
+    }
+
+    public void embeddedLdapStorageLocation(String embeddedLdapStorageLocation) {
+        this.embeddedLdapStorageLocation = embeddedLdapStorageLocation;
     }
 
     @Override

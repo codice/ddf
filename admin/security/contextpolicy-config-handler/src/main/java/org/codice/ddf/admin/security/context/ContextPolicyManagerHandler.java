@@ -14,106 +14,32 @@
 
 package org.codice.ddf.admin.security.context;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyBin;
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
+import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
-import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
-import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.handler.report.TestReport;
-import org.codice.ddf.admin.api.persist.ConfigReport;
+import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.security.context.persist.PersistContextPolicyMethod;
 import org.codice.ddf.admin.security.context.probe.AvaliableOptionsProbeMethod;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ddf.security.policy.context.impl.PolicyManager;
 
-import com.google.common.collect.ImmutableMap;
-
-import ddf.security.sts.client.configuration.STSClientConfiguration;
-
-public class ContextPolicyManagerHandler
-        implements ConfigurationHandler<ContextPolicyConfiguration> {
+public class ContextPolicyManagerHandler extends DefaultConfigurationHandler<ContextPolicyConfiguration> {
 
     private ConfigurationHandler ldapConfigHandler;
-
     public static final String CONTEXT_POLICY_MANAGER_HANDLER_ID = ContextPolicyConfiguration.CONFIGURATION_TYPE;
-
-    @Override
-    public ProbeReport probe(String probeId, ContextPolicyConfiguration configuration) {
-        Optional<ProbeMethod> probeMethod = getProbeMethods(ldapConfigHandler).stream()
-                .filter(method -> method.id()
-                        .equals(probeId))
-                .findFirst();
-
-        return probeMethod.isPresent() ?
-                probeMethod.get()
-                        .probe(configuration) :
-                new ProbeReport(new ConfigurationMessage(FAILURE, NO_METHOD_FOUND, null));
-    }
-
-    @Override
-    public TestReport test(String testId, ContextPolicyConfiguration configuration) {
-        return null;
-    }
-
-    @Override
-    public TestReport persist(String persistId, ContextPolicyConfiguration config) {
-        if (config.contextPolicyBins()
-                .stream()
-                .filter(bin -> bin.contextPaths()
-                        .isEmpty() || StringUtils.isEmpty(bin.realm()) || bin.authenticationTypes()
-                        .isEmpty())
-                .findFirst()
-                .isPresent()) {
-            return new TestReport(buildMessage(FAILURE, FAILED_PERSIST,
-                    "Context paths, realm and authentication types cannot be empty"));
-        }
-
-        Configurator configurator = new Configurator();
-        configurator.updateConfigFile("org.codice.ddf.security.policy.context.impl.PolicyManager",
-                configToPolicyManagerSettings(config),
-                true);
-        ConfigReport configReport = configurator.commit();
-        if (!configReport.getFailedResults()
-                .isEmpty()) {
-            return new TestReport(buildMessage(FAILURE, FAILED_PERSIST,
-                    "Unable to persist changes"));
-        } else {
-            return new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST,
-                    "Successfully saved Web Context Policy Manager settings"));
-        }
-    }
-
-    @Override
-    public List<ContextPolicyConfiguration> getConfigurations() {
-        return Arrays.asList(new ContextPolicyConfiguration().contextPolicyBins(
-                policyManagerSettingsToBins())
-                .whiteListContexts(getPolicyManager().getWhiteListContexts()));
-    }
-
-    @Override
-    public CapabilitiesReport getCapabilities() {
-        return null;
-    }
 
     @Override
     public String getConfigurationHandlerId() {
@@ -121,14 +47,38 @@ public class ContextPolicyManagerHandler
     }
 
     @Override
-    public ConfigurationType getConfigurationType() {
-        return new ContextPolicyConfiguration().getConfigurationType();
+    public List<ProbeMethod> getProbeMethods() {
+        return Arrays.asList(new AvaliableOptionsProbeMethod(ldapConfigHandler));
     }
 
-    public List<ContextPolicyBin> policyManagerSettingsToBins() {
+    @Override
+    public List<TestMethod> getTestMethods() {
+        return null;
+    }
+
+    @Override
+    public List<PersistMethod> getPersistMethods() {
+        return Arrays.asList(new PersistContextPolicyMethod());
+    }
+
+    @Override
+    public List<ContextPolicyConfiguration> getConfigurations() {
+        ContextPolicyManager ref = new Configurator().getServiceReference(ContextPolicyManager.class);
+        if(ref == null) {
+            return new ArrayList<>();
+        }
+
+        PolicyManager policyManager = ((PolicyManager) ref);
+        return Arrays.asList(new ContextPolicyConfiguration().contextPolicyBins(
+                policyManagerSettingsToBins(policyManager))
+                .whiteListContexts(policyManager.getWhiteListContexts()));
+    }
+
+    public List<ContextPolicyBin> policyManagerSettingsToBins(PolicyManager policyManager) {
         // TODO: tbatie - 12/10/16 - Should match terminology used by the policy manager
         List<ContextPolicyBin> bins = new ArrayList<>();
-        Collection<ContextPolicy> allPolicies = getPolicyManager().getAllContextPolicies();
+
+        Collection<ContextPolicy> allPolicies = policyManager.getAllContextPolicies();
         for (ContextPolicy policy : allPolicies) {
             boolean foundBin = false;
             Map<String, String> policyRequiredAttributes = policy.getAllowedAttributes()
@@ -141,7 +91,7 @@ public class ContextPolicyManagerHandler
                         .equals(policy.getRealm()) && bin.authenticationTypes()
                         .equals(policy.getAuthenticationMethods()) && bin.hasSameRequiredAttributes(
                         policyRequiredAttributes)) {
-                    bin.addContextPath(policy.getContextPath());
+                    bin.contextPaths(policy.getContextPath());
                     foundBin = true;
                 }
             }
@@ -151,66 +101,19 @@ public class ContextPolicyManagerHandler
                 bins.add(new ContextPolicyBin().realm(policy.getRealm())
                         .requiredAttributes(policyRequiredAttributes)
                         .authenticationTypes(new ArrayList<>(policy.getAuthenticationMethods()))
-                        .addContextPath(policy.getContextPath()));
+                        .contextPaths(policy.getContextPath()));
             }
         }
 
         return bins;
     }
 
-    public Map<String, Object> configToPolicyManagerSettings(ContextPolicyConfiguration config){
-        List<String> realmsProps = new ArrayList<>();
-        List<String> authTypesProps = new ArrayList<>();
-        List<String> reqAttrisProps = new ArrayList<>();
-
-        for (ContextPolicyBin bin : config.contextPolicyBins()) {
-            bin.contextPaths()
-                    .stream()
-                    .forEach(context -> {
-                        realmsProps.add(context + "=" + bin.realm());
-                        authTypesProps.add(
-                                context + "=" + String.join("|", bin.authenticationTypes()));
-                        if (bin.requiredAttributes()
-                                .isEmpty()) {
-                            reqAttrisProps.add(context + "=");
-                        } else {
-                            reqAttrisProps.add(context + "={" + String.join(";",
-                                    bin.requiredAttributes()
-                                            .entrySet()
-                                            .stream()
-                                            .map(entry -> entry.getKey() + "=" + entry.getValue())
-                                            .collect(Collectors.toList())) + "}");
-                        }
-                    });
-        }
-
-        return ImmutableMap.of("authenticationTypes",
-                authTypesProps,
-                "realms",
-                realmsProps,
-                "requiredAttributes",
-                reqAttrisProps,
-                "whiteListContexts",
-                config.whiteListContexts());
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new ContextPolicyConfiguration().getConfigurationType();
     }
 
     public void setLdapConfigHandler(ConfigurationHandler ldapConfigHandler) {
         this.ldapConfigHandler = ldapConfigHandler;
-    }
-
-    public PolicyManager getPolicyManager() {
-        // TODO: tbatie - 12/16/16 - Throw exception? Something is seriously wrong if service isnt available
-        ContextPolicyManager manager =
-                new Configurator().getServiceReference(ContextPolicyManager.class);
-        return manager == null ? null : (PolicyManager) manager;
-    }
-
-    public STSClientConfiguration getStsClientConfig() {
-        // TODO: tbatie - 12/16/16 - Throw exception? Something is seriously wrong if this service isnt available
-        return new Configurator().getServiceReference(STSClientConfiguration.class);
-    }
-
-    public List<ProbeMethod> getProbeMethods(ConfigurationHandler ldapConfigHandler){
-        return Arrays.asList(new AvaliableOptionsProbeMethod(ldapConfigHandler));
     }
 }

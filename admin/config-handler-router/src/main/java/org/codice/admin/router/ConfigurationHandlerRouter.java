@@ -45,9 +45,6 @@ public class ConfigurationHandlerRouter implements SparkApplication {
     public static final String APPLICATION_JSON = "application/json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationHandlerRouter.class);
-
-    // TODO: tbatie - 1/14/17 - I don't think we're using this field anymore
-    public static String contextPath;
     private List<ConfigurationHandler> handlers = new ArrayList<>();
 
     private Gson getGsonParser() {
@@ -185,10 +182,6 @@ public class ConfigurationHandlerRouter implements SparkApplication {
 
     private String toJson(Object body) {
         return getGsonParser().toJson(body);
-    }
-
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
     }
 
     public void setConfigurationHandlers(List<ConfigurationHandler> configurationHandlers) {
