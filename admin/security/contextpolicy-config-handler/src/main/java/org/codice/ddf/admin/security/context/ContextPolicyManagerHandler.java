@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyBin;
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
@@ -54,7 +55,7 @@ public class ContextPolicyManagerHandler
 
     private ConfigurationHandler ldapConfigHandler;
 
-    public static final String CONTEXT_POLICY_MANAGER_HANDLER_ID = "contextPolicyManager";
+    public static final String CONTEXT_POLICY_MANAGER_HANDLER_ID = ContextPolicyConfiguration.CONFIGURATION_TYPE;
 
     @Override
     public ProbeReport probe(String probeId, ContextPolicyConfiguration configuration) {
@@ -75,7 +76,7 @@ public class ContextPolicyManagerHandler
     }
 
     @Override
-    public TestReport persist(ContextPolicyConfiguration config, String persistId) {
+    public TestReport persist(String persistId, ContextPolicyConfiguration config) {
         if (config.contextPolicyBins()
                 .stream()
                 .filter(bin -> bin.contextPaths()
@@ -120,8 +121,8 @@ public class ContextPolicyManagerHandler
     }
 
     @Override
-    public Class getConfigClass() {
-        return ContextPolicyConfiguration.class;
+    public ConfigurationType getConfigurationType() {
+        return new ContextPolicyConfiguration().getConfigurationType();
     }
 
     public List<ContextPolicyBin> policyManagerSettingsToBins() {

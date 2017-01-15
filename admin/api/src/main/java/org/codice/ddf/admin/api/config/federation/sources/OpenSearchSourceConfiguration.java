@@ -21,16 +21,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class OpenSearchSourceConfiguration extends SourceConfiguration {
+
+    public static final String CONFIGURATION_TYPE = "open-search";
 
     // Open Search Service Properties
     public static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";
     public static final String OPENSEARCH_FACTORY_PID = "OpenSearchSource";
 
     // ----
+
+    public OpenSearchSourceConfiguration() {
+
+    }
 
     public OpenSearchSourceConfiguration(Map<String, Object> props) {
         factoryPid(props.get(FACTORY_PID_KEY) == null ? null : (String) props.get(FACTORY_PID_KEY));
@@ -80,5 +87,10 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
             config.put(PASSWORD, sourceUserPassword());
         }
         return config;
+    }
+
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new ConfigurationType(CONFIGURATION_TYPE, OpenSearchSourceConfiguration.class);
     }
 }

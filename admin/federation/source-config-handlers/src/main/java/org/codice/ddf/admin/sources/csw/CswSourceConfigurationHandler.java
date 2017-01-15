@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -46,7 +47,7 @@ public class CswSourceConfigurationHandler
         implements SourceConfigurationHandler<SourceConfiguration> {
 
     public static final String CSW_SOURCE_CONFIGURATION_HANDLER_ID =
-            "CswSourceConfigurationHandler";
+            CswSourceConfiguration.CONFIGURATION_TYPE;
 
     List<TestMethod> testMethods = Arrays.asList(new CswUrlTestMethod());
 
@@ -99,7 +100,7 @@ public class CswSourceConfigurationHandler
     }
 
     @Override
-    public TestReport persist(SourceConfiguration configuration, String persistId) {
+    public TestReport persist(String persistId, SourceConfiguration configuration) {
         CswSourceConfiguration config = new CswSourceConfiguration(configuration);
         Optional<PersistMethod> persistMethod = persistMethods.stream()
                 .filter(method -> method.id()
@@ -133,8 +134,8 @@ public class CswSourceConfigurationHandler
     }
 
     @Override
-    public Class getConfigClass() {
-        return CswSourceConfiguration.class;
+    public ConfigurationType getConfigurationType() {
+        return new CswSourceConfiguration().getConfigurationType();
     }
 
     @Override

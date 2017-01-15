@@ -22,10 +22,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.commons.SourceUtils;
-import org.codice.ddf.admin.api.handler.Configuration;
+import org.codice.ddf.admin.api.config.Configuration;
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class SourceConfiguration extends Configuration {
+
+    public static final String CONFIGURATION_TYPE = "sources";
 
     public static final String ID = "id";
     public static final String HOSTNAME = "hostname";
@@ -193,5 +196,10 @@ public class SourceConfiguration extends Configuration {
 
     public Map<String, Object> configMap() {
         return null;
+    }
+
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new ConfigurationType(CONFIGURATION_TYPE, SourceConfiguration.class);
     }
 }

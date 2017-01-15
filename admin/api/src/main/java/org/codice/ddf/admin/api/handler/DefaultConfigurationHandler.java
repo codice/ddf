@@ -20,6 +20,7 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage
 import java.util.List;
 import java.util.Optional;
 
+import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
@@ -69,7 +70,7 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
     }
 
     @Override
-    public TestReport persist(S configuration, String persistId) {
+    public TestReport persist(String persistId, S configuration) {
 
         if (getPersistMethods() == null) {
             return getNoTestFoundReport(persistId);

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.security.ldap.EmbeddedLdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -42,7 +43,7 @@ public class EmbeddedLdapConfigurationHandler
     private static final Logger LOGGER =
             LoggerFactory.getLogger(EmbeddedLdapConfigurationHandler.class);
 
-    private static final String EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID = "embeddedLdap";
+    private static final String EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID = EmbeddedLdapConfiguration.CONFIGURATION_TYPE;
 
     public static final ImmutableList<PersistMethod> PERSIST_METHODS =
             ImmutableList.of(new DefaultEmbeddedLdapPersistMethod());
@@ -58,7 +59,7 @@ public class EmbeddedLdapConfigurationHandler
     }
 
     @Override
-    public TestReport persist(EmbeddedLdapConfiguration configuration, String persistId) {
+    public TestReport persist(String persistId, EmbeddedLdapConfiguration configuration) {
         Optional<PersistMethod> persistMethod = PERSIST_METHODS.stream()
                 .filter(method -> method.id()
                         .equals(persistId))
@@ -103,7 +104,7 @@ public class EmbeddedLdapConfigurationHandler
     }
 
     @Override
-    public Class getConfigClass() {
-        return EmbeddedLdapConfiguration.class;
+    public ConfigurationType getConfigurationType() {
+        return new EmbeddedLdapConfiguration().getConfigurationType();
     }
 }

@@ -174,7 +174,7 @@ const ConfigureEmbeddedLdapView = ({ id, disabled, ldapUseCase }) => {
     {/* </div> */}
     <StageControls>
       <Back disabled={disabled} />
-      <Save id={id} disabled={disabled} url='/admin/beta/config/persist/embeddedLdap/defaultConfigs' configType='embeddedLdap' nextStageId='finalStage' />
+      <Save id={id} disabled={disabled} url='/admin/beta/config/persist/embedded-ldap/defaultConfigs' configType='embedded-ldap' nextStageId='finalStage' />
     </StageControls>
   </Stage>)
 }

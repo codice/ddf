@@ -21,10 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class WfsSourceConfiguration extends SourceConfiguration {
+
+    public static final String CONFIGURATION_TYPE = "wfs";
 
     //** wfs Service Properties
     public static final String WFS_URL = "wfsUrl";
@@ -34,6 +37,10 @@ public class WfsSourceConfiguration extends SourceConfiguration {
     // ----
 
     //TODO: Needs WFS specific properties
+
+    public WfsSourceConfiguration() {
+
+    }
 
     public WfsSourceConfiguration(Map<String, Object> wfsProps) {
         factoryPid(wfsProps.get(FACTORY_PID_KEY) == null ?
@@ -86,5 +93,10 @@ public class WfsSourceConfiguration extends SourceConfiguration {
             config.put(PASSWORD, sourceUserPassword());
         }
         return config;
+    }
+
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new ConfigurationType(CONFIGURATION_TYPE, WfsSourceConfiguration.class);
     }
 }

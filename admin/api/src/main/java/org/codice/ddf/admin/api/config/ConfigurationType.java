@@ -12,22 +12,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.api.handler;
+package org.codice.ddf.admin.api.config;
 
-public class Configuration {
+public class ConfigurationType {
+    private String configTypeName;
+    private Class configClass;
 
-    public static final String SERVICE_PID_KEY = "service.pid";
-
-    public static final String FACTORY_PID_KEY = "service.factoryPid";
-
-    String configurationHandlerId;
-
-    public String configurationHandlerId() {
-        return configurationHandlerId;
+    public ConfigurationType(String configTypeName, Class configClass) {
+        this.configTypeName = configTypeName;
+        this.configClass = configClass;
     }
 
-    public Configuration configurationHandlerId(String configurationHandlerId) {
-        this.configurationHandlerId = configurationHandlerId;
-        return this;
+    public Class configClass() {
+        return this.configClass;
+    }
+
+    public String configTypeName() {
+        return this.configTypeName;
     }
 }

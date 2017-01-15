@@ -16,9 +16,12 @@ package org.codice.ddf.admin.api.config.security.context;
 
 import java.util.List;
 
-import org.codice.ddf.admin.api.handler.Configuration;
+import org.codice.ddf.admin.api.config.Configuration;
+import org.codice.ddf.admin.api.config.ConfigurationType;
 
 public class ContextPolicyConfiguration extends Configuration {
+
+    public static final String CONFIGURATION_TYPE = "context-policy-manager";
 
     private List<ContextPolicyBin> contextPolicyBins;
 
@@ -40,6 +43,11 @@ public class ContextPolicyConfiguration extends Configuration {
     public ContextPolicyConfiguration whiteListContexts(List<String> whiteListContexts) {
         this.whiteListContexts = whiteListContexts;
         return this;
+    }
+
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new ConfigurationType(CONFIGURATION_TYPE, ContextPolicyConfiguration.class);
     }
 }
 

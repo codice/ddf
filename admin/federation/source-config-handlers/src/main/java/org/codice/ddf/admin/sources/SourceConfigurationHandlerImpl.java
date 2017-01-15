@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -93,6 +94,7 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
             sourcesProbeReport.probeResult(DISCOVER_SOURCES_ID, discoveredSources).messages(probeSourceMessages);
             return sourcesProbeReport;
 
+        // TODO: tbatie - 1/14/17 - What is this being used for?
         case SOURCE_CONFIGURATION_HANDLERS_ID:
             List<ImmutableMap> collect = sourceConfigurationHandlers.stream()
                     .map(handler -> ImmutableMap.builder()
@@ -109,7 +111,7 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
     }
 
     @Override
-    public TestReport persist(SourceConfiguration config, String persistId) {
+    public TestReport persist(String persistId, SourceConfiguration config) {
         return new TestReport(buildMessage(FAILURE, null, "Cannot persist a SourceConfiguration."));
     }
 
@@ -134,8 +136,8 @@ public class SourceConfigurationHandlerImpl implements ConfigurationHandler<Sour
     }
 
     @Override
-    public Class getConfigClass() {
-        return SourceConfiguration.class;
+    public ConfigurationType getConfigurationType() {
+        return new SourceConfiguration().getConfigurationType();
     }
 
     /*********************************************************

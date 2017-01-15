@@ -13,9 +13,7 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference-list id="configurationHandlers" interface="org.codice.ddf.admin.api.handler.ConfigurationHandler" availability="optional">
-        <reference-listener bind-method="registerConfigType" ref="configurationRouter"/>
-    </reference-list>
+    <reference-list id="configurationHandlers" interface="org.codice.ddf.admin.api.handler.ConfigurationHandler" availability="optional" />
 
     <bean id="configurationRouter" class="org.codice.admin.router.ConfigurationHandlerRouter">
         <property name="contextPath" value="/admin/beta/config"/>

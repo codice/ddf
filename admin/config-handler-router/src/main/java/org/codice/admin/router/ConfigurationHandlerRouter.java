@@ -14,6 +14,7 @@
 
 package org.codice.admin.router;
 
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
 import static spark.Spark.after;
 import static spark.Spark.exception;
 import static spark.Spark.get;
@@ -26,7 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.codice.ddf.admin.api.handler.Configuration;
+import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
@@ -40,21 +41,23 @@ import spark.servlet.SparkApplication;
 
 public class ConfigurationHandlerRouter implements SparkApplication {
 
+    public static final String CONFIGURATION_TYPE_FIELD = "configurationType";
     public static final String APPLICATION_JSON = "application/json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationHandlerRouter.class);
 
+    // TODO: tbatie - 1/14/17 - I don't think we're using this field anymore
     public static String contextPath;
-
-    // TODO: tbatie - 1/14/17 - Why do we have a map? You have access to config handler id at anypoint in time, no need to store the keys
-    private Map<String, ConfigurationHandler> handlers = new HashMap<>();
+    private List<ConfigurationHandler> handlers = new ArrayList<>();
 
     private Gson getGsonParser() {
         RuntimeTypeAdapterFactory rtaf = RuntimeTypeAdapterFactory.of(Configuration.class,
-                "configurationType");
-        handlers.keySet()
-                .forEach(key -> rtaf.registerSubtype(handlers.get(key)
-                        .getConfigClass(), key));
+                CONFIGURATION_TYPE_FIELD);
+        handlers.stream()
+                .map(handler -> handler.getConfigurationType())
+                .forEach(configType -> rtaf.registerSubtype(configType.configClass(),
+                        configType.configTypeName()));
+
         return new GsonBuilder().registerTypeAdapterFactory(rtaf)
                 .create();
     }
@@ -63,57 +66,95 @@ public class ConfigurationHandlerRouter implements SparkApplication {
     public void init() {
 
         post("/test/:configHandlerId/:testId", (req, res) -> {
-            Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
-            TestReport testResults = getConfigurationHandler(new ArrayList<>(handlers.values()),
-                    req.params("configHandlerId")).test(req.params("testId"), config);
+            TestReport testReport = new TestReport();
+            String configHandlerId = req.params("configHandlerId");
+            String testId = req.params("testId");
+            ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
+            if(configHandler == null) {
+                res.status(400);
+                return testReport.messages(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+            }
 
-            if (testResults.containsUnsuccessfulMessages()) {
+            Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
+            testReport = configHandler.test(testId, config);
+
+            // TODO: tbatie - 1/14/17 - Once subtypes are used on the front end instead of status codes, only change it to 400 when there are failure messages
+            if (testReport.containsUnsuccessfulMessages()) {
                 res.status(400);
             }
 
-            return testResults;
+            return testReport;
         }, this::toJson);
 
         post("/persist/:configHandlerId/:persistId", (req, res) -> {
-            Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
-            // TODO: tbatie - 11/29/16 - Check if configurationHandler is running before testing
-            TestReport results = getConfigurationHandler(new ArrayList<>(handlers.values()),
-                    req.params("configHandlerId")).persist(config, req.params("persistId"));
+            TestReport persistReport = new TestReport();
+            String configHandlerId = req.params("configHandlerId");
+            String persistId = req.params("persistId");
+            ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
+            if(configHandler == null) {
+                res.status(400);
+                return persistReport.messages(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+            }
 
-            if (results.containsUnsuccessfulMessages()) {
+            Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
+            persistReport = configHandler.persist(persistId, config);
+
+            if (persistReport.containsUnsuccessfulMessages()) {
                 res.status(400);
             }
 
-            return results;
+            return persistReport;
         }, this::toJson);
 
         post("/probe/:configHandlerId/:probeId", (req, res) -> {
-            Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
-            ProbeReport report = getConfigurationHandler(new ArrayList<>(handlers.values()),
-                    req.params("configHandlerId")).probe(req.params("probeId"), config);
+            ProbeReport probeReport = new ProbeReport();
+            String configHandlerId = req.params("configHandlerId");
+            String probeId = req.params("probeId");
+            ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
 
-            if (report.containsUnsuccessfulMessages()) {
+            if(configHandler == null) {
+                res.status(400);
+                return probeReport.messages(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+            }
+
+            Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
+            probeReport = configHandler.probe(probeId, config);
+
+            if (probeReport.containsUnsuccessfulMessages()) {
                 res.status(400);
             }
 
-            return report;
+            return probeReport;
         }, this::toJson);
 
         get("/capabilities",
-                (req, res) -> handlers.values()
-                        .stream()
+                (req, res) -> handlers.stream()
                         .map(handler -> handler.getCapabilities())
                         .collect(Collectors.toList()),
                 this::toJson);
 
         get("/capabilities/:configHandlerId",
-                (req, res) -> getConfigurationHandler(new ArrayList<>(handlers.values()),
-                        req.params("configHandlerId")).getCapabilities(),
+                (req, res) -> {
+                    String configHandlerId = req.params("configHandlerId");
+                    ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
+                    if(configHandler == null) {
+                        res.status(400);
+                        return new TestReport(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+                    }
+                    return configHandler.getCapabilities();
+                },
                 this::toJson);
 
         get("/configurations/:configHandlerId",
-                (req, res) -> getConfigurationHandler(new ArrayList<>(handlers.values()),
-                        req.params("configHandlerId")).getConfigurations(),
+                (req, res) -> {
+                    String configHandlerId = req.params("configHandlerId");
+                    ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
+                    if(configHandler == null) {
+                        res.status(400);
+                        return new TestReport(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+                    }
+                    return configHandler.getConfigurations();
+                },
                 this::toJson);
 
         after("/*", (req, res) -> res.type(APPLICATION_JSON));
@@ -133,8 +174,8 @@ public class ConfigurationHandlerRouter implements SparkApplication {
         return new Gson().toJson(e);
     }
 
-    public ConfigurationHandler getConfigurationHandler(List<ConfigurationHandler> configurationHandlers, String configurationId) {
-        Optional<ConfigurationHandler> foundConfigHandler = configurationHandlers.stream()
+    public ConfigurationHandler getConfigurationHandler(String configurationId) {
+        Optional<ConfigurationHandler> foundConfigHandler = handlers.stream()
                 .filter(handler -> handler.getConfigurationHandlerId()
                         .equals(configurationId))
                 .findFirst();
@@ -151,11 +192,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
     }
 
     public void setConfigurationHandlers(List<ConfigurationHandler> configurationHandlers) {
-        configurationHandlers.forEach(handler -> handlers.put(handler.getConfigurationHandlerId(), handler));
-    }
-
-    public void registerConfigType(ConfigurationHandler handler) {
-        handlers.put(handler.getConfigurationHandlerId(), handler);
+        handlers = configurationHandlers;
     }
 
 }

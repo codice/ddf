@@ -168,9 +168,9 @@ ConfirmationPanel = connect((state) => ({
 }), (dispatch, { binNumber }) => ({
   removeBin: () => dispatch(removeBin(binNumber)),
   cancelRemoveBin: () => dispatch(cancelRemoveBin()),
-  saveAndPersist: () => dispatch(persistChanges(binNumber, '/admin/beta/config/persist/contextPolicyManager/create')),
+  saveAndPersist: () => dispatch(persistChanges(binNumber, '/admin/beta/config/persist/context-policy-manager/create')),
   editModeCancel: () => dispatch(editModeCancel(binNumber)),
-  confirmRemoveBinAndPersist: () => dispatch(confirmRemoveBinAndPersist(binNumber, '/admin/beta/config/persist/contextPolicyManager/create'))
+  confirmRemoveBinAndPersist: () => dispatch(confirmRemoveBinAndPersist(binNumber, '/admin/beta/config/persist/context-policy-manager/create'))
 }))(ConfirmationPanel)
 
 let AuthTypesGroup = ({ bin, binNumber, policyOptions, editing }) => (
@@ -299,7 +299,7 @@ let NewBin = ({ policies, addNewBin, nextBinNumber, editing }) => {
 NewBin = connect((state) => ({ nextBinNumber: getBins(state).length }), { addNewBin })(NewBin)
 
 let wcpm = ({ updatePolicyBins }) => (
-  <Mount on={updatePolicyBins('/admin/beta/config/configurations/contextPolicyManager')}>
+  <Mount on={updatePolicyBins('/admin/beta/config/configurations/context-policy-manager')}>
     <Flexbox flexDirection='column' style={{ width: '100%', height: '100%' }}>
       <Paper style={{ backgroundColor: '#EEE', width: '100%' }}>
         <p className={infoTitle}>Web Context Policy Manager</p>

@@ -15,6 +15,8 @@ package org.codice.ddf.admin.api.handler;
 
 import java.util.List;
 
+import org.codice.ddf.admin.api.config.Configuration;
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
@@ -48,7 +50,7 @@ public interface ConfigurationHandler<S extends Configuration> {
      * @return Error messages resulting from persisting
      */
     // TODO: tbatie - 1/11/17 - pet peeve, Change order of the parameters
-    TestReport persist(S configuration, String persistId);
+    TestReport persist(String persistId, S configuration);
 
     /*
      * Returns configurations associated with this configuration handler
@@ -64,5 +66,5 @@ public interface ConfigurationHandler<S extends Configuration> {
      */
     String getConfigurationHandlerId();
 
-    Class getConfigClass();
+    ConfigurationType getConfigurationType();
 }

@@ -16,7 +16,7 @@ package org.codice.ddf.admin.api.handler.method;
 
 import java.util.Map;
 
-import org.codice.ddf.admin.api.handler.Configuration;
+import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 
 public abstract class PersistMethod<S extends Configuration> extends ConfigurationHandlerMethod {

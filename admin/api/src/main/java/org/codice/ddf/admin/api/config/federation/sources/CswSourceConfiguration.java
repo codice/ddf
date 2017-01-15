@@ -21,12 +21,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class CswSourceConfiguration extends SourceConfiguration {
-    //** Csw Service Properties
 
+    public static final String CONFIGURATION_TYPE = "csw";
+
+    //** Csw Service Properties
     public static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
     public static final String CSW_PROFILE_FACTORY_PID = "Csw_Federation_Profile_Source";
     public static final String CSW_GMD_FACTORY_PID = "Gmd_Csw_Federated_Source";
@@ -44,6 +47,10 @@ public class CswSourceConfiguration extends SourceConfiguration {
     private String outputSchema;
 
     private String forceSpatialFilter;
+
+    public CswSourceConfiguration() {
+
+    }
 
     public CswSourceConfiguration(Map<String, Object> cswSourceProps) {
         factoryPid(cswSourceProps.get(FACTORY_PID_KEY) == null ?
@@ -130,4 +137,8 @@ public class CswSourceConfiguration extends SourceConfiguration {
         return config;
     }
 
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new ConfigurationType(CONFIGURATION_TYPE, CswSourceConfiguration.class);
+    }
 }

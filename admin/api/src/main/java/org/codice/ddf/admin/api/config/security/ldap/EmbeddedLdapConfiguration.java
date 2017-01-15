@@ -17,16 +17,17 @@ package org.codice.ddf.admin.api.config.security.ldap;
 import java.util.HashMap;
 import java.util.Map;
 
+
+import org.codice.ddf.admin.api.config.ConfigurationType;
+
 public class EmbeddedLdapConfiguration extends LdapConfiguration {
 
+    public static final String CONFIGURATION_TYPE = "embedded-ldap";
+
     private int embeddedLdapPort;
-
     private int embeddedLdapsPort;
-
     private int embeddedLdapAdminPort;
-
     private String ldifPath;
-
     private String embeddedLdapStorageLocation;
 
     public static EmbeddedLdapConfiguration fromProperties(Map<String, Object> props) {
@@ -36,7 +37,6 @@ public class EmbeddedLdapConfiguration extends LdapConfiguration {
         config.embeddedLdapAdminPort = (int) props.get("embeddedLdapAdminPort");
         config.ldifPath = (String) props.get("ldifPath");
         config.embeddedLdapStorageLocation = (String) props.get("embeddedLdapStorageLocation");
-
         return config;
     }
 
@@ -48,5 +48,10 @@ public class EmbeddedLdapConfiguration extends LdapConfiguration {
         props.put("ldifPath", ldifPath);
         props.put("embeddedLdapStorageLocation", embeddedLdapStorageLocation);
         return props;
+    }
+
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new ConfigurationType(CONFIGURATION_TYPE, EmbeddedLdapConfiguration.class);
     }
 }

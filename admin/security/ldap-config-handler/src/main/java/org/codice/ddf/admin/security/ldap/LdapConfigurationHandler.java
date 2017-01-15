@@ -14,13 +14,13 @@
 
 package org.codice.ddf.admin.security.ldap;
 
+import static org.codice.ddf.admin.api.config.Configuration.SERVICE_PID_KEY;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAPS;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_USE_CASES;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
-import static org.codice.ddf.admin.api.handler.Configuration.SERVICE_PID_KEY;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.INVALID_FIELD;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -66,6 +67,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfiguration> {
+
+    private static final String LDAP_CONFIGURATION_HANDLER_ID = LdapConfiguration.CONFIGURATION_TYPE;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapConfigurationHandler.class);
 
     private List<TestMethod> testMethods = ImmutableList.of(new ConnectTestMethod(),
@@ -78,7 +82,6 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
             new LdapQueryProbe(),
             new SubjectAttributeProbe());
 
-    private static final String LDAP_CONFIGURATION_HANDLER_ID = "ldap";
 
     @Override
     public String getConfigurationHandlerId() {
@@ -86,8 +89,8 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     }
 
     @Override
-    public Class<LdapConfiguration> getConfigClass() {
-        return LdapConfiguration.class;
+    public ConfigurationType getConfigurationType() {
+        return new LdapConfiguration().getConfigurationType();
     }
 
     @Override
@@ -176,7 +179,7 @@ public class LdapConfigurationHandler implements ConfigurationHandler<LdapConfig
     }
 
     @Override
-    public TestReport persist(LdapConfiguration config, String persistId) {
+    public TestReport persist(String persistId, LdapConfiguration config) {
         Configurator configurator = new Configurator();
         ConfigReport report;
 

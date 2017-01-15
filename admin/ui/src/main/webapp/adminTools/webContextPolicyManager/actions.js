@@ -42,7 +42,7 @@ export const updatePolicyBins = (url) => (dispatch, getState) => {
       if (status === 200) {
         dispatch(replaceAllBins(json[0].contextPolicyBins))
         dispatch(replaceWhitelist(json[0].whiteListContexts))
-        dispatch(fetchOptions('/admin/beta/config/probe/contextPolicyManager/options'))
+        dispatch(fetchOptions('/admin/beta/config/probe/context-policy-manager/options'))
       }
     })
     .catch(() => {
@@ -54,7 +54,7 @@ export const persistChanges = (binNumber, url) => (dispatch, getState) => {
   dispatch(editModeSave(binNumber))
 
   const formattedBody = {
-    configurationType: 'contextPolicyManager',
+    configurationType: 'context-policy-manager',
     contextPolicyBins: getBins(getState()),
     whiteListContexts: getWhiteList(getState())
   }
@@ -80,7 +80,7 @@ export const persistChanges = (binNumber, url) => (dispatch, getState) => {
 
 export const fetchOptions = (url) => (dispatch, getState) => {
   const formattedBody = {
-    configurationType: 'contextPolicyManager',
+    configurationType: 'context-policy-manager',
     contextPolicyBins: getBins(getState()),
     whiteListContexts: getWhiteList(getState())
   }

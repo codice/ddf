@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -44,7 +45,7 @@ public class OpenSearchSourceConfigurationHandler
         implements SourceConfigurationHandler<SourceConfiguration> {
 
     public static final String OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID =
-            "OpenSearchSourceConfigurationHandler";
+            OpenSearchSourceConfiguration.CONFIGURATION_TYPE;
 
     private List<TestMethod> testMethods = Arrays.asList(new OpenSearchUrlTestMethod());
 
@@ -86,7 +87,7 @@ public class OpenSearchSourceConfigurationHandler
     }
 
     @Override
-    public TestReport persist(SourceConfiguration configuration, String persistId) {
+    public TestReport persist(String persistId, SourceConfiguration configuration) {
         OpenSearchSourceConfiguration config = new OpenSearchSourceConfiguration(configuration);
         Optional<PersistMethod> persistMethod = persistMethods.stream()
                 .filter(method -> method.id()
@@ -122,8 +123,8 @@ public class OpenSearchSourceConfigurationHandler
     }
 
     @Override
-    public Class getConfigClass() {
-        return OpenSearchSourceConfiguration.class;
+    public ConfigurationType getConfigurationType() {
+        return new OpenSearchSourceConfiguration().getConfigurationType();
     }
 
     @Override

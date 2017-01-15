@@ -27,7 +27,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.admin.api.handler.Configuration;
+import org.codice.ddf.admin.api.config.Configuration;
+import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,59 +38,37 @@ import com.google.common.collect.ImmutableMap;
 
 public class LdapConfiguration extends Configuration {
 
+    public static final String CONFIGURATION_TYPE = "ldap";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapConfiguration.class);
 
     public static final String LDAPS = "ldaps";
-
     public static final String TLS = "tls";
-
     public static final String NONE = "none";
+    public static final String LOGIN = "login";
+    public static final String CREDENTIAL_STORE = "credentialStore";
+    public static final String LOGIN_AND_CREDENTIAL_STORE = "loginAndCredentialStore";
+    public static final String LDAP_TYPE = "ldapType";
+    public static final String BIND_USER_DN = "bindUserDn";
+    public static final String BIND_USER_PASSWORD = "bindUserPassword";
+    public static final String BIND_METHOD = "bindMethod";
+    public static final String BIND_REALM = "realm";
+    public static final String BIND_KDC = "kdcAddress";
+    public static final String HOST_NAME = "hostName";
+    public static final String PORT = "port";
+    public static final String ENCRYPTION_METHOD = "encryptionMethod";
+    public static final String BASE_USER_DN = "baseUserDn";
+    public static final String BASE_GROUP_DN = "baseGroupDn";
+    public static final String USER_NAME_ATTRIBUTE = "userNameAttribute";
+    public static final String QUERY = "query";
+    public static final String QUERY_BASE = "queryBase";
+    public static final String MEMBERSHIP_ATTRIBUTE = "membershipAttribute";
+    public static final String LDAP_USE_CASE = "ldapUseCase";
+    public static final String GROUP_OBJECT_CLASS = "groupObjectClass";
+    public static final String ATTRIBUTE_MAPPINGS = "attributeMappings";
+    public static final String QUERY_RESULTS = "queryResults";
 
     public static final ImmutableList LDAP_ENCRYPTION_METHODS = ImmutableList.of(LDAPS, TLS, NONE);
-
-    public static final String LOGIN = "login";
-
-    public static final String CREDENTIAL_STORE = "credentialStore";
-
-    public static final String LOGIN_AND_CREDENTIAL_STORE = "loginAndCredentialStore";
-
-    public static final String LDAP_TYPE = "ldapType";
-
-    public static final String BIND_USER_DN = "bindUserDn";
-
-    public static final String BIND_USER_PASSWORD = "bindUserPassword";
-
-    public static final String BIND_METHOD = "bindMethod";
-
-    public static final String BIND_REALM = "realm";
-
-    public static final String BIND_KDC = "kdcAddress";
-
-    public static final String HOST_NAME = "hostName";
-
-    public static final String PORT = "port";
-
-    public static final String ENCRYPTION_METHOD = "encryptionMethod";
-
-    public static final String BASE_USER_DN = "baseUserDn";
-
-    public static final String BASE_GROUP_DN = "baseGroupDn";
-
-    public static final String USER_NAME_ATTRIBUTE = "userNameAttribute";
-
-    public static final String QUERY = "query";
-
-    public static final String QUERY_BASE = "queryBase";
-
-    public static final String MEMBERSHIP_ATTRIBUTE = "membershipAttribute";
-
-    public static final String LDAP_USE_CASE = "ldapUseCase";
-
-    public static final String GROUP_OBJECT_CLASS = "groupObjectClass";
-
-    public static final String ATTRIBUTE_MAPPINGS = "attributeMappings";
-
-    public static final String QUERY_RESULTS = "queryResults";
 
     public static final ImmutableList LDAP_USE_CASES = ImmutableList.of(LOGIN,
             CREDENTIAL_STORE,
@@ -157,7 +136,6 @@ public class LdapConfiguration extends Configuration {
     private String encryptionMethod;
     private String bindUserDn;
     private String bindUserPassword;
-    // TODO: tbatie - 1/11/17 - Lets rename this to bindMethod, need to change ui too
     private String bindUserMethod;
     private String bindKdcAddress;
     private String bindRealm;
@@ -399,5 +377,10 @@ public class LdapConfiguration extends Configuration {
         }
 
         return missingFields;
+    }
+
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new ConfigurationType(CONFIGURATION_TYPE, LdapConfiguration.class);
     }
 }
