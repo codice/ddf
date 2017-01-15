@@ -75,7 +75,6 @@ public class ContextPolicyManagerHandler extends DefaultConfigurationHandler<Con
     }
 
     public List<ContextPolicyBin> policyManagerSettingsToBins(PolicyManager policyManager) {
-        // TODO: tbatie - 12/10/16 - Should match terminology used by the policy manager
         List<ContextPolicyBin> bins = new ArrayList<>();
 
         Collection<ContextPolicy> allPolicies = policyManager.getAllContextPolicies();
@@ -97,7 +96,6 @@ public class ContextPolicyManagerHandler extends DefaultConfigurationHandler<Con
             }
 
             if (!foundBin) {
-                // TODO: tbatie - 12/10/16 - ???? auth types from ContextPolicy interface should maintain order, not be a collection
                 bins.add(new ContextPolicyBin().realm(policy.getRealm())
                         .requiredAttributes(policyRequiredAttributes)
                         .authenticationTypes(new ArrayList<>(policy.getAuthenticationMethods()))

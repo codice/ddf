@@ -81,7 +81,6 @@ public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
 
     public List<String> getAuthTypes() {
         // TODO: tbatie - 1/12/17 - Is there a preference order we should apply with these auth types?
-        // TODO: tbatie - 1/12/17 - Could do a check for these, all should be running by default though
         List<String> authTypes = new ArrayList<>(Arrays.asList(BASIC, SAML, PKI, GUEST));
 
         if(configurator.isBundleStarted("security-idp-client")) {
@@ -121,7 +120,6 @@ public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
     }
 
     public STSClientConfiguration getStsClientConfig() {
-        // TODO: tbatie - 12/16/16 - Throw exception? Something is seriously wrong if this service isnt available
         return new Configurator().getServiceReference(STSClientConfiguration.class);
     }
 }

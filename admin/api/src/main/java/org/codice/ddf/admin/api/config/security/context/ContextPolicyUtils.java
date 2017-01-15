@@ -26,7 +26,7 @@ public class ContextPolicyUtils {
 
     public static List<ConfigurationMessage> validateContextPath(String contextPath) {
         List<ConfigurationMessage> msgs = new ArrayList<>();
-        if (StringUtils.isEmpty(contextPath) || contextPath.startsWith("/")) {
+        if (StringUtils.isEmpty(contextPath) || !contextPath.startsWith("/")) {
             msgs.add(createInvalidFieldMsg("Improperly formatted context path", contextPath));
         }
         // TODO: tbatie - 1/14/17 - We can check for other characters that shouldn't be present in a url

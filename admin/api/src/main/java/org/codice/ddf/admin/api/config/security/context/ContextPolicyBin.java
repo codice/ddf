@@ -33,18 +33,18 @@ import com.google.common.collect.ImmutableList;
 
 public class ContextPolicyBin {
 
+    // TODO: tbatie - 1/14/17 - Make sure all fields here match docs
     public static final String KARAF = "karaf";
     public static final String LDAP = "ldap";
     public static final String IDP = "IdP";
     public static final List<String> ALL_REALMS = ImmutableList.of(KARAF, LDAP, IDP);
 
-    public static final String SAML = "saml";
+    public static final String SAML = "SAML";
     public static final String BASIC = "basic";
     public static final String PKI = "PKI";
     public static final String CAS = "CAS";
-    public static final String GUEST = "guest";
+    public static final String GUEST = "GUEST";
     public static final List<String> ALL_AUTH_TYPES = ImmutableList.of(SAML, BASIC, PKI, CAS, GUEST);
-
 
     public static final String REALM = "realm";
     public static final String CONTEXT_PATHS = "contextPaths";
@@ -109,6 +109,7 @@ public class ContextPolicyBin {
         if (realm() == null || StringUtils.isEmpty(realm())) {
             msgs.add(createMissingRequiredFieldMsg(REALM));
         }
+
         if (contextPaths() == null || contextPaths().isEmpty()) {
             msgs.add(createMissingRequiredFieldMsg(CONTEXT_PATHS));
         } else {
@@ -117,6 +118,7 @@ public class ContextPolicyBin {
                     .flatMap(List::stream)
                     .collect(Collectors.toList()));
         }
+
         if (authenticationTypes() == null || authenticationTypes().isEmpty()) {
             msgs.add(createMissingRequiredFieldMsg(AUTH_TYPES));
         } else {
@@ -126,6 +128,7 @@ public class ContextPolicyBin {
                 }
             }
         }
+
         if (requiredAttributes() != null) {
             if (requiredAttributes().values()
                     .contains(null) || requiredAttributes().values()
