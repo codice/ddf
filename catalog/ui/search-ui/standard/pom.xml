@@ -302,6 +302,10 @@
                                     <sourceDirectory>src/main/doc</sourceDirectory>
                                     <outputDirectory>target/webapp</outputDirectory>
                                     <backend>html</backend>
+                                    <attributes>
+                                        <webfonts>false</webfonts>
+                                        <iconfont-remote>false</iconfont-remote>
+                                    </attributes>
                                 </configuration>
                             </execution>
                             <execution>
