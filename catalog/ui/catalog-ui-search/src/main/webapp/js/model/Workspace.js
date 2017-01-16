@@ -125,8 +125,8 @@ define([
             url: '/search/catalog/internal/workspaces',
             useAjaxSync: true,
             initialize: function(){
-                this.fetch();
-                this.listenTo(user, 'change', this.fetch);
+                this.handleUserChange();
+                this.listenTo(user, 'change', this.handleUserChange);
                 var collection = this;
                 collection.on('add',function(workspace){
                     workspace.on('change:lastModifiedDate',function(){
@@ -137,6 +137,9 @@ define([
                     collection.save();
                 });
                 this.listenTo(this, 'add', this.tagGuestWorkspace);
+            },
+            handleUserChange: function(){
+                this.fetch({remove: false});
             },
             tagGuestWorkspace: function (model) {
                 if (this.isGuestUser() && model.isNew()) {
