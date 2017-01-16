@@ -19,11 +19,9 @@ import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 
 public interface ConfigurationHandler<S extends Configuration> {
-
-    String CONFIGURATION_HANDLER_ID = "configurationHandler";
 
     /**
      * Used to search the system for information relative to the configuration and type of probing.
@@ -41,7 +39,7 @@ public interface ConfigurationHandler<S extends Configuration> {
      * @param configuration - Configuration with properties that will be used for testing
      * @return Error messages resulting from testing.
      */
-    TestReport test(String testId, S configuration);
+    Report test(String testId, S configuration);
 
     /**
      * Persists the configuration to the according bundles and services. Returns a list of error messages resulting from persisting
@@ -49,8 +47,7 @@ public interface ConfigurationHandler<S extends Configuration> {
      * @param configuration - Configuration to persist
      * @return Error messages resulting from persisting
      */
-    // TODO: tbatie - 1/11/17 - pet peeve, Change order of the parameters
-    TestReport persist(String persistId, S configuration);
+    Report persist(String persistId, S configuration);
 
     /*
      * Returns configurations associated with this configuration handler

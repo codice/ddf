@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.Configuration;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 
 public abstract class TestMethod<S extends Configuration> extends ConfigurationHandlerMethod {
 
@@ -34,6 +34,6 @@ public abstract class TestMethod<S extends Configuration> extends ConfigurationH
                 warningTypes);
     }
 
-    public abstract TestReport test(S configuration);
+    public abstract Report test(S configuration);
 
 }

@@ -33,7 +33,7 @@ import org.apache.commons.validator.UrlValidator;
 import org.apache.cxf.common.util.StringUtils;
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 
 public class SourceUtils {
 
@@ -59,7 +59,7 @@ public class SourceUtils {
         return Optional.empty();
     }
 
-    public static TestReport cannotBeNullFields(Map<String, Object> fieldsToCheck) {
+    public static Report cannotBeNullFields(Map<String, Object> fieldsToCheck) {
         List<ConfigurationMessage> missingFields = new ArrayList<>();
 
         fieldsToCheck.entrySet()
@@ -69,7 +69,7 @@ public class SourceUtils {
                 .forEach(field -> missingFields.add(new ConfigurationMessage(FAILURE,
                         MISSING_REQUIRED_FIELD, null).configId(field.getKey())));
 
-        return new TestReport(missingFields);
+        return new Report(missingFields);
     }
 
     public static boolean validUrlFormat(String url) {

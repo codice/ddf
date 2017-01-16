@@ -17,7 +17,7 @@ package org.codice.ddf.admin.security.ldap.test;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.HOST_NAME;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
-import static org.codice.ddf.admin.api.handler.report.TestReport.createGeneralTestReport;
+import static org.codice.ddf.admin.api.handler.report.Report.createGeneralTestReport;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.SUCCESSFUL_CONNECTION;
@@ -34,7 +34,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 
 import com.google.common.collect.ImmutableList;
 
@@ -67,12 +67,12 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
     }
 
     @Override
-    public TestReport test(LdapConfiguration configuration) {
+    public Report test(LdapConfiguration configuration) {
         List<ConfigurationMessage> checkMessages =
                 // TODO: Use the validate method, not this
                 configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
         if (CollectionUtils.isNotEmpty(checkMessages)) {
-            return new TestReport(checkMessages);
+            return new Report(checkMessages);
         }
 
         LdapTestingCommons.LdapConnectionAttempt connectionAttempt =

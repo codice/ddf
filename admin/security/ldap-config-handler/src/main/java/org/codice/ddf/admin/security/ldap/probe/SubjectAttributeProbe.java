@@ -97,11 +97,9 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
             return new ProbeReport(checkMessages);
         }
 
-        // TODO: tbatie - 12/7/16 - Need to also return a default map is embedded ldap and set
         Object subjectClaims = new Configurator().getConfig("ddf.security.sts.client.configuration")
                 .get("claims");
 
-        // TODO: tbatie - 12/6/16 - Clean up this naming conventions
         LdapTestingCommons.LdapConnectionAttempt ldapConnectionAttempt = bindUserToLdapConnection(
                 configuration);
         Set<String> ldapEntryAttributes = null;

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,9 +61,9 @@ public class ConfigurationHandlerRouter implements SparkApplication {
 
     @Override
     public void init() {
-
+        // TODO: tbatie - 1/16/17 - Comment endpoints
         post("/test/:configHandlerId/:testId", (req, res) -> {
-            TestReport testReport = new TestReport();
+            Report testReport = new Report();
             String configHandlerId = req.params("configHandlerId");
             String testId = req.params("testId");
             ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
@@ -72,6 +72,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
                 return testReport.messages(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
             }
 
+            // TODO: tbatie - 1/16/17 - Catch transformation error
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
             testReport = configHandler.test(testId, config);
 
@@ -84,7 +85,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
         }, this::toJson);
 
         post("/persist/:configHandlerId/:persistId", (req, res) -> {
-            TestReport persistReport = new TestReport();
+            Report persistReport = new Report();
             String configHandlerId = req.params("configHandlerId");
             String persistId = req.params("persistId");
             ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
@@ -137,7 +138,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
                     ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
                     if(configHandler == null) {
                         res.status(400);
-                        return new TestReport(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+                        return new Report(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
                     }
                     return configHandler.getCapabilities();
                 },
@@ -149,7 +150,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
                     ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
                     if(configHandler == null) {
                         res.status(400);
-                        return new TestReport(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+                        return new Report(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
                     }
                     return configHandler.getConfigurations();
                 },
@@ -157,6 +158,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
 
         after("/*", (req, res) -> res.type(APPLICATION_JSON));
 
+        // TODO: tbatie - 1/16/17 - May need to log real exception and throw a filtered one
         exception(Exception.class, (ex, req, res) -> {
             LOGGER.error("Configuration Handler router error: ", ex);
             res.status(500);

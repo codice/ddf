@@ -27,7 +27,7 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.security.ldap.EmbeddedLdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
@@ -63,9 +63,9 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
     }
 
     @Override
-    public TestReport persist(EmbeddedLdapConfiguration configuration) {
+    public Report persist(EmbeddedLdapConfiguration configuration) {
         Configurator configurator = new Configurator();
-        TestReport testReport = new TestReport(configuration.checkRequiredFields(Sets.newHashSet(LDAP_USE_CASE)));
+        Report testReport = new Report(configuration.checkRequiredFields(Sets.newHashSet(LDAP_USE_CASE)));
         if(testReport.containsFailureMessages()) {
             return testReport;
         }
@@ -90,12 +90,12 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
         ConfigReport report = configurator.commit();
 
         if (report.containsFailedResults()) {
-            return new TestReport(new ConfigurationMessage(FAILURE,
+            return new Report(new ConfigurationMessage(FAILURE,
                     FAILED_PERSIST,
                     FAILURE_TYPES.get(FAILED_PERSIST)));
         }
 
-        return new TestReport(new ConfigurationMessage(SUCCESS,
+        return new Report(new ConfigurationMessage(SUCCESS,
                 SUCCESSFUL_PERSIST,
                 SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
     }

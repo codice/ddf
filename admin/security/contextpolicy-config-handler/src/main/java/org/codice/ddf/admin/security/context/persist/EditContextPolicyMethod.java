@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyBin;
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
@@ -62,8 +62,8 @@ public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfigur
     }
 
     @Override
-    public TestReport persist(ContextPolicyConfiguration config) {
-        TestReport report = new TestReport(config.validate(ALL_FIELDS));
+    public Report persist(ContextPolicyConfiguration config) {
+        Report report = new Report(config.validate(ALL_FIELDS));
         if(report.containsFailureMessages()) {
             return report;
         }
@@ -76,9 +76,9 @@ public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfigur
 
         if (!configReport.getFailedResults()
                 .isEmpty()) {
-            return new TestReport(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)));
+            return new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)));
         } else {
-            return new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
+            return new Report(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
         }
     }
 

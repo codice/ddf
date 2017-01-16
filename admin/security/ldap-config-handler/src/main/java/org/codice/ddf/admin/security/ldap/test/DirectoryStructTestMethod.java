@@ -54,7 +54,7 @@ import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 
@@ -104,7 +104,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
     }
 
     @Override
-    public TestReport test(LdapConfiguration configuration) {
+    public Report test(LdapConfiguration configuration) {
         // TODO: tbatie - 1/11/17 - Test groupClassObject and membershipAttribute
         List<ConfigurationMessage> checkMessages =
                 // TODO: Use the validate method for consistency

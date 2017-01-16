@@ -28,7 +28,7 @@ import org.codice.ddf.admin.api.commons.SourceUtils;
 import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -65,8 +65,8 @@ public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfigur
     }
 
     @Override
-    public TestReport test(OpenSearchSourceConfiguration configuration) {
-        TestReport testReport = new TestReport();
+    public Report test(OpenSearchSourceConfiguration configuration) {
+        Report testReport = new Report();
         List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
 
         if (!results.isEmpty()) {
@@ -80,9 +80,9 @@ public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfigur
 
 
         if (isAvailable(configuration.endpointUrl(), configuration)) {
-            return new TestReport(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
+            return new Report(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
         } else {
-            return new TestReport(buildMessage(FAILURE, CANNOT_CONNECT, FAILURE_TYPES.get(CANNOT_CONNECT)));
+            return new Report(buildMessage(FAILURE, CANNOT_CONNECT, FAILURE_TYPES.get(CANNOT_CONNECT)));
         }
     }
 }

@@ -27,7 +27,7 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
@@ -60,19 +60,19 @@ public class DeleteOpenSearchSourcePersistMethod
     }
 
     @Override
-    public TestReport persist(OpenSearchSourceConfiguration configuration) {
+    public Report persist(OpenSearchSourceConfiguration configuration) {
         List<ConfigurationMessage> results =
                 configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
-            return new TestReport(results);
+            return new Report(results);
         }
         Configurator configurator = new Configurator();
         ConfigReport report;
         // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
         configurator.deleteManagedService(configuration.servicePid());
         report = configurator.commit();
-        return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)))
-            : new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
+        return report.containsFailedResults() ? new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)))
+            : new Report(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
     }
 
 }

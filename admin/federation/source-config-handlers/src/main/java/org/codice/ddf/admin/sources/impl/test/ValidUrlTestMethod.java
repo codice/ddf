@@ -29,7 +29,7 @@ import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -61,14 +61,14 @@ public class ValidUrlTestMethod extends TestMethod<SourceConfiguration> {
     }
 
     @Override
-    public TestReport test(SourceConfiguration configuration) {
+    public Report test(SourceConfiguration configuration) {
         try (Socket connection = new Socket()) {
             connection.connect(new InetSocketAddress(configuration.sourceHostName(),
                     configuration.sourcePort()), PING_TIMEOUT);
             connection.close();
-            return new TestReport(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
+            return new Report(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
         } catch (IOException e) {
-            return new TestReport(buildMessage(FAILURE, CANNOT_CONNECT, FAILURE_TYPES.get(CANNOT_CONNECT)));
+            return new Report(buildMessage(FAILURE, CANNOT_CONNECT, FAILURE_TYPES.get(CANNOT_CONNECT)));
         }
     }
 }

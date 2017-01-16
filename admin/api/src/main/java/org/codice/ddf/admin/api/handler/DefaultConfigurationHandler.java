@@ -26,7 +26,7 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 
 public abstract class DefaultConfigurationHandler<S extends Configuration>
         implements ConfigurationHandler<S> {
@@ -54,7 +54,7 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
     }
 
     @Override
-    public TestReport test(String testId, S configuration) {
+    public Report test(String testId, S configuration) {
         if (getTestMethods() == null) {
             return getNoTestFoundReport(testId);
         }
@@ -70,7 +70,7 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
     }
 
     @Override
-    public TestReport persist(String persistId, S configuration) {
+    public Report persist(String persistId, S configuration) {
 
         if (getPersistMethods() == null) {
             return getNoTestFoundReport(persistId);
@@ -86,8 +86,8 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
                 getNoTestFoundReport(persistId);
     }
 
-    public TestReport getNoTestFoundReport(String badId){
-        return new TestReport(buildMessage(FAILURE,
+    public Report getNoTestFoundReport(String badId){
+        return new Report(buildMessage(FAILURE,
                 NO_METHOD_FOUND,
                 "Unknown method id: " + (badId == null ? "null" : badId)));
     }

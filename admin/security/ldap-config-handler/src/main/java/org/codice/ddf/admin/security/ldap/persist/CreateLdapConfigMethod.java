@@ -50,7 +50,7 @@ import java.util.UUID;
 
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
@@ -94,14 +94,14 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
     }
 
     @Override
-    public TestReport persist(LdapConfiguration config) {
+    public Report persist(LdapConfiguration config) {
         ConfigReport report;
         Configurator configurator = new Configurator();
         if (config.ldapUseCase()
                 .equals(LOGIN) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
             // TODO adimka Move validation to use the validate method instead of this stuff
-            TestReport validationReport = new TestReport(config.checkRequiredFields(new HashSet(LOGIN_REQUIRED_FIELDS)));
+            Report validationReport = new Report(config.checkRequiredFields(LOGIN_REQUIRED_FIELDS));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
             }
@@ -131,8 +131,8 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
         if (config.ldapUseCase()
                 .equals(CREDENTIAL_STORE) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
-            TestReport validationReport = new TestReport(config.checkRequiredFields(
-                    new HashSet(ALL_REQUIRED_FIELDS)));
+            Report validationReport = new Report(config.checkRequiredFields(
+                    ALL_REQUIRED_FIELDS));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
             }
@@ -170,9 +170,9 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
         report = configurator.commit();
         if (!report.getFailedResults()
                 .isEmpty()) {
-            return new TestReport(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)));
+            return new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)));
         } else {
-            return new TestReport(buildMessage(SUCCESS, SUCCESSFUL_PERSIST,
+            return new Report(buildMessage(SUCCESS, SUCCESSFUL_PERSIST,
                 SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
         }
     }

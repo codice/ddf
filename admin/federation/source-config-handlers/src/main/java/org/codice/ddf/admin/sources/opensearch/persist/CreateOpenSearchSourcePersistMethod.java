@@ -28,7 +28,7 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
@@ -69,19 +69,19 @@ public class CreateOpenSearchSourcePersistMethod
     }
 
     @Override
-    public TestReport persist(OpenSearchSourceConfiguration configuration) {
+    public Report persist(OpenSearchSourceConfiguration configuration) {
         List<ConfigurationMessage> results =
                 configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
-            return new TestReport(results);
+            return new Report(results);
         }
         Configurator configurator = new Configurator();
         ConfigReport report;
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
         report = configurator.commit();
-        return report.containsFailedResults() ? new TestReport(buildMessage(FAILURE,
+        return report.containsFailedResults() ? new Report(buildMessage(FAILURE,
                 CREATION_FAILED,
-                "Failed to create OpenSearch Source")) : new TestReport(buildMessage(SUCCESS,
+                "Failed to create OpenSearch Source")) : new Report(buildMessage(SUCCESS,
                 SOURCE_CREATED,
                 "OpenSearch Source created"));
     }

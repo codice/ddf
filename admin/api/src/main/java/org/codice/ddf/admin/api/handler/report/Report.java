@@ -25,21 +25,21 @@ import java.util.Map;
 
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
-public class TestReport {
+public class Report {
 
     List<ConfigurationMessage> messages;
 
-    public TestReport() {
+    public Report() {
         this.messages = new ArrayList<>();
     }
 
-    public TestReport(ConfigurationMessage... messages) {
+    public Report(ConfigurationMessage... messages) {
         this.messages = new ArrayList<>();
         Arrays.stream(messages)
                 .forEach(msg -> this.messages.add(msg));
     }
 
-    public TestReport(List<ConfigurationMessage> messages) {
+    public Report(List<ConfigurationMessage> messages) {
         this.messages = new ArrayList<>();
         if(messages != null) {
             this.messages.addAll(messages);
@@ -50,12 +50,12 @@ public class TestReport {
         return messages;
     }
 
-    public TestReport messages(ConfigurationMessage result) {
+    public Report messages(ConfigurationMessage result) {
         this.messages.add(result);
         return this;
     }
 
-    public TestReport messages(List<ConfigurationMessage> messages) {
+    public Report messages(List<ConfigurationMessage> messages) {
         this.messages.addAll(messages);
         return this;
     }
@@ -75,10 +75,10 @@ public class TestReport {
                 .isPresent();
     }
 
-    public static TestReport createGeneralTestReport(Map<String, String> successTypes,
+    public static Report createGeneralTestReport(Map<String, String> successTypes,
             Map<String, String> failureTypes, Map<String, String> warningTypes,
             List<String> results) {
-        TestReport testReport = new TestReport();
+        Report testReport = new Report();
 
         for (String result : results) {
             if (successTypes != null && successTypes.containsKey(result)) {
@@ -98,10 +98,10 @@ public class TestReport {
         return testReport;
     }
 
-    public static TestReport createGeneralTestReport(Map<String, String> successTypes,
+    public static Report createGeneralTestReport(Map<String, String> successTypes,
             Map<String, String> failureTypes, Map<String, String> warningTypes,
             Map<String, String> resultsToConfigIds) {
-        TestReport testReport = new TestReport();
+        Report testReport = new Report();
 
         for (Map.Entry<String, String> result : resultsToConfigIds.entrySet()) {
             String resultName = result.getKey();

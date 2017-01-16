@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
-public class ProbeReport extends TestReport {
+public class ProbeReport extends Report {
 
     private Map<String, Object> probeResults = new HashMap<>();
 

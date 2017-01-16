@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.Configuration;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 
 public abstract class PersistMethod<S extends Configuration> extends ConfigurationHandlerMethod {
     public PersistMethod(String id, String description, List<String> requiredFields,
@@ -33,6 +33,6 @@ public abstract class PersistMethod<S extends Configuration> extends Configurati
                 warningTypes);
     }
 
-    public abstract TestReport persist(S configuration);
+    public abstract Report persist(S configuration);
 
 }

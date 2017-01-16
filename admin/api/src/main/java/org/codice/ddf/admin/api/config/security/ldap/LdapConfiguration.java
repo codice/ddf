@@ -30,8 +30,6 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -39,8 +37,6 @@ import com.google.common.collect.ImmutableMap;
 public class LdapConfiguration extends Configuration {
 
     public static final String CONFIGURATION_TYPE = "ldap";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LdapConfiguration.class);
 
     public static final String LDAPS = "ldaps";
     public static final String TLS = "tls";

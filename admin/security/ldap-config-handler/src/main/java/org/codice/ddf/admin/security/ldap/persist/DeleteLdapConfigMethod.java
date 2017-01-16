@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
@@ -54,10 +54,10 @@ public class DeleteLdapConfigMethod extends PersistMethod<LdapConfiguration> {
     }
 
     @Override
-    public TestReport persist(LdapConfiguration config) {
-        TestReport validatedReport =
+    public Report persist(LdapConfiguration config) {
+        Report validatedReport =
                 // TODO adimka Move validation to use the validate method instead of this stuff
-                new TestReport(config.checkRequiredFields(new HashSet(REQUIRED_FIELDS)));
+                new Report(config.checkRequiredFields(new HashSet(REQUIRED_FIELDS)));
         if (validatedReport.containsFailureMessages()) {
             return validatedReport;
         }
@@ -67,11 +67,11 @@ public class DeleteLdapConfigMethod extends PersistMethod<LdapConfiguration> {
         ConfigReport report = configurator.commit();
         if (!report.getFailedResults()
                 .isEmpty()) {
-            return new TestReport(buildMessage(FAILURE,
+            return new Report(buildMessage(FAILURE,
                     FAILED_PERSIST,
                     FAILURE_TYPES.get(FAILED_PERSIST)));
         } else {
-            return new TestReport(buildMessage(SUCCESS,
+            return new Report(buildMessage(SUCCESS,
                     SUCCESSFUL_PERSIST,
                     SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
         }

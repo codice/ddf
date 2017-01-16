@@ -31,8 +31,7 @@ import org.codice.ddf.admin.api.commons.SourceUtils;
 import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
-import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.handler.report.TestReport;
+import org.codice.ddf.admin.api.handler.report.Report;
 import org.codice.ddf.admin.sources.csw.CswSourceCreationException;
 
 import com.google.common.collect.ImmutableList;
@@ -70,14 +69,14 @@ public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
         );
     }
     @Override
-    public TestReport test(CswSourceConfiguration configuration) {
+    public Report test(CswSourceConfiguration configuration) {
         List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
-            return new ProbeReport(results);
+            return new Report(results);
         }
         Optional<ConfigurationMessage> message = SourceUtils.endpointIsReachable(configuration);
         if (message.isPresent()) {
-            return new TestReport(message.get());
+            return new Report(message.get());
         }
         return discoverUrlCapabilities(configuration);
     }
@@ -85,18 +84,18 @@ public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
     // Given a config with a endpoint URL, finds the most specific applicable CSW source type and
     //   mutates the config's factoryPid appropriately, defaulting to generic specification with feedback
     //   if unable to determine CSW type
-    public static TestReport discoverUrlCapabilities(CswSourceConfiguration config) {
+    public static Report discoverUrlCapabilities(CswSourceConfiguration config) {
         if (isAvailable(config.endpointUrl(), config)) {
             try {
                 getPreferredConfig(config);
-                return new TestReport(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
+                return new Report(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
             } catch (CswSourceCreationException e) {
                 config.factoryPid(CSW_SPEC_FACTORY_PID);
-                return new TestReport(buildMessage(WARNING, CANNOT_VERIFY, FAILURE_TYPES.get(CANNOT_VERIFY)));
+                return new Report(buildMessage(WARNING, CANNOT_VERIFY, FAILURE_TYPES.get(CANNOT_VERIFY)));
             }
         } else {
             config.factoryPid(CSW_SPEC_FACTORY_PID);
-            return new TestReport(buildMessage(WARNING, CANNOT_VERIFY, FAILURE_TYPES.get(CANNOT_VERIFY)));
+            return new Report(buildMessage(WARNING, CANNOT_VERIFY, FAILURE_TYPES.get(CANNOT_VERIFY)));
         }
     }
 
