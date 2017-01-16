@@ -288,7 +288,6 @@ define([
     ich.addTemplate('guestClaimsTable', guestClaimsHanlderTable);
 
     var serviceModelResponse = new Service.Response();
-
     serviceModelResponse.fetch({
         url: '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.sts.guestclaims)'
     });
@@ -375,6 +374,7 @@ define([
             this.submitData();
 
             //save the config
+            this.writeClaims(this.configObj.attributes.properties.attributes);
             this.saveData();
         },
         previous: function () {
@@ -396,6 +396,20 @@ define([
                     view.navigationModel.nextStep('Unable to Save Configuration: check logs', 0);
                 });
             }
+        },
+        writeClaims: function (attributes) {
+            var data = {
+                type: 'EXEC',
+                mbean: 'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
+                operation: 'updateGuestClaimsProfile',
+                arguments: ['ddf.security.sts.guestclaims', attributes]
+            };
+            $.ajax({
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                url: '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
+            });
         },
         validate: function () {
             var errors = this.get('validationErrors');

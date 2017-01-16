@@ -68,6 +68,10 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private static final String SERVICE_FACTORYPID = "service.factoryPid";
 
+    private static final String UI_CONFIG_PID = "ddf.platform.ui.config";
+
+    private static final String PROFILE_KEY = "profile";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdmin.class);
 
     private final org.osgi.service.cm.ConfigurationAdmin configurationAdmin;
@@ -218,7 +222,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     /**
-     * @see ConfigurationAdminMBean#createFactoryConfigurationForLocation(java.lang.String, * java.lang.String)
+     * @see ConfigurationAdminMBean#createFactoryConfigurationForLocation(java.lang.String, java.lang.String)
      */
     public String createFactoryConfigurationForLocation(String factoryPid, String location)
             throws IOException {
@@ -374,6 +378,37 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         config.setBundleLocation(location);
     }
 
+    public boolean updateGuestClaimsProfile(String pid, Map<String, Object> configurationTable)
+            throws IOException {
+        try {
+            Object profileObj = configurationTable.get(PROFILE_KEY);
+            if (profileObj == null) {
+                return false;
+            }
+
+            if (!(profileObj instanceof String)) {
+                LOGGER.debug("Selected guest claims profile was not a String");
+                return false;
+            }
+
+            String profile = (String) profileObj;
+            guestClaimsHandlerExt.setSelectedClaimsProfileName(profile);
+
+            Map<String, Object> currentUiConfig = getProperties(UI_CONFIG_PID);
+            Map<String, Object> defaultBannerMarkings =
+                    guestClaimsHandlerExt.getSelectedClaimsProfileBannerConfigs();
+
+            if (defaultBannerMarkings != null) {
+                currentUiConfig.putAll(defaultBannerMarkings);
+                update(UI_CONFIG_PID, currentUiConfig);
+            }
+            return true;
+        } catch (RuntimeException e) {
+            LOGGER.debug("An invalid guest claims profile was selected, caused by: {}", e);
+            return false;
+        }
+    }
+
     /**
      * @see ConfigurationAdminMBean#update(java.lang.String, java.util.Map)
      */
@@ -383,7 +418,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     /**
-     * @see ConfigurationAdminMBean#updateForLocation(java.lang.String, java.lang.String, * java.util.Map)
+     * @see ConfigurationAdminMBean#updateForLocation(java.lang.String, java.lang.String, java.util.Map)
      */
     public void updateForLocation(final String pid, String location,
             Map<String, Object> configurationTable) throws IOException {

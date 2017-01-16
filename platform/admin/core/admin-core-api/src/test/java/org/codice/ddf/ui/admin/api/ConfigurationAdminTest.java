@@ -17,17 +17,22 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -35,6 +40,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -51,9 +57,13 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.admin.api.ConfigurationAdmin.TYPE;
 import org.codice.ddf.ui.admin.api.module.AdminModule;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
+import org.codice.ddf.ui.admin.api.util.PropertiesFileReader;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -65,6 +75,7 @@ import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ConfigurationAdminTest {
 
     private static final String TEST_PID = "TestPID";
@@ -101,6 +112,13 @@ public class ConfigurationAdminTest {
     private static final String TEST_OCD = "TestOCD";
 
     private static final String TEST_BUNDLE_NAME = "TestBundle";
+
+    private static final String UI_CONFIG_PID = "ddf.platform.ui.config";
+
+    private static final String PROFILE_KEY = "profile";
+
+    @Mock
+    private GuestClaimsHandlerExt mockGuestClaimsHandlerExt;
 
     public static final org.osgi.service.cm.ConfigurationAdmin CONFIGURATION_ADMIN =
             mock(org.osgi.service.cm.ConfigurationAdmin.class);
@@ -820,6 +838,26 @@ public class ConfigurationAdminTest {
                 .get(arrayInteger)).length, equalTo(0));
     }
 
+    @Test
+    public void testUpdateGuestClaimsProfile() throws Exception {
+        Map<String, Object> configTable = new HashMap<>();
+        ConfigurationAdmin configAdmin = spy(getConfigAdmin());
+
+        when(mockGuestClaimsHandlerExt.getSelectedClaimsProfileBannerConfigs()).thenReturn(new HashMap<>());
+
+        assertFalse(configAdmin.updateGuestClaimsProfile(UI_CONFIG_PID, configTable));
+        verifyZeroInteractions(mockGuestClaimsHandlerExt);
+
+        configTable.put(PROFILE_KEY, 32);
+        assertFalse(configAdmin.updateGuestClaimsProfile(UI_CONFIG_PID, configTable));
+        verifyZeroInteractions(mockGuestClaimsHandlerExt);
+
+        configTable.put(PROFILE_KEY, "profileName");
+        assertTrue(configAdmin.updateGuestClaimsProfile(UI_CONFIG_PID, configTable));
+        verify(mockGuestClaimsHandlerExt).setSelectedClaimsProfileName("profileName");
+        verify(configAdmin).update(eq(UI_CONFIG_PID), anyObject());
+    }
+
     /**
      * Tests the {@link ConfigurationAdmin#update(String, Map)} and
      * {@link ConfigurationAdmin#updateForLocation(String, String, Map)} methods and
@@ -1208,10 +1246,12 @@ public class ConfigurationAdminTest {
         //check call before setting handler
         assertNotNull(configAdmin.getClaimsConfiguration(TEST_FILTER_1));
 
-        GuestClaimsHandlerExt ache = new GuestClaimsHandlerExt();
-        ache.setAvailableClaimsFile("/this/path/is/a/file");
-        ache.setProfileDir("/this/path/is/a/dir");
-        ache.setImmutableClaims("testClaim1,testClaim2");
+        GuestClaimsHandlerExt ache = new GuestClaimsHandlerExt(mock(PropertiesFileReader.class),
+                Arrays.asList("testClaim1", "testClaim2"),
+                "/this/path/is/a/dir",
+                "/this/path/is/a/dir/banners",
+                "/this/path/is/a/file");
+
         ache.init();
         configAdmin.setGuestClaimsHandlerExt(ache);
 
@@ -1245,6 +1285,8 @@ public class ConfigurationAdminTest {
 
         ConfigurationAdmin configurationAdmin = new ConfigurationAdmin(CONFIGURATION_ADMIN,
                 configurationAdminExt);
+
+        configurationAdmin.setGuestClaimsHandlerExt(mockGuestClaimsHandlerExt);
 
         Dictionary<String, Object> testProp = new Hashtable<>();
         testProp.put(TEST_KEY, TEST_VALUE);
