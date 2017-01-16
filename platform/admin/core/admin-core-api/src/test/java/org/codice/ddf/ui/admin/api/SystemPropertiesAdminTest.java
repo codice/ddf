@@ -36,8 +36,16 @@ import org.codice.ddf.ui.admin.api.impl.SystemPropertiesAdmin;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class SystemPropertiesAdminTest {
+
+    @Mock
+    private GuestClaimsHandlerExt mockGuestClaimsHandlerExt;
+
     File etcFolder = null;
 
     File systemPropsFile = null;
@@ -78,7 +86,7 @@ public class SystemPropertiesAdminTest {
 
     @Test
     public void testReadSystemProperties() {
-        SystemPropertiesAdmin spa = new SystemPropertiesAdmin();
+        SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
         List<SystemPropertyDetails> details = spa.readSystemProperties();
         assertThat(getDetailsValue(details, SystemBaseUrl.HOST), equalTo("host"));
         assertThat(getDetailsValue(details, SystemBaseUrl.HTTP_PORT), equalTo("4567"));
@@ -92,7 +100,7 @@ public class SystemPropertiesAdminTest {
 
     @Test
     public void testWriteSystemPropertiesNullProps() {
-        SystemPropertiesAdmin spa = new SystemPropertiesAdmin();
+        SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
         spa.writeSystemProperties(null);
         List<SystemPropertyDetails> details = spa.readSystemProperties();
         assertThat(SystemBaseUrl.getHost(), equalTo("host"));
@@ -123,7 +131,7 @@ public class SystemPropertiesAdminTest {
             outAttrs.write(json.getBytes());
         }
 
-        SystemPropertiesAdmin spa = new SystemPropertiesAdmin();
+        SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
         Map<String, String> map = new HashMap<>();
         map.put(SystemBaseUrl.HOST, "newhost");
         spa.writeSystemProperties(map);

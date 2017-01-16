@@ -13,6 +13,9 @@
  */
 package org.codice.ddf.ui.admin.api;
 
+import static org.codice.ddf.ui.admin.api.GuestClaimsHandlerExt.PID_KEY;
+import static org.codice.ddf.ui.admin.api.GuestClaimsHandlerExt.PROPERTIES_KEY;
+
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Array;
@@ -68,7 +71,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private static final String SERVICE_FACTORYPID = "service.factoryPid";
 
-    private static final String UI_CONFIG_PID = "ddf.platform.ui.config";
+    private static final String GUEST_CLAIMS_CONFIG_PID = "ddf.security.sts.guestclaims";
 
     private static final String PROFILE_KEY = "profile";
 
@@ -394,15 +397,21 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             String profile = (String) profileObj;
             guestClaimsHandlerExt.setSelectedClaimsProfileName(profile);
 
-            Map<String, Object> currentUiConfig = getProperties(UI_CONFIG_PID);
-            Map<String, Object> defaultBannerMarkings =
-                    guestClaimsHandlerExt.getSelectedClaimsProfileBannerConfigs();
+            comprehensiveUpdate(GUEST_CLAIMS_CONFIG_PID,
+                    guestClaimsHandlerExt.getProfileGuestClaims());
 
-            if (defaultBannerMarkings != null) {
-                currentUiConfig.putAll(defaultBannerMarkings);
-                update(UI_CONFIG_PID, currentUiConfig);
+            List<Map<String, Object>> configs = guestClaimsHandlerExt.getProfileConfigs();
+            if (configs != null) {
+                configs.forEach(config -> {
+                    String configPid = (String) config.get(PID_KEY);
+                    Map<String, Object> configProps = (Map<String, Object>) config.get(
+                            PROPERTIES_KEY);
+                    comprehensiveUpdate(configPid, configProps);
+                });
             }
+
             return true;
+
         } catch (RuntimeException e) {
             LOGGER.debug("An invalid guest claims profile was selected, caused by: {}", e);
             return false;
@@ -771,5 +780,18 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     public boolean isPermittedToViewService(String servicePid) {
         return configurationAdminExt.isPermittedToViewService(servicePid);
+    }
+
+    private void comprehensiveUpdate(String pid, Map<String, Object> configurationTable) {
+        try {
+            Map<String, Object> existingConfig = this.getProperties(pid);
+            if (configurationTable == null || configurationTable.isEmpty()) {
+                return;
+            }
+            existingConfig.putAll(configurationTable);
+            this.update(pid, existingConfig);
+        } catch (IOException e) {
+            LOGGER.debug("Exception while updating configs: ", e);
+        }
     }
 }
