@@ -831,7 +831,7 @@
              description="DDF Security Core">
         <feature prerequisite="true">cxf-rt-security</feature>
         <feature prerequisite="true" version="${spring.version}_1">spring</feature>
-        <bundle>mvn:org.apache.shiro/shiro-core/${shiro.version}</bundle>
+        <bundle>mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxen/${org.apache.servicemix.bundles.jaxen.version}</bundle>
     </feature>
