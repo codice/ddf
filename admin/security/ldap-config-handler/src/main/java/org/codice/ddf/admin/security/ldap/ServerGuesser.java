@@ -26,17 +26,15 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.forgerock.opendj.ldap.ByteString;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.DN;
+import org.forgerock.opendj.ldap.Entries;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldap.schema.AttributeType;
-import org.forgerock.opendj.ldap.schema.ObjectClass;
 import org.forgerock.opendj.ldap.schema.ObjectClassType;
-import org.forgerock.opendj.ldap.schema.Schema;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,11 +97,11 @@ public abstract class ServerGuesser {
     }
 
     public List<String> getGroupObjectClass() {
-        return ImmutableList.of("groupOfNames", "group");
+        return ImmutableList.of("groupOfNames", "group", "posixGroup");
     }
 
     public List<String> getMembershipAttribute() {
-        return ImmutableList.of("member", "uniqueMember");
+        return ImmutableList.of("member", "uniqueMember", "memberUid");
     }
 
     public List<String> getUserBaseChoices() {
@@ -127,24 +125,13 @@ public abstract class ServerGuesser {
         String tokenUserDn = searchResultEntry.getAttribute(membershipAttribute)
                 .firstValueAsString();
 
-        // Find the names of all the objectClasses the directory entry of that user has
-        Set<String> objectClassNames = connection.readEntry(DN.valueOf(tokenUserDn))
-                .getAttribute("objectClass")
+        // Return the required and optional attributes of the structural objectClasses
+        // associated with that member
+        SearchResultEntry entry = connection.readEntry(DN.valueOf(tokenUserDn));
+        return Entries.getObjectClasses(entry)
                 .stream()
-                .map(ByteString::toString)
-                .collect(Collectors.toSet());
-
-        // Read the schema and filter for structural objectClasses that are in the set associated
-        // with the above user
-        Schema schema = Schema.readSchemaForEntry(connection, DN.valueOf(tokenUserDn));
-        Set<ObjectClass> objectClasses = schema.getObjectClasses()
-                .stream()
-                .filter(oc -> oc.getObjectClassType() == ObjectClassType.STRUCTURAL)
-                .filter(oc -> objectClassNames.contains(oc.getNameOrOID()))
-                .collect(Collectors.toSet());
-
-        // Return the required and optional eattributes names from the full set of objectClasses
-        return objectClasses.stream()
+                .filter(oc -> oc.getObjectClassType()
+                        .equals(ObjectClassType.STRUCTURAL))
                 .flatMap(oc -> Sets.union(oc.getDeclaredRequiredAttributes(),
                         oc.getDeclaredOptionalAttributes())
                         .stream())
