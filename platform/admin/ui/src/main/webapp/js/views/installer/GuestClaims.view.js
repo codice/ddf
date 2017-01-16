@@ -374,7 +374,13 @@ define([
             this.submitData();
 
             //save the config
-            this.writeClaims(this.configObj.attributes.properties.attributes);
+            var claims = this.configObj.attributes.properties.attributes;
+            if (typeof claims.profile !== 'undefined' && claims.profile !== 'Default') {
+                view.navigationModel.set('modified', true);
+            } else {
+                view.navigationModel.set('modified', false);
+            }
+            this.writeClaims(claims);
             this.saveData();
         },
         previous: function () {

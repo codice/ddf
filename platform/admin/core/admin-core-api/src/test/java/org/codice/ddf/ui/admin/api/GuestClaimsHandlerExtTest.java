@@ -13,87 +13,82 @@
  */
 package org.codice.ddf.ui.admin.api;
 
+import static org.boon.Boon.toJson;
+import static org.codice.ddf.ui.admin.api.GuestClaimsHandlerExt.DEFAULT_NAME;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.codice.ddf.ui.admin.api.util.PropertiesFileReader;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import com.google.common.collect.ImmutableMap;
+
 public class GuestClaimsHandlerExtTest {
-    @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder();
+    @ClassRule
+    public static TemporaryFolder testFolder = new TemporaryFolder();
 
-    private static final String BANNER_DIRECTORY = "fake/banner/directory/";
+    private static final String GUEST_CLAIMS = "guestClaims";
 
-    private boolean filesCreated = false;
+    private static String profilesDotJsonPath;
 
-    private String profileDirPath;
+    private static String availableClaimsFilePath;
 
-    private String availableClaimsFilePath;
+    @BeforeClass
+    public static void setUp() throws Exception {
+        File availableClaimsFile = testFolder.newFile("attributeMap.properties");
+        availableClaimsFilePath = availableClaimsFile.getCanonicalPath();
 
-    @Before
-    public void setUp() throws Exception {
-        if (!filesCreated) {
-            File availableClaimsFile = testFolder.newFile("attributeMap.properties");
-            availableClaimsFilePath = availableClaimsFile.getCanonicalPath();
-            Properties availableClaims = new Properties();
-            availableClaims.put("testClaim1", "testValue1");
-            availableClaims.put("testClaim2", "testValue2");
-            availableClaims.put("testClaim3", "testValue3");
-            availableClaims.store(new FileWriter(availableClaimsFile), "test");
+        Properties availableClaims = new Properties();
+        availableClaims.put("testClaim1", "testValue1");
+        availableClaims.put("testClaim2", "testValue2");
+        availableClaims.put("testClaim3", "testValue3");
+        availableClaims.store(new FileWriter(availableClaimsFile), "test");
 
-            File profileDir = testFolder.newFolder("profiles");
-            profileDirPath = profileDir.getCanonicalPath();
-            File profile1 = new File(profileDir, "profile1.properties");
-            File profile2 = new File(profileDir, "profile2.properties");
-            File profile3 = new File(profileDir, "profile3.properties");
-            File randomeFile = new File(profileDir, "random.cfg");
-            randomeFile.createNewFile();
+        File profilesJson = testFolder.newFile("profiles.json");
+        profilesDotJsonPath = profilesJson.getCanonicalPath();
 
-            Properties profileClaims1 = new Properties();
-            profileClaims1.put("profileName", "profile1");
-            profileClaims1.put("testClaim1", "profile1Value1");
-            profileClaims1.put("testClaim2", "profile1Value2");
-            profileClaims1.put("testClaim3", "profile1Value3");
-            profileClaims1.put("testClaim4", "profile1Value4");
-            profileClaims1.store(new FileWriter(profile1), "test");
+        Map<String, Object> outterMap = new HashMap<>();
+        Map<String, Object> profile1Map = new HashMap<>();
+        Map<String, Object> profile2Map = new HashMap<>();
 
-            Properties profileClaims2 = new Properties();
-            profileClaims2.put("profileName", "profile2");
-            profileClaims2.put("testClaim1", "profile2Value1");
-            profileClaims2.put("testClaim2", "profile2Value2");
-            profileClaims2.put("testClaim3", "profile2Value3");
-            profileClaims2.put("testClaim4", "profile2Value4");
-            profileClaims2.store(new FileWriter(profile2), "test");
+        outterMap.put("profile1", ImmutableMap.of(GUEST_CLAIMS, profile1Map));
+        outterMap.put("profile2", ImmutableMap.of(GUEST_CLAIMS, profile2Map));
 
-            //no name profile will be excluded
-            Properties profileClaims3 = new Properties();
-            profileClaims3.put("testClaim1", "profile2Value1");
-            profileClaims3.put("testClaim2", "profile2Value2");
-            profileClaims3.put("testClaim3", "profile2Value3");
-            profileClaims3.put("testClaim4", "profile2Value4");
-            profileClaims3.store(new FileWriter(profile3), "test");
+        profile1Map.put("testClaim1", "profile1Value1");
+        profile1Map.put("testClaim2", "profile1Value2");
+        profile1Map.put("testClaim3", "profile1Value3");
+        profile1Map.put("testClaim4", "profile1Value4");
 
-            filesCreated = true;
-        }
+        profile2Map.put("testClaim1", "profile2Value1");
+        profile2Map.put("testClaim2", "profile2Value2");
+        profile2Map.put("testClaim3", "profile2Value3");
+        profile2Map.put("testClaim4", "profile2Value4");
 
+        String json = toJson(outterMap);
+        FileUtils.write(profilesJson, json);
     }
 
     @Test
     public void testInitNormal() throws Exception {
-        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profileDirPath,
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profilesDotJsonPath,
                 availableClaimsFilePath);
         handlerExt.init();
         assertThat(handlerExt.getClaims()
@@ -104,7 +99,7 @@ public class GuestClaimsHandlerExtTest {
 
     @Test
     public void testInitBadClaimsPath() throws Exception {
-        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profileDirPath,
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profilesDotJsonPath,
                 "/this/path/is/bad/12321231");
         handlerExt.init();
         assertThat(handlerExt.getClaims()
@@ -115,18 +110,19 @@ public class GuestClaimsHandlerExtTest {
 
     @Test
     public void testInitBadProfilePath() throws Exception {
-        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest("/this/path/is/bad/12321231",
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(
+                "/this/path/is/bad/12321231",
                 availableClaimsFilePath);
         handlerExt.init();
         assertThat(handlerExt.getClaims()
                 .size(), equalTo(2));
-        assertThat(handlerExt.getClaimsProfiles()
-                .size(), equalTo(2));
+        assertTrue(handlerExt.getClaimsProfiles()
+                .isEmpty());
     }
 
     @Test
     public void testGetClaimsProfilesNormal() throws Exception {
-        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profileDirPath,
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profilesDotJsonPath,
                 availableClaimsFilePath);
         handlerExt.init();
         Map<String, Object> profiles = handlerExt.getClaimsProfiles();
@@ -142,7 +138,7 @@ public class GuestClaimsHandlerExtTest {
 
     @Test
     public void testGetClaimsNormal() throws Exception {
-        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profileDirPath,
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profilesDotJsonPath,
                 availableClaimsFilePath);
         handlerExt.init();
         Map<String, Object> claims = handlerExt.getClaims();
@@ -155,13 +151,60 @@ public class GuestClaimsHandlerExtTest {
         assertThat(immutableClaims.size(), equalTo(2));
     }
 
+    @Test
+    public void testFieldNullability() throws Exception {
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profilesDotJsonPath,
+                availableClaimsFilePath);
+        handlerExt.init();
+        assertThat(handlerExt.getProfileGuestClaims(), is(nullValue()));
+        assertThat(handlerExt.getProfileSystemClaims(), is(nullValue()));
+        assertThat(handlerExt.getProfileConfigs(), is(nullValue()));
+    }
+
+    @Test
+    public void testDefaultClaimsProfile() throws Exception {
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profilesDotJsonPath,
+                availableClaimsFilePath);
+        handlerExt.init();
+        handlerExt.setSelectedClaimsProfileName(DEFAULT_NAME);
+        assertThat(handlerExt.getProfileGuestClaims(), is(nullValue()));
+        assertThat(handlerExt.getProfileSystemClaims(), is(nullValue()));
+        assertThat(handlerExt.getProfileConfigs(), is(nullValue()));
+    }
+
+    @Test
+    public void testSelectClaimsProfileRoundTrip() throws Exception {
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profilesDotJsonPath,
+                availableClaimsFilePath);
+        handlerExt.init();
+        handlerExt.setSelectedClaimsProfileName("profile1");
+        verifyMapValidity(handlerExt.getProfileGuestClaims());
+        assertNull(handlerExt.getProfileSystemClaims());
+        assertNull(handlerExt.getProfileConfigs());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSelectClaimsProfileBadName() throws Exception {
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profilesDotJsonPath,
+                availableClaimsFilePath);
+        handlerExt.init();
+        handlerExt.setSelectedClaimsProfileName("profile0");
+    }
+
+    private void verifyMapValidity(Map inputMap) throws Exception {
+        assertThat(inputMap.size(), is(4));
+        assertThat(inputMap.get("testClaim1"), is("profile1Value1"));
+        assertThat(inputMap.get("testClaim2"), is("profile1Value2"));
+        assertThat(inputMap.get("testClaim3"), is("profile1Value3"));
+        assertThat(inputMap.get("testClaim4"), is("profile1Value4"));
+    }
+
     private static class GuestClaimsHandlerUnderTest extends GuestClaimsHandlerExt {
         public GuestClaimsHandlerUnderTest(String profilesDirectory, String availableClaimsFile) {
             super(new PropertiesFileReader(),
                     Arrays.asList("testClaim1", "testClaim2"),
-                    profilesDirectory,
-                    BANNER_DIRECTORY,
-                    availableClaimsFile);
+                    availableClaimsFile,
+                    profilesDirectory);
         }
     }
 }
