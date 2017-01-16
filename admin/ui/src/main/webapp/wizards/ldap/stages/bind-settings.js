@@ -1,9 +1,5 @@
 import React from 'react'
 
-import { connect } from 'react-redux'
-
-import { getConfig } from '../../../reducer'
-
 import {
   Stage,
   StageControls,
@@ -19,7 +15,8 @@ import {
   Select
 } from '../../inputs'
 
-const BindSettings = ({ id, disabled, bindUserMethod, encryptionMethod }) => {
+const BindSettings = ({ id, disabled, configs = {} }) => {
+  const { bindUserMethod, encryptionMethod } = configs
   let bindUserMethodOptions = ['Simple']
 
   if (encryptionMethod === 'LDAPS' || encryptionMethod === 'StartTLS') {
@@ -61,8 +58,5 @@ const BindSettings = ({ id, disabled, bindUserMethod, encryptionMethod }) => {
   )
 }
 
-export default connect((state) => ({
-  bindUserMethod: getConfig(state, 'bindUserMethod').value,
-  encryptionMethod: getConfig(state, 'encryptionMethod').value
-}))(BindSettings)
+export default BindSettings
 

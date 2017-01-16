@@ -15,7 +15,7 @@ import {
   Select
 } from '../../inputs'
 
-export default ({ id, disabled }) => (
+const NetworkSettings = ({ id, disabled }) => (
   <Stage id={id} defaults={{ port: 1636, encryptionMethod: 'LDAPS', hostName: 'localhost' }}>
     <Title>LDAP Network Settings</Title>
     <Description>
@@ -38,3 +38,5 @@ export default ({ id, disabled }) => (
     </StageControls>
   </Stage>
 )
+
+export default NetworkSettings

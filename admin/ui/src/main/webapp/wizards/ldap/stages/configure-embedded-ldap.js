@@ -1,9 +1,5 @@
 import React from 'react'
 
-import { connect } from 'react-redux'
-
-import { getConfig } from '../../../reducer'
-
 import {
   Stage,
   StageControls,
@@ -12,13 +8,6 @@ import {
   Save,
   Back
 } from '../../components/stage'
-
-const getLdapUseCase = (state) => {
-  const useCase = getConfig(state, 'ldapUseCase')
-  if (useCase !== undefined) {
-    return useCase.value
-  }
-}
 
 const useCaseDescription = (ldapUseCase) => {
   switch (ldapUseCase) {
@@ -39,7 +28,7 @@ const embeddedDefaults = {
   ldifPath: 'etc/org.codice.opendj/ldap'
 }
 
-const ConfigureEmbeddedLdap = ({ id, disabled, ldapUseCase }) => (
+const ConfigureEmbeddedLdap = ({ id, disabled, configs: { ldapUseCase } = {} }) => (
   <Stage id={id} defaults={embeddedDefaults}>
     <Title>Install Embedded LDAP</Title>
     <Description>
@@ -54,6 +43,4 @@ const ConfigureEmbeddedLdap = ({ id, disabled, ldapUseCase }) => (
   </Stage>
 )
 
-export default connect(
-  (state) => ({ ldapUseCase: getLdapUseCase(state) })
-)(ConfigureEmbeddedLdap)
+export default ConfigureEmbeddedLdap

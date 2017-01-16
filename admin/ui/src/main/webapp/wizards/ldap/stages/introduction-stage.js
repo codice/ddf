@@ -1,9 +1,5 @@
 import React from 'react'
 
-import { connect } from 'react-redux'
-
-import { getConfig } from '../../../reducer'
-
 import {
   Stage,
   StageControls,
@@ -31,7 +27,7 @@ const LdapUseCases = [
 
 // TODO update description to described LDAP as a login or credential store
 // TODO Make the value selected from the radio button persist
-const IntroductionStage = ({ id, disabled, ldapUseCase }) => (
+const IntroductionStage = ({ id, disabled, configs: { ldapUseCase } = {} }) => (
   <Stage id={id}>
     <Title>Welcome to the LDAP Configuration Wizard</Title>
     <Description>
@@ -51,14 +47,4 @@ const IntroductionStage = ({ id, disabled, ldapUseCase }) => (
   </Stage>
 )
 
-const getLdapUseCase = (state) => {
-  const useCase = getConfig(state, 'ldapUseCase')
-  if (useCase !== undefined) {
-    return useCase.value
-  }
-}
-
-export default connect((state) => ({
-  ldapUseCase: getLdapUseCase(state)
-}))(IntroductionStage)
-
+export default IntroductionStage

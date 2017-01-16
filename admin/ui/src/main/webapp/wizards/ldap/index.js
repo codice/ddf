@@ -2,7 +2,7 @@ import React from 'react'
 
 import { connect } from 'react-redux'
 
-import { getDisplayedLdapStage } from '../../reducer'
+import { getDisplayedLdapStage, getAllConfig } from '../../reducer'
 
 import Wizard from '../components/wizard'
 
@@ -28,14 +28,15 @@ const stageMapping = {
   'final-stage': FinalStage
 }
 
-const LdapWizardView = ({ id }) => (
+const LdapWizardView = ({ id, configs }) => (
   <Wizard id='ldap'>
-    {React.createElement(stageMapping[id], { id })}
+    {React.createElement(stageMapping[id], { id, configs })}
   </Wizard>
 )
 
 const LdapWizard = connect((state) => ({
-  id: getDisplayedLdapStage(state)
+  id: getDisplayedLdapStage(state),
+  configs: getAllConfig(state)
 }))(LdapWizardView)
 
 export default LdapWizard

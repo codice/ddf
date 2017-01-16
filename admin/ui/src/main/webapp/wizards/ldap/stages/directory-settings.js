@@ -2,7 +2,7 @@ import React from 'react'
 
 import { connect } from 'react-redux'
 
-import { getProbeValue, getConfig } from '../../../reducer'
+import { getProbeValue } from '../../../reducer'
 
 import { List, ListItem } from 'material-ui/List'
 import { Card, CardActions, CardHeader } from 'material-ui/Card'
@@ -23,13 +23,6 @@ import { probe } from '../actions'
 
 import * as styles from '../styles.less'
 
-const getLdapUseCase = (state) => {
-  const useCase = getConfig(state, 'ldapUseCase')
-  if (useCase !== undefined) {
-    return useCase.value
-  }
-}
-
 const QueryResult = (props) => {
   const {name, uid, cn, ou} = props
 
@@ -44,7 +37,7 @@ const QueryResult = (props) => {
   )
 }
 
-const DirectorySettings = ({ probe, probeValue = [], id, disabled, ldapUseCase }) => (
+const DirectorySettings = ({ probe, probeValue = [], id, disabled, configs: { ldapUseCase } = {} }) => (
   <Stage id={id} probeUrl='/admin/beta/config/probe/ldap/dir-struct'>
     <Title>LDAP Directory Structure</Title>
     <Description>
@@ -101,7 +94,7 @@ const DirectorySettings = ({ probe, probeValue = [], id, disabled, ldapUseCase }
 )
 
 export default connect(
-  (state) => ({probeValue: getProbeValue(state), ldapUseCase: getLdapUseCase(state)}),
+  (state) => ({ probeValue: getProbeValue(state) }),
   { probe }
 )(DirectorySettings)
 
