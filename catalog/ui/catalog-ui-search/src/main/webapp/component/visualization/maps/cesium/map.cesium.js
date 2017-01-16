@@ -66,6 +66,7 @@ function createMap(insertionElement) {
             //skyBox: false,
             //skyAtmosphere: false,
             baseLayerPicker: false, // Hide the base layer picker,
+            imageryProvider: false, // prevent default imagery provider
             mapMode2D: 0
         }
     });
