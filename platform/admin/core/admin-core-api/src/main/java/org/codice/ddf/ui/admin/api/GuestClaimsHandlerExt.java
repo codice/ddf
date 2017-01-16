@@ -13,16 +13,19 @@
  */
 package org.codice.ddf.ui.admin.api;
 
-import java.util.ArrayList;
+import static org.boon.Boon.fromJson;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.io.IOUtils;
 import org.codice.ddf.ui.admin.api.util.PropertiesFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +35,29 @@ import com.google.common.collect.ImmutableList;
 /**
  * GuestClaimsHandlerExt is an extension for the ConfigurationAdminMBean that adds capabilities to
  * read/handle claim and profiles for the guest claims handler. The state in the class mirrors the
- * loaded properties files exactly, and the data is transformed as it leaves the class to whatever
- * format is expected.
+ * loaded files exactly, and the data is transformed as it leaves the class to whatever format is
+ * expected.
+ * <p>
+ * The governing data structure lives in {@code ~/etc/ws-security/profiles.json} where the outter-most
+ * map represents the profile, and each profile must have inner-maps {@code guestClaims}, {@code systemClaims},
+ * and {@code configs}. Each have a respective destination: guest claims are sent to the guest claims
+ * handler using the appropriate configuration, system claims are written to {@code ~/etc/users.attributes},
+ * and configs allow arbitrary configuration info to be submitted to {@link ConfigurationAdmin}.
+ * <p>
+ * An example use case for the configs entity: setting UI banners based upon the selected profile.
  */
 public class GuestClaimsHandlerExt {
     private static final Logger LOGGER = LoggerFactory.getLogger(GuestClaimsHandlerExt.class);
 
-    public static final String PROFILE_NAME_KEY = "profileName";
+    private static final String GUEST_CLAIMS = "guestClaims";
+
+    private static final String SYSTEM_CLAIMS = "systemClaims";
+
+    private static final String CONFIGS = "configs";
+
+    public static final String PID_KEY = "pid";
+
+    public static final String PROPERTIES_KEY = "properties";
 
     public static final String AVAILABLE_PROFILES = "availableProfiles";
 
@@ -52,72 +71,46 @@ public class GuestClaimsHandlerExt {
 
     private Map<String, String> availableClaimsMap;
 
-    private List<Map<String, String>> profileMapsRaw;
-
-    private Map<String, Object> profilesProcessed;
-
-    private Map<String, Object> profileBannersProcessed;
-
     private final PropertiesFileReader propertiesFileReader;
 
     // ** Holds names of claims that if modified would cause guest login failures **
     private final List<String> immutableClaims;
 
-    private final String profilesDirectory;
-
-    private final String profilesBannerDirectory;
-
     private final String availableClaimsFile;
 
     private String selectedClaimsProfileName;
+
+    private final String profilesFilePath;
+
+    private Map<String, Object> profiles;
 
     /**
      * Constructor.
      */
     public GuestClaimsHandlerExt(PropertiesFileReader propertiesFileReader,
-            List<String> immutableClaims, String profilesDirectory, String profilesBannerDirectory,
-            String availableClaimsFile) {
+            List<String> immutableClaims, String availableClaimsFile, String profilesFilePath) {
 
         this.propertiesFileReader = propertiesFileReader;
         this.immutableClaims = ImmutableList.copyOf(immutableClaims);
-        this.profilesDirectory = profilesDirectory;
-        this.profilesBannerDirectory = profilesBannerDirectory;
         this.availableClaimsFile = availableClaimsFile;
+        this.profilesFilePath = profilesFilePath;
 
-        selectedClaimsProfileName = null;
+        this.selectedClaimsProfileName = null;
+        this.profiles = null;
     }
 
     /**
      * Called by the container to initialize the object.
      */
     public void init() {
-        Function<String, Consumer<Map<String, String>>> loggingConsumerFactory =
-                directory -> map -> {
-                    if (!map.containsKey(PROFILE_NAME_KEY)) {
-                        LOGGER.debug(
-                                "Ignoring properties file without a profile name in directory {}",
-                                directory);
-                    }
-                };
+        try (InputStream inputStream = new FileInputStream(profilesFilePath)) {
+            String json = IOUtils.toString(inputStream);
+            this.profiles = (Map<String, Object>) fromJson(json);
+        } catch (IOException e) {
+            LOGGER.debug("Could not find profiles.json during installation: ", e);
+        }
 
         availableClaimsMap = propertiesFileReader.loadSinglePropertiesFile(availableClaimsFile);
-
-        profileMapsRaw = propertiesFileReader.loadPropertiesFilesInDirectory(profilesDirectory)
-                .stream()
-                .peek(loggingConsumerFactory.apply(profilesDirectory))
-                .filter(map -> map.containsKey(PROFILE_NAME_KEY))
-                .collect(Collectors.toList());
-
-        profilesProcessed = extractProfileNamePreserveResult(profileMapsRaw);
-
-        List<Map<String, String>> profileBannerMapsRaw =
-                propertiesFileReader.loadPropertiesFilesInDirectory(profilesBannerDirectory)
-                        .stream()
-                        .peek(loggingConsumerFactory.apply(profilesBannerDirectory))
-                        .filter(map -> map.containsKey(PROFILE_NAME_KEY))
-                        .collect(Collectors.toList());
-
-        profileBannersProcessed = extractProfileNamePreserveResult(profileBannerMapsRaw);
     }
 
     /**
@@ -127,55 +120,63 @@ public class GuestClaimsHandlerExt {
      * @param selectedClaimsProfileName the name of the profile to be used.
      */
     public void setSelectedClaimsProfileName(String selectedClaimsProfileName) {
-        if (!profilesProcessed.containsKey(selectedClaimsProfileName)
-                && !selectedClaimsProfileName.equals(DEFAULT_NAME)) {
+        if (!profiles.containsKey(selectedClaimsProfileName) && !selectedClaimsProfileName.equals(
+                DEFAULT_NAME)) {
             throw new IllegalArgumentException("Invalid guest claims profile specified");
         }
         this.selectedClaimsProfileName = selectedClaimsProfileName;
     }
 
     /**
-     * Returns a map of claims configurations for the selected profile, or {@code null} if no
-     * profile has been selected.
+     * Returns a map of guest claims that should be applied to all anonymous users, or {@code null} if
+     * no profile has been selected.
      *
-     * @return a map of claims configurations and attributes for writing to {@code users.attributes}.
+     * @return a map of claims for all guests.
      */
     @Nullable
-    public Map<String, Object> getSelectedClaimsProfileAttributes() {
-        if (selectedClaimsProfileName != null && !selectedClaimsProfileName.equals(DEFAULT_NAME)) {
-            Object attributeListObject = profilesProcessed.get(selectedClaimsProfileName);
-            return ((Map<String, Object>) attributeListObject);
-        }
-        return null;
+    public Map<String, Object> getProfileGuestClaims() {
+        return (Map<String, Object>) getProfileAttributes(GUEST_CLAIMS);
     }
 
     /**
-     * Returns a map of banner configurations for the selected profile, or {@code null} if no
-     * profile has been selected.
+     * Returns a map of system claims that should be written to users.attributes upon installation,
+     * or {@code null} if no profile has been selected.
      *
-     * @return a map of banner configurations ready for submission to {@link ConfigurationAdmin}.
+     * @return a map of claims for the system user only.
+     * @see org.codice.ddf.ui.admin.api.impl.SystemPropertiesAdmin
      */
     @Nullable
-    public Map<String, Object> getSelectedClaimsProfileBannerConfigs() {
-        if (selectedClaimsProfileName != null && !selectedClaimsProfileName.equals(DEFAULT_NAME)) {
-            Object bannerConfigsObject = profileBannersProcessed.get(selectedClaimsProfileName);
-            return ((Map<String, Object>) bannerConfigsObject);
-        }
-        return null;
+    public Map<String, Object> getProfileSystemClaims() {
+        return (Map<String, Object>) getProfileAttributes(SYSTEM_CLAIMS);
+    }
+
+    /**
+     * Returns a list of maps representing misc configs that should be sent to {@link ConfigurationAdmin}
+     * when initializing the selected security profile, or {@code null} if no profile has been selected.
+     *
+     * @return a list of maps with string field "pid" and value field "properties", which are the actual
+     * configuration properties to be submitted to the config with the corresponding pid.
+     */
+    @Nullable
+    public List<Map<String, Object>> getProfileConfigs() {
+        return (List<Map<String, Object>>) getProfileAttributes(CONFIGS);
     }
 
     /**
      * Get a map of the claims profiles data. The resulting claims are flattened.
      *
      * @return a map with a list of profile names and the actual profile information.
-     * @see #extractProfileNameFlattenResult(List)
+     * @see #flatCopyProfileData(Map)
      */
     public Map<String, Object> getClaimsProfiles() {
-        Map<String, Object> claimsProfiles = extractProfileNameFlattenResult(profileMapsRaw);
-        Map<String, Object> profiles = new HashMap<>();
-        profiles.put(AVAILABLE_PROFILES, claimsProfiles);
-        profiles.put(PROFILE_NAMES, claimsProfiles.keySet());
-        return profiles;
+        Map<String, Object> claimsProfiles = new HashMap<>();
+        if (profiles == null) {
+            return claimsProfiles;
+        }
+        Map<String, Object> flatClaims = flatCopyProfileData(profiles);
+        claimsProfiles.put(AVAILABLE_PROFILES, flatClaims);
+        claimsProfiles.put(PROFILE_NAMES, flatClaims.keySet());
+        return claimsProfiles;
     }
 
     /**
@@ -191,7 +192,24 @@ public class GuestClaimsHandlerExt {
     }
 
     /**
-     * Transform a map into a list of its keys.
+     * Helper method for extracting a profiles.json sub-component.
+     *
+     * @param attributesIdentifier name of the sub-structure to return from profiles.json (guestClaims,
+     *                             systemClaims, or configs are valid values).
+     * @return the given attribute component for the selected profile, or null if no profile was selected.
+     */
+    @Nullable
+    private Object getProfileAttributes(String attributesIdentifier) {
+        if (selectedClaimsProfileName != null && !selectedClaimsProfileName.equals(DEFAULT_NAME)) {
+            Map<String, Object> profile = (Map<String, Object>) profiles.get(
+                    selectedClaimsProfileName);
+            return profile.get(attributesIdentifier);
+        }
+        return null;
+    }
+
+    /**
+     * Transform a map into a new list of its keys.
      */
     private List<String> createListOfKeysFromMap(Map<String, String> map) {
         return map.keySet()
@@ -200,32 +218,22 @@ public class GuestClaimsHandlerExt {
     }
 
     /**
-     * Transform the raw list of config data into a consolidated map of lists where each string in
-     * the list is a claim in the form 'key=value'.
+     * Convert the structure found in profiles.json to simple claims listings.
      */
-    private Map<String, Object> extractProfileNameFlattenResult(List<Map<String, String>> maps) {
-        List<Map<String, String>> mapsCopy = new ArrayList<>();
-        maps.forEach(map -> mapsCopy.add(new HashMap<>(map)));
-        return mapsCopy.stream()
-                .collect(Collectors.toMap(map -> map.remove(PROFILE_NAME_KEY), this::asList));
-    }
-
-    /**
-     * Transform the raw list of config data into a consolidated map of maps for easier manipulation.
-     */
-    private Map<String, Object> extractProfileNamePreserveResult(List<Map<String, String>> maps) {
-        List<Map<String, String>> mapsCopy = new ArrayList<>();
-        maps.forEach(map -> mapsCopy.add(new HashMap<>(map)));
-        return mapsCopy.stream()
-                .collect(Collectors.toMap(map -> map.remove(PROFILE_NAME_KEY),
-                        Function.identity()));
+    private Map<String, Object> flatCopyProfileData(Map<String, Object> profiles) {
+        return profiles.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        entry -> convertGuestClaimsToList(entry.getValue())));
     }
 
     /**
      * Support for responses that expect the claims format in key=value strings.
      */
-    private List<String> asList(Map<String, String> map) {
-        return map.entrySet()
+    private List<String> convertGuestClaimsToList(Object profile) {
+        Map<String, Object> innerMap = (Map<String, Object>) profile;
+        Map<String, String> guestClaims = (Map<String, String>) innerMap.get(GUEST_CLAIMS);
+        return guestClaims.entrySet()
                 .stream()
                 .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());

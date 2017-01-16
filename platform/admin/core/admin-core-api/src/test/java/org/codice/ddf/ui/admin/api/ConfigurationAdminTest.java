@@ -22,11 +22,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -40,7 +40,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -57,7 +56,6 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.admin.api.ConfigurationAdmin.TYPE;
 import org.codice.ddf.ui.admin.api.module.AdminModule;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
-import org.codice.ddf.ui.admin.api.util.PropertiesFileReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,6 +75,8 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationAdminTest {
+
+    private static final String GUEST_CLAIMS_CONFIG_PID = "ddf.security.sts.guestclaims";
 
     private static final String TEST_PID = "TestPID";
 
@@ -840,10 +840,18 @@ public class ConfigurationAdminTest {
 
     @Test
     public void testUpdateGuestClaimsProfile() throws Exception {
+        Map<String, Object> guestClaims = new HashMap<>();
+        Map<String, Object> systemClaims = new HashMap<>();
+        List<Map<String, Object>> configs = new ArrayList<>();
+
+        guestClaims.put("example", "example");
+
         Map<String, Object> configTable = new HashMap<>();
         ConfigurationAdmin configAdmin = spy(getConfigAdmin());
 
-        when(mockGuestClaimsHandlerExt.getSelectedClaimsProfileBannerConfigs()).thenReturn(new HashMap<>());
+        when(mockGuestClaimsHandlerExt.getProfileGuestClaims()).thenReturn(guestClaims);
+        when(mockGuestClaimsHandlerExt.getProfileSystemClaims()).thenReturn(systemClaims);
+        when(mockGuestClaimsHandlerExt.getProfileConfigs()).thenReturn(configs);
 
         assertFalse(configAdmin.updateGuestClaimsProfile(UI_CONFIG_PID, configTable));
         verifyZeroInteractions(mockGuestClaimsHandlerExt);
@@ -852,10 +860,14 @@ public class ConfigurationAdminTest {
         assertFalse(configAdmin.updateGuestClaimsProfile(UI_CONFIG_PID, configTable));
         verifyZeroInteractions(mockGuestClaimsHandlerExt);
 
-        configTable.put(PROFILE_KEY, "profileName");
+        //        when(configAdmin.getProperties(GUEST_CLAIMS_CONFIG_PID)).thenReturn(guestClaims);
+        doReturn(guestClaims).when(configAdmin)
+                .getProperties(GUEST_CLAIMS_CONFIG_PID);
+
+        configTable.put(PROFILE_KEY, "anyExampleProfileName");
         assertTrue(configAdmin.updateGuestClaimsProfile(UI_CONFIG_PID, configTable));
-        verify(mockGuestClaimsHandlerExt).setSelectedClaimsProfileName("profileName");
-        verify(configAdmin).update(eq(UI_CONFIG_PID), anyObject());
+        verify(mockGuestClaimsHandlerExt).setSelectedClaimsProfileName("anyExampleProfileName");
+        verify(configAdmin).update(eq(GUEST_CLAIMS_CONFIG_PID), eq(guestClaims));
     }
 
     /**
@@ -1246,14 +1258,11 @@ public class ConfigurationAdminTest {
         //check call before setting handler
         assertNotNull(configAdmin.getClaimsConfiguration(TEST_FILTER_1));
 
-        GuestClaimsHandlerExt ache = new GuestClaimsHandlerExt(mock(PropertiesFileReader.class),
-                Arrays.asList("testClaim1", "testClaim2"),
-                "/this/path/is/a/dir",
-                "/this/path/is/a/dir/banners",
-                "/this/path/is/a/file");
+        GuestClaimsHandlerExt handlerExt = mock(GuestClaimsHandlerExt.class);
+        when(handlerExt.getClaims()).thenReturn(new HashMap<>());
+        when(handlerExt.getClaimsProfiles()).thenReturn(new HashMap<>());
 
-        ache.init();
-        configAdmin.setGuestClaimsHandlerExt(ache);
+        configAdmin.setGuestClaimsHandlerExt(handlerExt);
 
         assertNotNull(configAdmin.getClaimsConfiguration(TEST_FILTER_1));
 
