@@ -257,14 +257,18 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
 
     private String geoToXml(BinaryContent content, XmlPullParser parser)
             throws UnsupportedEncodingException {
-        XppReader source = new XppReader(new InputStreamReader(content.getInputStream(),
-                StandardCharsets.UTF_8.name()), parser);
+        PrintWriter destination;
+        try (InputStreamReader inputStreamReader = new InputStreamReader(content.getInputStream(),
+                StandardCharsets.UTF_8.name())) {
+            XppReader source = new XppReader(inputStreamReader, parser);
 
         // if multi-threading, cannot abstract PrintWriter to class member
-        PrintWriter destination = writerProvider.build(Metacard.class);
+            destination = writerProvider.build(Metacard.class);
 
         new HierarchicalStreamCopier().copy(source, destination);
-
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return destination.makeString();
     }
 }
