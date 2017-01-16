@@ -80,8 +80,7 @@ class MetacardFactoryTest extends Specification {
 
     def 'test metacard generation with bad xformer'() {
         when:
-        metacardFactory.generateMetacard('application/xml-bad', 'idbad', 'filename',
-                null, path)
+        metacardFactory.generateMetacard('application/xml-bad', 'idbad', 'filename', path)
 
         then:
         thrown(MetacardCreationException)
@@ -89,8 +88,7 @@ class MetacardFactoryTest extends Specification {
 
     def 'test plain text metacard with no id or title'() {
         when:
-        def metacard = metacardFactory.generateMetacard('text/plain', null, 'filename',
-                null, path)
+        def metacard = metacardFactory.generateMetacard('text/plain', null, 'filename', path)
 
         then:
         1 * metacardPlain.setAttribute({ it.name == Metacard.ID && isUUID(it.values.first()) })
@@ -98,82 +96,44 @@ class MetacardFactoryTest extends Specification {
         1 * metacardPlain.setAttribute({
             it.name == Metacard.TITLE && it.values.first() == 'filename'
         })
-        1 * metacardPlain.setAttribute({
-            it.name == Metacard.POINT_OF_CONTACT && it.values.first() == ''
-        })
 
         metacard == metacardPlain
     }
 
     def 'test plain text metacard with provided id and xform-generated title'() {
         when:
-        def metacard = metacardFactory.generateMetacard('text/plain', 'test-id', 'filename',
-                null, path)
+        def metacard = metacardFactory.generateMetacard('text/plain', 'test-id', 'filename', path)
 
         then:
         1 * metacardPlain.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
         1 * metacardPlain.getTitle() >> { 'this is a title' }
         0 * metacardPlain.setAttribute({ it.name == Metacard.TITLE })
-        1 * metacardPlain.setAttribute({
-            it.name == Metacard.POINT_OF_CONTACT && it.values.first() == ''
-        })
-
-        metacard == metacardPlain
-    }
-
-    def 'test plain text metacard with provided id and xform-generated title and a subject'() {
-        setup:
-        def subject = Mock(Subject)
-        def principals = Mock(PrincipalCollection)
-        principals.oneByType(_) >> { null }
-        principals.getPrimaryPrincipal() >> { 'test-subject' }
-        subject.getPrincipals() >> { principals }
-
-        when:
-        def metacard = metacardFactory.generateMetacard('text/plain', 'test-id', 'filename',
-                subject, path)
-
-        then:
-        1 * metacardPlain.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
-        1 * metacardPlain.getTitle() >> { 'this is a title' }
-        0 * metacardPlain.setAttribute({ it.name == Metacard.TITLE })
-        1 * metacardPlain.setAttribute({
-            it.name == Metacard.POINT_OF_CONTACT && it.values.first() == 'test-subject'
-        })
 
         metacard == metacardPlain
     }
 
     def 'test xml metacard with provided id and xform-generated title'() {
         when:
-        def metacard = metacardFactory.generateMetacard('application/xml', 'test-id', 'filename',
-                null, path)
+        def metacard = metacardFactory.generateMetacard('application/xml', 'test-id', 'filename', path)
 
         then:
         then:
         1 * metacardXml.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
         1 * metacardXml.getTitle() >> { 'this is a title' }
         0 * metacardXml.setAttribute({ it.name == Metacard.TITLE })
-        1 * metacardXml.setAttribute({
-            it.name == Metacard.POINT_OF_CONTACT && it.values.first() == ''
-        })
 
         metacard == metacardXml
     }
 
     def 'ensure that order of operations matters for transformers'() {
         when:
-        def metacard = metacardFactory.generateMetacard('application/xml2', 'test-id', 'filename',
-                null, path)
+        def metacard = metacardFactory.generateMetacard('application/xml2', 'test-id', 'filename', path)
 
         then:
         then:
         1 * metacardXml2.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
         1 * metacardXml2.getTitle() >> { 'this is a title' }
         0 * metacardXml2.setAttribute({ it.name == Metacard.TITLE })
-        1 * metacardXml2.setAttribute({
-            it.name == Metacard.POINT_OF_CONTACT && it.values.first() == ''
-        })
 
         metacard == metacardXml2
     }

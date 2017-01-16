@@ -1,0 +1,17 @@
+
+.[[_core_attributes_table]]Core Attributes
+[cols="1,2,1,1,1" options="header"]
+|===
+|Term
+|Definition
+|Datatype
+|Constraints
+|Example Value
+
+|
+|
+|
+|
+|
+
+|===

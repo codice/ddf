@@ -52,7 +52,7 @@
     </feature>
 
     <feature name="resourcemanagement-app" install="auto" version="${project.version}"
-             description="The DDF Resource Management App provides administrative functionality to impose data usage limits on users, as well as the ability to view and terminate searches that are in progress.::DDF Resource Management">
+             description="The Resource Management App provides administrative functionality to impose data usage limits on users, as well as the ability to view and terminate searches that are in progress.::Resource Management">
         <feature prerequisite="true">catalog-app</feature>
         <feature>resourcemanagement-usage-ui</feature>
         <feature>resourcemanagement-usage-plugin</feature>

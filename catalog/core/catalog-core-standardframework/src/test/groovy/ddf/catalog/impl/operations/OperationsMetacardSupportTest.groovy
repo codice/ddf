@@ -20,9 +20,9 @@ import ddf.catalog.source.IngestException
 import ddf.catalog.transform.InputTransformer
 import ddf.mime.MimeTypeMapper
 import ddf.mime.MimeTypeToTransformerMapper
-import ddf.security.Subject
 import spock.lang.Specification
 
+import java.nio.file.Files
 import java.nio.file.Path
 
 class OperationsMetacardSupportTest extends Specification {
@@ -83,7 +83,7 @@ class OperationsMetacardSupportTest extends Specification {
         def contentPaths = [:]
 
         when:
-        opsMetacard.generateMetacardAndContentItems([], null, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems([], metacardMap, contentItems, contentPaths)
 
         then:
         metacardMap.isEmpty()
@@ -101,7 +101,7 @@ class OperationsMetacardSupportTest extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, null, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
 
         then:
         thrown(IngestException)
@@ -117,7 +117,7 @@ class OperationsMetacardSupportTest extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, null, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
 
         then:
         thrown(IngestException)
@@ -136,7 +136,7 @@ class OperationsMetacardSupportTest extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, null, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
 
         then:
         thrown(IngestException)
@@ -146,8 +146,7 @@ class OperationsMetacardSupportTest extends Specification {
         setup:
         def metacardMap = [:]
         List<ContentItem> contentItems = []
-        Map<String, Path> contentPaths = [:]
-        def subject = Mock(Subject)
+        Map<String, Map<String, Path>> contentPaths = [:]
         frameworkProperties.mimeTypeMapper.guessMimeType(_, _) >> { 'text/plain' }
         def item = Mock(ContentItem)
         item.getFilename() >> 'joe.txt'
@@ -157,7 +156,7 @@ class OperationsMetacardSupportTest extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, subject, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
 
         then:
         metacardMap.size() == 1
@@ -174,8 +173,7 @@ class OperationsMetacardSupportTest extends Specification {
         setup:
         def metacardMap = [:]
         List<ContentItem> contentItems = []
-        Map<String, Path> contentPaths = [:]
-        def subject = Mock(Subject)
+        Map<String, Map<String, Path>> contentPaths = [:]
         frameworkProperties.mimeTypeMapper.guessMimeType(_, _) >> { 'text/plain' }
         def item = Mock(ContentItem)
         item.getFilename() >> 'joe.txt'
@@ -185,7 +183,7 @@ class OperationsMetacardSupportTest extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, subject, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
 
         then:
         1 * transformer.transform(_) >> { throw new IOException() }
@@ -234,5 +232,16 @@ class OperationsMetacardSupportTest extends Specification {
         then:
         1 * registry.getDefaultValue('testtype', 'att4') >> { Optional.ofNullable('default4') }
         1 * metacard.setAttribute(_)
+    }
+
+    def 'test multiple detector fall through'() {
+        mimeTypeMapper.guessMimeType(_, _) >> null
+        def tempFile = Files.createTempFile("test", "bin")
+        Files.write(tempFile.toAbsolutePath(), "test file content".getBytes())
+        when:
+        def mimeType = opsMetacard.guessMimeType(ContentItem.DEFAULT_MIME_TYPE, tempFile.getFileName().toString(), tempFile.toAbsolutePath())
+        then:
+        !ContentItem.DEFAULT_MIME_TYPE.equals(mimeType)
+        "text/plain".equals(mimeType)
     }
 }

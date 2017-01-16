@@ -37,8 +37,6 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,8 +135,8 @@ public class CreateOperations {
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamCreateRequest.getContentItems()
                 .size());
-        HashMap<String, Path> tmpContentPaths = new HashMap<>(streamCreateRequest.getContentItems()
-                .size());
+        HashMap<String, Map<String, Path>> tmpContentPaths = new HashMap<>();
+
         CreateResponse createResponse = null;
         CreateStorageRequest createStorageRequest = null;
         CreateStorageResponse createStorageResponse;
@@ -148,7 +146,6 @@ public class CreateOperations {
 
         // Operation populates the metacardMap, contentItems, and tmpContentPaths
         opsMetacardSupport.generateMetacardAndContentItems(streamCreateRequest.getContentItems(),
-                retrieveSubject(),
                 metacardMap,
                 contentItems,
                 tmpContentPaths);
@@ -294,7 +291,8 @@ public class CreateOperations {
         // building
         if (INGEST_LOGGER.isDebugEnabled()) {
             INGEST_LOGGER.debug("{} metacards were successfully ingested. {}",
-                    createResponse.getRequest().getMetacards()
+                    createResponse.getRequest()
+                            .getMetacards()
                             .size(),
                     buildIngestLog(createResponse.getRequest()));
         }
@@ -697,20 +695,6 @@ public class CreateOperations {
             }
         }
         return createStorageRequest;
-    }
-
-    private ddf.security.Subject retrieveSubject() {
-        ddf.security.Subject subjectToReturn = null;
-        try {
-            Subject subject = SecurityUtils.getSubject();
-            if (subject instanceof ddf.security.Subject) {
-                subjectToReturn = (ddf.security.Subject) subject;
-            }
-        } catch (Exception exception) {
-            LOGGER.debug("No security subject found during metacard generation.");
-        }
-
-        return subjectToReturn;
     }
 
     @SuppressWarnings("unchecked")

@@ -147,18 +147,18 @@
             without accidental filtering/replacement-->
         <variable-prefix>${</variable-prefix>
         <!--Individual application names-->
-        <ddf-admin>DDF Admin</ddf-admin>
+        <ddf-admin>Admin</ddf-admin>
         <admin-console>Admin Console</admin-console>
         <command-console>Command Console</command-console>
-        <ddf-catalog>DDF Catalog</ddf-catalog>
-        <ddf-geowebcache>DDF GeoWebCache</ddf-geowebcache>
-        <ddf-platform>DDF Platform</ddf-platform>
-        <ddf-registry>DDF Registry</ddf-registry>
-        <ddf-resource-management>DDF Resource Management</ddf-resource-management>
-        <ddf-security>DDF Security</ddf-security>
-        <ddf-solr>DDF Solr</ddf-solr>
-        <ddf-spatial>DDF Spatial</ddf-spatial>
-        <ddf-ui>DDF Search UI</ddf-ui>
+        <ddf-catalog>Catalog</ddf-catalog>
+        <ddf-geowebcache>GeoWebCache</ddf-geowebcache>
+        <ddf-platform>Platform</ddf-platform>
+        <ddf-registry>Registry</ddf-registry>
+        <ddf-resource-management>Resource Management</ddf-resource-management>
+        <ddf-security>Security</ddf-security>
+        <ddf-solr>Solr</ddf-solr>
+        <ddf-spatial>Spatial</ddf-spatial>
+        <ddf-ui>Search UI</ddf-ui>
 
         <asciidoctor.maven.plugin.version>1.5.3</asciidoctor.maven.plugin.version>
         <asciidoctorj.version>1.5.4.1</asciidoctorj.version>

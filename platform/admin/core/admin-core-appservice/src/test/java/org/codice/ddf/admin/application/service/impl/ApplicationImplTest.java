@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Set;
@@ -105,11 +104,15 @@ public class ApplicationImplTest {
         assertThat("Version number is wrong", application.getVersion(), equalTo("0.0.0"));
     }
 
-    @Test(expected = Exception.class)
-    public void testUnparsableApplicationName() throws IOException {
+    @Test
+    public void testComplexApplicationName() throws Exception {
+        String name = "test-dependencies-1.2.3-1a";
         Repository repo = mock(Repository.class);
-        when(repo.getName()).thenReturn("MyName-0.0.0-1.1");
-        new ApplicationImpl(repo);
+        when(repo.getName()).thenReturn(name);
+        when(repo.getFeatures()).thenReturn(new Feature[0]);
+        ApplicationImpl application = new ApplicationImpl(repo);
+        assertThat("Application name is wrong", application.getName(), equalTo("test-dependencies"));
+        assertThat("Version number is wrong", application.getVersion(), equalTo("1.2.3-1a"));
     }
 
     /**

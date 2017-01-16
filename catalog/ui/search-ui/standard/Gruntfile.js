@@ -20,25 +20,35 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         ports: {
-          phantom: 0,
-          selenium: 0,
-          express:  0,
+            phantom: 0,
+            selenium: 0,
+            express: 0,
         },
 
         clean: {
             build: ['target/webapp']
         },
         bower: {
-            install: {
-
-            }
+            install: {}
         },
-        sed: {
-            imports: {
-                path: 'target/webapp/lib/bootswatch/cyborg',
-                pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Droid\\+Sans:400,700"\\);',
-                replacement: '',
-                recursive: true
+        replace: {
+            dist: {
+                options: {
+                    patterns: [
+                        {
+                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Droid\+Sans:400,700"\);/g,
+                            replace: ''
+                        }
+                    ]
+                },
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: 'target/webapp/lib/bootswatch/cyborg/*',
+                        dest: 'target/webapp/lib/bootswatch/cyborg'
+                    }
+                ]
             }
         },
         cssmin: {
@@ -54,7 +64,7 @@ module.exports = function (grunt) {
                     cleancss: true
                 },
                 files: {
-                    "src/main/webapp/css/styles.css":"src/main/webapp/less/styles.less"
+                    "src/main/webapp/css/styles.css": "src/main/webapp/less/styles.less"
                 }
             }
         },
@@ -147,12 +157,12 @@ module.exports = function (grunt) {
             test: {
                 options: {
                     port: '<%= ports.express %>',
-                    server: './test.js'
+                    script: './test.js'
                 }
             },
             server: {
                 options: {
-                    server: './server.js'
+                    script: './server.js'
                 }
             }
         },
@@ -161,21 +171,21 @@ module.exports = function (grunt) {
                 files: ['<%= jshint.all.src %>'],
                 tasks: ['jshint']
             },
-            livereload : {
-                options : {livereload :true},
-                files : ['target/webapp/css/index.css'
+            livereload: {
+                options: {livereload: true},
+                files: ['target/webapp/css/index.css'
                     // this one is more dangerous, tends to reload the page if one file changes
                     // probably too annoying to be useful, uncomment if you want to try it out
 //                    '<%= jshint.files %>'
                 ]
             },
             lessFiles: {
-                files: ['src/main/webapp/less/*.less','src/main/webapp/less/**/*.less','src/main/webapp/less/***/*.less'],
+                files: ['src/main/webapp/less/*.less', 'src/main/webapp/less/**/*.less', 'src/main/webapp/less/***/*.less'],
                 tasks: ['less']
             },
-            cssFiles : {
-                files :['src/main/webapp/css/*.css'],
-                tasks : ['cssmin']
+            cssFiles: {
+                files: ['src/main/webapp/css/*.css'],
+                tasks: ['cssmin']
             },
             bowerFile: {
                 files: ['src/main/webapp/bower.json'],
@@ -184,13 +194,17 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('test', ['port:allocator', 'express:test'/*, 'mochaWebdriver:phantom'*/]);
-    grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
-    grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
+    grunt.loadNpmTasks('grunt-mocha');
+    grunt.loadNpmTasks('grunt-replace');
+    grunt.loadNpmTasks('grunt-express-server');
 
-    grunt.registerTask('build', ['bower-offline-install', 'sed', 'less',
+    grunt.registerTask('test', ['port:allocator', 'express:test'/*, 'mochaWebdriver:phantom'*/]);
+    // grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
+    // grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
+
+    grunt.registerTask('build', ['bower-offline-install', 'replace', 'less',
         'cssmin', 'jshint']);
 
-    grunt.registerTask('default', ['build','express:server','watch']);
+    grunt.registerTask('default', ['build', 'express:server', 'watch']);
 
 };

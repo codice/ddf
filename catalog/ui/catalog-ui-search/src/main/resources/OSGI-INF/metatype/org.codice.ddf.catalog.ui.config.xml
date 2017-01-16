@@ -152,6 +152,13 @@
             cardinality="10000"
             default="1800,3600,7200,14400,28800,57600,86400"
             required="true"/>
+
+        <AD id="isEditingAllowed"
+            name="Allow Editing"
+            description="Allow editing capability to be visible in the UI"
+            type="Boolean"
+            default="true"
+            required="true"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">

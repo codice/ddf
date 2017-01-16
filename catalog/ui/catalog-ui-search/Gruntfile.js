@@ -88,7 +88,7 @@ module.exports = function (grunt) {
             },
             server: {
                 options: {
-                    server: './server.js'
+                    script: './server.js'
                 }
             }
         },
@@ -118,6 +118,8 @@ module.exports = function (grunt) {
             }
         }
     });
+
+    grunt.loadNpmTasks('grunt-express-server');
 
     grunt.registerTask('build:part', [
         'bower-offline-install',

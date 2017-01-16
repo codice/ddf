@@ -13,8 +13,10 @@
  */
 package ddf.catalog.transformer;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -66,19 +68,34 @@ public class OverlayMetacardTransformerTest {
 
     private MetacardImpl getMetacard() {
         final MetacardImpl metacard = new MetacardImpl();
-        metacard.setLocation("POLYGON ((1 10, 11 9, 10 -1, 0 0, 1 10))");
+        metacard.setLocation("POLYGON ((0 0, 1 0, 1 -0.1, 0 -0.1, 0 0))");
         return metacard;
     }
 
     @Test
-    public void testOverlay() throws Exception {
+    public void testOverlaySquishedHeight() throws Exception {
         final MetacardImpl metacard = getMetacard();
+        metacard.setLocation("POLYGON ((0 0, 1 0, 1 -0.1, 0 -0.1, 0 0))");
         final BinaryContent content = transform(metacard, null);
 
         final BufferedImage originalImage = getImage(getImageBytes());
         final BufferedImage overlayImage = getImage(content.getByteArray());
 
-        assertThat(overlayImage.getWidth(), greaterThan(originalImage.getWidth()));
+        assertThat(overlayImage.getWidth(), equalTo(originalImage.getWidth()));
+        assertThat(overlayImage.getHeight(), lessThan(originalImage.getHeight()));
+    }
+
+    @Test
+    public void testOverlayRotated() throws Exception {
+        final MetacardImpl metacard = getMetacard();
+        metacard.setLocation("POLYGON ((0 1, 1 0, 0 -1, -1 0, 0 1))");
+        final BinaryContent content = transform(metacard, null);
+
+        final BufferedImage originalImage = getImage(getImageBytes());
+        final BufferedImage overlayImage = getImage(content.getByteArray());
+
+        // We can only make these assertions because we are rotating a square image
+        assertThat(overlayImage.getWidth(), greaterThan(originalImage.getHeight()));
         assertThat(overlayImage.getHeight(), greaterThan(originalImage.getHeight()));
     }
 

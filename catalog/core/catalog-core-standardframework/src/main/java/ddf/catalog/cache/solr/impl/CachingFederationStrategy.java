@@ -549,8 +549,14 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
         @Override
         public SourceResponse call() throws Exception {
-            final SourceResponse sourceResponse =
-                    source.query(new QueryRequestImpl(request.getQuery(), request.getProperties()));
+            QueryRequest queryRequest;
+            if (CACHE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE)) || INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
+                queryRequest = new QueryRequestImpl(request.getQuery(), false, request.getSourceIds(), request.getProperties());
+            } else {
+                queryRequest = new QueryRequestImpl(request.getQuery(), request.getProperties());
+            }
+
+            final SourceResponse sourceResponse = source.query(queryRequest);
 
             if (INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
                 cacheCommitPhaser.add(sourceResponse.getResults());

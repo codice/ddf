@@ -933,12 +933,8 @@ var DrawHelper = (function() {
                     if (cartesian) {
                         _self.stopDrawing();
                         if(typeof options.callback == 'function') {
-                            // remove overlapping ones
-                            var index = positions.length - 1;
-                            // TODO - calculate some epsilon based on the zoom level
-                            var epsilon = Cesium.Math.EPSILON3;
-                            for(; index > 0 && positions[index].equalsEpsilon(positions[index - 1], epsilon); index--) {}
-                            options.callback(positions.splice(0, index + 1));
+                            //https://github.com/leforthomas/cesium-drawhelper/issues/13
+                            options.callback(positions);
                         }
                     }
                 }

@@ -33,9 +33,17 @@ define([
         Source.Model = Backbone.Model.extend({
             configUrl: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
             idAttribute: 'name',
+            defaults: function() {
+              return {
+                currentUrl:     undefined,
+                isLoopbackUrl:   undefined,
+              };
+            },
             initialize: function () {
                 this.set('currentConfiguration', undefined);
                 this.set('disabledConfigurations', new Source.ConfigurationList());
+                this.listenTo(this, 'change:currentConfiguration', this.updateCurrentBinding);
+                this.updateCurrentBinding();
             },
             addDisabledConfiguration: function (configuration) {
                 if (this.get("disabledConfigurations") &&
@@ -132,6 +140,34 @@ define([
                 });
 
                 return actions;
+            },
+            getCurrentUrl: function () {
+                var src = this;
+                var currentConfig = src.get('currentConfiguration');
+                if (currentConfig !== undefined) {
+                  var configProps = currentConfig.attributes.properties.attributes;
+                  var configPropKeys = Object.keys(configProps);
+
+                  var urls = configPropKeys.filter(function(item) {
+                      return /.*Address|.*Url/.test(item);
+                  });
+                  var filteredKeys = urls.filter(function (item) {
+                      return /^(?!event|site).*$/.test(item);
+                  });
+
+                  return configProps[filteredKeys];
+                }
+                return undefined;
+            },
+            checkLoopback: function () {
+                if (this.get('currentUrl') === undefined) {
+                    return false;
+                }
+               return /.*(localhost|org.codice.ddf.system.hostname).*/.test(this.getCurrentUrl().toString());
+            },
+            updateCurrentBinding: function () {
+              this.set('currentUrl', this.getCurrentUrl());
+              this.set('isLoopbackUrl', this.checkLoopback());
             },
             addUnique: function (uniqueArray, addThis) {
                 if (_.isUndefined(addThis)) {

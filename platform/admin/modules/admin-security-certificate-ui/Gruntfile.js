@@ -22,16 +22,26 @@ module.exports = function (grunt) {
             build: ['target/webapp']
         },
         bower: {
-            install: {
-
-            }
+            install: {}
         },
-        sed: {
-            imports: {
-                path: 'target/webapp/lib/bootswatch/flatly',
-                pattern: '@import url\\("//fonts.googleapis.com/css\\?family=Lato:400,700,400italic"\\);',
-                replacement: '',
-                recursive: true
+        replace: {
+            dist: {
+                options: {
+                    patterns: [
+                        {
+                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Lato:400,700,400italic"\);/g,
+                            replace: ''
+                        }
+                    ]
+                },
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: 'target/webapp/lib/bootswatch/flatly/*',
+                        dest: 'target/webapp/lib/bootswatch/flatly'
+                    }
+                ]
             }
         },
         cssmin: {
@@ -47,7 +57,7 @@ module.exports = function (grunt) {
                     cleancss: true
                 },
                 files: {
-                    "src/main/webapp/css/styles.css":"src/main/webapp/less/styles.less"
+                    "src/main/webapp/css/styles.css": "src/main/webapp/less/styles.less"
                 }
             }
         },
@@ -94,12 +104,12 @@ module.exports = function (grunt) {
             test: {
                 options: {
                     port: 8888,
-                    server: './test.js'
+                    script: './test.js'
                 }
             },
             server: {
                 options: {
-                    server: './server.js'
+                    script: './server.js'
                 }
             }
         },
@@ -108,21 +118,21 @@ module.exports = function (grunt) {
                 files: ['<%= jshint.all.src %>'],
                 tasks: ['jshint']
             },
-            livereload : {
-                options : {livereload :true},
-                files : ['target/webapp/css/index.css'
+            livereload: {
+                options: {livereload: true},
+                files: ['target/webapp/css/index.css'
                     // this one is more dangerous, tends to reload the page if one file changes
                     // probably too annoying to be useful, uncomment if you want to try it out
 //                    '<%= jshint.files %>'
                 ]
             },
             lessFiles: {
-                files: ['src/main/webapp/less/*.less','src/main/webapp/less/**/*.less','src/main/webapp/less/***/*.less'],
+                files: ['src/main/webapp/less/*.less', 'src/main/webapp/less/**/*.less', 'src/main/webapp/less/***/*.less'],
                 tasks: ['less']
             },
-            cssFiles : {
-                files :['src/main/webapp/css/*.css'],
-                tasks : ['cssmin']
+            cssFiles: {
+                files: ['src/main/webapp/css/*.css'],
+                tasks: ['cssmin']
             },
             bowerFile: {
                 files: ['src/main/webapp/bower.json'],
@@ -131,9 +141,12 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('build', ['bower-offline-install', 'sed', 'less',
+    grunt.loadNpmTasks('grunt-replace');
+    grunt.loadNpmTasks('grunt-express-server');
+
+    grunt.registerTask('build', ['bower-offline-install', 'replace', 'less',
         'cssmin', 'jshint']);
 
-    grunt.registerTask('default', ['build','express:server','watch']);
+    grunt.registerTask('default', ['build', 'express:server', 'watch']);
 
 };

@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.detect.DefaultProbDetector;
 import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.codice.ddf.platform.util.InputValidation;
@@ -47,11 +49,10 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.source.IngestException;
 import ddf.mime.MimeTypeResolutionException;
-import ddf.security.Subject;
 
 /**
  * Support class for working with {@code Metacard}s for the {@code CatalogFrameworkImpl}.
- *
+ * <p>
  * This class contains methods for management/manipulation for metacards for the CFI and its
  * support classes. No operations/support methods should be added to this class except in support
  * of CFI, specific to metacards.
@@ -87,9 +88,9 @@ public class OperationsMetacardSupport {
         return metacard;
     }
 
-    void generateMetacardAndContentItems(List<ContentItem> incomingContentItems, Subject subject,
+    void generateMetacardAndContentItems(List<ContentItem> incomingContentItems,
             Map<String, Metacard> metacardMap, List<ContentItem> contentItems,
-            Map<String, Path> tmpContentPaths) throws IngestException {
+            Map<String, Map<String, Path>> tmpContentPaths) throws IngestException {
         for (ContentItem contentItem : incomingContentItems) {
             try {
                 Path tmpPath = null;
@@ -106,7 +107,18 @@ public class OperationsMetacardSupport {
                             FilenameUtils.getExtension(sanitizedFilename));
                     Files.copy(inputStream, tmpPath, StandardCopyOption.REPLACE_EXISTING);
                     size = Files.size(tmpPath);
-                    tmpContentPaths.put(contentItem.getId(), tmpPath);
+
+                    final String key = contentItem.getId();
+                    Map<String, Path> pathAndQualifiers = tmpContentPaths.get(key);
+
+                    if (pathAndQualifiers == null) {
+                        pathAndQualifiers = new HashMap<>();
+                        pathAndQualifiers.put(contentItem.getQualifier(), tmpPath);
+                        tmpContentPaths.put(key, pathAndQualifiers);
+                    } else {
+                        pathAndQualifiers.put(contentItem.getQualifier(), tmpPath);
+                    }
+
                 } catch (IOException e) {
                     if (tmpPath != null) {
                         FileUtils.deleteQuietly(tmpPath.toFile());
@@ -124,7 +136,6 @@ public class OperationsMetacardSupport {
                 Metacard metacard = metacardFactory.generateMetacard(mimeTypeRaw,
                         contentItem.getId(),
                         fileName,
-                        subject,
                         tmpPath);
                 metacardMap.put(metacard.getId(), metacard);
 
@@ -137,13 +148,15 @@ public class OperationsMetacardSupport {
                 contentItems.add(generatedContentItem);
             } catch (Exception e) {
                 tmpContentPaths.values()
+                        .stream()
+                        .flatMap(id -> id.values()
+                                .stream())
                         .forEach(path -> FileUtils.deleteQuietly(path.toFile()));
                 tmpContentPaths.clear();
                 throw new IngestException("Could not create metacard.", e);
             }
         }
     }
-
 
     /**
      * Updates any empty metacard attributes with those defined in the
@@ -190,7 +203,8 @@ public class OperationsMetacardSupport {
         return fileName;
     }
 
-    private String guessMimeType(String mimeTypeRaw, String fileName, Path tmpContentPath)
+    // package-private for unit testing
+    String guessMimeType(String mimeTypeRaw, String fileName, Path tmpContentPath)
             throws IOException {
         if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
             try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
@@ -207,9 +221,7 @@ public class OperationsMetacardSupport {
             }
             if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
                 Detector detector = new DefaultProbDetector();
-                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream()) {
+                try (InputStream inputStreamMessageCopy = TikaInputStream.get(tmpContentPath)) {
                     MediaType mediaType = detector.detect(inputStreamMessageCopy, new Metadata());
                     mimeTypeRaw = mediaType.toString();
                 } catch (IOException e) {

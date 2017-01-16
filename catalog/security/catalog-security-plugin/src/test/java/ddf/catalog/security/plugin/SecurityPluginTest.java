@@ -14,8 +14,10 @@
 package ddf.catalog.security.plugin;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,10 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ThreadContext;
 import org.junit.Test;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.Query;
@@ -40,77 +44,98 @@ import ddf.security.Subject;
 
 public class SecurityPluginTest {
 
+    public static final String TEST_USER = "test-user";
+
     @Test
     public void testNominalCaseCreate() throws Exception {
-        Subject subject = mock(Subject.class);
-        ThreadContext.bind(subject);
+        Subject mockSubject = mock(Subject.class);
+        PrincipalCollection mockPrincipals = mock(PrincipalCollection.class);
+        when(mockPrincipals.getPrimaryPrincipal()).thenReturn(TEST_USER);
+        when(mockSubject.getPrincipals()).thenReturn(mockPrincipals);
+
+        ThreadContext.bind(mockSubject);
         CreateRequest request = new MockCreateRequest();
         SecurityPlugin plugin = new SecurityPlugin();
+
         request = plugin.processPreCreate(request);
-        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
+        assertThat(request.getMetacards()
+                .size(), is(2));
+        request.getMetacards()
+                .forEach(metacard -> assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
+                        .getValue(), equalTo(TEST_USER)));
     }
 
     @Test
     public void testNominalCaseUpdate() throws Exception {
-        Subject subject = mock(Subject.class);
-        ThreadContext.bind(subject);
+        Subject mockSubject = mock(Subject.class);
+        ThreadContext.bind(mockSubject);
         UpdateRequest request = new MockUpdateRequest();
         SecurityPlugin plugin = new SecurityPlugin();
         request = plugin.processPreUpdate(request, new HashMap<>());
-        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
     }
 
     @Test
     public void testNominalCaseDelete() throws Exception {
-        Subject subject = mock(Subject.class);
-        ThreadContext.bind(subject);
+        Subject mockSubject = mock(Subject.class);
+        ThreadContext.bind(mockSubject);
         DeleteRequest request = new MockDeleteRequest();
         SecurityPlugin plugin = new SecurityPlugin();
         request = plugin.processPreDelete(request);
-        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+        request = plugin.processPreDelete(request);
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
     }
 
     @Test
     public void testNominalCaseQuery() throws Exception {
-        Subject subject = mock(Subject.class);
-        ThreadContext.bind(subject);
+        Subject mockSubject = mock(Subject.class);
+        ThreadContext.bind(mockSubject);
         QueryRequest request = new MockQueryRequest();
         SecurityPlugin plugin = new SecurityPlugin();
         request = plugin.processPreQuery(request);
-        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
     }
 
     @Test
     public void testNominalCaseResource() throws Exception {
-        Subject subject = mock(Subject.class);
-        ThreadContext.bind(subject);
+        Subject mockSubject = mock(Subject.class);
+        ThreadContext.bind(mockSubject);
         ResourceRequest request = new MockResourceRequest();
         SecurityPlugin plugin = new SecurityPlugin();
         request = plugin.processPreResource(request);
-        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
     }
 
     @Test
     public void testSubjectExists() throws Exception {
-        Subject subject = mock(Subject.class);
+        Subject mockSubject = mock(Subject.class);
         CreateRequest request = new MockCreateRequest();
         request.getProperties()
-                .put(SecurityConstants.SECURITY_SUBJECT, subject);
+                .put(SecurityConstants.SECURITY_SUBJECT, mockSubject);
         SecurityPlugin plugin = new SecurityPlugin();
         request = plugin.processPreCreate(request);
-        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
     }
 
     @Test
     public void testBadSubjectCase() throws Exception {
-        Subject subject = mock(Subject.class);
-        ThreadContext.bind(subject);
+        Subject mockSubject = mock(Subject.class);
+        ThreadContext.bind(mockSubject);
         CreateRequest request = new MockCreateRequest();
         request.getProperties()
                 .put(SecurityConstants.SECURITY_SUBJECT, new HashMap<>());
         SecurityPlugin plugin = new SecurityPlugin();
         request = plugin.processPreCreate(request);
-        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
     }
 
     @Test
@@ -127,9 +152,17 @@ public class SecurityPluginTest {
     public static class MockCreateRequest implements CreateRequest {
         private Map<String, Serializable> props = new HashMap<>();
 
+        private List<Metacard> metacards;
+
         @Override
         public List<Metacard> getMetacards() {
-            return null;
+            if (metacards == null) {
+                metacards = new ArrayList<>();
+                metacards.add(new MetacardImpl());
+                metacards.add(new MetacardImpl());
+            }
+
+            return metacards;
         }
 
         @Override

@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.activation.MimeType;
@@ -33,8 +32,6 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
-import ddf.security.Subject;
-import ddf.security.SubjectUtils;
 
 /**
  * Support class for creating metacards for the {@code CatalogFrameworkImpl}.
@@ -55,8 +52,8 @@ public class MetacardFactory {
         this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
     }
 
-    Metacard generateMetacard(String mimeTypeRaw, String id, String fileName, Subject subject,
-            Path tmpContentPath) throws MetacardCreationException, MimeTypeParseException {
+    Metacard generateMetacard(String mimeTypeRaw, String id, String fileName, Path tmpContentPath)
+            throws MetacardCreationException, MimeTypeParseException {
 
         Metacard generatedMetacard = null;
         InputTransformer transformer = null;
@@ -117,11 +114,6 @@ public class MetacardFactory {
         if (StringUtils.isBlank(generatedMetacard.getTitle())) {
             generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, fileName));
         }
-
-        String name = Optional.ofNullable(SubjectUtils.getName(subject))
-                .orElse("");
-
-        generatedMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT, name));
 
         return generatedMetacard;
     }

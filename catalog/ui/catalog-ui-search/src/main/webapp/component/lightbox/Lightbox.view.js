@@ -19,8 +19,9 @@ define([
     'jquery',
     './Lightbox.hbs',
     'js/CustomElements',
-    'js/store'
-], function (Marionette, _, $, LightboxTemplate, CustomElements, store) {
+    'js/store',
+    './Lightbox.js'
+], function (Marionette, _, $, LightboxTemplate, CustomElements, store, Lightbox) {
 
     var componentName = 'lightbox';
 
@@ -58,6 +59,13 @@ define([
         },
         close: function () {
             this.model.close();
+            this.lightboxContent.empty();
+        }
+    },{
+        generateNewLightbox: function(){
+            return new this({
+                model: new Lightbox()
+            });
         }
     });
 
