@@ -89,12 +89,12 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
     public TestReport getNoTestFoundReport(String badId){
         return new TestReport(buildMessage(FAILURE,
                 NO_METHOD_FOUND,
-                "Unknown id: " + (badId == null ? "null" : badId)));
+                "Unknown method id: " + (badId == null ? "null" : badId)));
     }
 
     public ProbeReport getNoProbeFoundReport(String badId){
         return new ProbeReport(buildMessage(FAILURE, NO_METHOD_FOUND,
-                "Unknown probeId: " + (badId == null ? "null" : badId)));
+                "Unknown probe id: " + (badId == null ? "null" : badId)));
     }
 
     @Override
