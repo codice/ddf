@@ -20,8 +20,9 @@ define([
     'jquery',
     '../tabs.view',
     './tabs-metacard',
-    'js/store'
-], function (wreqr, Marionette, _, $, TabsView, MetacardTabsModel, store) {
+    'js/store',
+    'properties'
+], function (wreqr, Marionette, _, $, TabsView, MetacardTabsModel, store, properties) {
 
     return TabsView.extend({
         className: 'is-metacard',
@@ -58,6 +59,9 @@ define([
                 this.model.set('activeTab', 'Summary');
             }
             if (result.isRemote() && ['History', 'Associations', 'Quality', 'Archive', 'Overwrite'].indexOf(activeTabName) >=0){
+                this.model.set('activeTab', 'Summary');
+            }
+            if (properties.isEditingRestricted() && ['Archive', 'Overwrite'].indexOf(activeTabName) >=0){
                 this.model.set('activeTab', 'Summary');
             }
             var activeTab = this.model.getActiveView();

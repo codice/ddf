@@ -74,6 +74,8 @@ public class ConfigurationApplication implements SparkApplication {
 
     private String terrainEndpoint;
 
+    private Boolean isEditingAllowed = false;
+
     private Boolean isSignIn = true;
 
     private Boolean isTask = false;
@@ -236,6 +238,7 @@ public class ConfigurationApplication implements SparkApplication {
         config.put("attributeAliases", attributeAliases);
         config.put("sourcePollInterval", sourcePollInterval);
         config.put("scheduleFrequencyList", scheduleFrequencyList);
+        config.put("isEditingAllowed", isEditingAllowed);
 
         return config;
     }
@@ -496,6 +499,14 @@ public class ConfigurationApplication implements SparkApplication {
 
     public void setIngest(Boolean isIngest) {
         this.isIngest = isIngest;
+    }
+
+    public Boolean getIsEditingAllowed() {
+        return this.isEditingAllowed;
+    }
+
+    public void setIsEditingAllowed(Boolean isEditingAllowed){
+        this.isEditingAllowed = isEditingAllowed;
     }
 
     public void setTypeNameMapping(String[] mappings) {

@@ -81,13 +81,21 @@ define(function (require) {
                 throw new Error('Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');
             });
 
+            this.handleEditing();
+
             return props;
+        },
+        handleEditing: function(){
+            $('html').toggleClass('is-editing-restricted', this.isEditingRestricted());
         },
         isHidden: function(attribute){
           return match(this.hiddenAttributes, attribute);
         },
         isReadOnly: function(attribute){
           return match(this.readOnly, attribute);
+        },
+        isEditingRestricted: function(){
+            return !this.isEditingAllowed;
         }
     };
 

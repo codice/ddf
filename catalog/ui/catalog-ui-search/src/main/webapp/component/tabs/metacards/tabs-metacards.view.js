@@ -19,8 +19,9 @@ define([
     'jquery',
     '../tabs.view',
     './tabs-metacards',
-    'js/store'
-], function (Marionette, _, $, TabsView, MetacardsTabsModel, store) {
+    'js/store',
+    'properties'
+], function (Marionette, _, $, TabsView, MetacardsTabsModel, store, properties) {
 
     function getTypes(results){
         var types = {};
@@ -75,6 +76,9 @@ define([
                 this.model.set('activeTab', 'Details');
             }
             if (types.indexOf('remote') >= 0 && ['Archive'].indexOf(activeTabName) >= 0){
+                this.model.set('activeTab', 'Details');
+            }
+            if (properties.isEditingRestricted() && ['Archive'].indexOf(activeTabName) >=0){
                 this.model.set('activeTab', 'Details');
             }
             var activeTab = this.model.getActiveView();
