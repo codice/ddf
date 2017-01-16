@@ -29,6 +29,8 @@ import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
+import org.codice.ddf.admin.api.handler.report.ProbeReport;
+import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 import org.codice.ddf.admin.sources.opensearch.persist.CreateOpenSearchSourcePersistMethod;
 import org.codice.ddf.admin.sources.opensearch.persist.DeleteOpenSearchSourcePersistMethod;
@@ -55,6 +57,21 @@ public class OpenSearchSourceConfigurationHandler extends DefaultConfigurationHa
     public List<PersistMethod> getPersistMethods() {
         return Arrays.asList(new CreateOpenSearchSourcePersistMethod(),
                 new DeleteOpenSearchSourcePersistMethod());
+    }
+
+    @Override
+    public ProbeReport probe(String probeId, SourceConfiguration configuration) {
+        return super.probe(probeId, new OpenSearchSourceConfiguration(configuration));
+    }
+
+    @Override
+    public TestReport test(String testId, SourceConfiguration configuration) {
+        return super.test(testId, new OpenSearchSourceConfiguration(configuration));
+    }
+
+    @Override
+    public TestReport persist(String persistId, SourceConfiguration configuration) {
+        return super.persist(persistId, new OpenSearchSourceConfiguration(configuration));
     }
 
     @Override

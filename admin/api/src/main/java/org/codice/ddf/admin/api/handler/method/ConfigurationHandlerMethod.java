@@ -19,17 +19,11 @@ import java.util.Map;
 public abstract class ConfigurationHandlerMethod {
 
     private String id;
-
     private String description;
-
     private Map<String, String> requiredFields;
-
     private Map<String, String> optionalFields;
-
     private Map<String, String> successTypes;
-
     private Map<String, String> failureTypes;
-
     private Map<String, String> warningTypes;
 
     public ConfigurationHandlerMethod(String id, String description,

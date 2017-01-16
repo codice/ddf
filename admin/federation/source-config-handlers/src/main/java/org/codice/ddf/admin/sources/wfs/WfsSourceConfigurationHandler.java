@@ -30,6 +30,8 @@ import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
+import org.codice.ddf.admin.api.handler.report.ProbeReport;
+import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 import org.codice.ddf.admin.sources.wfs.persist.CreateWfsSourcePersistMethod;
 import org.codice.ddf.admin.sources.wfs.persist.DeleteWfsSourcePersistMethod;
@@ -59,6 +61,22 @@ public class WfsSourceConfigurationHandler extends DefaultConfigurationHandler<S
         return Arrays.asList(new CreateWfsSourcePersistMethod(),
                 new DeleteWfsSourcePersistMethod());
     }
+
+    @Override
+    public ProbeReport probe(String probeId, SourceConfiguration configuration) {
+        return super.probe(probeId, new WfsSourceConfiguration(configuration));
+    }
+
+    @Override
+    public TestReport test(String testId, SourceConfiguration configuration) {
+        return super.test(testId, new WfsSourceConfiguration(configuration));
+    }
+
+    @Override
+    public TestReport persist(String persistId, SourceConfiguration configuration) {
+        return super.persist(persistId, new WfsSourceConfiguration(configuration));
+    }
+
 
     @Override
     public List<SourceConfiguration> getConfigurations() {

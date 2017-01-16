@@ -124,6 +124,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
             return probeReport;
         }, this::toJson);
 
+        // TODO: tbatie - 1/15/17 - Need to apply an @Expose to fields, random objects are showing up in the reports
         get("/capabilities",
                 (req, res) -> handlers.stream()
                         .map(handler -> handler.getCapabilities())

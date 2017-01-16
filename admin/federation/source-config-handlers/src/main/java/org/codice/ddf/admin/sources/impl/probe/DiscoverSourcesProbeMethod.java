@@ -44,7 +44,8 @@ public class DiscoverSourcesProbeMethod extends ProbeMethod<SourceConfiguration>
     public static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(USERNAME, "User name to include in request.",
             PASSWORD, "Password of user to include in request.");
 
-    public static final Map<String, String> RETURN_TYPES = ImmutableMap.of(DISCOVER_SOURCES_ID, "List of sources configurations created using the specified url.");
+    public static final String DISCOVERED_SOURCES_KEY = "discoverSources";
+    public static final Map<String, String> RETURN_TYPES = ImmutableMap.of(DISCOVERED_SOURCES_KEY, "List of sources configurations created using the specified url.");
 
     private List<SourceConfigurationHandler> handlers;
 
@@ -80,7 +81,7 @@ public class DiscoverSourcesProbeMethod extends ProbeMethod<SourceConfiguration>
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        sourcesProbeReport.probeResult(DISCOVER_SOURCES_ID, discoveredSources).messages(probeSourceMessages);
+        sourcesProbeReport.probeResult(DISCOVERED_SOURCES_KEY, discoveredSources).messages(probeSourceMessages);
         return sourcesProbeReport;
     }
 }

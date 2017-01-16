@@ -31,6 +31,8 @@ import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
+import org.codice.ddf.admin.api.handler.report.ProbeReport;
+import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 import org.codice.ddf.admin.sources.csw.persist.CreateCswSourcePersistMethod;
 import org.codice.ddf.admin.sources.csw.persist.DeleteCswSourcePersistMethod;
@@ -61,6 +63,21 @@ public class CswSourceConfigurationHandler extends DefaultConfigurationHandler<S
     public List<PersistMethod> getPersistMethods() {
         return Arrays.asList(new CreateCswSourcePersistMethod(),
                 new DeleteCswSourcePersistMethod());
+    }
+
+    @Override
+    public ProbeReport probe(String probeId, SourceConfiguration configuration) {
+        return super.probe(probeId, new CswSourceConfiguration(configuration));
+    }
+
+    @Override
+    public TestReport test(String testId, SourceConfiguration configuration) {
+        return super.test(testId, new CswSourceConfiguration(configuration));
+    }
+
+    @Override
+    public TestReport persist(String persistId, SourceConfiguration configuration) {
+        return super.persist(persistId, new CswSourceConfiguration(configuration));
     }
 
     @Override

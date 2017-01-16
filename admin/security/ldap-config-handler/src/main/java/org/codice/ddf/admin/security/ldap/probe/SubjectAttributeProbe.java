@@ -71,7 +71,7 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
     private static final String LDAP_USER_ATTRIBUTES = "ldapUserAttributes";
 
     public SubjectAttributeProbe() {
-        super("subjectAttributeMap",
+        super(SUBJECT_ATTRIBUTES_PROBE_ID,
                 DESCRIPTION,
                 REQUIRED_FIELDS,
                 OPTIONAL_FIELDS,
