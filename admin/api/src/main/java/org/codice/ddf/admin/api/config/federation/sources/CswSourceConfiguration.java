@@ -17,6 +17,7 @@ package org.codice.ddf.admin.api.config.federation.sources;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,9 @@ public class CswSourceConfiguration extends SourceConfiguration {
     public static final String CSW_PROFILE_FACTORY_PID = "Csw_Federation_Profile_Source";
     public static final String CSW_GMD_FACTORY_PID = "Gmd_Csw_Federated_Source";
     public static final String CSW_SPEC_FACTORY_PID = "Csw_Federated_Source";
+
+    static final List<String> CSW_FACTORY_PIDS = Arrays.asList(CSW_PROFILE_FACTORY_PID, CSW_GMD_FACTORY_PID, CSW_SPEC_FACTORY_PID);
+
     public static final String CSW_URL = "cswUrl";
     public static final String EVENT_SERVICE_ADDRESS = "eventServiceAddress";
     public static final String OUTPUT_SCHEMA = "outputSchema";
@@ -108,7 +112,7 @@ public class CswSourceConfiguration extends SourceConfiguration {
                 if (factoryPid() == null) {
                     errors.add(createMissingRequiredFieldMsg(FACTORY_PID));
                 }
-                if (!(factoryPid().equals(CSW_PROFILE_FACTORY_PID) || factoryPid().equals(CSW_GMD_FACTORY_PID) || factoryPid().equals(CSW_SPEC_FACTORY_PID))) {
+                if (!CSW_FACTORY_PIDS.contains(factoryPid())) {
                     errors.add(createInvalidFieldMsg("Configuration factory PID does not belong to a CSW Source factory.", FACTORY_PID));
                 }
                 break;

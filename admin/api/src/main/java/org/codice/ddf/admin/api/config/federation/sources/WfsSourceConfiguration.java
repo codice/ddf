@@ -17,6 +17,7 @@ package org.codice.ddf.admin.api.config.federation.sources;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ public class WfsSourceConfiguration extends SourceConfiguration {
     public static final String WFS_SOURCE_DISPLAY_NAME = "WFS Source";
     public static final String WFS1_FACTORY_PID = "Wfs_v1_0_0_Federated_Source";
     public static final String WFS2_FACTORY_PID = "Wfs_v2_0_0_Federated_Source";
+    static final List<String> WFS_FACTORY_PIDS = Arrays.asList(WFS1_FACTORY_PID, WFS2_FACTORY_PID);
     // ----
 
     //TODO: Needs WFS specific properties
@@ -73,7 +75,7 @@ public class WfsSourceConfiguration extends SourceConfiguration {
                 if (factoryPid() == null) {
                     errors.add(createMissingRequiredFieldMsg(FACTORY_PID));
                 }
-                if (!(factoryPid().equals(WFS1_FACTORY_PID) || factoryPid().equals(WFS2_FACTORY_PID))) {
+                if (!WFS_FACTORY_PIDS.contains(factoryPid())) {
                     errors.add(createInvalidFieldMsg("Unknown factory PID type.", FACTORY_PID));
                 }
                 break;
