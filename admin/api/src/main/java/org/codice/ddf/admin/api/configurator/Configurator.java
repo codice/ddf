@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.admin.api.persist;
+package org.codice.ddf.admin.api.configurator;
 
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
@@ -27,11 +27,11 @@ import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.codice.ddf.admin.api.persist.handlers.AdminConfigHandler;
-import org.codice.ddf.admin.api.persist.handlers.BundleConfigHandler;
-import org.codice.ddf.admin.api.persist.handlers.FeatureConfigHandler;
-import org.codice.ddf.admin.api.persist.handlers.ManagedServiceHandler;
-import org.codice.ddf.admin.api.persist.handlers.PropertyConfigHandler;
+import org.codice.ddf.admin.api.configurator.operations.AdminOperation;
+import org.codice.ddf.admin.api.configurator.operations.BundleOperation;
+import org.codice.ddf.admin.api.configurator.operations.FeatureOperation;
+import org.codice.ddf.admin.api.configurator.operations.ManagedServiceOperation;
+import org.codice.ddf.admin.api.configurator.operations.PropertyOperation;
 import org.codice.ddf.ui.admin.api.ConfigurationAdmin;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.osgi.framework.Bundle;
@@ -44,10 +44,10 @@ import org.slf4j.LoggerFactory;
 /**
  * Transactional orchestrator for persisting configuration changes.
  * <p>
- * Sequentially processes {@link ConfigHandler}s, committing their changes. If a failure occurs
+ * Sequentially processes {@link Operation}s, committing their changes. If a failure occurs
  * during the processing, a rollback is attempted of those handlers that had already been committed.
  * When the {@link #commit()} operation completes - either successfully, with a successful rollback,
- * or with a failure to rollback - it returns a {@link ConfigReport} of the outcome. In the case of
+ * or with a failure to rollback - it returns a {@link OperationReport} of the outcome. In the case of
  * rollback failures, callers of this class should inform users of those failures so they may manually
  * intercede.
  * <p>
@@ -56,33 +56,33 @@ import org.slf4j.LoggerFactory;
  * <p>
  * To use this class, first instantiate then invoke the various methods for feature, bundle, config,
  * etc. updates in the order they should be applied. When all have been completed, call the
- * {@link #commit()} method to write the changes to the system. The resulting {@link ConfigReport}
+ * {@link #commit()} method to write the changes to the system. The resulting {@link OperationReport}
  * will have the outcome.
  */
 public class Configurator {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configurator.class);
 
-    private final Map<String, ConfigHandler> configHandlers = new LinkedHashMap<>();
+    private final Map<String, Operation> configHandlers = new LinkedHashMap<>();
 
     /**
-     * Sequentially invokes all the {@link ConfigHandler}s, committing their changes. If a failure
+     * Sequentially invokes all the {@link Operation}s, committing their changes. If a failure
      * occurs during the processing, a rollback is attempted of those handlers that had already been
      * committed.
      *
      * @return report of the commit status, whether successful, successfully rolled back, or partially
      * rolled back with errors
      */
-    public ConfigReport commit() {
-        ConfigReport configReport = new ConfigReport();
-        for (Map.Entry<String, ConfigHandler> row : configHandlers.entrySet()) {
+    public OperationReport commit() {
+        OperationReport configReport = new OperationReport();
+        for (Map.Entry<String, Operation> row : configHandlers.entrySet()) {
             try {
                 Object commitResult = row.getValue()
                         .commit();
                 if (commitResult instanceof String) {
                     configReport.putResult(row.getKey(),
-                            ConfigReport.Result.passManagedService((String) commitResult));
+                            OperationReport.Result.passManagedService((String) commitResult));
                 } else {
-                    configReport.putResult(row.getKey(), ConfigReport.Result.pass());
+                    configReport.putResult(row.getKey(), OperationReport.Result.pass());
                 }
             } catch (ConfiguratorException e) {
                 LOGGER.debug("Error committing configuration change", e);
@@ -102,10 +102,10 @@ public class Configurator {
      *
      * @param bundleSymName the symbolic name of the bundle
      * @return a lookup key that can be used to correlate this operation in the
-     * final {@link ConfigReport}
+     * final {@link OperationReport}
      */
     public String startBundle(String bundleSymName) {
-        return registerHandler(BundleConfigHandler.forStart(bundleSymName, getBundleContext()));
+        return registerHandler(BundleOperation.forStart(bundleSymName, getBundleContext()));
     }
 
     /**
@@ -113,10 +113,10 @@ public class Configurator {
      *
      * @param bundleSymName the symbolic name of the bundle
      * @return a lookup key that can be used to correlate this operation in the
-     * final {@link ConfigReport}
+     * final {@link OperationReport}
      */
     public String stopBundle(String bundleSymName) {
-        return registerHandler(BundleConfigHandler.forStop(bundleSymName, getBundleContext()));
+        return registerHandler(BundleOperation.forStop(bundleSymName, getBundleContext()));
     }
 
     /**
@@ -127,7 +127,7 @@ public class Configurator {
      */
     public boolean isBundleStarted(String bundleSymName) {
         try {
-            return BundleConfigHandler.forStart(bundleSymName, getBundleContext())
+            return BundleOperation.forStart(bundleSymName, getBundleContext())
                     .readState();
         } catch (ConfiguratorException e) {
             return false;
@@ -139,10 +139,10 @@ public class Configurator {
      *
      * @param featureName the name of the feature
      * @return a lookup key that can be used to correlate this operation in the
-     * final {@link ConfigReport}
+     * final {@link OperationReport}
      */
     public String startFeature(String featureName) {
-        return registerHandler(FeatureConfigHandler.forStart(featureName, getBundleContext()));
+        return registerHandler(FeatureOperation.forStart(featureName, getBundleContext()));
     }
 
     /**
@@ -150,10 +150,10 @@ public class Configurator {
      *
      * @param featureName the name of the feature
      * @return a lookup key that can be used to correlate this operation in the
-     * final {@link ConfigReport}
+     * final {@link OperationReport}
      */
     public String stopFeature(String featureName) {
-        return registerHandler(FeatureConfigHandler.forStop(featureName, getBundleContext()));
+        return registerHandler(FeatureOperation.forStop(featureName, getBundleContext()));
     }
 
     /**
@@ -163,7 +163,7 @@ public class Configurator {
      * @return true if started; else, false
      */
     public boolean isFeatureStarted(String featureName) {
-        return FeatureConfigHandler.forStart(featureName, getBundleContext())
+        return FeatureOperation.forStart(featureName, getBundleContext())
                 .readState();
     }
 
@@ -173,10 +173,10 @@ public class Configurator {
      * @param propFile   the property file to create
      * @param properties the set of key:value pairs to save to the property file
      * @return a lookup key that can be used to correlate this operation in the
-     * final {@link ConfigReport}
+     * final {@link OperationReport}
      */
     public String createPropertyFile(Path propFile, Map<String, String> properties) {
-        return registerHandler(PropertyConfigHandler.forCreate(propFile, properties));
+        return registerHandler(PropertyOperation.forCreate(propFile, properties));
     }
 
     /**
@@ -184,10 +184,10 @@ public class Configurator {
      *
      * @param propFile the property file to delete
      * @return a lookup key that can be used to correlate this operation in the
-     * final {@link ConfigReport}
+     * final {@link OperationReport}
      */
     public String deletePropertyFile(Path propFile) {
-        return registerHandler(PropertyConfigHandler.forDelete(propFile));
+        return registerHandler(PropertyOperation.forDelete(propFile));
     }
 
     /**
@@ -200,11 +200,11 @@ public class Configurator {
      *                    false, then the only properties that will be in the updated file are those
      *                    provided by the {@code properties} param
      * @return a lookup key that can be used to correlate this operation in the
-     * final {@link ConfigReport}
+     * final {@link OperationReport}
      */
     public String updatePropertyFile(Path propFile, Map<String, String> properties,
             boolean keepIgnored) {
-        return registerHandler(PropertyConfigHandler.forUpdate(propFile, properties, keepIgnored));
+        return registerHandler(PropertyOperation.forUpdate(propFile, properties, keepIgnored));
     }
 
     /**
@@ -214,7 +214,7 @@ public class Configurator {
      * @return the current set of key:value pairs
      */
     public Properties getProperties(Path propFile) {
-        return PropertyConfigHandler.forUpdate(propFile, Collections.emptyMap(), true)
+        return PropertyOperation.forUpdate(propFile, Collections.emptyMap(), true)
                 .readState();
     }
 
@@ -228,11 +228,11 @@ public class Configurator {
      *                    false, then the only config entires that will be in the updated file are those
      *                    provided by the {@code properties} param
      * @return a lookup key that can be used to correlate this operation in the
-     * final {@link ConfigReport}
+     * final {@link OperationReport}
      */
     public String updateConfigFile(String configPid, Map<String, Object> configs,
             boolean keepIgnored) {
-        return registerHandler(AdminConfigHandler.instance(configPid,
+        return registerHandler(AdminOperation.instance(configPid,
                 configs,
                 keepIgnored,
                 getConfigAdminMBean()));
@@ -245,7 +245,7 @@ public class Configurator {
      * @return the current set of key:value pairs
      */
     public Map<String, Object> getConfig(String configPid) {
-        return AdminConfigHandler.instance(configPid,
+        return AdminOperation.instance(configPid,
                 Collections.emptyMap(),
                 true,
                 getConfigAdminMBean())
@@ -258,10 +258,10 @@ public class Configurator {
      * @param factoryPid the factoryPid of the service to create
      * @param configs    the set of key:value pairs to save in the new managed service's configuration
      * @return a lookup key that can be used to correlate this operation in the
-     * final {@link ConfigReport}
+     * final {@link OperationReport}
      */
     public String createManagedService(String factoryPid, Map<String, Object> configs) {
-        return registerHandler(ManagedServiceHandler.forCreate(factoryPid,
+        return registerHandler(ManagedServiceOperation.forCreate(factoryPid,
                 configs,
                 getConfigAdmin(),
                 getConfigAdminMBean()));
@@ -272,16 +272,16 @@ public class Configurator {
      *
      * @param configPid the configPid of the instance of the service to delete
      * @return a lookup key that can be used to correlate this operation in the
-     * final {@link ConfigReport}
+     * final {@link OperationReport}
      */
     public String deleteManagedService(String configPid) {
-        return registerHandler(ManagedServiceHandler.forDelete(configPid,
+        return registerHandler(ManagedServiceOperation.forDelete(configPid,
                 getConfigAdmin(),
                 getConfigAdminMBean()));
     }
 
     public Map<String, Map<String, Object>> getManagedServiceConfigs(String factoryPid) {
-        return ManagedServiceHandler.forCreate(factoryPid,
+        return ManagedServiceOperation.forCreate(factoryPid,
                 Collections.emptyMap(),
                 getConfigAdmin(),
                 getConfigAdminMBean())
@@ -306,21 +306,21 @@ public class Configurator {
         return context.getService(ref);
     }
 
-    private String registerHandler(ConfigHandler handler) {
+    private String registerHandler(Operation handler) {
         String key = UUID.randomUUID()
                 .toString();
         configHandlers.put(key, handler);
         return key;
     }
 
-    private void rollback(String failedStep, ConfigReport configReport,
+    private void rollback(String failedStep, OperationReport configReport,
             ConfiguratorException exception) {
-        configReport.putResult(failedStep, ConfigReport.Result.fail(exception));
+        configReport.putResult(failedStep, OperationReport.Result.fail(exception));
 
-        Deque<Map.Entry<String, ConfigHandler>> undoStack = new ArrayDeque<>();
+        Deque<Map.Entry<String, Operation>> undoStack = new ArrayDeque<>();
         boolean skipRest = false;
 
-        for (Map.Entry<String, ConfigHandler> row : configHandlers.entrySet()) {
+        for (Map.Entry<String, Operation> row : configHandlers.entrySet()) {
             if (failedStep.equals(row.getKey())) {
                 skipRest = true;
             }
@@ -328,24 +328,24 @@ public class Configurator {
             if (!skipRest) {
                 undoStack.push(row);
             } else if (!failedStep.equals(row.getKey())) {
-                configReport.putResult(row.getKey(), ConfigReport.Result.skip());
+                configReport.putResult(row.getKey(), OperationReport.Result.skip());
             }
         }
 
-        for (Map.Entry<String, ConfigHandler> row : undoStack) {
+        for (Map.Entry<String, Operation> row : undoStack) {
             try {
                 row.getValue()
                         .rollback();
 
-                configReport.putResult(row.getKey(), ConfigReport.Result.rollback());
+                configReport.putResult(row.getKey(), OperationReport.Result.rollback());
             } catch (ConfiguratorException e) {
                 String configId = configReport.getResult(row.getKey())
                         .getConfigId();
                 if (configId == null) {
-                    configReport.putResult(row.getKey(), ConfigReport.Result.rollbackFail(e));
+                    configReport.putResult(row.getKey(), OperationReport.Result.rollbackFail(e));
                 } else {
                     configReport.putResult(row.getKey(),
-                            ConfigReport.Result.rollbackFailManagedService(e, configId));
+                            OperationReport.Result.rollbackFailManagedService(e, configId));
                 }
             }
         }

@@ -1,6 +1,6 @@
 package org.codice.ddf.admin.api
 
-import org.codice.ddf.admin.api.persist.handlers.ManagedServiceHandler
+import org.codice.ddf.admin.api.configurator.operations.ManagedServiceOperation
 import org.codice.ddf.ui.admin.api.ConfigurationAdmin
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean
 import spock.lang.Specification
@@ -17,7 +17,7 @@ class ManagedServiceHandlerTest extends Specification {
     def 'test create managed service and rollback'() {
         def configs = [k1: 'v1', k2: 'v2']
         setup:
-        def handler = ManagedServiceHandler.forCreate('xxx', configs, configAdmin, cfgAdmMbean)
+        def handler = ManagedServiceOperation.forCreate('xxx', configs, configAdmin, cfgAdmMbean)
 
         when:
         def key = handler.commit()
@@ -39,7 +39,7 @@ class ManagedServiceHandlerTest extends Specification {
         def configs = [k1: 'v1', k2: 'v2']
         cfgAdmMbean.getFactoryPid('xxx') >> 'factoryPid'
         cfgAdmMbean.getProperties('xxx') >> configs
-        def handler = ManagedServiceHandler.forDelete('xxx', configAdmin, cfgAdmMbean)
+        def handler = ManagedServiceOperation.forDelete('xxx', configAdmin, cfgAdmMbean)
 
         when:
         handler.commit()

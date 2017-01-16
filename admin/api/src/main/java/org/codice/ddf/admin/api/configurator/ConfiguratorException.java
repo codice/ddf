@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.admin.api.persist;
+package org.codice.ddf.admin.api.configurator;
 
 public class ConfiguratorException extends RuntimeException {
     public ConfiguratorException(String message) {

@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.admin.api.persist;
+package org.codice.ddf.admin.api.configurator;
 
 import java.lang.management.ManagementFactory;
 
@@ -29,8 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // TODO: tbatie - 1/16/17 - Rename to operation and rename all implementations
-public interface ConfigHandler<T, S> {
-    Logger LOGGER = LoggerFactory.getLogger(ConfigHandler.class);
+public interface Operation<T, S> {
+    Logger LOGGER = LoggerFactory.getLogger(Operation.class);
 
     T commit() throws ConfiguratorException;
 

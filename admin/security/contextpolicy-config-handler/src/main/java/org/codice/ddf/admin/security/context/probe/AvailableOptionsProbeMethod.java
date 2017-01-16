@@ -32,7 +32,7 @@ import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 

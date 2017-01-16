@@ -3,7 +3,7 @@ package org.codice.ddf.admin.api
 import org.apache.karaf.features.Feature
 import org.apache.karaf.features.FeatureState
 import org.apache.karaf.features.FeaturesService
-import org.codice.ddf.admin.api.persist.handlers.FeatureConfigHandler
+import org.codice.ddf.admin.api.configurator.operations.FeatureOperation
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
 import spock.lang.Specification
@@ -33,7 +33,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test start feature that was stopped and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >>> [FeatureState.Installed, FeatureState.Started]
-        def handler = FeatureConfigHandler.forStart('xxx', bundleContext)
+        def handler = FeatureOperation.forStart('xxx', bundleContext)
 
         when:
         handler.commit()
@@ -51,7 +51,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test stop feature that was started and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >>> [FeatureState.Started, FeatureState.Installed]
-        def handler = FeatureConfigHandler.forStop('xxx', bundleContext)
+        def handler = FeatureOperation.forStop('xxx', bundleContext)
 
         when:
         handler.commit()
@@ -69,7 +69,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test start feature that was already started and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >> FeatureState.Started
-        def handler = FeatureConfigHandler.forStart('xxx', bundleContext)
+        def handler = FeatureOperation.forStart('xxx', bundleContext)
 
         when:
         handler.commit()
@@ -89,7 +89,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test stop feature that was already stopped and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >> FeatureState.Installed
-        def handler = FeatureConfigHandler.forStop('xxx', bundleContext)
+        def handler = FeatureOperation.forStop('xxx', bundleContext)
 
         when:
         handler.commit()

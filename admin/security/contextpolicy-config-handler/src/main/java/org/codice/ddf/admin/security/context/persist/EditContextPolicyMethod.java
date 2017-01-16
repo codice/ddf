@@ -32,8 +32,8 @@ import org.codice.ddf.admin.api.config.security.context.ContextPolicyBin;
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.persist.ConfigReport;
-import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.api.configurator.OperationReport;
+import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -72,7 +72,7 @@ public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfigur
         configurator.updateConfigFile("org.codice.ddf.security.policy.context.impl.PolicyManager",
                 configToPolicyManagerSettings(config),
                 true);
-        ConfigReport configReport = configurator.commit();
+        OperationReport configReport = configurator.commit();
 
         if (!configReport.getFailedResults()
                 .isEmpty()) {

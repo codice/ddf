@@ -32,7 +32,7 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.sources.wfs.persist.CreateWfsSourcePersistMethod;
 import org.codice.ddf.admin.sources.wfs.persist.DeleteWfsSourcePersistMethod;
 import org.codice.ddf.admin.sources.wfs.probe.DiscoverWfsSourceProbeMethod;

@@ -13,12 +13,12 @@
  **/
 package org.codice.ddf.admin.api
 
-import org.codice.ddf.admin.api.persist.handlers.AdminConfigHandler
+import org.codice.ddf.admin.api.configurator.operations.AdminOperation
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean
-import org.codice.ddf.admin.api.persist.ConfiguratorException
+import org.codice.ddf.admin.api.configurator.ConfiguratorException
 import spock.lang.Specification
 
-class AdminConfigHandlerTest extends Specification {
+class AdminOperationTest extends Specification {
     def initProps
 
     def setup() {
@@ -32,7 +32,7 @@ class AdminConfigHandlerTest extends Specification {
         def newProps = [key1: 'newVal1', key4: 'val4', key5: 'val5']
 
         when:
-        def handler = AdminConfigHandler.instance('xxx', newProps, false, cfgMbean)
+        def handler = AdminOperation.instance('xxx', newProps, false, cfgMbean)
 
         then:
         thrown(ConfiguratorException)
@@ -45,7 +45,7 @@ class AdminConfigHandlerTest extends Specification {
         def combinedProps = initProps << newProps
 
         when:
-        def handler = AdminConfigHandler.instance('xxx', newProps, true, cfgMbean)
+        def handler = AdminOperation.instance('xxx', newProps, true, cfgMbean)
 
         then:
         1 * cfgMbean.getProperties('xxx') >> initProps
@@ -63,7 +63,7 @@ class AdminConfigHandlerTest extends Specification {
         def newProps = [key1: 'newVal1', key4: 'val4', key5: 'val5']
 
         when:
-        def handler = AdminConfigHandler.instance('xxx', newProps, false, cfgMbean)
+        def handler = AdminOperation.instance('xxx', newProps, false, cfgMbean)
 
         then:
         1 * cfgMbean.getProperties('xxx') >> initProps
@@ -81,7 +81,7 @@ class AdminConfigHandlerTest extends Specification {
         def newProps = [key1: 'newVal1', key4: 'val4', key5: 'val5']
 
         when:
-        def handler = AdminConfigHandler.instance('xxx', newProps, false, cfgMbean)
+        def handler = AdminOperation.instance('xxx', newProps, false, cfgMbean)
 
         then:
         1 * cfgMbean.getProperties('xxx') >> initProps

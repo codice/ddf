@@ -11,14 +11,14 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.admin.api.persist.handlers;
+package org.codice.ddf.admin.api.configurator.operations;
 
 import java.util.Arrays;
 
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
-import org.codice.ddf.admin.api.persist.ConfigHandler;
-import org.codice.ddf.admin.api.persist.ConfiguratorException;
+import org.codice.ddf.admin.api.configurator.Operation;
+import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Transactional handler for starting and stopping bundles.
  */
-public class BundleConfigHandler implements ConfigHandler<Void, Boolean> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BundleConfigHandler.class);
+public class BundleOperation implements Operation<Void, Boolean> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BundleOperation.class);
 
     private final boolean newState;
 
@@ -40,7 +40,7 @@ public class BundleConfigHandler implements ConfigHandler<Void, Boolean> {
 
     private final boolean initActivationState;
 
-    private BundleConfigHandler(String bundleSymName, boolean activate,
+    private BundleOperation(String bundleSymName, boolean activate,
             BundleContext bundleContext) {
         this.newState = activate;
         this.bundleContext = bundleContext;
@@ -62,8 +62,8 @@ public class BundleConfigHandler implements ConfigHandler<Void, Boolean> {
      * @param bundleContext context needed for OSGi interaction
      * @return instance of this class
      */
-    public static BundleConfigHandler forStart(String bundleSymName, BundleContext bundleContext) {
-        return new BundleConfigHandler(bundleSymName, true, bundleContext);
+    public static BundleOperation forStart(String bundleSymName, BundleContext bundleContext) {
+        return new BundleOperation(bundleSymName, true, bundleContext);
     }
 
     /**
@@ -73,8 +73,8 @@ public class BundleConfigHandler implements ConfigHandler<Void, Boolean> {
      * @param bundleContext context needed for OSGi interaction
      * @return instance of this class
      */
-    public static BundleConfigHandler forStop(String bundleSymName, BundleContext bundleContext) {
-        return new BundleConfigHandler(bundleSymName, false, bundleContext);
+    public static BundleOperation forStop(String bundleSymName, BundleContext bundleContext) {
+        return new BundleOperation(bundleSymName, false, bundleContext);
     }
 
     @Override

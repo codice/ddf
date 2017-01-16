@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.admin.api.persist.handlers;
+package org.codice.ddf.admin.api.configurator.operations;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 
 import javax.management.MalformedObjectNameException;
 
-import org.codice.ddf.admin.api.persist.ConfigHandler;
-import org.codice.ddf.admin.api.persist.ConfiguratorException;
+import org.codice.ddf.admin.api.configurator.Operation;
+import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Transactional handler for persisting bundle configuration file changes.
  */
-public class AdminConfigHandler implements ConfigHandler<Void, Map<String, Object>> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdminConfigHandler.class);
+public class AdminOperation implements Operation<Void, Map<String, Object>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdminOperation.class);
 
     private final String pid;
 
@@ -45,7 +45,7 @@ public class AdminConfigHandler implements ConfigHandler<Void, Map<String, Objec
 
     private Map<String, Object> currentProperties;
 
-    private AdminConfigHandler(String pid, Map<String, Object> configs, boolean keepIgnored,
+    private AdminOperation(String pid, Map<String, Object> configs, boolean keepIgnored,
             ConfigurationAdminMBean cfgAdmMbean) {
         this.pid = pid;
         this.configs = new HashMap<>(configs);
@@ -71,9 +71,9 @@ public class AdminConfigHandler implements ConfigHandler<Void, Map<String, Objec
      * @param configurationAdminMBean mbean used for updating configuration
      * @return instance of this class
      */
-    public static AdminConfigHandler instance(String pid, Map<String, Object> configs,
+    public static AdminOperation instance(String pid, Map<String, Object> configs,
             boolean keepIgnored, ConfigurationAdminMBean configurationAdminMBean) {
-        return new AdminConfigHandler(pid, configs, keepIgnored, configurationAdminMBean);
+        return new AdminOperation(pid, configs, keepIgnored, configurationAdminMBean);
     }
 
     @Override

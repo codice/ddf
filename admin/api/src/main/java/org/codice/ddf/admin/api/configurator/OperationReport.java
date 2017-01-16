@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.admin.api.persist;
+package org.codice.ddf.admin.api.configurator;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class ConfigReport {
+public class OperationReport {
     private final Map<String, Result> results = new LinkedHashMap<>();
 
     public boolean txactSucceeded() {

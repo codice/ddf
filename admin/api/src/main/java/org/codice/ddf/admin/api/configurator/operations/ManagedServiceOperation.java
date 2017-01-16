@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
 
-package org.codice.ddf.admin.api.persist.handlers;
+package org.codice.ddf.admin.api.configurator.operations;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -22,8 +22,8 @@ import java.util.Map;
 import javax.management.MalformedObjectNameException;
 import javax.validation.constraints.NotNull;
 
-import org.codice.ddf.admin.api.persist.ConfigHandler;
-import org.codice.ddf.admin.api.persist.ConfiguratorException;
+import org.codice.ddf.admin.api.configurator.Operation;
+import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 import org.codice.ddf.ui.admin.api.ConfigurationAdmin;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.slf4j.Logger;
@@ -32,12 +32,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Transactional handler factory for creating and deleting managed services.
  */
-public abstract class ManagedServiceHandler
-        implements ConfigHandler<String, Map<String, Map<String, Object>>> {
+public abstract class ManagedServiceOperation
+        implements Operation<String, Map<String, Map<String, Object>>> {
     /**
      * Transactional handler for deleting managed services.
      */
-    private static class DeleteHandler extends ManagedServiceHandler {
+    private static class DeleteHandler extends ManagedServiceOperation {
         private final String configPid;
 
         private Map<String, Object> currentProperties;
@@ -52,7 +52,7 @@ public abstract class ManagedServiceHandler
                 factoryPid = cfgAdmMbean.getFactoryPid(configPid);
                 currentProperties = cfgAdmMbean.getProperties(configPid);
             } catch (IOException e) {
-                ManagedServiceHandler.LOGGER.debug("Error getting current configuration for pid {}",
+                ManagedServiceOperation.LOGGER.debug("Error getting current configuration for pid {}",
                         configPid,
                         e);
                 throw new ConfiguratorException("Internal error");
@@ -74,7 +74,7 @@ public abstract class ManagedServiceHandler
     /**
      * Transactional handler for creating managed services.
      */
-    private static class CreateHandler extends ManagedServiceHandler {
+    private static class CreateHandler extends ManagedServiceOperation {
         private final Map<String, Object> configs;
 
         private String newConfigPid;
@@ -100,7 +100,7 @@ public abstract class ManagedServiceHandler
         }
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManagedServiceHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagedServiceOperation.class);
 
     protected String factoryPid;
 
@@ -108,7 +108,7 @@ public abstract class ManagedServiceHandler
 
     protected final ConfigurationAdminMBean cfgAdmMbean;
 
-    private ManagedServiceHandler(ConfigurationAdmin configAdmin,
+    private ManagedServiceOperation(ConfigurationAdmin configAdmin,
             ConfigurationAdminMBean cfgAdmMbean) {
         this.configAdmin = configAdmin;
         this.cfgAdmMbean = cfgAdmMbean;
@@ -123,7 +123,7 @@ public abstract class ManagedServiceHandler
      * @param cfgAdmMbean mbean needed for saving configuration data
      * @return
      */
-    public static ManagedServiceHandler forCreate(String factoryPid,
+    public static ManagedServiceOperation forCreate(String factoryPid,
             @NotNull Map<String, Object> configs, ConfigurationAdmin configAdmin,
             ConfigurationAdminMBean cfgAdmMbean) {
         return new CreateHandler(factoryPid, configs, configAdmin, cfgAdmMbean);
@@ -137,7 +137,7 @@ public abstract class ManagedServiceHandler
      * @param cfgAdmMbean mbean needed for saving configuration data
      * @return
      */
-    public static ManagedServiceHandler forDelete(String pid, ConfigurationAdmin configAdmin,
+    public static ManagedServiceOperation forDelete(String pid, ConfigurationAdmin configAdmin,
             ConfigurationAdminMBean cfgAdmMbean) {
         return new DeleteHandler(pid, configAdmin, cfgAdmMbean);
     }

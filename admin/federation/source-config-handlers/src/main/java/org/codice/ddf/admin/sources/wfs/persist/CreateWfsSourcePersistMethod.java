@@ -32,8 +32,8 @@ import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.persist.ConfigReport;
-import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.api.configurator.OperationReport;
+import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -72,7 +72,7 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
             return new Report(results);
         }
         Configurator configurator = new Configurator();
-        ConfigReport report;
+        OperationReport report;
         configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
         report = configurator.commit();
         return report.containsFailedResults() ?

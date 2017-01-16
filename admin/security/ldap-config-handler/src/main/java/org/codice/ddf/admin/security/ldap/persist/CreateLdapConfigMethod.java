@@ -51,8 +51,8 @@ import java.util.UUID;
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.persist.ConfigReport;
-import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.api.configurator.OperationReport;
+import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -95,7 +95,7 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
 
     @Override
     public Report persist(LdapConfiguration config) {
-        ConfigReport report;
+        OperationReport report;
         Configurator configurator = new Configurator();
         if (config.ldapUseCase()
                 .equals(LOGIN) || config.ldapUseCase()

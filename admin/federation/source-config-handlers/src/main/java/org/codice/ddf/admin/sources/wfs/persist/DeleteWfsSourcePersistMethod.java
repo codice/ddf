@@ -28,8 +28,8 @@ import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.persist.ConfigReport;
-import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.api.configurator.OperationReport;
+import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -67,7 +67,7 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
             return new Report(results);
         }
         Configurator configurator = new Configurator();
-        ConfigReport report;
+        OperationReport report;
         // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
         configurator.deleteManagedService(configuration.servicePid());
         report = configurator.commit();

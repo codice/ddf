@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.admin.api.persist.handlers;
+package org.codice.ddf.admin.api.configurator.operations;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,17 +23,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.codice.ddf.admin.api.persist.ConfigHandler;
-import org.codice.ddf.admin.api.persist.ConfiguratorException;
+import org.codice.ddf.admin.api.configurator.Operation;
+import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 
 /**
  * Transactional handler for persisting property file changes.
  */
-public abstract class PropertyConfigHandler implements ConfigHandler<Void, Properties> {
+public abstract class PropertyOperation implements Operation<Void, Properties> {
     /**
      * Transactional handler for creating property files
      */
-    private static class CreateHandler extends PropertyConfigHandler {
+    private static class CreateHandler extends PropertyOperation {
         private CreateHandler(Path configFile, Map<String, String> configs) {
             super(configFile, configs, false);
         }
@@ -61,7 +61,7 @@ public abstract class PropertyConfigHandler implements ConfigHandler<Void, Prope
     /**
      * Transactional handler for deleting property files
      */
-    private static class DeleteHandler extends PropertyConfigHandler {
+    private static class DeleteHandler extends PropertyOperation {
         private DeleteHandler(Path configFile) {
             super(configFile, Collections.emptyMap(), true);
         }
@@ -80,7 +80,7 @@ public abstract class PropertyConfigHandler implements ConfigHandler<Void, Prope
     /**
      * Transactional handler for updating property files
      */
-    private static class UpdateHandler extends PropertyConfigHandler {
+    private static class UpdateHandler extends PropertyOperation {
         private final boolean keepIgnored;
 
         UpdateHandler(Path configFile, Map<String, String> configs, boolean keepIgnored) {
@@ -109,7 +109,7 @@ public abstract class PropertyConfigHandler implements ConfigHandler<Void, Prope
 
     protected final Properties currentProperties;
 
-    private PropertyConfigHandler(Path configFile, Map<String, String> configs,
+    private PropertyOperation(Path configFile, Map<String, String> configs,
             boolean loadCurrentProps) {
         this.configFile = configFile.toFile();
         this.configs = new HashMap<>(configs);
@@ -143,8 +143,8 @@ public abstract class PropertyConfigHandler implements ConfigHandler<Void, Prope
      * @param configs    map of key:value pairs to be written to the property file
      * @return instance of this class
      */
-    public static PropertyConfigHandler forCreate(Path configFile, Map<String, String> configs) {
-        return new PropertyConfigHandler.CreateHandler(configFile, configs);
+    public static PropertyOperation forCreate(Path configFile, Map<String, String> configs) {
+        return new PropertyOperation.CreateHandler(configFile, configs);
     }
 
     /**
@@ -153,8 +153,8 @@ public abstract class PropertyConfigHandler implements ConfigHandler<Void, Prope
      * @param configFile the property file to be deleted
      * @return instance of this class
      */
-    public static ConfigHandler forDelete(Path configFile) {
-        return new PropertyConfigHandler.DeleteHandler(configFile);
+    public static Operation forDelete(Path configFile) {
+        return new PropertyOperation.DeleteHandler(configFile);
     }
 
     /**
@@ -167,9 +167,9 @@ public abstract class PropertyConfigHandler implements ConfigHandler<Void, Prope
      *                    will be removed from the file
      * @return instance of this class
      */
-    public static PropertyConfigHandler forUpdate(Path configFile, Map<String, String> configs,
+    public static PropertyOperation forUpdate(Path configFile, Map<String, String> configs,
             boolean keepIgnored) {
-        return new PropertyConfigHandler.UpdateHandler(configFile, configs, keepIgnored);
+        return new PropertyOperation.UpdateHandler(configFile, configs, keepIgnored);
     }
 
     @Override

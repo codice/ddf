@@ -13,8 +13,8 @@
  **/
 package org.codice.ddf.admin.api
 
-import org.codice.ddf.admin.api.persist.ConfiguratorException
-import org.codice.ddf.admin.api.persist.handlers.PropertyConfigHandler
+import org.codice.ddf.admin.api.configurator.ConfiguratorException
+import org.codice.ddf.admin.api.configurator.operations.PropertyOperation
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Shared
@@ -48,7 +48,7 @@ class PropertyConfigHandlerTest extends Specification {
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
         def newFile = new File(workFolder, "doesnotexistyet.properties")
         def props = new Properties()
-        def handler = PropertyConfigHandler.forCreate(newFile.toPath(), configs)
+        def handler = PropertyOperation.forCreate(newFile.toPath(), configs)
 
         when:
         handler.commit()
@@ -66,7 +66,7 @@ class PropertyConfigHandlerTest extends Specification {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
         def newFile = new File(workFolder, "doesnotexistyet.properties")
-        def handler = PropertyConfigHandler.forCreate(newFile.toPath(), configs)
+        def handler = PropertyOperation.forCreate(newFile.toPath(), configs)
 
         when:
         handler.commit()
@@ -78,7 +78,7 @@ class PropertyConfigHandlerTest extends Specification {
 
     def 'test delete and rollback'() {
         setup:
-        def handler = PropertyConfigHandler.forDelete(file.toPath())
+        def handler = PropertyOperation.forDelete(file.toPath())
         def props = new Properties()
 
         when:
@@ -106,7 +106,7 @@ class PropertyConfigHandlerTest extends Specification {
         def badFile = new File(workFolder, "doesnotexist")
 
         when:
-        def handler = PropertyConfigHandler.forUpdate(badFile.toPath(), configs, true)
+        def handler = PropertyOperation.forUpdate(badFile.toPath(), configs, true)
 
         then:
         thrown(ConfiguratorException)
@@ -115,7 +115,7 @@ class PropertyConfigHandlerTest extends Specification {
     def 'test write new properties and keep old properties'() {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
-        def handler = PropertyConfigHandler.forUpdate(file.toPath(), configs, true)
+        def handler = PropertyOperation.forUpdate(file.toPath(), configs, true)
         def props = new Properties()
 
         when:
@@ -135,7 +135,7 @@ class PropertyConfigHandlerTest extends Specification {
     def 'test write new properties and remove old properties'() {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
-        def handler = PropertyConfigHandler.forUpdate(file.toPath(), configs, false)
+        def handler = PropertyOperation.forUpdate(file.toPath(), configs, false)
         def props = new Properties()
 
         when:
@@ -153,7 +153,7 @@ class PropertyConfigHandlerTest extends Specification {
     def 'test rollback'() {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
-        def handler = PropertyConfigHandler.forUpdate(file.toPath(), configs, false)
+        def handler = PropertyOperation.forUpdate(file.toPath(), configs, false)
         def props = new Properties()
 
         when:

@@ -28,8 +28,8 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.persist.ConfigReport;
-import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.api.configurator.OperationReport;
+import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -64,7 +64,7 @@ public class DeleteLdapConfigMethod extends PersistMethod<LdapConfiguration> {
 
         Configurator configurator = new Configurator();
         configurator.deleteManagedService(config.servicePid());
-        ConfigReport report = configurator.commit();
+        OperationReport report = configurator.commit();
         if (!report.getFailedResults()
                 .isEmpty()) {
             return new Report(buildMessage(FAILURE,

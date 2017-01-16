@@ -36,7 +36,7 @@ import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.persist.Configurator;
+import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.security.ldap.ServerGuesser;
 import org.codice.ddf.admin.security.ldap.test.LdapTestingCommons;
 import org.forgerock.opendj.ldap.LdapException;

@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.admin.api.persist.handlers;
+package org.codice.ddf.admin.api.configurator.operations;
 
 import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles;
 
@@ -20,8 +20,8 @@ import java.util.EnumSet;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
-import org.codice.ddf.admin.api.persist.ConfigHandler;
-import org.codice.ddf.admin.api.persist.ConfiguratorException;
+import org.codice.ddf.admin.api.configurator.Operation;
+import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Transactional handler for starting and stopping features.
  */
-public class FeatureConfigHandler implements ConfigHandler<Void, Boolean> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureConfigHandler.class);
+public class FeatureOperation implements Operation<Void, Boolean> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureOperation.class);
 
     private final String featureName;
 
@@ -41,7 +41,7 @@ public class FeatureConfigHandler implements ConfigHandler<Void, Boolean> {
 
     private final boolean initActivationState;
 
-    private FeatureConfigHandler(String featureName, boolean newState,
+    private FeatureOperation(String featureName, boolean newState,
             BundleContext bundleContext) {
         this.featureName = featureName;
         this.newState = newState;
@@ -57,8 +57,8 @@ public class FeatureConfigHandler implements ConfigHandler<Void, Boolean> {
      * @param bundleContext context needed for OSGi interaction
      * @return instance of this class
      */
-    public static FeatureConfigHandler forStart(String featureName, BundleContext bundleContext) {
-        return new FeatureConfigHandler(featureName, true, bundleContext);
+    public static FeatureOperation forStart(String featureName, BundleContext bundleContext) {
+        return new FeatureOperation(featureName, true, bundleContext);
     }
 
     /**
@@ -68,8 +68,8 @@ public class FeatureConfigHandler implements ConfigHandler<Void, Boolean> {
      * @param bundleContext context needed for OSGi interaction
      * @return instance of this class
      */
-    public static FeatureConfigHandler forStop(String featureName, BundleContext bundleContext) {
-        return new FeatureConfigHandler(featureName, false, bundleContext);
+    public static FeatureOperation forStop(String featureName, BundleContext bundleContext) {
+        return new FeatureOperation(featureName, false, bundleContext);
     }
 
     @Override

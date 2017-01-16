@@ -2,8 +2,8 @@ package org.codice.ddf.admin.api
 
 import org.apache.karaf.bundle.core.BundleState
 import org.apache.karaf.bundle.core.BundleStateService
-import org.codice.ddf.admin.api.persist.ConfiguratorException
-import org.codice.ddf.admin.api.persist.handlers.BundleConfigHandler
+import org.codice.ddf.admin.api.configurator.ConfiguratorException
+import org.codice.ddf.admin.api.configurator.operations.BundleOperation
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
@@ -31,7 +31,7 @@ class BundleConfigHandlerTest extends Specification {
 
     def 'test start bundle that does not exist'() {
         when:
-        BundleConfigHandler.forStart('doesnotexist', bundleContext)
+        BundleOperation.forStart('doesnotexist', bundleContext)
 
         then:
         thrown(ConfiguratorException)
@@ -40,7 +40,7 @@ class BundleConfigHandlerTest extends Specification {
     def 'test start bundle that was stopped and rollback'() {
         setup:
         bundleStateService.getState(bundle) >>> [BundleState.Installed, BundleState.Active]
-        def handler = BundleConfigHandler.forStart('xxx', bundleContext)
+        def handler = BundleOperation.forStart('xxx', bundleContext)
 
         when:
         handler.commit()
@@ -58,7 +58,7 @@ class BundleConfigHandlerTest extends Specification {
     def 'test stop bundle that was started and rollback'() {
         setup:
         bundleStateService.getState(bundle) >>> [BundleState.Active, BundleState.Installed]
-        def handler = BundleConfigHandler.forStop('xxx', bundleContext)
+        def handler = BundleOperation.forStop('xxx', bundleContext)
 
         when:
         handler.commit()
@@ -76,7 +76,7 @@ class BundleConfigHandlerTest extends Specification {
     def 'test start bundle that was already started and rollback'() {
         setup:
         bundleStateService.getState(bundle) >> BundleState.Active
-        def handler = BundleConfigHandler.forStart('xxx', bundleContext)
+        def handler = BundleOperation.forStart('xxx', bundleContext)
 
         when:
         handler.commit()
@@ -96,7 +96,7 @@ class BundleConfigHandlerTest extends Specification {
     def 'test stop bundle that was already stopped and rollback'() {
         setup:
         bundleStateService.getState(bundle) >> BundleState.Installed
-        def handler = BundleConfigHandler.forStop('xxx', bundleContext)
+        def handler = BundleOperation.forStop('xxx', bundleContext)
 
         when:
         handler.commit()
