@@ -24,26 +24,25 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class ValidUrlTestMethod extends TestMethod<SourceConfiguration> {
 
     private static final String DESCRIPTION = "Attempts to connect to a given hostname and port";
 
-    private static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(HOSTNAME,
-            "The hostname to attempt to connect to.",
-            PORT,
-            "The port to use to connect.");
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(HOSTNAME, PORT);
 
     private static final String VERIFIED_URL = "verified-url";
 
-    private static final String CANNOT_CONNECT = "cannotConnect";
+    private static final String CANNOT_CONNECT = "cannot-connect";
 
     private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(VERIFIED_URL,
             "Connected to hostname and port.");

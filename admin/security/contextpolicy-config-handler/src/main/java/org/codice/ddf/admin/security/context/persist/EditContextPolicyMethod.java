@@ -17,7 +17,6 @@ package org.codice.ddf.admin.security.context.persist;
 import static org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration.ALL_FIELDS;
 import static org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration.CONTEXT_POLICY_BINS;
 import static org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration.WHITE_LIST_CONTEXTS;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration.buildFieldMap;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
@@ -36,6 +35,7 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfiguration>{
@@ -45,7 +45,7 @@ public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfigur
     public static final String DESCRIPTION =
             "Persist changes to the Web Context Policy manager.";
 
-    public static final Map<String, String> REQUIRED_FIELDS = buildFieldMap(CONTEXT_POLICY_BINS,
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(CONTEXT_POLICY_BINS,
             WHITE_LIST_CONTEXTS);
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "Successfully saved Web Context Policy Manager settings");

@@ -23,7 +23,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.sources.csw.CswSourceConfigurationHandler.CSW_SOURCE_CONFIGURATION_HANDLER_ID;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +34,7 @@ import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.sources.csw.CswSourceCreationException;
 import org.codice.ddf.admin.sources.csw.CswSourceUtils;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfiguration> {
@@ -43,20 +43,14 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
     public static final String DESCRIPTION =
             "Attempts to discover a CSW endpoint based on a hostname and port using optional authentication information.";
 
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(HOSTNAME,
-            "The hostname to query for CSW capabilities.",
-            PORT,
-            "The port to connect over when searching for CSW capabilities.");
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(HOSTNAME, PORT);
 
-    public static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(USERNAME,
-            "A username to use for basic auth connections when searching for CSW capabilities.",
-            PASSWORD,
-            "A password to use for basic auth connections when searching for CSW capabilities.");
+    public static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
 
-    private static final String ENDPOINT_DISCOVERED = "endpointDiscovered";
-    private static final String CERT_ERROR = "certError";
-    private static final String NO_ENDPOINT = "noEndpoint";
-    private static final String BAD_CONFIG = "badConfig";
+    private static final String ENDPOINT_DISCOVERED = "endpoint-discovered";
+    private static final String CERT_ERROR = "cert-error";
+    private static final String NO_ENDPOINT = "no-endpoint";
+    private static final String BAD_CONFIG = "bad-config";
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED,
             "Discovered CSW endpoint.");
@@ -81,7 +75,7 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
 
     @Override
     public ProbeReport probe(CswSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = configuration.validate((new ArrayList(REQUIRED_FIELDS.keySet())));
+        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
         if(!results.isEmpty()) {
             return new ProbeReport(results);
         }

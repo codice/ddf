@@ -20,7 +20,6 @@ import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USE
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
@@ -29,7 +28,7 @@ import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 
 public class DiscoverSourcesProbeMethod extends ProbeMethod<SourceConfiguration>{
 
@@ -37,15 +36,13 @@ public class DiscoverSourcesProbeMethod extends ProbeMethod<SourceConfiguration>
     public static final String DESCRIPTION = "Retrieves possible configurations for the specified url.";
 
     // TODO: tbatie - 1/15/17 - These descriptions should be done in the SourceConfiguration
-    public static final Map<String, String> REQUIRED_FIELDS =
-            ImmutableMap.of(HOSTNAME, "Host name of url the source resides.",
-                    PORT, "Port of url the source resides.");
+    public static final List<String> REQUIRED_FIELDS =
+            ImmutableList.of(HOSTNAME, PORT);
 
-    public static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(USERNAME, "User name to include in request.",
-            PASSWORD, "Password of user to include in request.");
+    public static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
 
     public static final String DISCOVERED_SOURCES_KEY = "discoverSources";
-    public static final Map<String, String> RETURN_TYPES = ImmutableMap.of(DISCOVERED_SOURCES_KEY, "List of sources configurations created using the specified url.");
+    public static final List<String> RETURN_TYPES = ImmutableList.of(DISCOVERED_SOURCES_KEY);
 
     private List<SourceConfigurationHandler> handlers;
 

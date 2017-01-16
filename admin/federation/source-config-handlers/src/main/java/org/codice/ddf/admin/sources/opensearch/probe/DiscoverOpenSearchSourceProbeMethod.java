@@ -24,7 +24,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.sources.opensearch.OpenSearchSourceConfigurationHandler.OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +34,7 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.sources.opensearch.OpenSearchSourceUtils;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class DiscoverOpenSearchSourceProbeMethod
@@ -43,26 +43,22 @@ public class DiscoverOpenSearchSourceProbeMethod
     public static final String OPENSEARCH_DISCOVER_SOURCES_ID = DISCOVER_SOURCES_ID;
     public static final String DESCRIPTION = "Attempts to discover a OpenSearch endpoint based on a hostname and port using optional authentication information.";
 
-    private static final String CERT_ERROR = "certError";
-    private static final String NO_ENDPOINT = "noEndpoint";
-    private static final String BAD_CONFIG = "badConfig";
+    private static final String CERT_ERROR = "cert-error";
+    private static final String NO_ENDPOINT = "no-endpoint";
+    private static final String BAD_CONFIG = "bad-config";
 
-    private static final String ENDPOINT_DISCOVERED = "endpointDiscovered";
+    private static final String ENDPOINT_DISCOVERED = "endpoint-discovered";
 
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(
-            HOSTNAME, "The hostname to query for OpenSearch capabilites.",
-            PORT, "The port to connect over when searching for OpenSearch capabilities.");
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(HOSTNAME, PORT);
 
-    public static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(
-            USERNAME, "A username to use for basic auth connections when searching for OpenSearch capabilities.",
-            PASSWORD, "A password to use for basic auth connections when searching for OpenSearch capabilities.");
+    public static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
+
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED, "Discovered OpenSearch endpoint.");
 
     public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(
             CERT_ERROR, "The discovered source has incorrectly configured SSL certificates and is insecure.",
             NO_ENDPOINT, "No OpenSearch endpoint found.",
             BAD_CONFIG, "Endpoint discovered, but could not create valid configuration.");
-
-    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED, "Discovered OpenSearch endpoint.");
 
     public DiscoverOpenSearchSourceProbeMethod() {
         super(OPENSEARCH_DISCOVER_SOURCES_ID,
@@ -77,7 +73,7 @@ public class DiscoverOpenSearchSourceProbeMethod
     @Override
     public ProbeReport probe(OpenSearchSourceConfiguration configuration) {
         List<ConfigurationMessage> results =
-                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+                configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
             return new ProbeReport(results);
         }

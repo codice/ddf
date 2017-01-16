@@ -20,7 +20,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.sources.wfs.WfsSourceUtils.isAvailable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +30,7 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class WfsUrlTestMethod extends TestMethod<WfsSourceConfiguration> {
@@ -39,14 +39,13 @@ public class WfsUrlTestMethod extends TestMethod<WfsSourceConfiguration> {
 
     public static final String DESCRIPTION = "Attempts to verify a given URL is a WFS endpoint.";
 
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(ENDPOINT_URL,
-            "The URL to attempt to verify as a WFS Endpoint.");
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(ENDPOINT_URL);
 
-    private static final String VERIFIED_URL = "urlVerified";
+    private static final String VERIFIED_URL = "url-verified";
 
-    private static final String CANNOT_CONNECT = "cannotConnect";
+    private static final String CANNOT_CONNECT = "cannot-connect";
 
-    private static final String CANNOT_VERIFY = "cannotVerify";
+    private static final String CANNOT_VERIFY = "cannot-verify";
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(VERIFIED_URL,
             "URL has been verified as a WFS endpoint.");
@@ -69,7 +68,7 @@ public class WfsUrlTestMethod extends TestMethod<WfsSourceConfiguration> {
 
     @Override
     public TestReport test(WfsSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
             return new TestReport(results);
         }

@@ -28,7 +28,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_P
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +38,7 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfiguration> {
@@ -48,29 +48,19 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
     public static final String DESCRIPTION =
             "Attempts to create and persist a CSW source given a configuration.";
 
-    //Result types
-    public static final String SOURCE_CREATED = "sourceCreated";
-
-    private static final String CREATION_FAILED = "creationFailed";
-
     // Field -> Description maps
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(ID,
-            "A descriptive name for the source to be configured.",
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(
+            ID,
             CSW_URL,
-            "The URL at which the CSW endpoint is located.",
             EVENT_SERVICE_ADDRESS,
-            "The subscription URL for notification of events from this source.",
-            FACTORY_PID,
-            "The pid of the managed service factory used to create the source (determines configuration type).");
-
-    private static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(USERNAME,
-            "A user name used to authenticate with the source.",
+            FACTORY_PID
+    );
+    private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(
+            USERNAME,
             PASSWORD,
-            "A password used to authenticate with the source.",
             OUTPUT_SCHEMA,
-            "Specifies the schema the source uses to output data (only needed for CSW Specification sources).",
-            FORCE_SPATIAL_FILTER,
-            "Specifies a spatial filter for the source (only needed for CSW Specification sources).");
+            FORCE_SPATIAL_FILTER
+    );
 
     private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
             "CSW Source successfully created.");
@@ -86,12 +76,11 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
                 SUCCESS_TYPES,
                 FAILURE_TYPES,
                 null);
-
     }
 
     @Override
     public TestReport persist(CswSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
             return new TestReport(results);
         }

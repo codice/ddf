@@ -23,7 +23,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.sources.wfs.WfsSourceConfigurationHandler.WFS_SOURCE_CONFIGURATION_HANDLER_ID;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,28 +34,23 @@ import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.sources.wfs.WfsSourceCreationException;
 import org.codice.ddf.admin.sources.wfs.WfsSourceUtils;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfiguration> {
     public static final String WFS_DISCOVER_SOURCES_ID = DISCOVER_SOURCES_ID;
 
     public static final String DESCRIPTION =
-            "Attempts to discover a Wfs endpoint based on a hostname and port using optional authentication information.";
+            "Attempts to discover a WFS endpoint based on a hostname and port using optional authentication information.";
 
-    private static final String ENDPOINT_DISCOVERED = "endpointDiscovered";
-    private static final String CERT_ERROR = "certError";
-    private static final String NO_ENDPOINT = "noEndpoint";
-    private static final String BAD_CONFIG = "badConfig";
+    private static final String ENDPOINT_DISCOVERED = "endpoint-discovered";
+    private static final String CERT_ERROR = "cert-error";
+    private static final String NO_ENDPOINT = "no-endpoint";
+    private static final String BAD_CONFIG = "bad-config";
 
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(HOSTNAME,
-            "The hostname to query for Wfs capabilites.",
-            PORT,
-            "The port to connect over when searching for Wfs capabilities.");
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(HOSTNAME, PORT);
 
-    public static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(USERNAME,
-            "A username to use for basic auth connections when searching for Wfs capabilities. If password is provided, username must be as well.",
-            PASSWORD,
-            "A password to use for basic auth connections when searching for Wfs capabilities. If username is provided, password must be as well.");
+    public static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED,
             "Discovered Wfs endpoint.");
@@ -83,7 +77,7 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
     public ProbeReport probe(WfsSourceConfiguration configuration) {
         // TODO: tbatie - 1/13/17 - this is really messy
         List<ConfigurationMessage> results =
-                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+                configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
             return new ProbeReport(results);
         }

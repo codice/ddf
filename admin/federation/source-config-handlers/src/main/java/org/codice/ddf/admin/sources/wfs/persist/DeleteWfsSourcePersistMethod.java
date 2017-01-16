@@ -21,7 +21,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_P
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.DELETE;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +31,7 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfiguration> {
@@ -41,8 +41,7 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
     public static final String DESCRIPTION =
             "Attempts to delete a WFS Source with the given configuration.";
 
-    private static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(SERVICE_PID,
-            "The unique pid of the service to be deleted.");
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(SERVICE_PID);
 
     private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
             "The CSW Source was successfully deleted.");
@@ -63,7 +62,7 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
     @Override
     public TestReport persist(WfsSourceConfiguration configuration) {
         List<ConfigurationMessage> results =
-                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+                configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
             return new TestReport(results);
         }

@@ -14,14 +14,15 @@
 
 package org.codice.ddf.admin.api.handler.method;
 
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 
 public abstract class PersistMethod<S extends Configuration> extends ConfigurationHandlerMethod {
-    public PersistMethod(String id, String description, Map<String, String> requiredFields,
-            Map<String, String> optionalFields, Map<String, String> successTypes,
+    public PersistMethod(String id, String description, List<String> requiredFields,
+            List<String> optionalFields, Map<String, String> successTypes,
             Map<String, String> failureTypes, Map<String, String> warningTypes) {
         super(id,
                 description,

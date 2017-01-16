@@ -20,7 +20,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.sources.opensearch.OpenSearchSourceUtils.isAvailable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +30,7 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfiguration> {
@@ -39,12 +39,11 @@ public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfigur
     public static final String DESCRIPTION =
             "Attempts to verify a given URL is an OpenSearch endpoint.";
 
-    private static final String CANNOT_CONNECT = "cannotConnect";
-    private static final String VERIFIED_URL = "urlVerified";
-    private static final String CANNOT_VERIFY = "cannotVerify"; // TODO: tbatie - 1/13/17 - This isn't actually being returned anywhere and should be
+    private static final String CANNOT_CONNECT = "cannot-connect";
+    private static final String VERIFIED_URL = "url-verified";
+    private static final String CANNOT_VERIFY = "cannot-verify"; // TODO: tbatie - 1/13/17 - This isn't actually being returned anywhere and should be
 
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(
-            ENDPOINT_URL, "The URL to attempt to verify as an OpenSearch Endpoint.");
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(ENDPOINT_URL);
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(
             VERIFIED_URL, "URL has been verified as an OpenSearch endpoint.");
@@ -68,8 +67,7 @@ public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfigur
     @Override
     public TestReport test(OpenSearchSourceConfiguration configuration) {
         TestReport testReport = new TestReport();
-        List<ConfigurationMessage> results =
-                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
 
         if (!results.isEmpty()) {
             return testReport.messages(results);

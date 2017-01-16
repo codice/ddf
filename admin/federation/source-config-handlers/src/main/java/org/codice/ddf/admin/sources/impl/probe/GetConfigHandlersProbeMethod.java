@@ -14,7 +14,6 @@
 package org.codice.ddf.admin.sources.impl.probe;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
@@ -22,6 +21,7 @@ import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class GetConfigHandlersProbeMethod extends ProbeMethod<SourceConfiguration> {
@@ -33,7 +33,7 @@ public class GetConfigHandlersProbeMethod extends ProbeMethod<SourceConfiguratio
     public static final String CONFIG_HANDLER_ID = "id";
     public static final String DISPLAY_NAME_KEY = "name";
 
-    public static final Map<String, String> RETURN_TYPES = ImmutableMap.of(SRC_CONFIG_HNDLRS, "List of configuration handlers with keys: " + CONFIG_HANDLER_ID + " and " + DISPLAY_NAME_KEY);
+    public static final List<String> RETURN_TYPES = ImmutableList.of(SRC_CONFIG_HNDLRS);
 
     private List<SourceConfigurationHandler> handlers;
 

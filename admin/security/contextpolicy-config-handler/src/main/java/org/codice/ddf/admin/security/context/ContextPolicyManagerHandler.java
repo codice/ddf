@@ -31,7 +31,7 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.persist.Configurator;
 import org.codice.ddf.admin.security.context.persist.EditContextPolicyMethod;
-import org.codice.ddf.admin.security.context.probe.AvaliableOptionsProbeMethod;
+import org.codice.ddf.admin.security.context.probe.AvailableOptionsProbeMethod;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ddf.security.policy.context.impl.PolicyManager;
@@ -48,7 +48,7 @@ public class ContextPolicyManagerHandler extends DefaultConfigurationHandler<Con
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
-        return Arrays.asList(new AvaliableOptionsProbeMethod(ldapConfigHandler));
+        return Arrays.asList(new AvailableOptionsProbeMethod(ldapConfigHandler));
     }
 
     @Override

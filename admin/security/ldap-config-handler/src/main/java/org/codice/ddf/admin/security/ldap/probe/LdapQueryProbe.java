@@ -29,6 +29,7 @@ import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdap
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +42,8 @@ import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 
+import com.google.common.collect.ImmutableList;
+
 public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
 
     public static final String LDAP_QUERY_ID = "query";
@@ -48,7 +51,7 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
     private static final String DESCRIPTION =
             "Probe to execute arbitrary query against an LDAP server and return the results.";
 
-    private static final Map<String, String> REQUIRED_FIELDS = LdapConfiguration.buildFieldMap(
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(
             LDAP_TYPE,
             HOST_NAME,
             PORT,
@@ -59,7 +62,7 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
             QUERY,
             QUERY_BASE);
 
-    private static final Map<String, String> OPTIONAL_FIELDS = LdapConfiguration.buildFieldMap(
+    private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(
             BIND_REALM,
             BIND_KDC);
 
@@ -70,7 +73,8 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
         List<ConfigurationMessage> checkMessages =
-                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
+                // TODO: use validate method instead of this.
+                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

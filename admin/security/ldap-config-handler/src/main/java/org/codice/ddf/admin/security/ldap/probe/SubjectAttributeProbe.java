@@ -27,8 +27,8 @@ import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PO
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -44,6 +44,8 @@ import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubjectAttributeProbe.class);
 
@@ -51,7 +53,7 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
     private static final String DESCRIPTION =
             "Searches for the subject attributes for claims mapping.";
 
-    private static final Map<String, String> REQUIRED_FIELDS = LdapConfiguration.buildFieldMap(
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(
             LDAP_TYPE,
             HOST_NAME,
             PORT,
@@ -62,7 +64,7 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
             BASE_GROUP_DN,
             MEMBERSHIP_ATTRIBUTE);
 
-    private static final Map<String, String> OPTIONAL_FIELDS = LdapConfiguration.buildFieldMap(
+    private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(
             BIND_REALM,
             BIND_KDC);
 
@@ -83,7 +85,8 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
         List<ConfigurationMessage> checkMessages =
-                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
+                // TODO: Use the validate method instead of this
+                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

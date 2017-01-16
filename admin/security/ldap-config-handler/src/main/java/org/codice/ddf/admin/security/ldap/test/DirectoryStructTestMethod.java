@@ -25,7 +25,6 @@ import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.EN
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.HOST_NAME;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.buildFieldMap;
 import static org.codice.ddf.admin.api.handler.report.TestReport.createGeneralTestReport;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.BASE_GROUP_DN_NOT_FOUND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.BASE_USER_DN_NOT_FOUND;
@@ -46,6 +45,7 @@ import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdap
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -58,13 +58,15 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 
+import com.google.common.collect.ImmutableList;
+
 public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
     private static final String LDAP_DIRECTORY_STRUCT_TEST_ID = "dir-struct";
 
     private static final String DESCRIPTION =
             "Verifies that the specified directory structure, entries and required attributes to configure LDAP exist.";
 
-    private static final Map<String, String> REQUIRED_FIELDS = buildFieldMap(HOST_NAME,
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(HOST_NAME,
             PORT,
             ENCRYPTION_METHOD,
             BIND_USER_DN,
@@ -74,9 +76,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
             BASE_GROUP_DN,
             USER_NAME_ATTRIBUTE);
 
-    private static final Map<String, String> OPTIONAL_FIELDS = buildFieldMap(
-            BIND_REALM,
-            BIND_KDC);
+    private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(BIND_REALM, BIND_KDC);
 
     private static final Map<String, String> SUCCESS_TYPES = toDescriptionMap(Arrays.asList(
             FOUND_BASE_USER_DN,
@@ -107,7 +107,8 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
     public TestReport test(LdapConfiguration configuration) {
         // TODO: tbatie - 1/11/17 - Test groupClassObject and membershipAttribute
         List<ConfigurationMessage> checkMessages =
-                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
+                // TODO: Use the validate method for consistency
+                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

@@ -13,15 +13,16 @@
  */
 package org.codice.ddf.admin.security.ldap.probe;
 
-
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_TYPE;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
+
+import com.google.common.collect.ImmutableList;
 
 public class BindUserExampleProbe extends ProbeMethod<LdapConfiguration> {
     private static final String BIND_USER_EXAMPLE = "bind-user-example";
@@ -29,8 +30,7 @@ public class BindUserExampleProbe extends ProbeMethod<LdapConfiguration> {
     private static final String DESCRIPTION =
             "Returns sample username formats for the specific LDAP server type.";
 
-    private static final Map<String, String> REQUIRED_FIELDS = LdapConfiguration.buildFieldMap(
-            LDAP_TYPE);
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(LDAP_TYPE);
 
     public BindUserExampleProbe() {
         super(BIND_USER_EXAMPLE, DESCRIPTION, REQUIRED_FIELDS, null, null, null, null);

@@ -25,7 +25,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_P
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +35,7 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfiguration> {
@@ -44,17 +44,9 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
     public static final String DESCRIPTION =
             "Attempts to create and persist a WFS source given a configuration.";
 
-    private static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(ID,
-            "A unique name to identify the source.",
-            ENDPOINT_URL,
-            "The URL at which the WFS endpoint is located",
-            FACTORY_PID,
-            "The pid of the managed service factory to use to create the WFS Source.");
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(ID, ENDPOINT_URL, FACTORY_PID);
 
-    private static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(USERNAME,
-            "A user name used to authenticate with the WFS Source.",
-            PASSWORD,
-            "A password used to authenticate with the WFS Source.");
+    private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
 
     private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
             "WFS Source successfully created.");
@@ -75,7 +67,7 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
     @Override
     public TestReport persist(WfsSourceConfiguration configuration) {
         List<ConfigurationMessage> results =
-                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+                configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
             return new TestReport(results);
         }

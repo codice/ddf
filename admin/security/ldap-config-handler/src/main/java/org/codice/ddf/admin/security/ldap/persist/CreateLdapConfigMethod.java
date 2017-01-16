@@ -34,7 +34,6 @@ import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ME
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.buildFieldMap;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
@@ -44,6 +43,8 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -53,6 +54,7 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
@@ -62,7 +64,7 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "Successfully saved LDAP settings.");
     public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Unable to persist changes.");
-    public static final Map<String, String> LOGIN_REQUIRED_FIELDS = buildFieldMap(LDAP_USE_CASE,
+    public static final List<String> LOGIN_REQUIRED_FIELDS = ImmutableList.of(LDAP_USE_CASE,
             HOST_NAME,
             PORT,
             ENCRYPTION_METHOD,
@@ -73,11 +75,13 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
             BASE_USER_DN,
             BASE_GROUP_DN);
 
-    public static final Map<String, String> LOGIN_OPTIONAL_FIELDS = buildFieldMap(BIND_KDC, BIND_REALM);
+    public static final List<String> LOGIN_OPTIONAL_FIELDS = ImmutableList.of(BIND_KDC, BIND_REALM);
 
-    public static final Map<String, String> ALL_REQUIRED_FIELDS = ImmutableMap.<String, String>builder().putAll(LOGIN_REQUIRED_FIELDS)
-                    .putAll(buildFieldMap(GROUP_OBJECT_CLASS, MEMBERSHIP_ATTRIBUTE, ATTRIBUTE_MAPPINGS))
-                    .build();
+    public static final List<String> ALL_REQUIRED_FIELDS = ImmutableList.<String>builder()
+            .addAll(LOGIN_REQUIRED_FIELDS)
+            .add(GROUP_OBJECT_CLASS)
+            .add(MEMBERSHIP_ATTRIBUTE)
+            .add(ATTRIBUTE_MAPPINGS).build();
 
     public CreateLdapConfigMethod() {
         super(LDAP_CREATE_ID,
@@ -96,7 +100,8 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
         if (config.ldapUseCase()
                 .equals(LOGIN) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
-            TestReport validationReport = new TestReport(config.checkRequiredFields(LOGIN_REQUIRED_FIELDS.keySet()));
+            // TODO adimka Move validation to use the validate method instead of this stuff
+            TestReport validationReport = new TestReport(config.checkRequiredFields(new HashSet(LOGIN_REQUIRED_FIELDS)));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
             }
@@ -127,7 +132,7 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
                 .equals(CREDENTIAL_STORE) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
             TestReport validationReport = new TestReport(config.checkRequiredFields(
-                    ALL_REQUIRED_FIELDS.keySet()));
+                    new HashSet(ALL_REQUIRED_FIELDS)));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
             }

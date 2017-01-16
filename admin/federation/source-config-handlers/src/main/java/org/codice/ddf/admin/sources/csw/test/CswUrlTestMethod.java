@@ -23,7 +23,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage
 import static org.codice.ddf.admin.sources.csw.CswSourceUtils.getPreferredConfig;
 import static org.codice.ddf.admin.sources.csw.CswSourceUtils.isAvailable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +35,7 @@ import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.sources.csw.CswSourceCreationException;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
@@ -43,13 +43,11 @@ public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
     public static final String CSW_URL_TEST_ID = MANUAL_URL_TEST_ID;
     public static final String DESCRIPTION = "Attempts to verify a given URL is a CSW endpoint.";
 
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(
-            ENDPOINT_URL, "The URL to attempt to verify as a CSW Endpoint."
-    );
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(ENDPOINT_URL);
 
-    private static final String VERIFIED_URL = "urlVerified";
-    private static final String CANNOT_CONNECT = "cannotConnect";
-    private static final String CANNOT_VERIFY = "cannotVerify";
+    private static final String VERIFIED_URL = "url-verified";
+    private static final String CANNOT_CONNECT = "cannot-connect";
+    private static final String CANNOT_VERIFY = "cannot-verify";
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(
             VERIFIED_URL, "URL has been verified as a CSW endpoint."
@@ -73,7 +71,7 @@ public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
     }
     @Override
     public TestReport test(CswSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
             return new ProbeReport(results);
         }

@@ -26,6 +26,7 @@ import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdap
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
 
     private static final String DESCRIPTION = "Attempts to connect to the given LDAP host";
 
-    private static final Map<String, String> REQUIRED_FIELDS = LdapConfiguration.buildFieldMap(
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(
             HOST_NAME,
             PORT,
             ENCRYPTION_METHOD);
@@ -68,7 +69,8 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
     @Override
     public TestReport test(LdapConfiguration configuration) {
         List<ConfigurationMessage> checkMessages =
-                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
+                // TODO: Use the validate method, not this
+                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new TestReport(checkMessages);
         }

@@ -14,6 +14,7 @@
 
 package org.codice.ddf.admin.api.handler.method;
 
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.Configuration;
@@ -21,11 +22,11 @@ import org.codice.ddf.admin.api.handler.report.ProbeReport;
 
 public abstract class ProbeMethod<S extends Configuration> extends ConfigurationHandlerMethod {
 
-    private Map<String, String> returnTypes;
+    private List<String> returnTypes;
 
     // TODO: tbatie - 1/12/17 - Remove this constructor and enforce the returnTypes field
-    public ProbeMethod(String id, String description, Map<String, String> requiredFields,
-            Map<String, String> optionalFields, Map<String, String> successTypes,
+    public ProbeMethod(String id, String description, List<String> requiredFields,
+            List<String> optionalFields, Map<String, String> successTypes,
             Map<String, String> failureTypes, Map<String, String> warningTypes) {
         super(id,
                 description,
@@ -36,9 +37,9 @@ public abstract class ProbeMethod<S extends Configuration> extends Configuration
                 warningTypes);
     }
 
-    public ProbeMethod(String id, String description, Map<String, String> requiredFields,
-            Map<String, String> optionalFields, Map<String, String> successTypes,
-            Map<String, String> failureTypes, Map<String, String> warningTypes, Map<String, String> returnTypes) {
+    public ProbeMethod(String id, String description, List<String> requiredFields,
+            List<String> optionalFields, Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes, List<String> returnTypes) {
         super(id,
                 description,
                 requiredFields,
@@ -52,7 +53,7 @@ public abstract class ProbeMethod<S extends Configuration> extends Configuration
 
     public abstract ProbeReport probe(S configuration);
 
-    public Map<String, String> getReturnTypes() {
+    public List<String> getReturnTypes() {
         return this.returnTypes;
     }
 }

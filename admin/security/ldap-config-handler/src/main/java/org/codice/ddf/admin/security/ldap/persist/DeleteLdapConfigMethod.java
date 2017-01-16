@@ -15,13 +15,14 @@
 package org.codice.ddf.admin.security.ldap.persist;
 
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.SERVICE_PID;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.buildFieldMap;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
@@ -30,6 +31,7 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class DeleteLdapConfigMethod extends PersistMethod<LdapConfiguration> {
@@ -37,7 +39,7 @@ public class DeleteLdapConfigMethod extends PersistMethod<LdapConfiguration> {
     public static final String DELETE_CONFIG_ID = "delete";
     public static final String DESCRIPTION = "Deletes the specified LDAP configuration.";
 
-    public static final Map<String, String> REQUIRED_FIELDS = buildFieldMap(SERVICE_PID);
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SERVICE_PID);
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "Successfully deleted configuration.");
     public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Unable to delete configuration.");
 
@@ -54,7 +56,8 @@ public class DeleteLdapConfigMethod extends PersistMethod<LdapConfiguration> {
     @Override
     public TestReport persist(LdapConfiguration config) {
         TestReport validatedReport =
-                new TestReport(config.checkRequiredFields(REQUIRED_FIELDS.keySet()));
+                // TODO adimka Move validation to use the validate method instead of this stuff
+                new TestReport(config.checkRequiredFields(new HashSet(REQUIRED_FIELDS)));
         if (validatedReport.containsFailureMessages()) {
             return validatedReport;
         }

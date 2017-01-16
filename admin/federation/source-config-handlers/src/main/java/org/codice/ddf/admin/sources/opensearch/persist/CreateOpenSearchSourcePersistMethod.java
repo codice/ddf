@@ -22,7 +22,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +32,7 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class CreateOpenSearchSourcePersistMethod
@@ -43,20 +43,14 @@ public class CreateOpenSearchSourcePersistMethod
             "Attempts to create and persist a OpenSearch source given a configuration.";
 
     //Result types
-    private static final String SOURCE_CREATED = "sourceCreated";
+    private static final String SOURCE_CREATED = "source-created";
 
-    private static final String CREATION_FAILED = "creationFailed";
+    private static final String CREATION_FAILED = "creation-failed";
 
     // Field -> Description maps
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(ID,
-            "A descriptive name for the source to be configured.",
-            ENDPOINT_URL,
-            "The URL at which the OpenSearch endpoint is located.");
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(ID, ENDPOINT_URL);
 
-    private static final Map<String, String> OPTIONAL_FIELDS = ImmutableMap.of(USERNAME,
-            "A user name used to authenticate with the source.",
-            PASSWORD,
-            "A password used to authenticate with the source.");
+    private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
 
     private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SOURCE_CREATED,
             "OpenSearch Source successfully created.");
@@ -77,7 +71,7 @@ public class CreateOpenSearchSourcePersistMethod
     @Override
     public TestReport persist(OpenSearchSourceConfiguration configuration) {
         List<ConfigurationMessage> results =
-                configuration.validate(new ArrayList(REQUIRED_FIELDS.keySet()));
+                configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
             return new TestReport(results);
         }

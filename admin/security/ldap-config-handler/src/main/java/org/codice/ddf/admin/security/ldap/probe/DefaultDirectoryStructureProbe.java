@@ -38,6 +38,7 @@ import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUse
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +48,8 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.security.ldap.ServerGuesser;
+
+import com.google.common.collect.ImmutableList;
 
 public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguration> {
 
@@ -58,7 +61,7 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
                     + "representing groups.";
 
 
-    private static final Map<String, String> REQUIRED_FIELDS = LdapConfiguration.buildFieldMap(
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(
             LDAP_TYPE,
             HOST_NAME,
             PORT,
@@ -67,9 +70,7 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
             BIND_USER_PASSWORD,
             BIND_METHOD);
 
-    private static final Map<String, String> OPTIONAL_FIELDS = LdapConfiguration.buildFieldMap(
-            BIND_REALM,
-            BIND_KDC);
+    private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(BIND_REALM, BIND_KDC);
 
     private static final Map<String, String> FAILURE_TYPES = toDescriptionMap(Arrays.asList(
             CANNOT_CONFIGURE,
@@ -84,7 +85,8 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
     public ProbeReport probe(LdapConfiguration configuration) {
         ProbeReport probeReport = new ProbeReport(new ArrayList<>());
         List<ConfigurationMessage> checkMessages =
-                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
+                // TODO: Use validate method of configuration not this
+                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

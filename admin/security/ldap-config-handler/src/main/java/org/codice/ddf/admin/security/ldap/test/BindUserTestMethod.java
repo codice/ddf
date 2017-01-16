@@ -32,6 +32,7 @@ import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUse
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,8 @@ import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.TestReport;
 
+import com.google.common.collect.ImmutableList;
+
 public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
 
     public static final String LDAP_BIND_TEST_ID = "bind";
@@ -49,7 +52,7 @@ public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
     public static final String DESCRIPTION =
             "Attempts to bind the specified user to specified ldap connection.";
 
-    private static final Map<String, String> REQUIRED_FIELDS = LdapConfiguration.buildFieldMap(
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(
             HOST_NAME,
             PORT,
             ENCRYPTION_METHOD,
@@ -57,7 +60,7 @@ public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
             BIND_USER_PASSWORD,
             BIND_METHOD);
 
-    private static final Map<String, String> OPTIONAL_FIELDS = LdapConfiguration.buildFieldMap(
+    private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(
             BIND_REALM,
             BIND_KDC);
 
@@ -82,7 +85,8 @@ public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
     @Override
     public TestReport test(LdapConfiguration configuration) {
         List<ConfigurationMessage> checkMessages =
-                configuration.checkRequiredFields(REQUIRED_FIELDS.keySet());
+                // TODO: use the validate method, not this
+                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

@@ -14,8 +14,6 @@
 
 package org.codice.ddf.admin.security.context.probe;
 
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.ALL_AUTH_TYPES;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.ALL_REALMS;
 import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.BASIC;
 import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.GUEST;
 import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.IDP;
@@ -36,11 +34,11 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
-public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfiguration>{
+public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfiguration>{
 
     public static final String ID = "options";
     public static final String DESCRIPTION = "Returns the web context policy options available for configuration based on the system's state.";
@@ -50,17 +48,12 @@ public class AvaliableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
     public static final String CLAIMS_KEY = "claims";
 
 
-    public static final Map<String, String> RETURN_TYPES = ImmutableMap.of(
-            REALMS_KEY, "A list of realms that are setup to be used. Possible elements: " + String.join(", ",
-                    ALL_REALMS),
-            CLAIMS_KEY, "Configured STS claims.",
-            AUTH_TYPES_KEY, "List of auth types currently configured. Possible elements: " + String.join(", ",
-                    ALL_AUTH_TYPES));
+    public static final List<String> RETURN_TYPES = ImmutableList.of(REALMS_KEY, CLAIMS_KEY, AUTH_TYPES_KEY);
 
     Configurator configurator = new Configurator();
     ConfigurationHandler ldapConfigHandler;
 
-    public AvaliableOptionsProbeMethod(ConfigurationHandler ldapConfigHandler) {
+    public AvailableOptionsProbeMethod(ConfigurationHandler ldapConfigHandler) {
         super(ID,
                 DESCRIPTION,
                 null,

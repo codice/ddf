@@ -14,20 +14,21 @@
 
 package org.codice.ddf.admin.api.handler.method;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class ConfigurationHandlerMethod {
 
     private String id;
     private String description;
-    private Map<String, String> requiredFields;
-    private Map<String, String> optionalFields;
+    private List<String> requiredFields;
+    private List<String> optionalFields;
     private Map<String, String> successTypes;
     private Map<String, String> failureTypes;
     private Map<String, String> warningTypes;
 
     public ConfigurationHandlerMethod(String id, String description,
-            Map<String, String> requiredFields, Map<String, String> optionalFields,
+            List<String> requiredFields, List<String> optionalFields,
             Map<String, String> successTypes, Map<String, String> failureTypes,
             Map<String, String> warningTypes) {
         this.id = id;
@@ -47,11 +48,11 @@ public abstract class ConfigurationHandlerMethod {
         return description;
     }
 
-    public Map<String, String> requireFields() {
+    public List<String> requireFields() {
         return requiredFields;
     }
 
-    public Map<String, String> optionalFields() {
+    public List<String> optionalFields() {
         return optionalFields;
     }
 

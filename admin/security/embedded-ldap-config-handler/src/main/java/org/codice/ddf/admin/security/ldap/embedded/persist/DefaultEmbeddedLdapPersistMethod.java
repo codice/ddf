@@ -14,7 +14,6 @@
 package org.codice.ddf.admin.security.ldap.embedded.persist;
 
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_USE_CASES;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
@@ -22,7 +21,7 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.security.ldap.EmbeddedLdapConfiguration;
@@ -32,6 +31,7 @@ import org.codice.ddf.admin.api.handler.report.TestReport;
 import org.codice.ddf.admin.api.persist.ConfigReport;
 import org.codice.ddf.admin.api.persist.Configurator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
@@ -44,9 +44,7 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
 
     public static final String LDAP_USE_CASE = "ldapUseCase";
 
-    public static final Map<String, String> REQUIRED_FIELDS = ImmutableMap.of(LDAP_USE_CASE,
-            "How the embedded ldap is intended to be used. Must be one of:"
-                    + Arrays.toString(LDAP_USE_CASES.toArray()));
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(LDAP_USE_CASE);
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
             "Successfully started and saved Embedded LDAP configurations.");
