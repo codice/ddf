@@ -123,6 +123,9 @@ public class CswSourceConfiguration extends SourceConfiguration {
         HashMap<String, Object> config = new HashMap<>();
         config.put(ID, sourceName());
         config.put(CSW_URL, endpointUrl());
+        if (!factoryPid().equals(CSW_GMD_FACTORY_PID)) {
+            config.put(EVENT_SERVICE_ADDRESS, endpointUrl() + "/subscription");
+        }
         if (sourceUserName() != null) {
             config.put(USERNAME, sourceUserName());
         }

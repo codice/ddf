@@ -16,10 +16,14 @@ package org.codice.ddf.admin.security.ldap.test;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 
+import java.util.Map;
+
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
+
+import com.google.common.collect.ImmutableMap;
 
 public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
 
@@ -27,16 +31,19 @@ public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
 
     public static final String DESCRIPTION = "Verifies that mapping values are valid and exist.";
 
-    public static final String VALIDATED = "Attribute maaping was successfully validated.";
+    public static final String VALIDATED = "validated";
+
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(VALIDATED,
+            "Attribute mapping was successfully validated.");
 
     public AttributeMappingTestMethod() {
-        super(LDAP_ATTRIBUTE_MAPPING_TEST_ID, DESCRIPTION, null, null, null, null, null);
+        super(LDAP_ATTRIBUTE_MAPPING_TEST_ID, DESCRIPTION, null, null, SUCCESS_TYPES, null, null);
     }
 
     @Override
     public Report test(LdapConfiguration configuration) {
         // TODO: tbatie - 12/15/16 - Make sure the attributes are in the schema, if they aren't report error. Give a warning there are no users in group or base user dn with the given attributes
-        return new Report(new ConfigurationMessage(SUCCESS, VALIDATED, "Successfully validated mapping."));
+        return new Report(new ConfigurationMessage(SUCCESS, VALIDATED, SUCCESS_TYPES.get(VALIDATED)));
     }
 
 }
