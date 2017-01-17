@@ -38,11 +38,12 @@ define([
             this.determineAvailableContent();
             TabsView.prototype.initialize.call(this);
             var debounceDetermineContent = _.debounce(this.handleMetacardChange, 200);
+            var throttleDetermineContent = _.throttle(this.handleMetacardChange, 200);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'update',debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'add', debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'remove', debounceDetermineContent);
             this.listenTo(this.selectionInterface.getSelectedResults(), 'reset', debounceDetermineContent);
-            this.listenTo(this.selectionInterface.getSelectedResults(), 'refreshdata', debounceDetermineContent);
+            this.listenTo(this.selectionInterface.getSelectedResults(), 'refreshdata', throttleDetermineContent);
         },
         handleMetacardChange: function(){
             this.determineAvailableContent();

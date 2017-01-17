@@ -32,9 +32,6 @@ define([
         },
         template: template,
         tagName: CustomElements.register('metacard-archive'),
-        modelEvents: {
-            'all': 'render'
-        },
         events: {
             'click button.archive': 'handleArchive',
             'click button.restore': 'handleRestore'

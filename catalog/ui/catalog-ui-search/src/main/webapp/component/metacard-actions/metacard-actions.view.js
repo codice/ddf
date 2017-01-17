@@ -30,9 +30,6 @@ define([
         className: 'is-list',
         template: template,
         tagName: CustomElements.register('metacard-actions'),
-        modelEvents: {
-            'all': 'render'
-        },
         regions: {
             mapActions: '.map-actions'
         },

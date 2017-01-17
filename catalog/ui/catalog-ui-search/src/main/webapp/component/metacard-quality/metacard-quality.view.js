@@ -32,9 +32,6 @@ define([
         },
         template: template,
         tagName: CustomElements.register('metacard-quality'),
-        modelEvents: {
-            'all': 'render'
-        },
         events: {},
         ui: {},
         selectionInterface: store,
