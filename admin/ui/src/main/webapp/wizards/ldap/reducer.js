@@ -111,36 +111,6 @@ const selectedRemoveAttributeMapping = (state = [], {type, mappings}) => {
 
 export const getProbeValue = (state) => state.getIn(['probeValue'])
 
-const step = (state = 0, { type }) => {
-  switch (type) {
-    case 'NEXT_STEP':
-      return state + 1
-    case 'BACK_STEP':
-      return (state > 0) ? state - 1 : 0
-    case 'CLEAR_WIZARD':
-      return 0
-    default:
-      return state
-  }
-}
-
-export const getStep = (state) => state.get('step')
-
-const submitting = (state = null, { type, id } = {}) => {
-  switch (type) {
-    case 'SUBMITTING_START':
-      return id
-    case 'SUBMITTING_END':
-      return null
-    case 'CLEAR_WIZARD':
-      return null
-    default:
-      return state
-  }
-}
-
-export const isSubmitting = (state, id) => state.get('submitting') === id
-
 const ldapDisplayedStages = (state = List.of('introduction-stage'), { type, stage }) => {
   switch (type) {
     case 'LDAP_ADD_STAGE':
@@ -156,5 +126,5 @@ const ldapDisplayedStages = (state = List.of('introduction-stage'), { type, stag
 
 export const getDisplayedLdapStage = (state) => state.getIn(['ldapDisplayedStages']).last()
 
-export default combineReducers({ config, probeValue, step, submitting, messages, ldapDisplayedStages, mappingToAdd, tableMappings, selectedRemoveAttributeMapping })
+export default combineReducers({ config, probeValue, messages, ldapDisplayedStages, mappingToAdd, tableMappings, selectedRemoveAttributeMapping })
 

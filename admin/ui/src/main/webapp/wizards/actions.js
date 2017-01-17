@@ -2,7 +2,6 @@ import { post } from '../fetch'
 
 import { getAllConfig } from '../reducer'
 
-export const setProbeValue = (value) => ({ type: 'SET_PROBE_VALUE', value })
 export const setMessages = (id, messages) => ({ type: 'SET_MESSAGES', id, messages })
 export const updateProgress = (id, value) => ({ type: 'UPDATE_PROGRESS', id, value })
 export const clearMessages = (id) => ({ type: 'CLEAR_MESSAGES', id })

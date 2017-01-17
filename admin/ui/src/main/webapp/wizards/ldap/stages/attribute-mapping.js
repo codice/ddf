@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import { getConfig } from '../../../reducer'
 
-import { editConfig } from '../../actions'
+import { editConfig, testConfig } from '../../actions'
 
 import {
   Stage,
@@ -15,7 +15,6 @@ import {
 } from '../../components/stage'
 
 import {
-  testConfig,
   setMappingToAdd,
   addMapping,
   setSelectedMappings,
