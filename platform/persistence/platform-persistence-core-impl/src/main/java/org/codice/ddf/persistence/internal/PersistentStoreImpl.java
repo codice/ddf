@@ -65,7 +65,8 @@ public class PersistentStoreImpl implements PersistentStore {
     public void add(String type, Map<String, Object> properties) throws PersistenceException {
         LOGGER.debug("type = {}", type);
         if (type == null || type.isEmpty()) {
-            return;
+            throw new PersistenceException(
+                    "The type of object(s) to retrieve must be non-null and not blank, e.g., notification, metacard, etc.");
         }
         if (properties == null || properties.isEmpty() || properties.containsValue("guest")) {
             return;
@@ -76,7 +77,7 @@ public class PersistentStoreImpl implements PersistentStore {
         // Set Solr Core name to type and create solr client
         SolrClient solrClient = getSolrClient(type);
         if (solrClient == null) {
-            return;
+            throw new PersistenceException("Unable to create Solr client.");
         }
 
         Date now = new Date();
@@ -146,7 +147,7 @@ public class PersistentStoreImpl implements PersistentStore {
         // Set Solr Core name to type and create/connect to Solr Core
         SolrClient solrClient = getSolrClient(type);
         if (solrClient == null) {
-            return results;
+            throw new PersistenceException("Unable to create Solr client.");
         }
 
         SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(solrClient, type);
@@ -215,7 +216,7 @@ public class PersistentStoreImpl implements PersistentStore {
         List<Map<String, Object>> itemsToDelete = this.get(type, cql);
         SolrClient solrClient = getSolrClient(type);
         if (solrClient == null) {
-            return 0;
+            throw new PersistenceException("Unable to create Solr client.");
         }
         List<String> idsToDelete = new ArrayList<>();
         for (Map<String, Object> item : itemsToDelete) {

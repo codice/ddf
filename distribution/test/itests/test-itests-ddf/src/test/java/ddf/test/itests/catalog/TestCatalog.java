@@ -2674,6 +2674,19 @@ public class TestCatalog extends AbstractIntegrationTest {
         item.addProperty("workspaces_json", jsonString);
 
         try {
+            int wait = 0;
+            while (true) {
+                try {
+                    pstore.get(PersistentStore.WORKSPACE_TYPE);
+                    break;
+                } catch (Exception e) {
+                    LOGGER.info("Waiting for persistence store to come online.");
+                    Thread.sleep(1000);
+                    if (wait++ > 60) {
+                        break;
+                    }
+                }
+            }
             assertThat(pstore.get(PersistentStore.WORKSPACE_TYPE), is(empty()));
             pstore.add(PersistentStore.WORKSPACE_TYPE, item);
 
