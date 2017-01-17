@@ -30,6 +30,7 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
     public static final String CONFIGURATION_TYPE = "opensearch-source";
 
     // Open Search Service Properties
+    public static final String ID = "id";
     public static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";
     public static final String OPENSEARCH_FACTORY_PID = "OpenSearchSource";
 
@@ -42,7 +43,7 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
     public OpenSearchSourceConfiguration(Map<String, Object> props) {
         factoryPid(props.get(FACTORY_PID_KEY) == null ? null : (String) props.get(FACTORY_PID_KEY));
         servicePid(props.get(SERVICE_PID_KEY) == null ? null : (String) props.get(SERVICE_PID_KEY));
-        sourceName(props.get(SOURCE_NAME) == null ? null : (String) props.get(SOURCE_NAME));
+        sourceName(props.get(ID) == null ? null : (String) props.get(ID));
         endpointUrl(props.get(ENDPOINT_URL) == null ? null : (String) props.get(ENDPOINT_URL));
         sourceUserName(props.get(USERNAME) == null ? null : (String) props.get(USERNAME));
         sourceUserPassword(props.get(PASSWORD) == null ? null : (String) props.get(PASSWORD));
@@ -79,7 +80,7 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
 
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
-        config.put(SOURCE_NAME, sourceName());
+        config.put(ID, sourceName());
         config.put(ENDPOINT_URL, endpointUrl());
         if (sourceUserName() != null) {
             config.put(USERNAME, sourceUserName());

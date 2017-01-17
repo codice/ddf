@@ -31,6 +31,7 @@ public class CswSourceConfiguration extends SourceConfiguration {
     public static final String CONFIGURATION_TYPE = "csw-source";
 
     //** Csw Service Properties
+    public static final String ID = "id";
     public static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
     public static final String CSW_PROFILE_FACTORY_PID = "Csw_Federation_Profile_Source";
     public static final String CSW_GMD_FACTORY_PID = "Gmd_Csw_Federated_Source";
@@ -103,7 +104,7 @@ public class CswSourceConfiguration extends SourceConfiguration {
     // TODO: tbatie - 1/11/17 - Let's do this in the probe method or source utils instead, this is external to the configuration class since these keys a specific to the Csw Source MSF and hopefully we can pass structured data instead of maps of strings one day
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
-        config.put(SOURCE_NAME, sourceName());
+        config.put(ID, sourceName());
         config.put(CSW_URL, endpointUrl());
         if (!factoryPid().equals(CSW_GMD_FACTORY_PID)) {
             config.put(EVENT_SERVICE_ADDRESS, endpointUrl() + "/subscription");

@@ -14,8 +14,8 @@
 package org.codice.ddf.admin.sources.opensearch.persist;
 
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;

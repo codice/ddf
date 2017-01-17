@@ -13,11 +13,11 @@
  */
 package org.codice.ddf.admin.sources.csw.persist;
 
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
-import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_URL;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.EVENT_SERVICE_ADDRESS;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.FORCE_SPATIAL_FILTER;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.OUTPUT_SCHEMA;
@@ -48,15 +48,15 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
     public static final String DESCRIPTION =
             "Attempts to create and persist a CSW source given a configuration.";
 
-    // Field -> Description maps
+    // TODO: tbatie - 1/17/17 - Add event service address once implemented
     public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_NAME,
-            CSW_URL,
-            EVENT_SERVICE_ADDRESS,
+            ENDPOINT_URL,
             FACTORY_PID
     );
     private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(
             USERNAME,
             PASSWORD,
+            EVENT_SERVICE_ADDRESS,
             OUTPUT_SCHEMA,
             FORCE_SPATIAL_FILTER
     );

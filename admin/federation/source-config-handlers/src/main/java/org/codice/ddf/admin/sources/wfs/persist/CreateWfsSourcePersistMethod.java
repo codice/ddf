@@ -15,8 +15,8 @@ package org.codice.ddf.admin.sources.wfs.persist;
 
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;

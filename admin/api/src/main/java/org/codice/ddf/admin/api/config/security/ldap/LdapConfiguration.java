@@ -26,9 +26,9 @@ import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validate
 import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateDn;
 import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateEncryptionMethod;
 import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateGroupObjectClass;
+import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateLdapQuery;
 import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateLdapType;
 import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateLdapUseCase;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateLdapQuery;
 
 import java.util.List;
 import java.util.Map;

@@ -31,6 +31,7 @@ public class WfsSourceConfiguration extends SourceConfiguration {
     public static final String CONFIGURATION_TYPE = "wfs-source";
 
     //** wfs Service Properties
+    public static final String ID = "id";
     public static final String WFS_URL = "wfsUrl";
     public static final String WFS_SOURCE_DISPLAY_NAME = "WFS Source";
     public static final String WFS1_FACTORY_PID = "Wfs_v1_0_0_Federated_Source";
@@ -51,7 +52,7 @@ public class WfsSourceConfiguration extends SourceConfiguration {
         servicePid(wfsProps.get(SERVICE_PID_KEY) == null ?
                 null :
                 (String) wfsProps.get(SERVICE_PID_KEY));
-        sourceName(wfsProps.get(SOURCE_NAME) == null ? null : (String) wfsProps.get(SOURCE_NAME));
+        sourceName(wfsProps.get(ID) == null ? null : (String) wfsProps.get(ID));
         endpointUrl(wfsProps.get(WFS_URL) == null ? null : (String) wfsProps.get(WFS_URL));
         sourceUserName(wfsProps.get(USERNAME) == null ? null : (String) wfsProps.get(USERNAME));
         sourceUserPassword(wfsProps.get(PASSWORD) == null ? null : (String) wfsProps.get(PASSWORD));
@@ -87,7 +88,7 @@ public class WfsSourceConfiguration extends SourceConfiguration {
 
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
-        config.put(SOURCE_NAME, sourceName());
+        config.put(ID, sourceName());
         config.put(WFS_URL, endpointUrl());
         if (sourceUserName() != null) {
             config.put(USERNAME, sourceUserName());
