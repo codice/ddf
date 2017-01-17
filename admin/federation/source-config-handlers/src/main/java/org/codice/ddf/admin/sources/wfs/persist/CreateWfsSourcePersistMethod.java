@@ -15,7 +15,7 @@ package org.codice.ddf.admin.sources.wfs.persist;
 
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ID;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
@@ -44,7 +44,7 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
     public static final String DESCRIPTION =
             "Attempts to create and persist a WFS source given a configuration.";
 
-    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(ID, ENDPOINT_URL, FACTORY_PID);
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_NAME, ENDPOINT_URL, FACTORY_PID);
 
     private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
 

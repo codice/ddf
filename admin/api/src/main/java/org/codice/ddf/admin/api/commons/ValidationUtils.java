@@ -19,9 +19,12 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissin
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.validator.UrlValidator;
+import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class ValidationUtils {
@@ -69,6 +72,17 @@ public class ValidationUtils {
         return errors;
     }
 
+    public static List<ConfigurationMessage> validateUrl(String url, String configId) {
+        List<ConfigurationMessage> errors = new ArrayList<>();
+        if (url == null) {
+            errors.add(createMissingRequiredFieldMsg(configId));
+        }
+        if (validUrlFormat(url)) {
+            errors.add(createInvalidFieldMsg("Endpoint URL is not in a valid format.", configId));
+        }
+        return errors;
+    }
+
     public static final List<ConfigurationMessage> validateContextPaths(List<String> contexts, String configId){
         List<ConfigurationMessage> errors = new ArrayList<>();
         if(contexts == null || contexts.isEmpty()) {
@@ -96,11 +110,25 @@ public class ValidationUtils {
 
         return errors;
     }
+
+    public static final boolean validUrlFormat(String url) {
+        String [] schemes = {"http", "https"};
+        UrlValidator validator = new UrlValidator(schemes);
+        return validator.isValid(url);
+    }
+
     public static final boolean validHostnameFormat(String hostname) {
         return hostname.matches("[0-9a-zA-Z\\.-]+");
     }
 
     public static final boolean validPortFormat(int port) {
         return port > 0 && port < 65536;
+    }
+
+    public static final<T extends Configuration> List<ConfigurationMessage> validate(List<String> fields, T configuration, Map<String, Function<T, List<ConfigurationMessage>>> fieldsToValidations) {
+        return fields.stream()
+                .map(s -> fieldsToValidations.get(s).apply(configuration))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 }

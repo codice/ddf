@@ -14,7 +14,7 @@
 package org.codice.ddf.admin.sources.opensearch.persist;
 
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ID;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
@@ -48,7 +48,7 @@ public class CreateOpenSearchSourcePersistMethod
     private static final String CREATION_FAILED = "creation-failed";
 
     // Field -> Description maps
-    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(ID, ENDPOINT_URL);
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_NAME, ENDPOINT_URL);
 
     private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
 

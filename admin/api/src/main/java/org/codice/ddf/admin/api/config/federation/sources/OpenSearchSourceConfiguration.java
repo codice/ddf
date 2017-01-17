@@ -42,7 +42,7 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
     public OpenSearchSourceConfiguration(Map<String, Object> props) {
         factoryPid(props.get(FACTORY_PID_KEY) == null ? null : (String) props.get(FACTORY_PID_KEY));
         servicePid(props.get(SERVICE_PID_KEY) == null ? null : (String) props.get(SERVICE_PID_KEY));
-        sourceName(props.get(ID) == null ? null : (String) props.get(ID));
+        sourceName(props.get(SOURCE_NAME) == null ? null : (String) props.get(SOURCE_NAME));
         endpointUrl(props.get(ENDPOINT_URL) == null ? null : (String) props.get(ENDPOINT_URL));
         sourceUserName(props.get(USERNAME) == null ? null : (String) props.get(USERNAME));
         sourceUserPassword(props.get(PASSWORD) == null ? null : (String) props.get(PASSWORD));
@@ -79,7 +79,7 @@ public class OpenSearchSourceConfiguration extends SourceConfiguration {
 
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
-        config.put(ID, sourceName());
+        config.put(SOURCE_NAME, sourceName());
         config.put(ENDPOINT_URL, endpointUrl());
         if (sourceUserName() != null) {
             config.put(USERNAME, sourceUserName());

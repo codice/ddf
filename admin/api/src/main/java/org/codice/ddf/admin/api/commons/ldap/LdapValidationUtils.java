@@ -63,7 +63,7 @@ public class LdapValidationUtils {
         return validateNonEmptyString(bindRealm, configId);
     }
 
-    public static final List<ConfigurationMessage> validateQuery(String query, String configId) {
+    public static final List<ConfigurationMessage> validateLdapQuery(String query, String configId) {
         // TODO: tbatie - 1/16/17 - validate query
         return validateNonEmptyString(query, configId);
     }

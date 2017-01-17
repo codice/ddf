@@ -45,26 +45,10 @@ public class CswSourceConfiguration extends SourceConfiguration {
     // TODO: tbatie - 12/20/16 - Include service properties for registering for events and the even service address
 
     private String outputSchema;
-
     private String forceSpatialFilter;
 
     public CswSourceConfiguration() {
 
-    }
-
-    public CswSourceConfiguration(Map<String, Object> cswSourceProps) {
-        factoryPid(cswSourceProps.get(FACTORY_PID_KEY) == null ?
-                null :
-                (String) cswSourceProps.get(FACTORY_PID_KEY));
-        servicePid(cswSourceProps.get(SERVICE_PID_KEY) == null ?
-                null :
-                (String) cswSourceProps.get(SERVICE_PID_KEY));
-        sourceName(cswSourceProps.get(ID) == null ? null : (String) cswSourceProps.get(ID));
-        endpointUrl(
-                cswSourceProps.get(CSW_URL) == null ? null : (String) cswSourceProps.get(CSW_URL));
-        outputSchema(cswSourceProps.get(OUTPUT_SCHEMA) == null ?
-                null :
-                (String) cswSourceProps.get(OUTPUT_SCHEMA));
     }
 
     public CswSourceConfiguration(SourceConfiguration baseConfig) {
@@ -83,22 +67,20 @@ public class CswSourceConfiguration extends SourceConfiguration {
         }
     }
 
-    public CswSourceConfiguration outputSchema(String outputSchema) {
-        this.outputSchema = outputSchema;
-        return this;
-    }
-
-    public String outputSchema() {
-        return outputSchema;
-    }
-
-    public CswSourceConfiguration forceSpatialFilter(String forceSpatialFilter) {
-        this.forceSpatialFilter = forceSpatialFilter;
-        return this;
-    }
-
-    public String forceSpatialFilter() {
-        return forceSpatialFilter;
+    public CswSourceConfiguration(Map<String, Object> cswSourceProps) {
+        factoryPid(cswSourceProps.get(FACTORY_PID_KEY) == null ?
+                null :
+                (String) cswSourceProps.get(FACTORY_PID_KEY));
+        servicePid(cswSourceProps.get(SERVICE_PID_KEY) == null ?
+                null :
+                (String) cswSourceProps.get(SERVICE_PID_KEY));
+        sourceName(cswSourceProps.get(SOURCE_NAME) == null ? null : (String) cswSourceProps.get(
+                SOURCE_NAME));
+        endpointUrl(
+                cswSourceProps.get(CSW_URL) == null ? null : (String) cswSourceProps.get(CSW_URL));
+        outputSchema(cswSourceProps.get(OUTPUT_SCHEMA) == null ?
+                null :
+                (String) cswSourceProps.get(OUTPUT_SCHEMA));
     }
 
     public List<ConfigurationMessage> validate(List<String> fields) {
@@ -121,7 +103,7 @@ public class CswSourceConfiguration extends SourceConfiguration {
     // TODO: tbatie - 1/11/17 - Let's do this in the probe method or source utils instead, this is external to the configuration class since these keys a specific to the Csw Source MSF and hopefully we can pass structured data instead of maps of strings one day
     public Map<String, Object> configMap() {
         HashMap<String, Object> config = new HashMap<>();
-        config.put(ID, sourceName());
+        config.put(SOURCE_NAME, sourceName());
         config.put(CSW_URL, endpointUrl());
         if (!factoryPid().equals(CSW_GMD_FACTORY_PID)) {
             config.put(EVENT_SERVICE_ADDRESS, endpointUrl() + "/subscription");
@@ -145,4 +127,24 @@ public class CswSourceConfiguration extends SourceConfiguration {
     public ConfigurationType getConfigurationType() {
         return new ConfigurationType(CONFIGURATION_TYPE, CswSourceConfiguration.class);
     }
+
+    public CswSourceConfiguration outputSchema(String outputSchema) {
+        this.outputSchema = outputSchema;
+        return this;
+    }
+
+    public String outputSchema() {
+        return outputSchema;
+    }
+
+    public CswSourceConfiguration forceSpatialFilter(String forceSpatialFilter) {
+        this.forceSpatialFilter = forceSpatialFilter;
+        return this;
+    }
+
+    public String forceSpatialFilter() {
+        return forceSpatialFilter;
+    }
+
+
 }

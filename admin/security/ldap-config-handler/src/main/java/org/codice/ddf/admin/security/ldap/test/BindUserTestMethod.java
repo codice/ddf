@@ -91,11 +91,6 @@ public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
             return new ProbeReport(checkMessages);
         }
 
-        checkMessages = configuration.testConditionalBindFields();
-        if (CollectionUtils.isNotEmpty(checkMessages)) {
-            return new ProbeReport(checkMessages);
-        }
-
         LdapTestingCommons.LdapConnectionAttempt bindConnectionAttempt = bindUserToLdapConnection(
                 configuration);
 

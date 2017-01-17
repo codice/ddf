@@ -28,17 +28,13 @@ import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validate
 import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateGroupObjectClass;
 import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateLdapType;
 import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateLdapUseCase;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateQuery;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MISSING_REQUIRED_FIELD;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
+import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateLdapQuery;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.admin.api.commons.ValidationUtils;
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -100,7 +96,7 @@ public class LdapConfiguration extends Configuration {
                     .put(USER_NAME_ATTRIBUTE, config -> validateNonEmptyString(config.userNameAttribute(), USER_NAME_ATTRIBUTE))
                     .put(BASE_GROUP_DN, config -> validateDn(config.baseGroupDn(), BASE_GROUP_DN))
                     .put(BASE_USER_DN, config -> validateDn(config.baseUserDn(), BASE_USER_DN))
-                    .put(QUERY, config -> validateQuery(config.query(), QUERY))
+                    .put(QUERY, config -> validateLdapQuery(config.query(), QUERY))
                     .put(QUERY_BASE, config -> validateDn(config.queryBase(), QUERY_BASE))
                     .put(LDAP_TYPE, config -> validateLdapType(config.ldapType(), LDAP_TYPE))
                     .put(LDAP_USE_CASE, config -> validateLdapUseCase(config.ldapUseCase(), LDAP_USE_CASE))
@@ -282,32 +278,8 @@ public class LdapConfiguration extends Configuration {
         return this;
     }
 
-    // TODO: tbatie - 1/16/17 - Abstract this out to a generic method
     public List<ConfigurationMessage> validate(List<String> fields) {
-        return fields.stream()
-                .map(s -> FIELD_TO_VALIDATION_FUNC.get(s).apply(this))
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-    }
-
-    // TODO: tbatie - 1/16/17 - this shoudl be done in the validate method
-    public List<ConfigurationMessage> testConditionalBindFields() {
-        List<ConfigurationMessage> missingFields = new ArrayList<>();
-
-        // TODO RAP 08 Dec 16: So many magic strings
-        String bindMethod = bindUserMethod();
-        if (bindMethod.equals("GSSAPI SASL")) {
-            if (StringUtils.isEmpty(bindKdcAddress())) {
-                missingFields.add(new ConfigurationMessage(FAILURE, MISSING_REQUIRED_FIELD,
-                        "Field cannot be empty for GSSAPI SASL bind type").configId(bindKdcAddress));
-            }
-            if (StringUtils.isEmpty(bindRealm())) {
-                missingFields.add(new ConfigurationMessage(FAILURE, MISSING_REQUIRED_FIELD,
-                        "Field cannot be empty for GSSAPI SASL bind type").configId(BIND_REALM));
-            }
-        }
-
-        return missingFields;
+        return ValidationUtils.validate(fields, this, FIELD_TO_VALIDATION_FUNC);
     }
 
     @Override

@@ -79,11 +79,6 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
             return new ProbeReport(checkMessages);
         }
 
-        checkMessages = configuration.testConditionalBindFields();
-        if (CollectionUtils.isNotEmpty(checkMessages)) {
-            return new ProbeReport(checkMessages);
-        }
-
         Connection connection = bindUserToLdapConnection(configuration).connection();
         List<SearchResultEntry> searchResults = getLdapQueryResults(connection,
                 configuration.query(),

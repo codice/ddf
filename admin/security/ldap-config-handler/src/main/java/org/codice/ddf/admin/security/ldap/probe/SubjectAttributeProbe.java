@@ -91,11 +91,6 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
             return new ProbeReport(checkMessages);
         }
 
-        checkMessages = configuration.testConditionalBindFields();
-        if (CollectionUtils.isNotEmpty(checkMessages)) {
-            return new ProbeReport(checkMessages);
-        }
-
         Object subjectClaims = new Configurator().getConfig("ddf.security.sts.client.configuration")
                 .get("claims");
 

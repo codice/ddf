@@ -14,23 +14,29 @@
 
 package org.codice.ddf.admin.api.config.federation;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
+import static org.codice.ddf.admin.api.commons.ValidationUtils.validateFactoryPid;
+import static org.codice.ddf.admin.api.commons.ValidationUtils.validateHostName;
+import static org.codice.ddf.admin.api.commons.ValidationUtils.validateNonEmptyString;
+import static org.codice.ddf.admin.api.commons.ValidationUtils.validatePort;
+import static org.codice.ddf.admin.api.commons.ValidationUtils.validateServicePid;
+import static org.codice.ddf.admin.api.commons.ValidationUtils.validateUrl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
-import org.codice.ddf.admin.api.commons.SourceUtils;
+import org.codice.ddf.admin.api.commons.ValidationUtils;
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+
+import com.google.common.collect.ImmutableMap;
 
 public class SourceConfiguration extends Configuration {
 
     public static final String CONFIGURATION_TYPE = "sources";
 
-    public static final String ID = "id";
+    public static final String SOURCE_NAME = "sourceName";
     public static final String HOSTNAME = "hostname";
     public static final String PORT = "port";
     public static final String USERNAME = "username";
@@ -38,6 +44,18 @@ public class SourceConfiguration extends Configuration {
     public static final String ENDPOINT_URL = "url";
     public static final String FACTORY_PID = "factoryPid";
     public static final String SERVICE_PID = "servicePid";
+
+    private static final Map<String, Function<SourceConfiguration, List<ConfigurationMessage>>>
+            FIELDS_TO_VALIDATIONS = new ImmutableMap.Builder<String, Function<SourceConfiguration, List<ConfigurationMessage>>>()
+            .put(SOURCE_NAME, config -> validateNonEmptyString(config.sourceName(), SOURCE_NAME))
+            .put(HOSTNAME, config -> validateHostName(config.sourceHostName(), HOSTNAME))
+            .put(PORT, config -> validatePort(config.sourcePort(), PORT))
+            .put(USERNAME, config -> validateNonEmptyString(config.sourceUserName(), USERNAME))
+            .put(PASSWORD, config -> validateNonEmptyString(config.sourceUserPassword(), PASSWORD))
+            .put(ENDPOINT_URL, config -> validateUrl(config.endpointUrl(), ENDPOINT_URL))
+            .put(FACTORY_PID, config -> validateFactoryPid(config.factoryPid(), FACTORY_PID))
+            .put(SERVICE_PID, config -> validateServicePid(config.servicePid(), SERVICE_PID))
+            .build();
 
     private String sourceName;
     private String sourceHostName;
@@ -51,65 +69,84 @@ public class SourceConfiguration extends Configuration {
     private boolean certError;
     private boolean trustedCertAuthority;
 
-    public List<ConfigurationMessage> validate(List<String> fields) {
-        //TODO adimka Add subtypes to error messages once they are available
-        List<ConfigurationMessage> errors = new ArrayList<>();
-        for (String field : fields) {
-            switch (field) {
-            case ID:
-                if (sourceName() == null || sourceName().isEmpty()) {
-                    errors.add(createMissingRequiredFieldMsg(ID));
-                    //TODO confirm ID being added is unique
-                }
-                break;
-            case HOSTNAME:
-                if (sourceHostName() == null) {
-                    errors.add(createMissingRequiredFieldMsg(HOSTNAME));
-                } else {
-                    if(!SourceUtils.validHostnameFormat(sourceHostName())) {
-                        errors.add(createInvalidFieldMsg("Hostname format is invalid.", HOSTNAME));
-                    }
-                }
-                break;
-            case PORT:
-                if (!SourceUtils.validPortFormat(sourcePort())) {
-                    errors.add(createInvalidFieldMsg("Port is not in valid range.", PORT));
-                }
-                break;
-            case USERNAME:
-                if (sourceUserName() == null) {
-                    errors.add(createMissingRequiredFieldMsg(USERNAME));
-                    // TODO: tbatie - 1/13/17 - If the username is specified but not password error msg, maybe in enforce this at the Handler level instead
-                }
-                break;
-            case PASSWORD:
-                if (sourceUserPassword() == null) {
-                    errors.add(createMissingRequiredFieldMsg(PASSWORD));
-                }
-                break;
-            case ENDPOINT_URL:
-                if (endpointUrl() == null) {
-                    errors.add(createInvalidFieldMsg("Configuration does not contain an endpoint URL.", ENDPOINT_URL));
-                }
-                if (SourceUtils.validUrlFormat(endpointUrl())) {
-                    errors.add(createInvalidFieldMsg("Endpoint URL is not in a valid format.", ENDPOINT_URL));
-                }
-                break;
-            case SERVICE_PID:
-                if (servicePid() == null) {
-                    errors.add(createMissingRequiredFieldMsg(SERVICE_PID));
-                }
-            }
-        }
-        return errors;
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new ConfigurationType(CONFIGURATION_TYPE, SourceConfiguration.class);
     }
 
+    public List<ConfigurationMessage> validate(List<String> fields) {
+        return ValidationUtils.validate(fields, this, FIELDS_TO_VALIDATIONS);
+    }
+
+    public Map<String, Object> configMap() {
+        return null;
+    }
+
+    //Getters
     public boolean trustedCertAuthority() {
         return trustedCertAuthority;
     }
 
     public boolean certError() {
         return certError;
+    }
+
+    public int sourcePort() {
+        return sourcePort;
+    }
+
+    public String servicePid() {
+        return servicePid;
+    }
+
+    public String sourceName() {
+        return sourceName;
+    }
+
+    public String factoryPid() {
+        return factoryPid;
+    }
+
+    public String endpointUrl() {
+        return endpointUrl;
+    }
+
+    public String sourceHostName() {
+        return sourceHostName;
+    }
+
+    public String sourceUserPassword() {
+        return sourceUserPassword;
+    }
+
+    public String sourceUserName() {
+        return sourceUserName;
+    }
+
+    //Setters
+    public SourceConfiguration sourceName(String sourceName) {
+        this.sourceName = sourceName;
+        return this;
+    }
+
+    public SourceConfiguration factoryPid(String factoryPid) {
+        this.factoryPid = factoryPid;
+        return this;
+    }
+
+    public SourceConfiguration sourceUserName(String sourceUserName) {
+        this.sourceUserName = sourceUserName;
+        return this;
+    }
+
+    public SourceConfiguration endpointUrl(String endpointUrl) {
+        this.endpointUrl = endpointUrl;
+        return this;
+    }
+
+    public SourceConfiguration sourceUserPassword(String sourceUserPassword) {
+        this.sourceUserPassword = sourceUserPassword;
+        return this;
     }
 
     public SourceConfiguration certError(boolean certError) {
@@ -122,53 +159,9 @@ public class SourceConfiguration extends Configuration {
         return this;
     }
 
-    public String sourceName() {
-        return sourceName;
-    }
-
-    public SourceConfiguration sourceName(String sourceName) {
-        this.sourceName = sourceName;
+    public SourceConfiguration sourcePort(int sourcePort) {
+        this.sourcePort = sourcePort;
         return this;
-    }
-
-    public String factoryPid() {
-        return factoryPid;
-    }
-
-    public SourceConfiguration factoryPid(String factoryPid) {
-        this.factoryPid = factoryPid;
-        return this;
-    }
-
-    public String sourceUserPassword() {
-        return sourceUserPassword;
-    }
-
-    public SourceConfiguration sourceUserPassword(String sourceUserPassword) {
-        this.sourceUserPassword = sourceUserPassword;
-        return this;
-    }
-
-    public String sourceUserName() {
-        return sourceUserName;
-    }
-
-    public SourceConfiguration sourceUserName(String sourceUserName) {
-        this.sourceUserName = sourceUserName;
-        return this;
-    }
-
-    public String endpointUrl() {
-        return endpointUrl;
-    }
-
-    public SourceConfiguration endpointUrl(String endpointUrl) {
-        this.endpointUrl = endpointUrl;
-        return this;
-    }
-
-    public String sourceHostName() {
-        return sourceHostName;
     }
 
     public SourceConfiguration sourceHostName(String sourceHostName) {
@@ -176,30 +169,9 @@ public class SourceConfiguration extends Configuration {
         return this;
     }
 
-    public int sourcePort() {
-        return sourcePort;
-    }
-
-    public SourceConfiguration sourcePort(int sourcePort) {
-        this.sourcePort = sourcePort;
-        return this;
-    }
-
-    public String servicePid() {
-        return servicePid;
-    }
-
     public SourceConfiguration servicePid(String servicePid) {
         this.servicePid = servicePid;
         return this;
     }
 
-    public Map<String, Object> configMap() {
-        return null;
-    }
-
-    @Override
-    public ConfigurationType getConfigurationType() {
-        return new ConfigurationType(CONFIGURATION_TYPE, SourceConfiguration.class);
-    }
 }

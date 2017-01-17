@@ -91,11 +91,6 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
             return new ProbeReport(checkMessages);
         }
 
-        checkMessages = configuration.testConditionalBindFields();
-        if (CollectionUtils.isNotEmpty(checkMessages)) {
-            return new ProbeReport(checkMessages);
-        }
-
         String ldapType = configuration.ldapType();
         ServerGuesser guesser = ServerGuesser.buildGuesser(ldapType,
                 bindUserToLdapConnection(configuration).connection());

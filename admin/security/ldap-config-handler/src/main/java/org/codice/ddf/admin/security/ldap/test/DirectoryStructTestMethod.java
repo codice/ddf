@@ -112,11 +112,6 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
             return new ProbeReport(checkMessages);
         }
 
-        checkMessages = configuration.testConditionalBindFields();
-        if (CollectionUtils.isNotEmpty(checkMessages)) {
-            return new ProbeReport(checkMessages);
-        }
-
         LdapConnectionAttempt connectionAttempt = bindUserToLdapConnection(configuration);
 
         if (connectionAttempt.result() != SUCCESSFUL_BIND) {

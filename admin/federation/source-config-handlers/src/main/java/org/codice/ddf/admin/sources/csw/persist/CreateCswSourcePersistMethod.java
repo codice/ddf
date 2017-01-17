@@ -14,7 +14,7 @@
 package org.codice.ddf.admin.sources.csw.persist;
 
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ID;
+import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_URL;
@@ -49,8 +49,7 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
             "Attempts to create and persist a CSW source given a configuration.";
 
     // Field -> Description maps
-    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(
-            ID,
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_NAME,
             CSW_URL,
             EVENT_SERVICE_ADDRESS,
             FACTORY_PID
