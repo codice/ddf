@@ -1,50 +1,108 @@
 ==== Solr Cloud
 
-If the ${branding} needs to be accessible for a higher than normal period with low instances of downtime, then Solr Cloud should be used.
+Solr Cloud is a cluster of Solr Server instances that are fault tolerant and highly available.
+Each Solr Server instance in Solr Cloud provides a Solr Admin UI.
 
-Solr Cloud is a cluster of Solr Server instances that support fault tolerance and high availability.
-Each Solr Server instance in Solr Cloud provides a Solr Admin GUI.
+Configuration shared between Solr Server instances is managed by Zookeeper.
+Zookeeper helps manage the overall structure.
 
-Synchronization between Solr Server instances is managed by Zookeeper.
-Zookeeper routes client requests to the proper Solr Server instance in the the Solr Cloud cluster.
+.Solr Cloud Deployment
+[ditaa,solrcloud-diagram,png]
+....
+  Container(JVM)         Solr Cloud
+ +=-----------------+   +=--------------------+
+ |                  |   |                     |
+ | /-----------\    |   | +---------+         |
+ | |cDEF       |    |   | |Solr cFF0|         |
+ | | DDF       |    |   | +---------+         |
+ | |           |    |   |                     |
+ | |           |  http  |         +---------+ |
+ | |           +------->|         |Solr cFF0| |
+ | |           |    |   |         +---------+ |
+ | |           |    |   |                     |
+ | |           |    |   | +---------+         |
+ | |           |    |   | |Solr cFF0|         |
+ | \-----------/    |   | +---------+         |
+ |                  |   |                     |
+ +------------------+   +---------------------+
+....
 
-.Solr Cloud Pros and Cons
-[cols="1,4a,2a" options="header"]
-|===
+[NOTE]
+====
+Solr Cloud is currently in Beta version.
+Bugs and feature changes may affect the final release.
+====
 
-|Feature
-|Pro
-|Con
+===== When to Use Solr Cloud
 
-|Scalability
-a|* Scalable
-* Can run a cluster of Solr Servers
-* Indexed documents can exceed ~2 billion
-a|
+If the ${branding} needs to be accessible for a higher than normal period with low downtime, then Solr Cloud should be used. See below for details.
 
-|Flexibility
-a|* Uses the same interface as the Standalone Solr Server uses under the covers.
-|* Requires HTTP connection.
-* Requires Zookeeper to coordinate configurations between Solr Servers.
-* Synchronous issues on startup; i.e., Zookeeper nodes needs to be up and before Solr Cloud is up.
+====== Tradeoffs
+* Scalable. Can exceed ~2 billion indexed documents.
+* Solr Admin UI can be used.
+* Has network overhead and requires additional protection to be secure.
+* Installation is more involved (requires Zookeeper)
+* Configuration and administration is more complex due to replicate, sharding, etc.
+* No way to backup currently, but will automatically recover from system failure.
 
-|(Administrative)Tools
-a|* Contains Solr Admin GUI, which allows admins to query, check health, see metrics, see configuration files and preferences, etc.
-a|
+===== Installation/Configuration Guide
 
-|Security
-a|
-a|* Solr Cloud requires additional network protection to be secure.
-See Solr Cloud Hardening Guide for details.
+[NOTE]
+====
+The instructions on setting up Solr Cloud for ${branding} only include setup in a *NIX environment.
+====
 
-|Performance
-a|* Near real-time indexing
-* Can understand complex queries
-a|* Requires HTTP or network overhead
-* Performance degrades as more data is indexed at ~2 billion documents
+====== Prerequisites
 
-|Backup/Recovery
-a|
-a|* Automatic recovery from failure.
+Before Solr Cloud can be installed:
 
-|===
+* ZooKeeper 3.4.5
+* *NIX environment
+* JDK 8 or greater
+
+====== Installing Zookeeper
+
+Refer to https://zookeeper.apache.org/doc/r3.1.2/zookeeperStarted.html#sc_Download for installation instructions.
+
+[NOTE]
+====
+A minimum of three Zookeeper nodes required.
+Three Zookeeper nodes are needed to form a quorum.
+A three Zookeeper ensemble allows for a single server to fail and the service will still be available.
+More Zookeeper nodes can be added to achieve greater fault tolerance. The total number of nodes must always be an odd number.
+====
+
+====== Installing Solr Cloud
+
+Repeat the following procedure for each Solr server instance that will be part of the Solr Cloud cluster:
+
+. Refer to https://cwiki.apache.org/confluence/display/solr/Apache+Solr+Reference+Guide for installation instructions.
+. Download jar files.
+The jars are needed to support geospatial and xpath queries and need to be installed on every Solr server instance after the Solr Cloud installation instructions have been followed.
+
+.. http://artifacts.codice.org/service/local/repositories/releases/content/org/codice/thirdparty/jts/1.12_1/jts-1.12_1.jar
+.. http://artifacts.codice.org/service/local/artifact/maven/content?r=public&g=ddf.platform.solr&a=solr-xpath&v=${ddf.version}
+
+. Copy downloaded jar files to: `<SOLR_INSTALL_DIR>/server/solr-webapp/webapp/WEB-INF/lib/`
+
+[NOTE]
+====
+A minimum of two Solr server instances is required. Each Solr server instance must have a minimum of two shards.
+Having two Solr server instances guarantees that at least one Solr server is available if one fails.
+The two shards enables the document mapping to be restored if one shard becomes unavailable.
+====
+
+====== Configuring
+
+. On the ${branding} server, edit `<INSTALLATION_DIRECTORY>/etc/system.properties`:
+.. Comment out the Solr Client Configuration for *Http Solr Client* and *Embedded Solr Client* sections.
+.. Uncomment the section for the *Cloud Solr Client*:
+.. Set `solr.cloud.zookeeper` to `<ZOOKEEPER_1_HOSTNAME>:<PORT_NUMBER>`, `<ZOOKEEPER_2_HOSTNAME>:<PORT_NUMBER>`, `<ZOOKEEPER_n_HOSTNAME>:<PORT_NUMBER>`
+.. Set `solr.data.dir` to the desired data directory.
+
+.system.properties
+----
+solr.client = CloudSolrClient
+solr.data.dir = ${karaf.home}/data/solr
+solr.cloud.zookeeper = zk1:2181,zk2:2181,zk3:2181
+----

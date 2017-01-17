@@ -32,7 +32,7 @@ All sources, including federated source and connected source, support queries, b
 The <<_catalog_framework,Standard Catalog Framework>> uses only one Catalog provider, determined by the OSGi Framework as the service reference with the highest service ranking.
 In the case of a tie, the service with the lowest service ID (first created) is used.
 +
-The Catalog reference implementation comes with a <<_solr_catalog_provider,Solr Provider>> by default.
+The Catalog reference implementation comes with a <<_solr_catalog_provider,Solr Catalog Provider>> by default.
 
 <<_included_catalog_stores, Catalog Store>> :: A Catalog Store is an editable store that is either local or remote.
 

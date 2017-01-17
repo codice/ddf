@@ -1,7 +1,7 @@
 Catalog Providers are used to interface with the data of {branding}.
 
 The Solr Catalog Provider is included with a standard installation of ${branding}.
-The Solr Catalog Provider is an implementation of Catalog Provider using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+The Solr Catalog Provider is an implementation of Catalog Provider using http://lucene.apache.org/solr/[Apache Solr] as a data store.
 The following are the three ways to configure the Solr Catalog Provider:
 
 <<HTTP Solr,HTTP Solr>> (default):: Used with an external (HTTP) Solr server.

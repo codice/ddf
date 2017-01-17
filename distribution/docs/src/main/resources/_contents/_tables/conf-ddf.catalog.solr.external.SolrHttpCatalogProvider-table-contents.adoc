@@ -1,3 +1,0 @@
-|<<ddf.catalog.solr.external.SolrHttpCatalogProvider,External Solr Provider>>
-|ddf.catalog.solr.external.SolrHttpCatalogProvider
-|External Solr Provider

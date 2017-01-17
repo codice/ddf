@@ -345,33 +345,33 @@ application/x-msdownload,
 application/x-msmetafile
 |Yes
 
-6+^h|Solr Provider Properties
+6+^h|[[SolrProperties]]Solr Catalog Provider Properties
 
 |Solr Client
 |solr.client
 |String
-|Solr Provider selected.
+|Solr Catalog Provider selected.
 |HttpSolrClient, CloudSolrClient, EmbeddedSolrServer
 |Yes
-
-|Solr Provider Url
-|solr.http.url
-|String
-|Solr Provider Url for a Standalone Solr Server (HttpSolrClient)
-|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}/solr
-|No
 
 |Solr Data Directory
 |solr.data.dir
 |String
 |Solr Data Directory
 |${karaf.home}/data/solr
+|Yes
+
+|Solr Catalog Provider Url
+|solr.http.url
+|String
+|Url for a HTTP Solr server (required for HTTP Solr)
+|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}/solr
 |No
 
 |Zookeeper Nodes
 |solr.cloud.zookeeper
 |String
-|Zookeeper hostnames and port numbers
+|Zookeeper hostnames and port numbers (required for Solr Cloud)
 |zookeeperhost1:2181,zookeeperhost2:2181,zookeeperhost3:2181
 |No
 
@@ -612,9 +612,9 @@ The new service can now be used as if it was created using the ${admin-console}.
 
 |===
 
-==== Configuring Solr Provider Data Directory
+==== Configuring Solr Catalog Provider Data Directory
 
-The Solr Provider and the Embedded Solr Provider writes index files to the file system.
+The HTTP Solr Catalog Provider and the Embedded Solr Catalog Provider writes index files to the file system.
 By default, these files are stored under `${branding}_HOME/data/solr/catalog/data`.
 If there is inadequate space in `${branding}_HOME`, or if it is desired to maintain backups of the indexes only, this directory can be changed.
 
@@ -657,6 +657,19 @@ solr.data.dir = /path/to/new/data/dir
 ----
 +
 . Restart the ${branding}.
+
+[WARNING]
+====
+*Changes Require a Distribution Restart* +
+If the Data Directory File Path property is changed, no changes will occur to the Solr Catalog Provider until the distribution has been restarted.
+====
+
+[NOTE]
+====
+If data directory file path property is changed to a new directory, and the previous data is not moved into that directory, no data will exist in Solr.
+Instead, Solr will create an empty index.
+Therefore, it is possible to have multiple places where Solr files are stored, and a user can toggle between those locations for different sets of data.
+====
 
 ==== Configuring Thread Pools
 

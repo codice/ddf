@@ -1,24 +1,24 @@
 {branding} uses Solr for data storage, by default.
 
-=== ${ddf-solr} Prerequisites
+==== ${ddf-solr} Prerequisites
 
 To use the ${ddf-solr} Application, the following apps/features must be installed:
 
 * ${ddf-platform}
 * ${ddf-catalog}
 
-=== Installing ${ddf-solr}
+==== Installing ${ddf-solr}
 
-The ${ddf-solr} application is installed by default with a standard installation.
+The ${ddf-solr} Application is installed by default with a standard installation.
 
-=== Configuring ${ddf-solr}
+==== Configuring ${ddf-solr}
 
-These configurations are available from the ${ddf-solr} application in the ${admin-console}.
+The ${ddf-solr} Application includes the Solr Catalog Provider feature.
 
-==== ${ddf-solr} Default Configurations
+===== Solr Catalog Provider Default Configurations
 
-These configurations are available by default on a standard installation of ${ddf-solr}.
+These configurations are available by default on a standard installation of Solr Catalog Provider.
 
-.${ddf-solr} Default Configurations
+.Solr Catalog Provider Default Configurations
 
 include::{adoc-include}/_tables/ddf.catalog.source.solr.SolrCatalogProvider-table-contents.adoc[]

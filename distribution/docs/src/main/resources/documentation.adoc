@@ -304,10 +304,6 @@ include::{adoc-include}/_sources/registry-store-contents.adoc[]
 
 include::{adoc-include}/_sources/catalog-providers-contents.adoc[]
 
-include::{adoc-include}/_sources/solr-catalog-provider-contents.adoc[]
-
-include::{adoc-include}/_sources/solr-http-catalog-provider-contents.adoc[]
-
 === Storage Providers
 
 include::{adoc-include}/_sources/storage-provider-intro-contents.adoc[]

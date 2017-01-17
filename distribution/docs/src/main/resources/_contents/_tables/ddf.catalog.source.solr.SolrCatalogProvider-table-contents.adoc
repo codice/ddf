@@ -1,4 +1,4 @@
-.[[ddf.catalog.source.solr.SolrCatalogProvider]]Solr Provider Configuration Properties
+.Catalog Solr Provider Default Configurations
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 
@@ -20,7 +20,7 @@
 |disableTextPath
 |Boolean
 |Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance.
-|1000
+|false
 |true
 
 |===
