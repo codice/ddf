@@ -247,6 +247,7 @@ public class DownloadsStatusEventPublisher {
                     user,
                     type,
                     bytes);
+            eventProperties.put(ActivityEvent.DOWNLOAD_ID_KEY, user + downloadIdentifier);
             Event event = new Event(ActivityEvent.EVENT_TOPIC, eventProperties);
             eventAdmin.postEvent(event);
         } else {
