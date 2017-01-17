@@ -124,7 +124,12 @@ define([
             model: Workspace.Model,
             url: '/search/catalog/internal/workspaces',
             useAjaxSync: true,
+            fetched: false,
+            handleSync: function(){
+                this.fetched = true;
+            },
             initialize: function(){
+                this.listenTo(this, 'sync', this.handleSync);
                 this.handleUserChange();
                 this.listenTo(user, 'change', this.handleUserChange);
                 var collection = this;

@@ -23,6 +23,7 @@ require([
     'properties',
     'handlebars/dist/handlebars',
     'component/announcement',
+    'store',
     'js/requestAnimationFramePolyfill',
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
@@ -31,7 +32,7 @@ require([
     'js/Theming',
     'js/Autocomplete',
     'js/SystemUsage'
-], function (_, $, Backbone, Marionette, MarionetteRegion, app, properties, hbs, announcement) {
+], function (_, $, Backbone, Marionette, MarionetteRegion, app, properties, hbs, announcement, store) {
 
     $(window.document).ajaxError(function (event, jqxhr, settings, throwError) {
         var message;
@@ -101,6 +102,13 @@ require([
     $(document).ready(function () {
         document.title = properties.branding + ' ' + properties.product;
     });
-    // Actually start up the application.
-    app.App.start({});
+    // Actually start up the application.  Entire app depends on workspaces, so don't allow anything until they're fetched.
+    var workspaces = store.get('workspaces');
+    if (workspaces.fetched){
+        app.App.start({});
+    } else {
+        workspaces.once('sync', function(){
+            app.App.start({});
+        });
+    }
 });
