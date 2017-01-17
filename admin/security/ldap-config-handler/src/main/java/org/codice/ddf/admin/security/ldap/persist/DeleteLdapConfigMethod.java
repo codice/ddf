@@ -21,15 +21,14 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.configurator.Configurator;
+import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.configurator.OperationReport;
-import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -56,8 +55,7 @@ public class DeleteLdapConfigMethod extends PersistMethod<LdapConfiguration> {
     @Override
     public Report persist(LdapConfiguration config) {
         Report validatedReport =
-                // TODO adimka Move validation to use the validate method instead of this stuff
-                new Report(config.checkRequiredFields(new HashSet(REQUIRED_FIELDS)));
+                new Report(config.validate(REQUIRED_FIELDS));
         if (validatedReport.containsFailureMessages()) {
             return validatedReport;
         }

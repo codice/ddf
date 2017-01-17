@@ -14,7 +14,11 @@
 
 package org.codice.ddf.admin.security.ldap.test;
 
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.DIGEST_MD5_SASL;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.GSSAPI_SASL;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAPS;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.SASL;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.SIMPLE;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
@@ -110,20 +114,20 @@ public class LdapTestingCommons {
             String bindUserCredentials, String realm, String kdcAddress) {
         BindRequest request;
         switch (bindMethod) {
-        case "Simple":
+        case SIMPLE:
             request = Requests.newSimpleBindRequest(bindUserDN, bindUserCredentials.toCharArray());
             break;
-        case "SASL":
+        case SASL:
             request = Requests.newPlainSASLBindRequest(bindUserDN,
                     bindUserCredentials.toCharArray());
             break;
-        case "GSSAPI SASL":
+        case GSSAPI_SASL:
             request = Requests.newGSSAPISASLBindRequest(bindUserDN,
                     bindUserCredentials.toCharArray());
             ((GSSAPISASLBindRequest) request).setRealm(realm);
             ((GSSAPISASLBindRequest) request).setKDCAddress(kdcAddress);
             break;
-        case "Digest MD5 SASL":
+        case DIGEST_MD5_SASL:
             request = Requests.newDigestMD5SASLBindRequest(bindUserDN,
                     bindUserCredentials.toCharArray());
             ((DigestMD5SASLBindRequest) request).setCipher(DigestMD5SASLBindRequest.CIPHER_HIGH);

@@ -20,12 +20,12 @@ import java.util.Map;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.security.ldap.EmbeddedLdapConfiguration;
+import org.codice.ddf.admin.api.configurator.Configurator;
+import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
-import org.codice.ddf.admin.api.configurator.Configurator;
-import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 import org.codice.ddf.admin.security.ldap.embedded.persist.DefaultEmbeddedLdapPersistMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

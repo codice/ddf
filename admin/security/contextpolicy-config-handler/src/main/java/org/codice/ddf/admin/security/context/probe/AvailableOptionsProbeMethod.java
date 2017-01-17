@@ -29,10 +29,10 @@ import java.util.Map;
 
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration;
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 
@@ -46,8 +46,6 @@ public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
     public static final String REALMS_KEY = "realms";
     public static final String AUTH_TYPES_KEY = "authenticationTypes";
     public static final String CLAIMS_KEY = "claims";
-
-
     public static final List<String> RETURN_TYPES = ImmutableList.of(REALMS_KEY, CLAIMS_KEY, AUTH_TYPES_KEY);
 
     Configurator configurator = new Configurator();

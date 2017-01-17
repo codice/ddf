@@ -14,7 +14,9 @@
 
 package org.codice.ddf.admin.api.config.security.context;
 
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyUtils.validateContextPath;
+import static org.codice.ddf.admin.api.commons.ValidationUtils.validateContextPaths;
+import static org.codice.ddf.admin.api.commons.ValidationUtils.validateMapping;
+import static org.codice.ddf.admin.api.commons.ValidationUtils.validateNonEmptyString;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
@@ -24,12 +26,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 public class ContextPolicyBin {
 
@@ -50,7 +53,15 @@ public class ContextPolicyBin {
     public static final String CONTEXT_PATHS = "contextPaths";
     public static final String AUTH_TYPES = "authenticationTypes";
     public static final String REQ_ATTRIS = "requiredAttributes";
+    public static final List<String> ALL_FIELDS = ImmutableList.of(REALM, CONTEXT_PATHS, AUTH_TYPES, REQ_ATTRIS);
 
+    // TODO: tbatie - 1/16/17 - create optional fields for req_attros
+    private static final Map<String, Function<ContextPolicyBin, List<ConfigurationMessage>>> FIELD_TO_VALIDATION_FUNC = new ImmutableMap.Builder<String, Function<ContextPolicyBin, List<ConfigurationMessage>>>()
+            .put(REALM, config -> validateRealm(config.realm(), REALM))
+            .put(CONTEXT_PATHS, config -> validateContextPaths(new ArrayList<>(config.contextPaths()), CONTEXT_PATHS))
+            .put(AUTH_TYPES, config -> validateAuthTypes(config.authenticationTypes(), AUTH_TYPES))
+            .put(REQ_ATTRIS, config -> validateMapping(config.requiredAttributes(), REQ_ATTRIS))
+            .build();
     private String realm;
     private Set<String> contextPaths;
     private List<String> authenticationTypes;
@@ -62,83 +73,38 @@ public class ContextPolicyBin {
         contextPaths = new HashSet<>();
     }
 
-    public ContextPolicyBin realm(String realm) {
-        this.realm = realm;
-        return this;
-    }
-
-    public Set<String> contextPaths() {
-        return contextPaths;
-    }
-
-    public List<String> authenticationTypes() {
-        return authenticationTypes;
-    }
-
-    public Map<String, String> requiredAttributes() {
-        return requiredAttributes;
-    }
-
-    public String realm() {
-        return realm;
-    }
-
-    public ContextPolicyBin authenticationTypes(List<String> authenticationTypes) {
-        this.authenticationTypes = authenticationTypes;
-        return this;
-    }
-
-    public ContextPolicyBin requiredAttributes(Map<String, String> requiredAttributes) {
-        this.requiredAttributes = requiredAttributes;
-        return this;
-    }
-
-    public ContextPolicyBin contextPaths(Set<String> contextPaths) {
-        this.contextPaths = contextPaths;
-        return this;
-    }
-
-    public ContextPolicyBin contextPaths(String context) {
-        contextPaths.add(context);
-        return this;
-    }
-
-    public List<ConfigurationMessage> validate() {
-        List<ConfigurationMessage> msgs = new ArrayList<>();
-
-        if (realm() == null || StringUtils.isEmpty(realm())) {
-            msgs.add(createMissingRequiredFieldMsg(REALM));
+    public static final List<ConfigurationMessage> validateRealm(String realm, String configId) {
+        List<ConfigurationMessage> errors = validateNonEmptyString(realm, configId);
+        if (errors.isEmpty() && !ALL_REALMS.contains(realm)) {
+            errors.add(createInvalidFieldMsg("Unknown realm: " + realm + ". Realm must be one of " + ALL_REALMS.stream().collect(Collectors.joining(",")), configId));
         }
 
-        if (contextPaths() == null || contextPaths().isEmpty()) {
-            msgs.add(createMissingRequiredFieldMsg(CONTEXT_PATHS));
-        } else {
-            msgs.addAll(contextPaths().stream()
-                    .map(context -> validateContextPath(context))
-                    .flatMap(List::stream)
-                    .collect(Collectors.toList()));
-        }
+        return errors;
+    }
 
-        if (authenticationTypes() == null || authenticationTypes().isEmpty()) {
-            msgs.add(createMissingRequiredFieldMsg(AUTH_TYPES));
+    public static final List<ConfigurationMessage> validateAuthTypes(List<String> authTypes, String configId) {
+        List<ConfigurationMessage> errors = new ArrayList<>();
+        if (authTypes == null || authTypes.isEmpty()) {
+            errors.add(createMissingRequiredFieldMsg(configId));
         } else {
-            for (String authType : authenticationTypes()) {
+            for (String authType : authTypes) {
                 if (!ALL_AUTH_TYPES.contains(authType)) {
-                    msgs.add(createInvalidFieldMsg("Unknown auth type: " + authType, AUTH_TYPES));
+                    errors.add(createInvalidFieldMsg("Unknown authentication type: " + authType + ". Authentication type must be one of: " + ALL_AUTH_TYPES.stream().collect(Collectors.joining(",")), configId));
                 }
             }
         }
 
-        if (requiredAttributes() != null) {
-            if (requiredAttributes().values()
-                    .contains(null) || requiredAttributes().values()
-                    .contains("")) {
-                msgs.add(createMissingRequiredFieldMsg(REQ_ATTRIS));
-            }
-        }
-
-        return msgs;
+        return errors;
     }
+
+
+    public List<ConfigurationMessage> validate(List<String> fields) {
+        return fields.stream()
+                .map(s -> FIELD_TO_VALIDATION_FUNC.get(s).apply(this))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
 
     public boolean hasSameRequiredAttributes(Map<String, String> mappingsToCheck) {
         if (!(requiredAttributes.keySet()
@@ -153,5 +119,40 @@ public class ContextPolicyBin {
                         .equals(binMapping.getValue()))
                 .findFirst()
                 .isPresent();
+    }
+    //Getters
+    public Set<String> contextPaths() {
+        return contextPaths;
+    }
+    public List<String> authenticationTypes() {
+        return authenticationTypes;
+    }
+    public Map<String, String> requiredAttributes() {
+        return requiredAttributes;
+    }
+    public String realm() {
+        return realm;
+    }
+
+    //Setters
+    public ContextPolicyBin realm(String realm) {
+        this.realm = realm;
+        return this;
+    }
+    public ContextPolicyBin authenticationTypes(List<String> authenticationTypes) {
+        this.authenticationTypes = authenticationTypes;
+        return this;
+    }
+    public ContextPolicyBin requiredAttributes(Map<String, String> requiredAttributes) {
+        this.requiredAttributes = requiredAttributes;
+        return this;
+    }
+    public ContextPolicyBin contextPaths(Set<String> contextPaths) {
+        this.contextPaths = contextPaths;
+        return this;
+    }
+    public ContextPolicyBin contextPaths(String context) {
+        contextPaths.add(context);
+        return this;
     }
 }

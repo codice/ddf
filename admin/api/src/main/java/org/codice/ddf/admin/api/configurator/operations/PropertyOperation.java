@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.codice.ddf.admin.api.configurator.Operation;
 import org.codice.ddf.admin.api.configurator.ConfiguratorException;
+import org.codice.ddf.admin.api.configurator.Operation;
 
 /**
  * Transactional handler for persisting property file changes.

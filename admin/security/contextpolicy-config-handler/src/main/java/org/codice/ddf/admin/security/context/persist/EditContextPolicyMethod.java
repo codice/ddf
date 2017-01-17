@@ -30,10 +30,10 @@ import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyBin;
 import org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration;
+import org.codice.ddf.admin.api.configurator.Configurator;
+import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.configurator.OperationReport;
-import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

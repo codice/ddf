@@ -20,13 +20,13 @@ import java.util.Map;
 public abstract class ConfigurationHandlerMethod {
 
     //The following fields are used by the json parser although they look unused
-    private String id;
-    private String description;
-    private List<String> requiredFields;
-    private List<String> optionalFields;
-    private Map<String, String> successTypes;
-    private Map<String, String> failureTypes;
-    private Map<String, String> warningTypes;
+    final String id;
+    final String description;
+    final List<String> requiredFields;
+    final List<String> optionalFields;
+    final Map<String, String> successTypes;
+    final Map<String, String> failureTypes;
+    final Map<String, String> warningTypes;
 
     public ConfigurationHandlerMethod(String id, String description,
             List<String> requiredFields, List<String> optionalFields,

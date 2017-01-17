@@ -28,7 +28,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO: tbatie - 1/16/17 - Rename to operation and rename all implementations
 public interface Operation<T, S> {
     Logger LOGGER = LoggerFactory.getLogger(Operation.class);
 

@@ -29,7 +29,6 @@ import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdap
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +73,7 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
     public ProbeReport probe(LdapConfiguration configuration) {
         List<ConfigurationMessage> checkMessages =
                 // TODO: use validate method instead of this.
-                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
+                configuration.validate(REQUIRED_FIELDS);
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

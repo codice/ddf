@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
+import org.codice.ddf.admin.api.configurator.Configurator;
+import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.configurator.OperationReport;
-import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

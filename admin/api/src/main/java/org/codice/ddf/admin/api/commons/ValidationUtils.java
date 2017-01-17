@@ -1,0 +1,106 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package org.codice.ddf.admin.api.commons;
+
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+
+public class ValidationUtils {
+
+    public static final List<ConfigurationMessage> validateNonEmptyString(String strToCheck, String configId) {
+        List<ConfigurationMessage> errors = new ArrayList<>();
+        if (StringUtils.isEmpty(strToCheck)) {
+            errors.add(createMissingRequiredFieldMsg(configId));
+        }
+        return errors;
+    }
+
+    public static final List<ConfigurationMessage> validateServicePid(String servicePid, String configId) {
+        // TODO: tbatie - 1/16/17 - There are probably invalid chars to check for
+        return validateNonEmptyString(servicePid, configId);
+    }
+
+    public static final List<ConfigurationMessage> validateFactoryPid(String factoryPid, String configId) {
+        // TODO: tbatie - 1/16/17 - There are probably invalid chars to check for
+        return validateNonEmptyString(factoryPid, configId);
+    }
+
+    public static final List<ConfigurationMessage> validateHostName(String hostName, String configId) {
+        List<ConfigurationMessage> errors = validateNonEmptyString(hostName, configId);
+        if (errors.isEmpty() && !validHostnameFormat(hostName)) {
+            errors.add(createInvalidFieldMsg("Hostname format is invalid.", configId));
+        }
+        return errors;
+    }
+
+    public static final List<ConfigurationMessage> validatePort(int port, String configId) {
+        List<ConfigurationMessage> errors = new ArrayList<>();
+        if (!validPortFormat(port)) {
+            errors.add(createInvalidFieldMsg("Port is not in valid range.", configId));
+        }
+        return errors;
+    }
+
+    public static List<ConfigurationMessage> validateContextPath(String contextPath) {
+        List<ConfigurationMessage> errors = new ArrayList<>();
+        if (StringUtils.isEmpty(contextPath) || !contextPath.startsWith("/")) {
+            errors.add(createInvalidFieldMsg("Improperly formatted context path", contextPath));
+        }
+        // TODO: tbatie - 1/14/17 - We can check for other characters that shouldn't be present in a url
+        return errors;
+    }
+
+    public static final List<ConfigurationMessage> validateContextPaths(List<String> contexts, String configId){
+        List<ConfigurationMessage> errors = new ArrayList<>();
+        if(contexts == null || contexts.isEmpty()) {
+            errors.add(createMissingRequiredFieldMsg(configId));
+        } else {
+            errors.addAll(contexts.stream()
+                    .map(context -> validateContextPath(context))
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList()));
+        }
+
+        return errors;
+    }
+    public static final List<ConfigurationMessage> validateMapping(Map<String, String> mapping, String configId) {
+        List<ConfigurationMessage> errors = new ArrayList<>();
+        if(mapping == null || mapping.isEmpty()) {
+            errors.add(createMissingRequiredFieldMsg(configId));
+        } else if (mapping.values()
+                .stream()
+                .filter(e -> StringUtils.isEmpty(e))
+                .findFirst()
+                .isPresent()) {
+            errors.add(createInvalidFieldMsg("Attribute mapping cannot map to an empty values.", configId));
+        }
+
+        return errors;
+    }
+    public static final boolean validHostnameFormat(String hostname) {
+        return hostname.matches("[0-9a-zA-Z\\.-]+");
+    }
+
+    public static final boolean validPortFormat(int port) {
+        return port > 0 && port < 65536;
+    }
+}

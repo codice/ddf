@@ -38,7 +38,6 @@ import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUse
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -86,7 +85,7 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
         ProbeReport probeReport = new ProbeReport(new ArrayList<>());
         List<ConfigurationMessage> checkMessages =
                 // TODO: Use validate method of configuration not this
-                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
+                configuration.validate(REQUIRED_FIELDS);
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

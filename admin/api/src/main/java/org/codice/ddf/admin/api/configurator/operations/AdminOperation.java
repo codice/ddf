@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 
 import javax.management.MalformedObjectNameException;
 
-import org.codice.ddf.admin.api.configurator.Operation;
 import org.codice.ddf.admin.api.configurator.ConfiguratorException;
+import org.codice.ddf.admin.api.configurator.Operation;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

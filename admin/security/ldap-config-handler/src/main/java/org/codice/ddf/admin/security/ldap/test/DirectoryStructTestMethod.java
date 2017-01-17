@@ -25,7 +25,7 @@ import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.EN
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.HOST_NAME;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
-import static org.codice.ddf.admin.api.handler.report.TestReport.createGeneralTestReport;
+import static org.codice.ddf.admin.api.handler.report.Report.createGeneralTestReport;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.BASE_GROUP_DN_NOT_FOUND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.BASE_USER_DN_NOT_FOUND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
@@ -45,7 +45,6 @@ import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdap
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -107,8 +106,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
     public Report test(LdapConfiguration configuration) {
         // TODO: tbatie - 1/11/17 - Test groupClassObject and membershipAttribute
         List<ConfigurationMessage> checkMessages =
-                // TODO: Use the validate method for consistency
-                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
+                configuration.validate(REQUIRED_FIELDS);
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

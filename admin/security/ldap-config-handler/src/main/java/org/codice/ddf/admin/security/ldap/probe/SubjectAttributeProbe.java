@@ -27,16 +27,15 @@ import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PO
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.security.ldap.ServerGuesser;
 import org.codice.ddf.admin.security.ldap.test.LdapTestingCommons;
 import org.forgerock.opendj.ldap.LdapException;
@@ -86,7 +85,7 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
     public ProbeReport probe(LdapConfiguration configuration) {
         List<ConfigurationMessage> checkMessages =
                 // TODO: Use the validate method instead of this
-                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
+                configuration.validate(REQUIRED_FIELDS);
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

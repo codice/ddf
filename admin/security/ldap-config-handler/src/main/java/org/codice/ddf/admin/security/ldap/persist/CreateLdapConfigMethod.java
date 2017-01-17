@@ -43,16 +43,15 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.configurator.Configurator;
+import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.configurator.OperationReport;
-import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -100,8 +99,8 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
         if (config.ldapUseCase()
                 .equals(LOGIN) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
-            // TODO adimka Move validation to use the validate method instead of this stuff
-            Report validationReport = new Report(config.checkRequiredFields(LOGIN_REQUIRED_FIELDS));
+
+            Report validationReport = new Report(config.validate(LOGIN_REQUIRED_FIELDS));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
             }
@@ -131,7 +130,7 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
         if (config.ldapUseCase()
                 .equals(CREDENTIAL_STORE) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
-            Report validationReport = new Report(config.checkRequiredFields(
+            Report validationReport = new Report(config.validate(
                     ALL_REQUIRED_FIELDS));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
@@ -183,6 +182,7 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
     }
 
     private String getLdapUrl(LdapConfiguration config) {
+        // TODO: tbatie - 1/16/17 - need to straighten out ignore case with front end and front end
         return config.encryptionMethod()
                 .equalsIgnoreCase(LDAPS) ? "ldaps://" : "ldap://";
     }

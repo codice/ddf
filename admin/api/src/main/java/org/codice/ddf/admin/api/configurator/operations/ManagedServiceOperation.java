@@ -22,8 +22,8 @@ import java.util.Map;
 import javax.management.MalformedObjectNameException;
 import javax.validation.constraints.NotNull;
 
-import org.codice.ddf.admin.api.configurator.Operation;
 import org.codice.ddf.admin.api.configurator.ConfiguratorException;
+import org.codice.ddf.admin.api.configurator.Operation;
 import org.codice.ddf.ui.admin.api.ConfigurationAdmin;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.slf4j.Logger;

@@ -14,13 +14,17 @@
 
 package org.codice.ddf.admin.api.config.security.context;
 
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyUtils.validateContextPath;
+import static org.codice.ddf.admin.api.commons.ValidationUtils.validateContextPaths;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.AUTH_TYPES;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.CONTEXT_PATHS;
+import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.REALM;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.Configuration;
@@ -37,60 +41,33 @@ public class ContextPolicyConfiguration extends Configuration {
     public static final String WHITE_LIST_CONTEXTS  = "whiteListContexts";
     public static final List<String> ALL_FIELDS = Arrays.asList(CONTEXT_POLICY_BINS, WHITE_LIST_CONTEXTS);
 
-    public static final ImmutableMap<String, String> FIELD_DESCS =
-            new ImmutableMap.Builder<String, String>()
-            .put(CONTEXT_POLICY_BINS, "Objects containing: " +
-                    "\n - list of auth types and required attributes for a list of context paths.")
-            .put(WHITE_LIST_CONTEXTS, "List of contexts that will not use security.").build();
+    private static final Map<String, Function<ContextPolicyConfiguration, List<ConfigurationMessage>>> FIELD_TO_VALIDATION_FUNC = new ImmutableMap.Builder<String, Function<ContextPolicyConfiguration, List<ConfigurationMessage>>>()
+            .put(CONTEXT_POLICY_BINS, config -> validateContextPolicyBins(config.contextPolicyBins(), CONTEXT_POLICY_BINS))
+            .put(WHITE_LIST_CONTEXTS, config -> validateContextPaths(config.whiteListContexts(), WHITE_LIST_CONTEXTS))
+            .build();
 
     private List<ContextPolicyBin> contextPolicyBins;
     private List<String> whiteListContexts;
 
-    public List<ContextPolicyBin> contextPolicyBins() {
-        return contextPolicyBins;
-    }
-    public List<String> whiteListContexts() {
-        return whiteListContexts;
-    }
-
-    public ContextPolicyConfiguration contextPolicyBins(List<ContextPolicyBin> contextPolicyBins) {
-        this.contextPolicyBins = contextPolicyBins;
-        return this;
-    }
-    public ContextPolicyConfiguration whiteListContexts(List<String> whiteListContexts) {
-        this.whiteListContexts = whiteListContexts;
-        return this;
+    public List<ConfigurationMessage> validate(List<String> fields) {
+        return fields.stream()
+                .map(s -> FIELD_TO_VALIDATION_FUNC.get(s).apply(this))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
-    public List<ConfigurationMessage> validate(List<String> requiredFields) {
-
-        List<ConfigurationMessage> msgs = new ArrayList<>();
-
-        for(String reqField : requiredFields) {
-            switch (reqField) {
-            case CONTEXT_POLICY_BINS:
-                if(contextPolicyBins() == null || contextPolicyBins().isEmpty()) {
-                    msgs.add(createMissingRequiredFieldMsg(CONTEXT_POLICY_BINS));
-                } else {
-                    msgs.addAll(contextPolicyBins().stream()
-                            .map(cpb -> cpb.validate())
-                            .flatMap(List::stream)
-                            .collect(Collectors.toList()));
-                }
-                break;
-            case  WHITE_LIST_CONTEXTS:
-                if(whiteListContexts() == null || whiteListContexts().isEmpty()) {
-                    msgs.add(createMissingRequiredFieldMsg(CONTEXT_POLICY_BINS));
-                } else {
-                    msgs.addAll(whiteListContexts().stream()
-                            .map(context -> validateContextPath(context))
-                            .flatMap(List::stream)
-                            .collect(Collectors.toList()));
-                }
-            }
+    public static final List<ConfigurationMessage> validateContextPolicyBins(List<ContextPolicyBin> bins, String configId){
+        List<ConfigurationMessage> errors = new ArrayList<>();
+        if(bins == null || bins.isEmpty()) {
+            errors.add(createMissingRequiredFieldMsg(configId));
+        } else {
+            errors.addAll(bins.stream()
+                    .map(cpb -> cpb.validate(Arrays.asList(REALM, CONTEXT_PATHS, AUTH_TYPES)))
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList()));
+            // TODO: tbatie - 1/16/17 - Check if the req fields has values, if so validate
         }
-
-        return msgs;
+        return errors;
     }
 
     @Override
@@ -98,11 +75,22 @@ public class ContextPolicyConfiguration extends Configuration {
         return new ConfigurationType(CONFIGURATION_TYPE, ContextPolicyConfiguration.class);
     }
 
-    public static Map<String, String> buildFieldMap(String... keys) {
-        ImmutableMap.Builder<String, String> map = new ImmutableMap.Builder<>();
-        Arrays.stream(keys)
-                .forEach(s -> map.put(s, FIELD_DESCS.get(s)));
-        return map.build();
+    //Getters
+    public List<ContextPolicyBin> contextPolicyBins() {
+        return contextPolicyBins;
+    }
+    public List<String> whiteListContexts() {
+        return whiteListContexts;
+    }
+
+    //Setters
+    public ContextPolicyConfiguration contextPolicyBins(List<ContextPolicyBin> contextPolicyBins) {
+        this.contextPolicyBins = contextPolicyBins;
+        return this;
+    }
+    public ContextPolicyConfiguration whiteListContexts(List<String> whiteListContexts) {
+        this.whiteListContexts = whiteListContexts;
+        return this;
     }
 }
 

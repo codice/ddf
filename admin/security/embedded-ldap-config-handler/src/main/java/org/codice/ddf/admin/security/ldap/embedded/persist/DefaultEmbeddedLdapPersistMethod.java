@@ -14,6 +14,7 @@
 package org.codice.ddf.admin.security.ldap.embedded.persist;
 
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_USE_CASE;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN;
 import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
@@ -25,15 +26,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.security.ldap.EmbeddedLdapConfiguration;
+import org.codice.ddf.admin.api.configurator.Configurator;
+import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.api.configurator.OperationReport;
-import org.codice.ddf.admin.api.configurator.Configurator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 
 public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdapConfiguration> {
 
@@ -41,8 +41,6 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
 
     public static final String DESCRIPTION =
             "Starts up the Opendj Embedded App and installs default realm and/or attribute store configurations.";
-
-    public static final String LDAP_USE_CASE = "ldapUseCase";
 
     public static final List<String> REQUIRED_FIELDS = ImmutableList.of(LDAP_USE_CASE);
 
@@ -65,7 +63,7 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
     @Override
     public Report persist(EmbeddedLdapConfiguration configuration) {
         Configurator configurator = new Configurator();
-        Report testReport = new Report(configuration.checkRequiredFields(Sets.newHashSet(LDAP_USE_CASE)));
+        Report testReport = new Report(configuration.validate(REQUIRED_FIELDS));
         if(testReport.containsFailureMessages()) {
             return testReport;
         }

@@ -26,7 +26,6 @@ import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdap
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +69,7 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
     public Report test(LdapConfiguration configuration) {
         List<ConfigurationMessage> checkMessages =
                 // TODO: Use the validate method, not this
-                configuration.checkRequiredFields(new HashSet(REQUIRED_FIELDS));
+                configuration.validate(REQUIRED_FIELDS);
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new Report(checkMessages);
         }

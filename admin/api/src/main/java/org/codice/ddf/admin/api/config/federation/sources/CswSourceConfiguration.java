@@ -42,11 +42,7 @@ public class CswSourceConfiguration extends SourceConfiguration {
     public static final String EVENT_SERVICE_ADDRESS = "eventServiceAddress";
     public static final String OUTPUT_SCHEMA = "outputSchema";
     public static final String FORCE_SPATIAL_FILTER = "forceSpatialFilter";
-
     // TODO: tbatie - 12/20/16 - Include service properties for registering for events and the even service address
-    // TODO: tbatie - 12/20/16 - Do we want to add the insane amount of extra fields offered in the CSW Specification Profile Federated Source?
-    // TODO: tbatie - 12/20/16 - Do we want to add the insane amount of extra fields offered in the GMD CSW ISO Federated Source?
-    //----
 
     private String outputSchema;
 

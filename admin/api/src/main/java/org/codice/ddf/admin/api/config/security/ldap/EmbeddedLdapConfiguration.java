@@ -20,6 +20,7 @@ public class EmbeddedLdapConfiguration extends LdapConfiguration {
 
     public static final String CONFIGURATION_TYPE = "embedded-ldap";
 
+    //These fields are left here in case one day we do want to offer configuring of embedded ldap
     private int embeddedLdapPort;
     private int embeddedLdapsPort;
     private int embeddedLdapAdminPort;
