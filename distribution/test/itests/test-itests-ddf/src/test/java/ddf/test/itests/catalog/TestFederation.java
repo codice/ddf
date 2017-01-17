@@ -1648,7 +1648,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     /**
      * Tests that a product caches correctly when the download is interrupted twice and ddf uses
-     * range header requests to re-eretrieve the undownloaded portion.
+     * range header requests to re-retrieve the remaining portion.
      *
      * @throws Exception
      */
@@ -2098,6 +2098,7 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testSingleUserDownloadSameProductAsync() throws Exception {
         getCatalogBundle().setupCaching(true);
         getSecurityPolicy().configureWebContextPolicy(null,
