@@ -202,6 +202,10 @@ public abstract class AbstractEventController implements EventHandler {
      */
     public void registerUserSession(final ServerSession serverSession, ServerMessage serverMessage)
             throws IllegalArgumentException {
+        if (bayeux == null || bayeux.getContext() == null) {
+            LOGGER.info("CometD server has not initialized yet.");
+            return;
+        }
 
         LOGGER.debug("ServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
 
