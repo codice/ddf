@@ -19,7 +19,7 @@
         <AD
                 description="Specifies the redirect URI to use when accessing the /search URI."
                 name="Redirect URI" id="defaultUri" required="true" type="String"
-                default="/search/standard"
+                default="/search/catalog"
                 />
     </OCD>
 
