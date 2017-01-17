@@ -1,8 +1,8 @@
-import { getBins, getWhiteList } from '../../reducer'
+import { getBins } from '../../reducer'
 import { backendError } from '../../actions'
 
 // Bin level
-export const replaceAllBins = (bins) => ({ type: 'WCPM/REPLACE_ALL_BINS', bins })
+export const replaceAllBins = (bins, whitelistContexts) => ({ type: 'WCPM/REPLACE_ALL_BINS', bins, whitelistContexts })
 export const removeBin = () => ({ type: 'WCPM/REMOVE_BIN' })
 export const addNewBin = (binNumber) => ({ type: 'WCPM/ADD_BIN', binNumber })
 export const editModeOn = (binNumber) => ({ type: 'WCPM/EDIT_MODE_ON', binNumber })
@@ -26,9 +26,6 @@ export const removeAttributeMapping = (binNumber, claim) => ({ type: 'WCPM/REMOV
 // Set Options
 export const setPolicyOptions = (options) => ({ type: 'WCPM/SET_OPTIONS', options })
 
-// Whitelist
-export const replaceWhitelist = (whiteList) => ({ type: 'WCPM/REPLACE_WHITELIST', whiteList })
-
 // Fetch
 export const updatePolicyBins = (url) => (dispatch, getState) => {
   const opts = {
@@ -40,8 +37,7 @@ export const updatePolicyBins = (url) => (dispatch, getState) => {
     .then((res) => Promise.all([ res.status, res.json() ]))
     .then(([status, json]) => {
       if (status === 200) {
-        dispatch(replaceAllBins(json[0].contextPolicyBins))
-        dispatch(replaceWhitelist(json[0].whiteListContexts))
+        dispatch(replaceAllBins(json[0].contextPolicyBins, json[0].whiteListContexts))
         dispatch(fetchOptions('/admin/beta/config/probe/context-policy-manager/options'))
       }
     })
@@ -55,8 +51,8 @@ export const persistChanges = (binNumber, url) => (dispatch, getState) => {
 
   const formattedBody = {
     configurationType: 'context-policy-manager',
-    contextPolicyBins: getBins(getState()),
-    whiteListContexts: getWhiteList(getState())
+    contextPolicyBins: getBins(getState()).slice(1),
+    whiteListContexts: getBins(getState())[0].contextPaths
   }
 
   const opts = {
@@ -81,8 +77,8 @@ export const persistChanges = (binNumber, url) => (dispatch, getState) => {
 export const fetchOptions = (url) => (dispatch, getState) => {
   const formattedBody = {
     configurationType: 'context-policy-manager',
-    contextPolicyBins: getBins(getState()),
-    whiteListContexts: getWhiteList(getState())
+    contextPolicyBins: getBins(getState()).slice(1),
+    whiteListContexts: getBins(getState())[0].contextPaths
   }
 
   const opts = {

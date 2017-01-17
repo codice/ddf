@@ -57,7 +57,9 @@ import {
   infoSubtitleLeft,
   realmNameStyle,
   disabledPanelStyle,
-  newBinDisabledStyle
+  newBinDisabledStyle,
+  contextPathGroupStyle,
+  whitelistContextPathGroupStyle
 } from './styles.less'
 
 let Edit = ({editing, binNumber, editModeOn}) => {
@@ -98,7 +100,7 @@ NewContextPathItem = connect(null, (dispatch, { binNumber, attribute }) => ({
 }))(NewContextPathItem)
 
 let ContextPathGroup = ({ bin, binNumber, editing }) => (
-  <Flexbox style={{ width: '20%', padding: '5px', borderRight: '1px solid grey' }} flexDirection='column'>
+  <Flexbox className={(bin.name === 'WHITELIST') ? whitelistContextPathGroupStyle : contextPathGroupStyle} flexDirection='column'>
     <p className={infoSubtitleLeft}>Context Paths</p>
     {bin.contextPaths.map((contextPath, pathNumber) => (<ContextPathItem attribute='contextPaths' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} editing={editing} />))}
     {editing ? <NewContextPathItem binNumber={binNumber} attribute='contextPaths' newPath={bin['newcontextPaths']} /> : null}
@@ -141,13 +143,13 @@ Realm = connect(
     editRealm: (value) => dispatch(editRealm(binNumber, value))
   }))(Realm)
 
-let ConfirmationPanel = ({ bin, binNumber, removeBin, saveAndPersist, editModeCancel, editing, confirmRemoveBinAndPersist, confirmDelete, cancelRemoveBin }) => {
+let ConfirmationPanel = ({ bin, binNumber, removeBin, saveAndPersist, editModeCancel, editing, confirmRemoveBinAndPersist, confirmDelete, cancelRemoveBin, allowDelete }) => {
   return editing ? (
     <Flexbox flexDirection='row' justifyContent='center' style={{ padding: '10px 0px 5px' }}>
       <FlatButton style={{ margin: '0 10' }} label='Cancel' labelPosition='after' secondary onClick={editModeCancel} />
       <RaisedButton style={{ margin: '0 10' }} label='Save' primary onClick={saveAndPersist} />
       {
-        (confirmDelete) ? (
+        (confirmDelete && allowDelete) ? (
           <Flexbox style={{ position: 'absolute', right: '0px', bottom: '0px', margin: '5px' }} flexDirection='column' alignItems='center' >
             <p className={infoSubtitleLeft}>Confirm delete all?</p>
             <Flexbox flexDirection='row'>
@@ -156,7 +158,7 @@ let ConfirmationPanel = ({ bin, binNumber, removeBin, saveAndPersist, editModeCa
             </Flexbox>
           </Flexbox>
         ) : (
-          <IconButton style={{ position: 'absolute', right: '0px', bottom: '0px' }} onClick={removeBin} tooltip={'Delete'} tooltipPosition='top-center' ><DeleteIcon /></IconButton>
+          (allowDelete) ? <IconButton style={{ position: 'absolute', right: '0px', bottom: '0px' }} onClick={removeBin} tooltip={'Delete'} tooltipPosition='top-center' ><DeleteIcon /></IconButton> : null
         )
       }
     </Flexbox>
@@ -237,6 +239,21 @@ const DisabledPanel = () => (
   <div className={disabledPanelStyle} />
 )
 
+const WhitelistBin = ({ policyBin, binNumber, editing, editingBinNumber }) => (
+  <Paper className={policyBinOuterStyle} >
+    <Flexbox flexDirection='row'>
+      <ContextPathGroup binNumber={binNumber} bin={policyBin} editing={editing} />
+      <Flexbox style={{ padding: '5px' }} flexDirection='column' justifyContent='center'>
+        <p className={infoTitle}>Whitelisted Contexts</p>
+        <p className={infoSubtitle}>The contexts listed here will not be checked against any policies and all requests made to these endpoints will be permitted. Use with caution.</p>
+      </Flexbox>
+    </Flexbox>
+    <Edit editing={editing} binNumber={binNumber} />
+    <ConfirmationPanel bin={policyBin} binNumber={binNumber} editing={editing} allowDelete={false} />
+    { (!editing && editingBinNumber !== null) ? <DisabledPanel /> : null }
+  </Paper>
+)
+
 const PolicyBin = ({ policyBin, binNumber, editing, editingBinNumber }) => (
   <Paper className={policyBinOuterStyle} >
     <Flexbox flexDirection='row'>
@@ -257,14 +274,18 @@ const PolicyBin = ({ policyBin, binNumber, editing, editingBinNumber }) => (
       </Flexbox>
     </Flexbox>
     <Edit editing={editing} binNumber={binNumber} />
-    <ConfirmationPanel bin={policyBin} binNumber={binNumber} editing={editing} />
+    <ConfirmationPanel bin={policyBin} binNumber={binNumber} editing={editing} allowDelete />
     { (!editing && editingBinNumber !== null) ? <DisabledPanel /> : null }
   </Paper>
 )
 
 let PolicyBins = ({ policies, editingBinNumber }) => (
   <Flexbox style={{ height: '100%', width: '100%', overflowY: 'scroll', padding: '0px 5px', boxSizing: 'border-box' }} flexDirection='column' alignItems='center' >
-    { policies.map((policyBin, binNumber) => (<PolicyBin policyBin={policyBin} key={binNumber} binNumber={binNumber} editing={binNumber === editingBinNumber} editingBinNumber={editingBinNumber} />)) }
+    { policies.map((policyBin, binNumber) => {
+      return (policyBin.name === 'WHITELIST')
+        ? (<WhitelistBin policyBin={policyBin} key={binNumber} binNumber={binNumber} editing={binNumber === editingBinNumber} editingBinNumber={editingBinNumber} />)
+        : (<PolicyBin policyBin={policyBin} key={binNumber} binNumber={binNumber} editing={binNumber === editingBinNumber} editingBinNumber={editingBinNumber} />)
+    })}
     <NewBin editing={editingBinNumber !== null} />
   </Flexbox>
 )

@@ -1,22 +1,23 @@
 import { combineReducers } from 'redux-immutable'
 import { fromJS, List } from 'immutable'
 
-const emptyBin = fromJS({
+const emptyBin = {
   name: 'untitled',
   realm: '',
   authenticationTypes: [],
   requiredAttributes: {},
   contextPaths: []
-})
+}
 
-const bins = (state = List(), { type, bin, bins, path, binNumber, pathNumber, value, attribute, claim }) => {
+const bins = (state = List(), { type, bin, bins, whitelistContexts, path, binNumber, pathNumber, value, attribute, claim }) => {
   switch (type) {
     case 'WCPM/REPLACE_ALL_BINS':
-      return fromJS(bins)
+      let whitelistBin = {...emptyBin, name: 'WHITELIST', contextPaths: whitelistContexts}
+      return fromJS([whitelistBin, ...bins])
 
     // Bin Level
     case 'WCPM/ADD_BIN':
-      return state.push(emptyBin)
+      return state.push(fromJS(emptyBin))
     case 'WCPM/CONFIRM_REMOVE_BIN':
       return state.delete(binNumber)
     case 'WCPM/EDIT_MODE_ON':
@@ -68,15 +69,6 @@ const options = (state = fromJS(emptyClaims), { type, options }) => {
   }
 }
 
-const whiteList = (state = [], { type, whiteList }) => {
-  switch (type) {
-    case 'WCPM/REPLACE_WHITELIST':
-      return fromJS(whiteList)
-    default:
-      return state
-  }
-}
-
 const editingBinNumber = (state = null, { type, binNumber }) => {
   switch (type) {
     case 'WCPM/EDIT_MODE_ON':
@@ -117,7 +109,7 @@ export const getWhiteList = (state) => state.get('whiteList').toJS()
 export const getEditingBinNumber = (state) => state.get('editingBinNumber')
 export const getConfirmDelete = (state) => state.get('confirmDelete')
 
-export default combineReducers({ bins, options, whiteList, editingBinNumber, confirmDelete })
+export default combineReducers({ bins, options, editingBinNumber, confirmDelete })
 
 /*
 // Example State Data Structure
