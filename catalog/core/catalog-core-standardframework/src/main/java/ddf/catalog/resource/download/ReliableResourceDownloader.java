@@ -244,7 +244,8 @@ public class ReliableResourceDownloader implements Runnable {
                             String.format("Attempt %d of %d.",
                                     retryAttempts,
                                     downloaderConfig.getMaxRetryAttempts()),
-                            reliableResourceStatus.getBytesRead(),
+                            (null == reliableResourceStatus) ?
+                                    null : reliableResourceStatus.getBytesRead(),
                             downloadIdentifier);
                     delay();
                     reliableResourceCallable = retrieveResource(bytesRead);

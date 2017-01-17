@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.activation.MimeType;
@@ -42,7 +43,11 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 
 import com.google.common.io.CountingOutputStream;
 
@@ -61,6 +66,7 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
+@PrepareForTest(ReliableResourceDownloader.class)
 public class ReliableResourceDownloaderTest {
     private static final String DOWNLOAD_ID = "123";
 
@@ -81,6 +87,9 @@ public class ReliableResourceDownloaderTest {
     private DownloadsStatusEventPublisher mockPublisher = mock(DownloadsStatusEventPublisher.class);
 
     private Metacard mockMetacard;
+
+    @Rule
+    public PowerMockRule rule = new PowerMockRule();
 
     @BeforeClass
     public static void oneTimeSetup() throws IOException {
@@ -202,6 +211,43 @@ public class ReliableResourceDownloaderTest {
         verify(mockCache, times(1)).removePendingCacheEntry(anyString());
         assertThat(downloaderConfig.isCacheEnabled(), is(false));
 
+    }
+
+    @Test
+    public void testNullReliableResourceCallableAndStatus() throws Exception {
+        ResourceResponse mockResponse = getMockResourceResponse(mockStream);
+
+        ResourceRetriever mockResourceRetriever = mock(ResourceRetriever.class);
+        when(mockResourceRetriever.retrieveResource(any(Byte.class))).thenReturn(mockResponse);
+
+        ReliableResourceStatus resourceStatus =
+                new ReliableResourceStatus(DownloadStatus.RESOURCE_DOWNLOAD_INTERRUPTED, 0L);
+
+        ReliableResourceCallable mockCallable = mock(ReliableResourceCallable.class);
+        when(mockCallable.getReliableResourceStatus()).thenReturn(resourceStatus);
+
+        PowerMockito.whenNew(ReliableResourceCallable.class)
+                .withAnyArguments()
+                .thenReturn(null, mockCallable);
+        PowerMockito.whenNew(ResourceRetrievalMonitor.class).withAnyArguments().thenThrow(new CancellationException());
+
+        int retries = 5;
+        downloaderConfig.setMaxRetryAttempts(retries);
+
+        ReliableResourceDownloader downloader = new ReliableResourceDownloader(downloaderConfig,
+                new AtomicBoolean(),
+                DOWNLOAD_ID,
+                mockResponse,
+                mockResourceRetriever);
+        downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
+        downloader.run();
+
+        verify(mockPublisher, times(retries)).postRetrievalStatus(any(ResourceResponse.class),
+                eq(ProductRetrievalStatus.RETRYING),
+                any(Metacard.class),
+                anyString(),
+                anyLong(),
+                eq(DOWNLOAD_ID));
     }
 
     private Metacard getMockMetacard(String id, String source) {
