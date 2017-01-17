@@ -32,6 +32,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
@@ -49,6 +50,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
@@ -365,6 +367,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     @Test
     public void testGuestRestAccess() throws Exception {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+        waitForSecurityHandlers(url);
 
         //test that guest works and check that we get an sso token
         String cookie = when().get(url)
@@ -404,6 +407,8 @@ public class TestSecurity extends AbstractIntegrationTest {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
         configureRestForBasic();
+
+        waitForSecurityHandlers(url);
 
         //test that we get a 401 if no credentials are specified
         when().get(url)
@@ -477,6 +482,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         String openSearchQuery =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
+        waitForSecurityHandlers(openSearchQuery);
         given().auth()
                 .basic("admin", "admin")
                 .when()
@@ -517,6 +523,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         String openSearchQuery =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
+        waitForSecurityHandlers(openSearchQuery);
         given().auth()
                 .basic("admin", "admin")
                 .when()
@@ -1254,6 +1261,16 @@ public class TestSecurity extends AbstractIntegrationTest {
                 "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/sdk-app");
         assertTrue(JsonPath.given(startApplicationPermitted)
                 .get("value"));
+    }
+
+    private void waitForSecurityHandlers(String url) throws InterruptedException {
+        long stop = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        while (get(url).statusCode() == 503) {
+            Thread.sleep(1000);
+            if (System.currentTimeMillis() > stop) {
+                fail("Failed waiting for security handlers to become available.");
+            }
+        }
     }
 
     public String sendPermittedRequest(String jolokiaEndpoint) {

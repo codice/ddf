@@ -74,10 +74,18 @@ public class SecurityPolicyConfigurator {
         Map<String, Object> policyProperties = services.getMetatypeDefaults(SYMBOLIC_NAME,
                 FACTORY_PID);
 
-        putPolicyValues(policyProperties, "realms", realms);
-        putPolicyValues(policyProperties, "authenticationTypes", authTypes);
-        putPolicyValues(policyProperties, "requiredAttributes", requiredAttributes);
-        putPolicyValues(policyProperties, "whiteListContexts", whitelist);
+        if (realms != null) {
+            putPolicyValues(policyProperties, "realms", realms);
+        }
+        if (authTypes != null) {
+            putPolicyValues(policyProperties, "authenticationTypes", authTypes);
+        }
+        if (requiredAttributes != null) {
+            putPolicyValues(policyProperties, "requiredAttributes", requiredAttributes);
+        }
+        if (whitelist != null) {
+            putPolicyValues(policyProperties, "whiteListContexts", whitelist);
+        }
 
         new SynchronizedConfiguration(FACTORY_PID,
                 null,
