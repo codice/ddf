@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.admin.sources.csw.test;
 
-
 import static org.codice.ddf.admin.api.commons.SourceUtils.MANUAL_URL_TEST_ID;
 import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
 import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SPEC_FACTORY_PID;
@@ -32,7 +31,6 @@ import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
-import org.codice.ddf.admin.sources.csw.CswSourceCreationException;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -40,23 +38,25 @@ import com.google.common.collect.ImmutableMap;
 public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
 
     public static final String CSW_URL_TEST_ID = MANUAL_URL_TEST_ID;
+
     public static final String DESCRIPTION = "Attempts to verify a given URL is a CSW endpoint.";
 
     public static final List<String> REQUIRED_FIELDS = ImmutableList.of(ENDPOINT_URL);
 
     private static final String VERIFIED_URL = "url-verified";
+
     private static final String CANNOT_CONNECT = "cannot-connect";
+
     private static final String CANNOT_VERIFY = "cannot-verify";
 
-    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(
-            VERIFIED_URL, "URL has been verified as a CSW endpoint."
-    );
-    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(
-            CANNOT_CONNECT, "Could not reach specified URL.");
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(VERIFIED_URL,
+            "URL has been verified as a CSW endpoint.");
 
-    public static final Map<String, String> WARNING_TYPES = ImmutableMap.of(
-            CANNOT_VERIFY, "Reached URL, but could not verify as CSW endpoint.");
+    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CANNOT_CONNECT,
+            "Could not reach specified URL.");
 
+    public static final Map<String, String> WARNING_TYPES = ImmutableMap.of(CANNOT_VERIFY,
+            "Reached URL, but could not verify as CSW endpoint.");
 
     public CswUrlTestMethod() {
         super(CSW_URL_TEST_ID,
@@ -65,9 +65,9 @@ public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
                 null,
                 SUCCESS_TYPES,
                 FAILURE_TYPES,
-                WARNING_TYPES
-        );
+                WARNING_TYPES);
     }
+
     @Override
     public Report test(CswSourceConfiguration configuration) {
         List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
@@ -82,20 +82,29 @@ public class CswUrlTestMethod extends TestMethod<CswSourceConfiguration> {
     }
 
     // Given a config with a endpoint URL, finds the most specific applicable CSW source type and
-    //   mutates the config's factoryPid appropriately, defaulting to generic specification with feedback
-    //   if unable to determine CSW type
+    //   sets the config's factoryPid and output schema appropriately, defaulting to generic
+    //   specification with feedback if unable to determine CSW type
     public static Report discoverUrlCapabilities(CswSourceConfiguration config) {
         if (isAvailable(config.endpointUrl(), config)) {
-            try {
-                getPreferredConfig(config);
-                return new Report(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
-            } catch (CswSourceCreationException e) {
+            Optional<CswSourceConfiguration> preferred = getPreferredConfig(config);
+            if (preferred.isPresent()) {
+                config.factoryPid(preferred.get().factoryPid());
+                config.outputSchema(preferred.get().outputSchema());
+                return new Report(buildMessage(SUCCESS,
+                        VERIFIED_URL,
+                        SUCCESS_TYPES.get(VERIFIED_URL)));
+            } else {
                 config.factoryPid(CSW_SPEC_FACTORY_PID);
-                return new Report(buildMessage(WARNING, CANNOT_VERIFY, FAILURE_TYPES.get(CANNOT_VERIFY)));
+                return new Report(buildMessage(WARNING,
+                        CANNOT_VERIFY,
+                        FAILURE_TYPES.get(CANNOT_VERIFY)));
+
             }
         } else {
             config.factoryPid(CSW_SPEC_FACTORY_PID);
-            return new Report(buildMessage(WARNING, CANNOT_VERIFY, FAILURE_TYPES.get(CANNOT_VERIFY)));
+            return new Report(buildMessage(WARNING,
+                    CANNOT_VERIFY,
+                    FAILURE_TYPES.get(CANNOT_VERIFY)));
         }
     }
 

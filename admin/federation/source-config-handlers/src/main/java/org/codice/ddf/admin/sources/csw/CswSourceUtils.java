@@ -123,14 +123,14 @@ public class CswSourceUtils {
         return false;
     }
 
-    // Given a configuration, determines the preferred CSW source type, adds the correct factory pid,
-    //   then mutates and returns the configuration
-    public static CswSourceConfiguration getPreferredConfig(CswSourceConfiguration config)
-            throws CswSourceCreationException {
+    // Given a configuration, determines the preferred CSW source type and output schema and returns
+    // a config with the appropriate factoryPid and Output Schema.
+    public static Optional<CswSourceConfiguration> getPreferredConfig(CswSourceConfiguration config) {
+        CswSourceConfiguration preferred = new CswSourceConfiguration(config);
         HttpClient client = HttpClientBuilder.create()
                 .build();
         HttpGet getCapabilitiesRequest = new HttpGet(
-                config.endpointUrl() + GET_CAPABILITIES_PARAMS);
+                preferred.endpointUrl() + GET_CAPABILITIES_PARAMS);
         XPath xpath = XPathFactory.newInstance()
                 .newXPath();
         xpath.setNamespaceContext(OWS_NAMESPACE_CONTEXT);
@@ -143,18 +143,18 @@ public class CswSourceUtils {
                     .getContent());
             if ((Boolean) xpath.compile(HAS_CATALOG_METACARD_EXP)
                     .evaluate(capabilitiesXml, XPathConstants.BOOLEAN)) {
-                return (CswSourceConfiguration) config.factoryPid(CSW_PROFILE_FACTORY_PID);
+                return Optional.of((CswSourceConfiguration) preferred.factoryPid(CSW_PROFILE_FACTORY_PID));
             } else if ((Boolean) xpath.compile(HAS_GMD_ISO_EXP)
                     .evaluate(capabilitiesXml, XPathConstants.BOOLEAN)) {
-                return ((CswSourceConfiguration) config.factoryPid(CSW_GMD_FACTORY_PID)).outputSchema(
-                        GMD_OUTPUT_SCHEMA);
+                return Optional.of(((CswSourceConfiguration) preferred.factoryPid(CSW_GMD_FACTORY_PID)).outputSchema(
+                        GMD_OUTPUT_SCHEMA));
             } else {
-                return ((CswSourceConfiguration) (config.factoryPid(CSW_SPEC_FACTORY_PID))).outputSchema(
+                return Optional.of(((CswSourceConfiguration) (preferred.factoryPid(CSW_SPEC_FACTORY_PID))).outputSchema(
                         xpath.compile(GET_FIRST_OUTPUT_SCHEMA)
-                                .evaluate(capabilitiesXml));
+                                .evaluate(capabilitiesXml)));
             }
         } catch (Exception e) {
-            throw new CswSourceCreationException();
+            return Optional.empty();
         }
     }
 

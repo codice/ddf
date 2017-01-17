@@ -31,7 +31,6 @@ import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.sources.csw.CswSourceCreationException;
 import org.codice.ddf.admin.sources.csw.CswSourceUtils;
 
 import com.google.common.collect.ImmutableList;
@@ -89,15 +88,17 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
             results.add(new ConfigurationMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
             return new ProbeReport(results);
         }
-        try {
-            configuration = CswSourceUtils.getPreferredConfig(configuration);
-        } catch (CswSourceCreationException e) {
-            results.add(new ConfigurationMessage(FAILURE, INTERNAL_ERROR, FAILURE_TYPES.get(INTERNAL_ERROR), e));
+
+        Optional<CswSourceConfiguration> preferred = CswSourceUtils.getPreferredConfig(configuration);
+        if (preferred.isPresent()) {
+            configuration = preferred.get();
+            results.add(new ConfigurationMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
+            return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
+                    configuration.configurationHandlerId(CSW_SOURCE_CONFIGURATION_HANDLER_ID));
+        } else {
+            results.add(new ConfigurationMessage(FAILURE, INTERNAL_ERROR, FAILURE_TYPES.get(INTERNAL_ERROR)));
             return new ProbeReport(results);
         }
-        results.add(new ConfigurationMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
-        return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
-                configuration.configurationHandlerId(CSW_SOURCE_CONFIGURATION_HANDLER_ID));
     }
 
 }

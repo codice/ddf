@@ -76,6 +76,7 @@ public class CswSourceConfiguration extends SourceConfiguration {
         sourceUserName(baseConfig.sourceUserName());
         sourceUserPassword(baseConfig.sourceUserPassword());
         endpointUrl(baseConfig.endpointUrl());
+        trustedCertAuthority(baseConfig.trustedCertAuthority());
         if (baseConfig instanceof CswSourceConfiguration) {
             outputSchema(((CswSourceConfiguration) baseConfig).outputSchema());
             forceSpatialFilter(((CswSourceConfiguration) baseConfig).forceSpatialFilter());

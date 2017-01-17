@@ -119,8 +119,7 @@ public class WfsSourceUtils {
         return false;
     }
 
-    public static WfsSourceConfiguration getPreferredConfig(WfsSourceConfiguration configuration)
-            throws WfsSourceCreationException {
+    public static Optional<WfsSourceConfiguration> getPreferredConfig(WfsSourceConfiguration configuration) {
         String wfsVersionExp = "//ows:ServiceIdentification//ows:ServiceTypeVersion/text()";
         HttpClient client = HttpClientBuilder.create()
                 .build();
@@ -139,12 +138,12 @@ public class WfsSourceUtils {
             String wfsVersion = xpath.compile(wfsVersionExp)
                     .evaluate(capabilitiesXml);
             if (wfsVersion.equals("2.0.0")) {
-                return (WfsSourceConfiguration) configuration.factoryPid(
-                        WFS2_FACTORY_PID);
+                return Optional.of((WfsSourceConfiguration) configuration.factoryPid(
+                        WFS2_FACTORY_PID));
             }
-            return (WfsSourceConfiguration) configuration.factoryPid(WFS1_FACTORY_PID);
+            return Optional.of((WfsSourceConfiguration) configuration.factoryPid(WFS1_FACTORY_PID));
         } catch (Exception e) {
-            throw new WfsSourceCreationException();
+            return Optional.empty();
         }
     }
 

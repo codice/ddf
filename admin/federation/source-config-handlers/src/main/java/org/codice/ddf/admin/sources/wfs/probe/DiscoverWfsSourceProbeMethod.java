@@ -31,7 +31,6 @@ import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
-import org.codice.ddf.admin.sources.wfs.WfsSourceCreationException;
 import org.codice.ddf.admin.sources.wfs.WfsSourceUtils;
 
 import com.google.common.collect.ImmutableList;
@@ -89,15 +88,16 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
             return new ProbeReport(results);
         }
 
-        try {
-            configuration = WfsSourceUtils.getPreferredConfig(configuration);
-        } catch (WfsSourceCreationException e) {
+        Optional<WfsSourceConfiguration> preferred = WfsSourceUtils.getPreferredConfig(configuration);
+        if (preferred.isPresent()) {
+            configuration = preferred.get();
+            results.add(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
+            return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
+                    configuration.configurationHandlerId(WFS_SOURCE_CONFIGURATION_HANDLER_ID));
+        } else {
             results.add(buildMessage(FAILURE, BAD_CONFIG, FAILURE_TYPES.get(BAD_CONFIG)));
             return new ProbeReport(results);
         }
-        results.add(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
-        return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
-                configuration.configurationHandlerId(WFS_SOURCE_CONFIGURATION_HANDLER_ID));
     }
 
 }

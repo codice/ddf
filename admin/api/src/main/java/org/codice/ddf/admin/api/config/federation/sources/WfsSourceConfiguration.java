@@ -65,6 +65,7 @@ public class WfsSourceConfiguration extends SourceConfiguration {
         sourceUserName(baseConfig.sourceUserName());
         sourceUserPassword(baseConfig.sourceUserPassword());
         endpointUrl(baseConfig.endpointUrl());
+        trustedCertAuthority(baseConfig.trustedCertAuthority());
     }
 
     public List<ConfigurationMessage> validate(List<String> fields) {
