@@ -106,6 +106,7 @@ View, edit, and add searches from the *Searches* tab.
 * *Delete*: Remove this search
 * *Duplicate*: Create a copy of this search as a starting point
 * *Search Archived*: Execute the search, but specifically for archived results.
+* *Search Historical*: Execute the search, but specifically for historical results.
 
 ===== Editing a Search
 

@@ -52,6 +52,7 @@ replace with next unreleased version
 - [DDF-2260](https://codice.atlassian.net/browse/DDF-2260) Update PDF Input Tranformer to Extract GeoPDF Metadata
 - [DDF-2180](https://codice.atlassian.net/browse/DDF-2180) Added support for FTPS on the FTP endpoint
 - [DDF-2133](https://codice.atlassian.net/browse/DDF-2133) The FTP endpoint port number is configurable.
+- [DDF-2724](https://codice.atlassian.net/browse/DDF-2724) Add the ability to search historical data to the individual query drop down menu in the Catalog UI.
 - [DDF-2094](https://codice.atlassian.net/browse/DDF-2094) Add support for decrypting encrypted passwords in all sources
 - [DDF-2036](https://codice.atlassian.net/browse/DDF-2036) Provide the option to "drape" an overview of a georeferenced image onto the display map.
 - [DDF-2508](https://codice.atlassian.net/browse/DDF-2508) Allowed for the ingest of a resource/metadata through the Catalog REST Endpoint.
