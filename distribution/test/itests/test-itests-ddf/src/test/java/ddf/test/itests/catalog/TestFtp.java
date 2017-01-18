@@ -308,7 +308,20 @@ public class TestFtp extends AbstractIntegrationTest {
     private FTPClient createInsecureClient() throws Exception {
         FTPClient ftp = new FTPClient();
 
-        ftp.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
+        int attempts = 0;
+        while (true) {
+            try {
+                ftp.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
+                break;
+            } catch (SocketException e) {
+                //a socket exception can be thrown if the ftp server is still in the process of coming up or down
+                Thread.sleep(1000);
+                if (attempts++ > 30) {
+                    throw e;
+                }
+            }
+        }
+
         showServerReply(ftp);
         int connectionReply = ftp.getReplyCode();
         if (!FTPReply.isPositiveCompletion(connectionReply)) {
@@ -339,7 +352,19 @@ public class TestFtp extends AbstractIntegrationTest {
             ftps.setKeyManager(keyManager);
         }
 
-        ftps.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
+        int attempts = 0;
+        while (true) {
+            try {
+                ftps.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
+                break;
+            } catch (SocketException e) {
+                //a socket exception can be thrown if the ftp server is still in the process of coming up or down
+                Thread.sleep(1000);
+                if (attempts++ > 30) {
+                    throw e;
+                }
+            }
+        }
 
         showServerReply(ftps);
         int connectionReply = ftps.getReplyCode();
