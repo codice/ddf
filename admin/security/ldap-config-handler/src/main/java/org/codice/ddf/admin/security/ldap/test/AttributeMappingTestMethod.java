@@ -15,11 +15,11 @@
 package org.codice.ddf.admin.security.ldap.test;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
 
@@ -43,7 +43,7 @@ public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
     @Override
     public Report test(LdapConfiguration configuration) {
         // TODO: tbatie - 12/15/16 - Make sure the attributes are in the schema, if they aren't report error. Give a warning there are no users in group or base user dn with the given attributes
-        return new Report(new ConfigurationMessage(SUCCESS, VALIDATED, SUCCESS_TYPES.get(VALIDATED)));
+        return new Report(buildMessage(SUCCESS, VALIDATED, SUCCESS_TYPES.get(VALIDATED)));
     }
 
 }

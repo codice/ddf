@@ -20,6 +20,7 @@ import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNA
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.INTERNAL_ERROR;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.BAD_CONFIG;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CERT_ERROR;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.DISCOVER_SOURCES_ID;
@@ -73,21 +74,21 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
         if (url.isPresent()) {
             configuration.endpointUrl(url.get());
         } else if (configuration.certError()) {
-            results.add(new ConfigurationMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
+            results.add(buildMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
             return new ProbeReport(results);
         } else {
-            results.add(new ConfigurationMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
+            results.add(buildMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
             return new ProbeReport(results);
         }
 
         Optional<CswSourceConfiguration> preferred = CswSourceUtils.getPreferredConfig(configuration);
         if (preferred.isPresent()) {
             configuration = preferred.get();
-            results.add(new ConfigurationMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
+            results.add(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
             return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
                     configuration.configurationHandlerId(CSW_SOURCE_CONFIGURATION_HANDLER_ID));
         } else {
-            results.add(new ConfigurationMessage(FAILURE, INTERNAL_ERROR, FAILURE_TYPES.get(INTERNAL_ERROR)));
+            results.add(buildMessage(FAILURE, INTERNAL_ERROR, FAILURE_TYPES.get(INTERNAL_ERROR)));
             return new ProbeReport(results);
         }
     }

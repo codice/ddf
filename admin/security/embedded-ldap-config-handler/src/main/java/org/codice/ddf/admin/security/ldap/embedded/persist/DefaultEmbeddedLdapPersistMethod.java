@@ -20,6 +20,7 @@ import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOG
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
 import java.util.List;
@@ -28,7 +29,6 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.ldap.EmbeddedLdapConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
 
@@ -81,12 +81,12 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
         OperationReport report = configurator.commit();
 
         if (report.containsFailedResults()) {
-            return new Report(new ConfigurationMessage(FAILURE,
+            return new Report(buildMessage(FAILURE,
                     FAILED_PERSIST,
                     FAILURE_TYPES.get(FAILED_PERSIST)));
         }
 
-        return new Report(new ConfigurationMessage(SUCCESS,
+        return new Report(buildMessage(SUCCESS,
                 SUCCESSFUL_PERSIST,
                 SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
     }
