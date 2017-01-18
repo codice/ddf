@@ -13,25 +13,18 @@
  **/
 
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>ddf.ui</groupId>
         <artifactId>ui</artifactId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>catalog-ui-app</artifactId>
-    <name>DDF :: Catalog :: UI :: Catalog UI App</name>
+    <name>DDF :: UI :: Search UI :: App</name>
+    <artifactId>search-ui-app</artifactId>
     <packaging>pom</packaging>
-    <dependencies>
-        <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>catalog-ui-search</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -55,7 +48,24 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>karaf-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>kar</id>
+                        <goals>
+                            <goal>kar</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Workaround to prevent features.xml file from being included twice in the kar file. -->
+                            <resourcesDir>${project.build.directory}/doesNotExist</resourcesDir>
+                            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Puts the features XML file for this app into the maven repo. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -75,6 +85,11 @@
                                     <classifier>features</classifier>
                                 </artifact>
                                 <artifact>
+                                    <file>src/main/resources/org.codice.ddf.ui.searchui.filter.RedirectServlet.config</file>
+                                    <type>config</type>
+                                    <classifier>redirect</classifier>
+                                </artifact>
+                                <artifact>
                                     <file>src/main/resources/etc/org.codice.ddf.catalog.ui.config
                                     </file>
                                     <type>properties</type>
@@ -85,23 +100,38 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>karaf-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>kar</id>
-                        <goals>
-                            <goal>kar</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Workaround to prevent features.xml file from being included twice in the kar file. -->
-                            <resourcesDir>${project.build.directory}/resources</resourcesDir>
-                            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>simple</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui</groupId>
+            <artifactId>catalog-ui-search</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>standard</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>search-redirect</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>search-htmltransformer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>search-endpoint</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
