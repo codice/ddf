@@ -13,7 +13,6 @@
  */
 package ddf.catalog.security.plugin;
 
-import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
@@ -47,16 +46,13 @@ public class SecurityPlugin implements AccessPlugin {
 
     @Override
     public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
-        setSubjectOnRequestProperties(input);
+        ddf.security.Subject subject = setSubjectOnRequestProperties(input);
 
-        Serializable subjectName = input.getProperties()
-                .get(SecurityConstants.SECURITY_SUBJECT);
-
-        if (input.getMetacards() != null && subjectName != null) {
+        if (input.getMetacards() != null && subject != null) {
             input.getMetacards()
                     .forEach(metacard -> {
                         metacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
-                                SubjectUtils.getName((ddf.security.Subject) subjectName)));
+                                SubjectUtils.getEmailAddress(subject)));
                     });
         }
 
@@ -105,7 +101,7 @@ public class SecurityPlugin implements AccessPlugin {
         return input;
     }
 
-    private void setSubjectOnRequestProperties(Operation operation) {
+    private ddf.security.Subject setSubjectOnRequestProperties(Operation operation) {
         try {
             Object requestSubject = operation.getProperties()
                     .get(SecurityConstants.SECURITY_SUBJECT);
@@ -117,6 +113,7 @@ public class SecurityPlugin implements AccessPlugin {
                                     (ddf.security.Subject) subject);
                     LOGGER.debug(
                             "Copied security subject from SecurityUtils  to operation property for legacy and multi-thread support.");
+                    return (ddf.security.Subject) subject;
                 } else {
                     LOGGER.debug(
                             "Security subject was not of type ddf.security.Subject, cannot add to current operation. It may still be accessible from SecurityUtils for supporting services.");
@@ -125,5 +122,7 @@ public class SecurityPlugin implements AccessPlugin {
         } catch (Exception e) {
             LOGGER.debug("No security subject found, cannot add to current operation.");
         }
+
+        return null;
     }
 }

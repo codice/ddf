@@ -46,6 +46,7 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 
@@ -262,7 +263,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         assertNotNull(id);
 
         expect(asUser("random", "password").body(stringify(ImmutableMap.of(Core.METACARD_OWNER,
-                "random@localhost.local"))), 200).put(api() + "/" + id);
+                "random@localhost.local", Metacard.POINT_OF_CONTACT, (String) body.get(Metacard.POINT_OF_CONTACT)))), 200).put(api() + "/" + id);
 
         ids.add(id); // for cleanUp
     }

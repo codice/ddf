@@ -323,8 +323,14 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-policyplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-security-metacardattributeplugin" install="auto"
-             version="${project.version}"
+    <feature name="catalog-security-pointofcontact-policyplugin" install="auto" version="${project.version}"
+             description="DDF Point of Contact Policy Plugin">
+        <feature prerequisite="true">catalog-app</feature>
+        <feature prerequisite="true">security-pdp-authz</feature>
+        <bundle>mvn:ddf.catalog.security/catalog-security-pointofcontact-policyplugin/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-security-metacardattributeplugin" install="auto" version="${project.version}"
              description="DDF Catalog Metacard Attribute Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>

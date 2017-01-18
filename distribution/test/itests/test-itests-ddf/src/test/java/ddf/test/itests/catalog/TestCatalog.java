@@ -147,6 +147,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
 
     public static final String ADMIN = "admin";
+    public static final String ADMIN_EMAIL = "admin@localhost.local";
 
     @Rule
     public TestName testName = new TestName();
@@ -270,9 +271,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .log()
                 .all()
                 .assertThat()
-                .body(hasXPath("/metacard[@id='" + id + "']"))
-                .body(hasXPath("/metacard/string[@name='point-of-contact']"),
-                        containsString("Guest@Guest"));
+                .body(hasXPath("/metacard[@id='" + id + "']"));
 
         deleteMetacard(id);
     }
@@ -300,8 +299,41 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 .body(hasXPath("/metacard[@id='" + id + "']"))
-                .body(hasXPath("/metacard/string[@name='point-of-contact']/value[text()='" + ADMIN
+                .body(hasXPath("/metacard/string[@name='point-of-contact']/value[text()='" + ADMIN_EMAIL
                         + "']"));
+
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testPointOfContactIsReadOnly() throws Exception {
+        LOGGER.debug("Ingesting SimpleGeoJsonRecord");
+        String id = given().auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .body(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"))
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        LOGGER.debug("Updating SimpleGeoJsonRecord");
+
+        given().auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .body(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"))
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .when()
+                .put(new DynamicUrl(REST_PATH, id).getUrl());
 
         deleteMetacard(id);
     }
@@ -2049,6 +2081,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testValidationUnenforced() throws Exception {
         getServiceManager().startFeature(true, "sample-validator");
+        getServiceManager().stopFeature(true, "catalog-security-filter");
         configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
         String id1 = ingestXmlFromResource("/metacard1.xml");
@@ -2150,6 +2183,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             getServiceManager().stopFeature(true, "sample-validator");
+            getServiceManager().startFeature(true, "catalog-security-filter");
         }
     }
 
@@ -2260,7 +2294,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testValidationFiltering() throws Exception {
-        getServiceManager().startFeature(true, "catalog-security-filter", "sample-validator");
+        getServiceManager().startFeature(true, "sample-validator");
 
         // Update metacardMarkerPlugin config with no enforcedMetacardValidators
         configureEnforcedMetacardValidators(Arrays.asList(""), getAdminConfig());
@@ -2351,7 +2385,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-            getServiceManager().stopFeature(true, "catalog-security-filter", "sample-validator");
+            getServiceManager().stopFeature(true, "sample-validator");
             config = configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
             configProps = new Hashtable<>(new PdpProperties());
             config.update(configProps);
@@ -2489,6 +2523,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testMetacardDefinitionJsonFile() throws Exception {
         final String newMetacardTypeName = "new.metacard.type";
+        getServiceManager().stopFeature(true, "catalog-security-filter");
         File file = ingestDefinitionJsonWithWaitCondition("definitions.json", () -> {
             expect("Service to be available: " + MetacardType.class.getName()).within(30,
                     TimeUnit.SECONDS)
@@ -2528,6 +2563,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                                 .isPresent());
                 return null;
             });
+            getServiceManager().startFeature(true, "catalog-security-filter");
             configureShowInvalidMetacards("false", "false", getAdminConfig());
         }
     }
@@ -2720,13 +2756,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .assertThat()
                     .body(hasXPath(basicMetacardXpath + "/type", is(basicMetacardTypeName)))
                     .body(hasXPath(basicMetacardXpath + "/int[@name='page-count']/value", is("55")))
-                    .body(hasXPath(basicMetacardXpath + "/string[@name='point-of-contact']"),
-                            containsString("Guest@Guest"))
                     .body(not(hasXPath(basicMetacardXpath + "/double[@name='temperature']")))
                     .body(hasXPath(otherMetacardXpath + "/type", is(otherMetacardTypeName)))
                     .body(hasXPath(otherMetacardXpath + "/int[@name='page-count']/value", is("55")))
-                    .body(hasXPath(otherMetacardXpath + "/string[@name='point-of-contact']"),
-                            containsString("Guest@Guest"))
                     .body(hasXPath(otherMetacardXpath + "/double[@name='temperature']/value",
                             is("-12.541")));
         } finally {
@@ -2857,6 +2889,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         String invalidCardId = null;
         String validCardId = null;
         try {
+            getServiceManager().stopFeature(true, "catalog-security-filter");
             final String newMetacardTypeName = "customtype1";
 
             ingestDefinitionJsonWithWaitCondition("customtypedefinitions.json", () -> {
@@ -2900,6 +2933,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 deleteMetacard(validCardId);
             }
 
+            getServiceManager().startFeature(true, "catalog-security-filter");
             configureShowInvalidMetacardsReset();
         }
     }

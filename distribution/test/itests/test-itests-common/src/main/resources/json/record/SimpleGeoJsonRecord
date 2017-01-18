@@ -6,7 +6,8 @@
         "metadata-content-type-version": "myVersion",
         "metadata-content-type": "myType",
         "metadata": "<xml>text</xml>",
-        "modified": "2012-09-01T00:09:19.368+0000"
+        "modified": "2012-09-01T00:09:19.368+0000",
+        "point-of-contact": "admin@local"
     },
     "type": "Feature",
     "geometry": {

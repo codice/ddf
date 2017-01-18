@@ -6,9 +6,6 @@
         "title": {
           "required": true
         },
-        "point-of-contact": {
-          "required": true
-        },
         "new-attribute-notrequired": {
           "required": false
         },
