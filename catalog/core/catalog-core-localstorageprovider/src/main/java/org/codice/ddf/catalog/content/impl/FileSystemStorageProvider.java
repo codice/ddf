@@ -327,9 +327,13 @@ public class FileSystemStorageProvider implements StorageProvider {
     }
 
     private boolean isDirectoryEmpty(Path dir) throws IOException {
-        DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir);
-        return !dirStream.iterator()
-                .hasNext();
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
+            return !dirStream.iterator()
+                    .hasNext();
+        } catch (IOException e) {
+            LOGGER.error("Unable to open directory stream for {}", dir.toString(), e);
+            throw e;
+        }
     }
 
     private void commitUpdates(StorageRequest request) throws StorageException {
