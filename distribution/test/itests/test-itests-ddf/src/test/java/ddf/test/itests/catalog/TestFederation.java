@@ -398,7 +398,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
                         cometDClient.shutdown();
                     } catch (Exception e) {
-                        fail("Failed to shutdown cometD client!");
+                        //ignore, cometd clients should all be recreated when necessary in each test
                     }
                 });
     }
