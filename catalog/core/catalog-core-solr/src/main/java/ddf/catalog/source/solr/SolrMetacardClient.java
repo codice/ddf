@@ -15,482 +15,81 @@ package ddf.catalog.source.solr;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrException;
-import org.apache.solr.common.SolrInputDocument;
-import org.locationtech.spatial4j.distance.DistanceUtils;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.Nullable;
 
-import ddf.catalog.data.AttributeType;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrInputDocument;
+
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.ContentTypeImpl;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.measure.Distance;
 
-public class SolrMetacardClient {
-
-    protected static final String RELEVANCE_SORT_FIELD = "score";
-
-    private static final String DISTANCE_SORT_FUNCTION = "geodist()";
-
-    private static final String DISTANCE_SORT_FIELD = "_distance_";
-
-    private static final String GEOMETRY_SORT_FIELD =
-            Metacard.GEOGRAPHY + SchemaFields.GEO_SUFFIX + SchemaFields.SORT_KEY_SUFFIX;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SolrMetacardClient.class);
-
-    private static final String QUOTE = "\"";
-
-    private final SolrClient client;
-
-    private final SolrFilterDelegateFactory filterDelegateFactory;
-
-    private final FilterAdapter filterAdapter;
-
-    private final DynamicSchemaResolver resolver;
-
-    public SolrMetacardClient(SolrClient client, FilterAdapter catalogFilterAdapter,
-            SolrFilterDelegateFactory solrFilterDelegateFactory,
-            DynamicSchemaResolver dynamicSchemaResolver) {
-        this.client = client;
-        filterDelegateFactory = solrFilterDelegateFactory;
-        filterAdapter = catalogFilterAdapter;
-        resolver = dynamicSchemaResolver;
-    }
-
-    public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-        if (request == null || request.getQuery() == null) {
-            return new QueryResponseImpl(request, new ArrayList<Result>(), true, 0L);
-        }
-
-        SolrQuery query = getSolrQuery(request, filterDelegateFactory.newInstance(resolver));
-
-        long totalHits;
-        List<Result> results = new ArrayList<>();
-        try {
-            QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
-            totalHits = solrResponse.getResults()
-                    .getNumFound();
-            SolrDocumentList docs = solrResponse.getResults();
-
-            for (SolrDocument doc : docs) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("SOLR DOC: {}",
-                            doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
-                }
-                ResultImpl tmpResult;
-                try {
-                    tmpResult = createResult(doc);
-                    // TODO: register metacard type???
-                } catch (MetacardCreationException e) {
-                    throw new UnsupportedQueryException("Could not create metacard(s).", e);
-                }
-
-                results.add(tmpResult);
-            }
-
-        } catch (SolrServerException | IOException | SolrException e) {
-            throw new UnsupportedQueryException("Could not complete solr query.", e);
-        }
-
-        SourceResponseImpl sourceResponseImpl = new SourceResponseImpl(request, results);
-
-        /* Total Count */
-        sourceResponseImpl.setHits(totalHits);
-
-        return sourceResponseImpl;
-    }
-
-    public List<Metacard> query(String queryString) throws UnsupportedQueryException {
-        SolrQuery query = new SolrQuery();
-        query.setQuery(queryString);
-        try {
-            QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
-            SolrDocumentList docs = solrResponse.getResults();
-
-            List<Metacard> results = new ArrayList<>();
-            for (SolrDocument doc : docs) {
-                try {
-                    results.add(createMetacard(doc));
-                } catch (MetacardCreationException e) {
-                    throw new UnsupportedQueryException("Could not create metacard(s).", e);
-                }
-            }
-
-            return results;
-        } catch (SolrServerException | IOException e) {
-            throw new UnsupportedQueryException("Could not complete solr query.", e);
-        }
-
-    }
-
-    public Set<ContentType> getContentTypes() {
-        Set<ContentType> finalSet = new HashSet<>();
-
-        String contentTypeField = resolver.getField(Metacard.CONTENT_TYPE,
-                AttributeType.AttributeFormat.STRING,
-                true);
-        String contentTypeVersionField = resolver.getField(Metacard.CONTENT_TYPE_VERSION,
-                AttributeType.AttributeFormat.STRING,
-                true);
-
-        /*
-         * If we didn't find the field, it most likely means it does not exist. If it does not
-         * exist, then we can safely say that no content types are in this catalog provider
-         */
-        if (contentTypeField == null || contentTypeVersionField == null) {
-            return finalSet;
-        }
-
-        SolrQuery query = new SolrQuery(contentTypeField + ":[* TO *]");
-        query.setFacet(true);
-        query.addFacetField(contentTypeField);
-        query.addFacetPivotField(contentTypeField + "," + contentTypeVersionField);
-
-        try {
-            QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
-            List<FacetField> facetFields = solrResponse.getFacetFields();
-            for (Map.Entry<String, List<PivotField>> entry : solrResponse.getFacetPivot()) {
-
-                // if no content types have an associated version, the list of pivot fields will be
-                // empty.
-                // however, the content type names can still be obtained via the facet fields.
-                if (CollectionUtils.isEmpty(entry.getValue())) {
-                    LOGGER.debug(
-                            "No content type versions found associated with any available content types.");
-
-                    if (CollectionUtils.isNotEmpty(facetFields)) {
-                        // Only one facet field was added. That facet field may contain multiple
-                        // values (content type names).
-                        for (FacetField.Count currContentType : facetFields.get(0)
-                                .getValues()) {
-                            // unknown version, so setting it to null
-                            ContentTypeImpl contentType =
-                                    new ContentTypeImpl(currContentType.getName(), null);
-
-                            finalSet.add(contentType);
-                        }
-                    }
-                } else {
-                    for (PivotField pf : entry.getValue()) {
-
-                        String contentTypeName = pf.getValue()
-                                .toString();
-                        LOGGER.debug("contentTypeName:{}", contentTypeName);
-
-                        if (CollectionUtils.isEmpty(pf.getPivot())) {
-                            // if there are no sub-pivots, that means that there are no content type
-                            // versions
-                            // associated with this content type name
-                            LOGGER.debug(
-                                    "Content type does not have associated contentTypeVersion: {}",
-                                    contentTypeName);
-                            ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName,
-                                    null);
-
-                            finalSet.add(contentType);
-
-                        } else {
-                            for (PivotField innerPf : pf.getPivot()) {
-
-                                LOGGER.debug("contentTypeVersion:{}. For contentTypeName: {}",
-                                        innerPf.getValue(),
-                                        contentTypeName);
-
-                                ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName,
-                                        innerPf.getValue()
-                                                .toString());
-
-                                finalSet.add(contentType);
-                            }
-                        }
-                    }
-                }
-            }
-
-        } catch (SolrServerException | IOException e) {
-            LOGGER.info("Solr exception getting content types", e);
-        }
-
-        return finalSet;
-    }
-
-    protected SolrQuery getSolrQuery(QueryRequest request, SolrFilterDelegate solrFilterDelegate)
-            throws UnsupportedQueryException {
-        solrFilterDelegate.setSortPolicy(request.getQuery()
-                .getSortBy());
-
-        SolrQuery query = filterAdapter.adapt(request.getQuery(), solrFilterDelegate);
-
-        return postAdapt(request, solrFilterDelegate, query);
-    }
-
-    protected SolrQuery postAdapt(QueryRequest request, SolrFilterDelegate filterDelegate,
-            SolrQuery query) throws UnsupportedQueryException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Prepared Query: {}", query.getQuery());
-            if (query.getFilterQueries() != null && query.getFilterQueries().length > 0) {
-                LOGGER.debug("Filter Queries: {}", Arrays.toString(query.getFilterQueries()));
-            }
-        }
-
-        if (request.getQuery()
-                .getPageSize() < 1) {
-            query.setRows(Integer.MAX_VALUE);
-        } else {
-            query.setRows(request.getQuery()
-                    .getPageSize());
-        }
-
-        /* Start Index */
-        if (request.getQuery()
-                .getStartIndex() < 1) {
-            throw new UnsupportedQueryException("Start index must be greater than 0");
-        }
-
-        // Solr is 0-based
-        query.setStart(request.getQuery()
-                .getStartIndex() - 1);
-
-        setSortProperty(request, query, filterDelegate);
-
-        return query;
-    }
-
-    private void addDistanceSort(SolrQuery query, String sortField, SolrQuery.ORDER order,
-            SolrFilterDelegate delegate) {
-        if (delegate.isSortedByDistance()) {
-            query.addSort(DISTANCE_SORT_FUNCTION, order);
-            query.setFields("*", RELEVANCE_SORT_FIELD, DISTANCE_SORT_FIELD + ":" + DISTANCE_SORT_FUNCTION);
-            query.add("sfield", sortField);
-            query.add("pt", delegate.getSortedDistancePoint());
-        }
-    }
-
-    protected String setSortProperty(QueryRequest request, SolrQuery query,
-            SolrFilterDelegate solrFilterDelegate) {
-        SortBy sortBy = request.getQuery()
-                .getSortBy();
-        String sortProperty = "";
-
-        if (sortBy != null && sortBy.getPropertyName() != null) {
-            sortProperty = sortBy.getPropertyName()
-                    .getPropertyName();
-            SolrQuery.ORDER order = SolrQuery.ORDER.desc;
-
-            if (sortBy.getSortOrder() == SortOrder.ASCENDING) {
-                order = SolrQuery.ORDER.asc;
-            }
-
-            query.setFields("*", RELEVANCE_SORT_FIELD);
-
-            if (Result.RELEVANCE.equals(sortProperty)) {
-                query.addSort(RELEVANCE_SORT_FIELD, order);
-            } else if (Result.DISTANCE.equals(sortProperty)) {
-                addDistanceSort(query, GEOMETRY_SORT_FIELD, order, solrFilterDelegate);
-            } else if (sortProperty.equals(Result.TEMPORAL)) {
-                query.addSort(resolver.getSortKey(resolver.getField(Metacard.EFFECTIVE,
-                        AttributeType.AttributeFormat.DATE,
-                        false)), order);
-            } else {
-                List<String> resolvedProperties = resolver.getAnonymousField(sortProperty);
-
-                if (!resolvedProperties.isEmpty()) {
-                    for (String sortField : resolvedProperties) {
-                        if (sortField.endsWith(SchemaFields.GEO_SUFFIX)) {
-                            addDistanceSort(query,
-                                    resolver.getSortKey(sortField),
-                                    order,
-                                    solrFilterDelegate);
-                        } else if (!(sortField.endsWith(SchemaFields.BINARY_SUFFIX) || sortField.endsWith(
-                                SchemaFields.OBJECT_SUFFIX))) {
-                            query.addSort(resolver.getSortKey(sortField), order);
-                        }
-                    }
-                } else {
-                    LOGGER.debug(
-                            "No schema field was found for sort property [{}]. No sort field was added to the query.",
-                            sortProperty);
-                }
-
-            }
-
-        }
-        return resolver.getSortKey(sortProperty);
-    }
-
-    private ResultImpl createResult(SolrDocument doc)
-            throws MetacardCreationException {
-        ResultImpl result = new ResultImpl(createMetacard(doc));
-
-        if (doc.get(RELEVANCE_SORT_FIELD) != null) {
-            result.setRelevanceScore(((Float) (doc.get(RELEVANCE_SORT_FIELD))).doubleValue());
-        }
-
-        if (doc.get(DISTANCE_SORT_FIELD) != null) {
-            Object distance = doc.getFieldValue(DISTANCE_SORT_FIELD);
-
-            if (distance != null) {
-                LOGGER.debug("Distance returned from Solr [{}]", distance);
-                double convertedDistance = new Distance(Double.valueOf(distance.toString()),
-                        Distance.LinearUnit.KILOMETER).getAs(Distance.LinearUnit.METER);
-
-                result.setDistanceInMeters(convertedDistance);
-            }
-        }
-
-        return result;
-    }
-
-    private Double degreesToMeters(double distance) {
-        return new Distance(DistanceUtils.degrees2Dist(distance,
-                DistanceUtils.EARTH_MEAN_RADIUS_KM),
-                Distance.LinearUnit.KILOMETER).getAs(Distance.LinearUnit.METER);
-    }
-
-    public MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
-        MetacardType metacardType = resolver.getMetacardType(doc);
-        MetacardImpl metacard = new MetacardImpl(metacardType);
-
-        for (String solrFieldName : doc.getFieldNames()) {
-            if (!resolver.isPrivateField(solrFieldName)) {
-                Collection<Object> fieldValues = doc.getFieldValues(solrFieldName);
-                AttributeImpl attr = new AttributeImpl(resolver.resolveFieldName(solrFieldName),
-                        resolver.getDocValues(solrFieldName, fieldValues));
-                metacard.setAttribute(attr);
-            }
-        }
-
-        return metacard;
-    }
-
-    public List<SolrInputDocument> add(List<Metacard> metacards, boolean forceAutoCommit)
-            throws IOException, SolrServerException, MetacardCreationException {
-        if (metacards == null || metacards.size() == 0) {
-            return null;
-        }
-
-        List<SolrInputDocument> docs = new ArrayList<>();
-        for (Metacard metacard : metacards) {
-            docs.add(getSolrInputDocument(metacard));
-        }
-
-        if (!forceAutoCommit) {
-            client.add(docs);
-        } else {
-            softCommit(docs);
-        }
-
-        return docs;
-    }
-
-    protected SolrInputDocument getSolrInputDocument(Metacard metacard)
-            throws MetacardCreationException {
-        SolrInputDocument solrInputDocument = new SolrInputDocument();
-
-        resolver.addFields(metacard, solrInputDocument);
-
-        return solrInputDocument;
-    }
-
-    public void deleteByIds(String fieldName, List<? extends Serializable> identifiers,
-            boolean forceCommit) throws IOException, SolrServerException {
-        if (identifiers == null || identifiers.size() == 0) {
-            return;
-        }
-
-        if (Metacard.ID.equals(fieldName)) {
-            CollectionUtils.transform(identifiers, new Transformer() {
-                @Override
-                public Object transform(Object o) {
-                    return o.toString();
-                }
-            });
-            client.deleteById((List<String>) identifiers);
-        } else {
-            if (identifiers.size() < SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
-                client.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
-            } else {
-                int i = 0;
-                for (
-                        i = SolrCatalogProvider.MAX_BOOLEAN_CLAUSES;
-                        i < identifiers.size(); i += SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
-                    client.deleteByQuery(getIdentifierQuery(fieldName, identifiers.subList(
-                            i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, i)));
-                }
-                client.deleteByQuery(getIdentifierQuery(fieldName, identifiers.subList(
-                        i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, identifiers.size())));
-            }
-        }
-
-        if (forceCommit) {
-            client.commit();
-        }
-    }
-
-    public void deleteByQuery(String query) throws IOException, SolrServerException {
-        client.deleteByQuery(query);
-    }
-
-    public String getIdentifierQuery(String fieldName, List<? extends Serializable> identifiers) {
-        StringBuilder queryBuilder = new StringBuilder();
-        for (Serializable id : identifiers) {
-            if (queryBuilder.length() > 0) {
-                queryBuilder.append(" OR ");
-            }
-
-            queryBuilder.append(fieldName)
-                    .append(":")
-                    .append(QUOTE)
-                    .append(id)
-                    .append(QUOTE);
-        }
-        return queryBuilder.toString();
-    }
-
-    private org.apache.solr.client.solrj.response.UpdateResponse softCommit(
-            List<SolrInputDocument> docs) throws SolrServerException, IOException {
-        return new org.apache.solr.client.solrj.request.UpdateRequest().add(docs)
-                .setAction(AbstractUpdateRequest.ACTION.COMMIT,
-                /* waitForFlush */true,
-                /* waitToMakeVisible */true,
-                /* softCommit */true)
-                .process(client);
-    }
-
+/**
+ * Interface that defines the different metacard operations performed on Solr.
+ */
+public interface SolrMetacardClient {
+    /**
+     * Converts a {@link QueryRequest} into a Solr query and returns the result as a
+     * {@link SourceResponse}.
+     *
+     * @param request query request to execute against Solr
+     * @return converted Solr response
+     * @throws UnsupportedQueryException if the query is not supported
+     */
+    SourceResponse query(QueryRequest request) throws UnsupportedQueryException;
+
+    /**
+     * Runs a Solr query and converts the result as a list of {@link Metacard} objects.
+     *
+     * @param queryString Solr query string
+     * @return list of {@link Metacard} objects created from the Solr result
+     * @throws UnsupportedQueryException if the query is not supported, e.g., invalid query string
+     */
+    List<Metacard> query(String queryString) throws UnsupportedQueryException;
+
+    /**
+     * @return set of supported content types.
+     */
+    Set<ContentType> getContentTypes();
+
+    /**
+     * Adds a list of {@link Metacard} objects to Solr.
+     *
+     * @param metacards       list of {@link Metacard} objects to add
+     * @param forceAutoCommit force an auto-commit after the addition
+     * @return list of documents added
+     * @throws IOException               if there is a communication error with the server
+     * @throws SolrServerException       if there is an error on the server
+     * @throws MetacardCreationException if a {@link Metacard} could not be created
+     */
+    @Nullable
+    List<SolrInputDocument> add(@Nullable List<Metacard> metacards, boolean forceAutoCommit)
+            throws IOException, SolrServerException, MetacardCreationException;
+
+    /**
+     * Deletes Solr documents by ID.
+     *
+     * @param fieldName   field name that contains the ID
+     * @param identifiers list of identifiers to delete
+     * @param forceCommit force an auto-commit after the deletion
+     * @throws IOException         if there is a communication error with the server
+     * @throws SolrServerException if there is an error on the server
+     */
+    void deleteByIds(String fieldName, List<? extends Serializable> identifiers,
+            boolean forceCommit) throws IOException, SolrServerException;
+
+    /**
+     * Deletes all the Solr documents that match a specific query.
+     *
+     * @param query Solr query string
+     * @throws IOException         if there is a communication error with the server
+     * @throws SolrServerException if there is an error on the server
+     */
+    void deleteByQuery(String query) throws IOException, SolrServerException;
 }

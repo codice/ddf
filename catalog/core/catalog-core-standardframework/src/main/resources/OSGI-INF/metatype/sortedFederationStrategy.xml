@@ -39,10 +39,6 @@
         <AD name="Expiration Age" id="expirationAgeInMinutes" required="true" type="Long"
             default="10080"
             description="The number of minutes a document will remain in the cache before it will expire. Default is 7 days."/>
-
-        <AD description="HTTP URL of Solr Server" name="Solr URL" id="url"
-            required="true" type="String" default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr"/>
-
         <AD description="Cache all results unless configured as native" name="Cache Everything"
             id="cachingEverything" required="true" type="Boolean" default="false"/>
 
@@ -67,4 +63,3 @@
     </Designate>
 
 </metatype:MetaData>
-
