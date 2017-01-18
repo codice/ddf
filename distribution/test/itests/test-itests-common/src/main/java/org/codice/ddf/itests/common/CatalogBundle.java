@@ -156,12 +156,18 @@ public class CatalogBundle {
                     for (SourceDescriptor sourceDescriptor : sourceInfo) {
                         if (sourceDescriptor.getSourceId().equals(source.getId())) {
                             available = sourceDescriptor.isAvailable() && source.isAvailable();
-                            LOGGER.info("Source.isAvailable = {}", available);
+                            LOGGER.info("Source.isAvailable = {} Framework.isAvailable = {}",
+                                    source.isAvailable(),
+                                    sourceDescriptor.isAvailable());
                         }
                     }
                 } catch (SourceUnavailableException e) {
                     available = false;
                 }
+            } else {
+                LOGGER.info("Currently no source of type {} and name {} could be found",
+                        type.getName(),
+                        id);
             }
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {

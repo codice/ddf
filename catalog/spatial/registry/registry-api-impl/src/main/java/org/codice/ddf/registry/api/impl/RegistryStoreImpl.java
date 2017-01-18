@@ -15,7 +15,6 @@ package org.codice.ddf.registry.api.impl;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -101,6 +100,10 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
     private boolean autoPush = true;
 
     private String registryId = "";
+
+    private String connectionType;
+
+    private String factoryPid;
 
     private MetacardMarshaller metacardMarshaller;
 
@@ -266,7 +269,8 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
                 String metacardTitle = singleResult.getMetacard()
                         .getTitle();
 
-                if (metacardTitle != null && getId() != null && !getId().equals(metacardTitle)) {
+                if (metacardTitle != null && getId() != null && !getId().equals(getFullRegistryName(
+                        metacardTitle))) {
                     setId(metacardTitle);
                     updateConfiguration(metacardTitle);
                 }
@@ -351,7 +355,6 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
                     .get(0)
                     .getMetacard()
                     .getTitle();
-            setId(metacardTitle);
             registryId = RegistryUtility.getRegistryId(identityMetacard.getResults()
                     .get(0)
                     .getMetacard());
@@ -361,14 +364,19 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
     }
 
     private String getConnectionType(Bundle bundle, String pid) {
+        if (connectionType != null) {
+            return connectionType;
+        }
+
         Locale locale = Locale.getDefault();
         if (bundle != null) {
             if (metaTypeService != null) {
                 MetaTypeInformation mti = metaTypeService.getMetaTypeInformation(bundle);
                 if (mti != null) {
                     try {
-                        return mti.getObjectClassDefinition(pid, locale.toString())
+                        connectionType = mti.getObjectClassDefinition(pid, locale.toString())
                                 .getName();
+                        return connectionType;
                     } catch (IllegalArgumentException e) {
                         LOGGER.debug("Unable to get connection type for registry configuration. ",
                                 e);
@@ -395,26 +403,9 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         try {
             Configuration currentConfig = configAdmin.getConfiguration(currentPid);
             Dictionary<String, Object> currentProperties = currentConfig.getProperties();
-            URI uri;
-            String registryUrl = (String) currentProperties.get(REGISTRY_URL);
-            try {
-                uri = new URI(registryUrl);
-            } catch (URISyntaxException e) {
-                LOGGER.debug("Unable to update registry configurations. Syntax error on registryUrl",
-                        e);
-                return;
-            }
-            String port = "";
-            if (uri.getPort() != noPortFound) {
-                port = ":" + uri.getPort();
-            }
-            String connectionType = getConnectionType(this.getBundleContext()
-                    .getBundle(), (String) currentProperties.get("service.factoryPid"));
-            String nameToSet = String.format("%s (%s%s) (%s)",
-                    metacardTitle,
-                    uri.getHost(),
-                    port,
-                    connectionType);
+            String nameToSet = getFullRegistryName(metacardTitle);
+            LOGGER.info("Changed RegistryStore.id from {} to {}", getId(), nameToSet);
+            setId(nameToSet);
             currentProperties.put(ID, nameToSet);
             currentProperties.put(RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY, registryId);
             currentConfig.update(currentProperties);
@@ -422,6 +413,39 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
             LOGGER.debug("Unable to update registry configurations, ", e);
         }
 
+    }
+
+    private String getFactoryPid() {
+        if (factoryPid != null) {
+            return factoryPid;
+        }
+        try {
+            Configuration currentConfig = configAdmin.getConfiguration(getConfigurationPid());
+            factoryPid = (String) currentConfig.getProperties()
+                    .get("service.factoryPid");
+            return factoryPid;
+        } catch (IOException e) {
+            LOGGER.debug("Unable to update registry configurations, ", e);
+        }
+        return null;
+    }
+
+    private String getFullRegistryName(String shortName) {
+        URI uri;
+        String registryUrl = this.cswSourceConfiguration.getCswUrl();
+        try {
+            uri = new URI(registryUrl);
+        } catch (Exception e) {
+            LOGGER.debug("Unable to parse registry url.", e);
+            return "";
+        }
+        String port = "";
+        if (uri.getPort() != noPortFound) {
+            port = ":" + uri.getPort();
+        }
+        String connectionType = getConnectionType(this.getBundleContext()
+                .getBundle(), getFactoryPid());
+        return String.format("%s (%s%s) (%s)", shortName, uri.getHost(), port, connectionType);
     }
 
     BundleContext getBundleContext() {

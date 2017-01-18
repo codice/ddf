@@ -13,37 +13,44 @@
  */
 package ddf.test.itests.catalog;
 
-import static org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
-import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswRegistryStoreProperties;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
+import static com.xebialabs.restito.semantics.Action.bytesContent;
+import static com.xebialabs.restito.semantics.Action.contentType;
+import static com.xebialabs.restito.semantics.Action.ok;
+import static com.xebialabs.restito.semantics.Condition.not;
+import static com.xebialabs.restito.semantics.Condition.post;
+import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.PrivilegedActionException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
-import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
-import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
+import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.security.common.Security;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,7 +60,6 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.xml.sax.InputSource;
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
@@ -72,6 +78,18 @@ public class TestRegistry extends AbstractIntegrationTest {
     private static final String ADMIN = "admin";
 
     private static final String CSW_REGISTRY_TYPE = "CSW Registry Store";
+
+    private static final DynamicPort CSW_STUB_SERVER_PORT = new DynamicPort(8);
+
+    private static final String REMOTE_REGISTRY_ID = "urn:uuid:12121212121212121212121212121212";
+
+    private static final String METACARD_ID = "12312312312312312312312312312312";
+
+    private static final String REMOTE_METACARD_ID = "09876543210987654321098765432100";
+
+    private static String storeId;
+
+    private static FederatedCswMockServer cswServer;
 
     @Rule
     public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
@@ -114,6 +132,35 @@ public class TestRegistry extends AbstractIntegrationTest {
                         remoteReg));
     }
 
+    public static String getRegistryQueryResponse(String mcardId, String regId, String remoteReg,
+            String nodeName, String date) throws IOException {
+        return getFileContent("default-csw-registry-query-response.xml",
+                ImmutableMap.of("mcardId",
+                        mcardId,
+                        "nodeName",
+                        nodeName,
+                        "lastUpdated",
+                        date,
+                        "regId",
+                        regId,
+                        "remoteReg",
+                        remoteReg));
+    }
+
+    public static String getRegistryInsertResponse(String mcardId, String mcardTitle)
+            throws Exception {
+        return getFileContent("registry-csw-mock-insert-transaction-response.xml",
+                ImmutableMap.of("mcardId", mcardId, "metacardTitle", mcardTitle));
+    }
+
+    public static String getCswQueryEmptyResponse() throws Exception {
+        return "<?xml version='1.0' encoding='UTF-8'?>"
+                + "<csw:GetRecordsResponse xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" version=\"2.0.2\">\n"
+                + "    <csw:SearchStatus timestamp=\"2017-01-17T09:34:28.597-07:00\"/>\n"
+                + "    <csw:SearchResults numberOfRecordsMatched=\"0\" numberOfRecordsReturned=\"0\" nextRecord=\"0\" recordSchema=\"urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0\" elementSet=\"full\">\n"
+                + "    </csw:SearchResults>\n" + "</csw:GetRecordsResponse>";
+    }
+
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
@@ -125,18 +172,27 @@ public class TestRegistry extends AbstractIntegrationTest {
             getServiceManager().waitForAllBundles();
             getServiceManager().startFeature(true, CATALOG_REGISTRY_CORE);
             getServiceManager().waitForAllBundles();
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
+
+            cswServer = new FederatedCswMockServer("MockCswServer",
+                    "http://localhost:",
+                    Integer.parseInt(CSW_STUB_SERVER_PORT.getPort()));
+            String defaultResponse = getRegistryQueryResponse("11111111111111111111111111111111",
+                    REMOTE_REGISTRY_ID,
+                    REMOTE_REGISTRY_ID,
+                    "RemoteRegistry",
+                    "2018-02-26T17:16:34.996Z");
+            cswServer.setupDefaultQueryResponseExpectation(defaultResponse);
+            cswServer.start();
+
             getServiceManager().createManagedService(FACTORY_PID,
                     getCswRegistryStoreProperties(REGISTRY_CATALOG_STORE_ID,
-                            CSW_PATH.getUrl(),
+                            "http://localhost:" + CSW_STUB_SERVER_PORT.getPort() + "/services/csw",
                             getServiceManager()));
-            getCatalogBundle().waitForCatalogStore(String.format("%s (%s:%s) (%s)",
-                    SystemInfo.getSiteName(),
-                    SystemBaseUrl.getHost(),
-                    SystemBaseUrl.getPort(),
-                    CSW_REGISTRY_TYPE));
-            destinations = new HashSet<>();
-            destinations.add(REGISTRY_CATALOG_STORE_ID);
+            storeId = String.format("RemoteRegistry (localhost:%s) (%s)",
+                    CSW_STUB_SERVER_PORT.getPort(),
+                    CSW_REGISTRY_TYPE);
+            getCatalogBundle().waitForCatalogStore(storeId);
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
@@ -144,15 +200,31 @@ public class TestRegistry extends AbstractIntegrationTest {
 
     }
 
+    @Before
+    public void setup() throws Exception {
+        destinations = new HashSet<>();
+        destinations.add(storeId);
+        String defaultResponse = getRegistryQueryResponse("11111111111111111111111111111111",
+                REMOTE_REGISTRY_ID,
+                REMOTE_REGISTRY_ID,
+                "RemoteRegistry",
+                "2018-02-26T17:16:34.996Z");
+        cswServer.setupDefaultQueryResponseExpectation(defaultResponse);
+        cswServer.reset();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        cswServer.stop();
+    }
+
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryIngest() throws Exception {
         createRegistryEntry("2014ca7f59ac46f495e32b4a67a51279",
                 "urn:uuid:2014ca7f59ac46f495e32b4a67a51279");
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryUpdate() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51285";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51285";
@@ -181,7 +253,6 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryUpdateFailure() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51280";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51280";
@@ -203,7 +274,6 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryDelete() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51281";
         String mcardId = "2014ca7f59ac46f495e32b4a67a51281";
@@ -233,68 +303,183 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryStoreCreate() throws Exception {
 
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51277";
-        String mcardId = "2014ca7f59ac46f495e32b4a67a51277";
+
+        cswServer.setupDefaultInsertTransactionResponseExpectation(getRegistryInsertResponse(
+                REMOTE_METACARD_ID,
+                "Node Name"));
+        cswServer.reset();
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL),
+                        withPostBodyContaining(METACARD_ID))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getCswQueryEmptyResponse().getBytes()));
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(REMOTE_METACARD_ID))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getRegistryQueryResponse(REMOTE_METACARD_ID,
+                                regID,
+                                REMOTE_REGISTRY_ID,
+                                "NodeName",
+                                "2016-01-26T17:16:34.996Z").getBytes()));
+
         try {
             Security.runAsAdminWithException(() -> {
-
-                createRegistryStoreEntry(mcardId, regID, regID);
+                String id = createRegistryStoreEntry(METACARD_ID, regID, regID);
+                LOGGER.info("Created remote metacard with ID: {}", id);
+                assertThat(id, is(regID));
+                cswServer.verifyHttp()
+                        .times(1,
+                                withPostBodyContaining("Transaction"),
+                                withPostBodyContaining("Insert"),
+                                withPostBodyContaining(regID));
                 return null;
             });
-        } catch (PrivilegedActionException e) {
-            String message = "There was an error bringing up the Federation Admin Service.";
+        } catch (Exception e) {
+            String message = "There was an error creating the remote registry metacard.";
             LOGGER.error(message, e);
             throw new Exception(message, e);
         }
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
-    public void testCswRegistryStoreUpdate() throws Exception {
-        String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51290";
-        String mcardId = "2014ca7f59ac46f495e32b4a67a51290";
+    public void testCswRegistryStoreCreateWithExistingRemoteEntry() throws Exception {
 
+        String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51277";
+
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL),
+                        withPostBodyContaining(METACARD_ID))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(getRegistryQueryResponse(REMOTE_METACARD_ID,
+                                regID,
+                                REMOTE_REGISTRY_ID,
+                                "NodeName",
+                                "2016-01-26T17:16:34.996Z").getBytes()));
         try {
             Security.runAsAdminWithException(() -> {
+                String id = createRegistryStoreEntry(METACARD_ID, regID, regID);
+                assertThat(id, is(regID));
+                cswServer.verifyHttp()
+                        .times(0,
+                                withPostBodyContaining("Transaction"),
+                                withPostBodyContaining("Ingest"),
+                                withPostBodyContaining(METACARD_ID));
 
-                createRegistryStoreEntry(mcardId, regID, regID);
+                return null;
+            });
+        } catch (Exception e) {
+            String message = "There was an error creating the remote registry metacard.";
+            LOGGER.error(message, e);
+            throw new Exception(message, e);
+        }
+    }
+
+    @Test
+    public void testCswRegistryStoreUpdate() throws Exception {
+        String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51290";
+
+        String remoteMetacardResponse = getRegistryQueryResponse(REMOTE_METACARD_ID,
+                regID,
+                REMOTE_REGISTRY_ID,
+                "NodeName",
+                "2016-01-26T17:16:34.996Z");
+        String remoteUpdatedMetacardResponse = getRegistryQueryResponse(REMOTE_METACARD_ID,
+                regID,
+                REMOTE_REGISTRY_ID,
+                "New Node Name",
+                "2016-01-26T17:16:34.996Z");
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL),
+                        withPostBodyContaining(METACARD_ID))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(remoteMetacardResponse.getBytes()));
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        not(withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL)),
+                        withPostBodyContaining(METACARD_ID))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(remoteMetacardResponse.getBytes()));
+        cswServer.whenHttp()
+                .match(post("/services/csw"),
+                        withPostBodyContaining("GetRecords"),
+                        not(withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL)),
+                        withPostBodyContaining(REMOTE_METACARD_ID))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(remoteUpdatedMetacardResponse.getBytes()));
+        try {
+            Security.runAsAdminWithException(() -> {
 
                 FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                         FederationAdminService.class);
-                federationAdminServiceImpl.updateRegistryEntry(getRegistryNode(mcardId,
+                federationAdminServiceImpl.updateRegistryEntry(getRegistryNode(METACARD_ID,
                         regID,
                         regID,
                         "New Node Name",
-                        "2016-02-26T17:16:34.996Z"), destinations);
-
-                ValidatableResponse validatableResponse = getCswRegistryResponse("title",
-                        "New Node Name");
-
-                final String xPathRegistryName =
-                        "string(//GetRecordsResponse/SearchResults/RegistryPackage/RegistryObjectList/ExtrinsicObject/Name/LocalizedString/@value)";
-                validatableResponse.body(hasXPath(xPathRegistryName,
-                        CoreMatchers.is("New Node Name")));
+                        "2016-02-26T17:16:34.996Z"), new HashSet(destinations));
+                cswServer.verifyHttp()
+                        .times(1,
+                                withPostBodyContaining("Transaction"),
+                                withPostBodyContaining("Update"));
+                cswServer.verifyHttp()
+                        .atLeast(4);
                 return null;
             });
-        } catch (PrivilegedActionException e) {
-            String message = "There was an error bringing up the Federation Admin Service.";
+        } catch (Exception e) {
+            String message = "There was an error updating the remote registry metacard.";
             LOGGER.error(message, e);
             throw new Exception(message, e);
         }
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testCswRegistryStoreDelete() throws Exception {
         String regID = "urn:uuid:2014ca7f59ac46f495e32b4a67a51291";
-        String mcardId = "2014ca7f59ac46f495e32b4a67a51291";
+
+        String remoteMetacardResponse = getRegistryQueryResponse(REMOTE_METACARD_ID,
+                regID,
+                REMOTE_REGISTRY_ID,
+                "NodeName",
+                "2016-01-26T17:16:34.996Z");
+
         try {
+            createRegistryEntry(METACARD_ID, regID);
+
+            cswServer.whenHttp()
+                    .match(post("/services/csw"),
+                            withPostBodyContaining("GetRecords"),
+                            withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL))
+                    .then(ok(),
+                            contentType("text/xml"),
+                            bytesContent(remoteMetacardResponse.getBytes()));
+            cswServer.whenHttp()
+                    .match(post("/services/csw"),
+                            withPostBodyContaining("GetRecords"),
+                            not(withPostBodyContaining(RegistryConstants.REGISTRY_TAG_INTERNAL)),
+                            withPostBodyContaining(REMOTE_METACARD_ID))
+                    .then(ok(),
+                            contentType("text/xml"),
+                            bytesContent(remoteMetacardResponse.getBytes()));
+
             Security.runAsAdminWithException(() -> {
 
-                createRegistryStoreEntry(mcardId, regID, regID);
                 FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                         FederationAdminService.class);
 
@@ -302,18 +487,17 @@ public class TestRegistry extends AbstractIntegrationTest {
                 toBeDeletedIDs.add(regID);
 
                 federationAdminServiceImpl.deleteRegistryEntriesByRegistryIds(toBeDeletedIDs,
-                        destinations);
-
-                ValidatableResponse validatableResponse = getCswRegistryResponse("registry-id",
-                        regID);
-
-                final String xPathNumRecords =
-                        "//GetRecordsResponse/SearchResults/@numberOfRecordsMatched";
-                validatableResponse.body(hasXPath(xPathNumRecords, CoreMatchers.is("0")));
+                        new HashSet(destinations));
+                cswServer.verifyHttp()
+                        .times(1,
+                                withPostBodyContaining("Transaction"),
+                                withPostBodyContaining("Delete"));
+                cswServer.verifyHttp()
+                        .atLeast(3);
                 return null;
             });
-        } catch (PrivilegedActionException e) {
-            String message = "There was an error bringing up the Federation Admin Service.";
+        } catch (Exception e) {
+            String message = "There was an error deleting the remote registry metacard.";
             LOGGER.error(message, e);
             throw new Exception(message, e);
         }
@@ -321,7 +505,6 @@ public class TestRegistry extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class) //TODO DDF-2670
     public void testRestEndpoint() throws Exception {
         final String regId = "urn:uuid:2014ca7f59ac46f495e32b4a67a51292";
         final String mcardId = "2014ca7f59ac46f495e32b4a67a51292";
@@ -368,40 +551,39 @@ public class TestRegistry extends AbstractIntegrationTest {
         String idPath = "//*[local-name()='identifier']/text()";
         InputSource xml = new InputSource(IOUtils.toInputStream(response.getBody()
                 .asString(), StandardCharsets.UTF_8.name()));
-        return xPath.compile(idPath)
+        String mcardId = xPath.compile(idPath)
                 .evaluate(xml);
+
+        boolean foundMetacard = false;
+        long startTime = System.currentTimeMillis();
+        long metacardLookupTimeout = TimeUnit.MINUTES.toMillis(20);
+        while (!foundMetacard) {
+            LOGGER.info("Waiting for metacard to be created");
+            List entries = Security.runAsAdminWithException(() -> {
+
+                FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
+                        FederationAdminService.class);
+                return federationAdminServiceImpl.getRegistryMetacardsByRegistryIds(Collections.singletonList(
+                        regId));
+            });
+            if (!entries.isEmpty()) {
+                foundMetacard = true;
+            } else if (System.currentTimeMillis() - startTime > metacardLookupTimeout) {
+                fail("Registry Metacard was not created in the allowed time");
+
+            }
+            Thread.sleep(2000);
+        }
+        return mcardId;
     }
 
-    private void createRegistryStoreEntry(String id, String regId, String remoteRegId)
+    private String createRegistryStoreEntry(String id, String regId, String remoteRegId)
             throws Exception {
         FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                 FederationAdminService.class);
-        federationAdminServiceImpl.addRegistryEntry(getRegistryNode(id, regId, remoteRegId),
-                destinations);
+        return federationAdminServiceImpl.addRegistryEntry(getRegistryNode(id, regId, remoteRegId),
+                new HashSet(destinations));
 
-        ValidatableResponse validatableResponse =
-                getCswRegistryResponse(RegistryObjectMetacardType.REGISTRY_ID, regId);
-
-        final String xPathRegistryID =
-                "string(//GetRecordsResponse/SearchResults/RegistryPackage/ExternalIdentifier/@registryObject)";
-        validatableResponse.body(hasXPath(xPathRegistryID, CoreMatchers.is(regId)));
-    }
-
-    private ValidatableResponse getCswRegistryResponse(String attr, String value) {
-        String regQuery = getCswQuery(attr,
-                value,
-                "application/xml",
-                "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0");
-        Response response = given().auth()
-                .preemptive()
-                .basic(ADMIN, ADMIN)
-                .contentType(ContentType.XML)
-                .body(regQuery)
-                .when()
-                .post(CSW_PATH.getUrl());
-        ValidatableResponse validatableResponse = response.then();
-
-        return validatableResponse;
     }
 }
 

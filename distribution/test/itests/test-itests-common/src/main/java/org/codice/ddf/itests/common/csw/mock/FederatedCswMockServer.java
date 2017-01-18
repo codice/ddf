@@ -53,6 +53,15 @@ public class FederatedCswMockServer {
     private String defaultQueryResponseResource = getDefaultResponseResource(
             "default-csw-mock-query-response.xml");
 
+    private String defaultInsertTransactionResponse = getDefaultResponseResource(
+            "default-csw-mock-insert-transaction-response.xml");
+
+    private String defaultUpdateTransactionResponse = getDefaultResponseResource(
+            "default-csw-mock-update-transaction-response.xml");
+
+    private String defaultDeleteTransactionResponse = getDefaultResponseResource(
+            "default-csw-mock-delete-transaction-response.xml");
+
     /**
      * Constructor for the federated CSW Restito stub server.
      *
@@ -97,6 +106,18 @@ public class FederatedCswMockServer {
         defaultQueryResponseResource = response;
     }
 
+    public void setupDefaultInsertTransactionResponseExpectation(String response) {
+        defaultInsertTransactionResponse = response;
+    }
+
+    public void setupDefaultUpdateTransactionResponseExpectation(String response) {
+        defaultUpdateTransactionResponse = response;
+    }
+
+    public void setupDefaultDeleteTransactionResponseExpectation(String response) {
+        defaultDeleteTransactionResponse = response;
+    }
+
     /**
      * Starts the Restito stub server.
      */
@@ -106,6 +127,7 @@ public class FederatedCswMockServer {
 
             setupDefaultCapabilityResponseExpectation();
             setupDefaultQueryResponseExpectation();
+            setupDefaultTransactionResponseExpectation();
         } catch (IOException | RuntimeException e) {
             fail(String.format("Failed to setup %s: %s",
                     getClass().getSimpleName(),
@@ -196,6 +218,36 @@ public class FederatedCswMockServer {
                 .then(ok(), contentType("text/xml"), bytesContent(document.getBytes()));
     }
 
+    private void setupDefaultTransactionResponseExpectation() throws IOException {
+
+        LOGGER.debug("Insert response: \n{}", defaultInsertTransactionResponse);
+
+        whenHttp().match(post("/services/csw"),
+                withPostBodyContaining("Transaction"),
+                withPostBodyContaining("Insert"))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(defaultInsertTransactionResponse.getBytes()));
+
+        LOGGER.debug("Update response: \n{}", defaultUpdateTransactionResponse);
+
+        whenHttp().match(post("/services/csw"),
+                withPostBodyContaining("Transaction"),
+                withPostBodyContaining("Update"))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(defaultUpdateTransactionResponse.getBytes()));
+
+        LOGGER.debug("Delete response: \n{}", defaultDeleteTransactionResponse);
+
+        whenHttp().match(post("/services/csw"),
+                withPostBodyContaining("Transaction"),
+                withPostBodyContaining("Delete"))
+                .then(ok(),
+                        contentType("text/xml"),
+                        bytesContent(defaultDeleteTransactionResponse.getBytes()));
+    }
+
     private String substituteTags(String document) {
         String resultDocument = substituteSourceId(document);
         resultDocument = substitutePortNumber(resultDocument);
@@ -216,8 +268,8 @@ public class FederatedCswMockServer {
 
     private String getDefaultResponseResource(String resourceName) {
         try {
-            return IOUtils.toString(FederatedCswMockServer.class.getClassLoader().getResourceAsStream(
-                    "/" + resourceName));
+            return IOUtils.toString(FederatedCswMockServer.class.getClassLoader()
+                    .getResourceAsStream("/" + resourceName));
         } catch (IOException e) {
             return null;
         }

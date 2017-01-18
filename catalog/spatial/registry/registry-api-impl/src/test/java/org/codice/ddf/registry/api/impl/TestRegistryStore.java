@@ -126,13 +126,15 @@ public class TestRegistryStore {
 
     private Dictionary<String, Object> properties;
 
+    private boolean availability = false;
+
     @Before
     public void setup() throws Exception {
         parser = new XmlParser();
         marshaller = new MetacardMarshaller(new XmlParser());
         context = mock(BundleContext.class);
         provider = mock(Converter.class);
-        cswSourceConfiguration = mock(CswSourceConfiguration.class);
+        cswSourceConfiguration = new CswSourceConfiguration();
         factory = mock(SecureCxfClientFactory.class);
         transformer = mock(TransformerManager.class);
         encryptionService = mock(EncryptionService.class);
@@ -146,6 +148,11 @@ public class TestRegistryStore {
                 encryptionService) {
             @Override
             protected void validateOperation() {
+            }
+
+            @Override
+            public boolean isAvailable(){
+                return availability;
             }
 
             @Override
@@ -163,6 +170,9 @@ public class TestRegistryStore {
             }
 
             @Override
+            public void configureCswSource() {};
+
+            @Override
             BundleContext getBundleContext() {
                 return context;
             }
@@ -174,9 +184,9 @@ public class TestRegistryStore {
         registryStore.setMetacardMarshaller(new MetacardMarshaller(parser));
         registryStore.setSchemaTransformerManager(transformer);
         registryStore.setAutoPush(true);
+        registryStore.setRegistryUrl("http://test.url:0101/example");
         properties = new Hashtable<>();
         properties.put(RegistryStoreImpl.ID, "registryId");
-        properties.put(RegistryStoreImpl.REGISTRY_URL, "http://test.url:0101/example");
         registryStore.setMetacardMarshaller(marshaller);
 
         when(configAdmin.getConfiguration(any())).thenReturn(configuration);
@@ -282,7 +292,7 @@ public class TestRegistryStore {
     @Test
     public void testUpdateConfigurationURISyntaxException() throws Exception {
         assertThat(registryStore.getRegistryId(), is(""));
-        properties.put("registryUrl", "^invalid^^^^uri^^");
+        registryStore.setRegistryUrl("^invalid^^^^uri^^");
         queryResults.add(new ResultImpl(getDefaultMetacard()));
         registryStore.registryInfoQuery();
         String registryId = (String) properties.get(RegistryObjectMetacardType.REGISTRY_ID);
@@ -294,7 +304,7 @@ public class TestRegistryStore {
         assertThat(registryStore.getRegistryId(), is(""));
 
         queryResults.add(new ResultImpl(getDefaultMetacard()));
-        properties.put("registryUrl", "http://testurl/example");
+        registryStore.setRegistryUrl("http://testurl/example");
         registryStore.registryInfoQuery();
         assertThat(registryStore.getRegistryId(), is("registryId"));
     }
@@ -405,7 +415,8 @@ public class TestRegistryStore {
     public void testInit() throws Exception {
         Csw csw = mock(Csw.class);
         when(factory.getClientForSubject(any())).thenReturn(csw);
-        when(cswSourceConfiguration.getCswUrl()).thenReturn("https://localhost");
+        cswSourceConfiguration.setCswUrl("https://localhost");
+        cswSourceConfiguration.setPollIntervalMinutes(1);
         queryResults.add(new ResultImpl(getDefaultMetacard()));
         registryStore.init();
         assertThat(registryStore.getRegistryId(), is("registryId"));
