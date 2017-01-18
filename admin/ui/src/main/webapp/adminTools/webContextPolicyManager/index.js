@@ -8,7 +8,8 @@ import {
   getBins,
   getOptions,
   getEditingBinNumber,
-  getConfirmDelete
+  getConfirmDelete,
+  getWcpmErrors
 } from '../../reducer'
 
 import {
@@ -59,7 +60,8 @@ import {
   disabledPanelStyle,
   newBinDisabledStyle,
   contextPathGroupStyle,
-  whitelistContextPathGroupStyle
+  whitelistContextPathGroupStyle,
+  claimsAttributeStyle
 } from './styles.less'
 
 let Edit = ({editing, binNumber, editModeOn}) => {
@@ -85,16 +87,18 @@ let ContextPathItem = ({ contextPath, binNumber, pathNumber, removePath, editing
 )
 ContextPathItem = connect(null, (dispatch, { binNumber, pathNumber, attribute }) => ({ removePath: () => dispatch(removeAttribute(attribute)(binNumber, pathNumber)) }))(ContextPathItem)
 
-let NewContextPathItem = ({ binNumber, addPath, onEdit, newPath, attribute, addButtonVisible = true }) => (
+let NewContextPathItem = ({ binNumber, addPath, onEdit, newPath, attribute, addButtonVisible = true, error }) => (
   <div>
     <Divider />
     <Flexbox flexDirection='row' justifyContent='space-between'>
-      <TextField fullWidth style={{ paddingLeft: '10px' }} id='name' hintText='Add New Path' onChange={(event, value) => onEdit(value)} value={newPath || ''} />
+      <TextField fullWidth style={{ paddingLeft: '10px' }} id='name' hintText='Add New Path' onChange={(event, value) => onEdit(value)} value={newPath || ''} errorText={error} />
       {(addButtonVisible) ? (<IconButton tooltip={'Add'} tooltipPosition='top-center' onClick={addPath}><AddIcon color={cyanA700} /></IconButton>) : null }
     </Flexbox>
   </div>
 )
-NewContextPathItem = connect(null, (dispatch, { binNumber, attribute }) => ({
+NewContextPathItem = connect((state) => ({
+  error: getWcpmErrors(state).contextPaths
+}), (dispatch, { binNumber, attribute }) => ({
   addPath: () => dispatch(addAttribute(attribute)(binNumber)),
   onEdit: (value) => dispatch(editAttribute(attribute)(binNumber, value))
 }))(NewContextPathItem)
@@ -104,15 +108,14 @@ let ContextPathGroup = ({ bin, binNumber, editing }) => (
     <p className={infoSubtitleLeft}>Context Paths</p>
     {bin.contextPaths.map((contextPath, pathNumber) => (<ContextPathItem attribute='contextPaths' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} editing={editing} />))}
     {editing ? <NewContextPathItem binNumber={binNumber} attribute='contextPaths' newPath={bin['newcontextPaths']} /> : null}
-    <Divider />
   </Flexbox>
 )
 
-let NewSelectItem = ({ binNumber, addPath, onEdit, newPath, attribute, options, addButtonVisible = true }) => (
+let NewSelectItem = ({ binNumber, addPath, onEdit, newPath, attribute, options, addButtonVisible = true, error }) => (
   <div>
     <Divider />
     <Flexbox flexDirection='row' justifyContent='space-between'>
-      <SelectField fullWidth style={{ paddingLeft: '10px' }} id='name' hintText='Add New Path' onChange={(event, i, value) => onEdit(value)} value={newPath || ''}>
+      <SelectField fullWidth style={{ paddingLeft: '10px' }} id='name' hintText='Add New Path' onChange={(event, i, value) => onEdit(value)} value={newPath || ''} errorText={error}>
         { options.map((item, key) => (<MenuItem value={item} key={key} primaryText={item} />)) }
       </SelectField>
       {(addButtonVisible) ? (<IconButton tooltip={'Add Item'} tooltipPosition='top-center' onClick={addPath}><AddIcon color={cyanA700} /></IconButton>) : null }
@@ -175,20 +178,21 @@ ConfirmationPanel = connect((state) => ({
   confirmRemoveBinAndPersist: () => dispatch(confirmRemoveBinAndPersist(binNumber, '/admin/beta/config/persist/context-policy-manager/edit'))
 }))(ConfirmationPanel)
 
-let AuthTypesGroup = ({ bin, binNumber, policyOptions, editing }) => (
+let AuthTypesGroup = ({ bin, binNumber, policyOptions, editing, error }) => (
   <Flexbox flexDirection='column'>
     {bin.authenticationTypes.map((contextPath, pathNumber) => (<ContextPathItem attribute='authenticationTypes' contextPath={contextPath} key={pathNumber} binNumber={binNumber} pathNumber={pathNumber} editing={editing} />))}
     {editing ? (
-      <NewSelectItem binNumber={binNumber} attribute='authenticationTypes' options={policyOptions.authenticationTypes.filter((option) => !bin.authenticationTypes.includes(option))} newPath={bin['newauthenticationTypes']} />
+      <NewSelectItem binNumber={binNumber} attribute='authenticationTypes' options={policyOptions.authenticationTypes.filter((option) => !bin.authenticationTypes.includes(option))} newPath={bin['newauthenticationTypes']} error={error} />
     ) : null }
   </Flexbox>
 )
 AuthTypesGroup = connect(
   (state) => ({
+    error: getWcpmErrors(state).authTypes,
     policyOptions: getOptions(state)
   }))(AuthTypesGroup)
 
-let AttributeTableGroup = ({ bin, binNumber, policyOptions, editAttribute, removeAttributeMapping, addAttributeMapping, editing }) => (
+let AttributeTableGroup = ({ bin, binNumber, policyOptions, editAttribute, removeAttributeMapping, addAttributeMapping, editing, claimError, attrError }) => (
   <Table selectable={false}>
     <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
       <TableRow>
@@ -199,8 +203,8 @@ let AttributeTableGroup = ({ bin, binNumber, policyOptions, editAttribute, remov
     <TableBody displayRowCheckbox={false}>
       {Object.keys(bin.requiredAttributes).map((key, i) =>
         <TableRow key={i}>
-          <TableRowColumn>
-            <span style={{cursor: 'help'}}>{key}</span>
+          <TableRowColumn className={claimsAttributeStyle}>
+            <span>{key}</span>
           </TableRowColumn>
           <TableRowColumn style={{ width: 120, position: 'relative' }}>
             <span>{bin.requiredAttributes[key]}</span>
@@ -212,12 +216,12 @@ let AttributeTableGroup = ({ bin, binNumber, policyOptions, editAttribute, remov
       {editing ? (
         <TableRow>
           <TableRowColumn>
-            <SelectField style={{ margin: '0px', width: '100%', fontSize: '14px' }} id='claims' value={bin.newrequiredClaim || ''} onChange={(event, i, value) => editAttribute('requiredClaim', value)}>
+            <SelectField style={{ margin: '0px', width: '100%', fontSize: '14px' }} id='claims' value={bin.newrequiredClaim || ''} onChange={(event, i, value) => editAttribute('requiredClaim', value)} errorText={claimError}>
               {policyOptions.claims.map((claim, i) => (<MenuItem style={{ fontSize: '12px' }} value={claim} primaryText={claim} key={i} />))}
             </SelectField>
           </TableRowColumn>
           <TableRowColumn style={{ width: 120, position: 'relative' }}>
-            <TextField fullWidth style={{ margin: '0px', fontSize: '14px' }} id='claims' value={bin.newrequiredAttribute || ''} onChange={(event, value) => editAttribute('requiredAttribute', value)} />
+            <TextField fullWidth style={{ margin: '0px', fontSize: '14px' }} id='claims' value={bin.newrequiredAttribute || ''} onChange={(event, value) => editAttribute('requiredAttribute', value)} errorText={attrError} />
             <IconButton style={{ position: 'absolute', right: 0, top: 0 }} tooltip={'Add Item'} tooltipPosition='top-center' onClick={addAttributeMapping}><AddIcon color={cyanA700} /></IconButton>
           </TableRowColumn>
         </TableRow>
@@ -227,7 +231,9 @@ let AttributeTableGroup = ({ bin, binNumber, policyOptions, editAttribute, remov
 )
 AttributeTableGroup = connect(
   (state) => ({
-    policyOptions: getOptions(state)
+    policyOptions: getOptions(state),
+    claimError: getWcpmErrors(state).requiredClaim,
+    attrError: getWcpmErrors(state).requiredAttribute
   }),
   (dispatch, { binNumber }) => ({
     addAttributeMapping: () => dispatch(addAttributeMapping(binNumber)),

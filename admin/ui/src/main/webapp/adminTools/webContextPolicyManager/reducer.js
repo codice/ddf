@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux-immutable'
-import { fromJS, List } from 'immutable'
+import { fromJS, List, Map } from 'immutable'
 
 const emptyBin = {
   name: 'untitled',
@@ -63,6 +63,9 @@ const emptyClaims = ({
 const options = (state = fromJS(emptyClaims), { type, options }) => {
   switch (type) {
     case 'WCPM/SET_OPTIONS':
+      // add blank option to clear
+      options.authenticationTypes = ['', ...options.authenticationTypes]
+      options.claims = ['', ...options.claims]
       return fromJS(options)
     default:
       return state
@@ -103,13 +106,27 @@ const confirmDelete = (state = false, { type, binNumber }) => {
   }
 }
 
+const wcpmErrors = (state = Map(), { type, component, message }) => {
+  switch (type) {
+    case 'WCPM/ERRORS/SET':
+      return state.set(component, message)
+    case 'WCPM/ERRORS/CLEAR':
+    case 'WCPM/EDIT_MODE_SAVE':
+    case 'WCPM/EDIT_MODE_CANCEL':
+      return Map()
+    default:
+      return state
+  }
+}
+
 export const getOptions = (state) => state.get('options').toJS()
 export const getBins = (state) => state.get('bins').toJS()
 export const getWhiteList = (state) => state.get('whiteList').toJS()
 export const getEditingBinNumber = (state) => state.get('editingBinNumber')
 export const getConfirmDelete = (state) => state.get('confirmDelete')
+export const getWcpmErrors = (state) => state.get('wcpmErrors').toJS()
 
-export default combineReducers({ bins, options, editingBinNumber, confirmDelete })
+export default combineReducers({ bins, options, editingBinNumber, confirmDelete, wcpmErrors })
 
 /*
 // Example State Data Structure

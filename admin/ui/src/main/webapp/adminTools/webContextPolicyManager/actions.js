@@ -26,6 +26,10 @@ export const removeAttributeMapping = (binNumber, claim) => ({ type: 'WCPM/REMOV
 // Set Options
 export const setPolicyOptions = (options) => ({ type: 'WCPM/SET_OPTIONS', options })
 
+// Errors
+export const setError = (component, message) => ({ type: 'WCPM/ERRORS/SET', component, message })
+export const clearErrors = () => ({ type: 'WCPM/ERRORS/CLEAR' })
+
 // Fetch
 export const updatePolicyBins = (url) => (dispatch, getState) => {
   const opts = {
@@ -46,7 +50,42 @@ export const updatePolicyBins = (url) => (dispatch, getState) => {
     })
 }
 
+const isEmpty = (bin, key) => {
+  if (bin[key] && bin[key].trim() !== '') {
+    return false
+  }
+  return true
+}
+
 export const persistChanges = (binNumber, url) => (dispatch, getState) => {
+  dispatch(clearErrors())
+  // Check for non-empty edit fields
+  const bin = getBins(getState())[getState().toJS().wcpm.editingBinNumber]
+  let hasErrors = false
+  if (!isEmpty(bin, 'newcontextPaths')) {
+    dispatch(setError('contextPaths', 'Field edited but not added. Please add or clear before saving.'))
+    hasErrors = true
+    console.log('contextpaths error')
+  }
+  if (!isEmpty(bin, 'newauthenticationTypes')) {
+    dispatch(setError('authTypes', 'Field edited but not added. Please add or clear before saving.'))
+    hasErrors = true
+    console.log('authtypes error')
+  }
+  if (!isEmpty(bin, 'newrequiredClaim')) {
+    dispatch(setError('requiredClaim', 'Field edited but not added. Please add or clear before saving.'))
+    hasErrors = true
+    console.log('reqClaim error')
+  }
+  if (!isEmpty(bin, 'newrequiredAttribute')) {
+    dispatch(setError('requiredAttribute', 'Field edited but not added. Please add or clear before saving.'))
+    hasErrors = true
+    console.log('reqAttr error')
+  }
+  if (hasErrors) { return } // do not persist if any errors are present
+
+  // TODO: check for duplicate context paths
+
   dispatch(editModeSave(binNumber))
 
   const formattedBody = {
