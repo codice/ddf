@@ -14,6 +14,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLIdentical;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -57,6 +58,10 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.Difference;
+import org.custommonkey.xmlunit.DifferenceConstants;
+import org.custommonkey.xmlunit.DifferenceListener;
+import org.custommonkey.xmlunit.ElementNameQualifier;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -70,6 +75,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Metacard;
@@ -1696,8 +1702,25 @@ public class TestCswFilterDelegate {
         String compareXml = xml.replaceAll(pattern,
                 "<ogc:Literal xmlns:ogc=\"http://www.opengis.net/ogc\"></ogc:Literal>");
 
-        assertXMLEqual(durationCompare, compareXml);
-
+        Diff xmlDiff = new Diff(durationCompare, compareXml);
+        xmlDiff.overrideElementQualifier(new ElementNameQualifier() {
+            @Override
+            protected boolean equalsNamespace(Node control, Node test) {
+                return true;
+            }
+        });
+        xmlDiff.overrideDifferenceListener(new DifferenceListener() {
+            @Override
+            public int differenceFound(Difference diff) {
+                if (diff.getId() == DifferenceConstants.NAMESPACE_PREFIX_ID) {
+                    return RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL;
+                }
+                return RETURN_ACCEPT_DIFFERENCE;
+            }
+            @Override
+            public void skippedComparison(Node arg0, Node arg1) { }
+        });
+        assertXMLIdentical(xmlDiff, true);
     }
 
     @Test
