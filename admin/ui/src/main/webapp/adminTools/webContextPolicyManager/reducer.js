@@ -37,7 +37,10 @@ const bins = (state = List(), { type, bin, bins, whitelistContexts, path, binNum
 
     // Attribute Lists
     case 'WCPM/ADD_ATTRIBUTE_LIST':
-      return state.update(binNumber, (bin) => bin.update(attribute, (paths) => paths.push(bin.get('new' + attribute))).set('new' + attribute, ''))
+      // check for empty values
+      let newValue = state.getIn([binNumber, 'new' + attribute])
+      if (!newValue || newValue.trim() === '') { return state }
+      return state.update(binNumber, (bin) => bin.update(attribute, (paths) => paths.push(newValue)).set('new' + attribute, ''))
     case 'WCPM/REMOVE_ATTRIBUTE_LIST':
       return state.deleteIn([binNumber, attribute, pathNumber])
     case 'WCPM/EDIT_ATTRIBUTE_LIST':
@@ -46,7 +49,11 @@ const bins = (state = List(), { type, bin, bins, whitelistContexts, path, binNum
     // Attribute Mappings
     case 'WCPM/ADD_ATTRIBUTE_MAPPING':
       // TODO: don't allow adding a key that already exists
-      return state.setIn([binNumber, 'requiredAttributes', state.getIn([binNumber, 'newrequiredClaim'])], state.getIn([binNumber, 'newrequiredAttribute'])).setIn([binNumber, 'newrequiredAttribute'], '').setIn([binNumber, 'newrequiredClaim'], '')
+      // check for empty value
+      let newClaim = state.getIn([binNumber, 'newrequiredClaim'])
+      let newAttr = state.getIn([binNumber, 'newrequiredAttribute'])
+      if (!newClaim || !newAttr || newClaim.trim() === '' || newAttr.trim() === '') { return state }
+      return state.setIn([binNumber, 'requiredAttributes', newClaim], newAttr).setIn([binNumber, 'newrequiredAttribute'], '').setIn([binNumber, 'newrequiredClaim'], '')
     case 'WCPM/REMOVE_ATTRIBUTE_MAPPING':
       return state.deleteIn([binNumber, 'requiredAttributes', claim])
 
@@ -110,6 +117,8 @@ const wcpmErrors = (state = Map(), { type, component, message }) => {
   switch (type) {
     case 'WCPM/ERRORS/SET':
       return state.set(component, message)
+    case 'WCPM/ERRORS/CLEAR_COMPONENT':
+      return state.delete(component)
     case 'WCPM/ERRORS/CLEAR':
     case 'WCPM/EDIT_MODE_SAVE':
     case 'WCPM/EDIT_MODE_CANCEL':

@@ -28,7 +28,34 @@ export const setPolicyOptions = (options) => ({ type: 'WCPM/SET_OPTIONS', option
 
 // Errors
 export const setError = (component, message) => ({ type: 'WCPM/ERRORS/SET', component, message })
-export const clearErrors = () => ({ type: 'WCPM/ERRORS/CLEAR' })
+export const clearAllErrors = () => ({ type: 'WCPM/ERRORS/CLEAR' })
+export const clearComponentError = (component) => ({ type: 'WCPM/ERRORS/CLEAR_COMPONENT', component })
+
+// Persist Field Validations
+export const addContextPath = (attribute, binNumber) => (dispatch, getState) => {
+  dispatch(clearComponentError('contextPaths'))
+
+  const bins = getBins(getState())
+  const newPath = bins[binNumber].newcontextPaths
+
+  // test for non-empty path
+  if (!newPath || newPath.trim() === '') { return }
+
+  // test for duplicate paths
+  let duplicateBinNumber
+  bins.forEach((bin, binNumber) => bin.contextPaths.forEach((oldPath) => { oldPath === newPath ? duplicateBinNumber = binNumber : null }))
+
+  if (duplicateBinNumber !== undefined) {
+    if (duplicateBinNumber === 0) {
+      dispatch(setError('contextPaths', 'This path is in the Whitelist.'))
+      return
+    }
+    dispatch(setError('contextPaths', 'This path is already being used in bin #' + duplicateBinNumber + '.'))
+    return
+  }
+
+  dispatch(addAttribute(attribute)(binNumber))
+}
 
 // Fetch
 export const updatePolicyBins = (url) => (dispatch, getState) => {
@@ -58,7 +85,7 @@ const isEmpty = (bin, key) => {
 }
 
 export const persistChanges = (binNumber, url) => (dispatch, getState) => {
-  dispatch(clearErrors())
+  dispatch(clearAllErrors())
   // Check for non-empty edit fields
   const bin = getBins(getState())[getState().toJS().wcpm.editingBinNumber]
   let hasErrors = false

@@ -26,7 +26,8 @@ import {
   addAttributeMapping,
   removeAttributeMapping,
   confirmRemoveBinAndPersist,
-  cancelRemoveBin
+  cancelRemoveBin,
+  addContextPath
 } from './actions'
 
 import Flexbox from 'flexbox-react'
@@ -99,7 +100,7 @@ let NewContextPathItem = ({ binNumber, addPath, onEdit, newPath, attribute, addB
 NewContextPathItem = connect((state) => ({
   error: getWcpmErrors(state).contextPaths
 }), (dispatch, { binNumber, attribute }) => ({
-  addPath: () => dispatch(addAttribute(attribute)(binNumber)),
+  addPath: () => dispatch(addContextPath(attribute, binNumber)),
   onEdit: (value) => dispatch(editAttribute(attribute)(binNumber, value))
 }))(NewContextPathItem)
 
