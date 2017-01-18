@@ -60,7 +60,7 @@ public abstract class AbstractEventController implements EventHandler {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Inject
-    private BayeuxServer bayeux;
+    BayeuxServer bayeux;
 
     @Session
     ServerSession controllerServerSession;

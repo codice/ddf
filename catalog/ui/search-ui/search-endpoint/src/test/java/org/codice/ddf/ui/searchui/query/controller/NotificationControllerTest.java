@@ -40,6 +40,8 @@ import java.util.Map;
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.bayeux.Message;
+import org.cometd.bayeux.server.BayeuxContext;
+import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.common.HashMapMessage;
@@ -114,6 +116,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterUserSessionWithNullServerSessionThrowsException() {
         // Test null ServerSession
+        notificationController.bayeux = mock(BayeuxServer.class);
+        when(notificationController.bayeux.getContext()).thenReturn(mock(BayeuxContext.class));
         notificationController.registerUserSession(null, mockServerMessage);
     }
 
@@ -126,6 +130,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterUserSessionWithNullServerSessionIdThrowsException() {
         // Test null ServerSession ID
+        notificationController.bayeux = mock(BayeuxServer.class);
+        when(notificationController.bayeux.getContext()).thenReturn(mock(BayeuxContext.class));
         when(mockServerSession.getId()).thenReturn(null);
         notificationController.registerUserSession(mockServerSession, mockServerMessage);
 
@@ -138,6 +144,8 @@ public class NotificationControllerTest {
     @Test
     public void testRegisterUserSession() {
         // Test traditional handshake
+        notificationController.bayeux = mock(BayeuxServer.class);
+        when(notificationController.bayeux.getContext()).thenReturn(mock(BayeuxContext.class));
         notificationController.registerUserSession(mockServerSession, mockServerMessage);
         assertEquals(NotificationController.class.getName()
                         + " did not return correctly store a user-id-based "
@@ -199,6 +207,8 @@ public class NotificationControllerTest {
      */
     @Test
     public void testDeregisterUserSessionRemovesUserFromKnownClients() {
+        notificationController.bayeux = mock(BayeuxServer.class);
+        when(notificationController.bayeux.getContext()).thenReturn(mock(BayeuxContext.class));
         assertNull(notificationController.getSessionByUserId(MOCK_SESSION_ID));
         notificationController.registerUserSession(mockServerSession, mockServerMessage);
         assertNotNull(notificationController.getSessionByUserId(MOCK_SESSION_ID));

@@ -41,6 +41,8 @@ import java.util.Map;
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.bayeux.Message;
+import org.cometd.bayeux.server.BayeuxContext;
+import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.common.HashMapMessage;
@@ -120,20 +122,9 @@ public class ActivityControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterUserSessionWithNullServerSessionThrowsException() {
         // Test null ServerSession
+        activityController.bayeux = mock(BayeuxServer.class);
+        when(activityController.bayeux.getContext()).thenReturn(mock(BayeuxContext.class));
         activityController.registerUserSession(null, mockServerMessage);
-    }
-
-    /**
-     * Test method for {@link ActivityController#registerUserSession(ServerSession, ServerMessage)}.
-     *
-     * Verifies that method throws {@code IllegalArgumentException} when
-     * ServerSession ID is null.
-     */
-    @Test(expected = IllegalArgumentException.class)
-    public void testRegisterUserSessionWithNullServerSessionIdThrowsException() {
-        // Test null ServerSession ID
-        when(mockServerSession.getId()).thenReturn(null);
-        activityController.registerUserSession(mockServerSession, mockServerMessage);
     }
 
     /**
@@ -142,6 +133,8 @@ public class ActivityControllerTest {
     @Test
     public void testRegisterUserSession() {
         // Test traditional handshake
+        activityController.bayeux = mock(BayeuxServer.class);
+        when(activityController.bayeux.getContext()).thenReturn(mock(BayeuxContext.class));
         activityController.registerUserSession(mockServerSession, mockServerMessage);
         assertEquals(ActivityController.class.getName()
                         + " did not return correctly store a user-id-based "
@@ -202,6 +195,8 @@ public class ActivityControllerTest {
      */
     @Test
     public void testDeregisterUserSessionRemovesUserFromKnownClients() {
+        activityController.bayeux = mock(BayeuxServer.class);
+        when(activityController.bayeux.getContext()).thenReturn(mock(BayeuxContext.class));
         assertNull(activityController.getSessionByUserId(MOCK_SESSION_ID));
         activityController.registerUserSession(mockServerSession, mockServerMessage);
         assertNotNull(activityController.getSessionByUserId(MOCK_SESSION_ID));
