@@ -4241,6 +4241,88 @@ public class SolrProviderTest extends SolrProviderTestCase {
     }
 
     @Test
+    public void testTextualSort() throws Exception {
+        deleteAllIn(provider);
+
+        List<Metacard> list = new ArrayList<Metacard>();
+
+        DateTime now = new DateTime();
+
+        for (int i = 65; i < 65 + 5; i++) {
+
+            MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
+
+            m.setEffectiveDate(now.minus(5L * i)
+                    .toDate());
+
+            m.setTitle((char)i + " Record ");
+
+            list.add(m);
+
+        }
+
+        create(list);
+
+        Filter filter = null;
+        QueryImpl query = null;
+        SourceResponse sourceResponse = null;
+
+        // Sort all Textual ASCENDING
+
+        filter = filterBuilder.attribute(Metacard.EFFECTIVE)
+                .before()
+                .date(now.plusMillis(1)
+                        .toDate());
+
+        query = new QueryImpl(filter);
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE,
+                SortOrder.ASCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        int ascii = 65;
+        for (int i = 0; i < list.size(); i++) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals((char)(i+ascii) + " Record ",
+                    r.getMetacard()
+                            .getTitle());
+        }
+
+        // Sort all Textual DESCENDING
+
+        filter = filterBuilder.attribute(Metacard.EFFECTIVE)
+                .before()
+                .date(now.plusMillis(1)
+                        .toDate());
+
+        query = new QueryImpl(filter);
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE,
+                SortOrder.DESCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        int asciiE = 69;
+        for (int i = (list.size() - 1); i >= 0; i--) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals((char)(asciiE-i) + " Record ",
+                    r.getMetacard()
+                            .getTitle());
+        }
+    }
+
+    @Test
     public void testSorting() throws Exception {
 
         deleteAllIn(provider);
