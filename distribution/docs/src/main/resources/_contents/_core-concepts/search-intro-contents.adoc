@@ -28,7 +28,7 @@ Two types of temporal searches are supported: _relative_ and _absolute_.
 Relative searches contain an offset from the current time, while absolute searches contain a start and an end timestamp.
 Temporal searches can use the `created` or `modified` date attributes.
 
-==== Datatype
+==== Datatype Search
 
 A datatype search is used to search for metadata based on the datatype of the resource.
 Wildcards (*) can be used in both the datatype and version fields.
