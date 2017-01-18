@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.plugin.async
+package groovy.org.codice.ddf.catalog.async.processingplugin
 
 import ddf.catalog.CatalogFramework
 import ddf.catalog.data.Metacard
@@ -19,10 +19,10 @@ import ddf.catalog.operation.*
 import ddf.catalog.resource.Resource
 import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.resource.ResourceNotSupportedException
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessCreateItem
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessDeleteItem
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessRequest
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessUpdateItem
+import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem
+import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem
+import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
+import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework
 import org.codice.ddf.catalog.async.processingplugin.ProcessingPostIngestPlugin
 import spock.lang.Specification
@@ -44,7 +44,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         new ProcessingPostIngestPlugin(catalogFramework, processingFramework)
 
         then:
-        thrown(NullPointerException)
+        thrown(IllegalArgumentException)
 
         where:
         catalogFramework       | processingFramework
@@ -57,14 +57,12 @@ class ProcessingPostIngestPluginTest extends Specification {
     test process(CreateResponse)
      */
 
-    def 'test process CreateResponse'() {
+    def 'test process CreateResponse with many metacards'() {
         given:
-        final String id = _
-        final String sourceId = _
-        def metacard = Mock(Metacard) {
-            getId() >> id
-            getSourceId() >> sourceId
-        }
+        def sourceId = "source"
+        def metacard1 = mockMetacard("1", sourceId)
+        def metacard2 = mockMetacard("2", sourceId)
+        def metacard3 = mockMetacard("3", sourceId)
 
         def responseProperties = [a: _]
 
@@ -73,7 +71,7 @@ class ProcessingPostIngestPluginTest extends Specification {
                 getProperties() >> properties
             }
 
-            getCreatedMetacards() >> [metacard]
+            getCreatedMetacards() >> [metacard1, metacard2, metacard3]
 
             getProperties() >> responseProperties
         }
@@ -84,13 +82,21 @@ class ProcessingPostIngestPluginTest extends Specification {
         then:
         output == input
 
-        1 * catalogFramework.getResource(_ as ResourceRequest, sourceId) >> Mock(ResourceResponse) {
+        3 * catalogFramework.getResource(_ as ResourceRequest, sourceId) >> Mock(ResourceResponse) {
             getResource() >> Mock(Resource)
         }
         1 * processingFramework.submitCreate(_ as ProcessRequest<ProcessCreateItem>) >> { ProcessRequest<ProcessCreateItem> processCreateRequest ->
-            assert processCreateRequest.getProcessItems().size() == 1
-            final processCreateItem = processCreateRequest.getProcessItems().get(0)
-            assert processCreateItem.getMetacard() == metacard
+            assert processCreateRequest.getProcessItems().size() == 3
+
+            final processCreateItem1 = processCreateRequest.getProcessItems().get(0)
+            assert processCreateItem1.getMetacard() == metacard1
+
+            final processCreateItem2 = processCreateRequest.getProcessItems().get(1)
+            assert processCreateItem2.getMetacard() == metacard2
+
+            final processCreateItem3 = processCreateRequest.getProcessItems().get(2)
+            assert processCreateItem3.getMetacard() == metacard3
+
             assert postProcessCompleteEntryAdded(processCreateRequest.getProperties(), responseProperties)
         }
 
@@ -128,7 +134,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         properties << [createFalseProcessingCompleteProperties(), createNotBooleanProcessingCompleteProperties(), [:]]
     }
 
-    def 'test no process CreateResponse'() {
+    def 'test CreateProcess with null input and null metacards'() {
         when:
         def output = processingPostIngestPlugin.process(input as CreateResponse)
 
@@ -153,13 +159,12 @@ class ProcessingPostIngestPluginTest extends Specification {
 
     def 'test process UpdateResponse'() {
         given:
-        def oldCard = Mock(Metacard)
-        final String newId = _
-        final String newSourceId = _
-        def newCard = Mock(Metacard) {
-            getId() >> newId
-            getSourceId() >> newSourceId
-        }
+        def oldCard1 = Mock(Metacard)
+        def newCard1 = mockMetacard("1", "s1")
+        def oldCard2 = Mock(Metacard)
+        def newCard2 = mockMetacard("2", "s2")
+        def oldCard3 = Mock(Metacard)
+        def newCard3 = mockMetacard("3", "s3")
 
         def responseProperties = [a: _]
 
@@ -170,8 +175,14 @@ class ProcessingPostIngestPluginTest extends Specification {
 
             getUpdatedMetacards() >> {
                 [Mock(Update) {
-                    getOldMetacard() >> oldCard
-                    getNewMetacard() >> newCard
+                    getOldMetacard() >> oldCard1
+                    getNewMetacard() >> newCard1
+                }, Mock(Update) {
+                    getOldMetacard() >> oldCard2
+                    getNewMetacard() >> newCard2
+                }, Mock(Update) {
+                    getOldMetacard() >> oldCard3
+                    getNewMetacard() >> newCard3
                 }]
             }
 
@@ -184,14 +195,14 @@ class ProcessingPostIngestPluginTest extends Specification {
         then:
         output == input
 
-        1 * catalogFramework.getResource(_ as ResourceRequest, newSourceId) >> Mock(ResourceResponse) {
+        3 * catalogFramework.getResource(_ as ResourceRequest, _ as String) >> Mock(ResourceResponse) {
             getResource() >> Mock(Resource)
         }
         1 * processingFramework.submitUpdate(_ as ProcessRequest<ProcessUpdateItem>) >> { ProcessRequest<ProcessUpdateItem> processUpdateRequest ->
-            assert processUpdateRequest.getProcessItems().size() == 1
-            final processUpdateItem = processUpdateRequest.getProcessItems().get(0)
-            assert processUpdateItem.getOldMetacard() == oldCard
-            assert processUpdateItem.getMetacard() == newCard
+            assert processUpdateRequest.getProcessItems().size() == 3
+            verifyUpdate(processUpdateRequest.getProcessItems().get(0), newCard1, oldCard1)
+            verifyUpdate(processUpdateRequest.getProcessItems().get(1), newCard2, oldCard2)
+            verifyUpdate(processUpdateRequest.getProcessItems().get(2), newCard3, oldCard3)
             assert postProcessCompleteEntryAdded(processUpdateRequest.getProperties(), responseProperties)
         }
 
@@ -229,7 +240,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         properties << [createFalseProcessingCompleteProperties(), createNotBooleanProcessingCompleteProperties(), [:]]
     }
 
-    def 'test no process UpdateResponse'() {
+    def 'test UpdateResponse with null input and null metacards'() {
         when:
         def output = processingPostIngestPlugin.process(input as UpdateResponse)
 
@@ -255,7 +266,9 @@ class ProcessingPostIngestPluginTest extends Specification {
 
     def 'test process DeleteResponse'() {
         given:
-        def metacard = Mock(Metacard)
+        def metacard1 = Mock(Metacard)
+        def metacard2 = Mock(Metacard)
+        def metacard3 = Mock(Metacard)
         def responseProperties = [a: _]
 
         def input = Mock(DeleteResponse) {
@@ -263,7 +276,7 @@ class ProcessingPostIngestPluginTest extends Specification {
                 getProperties() >> properties
             }
 
-            getDeletedMetacards() >> [metacard]
+            getDeletedMetacards() >> [metacard1, metacard2, metacard3]
 
             getProperties() >> responseProperties
         }
@@ -275,8 +288,10 @@ class ProcessingPostIngestPluginTest extends Specification {
         output == input
 
         1 * processingFramework.submitDelete(_ as ProcessRequest<ProcessDeleteItem>) >> { ProcessRequest<ProcessDeleteItem> processDeleteRequest ->
-            assert processDeleteRequest.getProcessItems().size() == 1
-            assert processDeleteRequest.getProcessItems().get(0).getMetacard() == metacard
+            assert processDeleteRequest.getProcessItems().size() == 3
+            assert processDeleteRequest.getProcessItems().get(0).getMetacard() == metacard1
+            assert processDeleteRequest.getProcessItems().get(1).getMetacard() == metacard2
+            assert processDeleteRequest.getProcessItems().get(2).getMetacard() == metacard3
             assert postProcessCompleteEntryAdded(processDeleteRequest.getProperties(), responseProperties)
         }
 
@@ -314,7 +329,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         properties << [createFalseProcessingCompleteProperties(), createNotBooleanProcessingCompleteProperties(), [:]]
     }
 
-    def 'test no process DeleteResponse'() {
+    def 'test DeleteResponse with null input and null metacards'() {
         when:
         def output = processingPostIngestPlugin.process(input as DeleteResponse)
 
@@ -376,7 +391,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         }
 
         where:
-        exception << [new IOException(), new ResourceNotFoundException(), new ResourceNotSupportedException()]
+        exception << [new IOException(), new ResourceNotFoundException(), new ResourceNotSupportedException(), new RuntimeException()]
     }
 
     /*
@@ -406,5 +421,17 @@ class ProcessingPostIngestPluginTest extends Specification {
         expectedProperties.put(ProcessingPostIngestPlugin.POST_PROCESS_COMPLETE, true)
 
         return expectedProperties == newProperties
+    }
+
+    def mockMetacard(String id, String source) {
+        return Mock(Metacard) {
+            getId() >> id
+            getSourceId() >> source
+        }
+    }
+
+    def verifyUpdate(ProcessUpdateItem processUpdateItem, Metacard newMetacard, Metacard oldMetacard) {
+        assert processUpdateItem.getMetacard() == newMetacard
+        assert processUpdateItem.getOldMetacard() == oldMetacard
     }
 }

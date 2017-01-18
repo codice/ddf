@@ -542,11 +542,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.async</groupId>
-            <artifactId>catalog-async-data</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.async</groupId>
             <artifactId>catalog-async-data-api</artifactId>
             <version>${project.version}</version>
         </dependency>

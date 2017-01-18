@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.async.data.impl.api.internal;
+package org.codice.ddf.catalog.async.data.api.internal;
 
 /**
  * The {@code ProcessResourceItem} represents the data that will be processed by the {@link ProcessingFramework}.

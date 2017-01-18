@@ -11,15 +11,28 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.async.data.impl;
-
-import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
+package org.codice.ddf.catalog.async.data.api.internal;
 
 import ddf.catalog.data.Metacard;
 
-public class ProcessDeleteItemImpl extends ProcessItemImpl implements ProcessDeleteItem {
+/**
+ * <p>
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ * </p>
+ */
 
-    public ProcessDeleteItemImpl(Metacard metacard) {
-        super(metacard);
-    }
+/**
+ * A {@code ProcessItem} is used by the {@link ProcessRequest} to store the necessary data needed for
+ * processing by the {@code ProcessingFramework}.
+ * @see ProcessResourceItem
+ */
+public interface ProcessItem {
+
+    /**
+     * Gets the {@link Metacard} associated with this {@code ProcessItem}
+     *
+     * @return {@link Metacard}
+     */
+    Metacard getMetacard();
 }

@@ -63,6 +63,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.async</groupId>
+            <artifactId>catalog-async-data-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
@@ -90,7 +95,8 @@
                             ddf-security-common,
                             commons-lang3,
                             platform-util,
-                            platform-util-unavailableurls
+                            platform-util-unavailableurls,
+                            catalog-async-data
                         </Embed-Dependency>
                         <Private-Package>
                             org.codice.ddf.catalog.async.processingplugin*
@@ -116,17 +122,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.98</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.98</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.98</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

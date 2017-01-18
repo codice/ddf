@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.async.processingplugin;
 
-import static org.apache.commons.lang3.Validate.notNull;
+import static org.apache.commons.lang.Validate.notNull;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -21,18 +21,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
 import org.codice.ddf.catalog.async.data.impl.ProcessCreateItemImpl;
 import org.codice.ddf.catalog.async.data.impl.ProcessDeleteItemImpl;
 import org.codice.ddf.catalog.async.data.impl.ProcessRequestImpl;
 import org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl;
 import org.codice.ddf.catalog.async.data.impl.ProcessUpdateItemImpl;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessCreateItem;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessDeleteItem;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessRequest;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResource;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessUpdateItem;
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework;
 import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
@@ -62,7 +62,8 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessingPostIngestPlugin.class);
 
-    private static final String POST_PROCESS_COMPLETE = "post-process-complete";
+    private static final String POST_PROCESS_COMPLETE =
+            "catalog-async-processing-plugin:post-process-complete";
 
     private ProcessingFramework processingFramework;
 
@@ -75,25 +76,6 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
 
         this.catalogFramework = catalogFramework;
         this.processingFramework = processingFramework;
-    }
-
-    private static boolean isAlreadyPostProcessed(Response response) {
-        Map<String, Serializable> properties = response.getRequest()
-                .getProperties();
-        if (properties.containsKey(POST_PROCESS_COMPLETE)) {
-            Serializable prop = properties.get(POST_PROCESS_COMPLETE);
-            if (prop instanceof Boolean) {
-                return (boolean) prop;
-            }
-        }
-        return false;
-    }
-
-    private static Map<String, Serializable> putPostProcessCompleteFlagAndGet(
-            Map<String, Serializable> properties) {
-        Map<String, Serializable> newProperties = new HashMap<>(properties);
-        newProperties.put(POST_PROCESS_COMPLETE, true);
-        return newProperties;
     }
 
     @Override
@@ -123,14 +105,40 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
         return input;
     }
 
-    private ProcessRequest<ProcessCreateItem> createCreateRequest(CreateResponse createResponse) {
-        List<ProcessCreateItem> processCreateItems = new ArrayList<>();
-
-        for (Metacard metacard : createResponse.getCreatedMetacards()) {
-            ProcessCreateItem processCreateItem = new ProcessCreateItemImpl(getProcessResource(
-                    metacard), metacard, false);
-            processCreateItems.add(processCreateItem);
+    private static boolean isAlreadyPostProcessed(Response response) {
+        Map<String, Serializable> properties = response.getRequest()
+                .getProperties();
+        if (properties.containsKey(POST_PROCESS_COMPLETE)) {
+            Serializable prop = properties.get(POST_PROCESS_COMPLETE);
+            if (prop instanceof Boolean) {
+                return (boolean) prop;
+            } else {
+                LOGGER.debug(
+                        "{} request property was not a boolean. Clearing the property and returning false.",
+                        POST_PROCESS_COMPLETE);
+                properties.remove(POST_PROCESS_COMPLETE);
+            }
         }
+        return false;
+    }
+
+    private static Map<String, Serializable> putPostProcessCompleteFlagAndGet(
+            Map<String, Serializable> properties) {
+        Map<String, Serializable> newProperties = new HashMap<>(properties);
+        newProperties.put(POST_PROCESS_COMPLETE, true);
+        return newProperties;
+    }
+
+    private ProcessRequest<ProcessCreateItem> createCreateRequest(CreateResponse createResponse) {
+        List<ProcessCreateItem> processCreateItems;
+
+        processCreateItems = createResponse.getCreatedMetacards()
+                .stream()
+                .map(metacard -> new ProcessCreateItemImpl(getProcessResource(metacard),
+                        metacard,
+                        false))
+                .collect(Collectors.toList());
+
         return new ProcessRequestImpl(processCreateItems,
                 putPostProcessCompleteFlagAndGet(createResponse.getProperties()));
     }
@@ -139,17 +147,14 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
         List<Update> updates = updateResponse.getUpdatedMetacards();
         List<ProcessUpdateItem> processUpdateItems = new ArrayList<>();
 
-        if (CollectionUtils.isNotEmpty(updates)) {
-            for (Update update : updates) {
-                Metacard oldCard = update.getOldMetacard();
-                Metacard newCard = update.getNewMetacard();
-                ProcessUpdateItem processItem =
-                        new ProcessUpdateItemImpl(getProcessResource(newCard),
-                                newCard,
-                                oldCard,
-                                false);
-                processUpdateItems.add(processItem);
-            }
+        for (Update update : updates) {
+            Metacard oldCard = update.getOldMetacard();
+            Metacard newCard = update.getNewMetacard();
+            ProcessUpdateItem processItem = new ProcessUpdateItemImpl(getProcessResource(newCard),
+                    newCard,
+                    oldCard,
+                    false);
+            processUpdateItems.add(processItem);
         }
 
         return new ProcessRequestImpl(processUpdateItems,
@@ -157,12 +162,10 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
     }
 
     private ProcessRequest<ProcessDeleteItem> createDeleteRequest(DeleteResponse deleteResponse) {
-        List<ProcessDeleteItem> processDeleteItems = new ArrayList<>();
-
-        for (Metacard metacard : deleteResponse.getDeletedMetacards()) {
-            ProcessDeleteItem processDeleteItem = new ProcessDeleteItemImpl(metacard);
-            processDeleteItems.add(processDeleteItem);
-        }
+        List<ProcessDeleteItem> processDeleteItems = deleteResponse.getDeletedMetacards()
+                .stream()
+                .map(ProcessDeleteItemImpl::new)
+                .collect(Collectors.toList());
 
         return new ProcessRequestImpl(processDeleteItems,
                 putPostProcessCompleteFlagAndGet(deleteResponse.getProperties()));
@@ -190,8 +193,8 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
                         false);
 
                 return processResource;
-            } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
-                LOGGER.debug("Unable to get resource id:{}, sourceId:{}.",
+            } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException | RuntimeException e) {
+                LOGGER.debug("Unable to get resource id:{}, sourceId:{}. Returning null",
                         metacard.getId(),
                         metacard.getSourceId(),
                         e);

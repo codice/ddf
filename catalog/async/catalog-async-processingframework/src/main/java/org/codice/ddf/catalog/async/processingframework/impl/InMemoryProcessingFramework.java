@@ -22,25 +22,21 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessCreateItem;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessDeleteItem;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessRequest;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResource;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResourceItem;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessUpdateItem;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
 import org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin;
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework;
-import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +58,8 @@ import ddf.catalog.source.SourceUnavailableException;
 /**
  * The {@code InMemoryProcessingFramework} processes requests using a thread pool and submits the
  * results back to the {@link CatalogFramework} after processing is complete, when appropriate. If no changes
- * are detected after processing, no results will be send back to the {@link CatalogFramework}. Currently,
- * partial updates are not supported, meaning that any result being returned by the {@code InMemoryProcessingFramework}
+ * are detected after processing, no results will be sent back to the {@link CatalogFramework}. Currently,
+ * partial updates are not supported, meaning that any results being returned by the {@link InMemoryProcessingFramework}
  * will override the metadata in the catalog.
  */
 public class InMemoryProcessingFramework implements ProcessingFramework {
@@ -75,8 +71,6 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
     private final ExecutorService threadPool;
 
     private List<PostProcessPlugin> postProcessPlugins;
-
-    private Map<String, TemporaryFileBackedOutputStream> resourceMap = new ConcurrentHashMap<>();
 
     public InMemoryProcessingFramework(CatalogFramework catalogFramework,
             ExecutorService threadPool) {
@@ -95,17 +89,6 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         } catch (InterruptedException e) {
             threadPool.shutdownNow();
         }
-
-        LOGGER.debug("Attempting to remove temporary resources.");
-        for (Map.Entry<String, TemporaryFileBackedOutputStream> entry : resourceMap.entrySet()) {
-            try {
-                entry.getValue()
-                        .close();
-            } catch (IOException e) {
-                LOGGER.debug("Failed to close temporary resource {}.", entry.getKey(), e);
-            }
-        }
-        resourceMap.clear();
     }
 
     @Override
@@ -113,12 +96,6 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         if (postProcessPlugins == null || postProcessPlugins.isEmpty()) {
             LOGGER.debug("postProcessPlugins is empty. Not starting post process thread");
         } else {
-            for (ProcessResourceItem item : input.getProcessItems()) {
-                // copy stream to avoid issue with original inputStream being closed by another
-                // process before asynchronous processes are done with it.
-                copyItemStream(item.getProcessResource(), item.getMetacard().getId());
-            }
-
             threadPool.submit(() -> {
                 ProcessRequest<ProcessCreateItem> request = input;
 
@@ -134,7 +111,6 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                 }
 
                 storeProcessRequest(request);
-                cleanUpProcessResources(getResourceIds(request));
             });
         }
     }
@@ -144,12 +120,6 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         if (postProcessPlugins == null || postProcessPlugins.isEmpty()) {
             LOGGER.debug("postProcessPlugins is empty. Not starting post process thread");
         } else {
-            for (ProcessResourceItem item : input.getProcessItems()) {
-                // copy stream to avoid issue with original inputStream being closed by another
-                // process before asynchronous processes are done with it.
-                copyItemStream(item.getProcessResource(), item.getMetacard().getId());
-            }
-
             threadPool.submit(() -> {
                 ProcessRequest<ProcessUpdateItem> request = input;
 
@@ -165,7 +135,6 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                 }
 
                 storeProcessRequest(request);
-                cleanUpProcessResources(getResourceIds(request));
             });
         }
     }
@@ -192,15 +161,6 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         }
     }
 
-    private Set<String> getResourceIds(ProcessRequest<? extends ProcessResourceItem> request) {
-        return request.getProcessItems()
-                .stream()
-                .filter(Objects::nonNull)
-                .map(item -> item.getMetacard()
-                        .getId())
-                .collect(Collectors.toSet());
-    }
-
     private <T extends ProcessResourceItem> void storeProcessRequest(
             ProcessRequest<T> processRequest) {
         LOGGER.trace("Storing update request post processing change(s)");
@@ -219,7 +179,8 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                     byte[] byteArray = IOUtils.toByteArray(processResource.getInputStream());
                     ByteSource byteSource = ByteSource.wrap(byteArray);
 
-                    ContentItem contentItem = new ContentItemImpl(item.getMetacard().getId(),
+                    ContentItem contentItem = new ContentItemImpl(item.getMetacard()
+                            .getId(),
                             processResource.getQualifier(),
                             byteSource,
                             processResource.getMimeType(),
@@ -288,43 +249,6 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         } else {
             LOGGER.debug("No metacards to update");
         }
-    }
-
-    private void copyItemStream(ProcessResource processResource, String id) {
-        try {
-            TemporaryFileBackedOutputStream outputStream = new TemporaryFileBackedOutputStream();
-            IOUtils.copyLarge(processResource.getInputStream(), outputStream);
-
-            if (processResource instanceof ProcessResourceImpl) {
-                ((ProcessResourceImpl) processResource).setInputStream(outputStream.asByteSource()
-                        .openBufferedStream());
-
-                addToResourceMap(id, outputStream);
-            }
-        } catch (IOException e) {
-            LOGGER.debug("Failed to create output stream", e);
-        }
-    }
-
-    private void addToResourceMap(String id, TemporaryFileBackedOutputStream outputStream) {
-        resourceMap.put(id, outputStream);
-    }
-
-    private void cleanUpProcessResources(Set<String> resourceIds) {
-        resourceIds.stream()
-                .filter(id -> resourceMap.containsKey(id))
-                .forEach(id -> {
-                    TemporaryFileBackedOutputStream outputStream = resourceMap.get(id);
-                    try {
-                        outputStream.close();
-                    } catch (IOException e) {
-                        LOGGER.debug("Failed to close temporary file for resource with id {}.",
-                                id,
-                                e);
-                    } finally {
-                        resourceMap.remove(id);
-                    }
-                });
     }
 
     public void setPostProcessPlugins(List<PostProcessPlugin> postProcessPlugins) {

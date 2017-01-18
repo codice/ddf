@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.async.data.impl.api.internal;
+package org.codice.ddf.catalog.async.data.api.internal;
 
 /**
  * <p>
@@ -19,9 +19,9 @@ package org.codice.ddf.catalog.async.data.impl.api.internal;
  * removed in a future version of the library. </b>
  * </p>
  *
- * The {@code ProcessCreateItem} represents the data that will be processed by the {@link PostProcessPlugin}s
- * after a {@link ddf.catalog.data.Metacard} has been created in the catalog.
+ * The {@code ProcessDeleteItem} represents the data that will be processed by the {@link PostProcessPlugin}s
+ * after a {@link ddf.catalog.data.Metacard} has been deleted in the catalog.
  */
 
-public interface ProcessCreateItem extends ProcessResourceItem {
+public interface ProcessDeleteItem extends ProcessItem {
 }

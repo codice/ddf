@@ -34,7 +34,8 @@
     <!-- ThreadPool -->
     <bean id="threadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
-        <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
+        <argument value="1"/>
+        <!--<argument value="$[org.codice.ddf.system.threadPoolSize]"/>-->
     </bean>
 
     <!-- ProcessPlugins -->

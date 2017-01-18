@@ -11,11 +11,13 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.async.data.impl.api.internal;
+package org.codice.ddf.catalog.async.data.api.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+
+import javax.annotation.Nullable;
 
 /**
  * <p>
@@ -28,6 +30,8 @@ import java.net.URI;
  * by the {@link ProcessingFramework}.
  */
 public interface ProcessResource {
+
+    int UNKNOWN_SIZE = -1;
 
     /**
      * Gets a URI that represents the resource in the catalog.
@@ -66,12 +70,12 @@ public interface ProcessResource {
      * @return the {@link ProcessResource}'s input stream
      * @throws IOException if the input stream is not available
      */
-    InputStream getInputStream() throws IOException;
+    @Nullable InputStream getInputStream() throws IOException;
 
     /**
      * Return the total number of bytes in the {@link ProcessResource}'s input stream.
      *
-     * @return returns the total number of bytes that can be read from the input stream, or -1 if the
+     * @return returns the total number of bytes that can be read from the input stream, or {@link #UNKNOWN_SIZE} if the
      * total number of bytes is unknown or not applicable (e.g., in the case of a live stream)
      */
     long getSize();

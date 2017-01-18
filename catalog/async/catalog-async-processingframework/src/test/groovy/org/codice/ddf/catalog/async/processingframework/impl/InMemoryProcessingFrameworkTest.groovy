@@ -20,10 +20,10 @@ import ddf.catalog.operation.UpdateRequest
 import ddf.catalog.plugin.PluginExecutionException
 import ddf.catalog.source.IngestException
 import ddf.catalog.source.SourceUnavailableException
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessDeleteItem
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessRequest
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResource
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResourceItem
+import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem
+import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
+import org.codice.ddf.catalog.async.data.api.internal.ProcessResource
+import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem
 import org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream
 import spock.lang.Specification
@@ -56,43 +56,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         null                   | Mock(ExecutorService)
         Mock(CatalogFramework) | null
         null                   | null
-    }
-
-    def 'test cleanUp'() {
-        given:
-        def resourceMap = new ConcurrentHashMap<>()
-        def temporaryFileBackedOutputStream = Mock(TemporaryFileBackedOutputStream)
-        resourceMap.put(_, temporaryFileBackedOutputStream)
-        inMemoryProcessingFramework.resourceMap = resourceMap
-
-        when:
-        inMemoryProcessingFramework.cleanUp()
-
-        then:
-        1 * threadPool.shutdown()
-        1 * threadPool.awaitTermination(1, TimeUnit.SECONDS)
-
-        1 * temporaryFileBackedOutputStream.close()
-        inMemoryProcessingFramework.resourceMap.isEmpty()
-    }
-
-    def 'test cleanUp catch exceptions'() {
-        given:
-        def resourceMap = [:]
-        def temporaryFileBackedOutputStream = Mock(TemporaryFileBackedOutputStream)
-        resourceMap.put(_, temporaryFileBackedOutputStream)
-        inMemoryProcessingFramework.resourceMap = resourceMap
-
-        when:
-        inMemoryProcessingFramework.cleanUp()
-
-        then:
-        1 * threadPool.shutdown()
-        1 * threadPool.awaitTermination(1, TimeUnit.SECONDS) >> { throw new InterruptedException() }
-        1 * threadPool.shutdownNow()
-
-        1 * temporaryFileBackedOutputStream.close() >> { throw new IOException() }
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     /*
@@ -128,7 +91,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * threadPool.submit(_ as Runnable) >> { Runnable runnable -> runnable.run() }
         1 * postProcessPlugin.processCreate(processCreateRequest) >> processCreateRequest
         0 * catalogFramework._
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     def 'test submitCreate'() {
@@ -146,7 +108,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * postProcessPlugin.processCreate(processCreateRequest) >> markAsModifiedAndGet(processCreateRequest)
         1 * catalogFramework.update(_ as UpdateStorageRequest)
         1 * catalogFramework.update(_ as UpdateRequest)
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     def 'test submitCreate when a plugin throws error'() {
@@ -168,7 +129,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         }
         1 * catalogFramework.update(_ as UpdateStorageRequest)
         1 * catalogFramework.update(_ as UpdateRequest)
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     def 'test submitCreate when the ProcessResource throws error'() {
@@ -186,7 +146,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * postProcessPlugin.processCreate(processCreateRequest) >> markAsModifiedAndGet(processCreateRequest)
         0 * catalogFramework.update(_ as UpdateStorageRequest)
         1 * catalogFramework.update(_ as UpdateRequest)
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     def 'test submitCreate catalogFramework.update(updateStorageRequest) exceptions'(Exception exception) {
@@ -204,7 +163,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * postProcessPlugin.processCreate(processCreateRequest) >> markAsModifiedAndGet(processCreateRequest)
         1 * catalogFramework.update(_ as UpdateStorageRequest) >> { throw exception }
         1 * catalogFramework.update(_ as UpdateRequest)
-        inMemoryProcessingFramework.resourceMap.isEmpty()
 
         where:
         exception << [new IngestException(), new SourceUnavailableException()]
@@ -225,7 +183,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * postProcessPlugin.processCreate(processCreateRequest) >> markAsModifiedAndGet(processCreateRequest)
         1 * catalogFramework.update(_ as UpdateStorageRequest)
         1 * catalogFramework.update(_ as UpdateRequest) >> { throw exception }
-        inMemoryProcessingFramework.resourceMap.isEmpty()
 
         where:
         exception << [new IngestException(), new SourceUnavailableException()]
@@ -264,7 +221,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * threadPool.submit(_ as Runnable) >> { Runnable runnable -> runnable.run() }
         1 * postProcessPlugin.processUpdate(processUpdateRequest) >> processUpdateRequest
         0 * catalogFramework._
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     def 'test submitUpdate'() {
@@ -282,7 +238,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * postProcessPlugin.processUpdate(processUpdateRequest) >> markAsModifiedAndGet(processUpdateRequest)
         1 * catalogFramework.update(_ as UpdateStorageRequest)
         1 * catalogFramework.update(_ as UpdateRequest)
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     def 'test submitUpdate when a plugin throws error'() {
@@ -304,7 +259,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         }
         1 * catalogFramework.update(_ as UpdateStorageRequest)
         1 * catalogFramework.update(_ as UpdateRequest)
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     def 'test submitUpdate when the ProcessResource throws error'() {
@@ -322,7 +276,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * postProcessPlugin.processUpdate(processUpdateRequest) >> markAsModifiedAndGet(processUpdateRequest)
         0 * catalogFramework.update(_ as UpdateStorageRequest)
         1 * catalogFramework.update(_ as UpdateRequest)
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     def 'test submitUpdate catalogFramework.update(updateStorageRequest) exceptions'(Exception exception) {
@@ -340,7 +293,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * postProcessPlugin.processUpdate(processUpdateRequest) >> markAsModifiedAndGet(processUpdateRequest)
         1 * catalogFramework.update(_ as UpdateStorageRequest) >> { throw exception }
         1 * catalogFramework.update(_ as UpdateRequest)
-        inMemoryProcessingFramework.resourceMap.isEmpty()
 
         where:
         exception << [new IngestException(), new SourceUnavailableException()]
@@ -361,7 +313,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * postProcessPlugin.processUpdate(processUpdateRequest) >> markAsModifiedAndGet(processUpdateRequest)
         1 * catalogFramework.update(_ as UpdateStorageRequest)
         1 * catalogFramework.update(_ as UpdateRequest) >> { throw exception }
-        inMemoryProcessingFramework.resourceMap.isEmpty()
 
         where:
         exception << [new IngestException(), new SourceUnavailableException()]
@@ -399,7 +350,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         then:
         1 * threadPool.submit(_ as Runnable) >> { Runnable runnable -> runnable.run() }
         1 * postProcessPlugin.processDelete(processDeleteRequest) >> processDeleteRequest
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     def 'test submitDelete when plugin throws error'() {
@@ -419,7 +369,6 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * postProcessPlugin2.processDelete(processDeleteRequest) >> {
             throw new PluginExecutionException()
         }
-        inMemoryProcessingFramework.resourceMap.isEmpty()
     }
 
     private <T extends ProcessResourceItem> ProcessRequest<T> createMockProcessResourceRequest() {

@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.async</groupId>
-            <artifactId>catalog-async-data</artifactId>
+            <artifactId>catalog-async-data-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -94,7 +94,8 @@
                             platform-util,
                             catalog-core-api-impl,
                             commons-lang3,
-                            platform-util-unavailableurls
+                            platform-util-unavailableurls,
+                            catalog-async-data
                         </Embed-Dependency>
                         <Private-Package>
                             org.codice.ddf.catalog.async.processingframework.impl
@@ -120,17 +121,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.88</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.92</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.88</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

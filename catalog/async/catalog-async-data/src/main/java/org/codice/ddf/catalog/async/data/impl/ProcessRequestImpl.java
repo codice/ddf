@@ -13,12 +13,14 @@
  */
 package org.codice.ddf.catalog.async.data.impl;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessItem;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessRequest;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessItem;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
 
 import ddf.catalog.operation.impl.OperationImpl;
 
@@ -29,6 +31,9 @@ public class ProcessRequestImpl<T extends ProcessItem> extends OperationImpl
 
     public ProcessRequestImpl(List<T> processItems, Map<String, Serializable> properties) {
         super(properties);
+
+        notNull(processItems, "ProcessRequestImpl argument processItems may not be null");
+
         this.processItems = processItems;
     }
 

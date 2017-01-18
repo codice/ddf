@@ -13,16 +13,14 @@
  */
 package org.codice.ddf.catalog.async.data.impl;
 
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessCreateItem;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResource;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
 
 import ddf.catalog.data.Metacard;
 
-public class ProcessCreateItemImpl implements ProcessCreateItem {
+public class ProcessCreateItemImpl extends ProcessItemImpl implements ProcessCreateItem {
 
     private ProcessResource processResource;
-
-    private Metacard metacard;
 
     private boolean isMetacardModified;
 
@@ -32,14 +30,9 @@ public class ProcessCreateItemImpl implements ProcessCreateItem {
 
     public ProcessCreateItemImpl(ProcessResource processResource, Metacard metacard,
             boolean isMetacardModified) {
+        super(metacard);
         this.processResource = processResource;
-        this.metacard = metacard;
         this.isMetacardModified = isMetacardModified;
-    }
-
-    @Override
-    public Metacard getMetacard() {
-        return metacard;
     }
 
     @Override

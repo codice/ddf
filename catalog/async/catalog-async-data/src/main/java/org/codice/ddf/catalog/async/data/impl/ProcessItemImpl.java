@@ -13,13 +13,24 @@
  */
 package org.codice.ddf.catalog.async.data.impl;
 
-import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
+import static org.apache.commons.lang.Validate.notNull;
+
+import org.codice.ddf.catalog.async.data.api.internal.ProcessItem;
 
 import ddf.catalog.data.Metacard;
 
-public class ProcessDeleteItemImpl extends ProcessItemImpl implements ProcessDeleteItem {
+public class ProcessItemImpl implements ProcessItem {
 
-    public ProcessDeleteItemImpl(Metacard metacard) {
-        super(metacard);
+    private Metacard metacard;
+
+    public ProcessItemImpl(Metacard metacard) {
+        notNull(metacard, "ProcessItemImpl argument metacard may not be null");
+
+        this.metacard = metacard;
+    }
+
+    @Override
+    public Metacard getMetacard() {
+        return metacard;
     }
 }

@@ -13,18 +13,18 @@
  */
 package org.codice.ddf.catalog.async.data.impl;
 
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessResource;
-import org.codice.ddf.catalog.async.data.impl.api.internal.ProcessUpdateItem;
+import static org.apache.commons.lang.Validate.notNull;
+
+import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
 
 import ddf.catalog.data.Metacard;
 
-public class ProcessUpdateItemImpl implements ProcessUpdateItem {
+public class ProcessUpdateItemImpl extends ProcessItemImpl implements ProcessUpdateItem {
 
     private ProcessResource processResource;
 
     private Metacard oldMetacard;
-
-    private Metacard newMetacard;
 
     private boolean isMetacardModified;
 
@@ -35,15 +35,14 @@ public class ProcessUpdateItemImpl implements ProcessUpdateItem {
 
     public ProcessUpdateItemImpl(ProcessResource processResource, Metacard newMetacard,
             Metacard oldMetacard, boolean isMetacardModified) {
+        super(newMetacard);
+
+        notNull(processResource, "ProcessUpdateItemImpl argument processResource may not be null");
+        notNull(oldMetacard, "ProcessUpdateItemImpl argument newMetacard may not be null");
+
         this.processResource = processResource;
-        this.newMetacard = newMetacard;
         this.oldMetacard = oldMetacard;
         this.isMetacardModified = isMetacardModified;
-    }
-
-    @Override
-    public Metacard getMetacard() {
-        return newMetacard;
     }
 
     @Override
