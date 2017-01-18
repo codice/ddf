@@ -109,8 +109,7 @@ public class MetacardApplication implements SparkApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardApplication.class);
 
-    private static final String UPDATE_ERROR_MESSAGE =
-            "Item is either restricted or not found.";
+    private static final String UPDATE_ERROR_MESSAGE = "Item is either restricted or not found.";
 
     private static final Set<Action> CONTENT_ACTIONS = ImmutableSet.of(Action.VERSIONED_CONTENT,
             Action.DELETED_CONTENT);
@@ -624,8 +623,10 @@ public class MetacardApplication implements SparkApplication {
                 .stream()
                 .map(Result::getMetacard)
                 .collect(Collectors.toList());
-        return catalogFramework.update(new UpdateRequestImpl(changedIds.toArray(new String[0]),
-                changedMetacards));
+        return catalogFramework.update(new UpdateRequestImpl(changedMetacards.stream()
+                .map(Metacard::getId)
+                .collect(Collectors.toList())
+                .toArray(new String[0]), changedMetacards));
     }
 
     private boolean isChangeTypeDate(AttributeChange attributeChange, Metacard result) {
