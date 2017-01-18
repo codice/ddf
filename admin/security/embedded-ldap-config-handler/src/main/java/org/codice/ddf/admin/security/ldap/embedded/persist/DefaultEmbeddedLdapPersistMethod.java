@@ -14,13 +14,16 @@
 package org.codice.ddf.admin.security.ldap.embedded.persist;
 
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_USE_CASE;
+import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.ALL_DEFAULT_EMBEDDED_LDAP_CONFIG_FEATURE;
+import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.DEFAULT_EMBEDDED_LDAP_CLAIMS_HANDLER_CONFIG_FEATURE;
+import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.DEFAULT_EMBEDDED_LDAP_LOGIN_CONFIG_FEATURE;
+import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.EMBEDDED_LDAP_FEATURE;
+import static org.codice.ddf.admin.api.config.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_FEATURE;
+import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.LDAP_LOGIN_FEATURE;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
 import java.util.List;
@@ -61,33 +64,27 @@ public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdap
             return testReport;
         }
 
-        configurator.startFeature("opendj-embedded");
-        // TODO: tbatie - 1/12/17 - Installing default configs should have a feature req on the features with the configs they intend to start
+        configurator.startFeature(EMBEDDED_LDAP_FEATURE);
         switch (configuration.ldapUseCase()) {
         case LOGIN:
-            configurator.startFeature("security-sts-ldaplogin");
-            configurator.startFeature("ldap-embedded-default-stslogin-config");
+            configurator.startFeature(LDAP_LOGIN_FEATURE);
+            configurator.startFeature(DEFAULT_EMBEDDED_LDAP_LOGIN_CONFIG_FEATURE);
             break;
         case CREDENTIAL_STORE:
-            configurator.startFeature("security-sts-ldapclaimshandler");
-            configurator.startFeature("ldap-embedded-default-claimshandler-config");
+            configurator.startFeature(LDAP_CLAIMS_HANDLER_FEATURE);
+            configurator.startFeature(DEFAULT_EMBEDDED_LDAP_CLAIMS_HANDLER_CONFIG_FEATURE);
             break;
         case LOGIN_AND_CREDENTIAL_STORE:
-            configurator.startFeature("security-sts-ldaplogin");
-            configurator.startFeature("security-sts-ldapclaimshandler");
-            configurator.startFeature("ldap-embedded-default-configs");
+            configurator.startFeature(LDAP_LOGIN_FEATURE);
+            configurator.startFeature(LDAP_CLAIMS_HANDLER_FEATURE);
+            configurator.startFeature(ALL_DEFAULT_EMBEDDED_LDAP_CONFIG_FEATURE);
             break;
         }
         OperationReport report = configurator.commit();
 
-        if (report.containsFailedResults()) {
-            return new Report(buildMessage(FAILURE,
-                    FAILED_PERSIST,
-                    FAILURE_TYPES.get(FAILED_PERSIST)));
-        }
-
-        return new Report(buildMessage(SUCCESS,
-                SUCCESSFUL_PERSIST,
-                SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
+        return Report.createReport(SUCCESS_TYPES,
+                FAILURE_TYPES,
+                null,
+                report.containsFailedResults() ? FAILED_PERSIST : SUCCESSFUL_PERSIST);
     }
 }

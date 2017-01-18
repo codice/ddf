@@ -24,6 +24,7 @@ import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.val
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapType;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapUseCase;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateFactoryPid;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateFilePath;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateHostName;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateMapping;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validatePort;
@@ -61,8 +62,10 @@ public class LdapConfiguration extends Configuration {
     public static final String LDAP_TYPE = "ldapType";
     public static final String LDAP_USE_CASE = "ldapUseCase";
     public static final String GROUP_OBJECT_CLASS = "groupObjectClass";
+    public static final String MEMBER_NAME_ATTRIBUTE = "memberNameAttribute";
     public static final String MEMBERSHIP_ATTRIBUTE = "membershipAttribute";
     public static final String ATTRIBUTE_MAPPINGS = "attributeMappings";
+    public static final String ATTRIBUTE_MAPPING_PATH = "attributeMappingsPath";
 
     private String hostName;
     private int port;
@@ -81,8 +84,9 @@ public class LdapConfiguration extends Configuration {
     private String ldapUseCase;
     private String groupObjectClass;
     private String membershipAttribute;
+    private String memberNameAttribute;
     public Map<String, String> attributeMappings;
-    private List<Map<String, String>> queryResults;
+    private String attributeMappingsPath;
 
     private static final Map<String, Function<LdapConfiguration, List<ConfigurationMessage>>> FIELD_TO_VALIDATION_FUNC = new ImmutableMap.Builder<String, Function<LdapConfiguration, List<ConfigurationMessage>>>()
                     .put(SERVICE_PID, config -> validateServicePid(config.servicePid(), SERVICE_PID))
@@ -104,8 +108,14 @@ public class LdapConfiguration extends Configuration {
                     .put(LDAP_USE_CASE, config -> validateLdapUseCase(config.ldapUseCase(), LDAP_USE_CASE))
                     .put(GROUP_OBJECT_CLASS, config -> validateGroupObjectClass(config.groupObjectClass(), GROUP_OBJECT_CLASS))
                     .put(MEMBERSHIP_ATTRIBUTE, config -> validateString(config.membershipAttribute(), MEMBERSHIP_ATTRIBUTE))
+                    .put(MEMBER_NAME_ATTRIBUTE, config -> validateString(config.memberNameAttribute(), MEMBER_NAME_ATTRIBUTE))
                     .put(ATTRIBUTE_MAPPINGS, config -> validateMapping(config.attributeMappings(), ATTRIBUTE_MAPPINGS))
+                    .put(ATTRIBUTE_MAPPING_PATH, config -> validateFilePath(config.attributeMappingsPath(), ATTRIBUTE_MAPPING_PATH))
                     .build();
+
+    public List<ConfigurationMessage> validate(List<String> fields) {
+        return ValidationUtils.validate(fields, this, FIELD_TO_VALIDATION_FUNC);
+    }
 
     //Getters
     public String hostName() {
@@ -153,17 +163,20 @@ public class LdapConfiguration extends Configuration {
     public String ldapUseCase() {
         return ldapUseCase;
     }
-    public List<Map<String, String>> queryResults() {
-        return queryResults;
-    }
     public String groupObjectClass() {
         return groupObjectClass;
     }
     public String membershipAttribute() {
         return membershipAttribute;
     }
+    public String memberNameAttribute() {
+        return memberNameAttribute;
+    }
     public Map<String, String> attributeMappings() {
         return attributeMappings;
+    }
+    public String attributeMappingsPath() {
+        return attributeMappingsPath;
     }
 
     //Setters
@@ -219,10 +232,6 @@ public class LdapConfiguration extends Configuration {
         this.queryBase = queryBase;
         return this;
     }
-    public LdapConfiguration queryResults(List<Map<String, String>> queryResults) {
-        this.queryResults = queryResults;
-        return this;
-    }
     public LdapConfiguration ldapType(String ldapType) {
         this.ldapType = ldapType;
         return this;
@@ -239,13 +248,17 @@ public class LdapConfiguration extends Configuration {
         this.membershipAttribute = membershipAttribute;
         return this;
     }
+    public LdapConfiguration memberNameAttribute(String memberNameAttribute) {
+        this.memberNameAttribute = memberNameAttribute;
+        return this;
+    }
     public LdapConfiguration attributeMappings(Map<String, String> attributeMapping) {
         this.attributeMappings = attributeMapping;
         return this;
     }
-
-    public List<ConfigurationMessage> validate(List<String> fields) {
-        return ValidationUtils.validate(fields, this, FIELD_TO_VALIDATION_FUNC);
+    public LdapConfiguration attributeMappingsPath(String attributeMappingsPath) {
+        this.attributeMappingsPath = attributeMappingsPath;
+        return this;
     }
 
     @Override

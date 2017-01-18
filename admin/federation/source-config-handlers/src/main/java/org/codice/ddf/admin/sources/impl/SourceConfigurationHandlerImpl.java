@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
+import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
@@ -55,7 +56,7 @@ public class SourceConfigurationHandlerImpl extends
     @Override
     public List getConfigurations() {
         return srcHandlers.stream()
-                .map(configHandler -> configHandler.getConfigurations())
+                .map(ConfigurationHandler::getConfigurations)
                 .flatMap(List<Object>::stream)
                 .collect(Collectors.toList());
     }

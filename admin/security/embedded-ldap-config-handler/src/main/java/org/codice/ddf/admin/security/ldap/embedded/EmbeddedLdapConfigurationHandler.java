@@ -14,6 +14,9 @@
 
 package org.codice.ddf.admin.security.ldap.embedded;
 
+import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.EMBEDDED_LDAP_MANAGER_SERVICE_PID;
+import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.embeddedLdapServiceToEmbeddedLdapConfig;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +24,6 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.ldap.EmbeddedLdapConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
-import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
@@ -40,16 +42,6 @@ public class EmbeddedLdapConfigurationHandler
     private static final String EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID = EmbeddedLdapConfiguration.CONFIGURATION_TYPE;
 
     @Override
-    public String getConfigurationHandlerId() {
-        return EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID;
-    }
-
-    @Override
-    public ConfigurationType getConfigurationType() {
-        return new EmbeddedLdapConfiguration().getConfigurationType();
-    }
-
-    @Override
     public List<ProbeMethod> getProbeMethods() {
         return null;
     }
@@ -66,24 +58,20 @@ public class EmbeddedLdapConfigurationHandler
     @Override
     public List<EmbeddedLdapConfiguration> getConfigurations() {
         Configurator configurator = new Configurator();
-        try {
-            if (configurator.isFeatureStarted("opendj-embedded")) {
-                Map<String, Object> props = configurator.getConfig(
-                        "org.codice.opendj.embedded.server.LDAPManager");
-                EmbeddedLdapConfiguration config = new EmbeddedLdapConfiguration();
-                config.embeddedLdapPort((int) props.get("embeddedLdapPort"));
-                config.embeddedLdapsPort((int) props.get("embeddedLdapsPort"));
-                config.embeddedLdapAdminPort((int) props.get("embeddedLdapAdminPort"));
-                config.ldifPath((String) props.get("ldifPath"));
-                config.embeddedLdapStorageLocation((String) props.get("embeddedLdapStorageLocation"));
-
-                return Collections.singletonList(config);
-            } else {
-                return Collections.emptyList();
-            }
-        } catch (ConfiguratorException e) {
-            LOGGER.info("Error retrieving configuration", e);
+        Map<String, Object> serviceProps = configurator.getConfig(EMBEDDED_LDAP_MANAGER_SERVICE_PID);
+        if (serviceProps == null) {
             return Collections.emptyList();
         }
+        return Collections.singletonList(embeddedLdapServiceToEmbeddedLdapConfig(serviceProps));
     }
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new EmbeddedLdapConfiguration().getConfigurationType();
+    }
+
+    @Override
+    public String getConfigurationHandlerId() {
+        return EMBEDDED_LDAP_CONFIGURATION_HANDLER_ID;
+    }
+
 }

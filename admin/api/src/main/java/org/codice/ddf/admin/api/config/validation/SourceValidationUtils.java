@@ -30,7 +30,7 @@ public class SourceValidationUtils {
             String configId) {
         List<ConfigurationMessage> errors = validateFactoryPid(factoryPid, configId);
         if (errors.isEmpty() && !WFS_FACTORY_PIDS.contains(factoryPid)) {
-            errors.add(createInvalidFieldMsg("Unknown factory PID type \"" + configId
+            errors.add(createInvalidFieldMsg("Unknown factory PID type \"" + factoryPid
                             + "\". Wfs factory pid must be one of: " + String.join(",", WFS_FACTORY_PIDS),
                     configId));
         }

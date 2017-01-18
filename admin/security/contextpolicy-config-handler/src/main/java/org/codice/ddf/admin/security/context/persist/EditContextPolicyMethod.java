@@ -20,9 +20,6 @@ import static org.codice.ddf.admin.api.config.context.ContextPolicyConfiguration
 import static org.codice.ddf.admin.api.config.services.ContextPolicyServiceProperties.POLICY_MANAGER_PID;
 import static org.codice.ddf.admin.api.config.services.ContextPolicyServiceProperties.configToPolicyManagerProps;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.EDIT;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
@@ -70,12 +67,7 @@ public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfigur
 
         OperationReport configReport = configurator.commit();
 
-        if (!configReport.getFailedResults()
-                .isEmpty()) {
-            return new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)));
-        } else {
-            return new Report(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
-        }
+        return Report.createReport(SUCCESS_TYPES, FAILURE_TYPES, null, configReport.containsFailedResults() ? FAILED_PERSIST : SUCCESSFUL_PERSIST);
     }
 
 

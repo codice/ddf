@@ -17,7 +17,6 @@ package org.codice.ddf.admin.security.ldap.test;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.ENCRYPTION_METHOD;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.HOST_NAME;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.PORT;
-import static org.codice.ddf.admin.api.handler.report.Report.createGeneralTestReport;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.SUCCESSFUL_CONNECTION;
@@ -67,9 +66,7 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
 
     @Override
     public Report test(LdapConfiguration configuration) {
-        List<ConfigurationMessage> checkMessages =
-                // TODO: Use the validate method, not this
-                configuration.validate(REQUIRED_FIELDS);
+        List<ConfigurationMessage> checkMessages = configuration.validate(REQUIRED_FIELDS);
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new Report(checkMessages);
         }
@@ -81,7 +78,7 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
                     .close();
         }
 
-        return createGeneralTestReport(SUCCESS_TYPES,
+        return Report.createReport(SUCCESS_TYPES,
                 FAILURE_TYPES,
                 null,
                 Arrays.asList(connectionAttempt.result()

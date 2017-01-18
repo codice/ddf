@@ -71,7 +71,12 @@ public class Report {
                 .isPresent();
     }
 
-    public static Report createGeneralTestReport(Map<String, String> successTypes,
+    public static Report createReport(Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes,
+            String results) {
+        return  createReport(successTypes, failureTypes, warningTypes, Arrays.asList(results));
+    }
+    public static Report createReport(Map<String, String> successTypes,
             Map<String, String> failureTypes, Map<String, String> warningTypes,
             List<String> results) {
         Report testReport = new Report();
@@ -94,7 +99,7 @@ public class Report {
         return testReport;
     }
 
-    public static Report createGeneralTestReport(Map<String, String> successTypes,
+    public static Report createReport(Map<String, String> successTypes,
             Map<String, String> failureTypes, Map<String, String> warningTypes,
             Map<String, String> resultsToConfigIds) {
         Report testReport = new Report();

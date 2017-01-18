@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
+import org.codice.ddf.admin.api.config.services.WfsServiceProperties;
 import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.config.sources.WfsSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
@@ -82,7 +83,7 @@ public class WfsSourceConfigurationHandler extends DefaultConfigurationHandler<S
                 .flatMap(factoryPid -> configurator.getManagedServiceConfigs(factoryPid)
                         .values()
                         .stream())
-                .map(serviceProps -> servicePropsToWfsConfig(serviceProps))
+                .map(WfsServiceProperties::servicePropsToWfsConfig)
                 .collect(Collectors.toList());
     }
 

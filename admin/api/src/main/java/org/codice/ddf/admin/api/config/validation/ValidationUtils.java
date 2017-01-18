@@ -99,6 +99,7 @@ public class ValidationUtils {
 
         return errors;
     }
+
     public static final List<ConfigurationMessage> validateMapping(Map<String, String> mapping, String configId) {
         List<ConfigurationMessage> errors = new ArrayList<>();
         if(mapping == null || mapping.isEmpty()) {
@@ -112,6 +113,11 @@ public class ValidationUtils {
         }
 
         return errors;
+    }
+
+    public static final List<ConfigurationMessage> validateFilePath(String filePath, String configId) {
+        // TODO: tbatie - 1/18/17 - Validate file paths
+        return validateString(filePath, configId);
     }
 
     public static final boolean validUrlFormat(String url) {

@@ -16,11 +16,9 @@ package org.codice.ddf.admin.security.ldap.persist;
 
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.SERVICE_PID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.DELETE;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.handler.report.Report.createReport;
 
 import java.util.List;
 import java.util.Map;
@@ -55,8 +53,7 @@ public class DeleteLdapConfigMethod extends PersistMethod<LdapConfiguration> {
 
     @Override
     public Report persist(LdapConfiguration config) {
-        Report validatedReport =
-                new Report(config.validate(REQUIRED_FIELDS));
+        Report validatedReport = new Report(config.validate(REQUIRED_FIELDS));
         if (validatedReport.containsFailureMessages()) {
             return validatedReport;
         }
@@ -64,15 +61,10 @@ public class DeleteLdapConfigMethod extends PersistMethod<LdapConfiguration> {
         Configurator configurator = new Configurator();
         configurator.deleteManagedService(config.servicePid());
         OperationReport report = configurator.commit();
-        if (!report.getFailedResults()
-                .isEmpty()) {
-            return new Report(buildMessage(FAILURE,
-                    FAILED_PERSIST,
-                    FAILURE_TYPES.get(FAILED_PERSIST)));
-        } else {
-            return new Report(buildMessage(SUCCESS,
-                    SUCCESSFUL_PERSIST,
-                    SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
-        }
+
+        return createReport(SUCCESS_TYPES,
+                FAILURE_TYPES,
+                null,
+                report.containsFailedResults() ? FAILED_PERSIST : SUCCESSFUL_PERSIST);
     }
 }

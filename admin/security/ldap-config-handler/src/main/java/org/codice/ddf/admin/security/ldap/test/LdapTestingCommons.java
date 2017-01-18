@@ -108,8 +108,6 @@ public class LdapTestingCommons {
         return new LdapConnectionAttempt(SUCCESSFUL_BIND, connection);
     }
 
-    // TODO RAP 08 Dec 16: Refactor to common location...this functionality is in BindMethodChooser
-    // and SslLdapLoginModule as well
     public static BindRequest selectBindMethod(String bindMethod, String bindUserDN,
             String bindUserCredentials, String realm, String kdcAddress) {
         BindRequest request;

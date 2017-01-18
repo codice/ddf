@@ -49,6 +49,16 @@ public class ProbeReport extends Report {
         return this;
     }
 
+    public static final ProbeReport createProbeReport(Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes, String result) {
+        return new ProbeReport(Report.createReport(successTypes, failureTypes, warningTypes, result).messages());
+    }
+
+    public static final ProbeReport createProbeReport(Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes, List<String> results) {
+        return new ProbeReport(Report.createReport(successTypes, failureTypes, warningTypes, results).messages());
+    }
+
     public Map<String, Object> getProbeResults() {
         return probeResults;
     }

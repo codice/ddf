@@ -25,7 +25,7 @@ import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.ENCRYPTION_
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.HOST_NAME;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
-import static org.codice.ddf.admin.api.handler.report.Report.createGeneralTestReport;
+import static org.codice.ddf.admin.api.handler.report.Report.createReport;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.BASE_GROUP_DN_NOT_FOUND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.BASE_USER_DN_NOT_FOUND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
@@ -105,8 +105,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
     @Override
     public Report test(LdapConfiguration configuration) {
         // TODO: tbatie - 1/11/17 - Test groupClassObject and membershipAttribute
-        List<ConfigurationMessage> checkMessages =
-                configuration.validate(REQUIRED_FIELDS);
+        List<ConfigurationMessage> checkMessages = configuration.validate(REQUIRED_FIELDS);
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);
@@ -115,7 +114,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
         LdapConnectionAttempt connectionAttempt = bindUserToLdapConnection(configuration);
 
         if (connectionAttempt.result() != SUCCESSFUL_BIND) {
-            return createGeneralTestReport(SUCCESS_TYPES,
+            return createReport(SUCCESS_TYPES,
                     FAILURE_TYPES,
                     WARNING_TYPES,
                     Arrays.asList(connectionAttempt.result()
@@ -158,7 +157,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
         }
         ldapConnection.close();
 
-        return createGeneralTestReport(SUCCESS_TYPES,
+        return createReport(SUCCESS_TYPES,
                 FAILURE_TYPES,
                 WARNING_TYPES,
                 resultsWithConfigIds);

@@ -14,6 +14,10 @@
 
 package org.codice.ddf.admin.security.context.probe;
 
+import static org.codice.ddf.admin.api.config.services.PolicyManagerServiceProperties.IDP_CLIENT_BUNDLE_NAME;
+import static org.codice.ddf.admin.api.config.services.PolicyManagerServiceProperties.IDP_SERVER_BUNDLE_NAME;
+import static org.codice.ddf.admin.api.config.services.PolicyManagerServiceProperties.STS_CLAIMS_CONFIGURATION_CONFIG_ID;
+import static org.codice.ddf.admin.api.config.services.PolicyManagerServiceProperties.STS_CLAIMS_PROPS_KEY_CLAIMS;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.BASIC;
@@ -23,9 +27,13 @@ import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils
 import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.LDAP;
 import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.PKI;
 import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.SAML;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.FAILED_PROBE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PROBE;
+import static org.codice.ddf.admin.api.handler.report.ProbeReport.createProbeReport;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,8 +45,7 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 
 import com.google.common.collect.ImmutableList;
-
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import com.google.common.collect.ImmutableMap;
 
 public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfiguration>{
 
@@ -48,6 +55,9 @@ public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
     public static final String REALMS_KEY = "realms";
     public static final String AUTH_TYPES_KEY = "authenticationTypes";
     public static final String CLAIMS_KEY = "claims";
+
+    public static final Map<String, String> FAILED_TYPES = ImmutableMap.of(FAILED_PROBE, "Failed to retrieve context policy manager options.");
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PROBE, "Successfully retrieved context policy options.");
     public static final List<String> RETURN_TYPES = ImmutableList.of(REALMS_KEY, AUTH_TYPES_KEY, CLAIMS_KEY);
 
     Configurator configurator = new Configurator();
@@ -58,8 +68,8 @@ public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
                 DESCRIPTION,
                 null,
                 null,
-                null,
-                null,
+                SUCCESS_TYPES,
+                FAILED_TYPES,
                 null,
                 RETURN_TYPES);
         this.ldapConfigHandler = ldapConfigHandler;
@@ -67,16 +77,20 @@ public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
 
     @Override
     public ProbeReport probe(ContextPolicyConfiguration config) {
-        return new ProbeReport().probeResult(AUTH_TYPES_KEY, getAuthTypes())
-                .probeResult(REALMS_KEY, getRealms())
-                .probeResult(CLAIMS_KEY, getClaims());
+        Map<String, Object> probeResults = new HashMap();
+        probeResults.put(AUTH_TYPES_KEY, getAuthTypes());
+        probeResults.put(REALMS_KEY, getRealms());
+        probeResults.put(CLAIMS_KEY, getClaims());
+
+        return createProbeReport(SUCCESS_TYPES, FAILED_TYPES, null, probeResults.isEmpty() ? FAILED_PROBE : SUCCESSFUL_PROBE).probeResults(probeResults);
     }
 
     public List<String> getAuthTypes() {
         // TODO: tbatie - 1/12/17 - Is there a preference order we should apply with these auth types?
+        // TODO: tbatie - 1/12/17 - need to eventually check if these handlers are running for these auth types instead of hardcoding
         List<String> authTypes = new ArrayList<>(Arrays.asList(BASIC, SAML, PKI, GUEST));
 
-        if(configurator.isBundleStarted("security-idp-client")) {
+        if(configurator.isBundleStarted(IDP_CLIENT_BUNDLE_NAME)) {
             authTypes.add(IDP);
         }
 
@@ -86,7 +100,7 @@ public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
     public List<String> getRealms() {
         List<String> realms = new ArrayList<>(Arrays.asList(KARAF));
         // TODO: tbatie - 1/12/17 - If a IdpConfigurationHandler exists replace this with a service reference
-        if(configurator.isBundleStarted("security-idp-server")) {
+        if(configurator.isBundleStarted(IDP_SERVER_BUNDLE_NAME)) {
             realms.add(IDP);
         }
 
@@ -99,20 +113,11 @@ public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
             realms.add(LDAP);
         }
 
-        if(configurator.isBundleStarted("security-idp-client")) {
-            realms.add(IDP);
-        }
-
         return realms;
     }
 
     public Object getClaims() {
-        Map<String, Object> stsConfig = new Configurator().getConfig(
-                "ddf.security.sts.client.configuration");
-        return stsConfig == null ?  null : stsConfig.get("claims");
-    }
-
-    public STSClientConfiguration getStsClientConfig() {
-        return new Configurator().getServiceReference(STSClientConfiguration.class);
+        Map<String, Object> stsConfig = new Configurator().getConfig(STS_CLAIMS_CONFIGURATION_CONFIG_ID);
+        return stsConfig == null ?  null : stsConfig.get(STS_CLAIMS_PROPS_KEY_CLAIMS);
     }
 }

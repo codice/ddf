@@ -29,21 +29,22 @@ import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_USE_CA
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.MEMBERSHIP_ATTRIBUTE;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
+import static org.codice.ddf.admin.api.config.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_FEATURE;
+import static org.codice.ddf.admin.api.config.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_MANAGED_SERVICE_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.services.LdapClaimsHandlerServiceProperties.ldapConfigToLdapClaimsHandlerService;
+import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.LDAP_LOGIN_FEATURE;
+import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.LDAP_LOGIN_MANAGED_SERVICE_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.ldapConfigurationToLdapLoginService;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LDAPS;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.TLS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.CREATE;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.handler.report.Report.createReport;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -60,10 +61,8 @@ import com.google.common.collect.ImmutableMap;
 public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
 
     public static final String LDAP_CREATE_ID = CREATE;
-    public static final String DESCRIPTION = "Persists the ldap configuration depending on the ldap use case.";
 
-    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "Successfully saved LDAP settings.");
-    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Unable to persist changes.");
+    public static final String DESCRIPTION = "Persists the ldap configuration depending on the ldap use case.";
     public static final List<String> LOGIN_REQUIRED_FIELDS = ImmutableList.of(LDAP_USE_CASE,
             HOST_NAME,
             PORT,
@@ -83,6 +82,9 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
             .add(MEMBERSHIP_ATTRIBUTE)
             .add(ATTRIBUTE_MAPPINGS).build();
 
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "Successfully saved LDAP settings.");
+    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Unable to persist changes.");
+
     public CreateLdapConfigMethod() {
         super(LDAP_CREATE_ID,
                 DESCRIPTION,
@@ -101,89 +103,41 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
                 .equals(LOGIN) || config.ldapUseCase()
                 .equals(LOGIN_AND_CREDENTIAL_STORE)) {
 
+            // TODO: tbatie - 1/15/17 - Validate optional fields
             Report validationReport = new Report(config.validate(LOGIN_REQUIRED_FIELDS));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
             }
-            // TODO: tbatie - 1/15/17 - Validate optional fields
 
-            Map<String, Object> ldapStsConfig = new HashMap<>();
-            // TODO: tbatie - 1/17/17 - Move this to Ldap Service Properties
-            String ldapUrl = getLdapUrl(config);
-            boolean startTls = isStartTls(config);
-
-            ldapStsConfig.put("ldapUrl", ldapUrl + config.hostName() + ":" + config.port());
-            ldapStsConfig.put("startTls", Boolean.toString(startTls));
-            ldapStsConfig.put("ldapBindUserDn", config.bindUserDn());
-            ldapStsConfig.put("ldapBindUserPass", config.bindUserPassword());
-            ldapStsConfig.put("bindMethod", config.bindUserMethod());
-            ldapStsConfig.put("kdcAddress", config.bindKdcAddress());
-            ldapStsConfig.put("realm", config.bindRealm());
-
-            ldapStsConfig.put("userNameAttribute", config.userNameAttribute());
-            ldapStsConfig.put("userBaseDn", config.baseUserDn());
-            ldapStsConfig.put("groupBaseDn", config.baseGroupDn());
-
-            configurator.startFeature("security-sts-ldaplogin");
-            configurator.createManagedService("Ldap_Login_Config", ldapStsConfig);
+            Map<String, Object> ldapLoginServiceProps = ldapConfigurationToLdapLoginService(config);
+            configurator.startFeature(LDAP_LOGIN_FEATURE);
+            configurator.createManagedService(LDAP_LOGIN_MANAGED_SERVICE_FACTORY_PID, ldapLoginServiceProps);
         }
 
-        if (config.ldapUseCase()
-                .equals(CREDENTIAL_STORE) || config.ldapUseCase()
-                .equals(LOGIN_AND_CREDENTIAL_STORE)) {
+        if (config.ldapUseCase().equals(CREDENTIAL_STORE) || config.ldapUseCase().equals(LOGIN_AND_CREDENTIAL_STORE)) {
             Report validationReport = new Report(config.validate(
                     ALL_REQUIRED_FIELDS));
             if(validationReport.containsFailureMessages()) {
                 return validationReport;
             }
 
-            Map<String, Object> ldapClaimsHandlerConfig = new HashMap<>();
-            String ldapUrl = getLdapUrl(config);
-            boolean startTls = isStartTls(config);
-
-            ldapClaimsHandlerConfig.put("url",
-                    ldapUrl + config.hostName() + ":" + config.port());
-            ldapClaimsHandlerConfig.put("startTls", startTls);
-            ldapClaimsHandlerConfig.put("ldapBindUserDn", config.bindUserDn());
-            ldapClaimsHandlerConfig.put("password", config.bindUserPassword());
-            ldapClaimsHandlerConfig.put("bindMethod", config.bindUserMethod());
-            ldapClaimsHandlerConfig.put("loginUserAttribute", config.userNameAttribute());
-            ldapClaimsHandlerConfig.put("userBaseDn", config.baseUserDn());
-            ldapClaimsHandlerConfig.put("groupBaseDn", config.baseGroupDn());
-            ldapClaimsHandlerConfig.put("objectClass", config.groupObjectClass());
-            ldapClaimsHandlerConfig.put("membershipUserAttribute", config.membershipAttribute());
-
-            // TODO: tbatie - 1/15/17 - memberNameAttribute is not implemented in UI
-            ldapClaimsHandlerConfig.put("memberNameAttribute", config.membershipAttribute());
             Path newAttributeMappingPath = Paths.get(System.getProperty("ddf.home"),
                     "etc",
                     "ws-security",
                     "ldapAttributeMap-" + UUID.randomUUID()
                             .toString() + ".props");
+            config.attributeMappingsPath(newAttributeMappingPath.toString());
+
+            Map<String, Object> ldapClaimsServiceProps = ldapConfigToLdapClaimsHandlerService(config);
             configurator.createPropertyFile(newAttributeMappingPath, config.attributeMappings());
-            ldapClaimsHandlerConfig.put("propertyFileLocation", newAttributeMappingPath.toString());
-            configurator.startFeature("security-sts-ldapclaimshandler");
-            configurator.createManagedService("Claims_Handler_Manager",
-                    ldapClaimsHandlerConfig);
+            configurator.startFeature(LDAP_CLAIMS_HANDLER_FEATURE);
+            configurator.createManagedService(LDAP_CLAIMS_HANDLER_MANAGED_SERVICE_FACTORY_PID, ldapClaimsServiceProps);
         }
 
         report = configurator.commit();
-        if (!report.getFailedResults()
-                .isEmpty()) {
-            return new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)));
-        } else {
-            return new Report(buildMessage(SUCCESS, SUCCESSFUL_PERSIST,
-                SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
-        }
-    }
-
-    private boolean isStartTls(LdapConfiguration config) {
-        return config.encryptionMethod()
-                .equalsIgnoreCase(TLS);
-    }
-
-    private String getLdapUrl(LdapConfiguration config) {
-        return config.encryptionMethod()
-                .equalsIgnoreCase(LDAPS) ? "ldaps://" : "ldap://";
+        return createReport(SUCCESS_TYPES,
+                FAILURE_TYPES,
+                null,
+                report.containsFailedResults() ? FAILED_PERSIST : SUCCESSFUL_PERSIST);
     }
 }

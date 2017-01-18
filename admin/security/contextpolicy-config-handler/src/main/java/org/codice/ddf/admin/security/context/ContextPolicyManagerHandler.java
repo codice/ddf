@@ -14,17 +14,13 @@
 
 package org.codice.ddf.admin.security.context;
 
-import java.util.ArrayList;
+import static org.codice.ddf.admin.api.config.services.PolicyManagerServiceProperties.contextPolicyServiceToContextPolicyConfig;
+
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.context.ContextPolicyBin;
 import org.codice.ddf.admin.api.config.context.ContextPolicyConfiguration;
-import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
@@ -32,9 +28,6 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.security.context.persist.EditContextPolicyMethod;
 import org.codice.ddf.admin.security.context.probe.AvailableOptionsProbeMethod;
-import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.codice.ddf.security.policy.context.ContextPolicyManager;
-import org.codice.ddf.security.policy.context.impl.PolicyManager;
 
 public class ContextPolicyManagerHandler extends DefaultConfigurationHandler<ContextPolicyConfiguration> {
 
@@ -63,64 +56,8 @@ public class ContextPolicyManagerHandler extends DefaultConfigurationHandler<Con
 
     @Override
     public List<ContextPolicyConfiguration> getConfigurations() {
-        ContextPolicyManager ref = new Configurator().getServiceReference(ContextPolicyManager.class);
-        if(ref == null) {
-            return new ArrayList<>();
-        }
-
-        PolicyManager policyManager = ((PolicyManager) ref);
-        return Arrays.asList(new ContextPolicyConfiguration().contextPolicyBins(
-                policyManagerSettingsToBins(policyManager))
-                .whiteListContexts(policyManager.getWhiteListContexts()));
+        return Arrays.asList(contextPolicyServiceToContextPolicyConfig());
     }
-
-    // TODO: tbatie - 1/17/17 - Get rid of this PolicyManager reference and break this dependency, then move to PolicyManagerServiceProperties class
-    public List<ContextPolicyBin> policyManagerSettingsToBins(PolicyManager policyManager) {
-        List<ContextPolicyBin> bins = new ArrayList<>();
-
-        Collection<ContextPolicy> allPolicies = policyManager.getAllContextPolicies();
-        for (ContextPolicy policy : allPolicies) {
-            boolean foundBin = false;
-            Map<String, String> policyRequiredAttributes = policy.getAllowedAttributes()
-                    .stream()
-                    .collect(Collectors.toMap(map -> map.getAttributeName(),
-                            map -> map.getAttributeValue()));
-
-            for (ContextPolicyBin bin : bins) {
-                if (bin.realm()
-                        .equals(policy.getRealm()) && bin.authenticationTypes()
-                        .equals(policy.getAuthenticationMethods()) && hasSameRequiredAttributes(bin, policyRequiredAttributes)) {
-                    bin.contextPaths(policy.getContextPath());
-                    foundBin = true;
-                }
-            }
-
-            if (!foundBin) {
-                bins.add(new ContextPolicyBin().realm(policy.getRealm())
-                        .requiredAttributes(policyRequiredAttributes)
-                        .authenticationTypes(new ArrayList<>(policy.getAuthenticationMethods()))
-                        .contextPaths(policy.getContextPath()));
-            }
-        }
-
-        return bins;
-    }
-
-    public boolean hasSameRequiredAttributes(ContextPolicyBin bin, Map<String, String> mappingsToCheck) {
-        if (!(bin.requiredAttributes().keySet()
-                .containsAll(mappingsToCheck.keySet()) && mappingsToCheck.keySet()
-                .containsAll(bin.requiredAttributes().keySet()))) {
-            return false;
-        }
-
-        return !bin.requiredAttributes().entrySet()
-                .stream()
-                .filter(binMapping -> !mappingsToCheck.get(binMapping.getKey())
-                        .equals(binMapping.getValue()))
-                .findFirst()
-                .isPresent();
-    }
-
 
     @Override
     public ConfigurationType getConfigurationType() {

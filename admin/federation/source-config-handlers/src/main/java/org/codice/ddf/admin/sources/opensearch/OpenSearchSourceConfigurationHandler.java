@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
+import org.codice.ddf.admin.api.config.services.OpensearchServiceProperties;
 import org.codice.ddf.admin.api.config.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
@@ -80,7 +81,7 @@ public class OpenSearchSourceConfigurationHandler extends DefaultConfigurationHa
         return configurator.getManagedServiceConfigs(OPENSEARCH_FACTORY_PID)
                 .values()
                 .stream()
-                .map(serviceProps -> servicePropsToOpenSearchConfig(serviceProps))
+                .map(OpensearchServiceProperties::servicePropsToOpenSearchConfig)
                 .collect(Collectors.toList());
     }
 

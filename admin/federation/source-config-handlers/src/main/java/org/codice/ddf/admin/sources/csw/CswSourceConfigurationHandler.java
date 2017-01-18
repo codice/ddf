@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
+import org.codice.ddf.admin.api.config.services.CswServiceProperties;
 import org.codice.ddf.admin.api.config.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
@@ -81,7 +82,7 @@ public class CswSourceConfigurationHandler extends DefaultConfigurationHandler<S
                 .flatMap(factoryPid -> configurator.getManagedServiceConfigs(factoryPid)
                         .values()
                         .stream())
-                .map(serviceProps -> servicePropsToCswConfig(serviceProps))
+                .map(CswServiceProperties::servicePropsToCswConfig)
                 .collect(Collectors.toList());
     }
 

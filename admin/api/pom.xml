@@ -27,7 +27,15 @@
 
     <name>DDF :: Admin (Beta) :: API</name>
     <dependencies>
-        <!--TODO fix dependency numbers and inheritance-->
+
+        <!--todo this dependency needs to be removed-->
+        <dependency>
+            <groupId>ddf.security.policy</groupId>
+            <artifactId>security-policy-context</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!---->
+
         <dependency>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-api</artifactId>

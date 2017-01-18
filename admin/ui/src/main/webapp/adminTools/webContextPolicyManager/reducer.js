@@ -17,6 +17,7 @@ const bins = (state = List(), { type, bin, bins, whitelistContexts, path, binNum
 
     // Bin Level
     case 'WCPM/ADD_BIN':
+      debugger;
       return state.push(fromJS(emptyBin))
     case 'WCPM/CONFIRM_REMOVE_BIN':
       return state.delete(binNumber)
