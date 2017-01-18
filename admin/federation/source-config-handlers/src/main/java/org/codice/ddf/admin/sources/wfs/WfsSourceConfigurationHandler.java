@@ -14,17 +14,16 @@
 
 package org.codice.ddf.admin.sources.wfs;
 
-import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS1_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS2_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration.WFS_SOURCE_DISPLAY_NAME;
+import static org.codice.ddf.admin.api.config.services.WfsServiceProperties.WFS_FACTORY_PIDS;
+import static org.codice.ddf.admin.api.config.services.WfsServiceProperties.servicePropsToWfsConfig;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
-import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.WfsSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
@@ -42,9 +41,7 @@ public class WfsSourceConfigurationHandler extends DefaultConfigurationHandler<S
         implements SourceConfigurationHandler<SourceConfiguration> {
 
     public static final String WFS_SOURCE_CONFIGURATION_HANDLER_ID = WfsSourceConfiguration.CONFIGURATION_TYPE;
-
-    private static final List<String> WFS_FACTORY_PIDS = Arrays.asList(WFS1_FACTORY_PID,
-            WFS2_FACTORY_PID);
+    public static final String WFS_SOURCE_DISPLAY_NAME = "WFS Source";
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
@@ -85,7 +82,7 @@ public class WfsSourceConfigurationHandler extends DefaultConfigurationHandler<S
                 .flatMap(factoryPid -> configurator.getManagedServiceConfigs(factoryPid)
                         .values()
                         .stream())
-                .map(serviceProps -> new WfsSourceConfiguration(serviceProps))
+                .map(serviceProps -> servicePropsToWfsConfig(serviceProps))
                 .collect(Collectors.toList());
     }
 

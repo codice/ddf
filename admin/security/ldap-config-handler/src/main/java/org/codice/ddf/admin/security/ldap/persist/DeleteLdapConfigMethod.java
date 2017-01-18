@@ -14,17 +14,18 @@
 
 package org.codice.ddf.admin.security.ldap.persist;
 
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.SERVICE_PID;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.SERVICE_PID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.DELETE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
@@ -35,7 +36,7 @@ import com.google.common.collect.ImmutableMap;
 
 public class DeleteLdapConfigMethod extends PersistMethod<LdapConfiguration> {
 
-    public static final String DELETE_CONFIG_ID = "delete";
+    public static final String DELETE_CONFIG_ID = DELETE;
     public static final String DESCRIPTION = "Deletes the specified LDAP configuration.";
 
     public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SERVICE_PID);

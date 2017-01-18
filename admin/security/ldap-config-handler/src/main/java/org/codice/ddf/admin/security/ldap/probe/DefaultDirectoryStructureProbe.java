@@ -13,22 +13,22 @@
  */
 package org.codice.ddf.admin.security.ldap.probe;
 
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BASE_GROUP_DN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BASE_USER_DN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_KDC;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_METHOD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_REALM;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_DN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_PASSWORD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.GROUP_OBJECT_CLASS;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.HOST_NAME;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_TYPE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.MEMBERSHIP_ATTRIBUTE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.QUERY;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.QUERY_BASE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BASE_GROUP_DN;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BASE_USER_DN;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_KDC;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_METHOD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_REALM;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_USER_DN;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_USER_PASSWORD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.ENCRYPTION_METHOD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.GROUP_OBJECT_CLASS;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.HOST_NAME;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_TYPE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.MEMBERSHIP_ATTRIBUTE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.QUERY;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.QUERY_BASE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
@@ -83,9 +83,7 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
         ProbeReport probeReport = new ProbeReport(new ArrayList<>());
-        List<ConfigurationMessage> checkMessages =
-                // TODO: Use validate method of configuration not this
-                configuration.validate(REQUIRED_FIELDS);
+        List<ConfigurationMessage> checkMessages = configuration.validate(REQUIRED_FIELDS);
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

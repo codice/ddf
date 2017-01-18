@@ -14,31 +14,32 @@
 
 package org.codice.ddf.admin.security.ldap.persist;
 
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ATTRIBUTE_MAPPINGS;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BASE_GROUP_DN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BASE_USER_DN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_KDC;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_METHOD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_REALM;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_DN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_PASSWORD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.GROUP_OBJECT_CLASS;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.HOST_NAME;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAPS;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_USE_CASE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.MEMBERSHIP_ATTRIBUTE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.ATTRIBUTE_MAPPINGS;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BASE_GROUP_DN;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BASE_USER_DN;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_KDC;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_METHOD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_REALM;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_USER_DN;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_USER_PASSWORD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.ENCRYPTION_METHOD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.GROUP_OBJECT_CLASS;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.HOST_NAME;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_USE_CASE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.MEMBERSHIP_ATTRIBUTE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LDAPS;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.TLS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.CREATE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
@@ -58,7 +59,7 @@ import com.google.common.collect.ImmutableMap;
 
 public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
 
-    public static final String LDAP_CREATE_ID = "create";
+    public static final String LDAP_CREATE_ID = CREATE;
     public static final String DESCRIPTION = "Persists the ldap configuration depending on the ldap use case.";
 
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "Successfully saved LDAP settings.");
@@ -107,7 +108,7 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
             // TODO: tbatie - 1/15/17 - Validate optional fields
 
             Map<String, Object> ldapStsConfig = new HashMap<>();
-
+            // TODO: tbatie - 1/17/17 - Move this to Ldap Service Properties
             String ldapUrl = getLdapUrl(config);
             boolean startTls = isStartTls(config);
 
@@ -182,7 +183,6 @@ public class CreateLdapConfigMethod extends PersistMethod<LdapConfiguration>{
     }
 
     private String getLdapUrl(LdapConfiguration config) {
-        // TODO: tbatie - 1/16/17 - need to straighten out ignore case with front end and front end
         return config.encryptionMethod()
                 .equalsIgnoreCase(LDAPS) ? "ldaps://" : "ldap://";
     }

@@ -54,7 +54,7 @@ const discoverSources = (url, opts, dispatch, id, nextStageId, body) => {
       if (status === 400) {
         dispatch(setMessages(id, json.messages))
       } else if (status === 200) {
-        dispatch(setSourceSelections(json.probeResults.discoverSources))
+        dispatch(setSourceSelections(json.probeResults.discoveredSources))
         dispatch(clearMessages(id))
         dispatch(fetchConfigTypes(nextStageId))
       } else if (status === 500) {
@@ -106,7 +106,7 @@ export const fetchConfigTypes = (nextStageId) => (dispatch, getState) => {
 //      TODO dispatch error messages
 //        dispatch(setConfigErrors(json.results))
       } else if (status === 200) {
-        dispatch(setConfigTypes(json.probeResults.sourceConfigurationHandlers))
+        dispatch(setConfigTypes(json.probeResults.sourceConfigHandlers))
         if (nextStageId) {
           dispatch(changeStage(nextStageId))
         }

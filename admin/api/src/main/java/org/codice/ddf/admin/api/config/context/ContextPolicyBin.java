@@ -12,13 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.api.config.security.context;
+package org.codice.ddf.admin.api.config.context;
 
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateContextPaths;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateMapping;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateNonEmptyString;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
+import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.validateAuthTypes;
+import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.validateRealm;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateContextPaths;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateMapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,72 +30,32 @@ import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class ContextPolicyBin {
-
-    // TODO: tbatie - 1/14/17 - Make sure all fields here match docs
-    public static final String KARAF = "karaf";
-    public static final String LDAP = "ldap";
-    public static final String IDP = "IdP";
-    public static final List<String> ALL_REALMS = ImmutableList.of(KARAF, LDAP, IDP);
-
-    public static final String SAML = "SAML";
-    public static final String BASIC = "basic";
-    public static final String PKI = "PKI";
-    public static final String CAS = "CAS";
-    public static final String GUEST = "GUEST";
-    public static final List<String> ALL_AUTH_TYPES = ImmutableList.of(SAML, BASIC, PKI, CAS, GUEST);
 
     public static final String REALM = "realm";
     public static final String CONTEXT_PATHS = "contextPaths";
     public static final String AUTH_TYPES = "authenticationTypes";
     public static final String REQ_ATTRIS = "requiredAttributes";
-    public static final List<String> ALL_FIELDS = ImmutableList.of(REALM, CONTEXT_PATHS, AUTH_TYPES, REQ_ATTRIS);
 
-    // TODO: tbatie - 1/16/17 - create optional fields for req_attros
+    private String realm;
+    private Set<String> contextPaths;
+    private List<String> authenticationTypes;
+    private Map<String, String> requiredAttributes;
+
     private static final Map<String, Function<ContextPolicyBin, List<ConfigurationMessage>>> FIELD_TO_VALIDATION_FUNC = new ImmutableMap.Builder<String, Function<ContextPolicyBin, List<ConfigurationMessage>>>()
             .put(REALM, config -> validateRealm(config.realm(), REALM))
             .put(CONTEXT_PATHS, config -> validateContextPaths(new ArrayList<>(config.contextPaths()), CONTEXT_PATHS))
             .put(AUTH_TYPES, config -> validateAuthTypes(config.authenticationTypes(), AUTH_TYPES))
             .put(REQ_ATTRIS, config -> validateMapping(config.requiredAttributes(), REQ_ATTRIS))
             .build();
-    private String realm;
-    private Set<String> contextPaths;
-    private List<String> authenticationTypes;
-    private Map<String, String> requiredAttributes;
 
     public ContextPolicyBin() {
         authenticationTypes = new ArrayList<>();
         requiredAttributes = new HashMap<>();
         contextPaths = new HashSet<>();
     }
-
-    public static final List<ConfigurationMessage> validateRealm(String realm, String configId) {
-        List<ConfigurationMessage> errors = validateNonEmptyString(realm, configId);
-        if (errors.isEmpty() && !ALL_REALMS.contains(realm)) {
-            errors.add(createInvalidFieldMsg("Unknown realm: " + realm + ". Realm must be one of " + ALL_REALMS.stream().collect(Collectors.joining(",")), configId));
-        }
-
-        return errors;
-    }
-
-    public static final List<ConfigurationMessage> validateAuthTypes(List<String> authTypes, String configId) {
-        List<ConfigurationMessage> errors = new ArrayList<>();
-        if (authTypes == null || authTypes.isEmpty()) {
-            errors.add(createMissingRequiredFieldMsg(configId));
-        } else {
-            for (String authType : authTypes) {
-                if (!ALL_AUTH_TYPES.contains(authType)) {
-                    errors.add(createInvalidFieldMsg("Unknown authentication type: " + authType + ". Authentication type must be one of: " + ALL_AUTH_TYPES.stream().collect(Collectors.joining(",")), configId));
-                }
-            }
-        }
-
-        return errors;
-    }
-
 
     public List<ConfigurationMessage> validate(List<String> fields) {
         return fields.stream()
@@ -105,21 +64,6 @@ public class ContextPolicyBin {
                 .collect(Collectors.toList());
     }
 
-
-    public boolean hasSameRequiredAttributes(Map<String, String> mappingsToCheck) {
-        if (!(requiredAttributes.keySet()
-                .containsAll(mappingsToCheck.keySet()) && mappingsToCheck.keySet()
-                .containsAll(requiredAttributes.keySet()))) {
-            return false;
-        }
-
-        return !requiredAttributes.entrySet()
-                .stream()
-                .filter(binMapping -> !mappingsToCheck.get(binMapping.getKey())
-                        .equals(binMapping.getValue()))
-                .findFirst()
-                .isPresent();
-    }
     //Getters
     public Set<String> contextPaths() {
         return contextPaths;

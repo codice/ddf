@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.api.config.security.ldap;
+package org.codice.ddf.admin.api.config.ldap;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
 
@@ -21,6 +21,12 @@ public class EmbeddedLdapConfiguration extends LdapConfiguration {
     public static final String CONFIGURATION_TYPE = "embedded-ldap";
 
     //These fields are left here in case one day we do want to offer configuring of embedded ldap
+    public static final String EMBEDDED_LDAP_PORT = "embeddedLdapPort";
+    public static final String EMBEDDED_LDAPS_PORT = "embeddedLdapsPort";
+    public static final String EMBEDDED_LDAP_ADMIN_PORT = "embeddedLdapAdminPort";
+    public static final String LDIF_PATH = "ldifPath";
+    public static final String EMBEDDED_LDAP_STORAGE_LOC = "embeddedLdapStorageLocation";
+
     private int embeddedLdapPort;
     private int embeddedLdapsPort;
     private int embeddedLdapAdminPort;

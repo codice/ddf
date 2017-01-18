@@ -13,21 +13,25 @@
  */
 package org.codice.ddf.admin.sources.csw.probe;
 
-import static org.codice.ddf.admin.api.commons.SourceUtils.DISCOVER_SOURCES_ID;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.HOSTNAME;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PORT;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SOURCE_HOSTNAME;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.INTERNAL_ERROR;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.BAD_CONFIG;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CERT_ERROR;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.DISCOVER_SOURCES_ID;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.ENDPOINT_DISCOVERED;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.NO_ENDPOINT;
 import static org.codice.ddf.admin.sources.csw.CswSourceConfigurationHandler.CSW_SOURCE_CONFIGURATION_HANDLER_ID;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
@@ -39,27 +43,14 @@ import com.google.common.collect.ImmutableMap;
 public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfiguration> {
 
     public static final String CSW_DISCOVER_SOURCES_ID = DISCOVER_SOURCES_ID;
-    public static final String DESCRIPTION =
-            "Attempts to discover a CSW endpoint based on a hostname and port using optional authentication information.";
-
-    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(HOSTNAME, PORT);
-
+    public static final String DESCRIPTION = "Attempts to discover a CSW endpoint based on a hostname and port using optional authentication information.";
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_HOSTNAME, PORT);
     public static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
-
-    private static final String ENDPOINT_DISCOVERED = "endpoint-discovered";
-    private static final String CERT_ERROR = "cert-error";
-    private static final String NO_ENDPOINT = "no-endpoint";
-    private static final String BAD_CONFIG = "bad-config";
-
-    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED,
-            "Discovered CSW endpoint.");
-
-    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CERT_ERROR,
-            "The discovered source has incorrectly configured SSL certificates and is insecure.",
-            NO_ENDPOINT,
-            "No CSW endpoint found.",
-            BAD_CONFIG,
-            "Endpoint discovered, but could not create valid configuration.",
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED, "Discovered CSW endpoint.");
+    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(
+            CERT_ERROR, "The discovered source has incorrectly configured SSL certificates and is insecure.",
+            NO_ENDPOINT, "No CSW endpoint found.",
+            BAD_CONFIG, "Endpoint discovered, but could not create valid configuration.",
             INTERNAL_ERROR, "Failed to create configuration from valid request to valid endpoint.");
 
     public DiscoverCswSourceProbeMethod() {

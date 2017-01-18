@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.security.ldap.EmbeddedLdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.EmbeddedLdapConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;

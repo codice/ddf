@@ -13,18 +13,18 @@
  */
 package org.codice.ddf.admin.sources.wfs.persist;
 
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SERVICE_PID;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SERVICE_PID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.DELETE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.DELETE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.WfsSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -38,16 +38,10 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
 
     public static final String DELETE_WFS_SOURCE_ID = DELETE;
 
-    public static final String DESCRIPTION =
-            "Attempts to delete a WFS Source with the given configuration.";
-
+    public static final String DESCRIPTION = "Attempts to delete a WFS Source with the given configuration.";
     private static final List<String> REQUIRED_FIELDS = ImmutableList.of(SERVICE_PID);
-
-    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
-            "The CSW Source was successfully deleted.");
-
-    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST,
-            "Failed to delete CSW source.");
+    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "The CSW Source was successfully deleted.");
+    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Failed to delete CSW source.");
 
     public DeleteWfsSourcePersistMethod() {
         super(DELETE_WFS_SOURCE_ID,
@@ -63,10 +57,11 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
     public Report persist(WfsSourceConfiguration configuration) {
         List<ConfigurationMessage> results =
                 configuration.validate(REQUIRED_FIELDS);
+        Configurator configurator = new Configurator();
+
         if (!results.isEmpty()) {
             return new Report(results);
         }
-        Configurator configurator = new Configurator();
         OperationReport report;
         // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
         configurator.deleteManagedService(configuration.servicePid());

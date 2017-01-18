@@ -13,19 +13,22 @@
  */
 package org.codice.ddf.admin.sources.opensearch.persist;
 
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
+import static org.codice.ddf.admin.api.config.services.OpensearchServiceProperties.openSearchConfigToServiceProps;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.ENDPOINT_URL;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SOURCE_NAME;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.CREATE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.FAILED_PERSIST;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -39,24 +42,11 @@ public class CreateOpenSearchSourcePersistMethod
         extends PersistMethod<OpenSearchSourceConfiguration> {
     public static final String CREATE_OPENSEARCH_SOURCE_ID = CREATE;
 
-    public static final String DESCRIPTION =
-            "Attempts to create and persist a OpenSearch source given a configuration.";
-
-    //Result types
-    private static final String SOURCE_CREATED = "source-created";
-
-    private static final String CREATION_FAILED = "creation-failed";
-
-    // Field -> Description maps
+    public static final String DESCRIPTION = "Attempts to create and persist a OpenSearch source given a configuration.";
     public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_NAME, ENDPOINT_URL);
-
     private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
-
-    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SOURCE_CREATED,
-            "OpenSearch Source successfully created.");
-
-    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CREATION_FAILED,
-            "Failed to create OpenSearch Source.");
+    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "OpenSearch Source successfully created.");
+    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Failed to create OpenSearch Source.");
 
     public CreateOpenSearchSourcePersistMethod() {
         super(CREATE_OPENSEARCH_SOURCE_ID,
@@ -76,12 +66,11 @@ public class CreateOpenSearchSourcePersistMethod
             return new Report(results);
         }
         Configurator configurator = new Configurator();
-        OperationReport report;
-        configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
-        report = configurator.commit();
+        configurator.createManagedService(configuration.factoryPid(), openSearchConfigToServiceProps(configuration));
+        OperationReport report = configurator.commit();
         return report.containsFailedResults() ?
-                new Report(buildMessage(FAILURE, CREATION_FAILED, FAILURE_TYPES.get(CREATION_FAILED))) :
-                new Report(buildMessage(SUCCESS, SOURCE_CREATED, SUCCESS_TYPES.get(SOURCE_CREATED)));
+                new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST))) :
+                new Report(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
     }
 
 }

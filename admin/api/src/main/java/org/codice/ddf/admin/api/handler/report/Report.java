@@ -14,10 +14,6 @@
 
 package org.codice.ddf.admin.api.handler.report;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,14 +59,14 @@ public class Report {
     // TODO: tbatie - 1/14/17 - Rename this to something different, this was a point in time when subtypes of config messages weren't implemented
     public boolean containsUnsuccessfulMessages() {
         return messages.stream()
-                .filter(msg -> msg.type() != SUCCESS)
+                .filter(msg -> msg.type() != ConfigurationMessage.MessageType.SUCCESS)
                 .findFirst()
                 .isPresent();
     }
 
     public boolean containsFailureMessages() {
         return messages.stream()
-                .filter(msg -> msg.type() == FAILURE)
+                .filter(msg -> msg.type() == ConfigurationMessage.MessageType.FAILURE)
                 .findFirst()
                 .isPresent();
     }
@@ -82,15 +78,15 @@ public class Report {
 
         for (String result : results) {
             if (successTypes != null && successTypes.containsKey(result)) {
-                testReport.messages(new ConfigurationMessage(SUCCESS,
+                testReport.messages(new ConfigurationMessage(ConfigurationMessage.MessageType.SUCCESS,
                         result,
                         successTypes.get(result)));
             } else if (warningTypes != null && warningTypes.containsKey(result)) {
-                testReport.messages(new ConfigurationMessage(WARNING,
+                testReport.messages(new ConfigurationMessage(ConfigurationMessage.MessageType.WARNING,
                         result,
                         warningTypes.get(result)));
             } else if (failureTypes != null && failureTypes.containsKey(result)) {
-                testReport.messages(new ConfigurationMessage(FAILURE,
+                testReport.messages(new ConfigurationMessage(ConfigurationMessage.MessageType.FAILURE,
                         result,
                         failureTypes.get(result)));
             }
@@ -107,15 +103,15 @@ public class Report {
             String resultName = result.getKey();
             String resultConfigId = result.getValue();
             if (successTypes != null && successTypes.containsKey(resultName)) {
-                testReport.messages(new ConfigurationMessage(SUCCESS,
+                testReport.messages(new ConfigurationMessage(ConfigurationMessage.MessageType.SUCCESS,
                         resultName,
                         successTypes.get(resultName)).configId(resultConfigId));
             } else if (warningTypes != null && warningTypes.containsKey(resultName)) {
-                testReport.messages(new ConfigurationMessage(WARNING,
+                testReport.messages(new ConfigurationMessage(ConfigurationMessage.MessageType.WARNING,
                         resultName,
                         warningTypes.get(resultName)).configId(resultConfigId));
             } else if (failureTypes != null && failureTypes.containsKey(resultName)) {
-                testReport.messages(new ConfigurationMessage(FAILURE,
+                testReport.messages(new ConfigurationMessage(ConfigurationMessage.MessageType.FAILURE,
                         resultName,
                         failureTypes.get(resultName)).configId(resultConfigId));
             }

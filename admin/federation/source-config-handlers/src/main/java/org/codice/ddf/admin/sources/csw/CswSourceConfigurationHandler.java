@@ -14,18 +14,16 @@
 
 package org.codice.ddf.admin.sources.csw;
 
-import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_GMD_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_PROFILE_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SOURCE_DISPLAY_NAME;
-import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SPEC_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.services.CswServiceProperties.CSW_FACTORY_PIDS;
+import static org.codice.ddf.admin.api.config.services.CswServiceProperties.servicePropsToCswConfig;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
-import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.CswSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
@@ -42,12 +40,8 @@ import org.codice.ddf.admin.sources.csw.test.CswUrlTestMethod;
 public class CswSourceConfigurationHandler extends DefaultConfigurationHandler<SourceConfiguration>
         implements SourceConfigurationHandler<SourceConfiguration> {
 
-    public static final String CSW_SOURCE_CONFIGURATION_HANDLER_ID =
-            CswSourceConfiguration.CONFIGURATION_TYPE;
-
-    private static final List<String> CSW_FACTORY_PIDS = Arrays.asList(CSW_PROFILE_FACTORY_PID,
-            CSW_GMD_FACTORY_PID,
-            CSW_SPEC_FACTORY_PID);
+    public static final String CSW_SOURCE_CONFIGURATION_HANDLER_ID = CswSourceConfiguration.CONFIGURATION_TYPE;
+    public static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
@@ -87,7 +81,7 @@ public class CswSourceConfigurationHandler extends DefaultConfigurationHandler<S
                 .flatMap(factoryPid -> configurator.getManagedServiceConfigs(factoryPid)
                         .values()
                         .stream())
-                .map(CswSourceConfiguration::new)
+                .map(serviceProps -> servicePropsToCswConfig(serviceProps))
                 .collect(Collectors.toList());
     }
 

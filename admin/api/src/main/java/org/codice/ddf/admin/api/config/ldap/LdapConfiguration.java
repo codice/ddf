@@ -12,107 +12,64 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.api.config.security.ldap;
+package org.codice.ddf.admin.api.config.ldap;
 
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateFactoryPid;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateHostName;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateMapping;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateNonEmptyString;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validatePort;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateServicePid;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateBindKdcAddress;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateBindRealm;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateBindUserMethod;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateDn;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateEncryptionMethod;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateGroupObjectClass;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateLdapQuery;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateLdapType;
-import static org.codice.ddf.admin.api.commons.ldap.LdapValidationUtils.validateLdapUseCase;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateBindKdcAddress;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateBindRealm;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateBindUserMethod;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateDn;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateEncryptionMethod;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateGroupObjectClass;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapQuery;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapType;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapUseCase;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateFactoryPid;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateHostName;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateMapping;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validatePort;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateServicePid;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateString;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.codice.ddf.admin.api.commons.ValidationUtils;
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;
+import org.codice.ddf.admin.api.config.validation.ValidationUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class LdapConfiguration extends Configuration {
 
     public static final String CONFIGURATION_TYPE = "ldap";
 
-    public static final String LDAPS = "ldaps";
-    public static final String TLS = "tls";
-    public static final String NONE = "none";
+    public static final String HOST_NAME = "hostName";
+    public static final String PORT = "port";
     public static final String ENCRYPTION_METHOD = "encryptionMethod";
-    public static final ImmutableList<String> LDAP_ENCRYPTION_METHODS = ImmutableList.of(LDAPS, TLS, NONE);
-    public static final String LOGIN = "login";
-    public static final String CREDENTIAL_STORE = "credentialStore";
-    public static final String LOGIN_AND_CREDENTIAL_STORE = "loginAndCredentialStore";
-    public static final ImmutableList LDAP_USE_CASES = ImmutableList.of(LOGIN, CREDENTIAL_STORE, LOGIN_AND_CREDENTIAL_STORE);
-    public static final String LDAP_TYPE = "ldapType";
     public static final String BIND_USER_DN = "bindUserDn";
     public static final String BIND_USER_PASSWORD = "bindUserPassword";
     public static final String BIND_METHOD = "bindMethod";
-    public static final String SIMPLE = "Simple";
-    public static final String SASL = "SASL";
-    public static final String GSSAPI_SASL = "GSSAPI SASL";
-    public static final String DIGEST_MD5_SASL = "Digest MD5 SASL";
-    public static final List<String> BIND_METHODS = ImmutableList.of(SIMPLE, SASL, GSSAPI_SASL, DIGEST_MD5_SASL);
-    public static final String BIND_REALM = "realm";
     public static final String BIND_KDC = "kdcAddress";
-    public static final String HOST_NAME = "hostName";
-    public static final String PORT = "port";
-    public static final String BASE_USER_DN = "baseUserDn";
-    public static final String BASE_GROUP_DN = "baseGroupDn";
+    public static final String BIND_REALM = "realm";
     public static final String USER_NAME_ATTRIBUTE = "userNameAttribute";
+    public static final String BASE_GROUP_DN = "baseGroupDn";
+    public static final String BASE_USER_DN = "baseUserDn";
     public static final String QUERY = "query";
     public static final String QUERY_BASE = "queryBase";
-    public static final String MEMBERSHIP_ATTRIBUTE = "membershipAttribute";
+    public static final String LDAP_TYPE = "ldapType";
     public static final String LDAP_USE_CASE = "ldapUseCase";
     public static final String GROUP_OBJECT_CLASS = "groupObjectClass";
+    public static final String MEMBERSHIP_ATTRIBUTE = "membershipAttribute";
     public static final String ATTRIBUTE_MAPPINGS = "attributeMappings";
-    public static final String QUERY_RESULTS = "queryResults";
-    public static final String SERVICE_PID = "servicePid";
-    public static final String FACTORY_PID = "factoryPid";
 
-
-    private static final Map<String, Function<LdapConfiguration, List<ConfigurationMessage>>> FIELD_TO_VALIDATION_FUNC = new ImmutableMap.Builder<String, Function<LdapConfiguration, List<ConfigurationMessage>>>()
-                    .put(SERVICE_PID, config -> validateServicePid(config.servicePid(), SERVICE_PID))
-                    .put(FACTORY_PID, config -> validateFactoryPid(config.factoryPid(), FACTORY_PID))
-                    .put(HOST_NAME, config -> validateHostName(config.hostName(), HOST_NAME))
-                    .put(PORT, config -> validatePort(config.port(), PORT))
-                    .put(ENCRYPTION_METHOD, config -> validateEncryptionMethod(config.encryptionMethod(), ENCRYPTION_METHOD))
-                    .put(BIND_USER_DN, config -> validateDn(config.bindUserDn(), BIND_USER_DN))
-                    .put(BIND_USER_PASSWORD, config -> validateNonEmptyString(config.bindUserPassword(), BIND_USER_PASSWORD))
-                    .put(BIND_METHOD, config -> validateBindUserMethod(config.bindUserMethod(), BIND_METHOD))
-                    .put(BIND_KDC, config -> validateBindKdcAddress(config.bindKdcAddress(), BIND_KDC))
-                    .put(BIND_REALM, config -> validateBindRealm(config.bindRealm(), BIND_REALM))
-                    .put(USER_NAME_ATTRIBUTE, config -> validateNonEmptyString(config.userNameAttribute(), USER_NAME_ATTRIBUTE))
-                    .put(BASE_GROUP_DN, config -> validateDn(config.baseGroupDn(), BASE_GROUP_DN))
-                    .put(BASE_USER_DN, config -> validateDn(config.baseUserDn(), BASE_USER_DN))
-                    .put(QUERY, config -> validateLdapQuery(config.query(), QUERY))
-                    .put(QUERY_BASE, config -> validateDn(config.queryBase(), QUERY_BASE))
-                    .put(LDAP_TYPE, config -> validateLdapType(config.ldapType(), LDAP_TYPE))
-                    .put(LDAP_USE_CASE, config -> validateLdapUseCase(config.ldapUseCase(), LDAP_USE_CASE))
-                    .put(GROUP_OBJECT_CLASS, config -> validateGroupObjectClass(config.groupObjectClass(), GROUP_OBJECT_CLASS))
-                    .put(MEMBERSHIP_ATTRIBUTE, config -> validateNonEmptyString(config.membershipAttribute(), MEMBERSHIP_ATTRIBUTE))
-                    .put(ATTRIBUTE_MAPPINGS, config -> validateMapping(config.attributeMappings(), ATTRIBUTE_MAPPINGS))
-                    .build();
-
-    private String servicePid;
-    private String factoryPid;
     private String hostName;
     private int port;
     private String encryptionMethod;
+    private String bindUserMethod;
     private String bindUserDn;
     private String bindUserPassword;
-    private String bindUserMethod;
     private String bindKdcAddress;
     private String bindRealm;
     private String userNameAttribute;
@@ -127,13 +84,30 @@ public class LdapConfiguration extends Configuration {
     public Map<String, String> attributeMappings;
     private List<Map<String, String>> queryResults;
 
+    private static final Map<String, Function<LdapConfiguration, List<ConfigurationMessage>>> FIELD_TO_VALIDATION_FUNC = new ImmutableMap.Builder<String, Function<LdapConfiguration, List<ConfigurationMessage>>>()
+                    .put(SERVICE_PID, config -> validateServicePid(config.servicePid(), SERVICE_PID))
+                    .put(FACTORY_PID, config -> validateFactoryPid(config.factoryPid(), FACTORY_PID))
+                    .put(HOST_NAME, config -> validateHostName(config.hostName(), HOST_NAME))
+                    .put(PORT, config -> validatePort(config.port(), PORT))
+                    .put(ENCRYPTION_METHOD, config -> validateEncryptionMethod(config.encryptionMethod(), ENCRYPTION_METHOD))
+                    .put(BIND_USER_DN, config -> validateDn(config.bindUserDn(), BIND_USER_DN))
+                    .put(BIND_USER_PASSWORD, config -> validateString(config.bindUserPassword(), BIND_USER_PASSWORD))
+                    .put(BIND_METHOD, config -> validateBindUserMethod(config.bindUserMethod(), BIND_METHOD))
+                    .put(BIND_KDC, config -> validateBindKdcAddress(config.bindKdcAddress(), BIND_KDC))
+                    .put(BIND_REALM, config -> validateBindRealm(config.bindRealm(), BIND_REALM))
+                    .put(USER_NAME_ATTRIBUTE, config -> validateString(config.userNameAttribute(), USER_NAME_ATTRIBUTE))
+                    .put(BASE_GROUP_DN, config -> validateDn(config.baseGroupDn(), BASE_GROUP_DN))
+                    .put(BASE_USER_DN, config -> validateDn(config.baseUserDn(), BASE_USER_DN))
+                    .put(QUERY, config -> validateLdapQuery(config.query(), QUERY))
+                    .put(QUERY_BASE, config -> validateDn(config.queryBase(), QUERY_BASE))
+                    .put(LDAP_TYPE, config -> validateLdapType(config.ldapType(), LDAP_TYPE))
+                    .put(LDAP_USE_CASE, config -> validateLdapUseCase(config.ldapUseCase(), LDAP_USE_CASE))
+                    .put(GROUP_OBJECT_CLASS, config -> validateGroupObjectClass(config.groupObjectClass(), GROUP_OBJECT_CLASS))
+                    .put(MEMBERSHIP_ATTRIBUTE, config -> validateString(config.membershipAttribute(), MEMBERSHIP_ATTRIBUTE))
+                    .put(ATTRIBUTE_MAPPINGS, config -> validateMapping(config.attributeMappings(), ATTRIBUTE_MAPPINGS))
+                    .build();
+
     //Getters
-    public String factoryPid() {
-        return factoryPid;
-    }
-    public String servicePid() {
-        return servicePid;
-    }
     public String hostName() {
         return hostName;
     }
@@ -181,14 +155,6 @@ public class LdapConfiguration extends Configuration {
     }
     public List<Map<String, String>> queryResults() {
         return queryResults;
-    }
-    public LdapConfiguration servicePid(String servicePid) {
-        this.servicePid = servicePid;
-        return this;
-    }
-    public LdapConfiguration factoryPid(String factoryPid) {
-        this.factoryPid = factoryPid;
-        return this;
     }
     public String groupObjectClass() {
         return groupObjectClass;

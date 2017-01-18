@@ -13,18 +13,18 @@
  */
 package org.codice.ddf.admin.sources.opensearch.persist;
 
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SERVICE_PID;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SERVICE_PID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.DELETE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.DELETE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -34,20 +34,13 @@ import org.codice.ddf.admin.api.handler.report.Report;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-public class DeleteOpenSearchSourcePersistMethod
-        extends PersistMethod<OpenSearchSourceConfiguration> {
+public class DeleteOpenSearchSourcePersistMethod extends PersistMethod<OpenSearchSourceConfiguration> {
+
     public static final String DELETE_OPENSEARCH_SOURCE_ID = DELETE;
-
-    public static final String DESCRIPTION =
-            "Attempts to delete an OpenSearch source with the given configuration.";
-
+    public static final String DESCRIPTION = "Attempts to delete an OpenSearch source with the given configuration.";
     private static final List<String> REQUIRED_FIELDS = ImmutableList.of(SERVICE_PID);
-
-    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
-            "The CSW Source was successfully deleted.");
-
-    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST,
-            "Failed to delete CSW source.");
+    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "The CSW Source was successfully deleted.");
+    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Failed to delete CSW source.");
 
     public DeleteOpenSearchSourcePersistMethod() {
         super(DELETE_OPENSEARCH_SOURCE_ID,
@@ -61,16 +54,14 @@ public class DeleteOpenSearchSourcePersistMethod
 
     @Override
     public Report persist(OpenSearchSourceConfiguration configuration) {
-        List<ConfigurationMessage> results =
-                configuration.validate(REQUIRED_FIELDS);
+        Configurator configurator = new Configurator();
+        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
             return new Report(results);
         }
-        Configurator configurator = new Configurator();
-        OperationReport report;
         // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
         configurator.deleteManagedService(configuration.servicePid());
-        report = configurator.commit();
+        OperationReport report = configurator.commit();
         return report.containsFailedResults() ? new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)))
             : new Report(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
     }

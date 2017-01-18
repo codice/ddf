@@ -14,12 +14,12 @@
 
 package org.codice.ddf.admin.security.ldap.test;
 
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.DIGEST_MD5_SASL;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.GSSAPI_SASL;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAPS;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.SASL;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.SIMPLE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.DIGEST_MD5_SASL;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.GSSAPI_SASL;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LDAPS;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.SASL;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.SIMPLE;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.TLS;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
@@ -32,7 +32,7 @@ import java.util.List;
 
 import javax.net.ssl.SSLContext;
 
-import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.security.ldap.LdapConnectionResult;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;

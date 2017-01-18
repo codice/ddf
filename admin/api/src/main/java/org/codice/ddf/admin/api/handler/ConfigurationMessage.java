@@ -29,9 +29,6 @@ public class ConfigurationMessage {
     public static final String FAILED_PERSIST = "FAILED_PERSIST";
     public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
 
-    // Default success messages subtypes
-    public static final String SUCCESSFUL_PERSIST = "SUCCESSFUL_PERSIST";
-
     private MessageType type;
     private String subType;
     private String message;

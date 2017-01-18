@@ -13,10 +13,6 @@
  */
 package org.codice.ddf.admin.api.handler;
 
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.NO_METHOD_FOUND;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -87,14 +83,14 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
     }
 
     public Report getNoTestFoundReport(String badId){
-        return new Report(buildMessage(FAILURE,
-                NO_METHOD_FOUND,
+        return new Report(ConfigurationMessage.buildMessage(ConfigurationMessage.MessageType.FAILURE,
+                ConfigurationMessage.NO_METHOD_FOUND,
                 "Unknown method id: " + (badId == null ? "null" : badId)));
     }
 
     public ProbeReport getNoProbeFoundReport(String badId){
-        return new ProbeReport(buildMessage(FAILURE, NO_METHOD_FOUND,
-                "Unknown probe id: " + (badId == null ? "null" : badId)));
+        return new ProbeReport(ConfigurationMessage.buildMessage(ConfigurationMessage.MessageType.FAILURE, ConfigurationMessage.NO_METHOD_FOUND,
+                "Unknown probe id \"" + (badId == null ? "null" : badId) + "\"."));
     }
 
     @Override

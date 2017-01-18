@@ -13,13 +13,15 @@
  */
 package org.codice.ddf.admin.sources.impl.test;
 
-import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
-import static org.codice.ddf.admin.api.commons.SourceUtils.VALID_URL_TEST_ID;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.HOSTNAME;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SOURCE_HOSTNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CANNOT_CONNECT;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.PING_TIMEOUT;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.VALID_URL_TEST_ID;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.VERIFIED_URL;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -27,7 +29,7 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
 
@@ -37,18 +39,9 @@ import com.google.common.collect.ImmutableMap;
 public class ValidUrlTestMethod extends TestMethod<SourceConfiguration> {
 
     private static final String DESCRIPTION = "Attempts to connect to a given hostname and port";
-
-    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(HOSTNAME, PORT);
-
-    private static final String VERIFIED_URL = "verified-url";
-
-    private static final String CANNOT_CONNECT = "cannot-connect";
-
-    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(VERIFIED_URL,
-            "Connected to hostname and port.");
-
-    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CANNOT_CONNECT,
-            "Unable to connect to hostname and port.");
+    private static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_HOSTNAME, PORT);
+    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(VERIFIED_URL, "Connected to hostname and port.");
+    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CANNOT_CONNECT, "Unable to connect to hostname and port.");
 
     public ValidUrlTestMethod() {
         super(VALID_URL_TEST_ID,

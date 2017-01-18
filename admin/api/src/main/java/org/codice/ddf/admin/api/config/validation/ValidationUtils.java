@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.api.commons;
+package org.codice.ddf.admin.api.config.validation;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
@@ -29,7 +29,10 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 public class ValidationUtils {
 
-    public static final List<ConfigurationMessage> validateNonEmptyString(String strToCheck, String configId) {
+    public static final String SERVICE_PID_KEY = "service.pid";
+    public static final String FACTORY_PID_KEY = "service.factoryPid";
+
+    public static final List<ConfigurationMessage> validateString(String strToCheck, String configId) {
         List<ConfigurationMessage> errors = new ArrayList<>();
         if (StringUtils.isEmpty(strToCheck)) {
             errors.add(createMissingRequiredFieldMsg(configId));
@@ -39,16 +42,16 @@ public class ValidationUtils {
 
     public static final List<ConfigurationMessage> validateServicePid(String servicePid, String configId) {
         // TODO: tbatie - 1/16/17 - There are probably invalid chars to check for
-        return validateNonEmptyString(servicePid, configId);
+        return validateString(servicePid, configId);
     }
 
     public static final List<ConfigurationMessage> validateFactoryPid(String factoryPid, String configId) {
         // TODO: tbatie - 1/16/17 - There are probably invalid chars to check for
-        return validateNonEmptyString(factoryPid, configId);
+        return validateString(factoryPid, configId);
     }
 
     public static final List<ConfigurationMessage> validateHostName(String hostName, String configId) {
-        List<ConfigurationMessage> errors = validateNonEmptyString(hostName, configId);
+        List<ConfigurationMessage> errors = validateString(hostName, configId);
         if (errors.isEmpty() && !validHostnameFormat(hostName)) {
             errors.add(createInvalidFieldMsg("Hostname format is invalid.", configId));
         }

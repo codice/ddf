@@ -13,17 +13,17 @@
  */
 package org.codice.ddf.admin.security.ldap.probe;
 
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_KDC;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_METHOD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_REALM;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_DN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_PASSWORD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.HOST_NAME;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_TYPE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.QUERY;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.QUERY_BASE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_KDC;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_METHOD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_REALM;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_USER_DN;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_USER_PASSWORD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.ENCRYPTION_METHOD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.HOST_NAME;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_TYPE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.QUERY;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.QUERY_BASE;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.getLdapQueryResults;
 
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
@@ -46,9 +46,7 @@ import com.google.common.collect.ImmutableList;
 public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
 
     public static final String LDAP_QUERY_ID = "query";
-
-    private static final String DESCRIPTION =
-            "Probe to execute arbitrary query against an LDAP server and return the results.";
+    private static final String DESCRIPTION = "Probe to execute arbitrary query against an LDAP server and return the results.";
 
     private static final List<String> REQUIRED_FIELDS = ImmutableList.of(
             LDAP_TYPE,
@@ -65,18 +63,20 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
             BIND_REALM,
             BIND_KDC);
 
+    private static final String LDAP_QUERY_RESULTS = "ldapQueryResults";
+
+    private static final List<String> RETURN_TYPES = ImmutableList.of(LDAP_QUERY_RESULTS);
+
     public LdapQueryProbe() {
-        super(LDAP_QUERY_ID, DESCRIPTION, REQUIRED_FIELDS, OPTIONAL_FIELDS, null, null, null);
+        super(LDAP_QUERY_ID, DESCRIPTION, REQUIRED_FIELDS, OPTIONAL_FIELDS, null, null, null, RETURN_TYPES);
     }
 
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
-        List<ConfigurationMessage> checkMessages =
-                // TODO: use validate method instead of this.
-                configuration.validate(REQUIRED_FIELDS);
+        List<ConfigurationMessage> validateResults = configuration.validate(REQUIRED_FIELDS);
 
-        if (CollectionUtils.isNotEmpty(checkMessages)) {
-            return new ProbeReport(checkMessages);
+        if (CollectionUtils.isNotEmpty(validateResults)) {
+            return new ProbeReport(validateResults);
         }
 
         Connection connection = bindUserToLdapConnection(configuration).connection();
@@ -96,7 +96,7 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
             convertedSearchResults.add(entryMap);
         }
 
-        return new ProbeReport(new ArrayList<>()).probeResult("ldapQueryResults",
+        return new ProbeReport(new ArrayList<>()).probeResult(LDAP_QUERY_RESULTS,
                 convertedSearchResults);
     }
 }

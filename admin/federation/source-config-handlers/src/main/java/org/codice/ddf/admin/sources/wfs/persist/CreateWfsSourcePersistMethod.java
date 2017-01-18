@@ -13,22 +13,23 @@
  */
 package org.codice.ddf.admin.sources.wfs.persist;
 
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.ENDPOINT_URL;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SOURCE_NAME;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
+import static org.codice.ddf.admin.api.config.services.WfsServiceProperties.wfsConfigToServiceProps;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.ENDPOINT_URL;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.FACTORY_PID;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SOURCE_NAME;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.CREATE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.CREATE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.config.federation.sources.WfsSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.WfsSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -39,20 +40,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfiguration> {
+
     public static final String CREATE_WFS_SOURCE_ID = CREATE;
-
-    public static final String DESCRIPTION =
-            "Attempts to create and persist a WFS source given a configuration.";
-
+    public static final String DESCRIPTION = "Attempts to create and persist a WFS source given a configuration.";
     private static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_NAME, ENDPOINT_URL, FACTORY_PID);
-
     private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
-
-    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
-            "WFS Source successfully created.");
-
-    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST,
-            "Failed to create WFS Source.");
+    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "WFS Source successfully created.");
+    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Failed to create WFS Source.");
 
     public CreateWfsSourcePersistMethod() {
         super(CREATE_WFS_SOURCE_ID,
@@ -66,14 +60,13 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
 
     @Override
     public Report persist(WfsSourceConfiguration configuration) {
-        List<ConfigurationMessage> results =
-                configuration.validate(REQUIRED_FIELDS);
+        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
         if (!results.isEmpty()) {
             return new Report(results);
         }
         Configurator configurator = new Configurator();
         OperationReport report;
-        configurator.createManagedService(configuration.factoryPid(), configuration.configMap());
+        configurator.createManagedService(configuration.factoryPid(), wfsConfigToServiceProps(configuration));
         report = configurator.commit();
         return report.containsFailedResults() ?
                 new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST))) :

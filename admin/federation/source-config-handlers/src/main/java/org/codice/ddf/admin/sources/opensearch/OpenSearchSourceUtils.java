@@ -14,7 +14,7 @@
 package org.codice.ddf.admin.sources.opensearch;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.PING_TIMEOUT;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
-import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.OpenSearchSourceConfiguration;
 
 public class OpenSearchSourceUtils {
     private static final List<String> URL_FORMATS = Arrays.asList(

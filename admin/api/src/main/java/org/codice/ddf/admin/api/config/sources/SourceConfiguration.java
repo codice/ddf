@@ -12,22 +12,21 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.api.config.federation;
+package org.codice.ddf.admin.api.config.sources;
 
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateFactoryPid;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateHostName;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateNonEmptyString;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validatePort;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateServicePid;
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateUrl;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateHostName;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validatePort;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateServicePid;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateString;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateUrl;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.codice.ddf.admin.api.commons.ValidationUtils;
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;
+import org.codice.ddf.admin.api.config.validation.ValidationUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 import com.google.common.collect.ImmutableMap;
@@ -37,25 +36,11 @@ public class SourceConfiguration extends Configuration {
     public static final String CONFIGURATION_TYPE = "sources";
 
     public static final String SOURCE_NAME = "sourceName";
-    public static final String HOSTNAME = "hostname";
-    public static final String PORT = "port";
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
-    public static final String ENDPOINT_URL = "url";
-    public static final String FACTORY_PID = "factoryPid";
-    public static final String SERVICE_PID = "servicePid";
-
-    private static final Map<String, Function<SourceConfiguration, List<ConfigurationMessage>>>
-            FIELDS_TO_VALIDATIONS = new ImmutableMap.Builder<String, Function<SourceConfiguration, List<ConfigurationMessage>>>()
-            .put(SOURCE_NAME, config -> validateNonEmptyString(config.sourceName(), SOURCE_NAME))
-            .put(HOSTNAME, config -> validateHostName(config.sourceHostName(), HOSTNAME))
-            .put(PORT, config -> validatePort(config.sourcePort(), PORT))
-            .put(USERNAME, config -> validateNonEmptyString(config.sourceUserName(), USERNAME))
-            .put(PASSWORD, config -> validateNonEmptyString(config.sourceUserPassword(), PASSWORD))
-            .put(ENDPOINT_URL, config -> validateUrl(config.endpointUrl(), ENDPOINT_URL))
-            .put(FACTORY_PID, config -> validateFactoryPid(config.factoryPid(), FACTORY_PID))
-            .put(SERVICE_PID, config -> validateServicePid(config.servicePid(), SERVICE_PID))
-            .build();
+    public static final String SOURCE_HOSTNAME = "sourceHostName";
+    public static final String PORT = "sourcePort";
+    public static final String USERNAME = "sourceUserName";
+    public static final String PASSWORD = "sourceUserPassword";
+    public static final String ENDPOINT_URL = "endpointUrl";
 
     private String sourceName;
     private String sourceHostName;
@@ -63,11 +48,24 @@ public class SourceConfiguration extends Configuration {
     private String sourceUserName;
     private String sourceUserPassword;
     private String endpointUrl;
-    private String factoryPid;
-    private String servicePid;
-
     private boolean certError;
     private boolean trustedCertAuthority;
+
+    public SourceConfiguration() {
+
+    }
+
+    public SourceConfiguration(SourceConfiguration sourceConfiguration) {
+        super(sourceConfiguration);
+        this.sourceName = sourceConfiguration.sourceName;
+        this.sourceHostName = sourceConfiguration.sourceHostName;
+        this.sourcePort = sourceConfiguration.sourcePort;
+        this.sourceUserName = sourceConfiguration.sourceUserName;
+        this.sourceUserPassword = sourceConfiguration.sourceUserPassword;
+        this.endpointUrl = sourceConfiguration.endpointUrl;
+        this.certError = sourceConfiguration.certError;
+        this.trustedCertAuthority = sourceConfiguration.trustedCertAuthority;
+    }
 
     @Override
     public ConfigurationType getConfigurationType() {
@@ -75,50 +73,44 @@ public class SourceConfiguration extends Configuration {
     }
 
     public List<ConfigurationMessage> validate(List<String> fields) {
-        return ValidationUtils.validate(fields, this, FIELDS_TO_VALIDATIONS);
+        return ValidationUtils.validate(fields, this, getBaseFieldValidationMap());
     }
 
-    public Map<String, Object> configMap() {
-        return null;
+    public static <T extends SourceConfiguration> Map<String, Function<T, List<ConfigurationMessage>>> getBaseFieldValidationMap() {
+        return new ImmutableMap.Builder<String, Function<T, List<ConfigurationMessage>>>()
+                .put(SOURCE_NAME, config -> validateString(config.sourceName(), SOURCE_NAME))
+                .put(SOURCE_HOSTNAME, config -> validateHostName(config.sourceHostName(),
+                        SOURCE_HOSTNAME))
+                .put(PORT, config -> validatePort(config.sourcePort(), PORT))
+                .put(USERNAME, config -> validateString(config.sourceUserName(), USERNAME))
+                .put(PASSWORD, config -> validateString(config.sourceUserPassword(), PASSWORD))
+                .put(ENDPOINT_URL, config -> validateUrl(config.endpointUrl(), ENDPOINT_URL))
+                .put(SERVICE_PID, config -> validateServicePid(config.servicePid(), SERVICE_PID))
+                .build();
     }
 
     //Getters
     public boolean trustedCertAuthority() {
         return trustedCertAuthority;
     }
-
     public boolean certError() {
         return certError;
     }
-
     public int sourcePort() {
         return sourcePort;
     }
-
-    public String servicePid() {
-        return servicePid;
-    }
-
     public String sourceName() {
         return sourceName;
     }
-
-    public String factoryPid() {
-        return factoryPid;
-    }
-
     public String endpointUrl() {
         return endpointUrl;
     }
-
     public String sourceHostName() {
         return sourceHostName;
     }
-
     public String sourceUserPassword() {
         return sourceUserPassword;
     }
-
     public String sourceUserName() {
         return sourceUserName;
     }
@@ -128,49 +120,32 @@ public class SourceConfiguration extends Configuration {
         this.sourceName = sourceName;
         return this;
     }
-
-    public SourceConfiguration factoryPid(String factoryPid) {
-        this.factoryPid = factoryPid;
-        return this;
-    }
-
     public SourceConfiguration sourceUserName(String sourceUserName) {
         this.sourceUserName = sourceUserName;
         return this;
     }
-
     public SourceConfiguration endpointUrl(String endpointUrl) {
         this.endpointUrl = endpointUrl;
         return this;
     }
-
     public SourceConfiguration sourceUserPassword(String sourceUserPassword) {
         this.sourceUserPassword = sourceUserPassword;
         return this;
     }
-
     public SourceConfiguration certError(boolean certError) {
         this.certError = certError;
         return this;
     }
-
     public SourceConfiguration trustedCertAuthority(boolean trustedCertAuthority) {
         this.trustedCertAuthority = trustedCertAuthority;
         return this;
     }
-
     public SourceConfiguration sourcePort(int sourcePort) {
         this.sourcePort = sourcePort;
         return this;
     }
-
     public SourceConfiguration sourceHostName(String sourceHostName) {
         this.sourceHostName = sourceHostName;
-        return this;
-    }
-
-    public SourceConfiguration servicePid(String servicePid) {
-        this.servicePid = servicePid;
         return this;
     }
 

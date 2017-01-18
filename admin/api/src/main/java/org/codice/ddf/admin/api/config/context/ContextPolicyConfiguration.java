@@ -12,12 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.admin.api.config.security.context;
+package org.codice.ddf.admin.api.config.context;
 
-import static org.codice.ddf.admin.api.commons.ValidationUtils.validateContextPaths;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.AUTH_TYPES;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.CONTEXT_PATHS;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.REALM;
+import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.AUTH_TYPES;
+import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.CONTEXT_PATHS;
+import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.REALM;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateContextPaths;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;
+import org.codice.ddf.admin.api.config.validation.ValidationUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 import com.google.common.collect.ImmutableMap;
@@ -49,13 +50,7 @@ public class ContextPolicyConfiguration extends Configuration {
     private List<ContextPolicyBin> contextPolicyBins;
     private List<String> whiteListContexts;
 
-    public List<ConfigurationMessage> validate(List<String> fields) {
-        return fields.stream()
-                .map(s -> FIELD_TO_VALIDATION_FUNC.get(s).apply(this))
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-    }
-
+    // TODO: tbatie - 1/17/17 - Move to SecurityValidationUtils
     public static final List<ConfigurationMessage> validateContextPolicyBins(List<ContextPolicyBin> bins, String configId){
         List<ConfigurationMessage> errors = new ArrayList<>();
         if(bins == null || bins.isEmpty()) {
@@ -65,16 +60,19 @@ public class ContextPolicyConfiguration extends Configuration {
                     .map(cpb -> cpb.validate(Arrays.asList(REALM, CONTEXT_PATHS, AUTH_TYPES)))
                     .flatMap(List::stream)
                     .collect(Collectors.toList()));
-            // TODO: tbatie - 1/16/17 - Check if the req fields has values, if so validate
+            // TODO: tbatie - 1/16/17 - Check if the req attri fields has values, if so validate
         }
         return errors;
+    }
+
+    public List<ConfigurationMessage> validate(List<String> fields) {
+        return ValidationUtils.validate(fields, this, FIELD_TO_VALIDATION_FUNC);
     }
 
     @Override
     public ConfigurationType getConfigurationType() {
         return new ConfigurationType(CONFIGURATION_TYPE, ContextPolicyConfiguration.class);
     }
-
     //Getters
     public List<ContextPolicyBin> contextPolicyBins() {
         return contextPolicyBins;

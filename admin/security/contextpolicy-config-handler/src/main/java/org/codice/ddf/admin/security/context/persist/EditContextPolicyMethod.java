@@ -14,22 +14,22 @@
 
 package org.codice.ddf.admin.security.context.persist;
 
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration.ALL_FIELDS;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration.CONTEXT_POLICY_BINS;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration.WHITE_LIST_CONTEXTS;
+import static org.codice.ddf.admin.api.config.context.ContextPolicyConfiguration.ALL_FIELDS;
+import static org.codice.ddf.admin.api.config.context.ContextPolicyConfiguration.CONTEXT_POLICY_BINS;
+import static org.codice.ddf.admin.api.config.context.ContextPolicyConfiguration.WHITE_LIST_CONTEXTS;
+import static org.codice.ddf.admin.api.config.services.ContextPolicyServiceProperties.POLICY_MANAGER_PID;
+import static org.codice.ddf.admin.api.config.services.ContextPolicyServiceProperties.configToPolicyManagerProps;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.EDIT;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.codice.ddf.admin.api.config.security.context.ContextPolicyBin;
-import org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration;
+import org.codice.ddf.admin.api.config.context.ContextPolicyConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
@@ -40,17 +40,12 @@ import com.google.common.collect.ImmutableMap;
 
 public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfiguration>{
 
-    public static final String PERSIST_CONTEXT_POLICY_ID = "edit";
-
-    public static final String DESCRIPTION =
-            "Persist changes to the Web Context Policy manager.";
-
-    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(CONTEXT_POLICY_BINS,
-            WHITE_LIST_CONTEXTS);
-
+    public static final String PERSIST_CONTEXT_POLICY_ID = EDIT;
+    public static final String DESCRIPTION = "Persist changes to the Web Context Policy manager.";
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(CONTEXT_POLICY_BINS, WHITE_LIST_CONTEXTS);
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "Successfully saved Web Context Policy Manager settings");
-
     public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Unable to persist changes");
+
     public EditContextPolicyMethod() {
         super(PERSIST_CONTEXT_POLICY_ID,
                 DESCRIPTION,
@@ -69,9 +64,10 @@ public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfigur
         }
 
         Configurator configurator = new Configurator();
-        configurator.updateConfigFile("org.codice.ddf.security.policy.context.impl.PolicyManager",
-                configToPolicyManagerSettings(config),
+        configurator.updateConfigFile(POLICY_MANAGER_PID,
+                configToPolicyManagerProps(config),
                 true);
+
         OperationReport configReport = configurator.commit();
 
         if (!configReport.getFailedResults()
@@ -82,39 +78,5 @@ public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfigur
         }
     }
 
-    public Map<String, Object> configToPolicyManagerSettings(ContextPolicyConfiguration config){
-        List<String> realmsProps = new ArrayList<>();
-        List<String> authTypesProps = new ArrayList<>();
-        List<String> reqAttrisProps = new ArrayList<>();
 
-        for (ContextPolicyBin bin : config.contextPolicyBins()) {
-            bin.contextPaths()
-                    .stream()
-                    .forEach(context -> {
-                        realmsProps.add(context + "=" + bin.realm());
-                        authTypesProps.add(
-                                context + "=" + String.join("|", bin.authenticationTypes()));
-                        if (bin.requiredAttributes()
-                                .isEmpty()) {
-                            reqAttrisProps.add(context + "=");
-                        } else {
-                            reqAttrisProps.add(context + "={" + String.join(";",
-                                    bin.requiredAttributes()
-                                            .entrySet()
-                                            .stream()
-                                            .map(entry -> entry.getKey() + "=" + entry.getValue())
-                                            .collect(Collectors.toList())) + "}");
-                        }
-                    });
-        }
-
-        return ImmutableMap.of("authenticationTypes",
-                authTypesProps,
-                "realms",
-                realmsProps,
-                "requiredAttributes",
-                reqAttrisProps,
-                "whiteListContexts",
-                config.whiteListContexts());
-    }
 }

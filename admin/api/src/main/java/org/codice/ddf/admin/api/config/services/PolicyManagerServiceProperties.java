@@ -11,11 +11,9 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.security.ldap;
+package org.codice.ddf.admin.api.config.services;
 
-import org.codice.ddf.admin.security.ldap.persist.CreateLdapConfigMethod;
+public class PolicyManagerServiceProperties {
 
-public class TestCreateLdapConfigMethod {
 
-    private CreateLdapConfigMethod createMethod = new CreateLdapConfigMethod();
 }

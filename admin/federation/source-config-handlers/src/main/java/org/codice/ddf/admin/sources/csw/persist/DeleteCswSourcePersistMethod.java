@@ -13,18 +13,18 @@
  */
 package org.codice.ddf.admin.sources.csw.persist;
 
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.SERVICE_PID;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SERVICE_PID;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
-import static org.codice.ddf.admin.api.handler.SourceConfigurationHandler.DELETE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.DELETE;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -37,17 +37,10 @@ import com.google.common.collect.ImmutableMap;
 public class DeleteCswSourcePersistMethod extends PersistMethod<CswSourceConfiguration> {
 
     public static final String DELETE_CSW_SOURCE_ID = DELETE;
-
-    public static final String DESCRIPTION =
-            "Attempts to delete a CSW source with the given configuration.";
-
+    public static final String DESCRIPTION = "Attempts to delete a CSW source with the given configuration.";
     private static final List<String> REQUIRED_FIELDS = ImmutableList.of(SERVICE_PID);
-
-    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
-            "The CSW Source was successfully deleted.");
-
-    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST,
-            "Failed to delete CSW source.");
+    private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "The CSW Source was successfully deleted.");
+    private static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Failed to delete CSW source.");
 
     public DeleteCswSourcePersistMethod() {
         super(DELETE_CSW_SOURCE_ID,

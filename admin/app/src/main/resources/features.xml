@@ -26,7 +26,6 @@
     </feature>
 
     <feature name="admin-beta-core" install="manual" version="${project.version}" description="DDF Admin Core (Beta)">
-        <feature prerequisite="true">admin-core</feature>
         <bundle>mvn:org.codice.ddf.admin.beta/admin-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.admin.beta/config-handler-router/${project.version}</bundle>
     </feature>

@@ -13,17 +13,17 @@
  */
 package org.codice.ddf.admin.security.ldap.probe;
 
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BASE_GROUP_DN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_KDC;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_METHOD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_REALM;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_DN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.BIND_USER_PASSWORD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.ENCRYPTION_METHOD;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.HOST_NAME;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_TYPE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.MEMBERSHIP_ATTRIBUTE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BASE_GROUP_DN;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_KDC;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_METHOD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_REALM;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_USER_DN;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.BIND_USER_PASSWORD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.ENCRYPTION_METHOD;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.HOST_NAME;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_TYPE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.MEMBERSHIP_ATTRIBUTE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
@@ -83,9 +83,7 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
 
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
-        List<ConfigurationMessage> checkMessages =
-                // TODO: Use the validate method instead of this
-                configuration.validate(REQUIRED_FIELDS);
+        List<ConfigurationMessage> checkMessages = configuration.validate(REQUIRED_FIELDS);
 
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);

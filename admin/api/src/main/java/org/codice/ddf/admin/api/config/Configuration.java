@@ -16,20 +16,50 @@ package org.codice.ddf.admin.api.config;
 
 public abstract class Configuration {
 
-    public static final String SERVICE_PID_KEY = "service.pid";
+    // TODO: tbatie - 1/17/17 - Validate these fields
+    public static final String CONFIGURATION_HANDLER_ID = "configurationHandlerId";
+    public static final String FACTORY_PID = "factoryPid";
+    public static final String SERVICE_PID = "servicePid";
 
-    public static final String FACTORY_PID_KEY = "service.factoryPid";
+    private String factoryPid;
+    private String servicePid;
+    private String configurationHandlerId;
 
-    String configurationHandlerId;
+    public Configuration() {
+    }
 
+    public Configuration(Configuration configuration) {
+        this.factoryPid = configuration.factoryPid;
+        this.servicePid = configuration.servicePid;
+        this.configurationHandlerId = configuration.configurationHandlerId;
+    }
+
+    public abstract ConfigurationType getConfigurationType();
+
+    //Getters
     public String configurationHandlerId() {
         return configurationHandlerId;
     }
+    public String servicePid(){
+        return servicePid;
+    }
+    public String factoryPid() {
+        return factoryPid;
+    }
 
+    //Setters
     public Configuration configurationHandlerId(String configurationHandlerId) {
         this.configurationHandlerId = configurationHandlerId;
         return this;
     }
+    public Configuration servicePid(String servicePid) {
+        this.servicePid = servicePid;
+        return this;
+    }
+    public Configuration factoryPid(String factoryPid) {
+        this.factoryPid = factoryPid;
+        return this;
+    }
 
-    public abstract ConfigurationType getConfigurationType();
+
 }

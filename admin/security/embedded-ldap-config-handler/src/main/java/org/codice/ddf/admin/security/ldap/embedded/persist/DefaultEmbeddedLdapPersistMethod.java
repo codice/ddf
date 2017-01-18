@@ -13,19 +13,19 @@
  */
 package org.codice.ddf.admin.security.ldap.embedded.persist;
 
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_USE_CASE;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_USE_CASE;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.config.security.ldap.EmbeddedLdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.EmbeddedLdapConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
@@ -38,17 +38,10 @@ import com.google.common.collect.ImmutableMap;
 public class DefaultEmbeddedLdapPersistMethod extends PersistMethod<EmbeddedLdapConfiguration> {
 
     public static final String DEFAULT_CONFIGURATIONS_ID = "defaults";
-
-    public static final String DESCRIPTION =
-            "Starts up the Opendj Embedded App and installs default realm and/or attribute store configurations.";
-
+    public static final String DESCRIPTION = "Starts up the Opendj Embedded App and installs default realm and/or attribute store configurations.";
     public static final List<String> REQUIRED_FIELDS = ImmutableList.of(LDAP_USE_CASE);
-
-    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST,
-            "Successfully started and saved Embedded LDAP configurations.");
-
-    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST,
-            "Failed to start Embedded LDAP or install a default configuration file.");
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "Successfully started and saved Embedded LDAP configurations.");
+    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(FAILED_PERSIST, "Failed to start Embedded LDAP or install a default configuration file.");
 
     public DefaultEmbeddedLdapPersistMethod() {
         super(DEFAULT_CONFIGURATIONS_ID,

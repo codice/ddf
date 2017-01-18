@@ -14,16 +14,16 @@
 
 package org.codice.ddf.admin.sources.opensearch;
 
-import static org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration.OPENSEARCH_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration.OPENSEARCH_SOURCE_DISPLAY_NAME;
+import static org.codice.ddf.admin.api.config.services.OpensearchServiceProperties.OPENSEARCH_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.services.OpensearchServiceProperties.servicePropsToOpenSearchConfig;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
-import org.codice.ddf.admin.api.config.federation.sources.OpenSearchSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.OpenSearchSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
@@ -40,8 +40,8 @@ import org.codice.ddf.admin.sources.opensearch.test.OpenSearchUrlTestMethod;
 public class OpenSearchSourceConfigurationHandler extends DefaultConfigurationHandler<SourceConfiguration>
         implements SourceConfigurationHandler<SourceConfiguration> {
 
-    public static final String OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID =
-            OpenSearchSourceConfiguration.CONFIGURATION_TYPE;
+    public static final String OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID = OpenSearchSourceConfiguration.CONFIGURATION_TYPE;
+    public static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
@@ -80,7 +80,7 @@ public class OpenSearchSourceConfigurationHandler extends DefaultConfigurationHa
         return configurator.getManagedServiceConfigs(OPENSEARCH_FACTORY_PID)
                 .values()
                 .stream()
-                .map(serviceProps -> new OpenSearchSourceConfiguration(serviceProps))
+                .map(serviceProps -> servicePropsToOpenSearchConfig(serviceProps))
                 .collect(Collectors.toList());
     }
 

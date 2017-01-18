@@ -13,16 +13,16 @@
  */
 package org.codice.ddf.admin.sources.impl.probe;
 
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.HOSTNAME;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PASSWORD;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.PORT;
-import static org.codice.ddf.admin.api.config.federation.SourceConfiguration.USERNAME;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PASSWORD;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PORT;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SOURCE_HOSTNAME;
+import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNAME;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
@@ -34,14 +34,10 @@ public class DiscoverSourcesProbeMethod extends ProbeMethod<SourceConfiguration>
 
     public static final String DISCOVER_SOURCES_ID = "discover-sources";
     public static final String DESCRIPTION = "Retrieves possible configurations for the specified url.";
-
-    // TODO: tbatie - 1/15/17 - These descriptions should be done in the SourceConfiguration
-    public static final List<String> REQUIRED_FIELDS =
-            ImmutableList.of(HOSTNAME, PORT);
-
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_HOSTNAME, PORT);
     public static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
 
-    public static final String DISCOVERED_SOURCES_KEY = "discoverSources";
+    public static final String DISCOVERED_SOURCES_KEY = "discoveredSources";
     public static final List<String> RETURN_TYPES = ImmutableList.of(DISCOVERED_SOURCES_KEY);
 
     private List<SourceConfigurationHandler> handlers;

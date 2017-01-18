@@ -14,21 +14,23 @@
 
 package org.codice.ddf.admin.security.context.probe;
 
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.BASIC;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.GUEST;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.IDP;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.KARAF;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.LDAP;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.PKI;
-import static org.codice.ddf.admin.api.config.security.context.ContextPolicyBin.SAML;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.BASIC;
+import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.GUEST;
+import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.IDP;
+import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.KARAF;
+import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.LDAP;
+import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.PKI;
+import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.SAML;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.admin.api.config.security.context.ContextPolicyConfiguration;
-import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.context.ContextPolicyConfiguration;
+import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.handler.ConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
@@ -46,7 +48,7 @@ public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
     public static final String REALMS_KEY = "realms";
     public static final String AUTH_TYPES_KEY = "authenticationTypes";
     public static final String CLAIMS_KEY = "claims";
-    public static final List<String> RETURN_TYPES = ImmutableList.of(REALMS_KEY, CLAIMS_KEY, AUTH_TYPES_KEY);
+    public static final List<String> RETURN_TYPES = ImmutableList.of(REALMS_KEY, AUTH_TYPES_KEY, CLAIMS_KEY);
 
     Configurator configurator = new Configurator();
     ConfigurationHandler ldapConfigHandler;
@@ -91,9 +93,9 @@ public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
         if (ldapConfigHandler == null || ldapConfigHandler.getConfigurations()
                 .stream()
                 .anyMatch(config -> ((LdapConfiguration) config).ldapUseCase()
-                        .equals(LdapConfiguration.LOGIN)
+                        .equals(LOGIN)
                         || ((LdapConfiguration) config).ldapUseCase()
-                        .equals(LdapConfiguration.LOGIN_AND_CREDENTIAL_STORE))) {
+                        .equals(LOGIN_AND_CREDENTIAL_STORE))) {
             realms.add(LDAP);
         }
 

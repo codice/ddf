@@ -14,9 +14,9 @@
 
 package org.codice.ddf.admin.security.ldap;
 
-import static org.codice.ddf.admin.api.config.Configuration.SERVICE_PID_KEY;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LOGIN;
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.TLS;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
+import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.TLS;
+import static org.codice.ddf.admin.api.config.validation.ValidationUtils.SERVICE_PID_KEY;
 
 import java.net.URI;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
@@ -100,6 +100,7 @@ public class LdapConfigurationHandler extends DefaultConfigurationHandler<LdapCo
         //The keys below are specific to the Ldap_Login_Config service and mapped to the general LDAP configuration class fields
         //This should eventually be cleaned up and structured data should be sent between the ldap login and claims services rather than map
         // TODO: tbatie - 1/11/17 - Make sure to use the same constants as the persist method uses
+        // TODO: tbatie - 1/17/17 - Move this to the LdapServiceProperties
         LdapConfiguration ldapConfiguration = new LdapConfiguration();
         ldapConfiguration.servicePid(
                 props.get(SERVICE_PID_KEY) == null ? null : (String) props.get(SERVICE_PID_KEY));

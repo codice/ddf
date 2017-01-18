@@ -14,11 +14,11 @@
 package org.codice.ddf.admin.sources.csw;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.codice.ddf.admin.api.commons.SourceUtils.OWS_NAMESPACE_CONTEXT;
-import static org.codice.ddf.admin.api.commons.SourceUtils.PING_TIMEOUT;
-import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_GMD_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_PROFILE_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration.CSW_SPEC_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.services.CswServiceProperties.CSW_GMD_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.services.CswServiceProperties.CSW_PROFILE_FACTORY_PID;
+import static org.codice.ddf.admin.api.config.services.CswServiceProperties.CSW_SPEC_FACTORY_PID;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.OWS_NAMESPACE_CONTEXT;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.PING_TIMEOUT;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,10 +41,11 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
-import org.codice.ddf.admin.api.config.federation.sources.CswSourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.CswSourceConfiguration;
 import org.w3c.dom.Document;
 
 public class CswSourceUtils {
+
 
     public static final String GET_CAPABILITIES_PARAMS = "?service=CSW&request=GetCapabilities";
 

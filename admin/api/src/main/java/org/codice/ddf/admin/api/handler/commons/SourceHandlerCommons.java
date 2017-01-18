@@ -11,39 +11,45 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.api.commons;
+package org.codice.ddf.admin.api.handler.commons;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.INVALID_FIELD;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MISSING_REQUIRED_FIELD;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.xml.namespace.NamespaceContext;
 
-import org.apache.commons.validator.UrlValidator;
-import org.apache.cxf.common.util.StringUtils;
-import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
-import org.codice.ddf.admin.api.handler.report.Report;
 
-public class SourceUtils {
+public class SourceHandlerCommons {
+
+    //Common probe, persist and test id's
+    public static final String DISCOVER_SOURCES_ID = "discover-sources";
+    public static final String VALID_URL_TEST_ID = "valid-url";
+    public static final String MANUAL_URL_TEST_ID = "manual-url";
+
+    //Common success types
+    public static final String VERIFIED_URL = "VERIFIED_URL";
+    public static final String ENDPOINT_DISCOVERED = "ENDPOINT_DISCOVERED";
+
+    //Common warning types
+    public static final String CANNOT_VERIFY = "CANNOT_VERIFY";
+
+    //Common failed types
+    public static final String CANNOT_CONNECT = "CANNOT_CONNECT";
+    public static final String NO_ENDPOINT = "NO_ENDPOINT";
+    public static final String CERT_ERROR = "CERT_ERROR";
+    public static final String BAD_CONFIG = "BAD_CONFIG";
+
 
     public static final int PING_TIMEOUT = 500;
-
-    public static final String DISCOVER_SOURCES_ID = "discover-sources";
-
-    public static final String VALID_URL_TEST_ID = "valid-url";
-
-    public static final String MANUAL_URL_TEST_ID = "manual-url";
 
     public static Optional<ConfigurationMessage> endpointIsReachable(SourceConfiguration config) {
         try {
@@ -57,33 +63,6 @@ public class SourceUtils {
             Optional.of(buildMessage(FAILURE, null, "Unable to reach specified URL."));
         }
         return Optional.empty();
-    }
-
-    public static Report cannotBeNullFields(Map<String, Object> fieldsToCheck) {
-        List<ConfigurationMessage> missingFields = new ArrayList<>();
-
-        fieldsToCheck.entrySet()
-                .stream()
-                .filter(field -> field.getValue() == null && (field.getValue() instanceof String
-                        && StringUtils.isEmpty((String) field.getValue())))
-                .forEach(field -> missingFields.add(new ConfigurationMessage(FAILURE,
-                        MISSING_REQUIRED_FIELD, null).configId(field.getKey())));
-
-        return new Report(missingFields);
-    }
-
-    public static boolean validUrlFormat(String url) {
-        String [] schemes = {"http", "https"};
-        UrlValidator validator = new UrlValidator(schemes);
-        return validator.isValid(url);
-    }
-
-    public static boolean validHostnameFormat(String hostname) {
-        return hostname.matches("[0-9a-zA-Z\\.-]+");
-    }
-
-    public static boolean validPortFormat(int port) {
-        return port > 0 && port < 65536;
     }
 
     /*********************************************************

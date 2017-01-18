@@ -13,23 +13,22 @@
  */
 package org.codice.ddf.admin.security.ldap.probe;
 
-import static org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration.LDAP_TYPE;
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_TYPE;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 
 import com.google.common.collect.ImmutableList;
 
+// TODO: tbatie - 1/17/17 - We can do this on the frontend, delete this class
 public class BindUserExampleProbe extends ProbeMethod<LdapConfiguration> {
     private static final String BIND_USER_EXAMPLE = "bind-user-example";
 
-    private static final String DESCRIPTION =
-            "Returns sample username formats for the specific LDAP server type.";
-
+    private static final String DESCRIPTION = "Returns sample username formats for the specific LDAP server type.";
     private static final List<String> REQUIRED_FIELDS = ImmutableList.of(LDAP_TYPE);
 
     public BindUserExampleProbe() {

@@ -11,14 +11,14 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+package org.codice.ddf.admin.api.handler.commons;
 
-package org.codice.ddf.admin.api.handler;
+public class HandlerCommons {
+    public static final String CREATE = "create";
+    public static final String EDIT = "edit";
+    public static final String DELETE = "delete";
 
-import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
+    public static final String SUCCESSFUL_PERSIST = "SUCCESSFUL_PERSIST";
+    public static final String FAILED_PERSIST = "FAILED_PERSIST";
 
-public interface SourceConfigurationHandler<S extends SourceConfiguration>
-        extends ConfigurationHandler<S> {
-
-
-    String getSourceDisplayName();
 }

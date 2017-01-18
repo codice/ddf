@@ -16,7 +16,7 @@ package org.codice.ddf.admin.sources.impl.probe;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.codice.ddf.admin.api.config.federation.SourceConfiguration;
+import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.handler.SourceConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
@@ -27,12 +27,12 @@ import com.google.common.collect.ImmutableMap;
 public class GetConfigHandlersProbeMethod extends ProbeMethod<SourceConfiguration> {
 
     public static final String GET_CONFIG_HANDLER_ID = "config-handlers";
-    public static final String DESCRIPTION = "Retrieves a list of all running configuration handlers.";
 
-    public static final String SRC_CONFIG_HNDLRS = "sourceConfigurationHandlers";
-    public static final String CONFIG_HANDLER_ID = "id";
+    public static final String CONFIG_HANDLER_KEY = "id";
     public static final String DISPLAY_NAME_KEY = "name";
+    public static final String DESCRIPTION = "Retrieves a list of all running configuration handlers. The list of objects returned will have the keys \"" + CONFIG_HANDLER_KEY + "\" and \""  + DISPLAY_NAME_KEY;
 
+    public static final String SRC_CONFIG_HNDLRS = "sourceConfigHandlers";
     public static final List<String> RETURN_TYPES = ImmutableList.of(SRC_CONFIG_HNDLRS);
 
     private List<SourceConfigurationHandler> handlers;
@@ -53,7 +53,7 @@ public class GetConfigHandlersProbeMethod extends ProbeMethod<SourceConfiguratio
     public ProbeReport probe(SourceConfiguration configuration) {
         List<ImmutableMap> collect = handlers.stream()
                 .map(handler -> ImmutableMap.builder()
-                        .put(CONFIG_HANDLER_ID, handler.getConfigurationHandlerId())
+                        .put(CONFIG_HANDLER_KEY, handler.getConfigurationHandlerId())
                         .put(DISPLAY_NAME_KEY, handler.getSourceDisplayName())
                         .build())
                 .collect(Collectors.toList());

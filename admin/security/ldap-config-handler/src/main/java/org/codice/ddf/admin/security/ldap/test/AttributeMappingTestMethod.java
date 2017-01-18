@@ -18,7 +18,7 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 
 import java.util.Map;
 
-import org.codice.ddf.admin.api.config.security.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
