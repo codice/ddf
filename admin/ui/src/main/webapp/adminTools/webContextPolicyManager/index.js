@@ -9,7 +9,8 @@ import {
   getOptions,
   getEditingBinNumber,
   getConfirmDelete,
-  getWcpmErrors
+  getWcpmErrors,
+  isSubmitting
 } from '../../reducer'
 
 import {
@@ -39,6 +40,7 @@ import SelectField from 'material-ui/SelectField'
 import MenuItem from 'material-ui/MenuItem'
 import FlatButton from 'material-ui/FlatButton'
 import RaisedButton from 'material-ui/RaisedButton'
+import CircularProgress from 'material-ui/CircularProgress'
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 
 import { cyanA700 } from 'material-ui/styles/colors'
@@ -67,6 +69,7 @@ import {
 } from './styles.less'
 
 import {
+  submitting,
   error
 } from '../../wizards/components/stage/styles.less'
 
@@ -358,8 +361,8 @@ let NewBin = ({ policies, addNewBin, nextBinNumber, editing }) => {
 }
 NewBin = connect((state) => ({ nextBinNumber: getBins(state).length }), { addNewBin })(NewBin)
 
-let wcpm = ({ updatePolicyBins }) => (
-  <Mount on={updatePolicyBins('/admin/beta/config/configurations/context-policy-manager')}>
+let wcpm = ({ updatePolicyBins, isSubmitting }) => (
+  <Mount on={() => updatePolicyBins('/admin/beta/config/configurations/context-policy-manager')}>
     <Flexbox flexDirection='column' style={{ width: '100%', height: '100%' }}>
       <Paper style={{ backgroundColor: '#EEE', width: '100%' }}>
         <p className={infoTitle}>Web Context Policy Manager</p>
@@ -367,7 +370,20 @@ let wcpm = ({ updatePolicyBins }) => (
       </Paper>
       <Divider />
       <PolicyBins />
+      {isSubmitting
+        ? (<div className={submitting}>
+          <Flexbox justifyContent='center' alignItems='center' width='100%'>
+            <CircularProgress size={60} thickness={7} />
+          </Flexbox>
+        </div>)
+        : null
+      }
     </Flexbox>
   </Mount>
 )
-export default connect(null, { updatePolicyBins })(wcpm)
+export default connect(
+  (state) => ({
+    isSubmitting: isSubmitting(state, 'wcpm')
+  }), {
+    updatePolicyBins
+  })(wcpm)

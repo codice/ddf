@@ -130,7 +130,6 @@ const wcpmErrors = (state = Map(), { type, component, message }) => {
 
 export const getOptions = (state) => state.get('options').toJS()
 export const getBins = (state) => state.get('bins').toJS()
-export const getWhiteList = (state) => state.get('whiteList').toJS()
 export const getEditingBinNumber = (state) => state.get('editingBinNumber')
 export const getConfirmDelete = (state) => state.get('confirmDelete')
 export const getWcpmErrors = (state) => state.get('wcpmErrors').toJS()

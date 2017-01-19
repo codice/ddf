@@ -1,5 +1,5 @@
 import { getBins } from '../../reducer'
-import { backendError } from '../../actions'
+import { get, post } from '../../fetch'
 
 // Bin level
 export const replaceAllBins = (bins, whitelistContexts) => ({ type: 'WCPM/REPLACE_ALL_BINS', bins, whitelistContexts })
@@ -58,23 +58,14 @@ export const addContextPath = (attribute, binNumber) => (dispatch, getState) => 
 }
 
 // Fetch
-export const updatePolicyBins = (url) => (dispatch, getState) => {
-  const opts = {
-    method: 'GET',
-    credentials: 'same-origin'
-  }
+export const updatePolicyBins = (url) => async (dispatch) => {
+  const res = await dispatch(get(url, { id: 'wcpm' }))
+  const json = await res.json()
 
-  window.fetch(url, opts)
-    .then((res) => Promise.all([ res.status, res.json() ]))
-    .then(([status, json]) => {
-      if (status === 200) {
-        dispatch(replaceAllBins(json[0].contextPolicyBins, json[0].whiteListContexts))
-        dispatch(fetchOptions('/admin/beta/config/probe/context-policy-manager/options'))
-      }
-    })
-    .catch(() => {
-//    TODO handle probe errors
-    })
+  if (res.status === 200) {
+    dispatch(replaceAllBins(json[0].contextPolicyBins, json[0].whiteListContexts))
+    dispatch(fetchOptions('/admin/beta/config/probe/context-policy-manager/options'))
+  }
 }
 
 const isEmpty = (bin, key) => {
@@ -84,7 +75,7 @@ const isEmpty = (bin, key) => {
   return true
 }
 
-export const persistChanges = (binNumber, url) => (dispatch, getState) => {
+export const persistChanges = (binNumber, url) => async (dispatch, getState) => {
   dispatch(clearAllErrors())
   // Check for non-empty edit fields
   const bin = getBins(getState())[getState().toJS().wcpm.editingBinNumber]
@@ -124,59 +115,40 @@ export const persistChanges = (binNumber, url) => (dispatch, getState) => {
     whiteListContexts: getBins(getState())[0].contextPaths
   }
 
-  const opts = {
-    method: 'POST',
-    body: JSON.stringify(formattedBody),
-    credentials: 'same-origin'
-  }
+  const body = JSON.stringify(formattedBody)
 
-  window.fetch(url, opts)
-    .then((res) => Promise.all([ res.status, res.json() ]))
-    .then(([status, json]) => {
-      // check for server exceptions
-      if (json.messages[0].exceptions.length > 0) {
-        dispatch(setError('general', 'The server encountered an error. Please check the server logs for more information.'))
-        dispatch(backendError(json))
-        return
-      }
-      // handle responses
-      const result = json.messages[0].subType
-      if (result === 'SUCCESSFUL_PERSIST') {
-        dispatch(editModeSave(binNumber))
-      } else {
-        dispatch(setError('general', 'Could not save. Reason for issue: ' + json.messages[0].message))
-      }
-    })
-    .catch(() => {
-//    TODO handle probe errors
-      dispatch(setError('general', 'Could not save configuration - there may have been network errors.'))
-    })
+  const res = await dispatch(post(url, { id: 'wcpm', body }))
+  const json = await res.json()
+
+  // check for server exceptions
+  if (json.messages[0].exceptions.length > 0) {
+    dispatch(setError('general', 'The server encountered an error. Please check the server logs for more information.'))
+    return
+  }
+  // handle responses
+  const result = json.messages[0].subType
+  if (result === 'SUCCESSFUL_PERSIST') {
+    dispatch(editModeSave(binNumber))
+  } else {
+    dispatch(setError('general', 'Could not save. Reason for issue: ' + json.messages[0].message))
+  }
 }
 
-export const fetchOptions = (url) => (dispatch, getState) => {
+export const fetchOptions = (url) => async (dispatch, getState) => {
   const formattedBody = {
     configurationType: 'context-policy-manager',
     contextPolicyBins: getBins(getState()).slice(1),
     whiteListContexts: getBins(getState())[0].contextPaths
   }
 
-  const opts = {
-    method: 'POST',
-    body: JSON.stringify(formattedBody),
-    credentials: 'same-origin'
-  }
+  const body = JSON.stringify(formattedBody)
 
-  window.fetch(url, opts)
-    .then((res) => Promise.all([ res.status, res.json() ]))
-    .then(([status, json]) => {
-      if (status === 200) {
-        dispatch(setPolicyOptions(json.probeResults))
-      } else {
-      }
-    })
-    .catch(() => {
-//    TODO handle probe errors
-    })
+  const res = await dispatch(post(url, { id: 'wcpm', body }))
+  const json = await res.json()
+
+  if (res.status === 200) {
+    dispatch(setPolicyOptions(json.probeResults))
+  }
 }
 
 export const confirmRemoveBinAndPersist = (binNumber, url) => (dispatch) => {
