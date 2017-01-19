@@ -23,12 +23,15 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Optional;
+
+import javax.ws.rs.WebApplicationException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -108,8 +111,7 @@ public class TestGeoNamesWebService {
         String response = IOUtils.toString(TestGeoNamesWebService.class.getClassLoader()
                 .getResourceAsStream("getLocationTestResponse.json"));
 
-        WebClient webClientMock = mock(WebClient.class);
-        prepareWebClient(webClientMock, response);
+        prepareWebClient(response);
 
         GeoResult result = webServiceSpy.getLocation("Phoenix");
         assertThat(result.getFullName(), is("Phoenix"));
@@ -117,8 +119,7 @@ public class TestGeoNamesWebService {
 
     @Test
     public void testGetNearbyCity() {
-        WebClient webClientMock = mock(WebClient.class);
-        prepareWebClient(webClientMock, NEARBY_CITY_QUERY_TEST_RESPONSE);
+        prepareWebClient(NEARBY_CITY_QUERY_TEST_RESPONSE);
 
         NearbyLocation nearbyLocation = webServiceSpy.getNearbyCity(QUERY_TEST_LOCATION);
         assertThat(nearbyLocation.getCardinalDirection(), equalTo("W"));
@@ -129,8 +130,7 @@ public class TestGeoNamesWebService {
 
     @Test
     public void testGetCountryCode() {
-        WebClient webClientMock = mock(WebClient.class);
-        prepareWebClient(webClientMock, COUNRTY_CODE_QUERY_TEST_RESPONSE);
+        prepareWebClient(COUNRTY_CODE_QUERY_TEST_RESPONSE);
 
         Optional<String> countryCode = webServiceSpy.getCountryCode(QUERY_TEST_LOCATION, 10);
         assertThat(countryCode.get(), is("AND"));
@@ -138,17 +138,31 @@ public class TestGeoNamesWebService {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetCountryCodeNoLocation() {
-        WebClient webClientMock = mock(WebClient.class);
-        prepareWebClient(webClientMock, COUNRTY_CODE_QUERY_TEST_RESPONSE);
+        prepareWebClient(COUNRTY_CODE_QUERY_TEST_RESPONSE);
 
         webServiceSpy.getCountryCode(null, 10);
     }
 
-    private void prepareWebClient(WebClient mockedWebClient, String webResponse) {
-        when(mockedWebClient.acceptEncoding(anyString())).thenReturn(mockedWebClient);
-        when(mockedWebClient.accept(anyString())).thenReturn(mockedWebClient);
-        when(mockedWebClient.get(String.class)).thenReturn(webResponse);
-        doReturn(mockedWebClient).when(webServiceSpy)
+    @Test
+    public void testGeoNamesQueryNoInternetConnection() {
+        WebClient mockWebClient = mock(WebClient.class);
+        when(mockWebClient.acceptEncoding(anyString())).thenReturn(mockWebClient);
+        when(mockWebClient.accept(anyString())).thenReturn(mockWebClient);
+        doThrow(WebApplicationException.class).when(mockWebClient)
+                .get(String.class);
+        doReturn(mockWebClient).when(webServiceSpy)
+                .createWebClient(anyString());
+
+        Optional<String> countryCode = webServiceSpy.getCountryCode(QUERY_TEST_LOCATION, 10);
+        assertThat(countryCode, is(Optional.empty()));
+    }
+
+    private void prepareWebClient(String webResponse) {
+        WebClient mockWebClient = mock(WebClient.class);
+        when(mockWebClient.acceptEncoding(anyString())).thenReturn(mockWebClient);
+        when(mockWebClient.accept(anyString())).thenReturn(mockWebClient);
+        when(mockWebClient.get(String.class)).thenReturn(webResponse);
+        doReturn(mockWebClient).when(webServiceSpy)
                 .createWebClient(anyString());
     }
 }

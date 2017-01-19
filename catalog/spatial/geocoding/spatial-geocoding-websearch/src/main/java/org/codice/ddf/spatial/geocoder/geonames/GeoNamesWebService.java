@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Optional;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 
 import org.apache.commons.lang.StringUtils;
@@ -107,28 +108,25 @@ public class GeoNamesWebService implements GeoCoder {
     }
 
     private Object query(String urlStr) {
-        String response = null;
+        final String response;
 
         try {
             WebClient client = createWebClient(urlStr);
             response = client.acceptEncoding(StandardCharsets.UTF_8.name())
                     .accept("application/json")
                     .get(String.class);
-        } catch (WebApplicationException e) {
-            LOGGER.debug("Error while making geonames request.", e);
+        } catch (WebApplicationException | ProcessingException e) {
+            LOGGER.debug("Error while making GeoNames request.", e);
             return null;
         }
 
-        Object result = null;
-
         try {
             JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
-            result = parser.parse(response);
+            return parser.parse(response);
         } catch (ParseException e) {
-            LOGGER.debug("Error while parsing JSON message from Geonames service.", e);
+            LOGGER.debug("Error while parsing JSON message from GeoNames service.", e);
+            return null;
         }
-
-        return result;
     }
 
     WebClient createWebClient(String urlStr) {
