@@ -42,7 +42,6 @@ public class CswSourceConfigurationHandler extends DefaultConfigurationHandler<S
         implements SourceConfigurationHandler<SourceConfiguration> {
 
     public static final String CSW_SOURCE_CONFIGURATION_HANDLER_ID = CswSourceConfiguration.CONFIGURATION_TYPE;
-    public static final String CSW_SOURCE_DISPLAY_NAME = "CSW Source";
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
@@ -94,10 +93,5 @@ public class CswSourceConfigurationHandler extends DefaultConfigurationHandler<S
     @Override
     public ConfigurationType getConfigurationType() {
         return new CswSourceConfiguration().getConfigurationType();
-    }
-
-    @Override
-    public String getSourceDisplayName() {
-        return CSW_SOURCE_DISPLAY_NAME;
     }
 }

@@ -22,15 +22,12 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 public class GetConfigHandlersProbeMethod extends ProbeMethod<SourceConfiguration> {
 
     public static final String GET_CONFIG_HANDLER_ID = "config-handlers";
 
-    public static final String CONFIG_HANDLER_KEY = "id";
-    public static final String DISPLAY_NAME_KEY = "name";
-    public static final String DESCRIPTION = "Retrieves a list of all running configuration handlers. The list of objects returned will have the keys \"" + CONFIG_HANDLER_KEY + "\" and \""  + DISPLAY_NAME_KEY;
+    public static final String DESCRIPTION = "Retrieves the ids of all source configuration handlers currently running.";
 
     public static final String SRC_CONFIG_HNDLRS = "sourceConfigHandlers";
     public static final List<String> RETURN_TYPES = ImmutableList.of(SRC_CONFIG_HNDLRS);
@@ -51,11 +48,8 @@ public class GetConfigHandlersProbeMethod extends ProbeMethod<SourceConfiguratio
 
     @Override
     public ProbeReport probe(SourceConfiguration configuration) {
-        List<ImmutableMap> collect = handlers.stream()
-                .map(handler -> ImmutableMap.builder()
-                        .put(CONFIG_HANDLER_KEY, handler.getConfigurationHandlerId())
-                        .put(DISPLAY_NAME_KEY, handler.getSourceDisplayName())
-                        .build())
+        List<String> collect = handlers.stream()
+                .map(handler -> handler.getConfigurationHandlerId())
                 .collect(Collectors.toList());
 
         return new ProbeReport().probeResult(SRC_CONFIG_HNDLRS, collect);

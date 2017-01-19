@@ -19,6 +19,4 @@ import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 public interface SourceConfigurationHandler<S extends SourceConfiguration>
         extends ConfigurationHandler<S> {
 
-
-    String getSourceDisplayName();
 }

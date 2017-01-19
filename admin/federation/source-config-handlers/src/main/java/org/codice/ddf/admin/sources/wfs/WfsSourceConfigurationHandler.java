@@ -42,7 +42,6 @@ public class WfsSourceConfigurationHandler extends DefaultConfigurationHandler<S
         implements SourceConfigurationHandler<SourceConfiguration> {
 
     public static final String WFS_SOURCE_CONFIGURATION_HANDLER_ID = WfsSourceConfiguration.CONFIGURATION_TYPE;
-    public static final String WFS_SOURCE_DISPLAY_NAME = "WFS Source";
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
@@ -95,10 +94,5 @@ public class WfsSourceConfigurationHandler extends DefaultConfigurationHandler<S
     @Override
     public ConfigurationType getConfigurationType() {
         return new WfsSourceConfiguration().getConfigurationType();
-    }
-
-    @Override
-    public String getSourceDisplayName() {
-        return WFS_SOURCE_DISPLAY_NAME;
     }
 }

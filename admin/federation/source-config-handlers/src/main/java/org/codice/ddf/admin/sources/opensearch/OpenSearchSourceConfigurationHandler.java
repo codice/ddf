@@ -42,7 +42,6 @@ public class OpenSearchSourceConfigurationHandler extends DefaultConfigurationHa
         implements SourceConfigurationHandler<SourceConfiguration> {
 
     public static final String OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID = OpenSearchSourceConfiguration.CONFIGURATION_TYPE;
-    public static final String OPENSEARCH_SOURCE_DISPLAY_NAME = "OpenSearch Source";
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
@@ -93,10 +92,5 @@ public class OpenSearchSourceConfigurationHandler extends DefaultConfigurationHa
     @Override
     public ConfigurationType getConfigurationType() {
         return new OpenSearchSourceConfiguration().getConfigurationType();
-    }
-
-    @Override
-    public String getSourceDisplayName() {
-        return OPENSEARCH_SOURCE_DISPLAY_NAME;
     }
 }
