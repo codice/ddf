@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.admin.sources.csw.test;
 
-import static org.codice.ddf.admin.api.config.services.CswServiceProperties.CSW_SPEC_FACTORY_PID;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.ENDPOINT_URL;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.WARNING;
@@ -22,6 +21,7 @@ import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CANN
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CANNOT_VERIFY;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.MANUAL_URL_TEST_ID;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.VERIFIED_URL;
+import static org.codice.ddf.admin.api.services.CswServiceProperties.CSW_SPEC_FACTORY_PID;
 import static org.codice.ddf.admin.sources.csw.CswSourceUtils.getPreferredConfig;
 import static org.codice.ddf.admin.sources.csw.CswSourceUtils.isAvailable;
 

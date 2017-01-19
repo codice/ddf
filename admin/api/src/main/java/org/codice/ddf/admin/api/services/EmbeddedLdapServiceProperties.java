@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.api.config.services;
+package org.codice.ddf.admin.api.services;
 
 import java.util.Map;
 

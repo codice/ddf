@@ -11,10 +11,10 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.api.config.services;
+package org.codice.ddf.admin.api.services;
 
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.FACTORY_PID_KEY;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.SERVICE_PID_KEY;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.FACTORY_PID_KEY;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.SERVICE_PID_KEY;
 
 import java.util.HashMap;
 import java.util.Map;

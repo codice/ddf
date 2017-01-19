@@ -21,47 +21,61 @@ import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.Report;
 
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ *
+ * A {@link ConfigurationHandler} is used to  {@link #probe}, {@link #test}, and {@link #persist} a {@link Configuration}
+ */
 public interface ConfigurationHandler<S extends Configuration> {
 
     /**
-     * Used to search the system for information relative to the configuration and type of probing.
+     * Used to discover information. This may be system specific or external to the system.
      *
-     * @param probeId       - id of the probe to be used for searching
-     * @param configuration - information used for probing
+     * @param probeId A unique key that specifies the probe operation for the {@link ConfigurationHandler} to perform on the {@link Configuration}
+     * @param configuration A configuration containing information to be used for discovery of information
      * @return ProbeReport containing the results of probe
      */
     ProbeReport probe(String probeId, S configuration);
 
     /**
-     * Returns a list of error messages resulting from the testing. If empty, assume testing was successful
+     * Tests a {@link Configuration}. For example, confirming that various {@link Configuration} fields are valid.
      *
-     * @param testId        - Id of the test to perform
-     * @param configuration - Configuration with properties that will be used for testing
-     * @return Error messages resulting from testing.
+     * @param testId A unique key that specifies the test operation for the {@link ConfigurationHandler} to perform on the {@link Configuration}
+     * @param configuration Configuration to test
+     * @return A {@link Report} containing the results of the operation
      */
     Report test(String testId, S configuration);
 
     /**
-     * Persists the configuration to the according bundles and services. Returns a list of error messages resulting from persisting
+     * Persists a {@link Configuration}.
      *
-     * @param configuration - Configuration to persist
-     * @return Error messages resulting from persisting
+     * @param persistId A unique key that specifies the persist operation for the {@link ConfigurationHandler} to perform on the {@link Configuration}
+     * @param configuration Configuration to persist
+     * @return A {@link Report} containing the results of the operation
      */
     Report persist(String persistId, S configuration);
 
-    /*
-     * Returns configurations associated with this configuration handler
+    /**
+     * Returns a list of available {@link Configuration}s associated to this {@link ConfigurationHandler}.
+     *
+     * @return list of {@link Configuration}s
      */
     List<S> getConfigurations();
 
     CapabilitiesReport getCapabilities();
 
     /**
-     * UUID of this configuration handler
+     * Unique ID of this configuration handler. The uniqueness of the ID is not enforced.
      *
-     * @return - uuid
+     * @return  uid
      */
     String getConfigurationHandlerId();
 
+    /**
+     * Specifics the type of {@link Configuration} the {@link ConfigurationHandler} can handle. This will by used by the {@link ConfigurationHandlerRouter}identify the configuration as a child class of {@link Configuration}.
+     *
+     * @return a {@link ConfigurationType}
+     */
     ConfigurationType getConfigurationType();
 }

@@ -14,17 +14,17 @@
 package org.codice.ddf.admin.security.ldap.embedded.persist;
 
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_USE_CASE;
-import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.ALL_DEFAULT_EMBEDDED_LDAP_CONFIG_FEATURE;
-import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.DEFAULT_EMBEDDED_LDAP_CLAIMS_HANDLER_CONFIG_FEATURE;
-import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.DEFAULT_EMBEDDED_LDAP_LOGIN_CONFIG_FEATURE;
-import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.EMBEDDED_LDAP_FEATURE;
-import static org.codice.ddf.admin.api.config.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_FEATURE;
-import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.LDAP_LOGIN_FEATURE;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.services.EmbeddedLdapServiceProperties.ALL_DEFAULT_EMBEDDED_LDAP_CONFIG_FEATURE;
+import static org.codice.ddf.admin.api.services.EmbeddedLdapServiceProperties.DEFAULT_EMBEDDED_LDAP_CLAIMS_HANDLER_CONFIG_FEATURE;
+import static org.codice.ddf.admin.api.services.EmbeddedLdapServiceProperties.DEFAULT_EMBEDDED_LDAP_LOGIN_CONFIG_FEATURE;
+import static org.codice.ddf.admin.api.services.EmbeddedLdapServiceProperties.EMBEDDED_LDAP_FEATURE;
+import static org.codice.ddf.admin.api.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_FEATURE;
+import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.LDAP_LOGIN_FEATURE;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.LOGIN;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
 
 import java.util.List;
 import java.util.Map;

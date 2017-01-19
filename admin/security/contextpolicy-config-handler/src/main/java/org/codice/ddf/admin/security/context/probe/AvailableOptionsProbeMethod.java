@@ -14,22 +14,22 @@
 
 package org.codice.ddf.admin.security.context.probe;
 
-import static org.codice.ddf.admin.api.config.services.PolicyManagerServiceProperties.IDP_CLIENT_BUNDLE_NAME;
-import static org.codice.ddf.admin.api.config.services.PolicyManagerServiceProperties.IDP_SERVER_BUNDLE_NAME;
-import static org.codice.ddf.admin.api.config.services.PolicyManagerServiceProperties.STS_CLAIMS_CONFIGURATION_CONFIG_ID;
-import static org.codice.ddf.admin.api.config.services.PolicyManagerServiceProperties.STS_CLAIMS_PROPS_KEY_CLAIMS;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.BASIC;
-import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.GUEST;
-import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.IDP;
-import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.KARAF;
-import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.LDAP;
-import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.PKI;
-import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.SAML;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.FAILED_PROBE;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PROBE;
 import static org.codice.ddf.admin.api.handler.report.ProbeReport.createProbeReport;
+import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.IDP_CLIENT_BUNDLE_NAME;
+import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.IDP_SERVER_BUNDLE_NAME;
+import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.STS_CLAIMS_CONFIGURATION_CONFIG_ID;
+import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.STS_CLAIMS_PROPS_KEY_CLAIMS;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.LOGIN;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.validation.SecurityValidationUtils.BASIC;
+import static org.codice.ddf.admin.api.validation.SecurityValidationUtils.GUEST;
+import static org.codice.ddf.admin.api.validation.SecurityValidationUtils.IDP;
+import static org.codice.ddf.admin.api.validation.SecurityValidationUtils.KARAF;
+import static org.codice.ddf.admin.api.validation.SecurityValidationUtils.LDAP;
+import static org.codice.ddf.admin.api.validation.SecurityValidationUtils.PKI;
+import static org.codice.ddf.admin.api.validation.SecurityValidationUtils.SAML;
 
 import java.util.ArrayList;
 import java.util.Arrays;

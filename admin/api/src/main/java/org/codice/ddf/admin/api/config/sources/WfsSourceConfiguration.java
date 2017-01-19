@@ -14,15 +14,15 @@
 
 package org.codice.ddf.admin.api.config.sources;
 
-import static org.codice.ddf.admin.api.config.validation.SourceValidationUtils.validateWfsFactoryPid;
+import static org.codice.ddf.admin.api.validation.SourceValidationUtils.validateWfsFactoryPid;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.validation.ValidationUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.validation.ValidationUtils;
 
 import com.google.common.collect.ImmutableMap;
 

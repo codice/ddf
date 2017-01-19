@@ -29,19 +29,19 @@ import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_USE_CA
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.MEMBERSHIP_ATTRIBUTE;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.PORT;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.USER_NAME_ATTRIBUTE;
-import static org.codice.ddf.admin.api.config.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_FEATURE;
-import static org.codice.ddf.admin.api.config.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_MANAGED_SERVICE_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.services.LdapClaimsHandlerServiceProperties.ldapConfigToLdapClaimsHandlerService;
-import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.LDAP_LOGIN_FEATURE;
-import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.LDAP_LOGIN_MANAGED_SERVICE_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.ldapConfigurationToLdapLoginService;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.CREATE;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
 import static org.codice.ddf.admin.api.handler.report.Report.createReport;
+import static org.codice.ddf.admin.api.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_FEATURE;
+import static org.codice.ddf.admin.api.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_MANAGED_SERVICE_FACTORY_PID;
+import static org.codice.ddf.admin.api.services.LdapClaimsHandlerServiceProperties.ldapConfigToLdapClaimsHandlerService;
+import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.LDAP_LOGIN_FEATURE;
+import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.LDAP_LOGIN_MANAGED_SERVICE_FACTORY_PID;
+import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.ldapConfigurationToLdapLoginService;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.LOGIN;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.LOGIN_AND_CREDENTIAL_STORE;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

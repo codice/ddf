@@ -14,10 +14,10 @@
 package org.codice.ddf.admin.sources.wfs;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.codice.ddf.admin.api.config.services.WfsServiceProperties.WFS1_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.services.WfsServiceProperties.WFS2_FACTORY_PID;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.OWS_NAMESPACE_CONTEXT;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.PING_TIMEOUT;
+import static org.codice.ddf.admin.api.services.WfsServiceProperties.WFS1_FACTORY_PID;
+import static org.codice.ddf.admin.api.services.WfsServiceProperties.WFS2_FACTORY_PID;
 
 import java.io.IOException;
 import java.util.Arrays;

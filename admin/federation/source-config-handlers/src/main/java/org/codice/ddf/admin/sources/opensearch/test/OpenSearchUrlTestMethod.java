@@ -14,9 +14,6 @@
 package org.codice.ddf.admin.sources.opensearch.test;
 
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.ENDPOINT_URL;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CANNOT_CONNECT;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CANNOT_VERIFY;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.MANUAL_URL_TEST_ID;
@@ -71,11 +68,6 @@ public class OpenSearchUrlTestMethod extends TestMethod<OpenSearchSourceConfigur
             return testReport.messages(message.get());
         }
 
-
-        if (isAvailable(configuration.endpointUrl(), configuration)) {
-            return new Report(buildMessage(SUCCESS, VERIFIED_URL, SUCCESS_TYPES.get(VERIFIED_URL)));
-        } else {
-            return new Report(buildMessage(FAILURE, CANNOT_CONNECT, FAILURE_TYPES.get(CANNOT_CONNECT)));
-        }
+        return Report.createReport(SUCCESS_TYPES, FAILURE_TYPES, WARNING_TYPES, isAvailable(configuration.endpointUrl(), configuration) ? VERIFIED_URL : CANNOT_CONNECT);
     }
 }

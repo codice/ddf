@@ -82,10 +82,9 @@ public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
 
     @Override
     public Report test(LdapConfiguration configuration) {
-        List<ConfigurationMessage> checkMessages =
-                // TODO: use the validate method, not this
-                configuration.validate(REQUIRED_FIELDS);
+        List<ConfigurationMessage> checkMessages = configuration.validate(REQUIRED_FIELDS);
 
+        // TODO: tbatie - 1/19/17 - Validate optional fields if they exist
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);
         }

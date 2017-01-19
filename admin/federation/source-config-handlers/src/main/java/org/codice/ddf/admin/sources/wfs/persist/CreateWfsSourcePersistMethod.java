@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.admin.sources.wfs.persist;
 
-import static org.codice.ddf.admin.api.config.services.WfsServiceProperties.wfsConfigToServiceProps;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.ENDPOINT_URL;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.FACTORY_PID;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PASSWORD;
@@ -25,6 +24,7 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.CREATE;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.services.WfsServiceProperties.wfsConfigToServiceProps;
 
 import java.util.List;
 import java.util.Map;

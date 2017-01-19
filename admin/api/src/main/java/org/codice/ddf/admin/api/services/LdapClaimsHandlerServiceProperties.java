@@ -11,14 +11,14 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.api.config.services;
+package org.codice.ddf.admin.api.services;
 
-import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.getLdapUrl;
-import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.getUriFromProperty;
-import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.isStartTls;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.TLS;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.SERVICE_PID_KEY;
+import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.getLdapUrl;
+import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.getUriFromProperty;
+import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.isStartTls;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.CREDENTIAL_STORE;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.TLS;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.SERVICE_PID_KEY;
 
 import java.net.URI;
 import java.nio.file.Paths;

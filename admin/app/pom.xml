@@ -22,7 +22,6 @@
         <groupId>org.codice.ddf.admin.beta</groupId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
-    <!--TODO - when you change this, don't forget to update the features.cfg as well-->
     <artifactId>admin-beta-app</artifactId>
     <name>DDF :: Admin (Beta) :: App</name>
 

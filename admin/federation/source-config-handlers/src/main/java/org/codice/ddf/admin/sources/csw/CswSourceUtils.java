@@ -14,11 +14,11 @@
 package org.codice.ddf.admin.sources.csw;
 
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.codice.ddf.admin.api.config.services.CswServiceProperties.CSW_GMD_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.services.CswServiceProperties.CSW_PROFILE_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.services.CswServiceProperties.CSW_SPEC_FACTORY_PID;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.OWS_NAMESPACE_CONTEXT;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.PING_TIMEOUT;
+import static org.codice.ddf.admin.api.services.CswServiceProperties.CSW_GMD_FACTORY_PID;
+import static org.codice.ddf.admin.api.services.CswServiceProperties.CSW_PROFILE_FACTORY_PID;
+import static org.codice.ddf.admin.api.services.CswServiceProperties.CSW_SPEC_FACTORY_PID;
 
 import java.io.IOException;
 import java.util.Arrays;

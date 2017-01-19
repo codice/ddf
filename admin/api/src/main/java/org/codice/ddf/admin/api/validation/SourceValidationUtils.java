@@ -11,13 +11,13 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.api.config.validation;
+package org.codice.ddf.admin.api.validation;
 
-import static org.codice.ddf.admin.api.config.services.CswServiceProperties.CSW_FACTORY_PIDS;
-import static org.codice.ddf.admin.api.config.services.OpensearchServiceProperties.OPENSEARCH_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.services.WfsServiceProperties.WFS_FACTORY_PIDS;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateString;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
+import static org.codice.ddf.admin.api.services.CswServiceProperties.CSW_FACTORY_PIDS;
+import static org.codice.ddf.admin.api.services.OpensearchServiceProperties.OPENSEARCH_FACTORY_PID;
+import static org.codice.ddf.admin.api.services.WfsServiceProperties.WFS_FACTORY_PIDS;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateString;
 
 import java.util.List;
 

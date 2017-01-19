@@ -11,12 +11,11 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.api.config.validation;
+package org.codice.ddf.admin.api.validation;
 
 import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.AUTH_TYPES;
 import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.CONTEXT_PATHS;
 import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.REALM;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateString;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
@@ -59,7 +58,7 @@ public class SecurityValidationUtils {
     }
 
     public static final List<ConfigurationMessage> validateRealm(String realm, String configId) {
-        List<ConfigurationMessage> errors = validateString(realm, configId);
+        List<ConfigurationMessage> errors = ValidationUtils.validateString(realm, configId);
         if (errors.isEmpty() && !ALL_REALMS.contains(realm)) {
             errors.add(createInvalidFieldMsg("Unknown realm: " + realm + ". Realm must be one of " + ALL_REALMS.stream().collect(
                     Collectors.joining(",")), configId));

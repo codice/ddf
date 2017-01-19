@@ -14,10 +14,10 @@
 
 package org.codice.ddf.admin.api.config.sources;
 
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateHostName;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validatePort;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateString;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateUrl;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateHostName;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validatePort;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateString;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateUrl;
 
 import java.util.List;
 import java.util.Map;
@@ -25,8 +25,8 @@ import java.util.function.Function;
 
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.validation.ValidationUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.validation.ValidationUtils;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -66,15 +66,6 @@ public class SourceConfiguration extends Configuration {
         this.trustedCertAuthority = sourceConfiguration.trustedCertAuthority;
     }
 
-    @Override
-    public ConfigurationType getConfigurationType() {
-        return new ConfigurationType(CONFIGURATION_TYPE, SourceConfiguration.class);
-    }
-
-    public List<ConfigurationMessage> validate(List<String> fields) {
-        return ValidationUtils.validate(fields, this, getBaseFieldValidationMap());
-    }
-
     public static <T extends SourceConfiguration> Map<String, Function<T, List<ConfigurationMessage>>> getBaseFieldValidationMap() {
         return new ImmutableMap.Builder<String, Function<T, List<ConfigurationMessage>>>()
                 .put(SOURCE_NAME, config -> validateString(config.sourceName(), SOURCE_NAME))
@@ -86,6 +77,15 @@ public class SourceConfiguration extends Configuration {
                 .put(ENDPOINT_URL, config -> validateUrl(config.endpointUrl(), ENDPOINT_URL))
                 .put(SERVICE_PID, config -> validateString(config.servicePid(), SERVICE_PID))
                 .build();
+    }
+
+    public List<ConfigurationMessage> validate(List<String> fields) {
+        return ValidationUtils.validate(fields, this, getBaseFieldValidationMap());
+    }
+
+    @Override
+    public ConfigurationType getConfigurationType() {
+        return new ConfigurationType(CONFIGURATION_TYPE, SourceConfiguration.class);
     }
 
     //Getters
@@ -147,5 +147,4 @@ public class SourceConfiguration extends Configuration {
         this.sourceHostName = sourceHostName;
         return this;
     }
-
 }

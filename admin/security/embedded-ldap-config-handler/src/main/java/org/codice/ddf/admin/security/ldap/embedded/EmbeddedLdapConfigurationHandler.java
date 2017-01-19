@@ -14,8 +14,8 @@
 
 package org.codice.ddf.admin.security.ldap.embedded;
 
-import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.EMBEDDED_LDAP_MANAGER_SERVICE_PID;
-import static org.codice.ddf.admin.api.config.services.EmbeddedLdapServiceProperties.embeddedLdapServiceToEmbeddedLdapConfig;
+import static org.codice.ddf.admin.api.services.EmbeddedLdapServiceProperties.EMBEDDED_LDAP_MANAGER_SERVICE_PID;
+import static org.codice.ddf.admin.api.services.EmbeddedLdapServiceProperties.embeddedLdapServiceToEmbeddedLdapConfig;
 
 import java.util.Collections;
 import java.util.List;

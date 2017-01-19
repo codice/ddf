@@ -67,6 +67,7 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
 
     private static final List<String> RETURN_TYPES = ImmutableList.of(LDAP_QUERY_RESULTS);
 
+    // TODO: tbatie - 1/19/17 - Set success types and failure types
     public LdapQueryProbe() {
         super(LDAP_QUERY_ID, DESCRIPTION, REQUIRED_FIELDS, OPTIONAL_FIELDS, null, null, null, RETURN_TYPES);
     }

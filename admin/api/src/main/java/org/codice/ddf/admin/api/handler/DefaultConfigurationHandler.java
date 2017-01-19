@@ -24,8 +24,7 @@ import org.codice.ddf.admin.api.handler.report.CapabilitiesReport;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.Report;
 
-public abstract class DefaultConfigurationHandler<S extends Configuration>
-        implements ConfigurationHandler<S> {
+public abstract class DefaultConfigurationHandler<S extends Configuration> implements ConfigurationHandler<S> {
 
     public abstract List<ProbeMethod> getProbeMethods();
 
@@ -85,7 +84,7 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
     public Report getNoTestFoundReport(String badId){
         return new Report(ConfigurationMessage.buildMessage(ConfigurationMessage.MessageType.FAILURE,
                 ConfigurationMessage.NO_METHOD_FOUND,
-                "Unknown method id: " + (badId == null ? "null" : badId)));
+                "Unknown method id: \"" + (badId == null ? "null" : badId + "\".")));
     }
 
     public ProbeReport getNoProbeFoundReport(String badId){

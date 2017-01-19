@@ -21,7 +21,6 @@ import com.google.gson.annotations.Expose;
 
 public abstract class ConfigurationHandlerMethod {
 
-    //The following fields are used by the json parser although they look unused
     @Expose
     final String id;
     @Expose

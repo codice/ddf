@@ -24,6 +24,8 @@ import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.HOST_NAME;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.LDAP_TYPE;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.MEMBERSHIP_ATTRIBUTE;
 import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.PORT;
+import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.STS_CLAIMS_CONFIGURATION_CONFIG_ID;
+import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.STS_CLAIMS_PROPS_KEY_CLAIMS;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
 
 import java.util.ArrayList;
@@ -89,13 +91,14 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
             return new ProbeReport(checkMessages);
         }
 
-        Object subjectClaims = new Configurator().getConfig("ddf.security.sts.client.configuration")
-                .get("claims");
+        Object subjectClaims = new Configurator().getConfig(STS_CLAIMS_CONFIGURATION_CONFIG_ID)
+                .get(STS_CLAIMS_PROPS_KEY_CLAIMS);
 
         LdapTestingCommons.LdapConnectionAttempt ldapConnectionAttempt = bindUserToLdapConnection(
                 configuration);
         Set<String> ldapEntryAttributes = null;
         try {
+            // TODO: tbatie - 1/19/17 - Don't assume the connection is available, should check result first
             ServerGuesser serverGuesser = ServerGuesser.buildGuesser(configuration.ldapType(),
                     ldapConnectionAttempt.connection());
             ldapEntryAttributes =
@@ -108,6 +111,7 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
                     configuration.membershipAttribute());
         }
 
+        // TODO: tbatie - 1/19/17 - Need to return messages about the probe result and/or if something goes wrong
         return new ProbeReport(new ArrayList<>()).probeResult(SUBJECT_CLAIMS_ID, subjectClaims)
                 .probeResult(USER_ATTRIBUTES, ldapEntryAttributes);
     }

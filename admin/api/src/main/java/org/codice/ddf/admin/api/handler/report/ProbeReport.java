@@ -37,6 +37,17 @@ public class ProbeReport extends Report {
         super(Arrays.asList(messages));
     }
 
+    public static final ProbeReport createProbeReport(Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes, String result) {
+        return new ProbeReport(Report.createReport(successTypes, failureTypes, warningTypes, result).messages());
+    }
+
+    public static final ProbeReport createProbeReport(Map<String, String> successTypes,
+            Map<String, String> failureTypes, Map<String, String> warningTypes, List<String> results) {
+        return new ProbeReport(Report.createReport(successTypes, failureTypes, warningTypes, results).messages());
+    }
+
+    //Setters
     public ProbeReport probeResult(String key, Object value) {
         if(value != null) {
             probeResults.put(key, value);
@@ -47,16 +58,6 @@ public class ProbeReport extends Report {
     public ProbeReport probeResults(Map<String, Object> results) {
         probeResults.putAll(results);
         return this;
-    }
-
-    public static final ProbeReport createProbeReport(Map<String, String> successTypes,
-            Map<String, String> failureTypes, Map<String, String> warningTypes, String result) {
-        return new ProbeReport(Report.createReport(successTypes, failureTypes, warningTypes, result).messages());
-    }
-
-    public static final ProbeReport createProbeReport(Map<String, String> successTypes,
-            Map<String, String> failureTypes, Map<String, String> warningTypes, List<String> results) {
-        return new ProbeReport(Report.createReport(successTypes, failureTypes, warningTypes, results).messages());
     }
 
     public Map<String, Object> getProbeResults() {

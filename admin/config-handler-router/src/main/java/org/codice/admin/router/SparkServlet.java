@@ -54,6 +54,7 @@ import spark.utils.CollectionUtils;
  * {@link #setRequestSupplier(BiFunction)} method) to provide added path flexibility.
  */
 public class SparkServlet extends HttpServlet {
+    // TODO: tbatie - 1/19/17 - (Ticket) This SparkServlet needs to be moved to a common place so everyone is using the same one in DDF
     private static final Logger LOGGER = LoggerFactory.getLogger(SparkServlet.class);
 
     private static final String SLASH_WILDCARD = "/*";

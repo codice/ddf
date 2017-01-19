@@ -17,11 +17,11 @@ package org.codice.ddf.admin.security.context.persist;
 import static org.codice.ddf.admin.api.config.context.ContextPolicyConfiguration.ALL_FIELDS;
 import static org.codice.ddf.admin.api.config.context.ContextPolicyConfiguration.CONTEXT_POLICY_BINS;
 import static org.codice.ddf.admin.api.config.context.ContextPolicyConfiguration.WHITE_LIST_CONTEXTS;
-import static org.codice.ddf.admin.api.config.services.ContextPolicyServiceProperties.POLICY_MANAGER_PID;
-import static org.codice.ddf.admin.api.config.services.ContextPolicyServiceProperties.configToPolicyManagerProps;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.EDIT;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.services.ContextPolicyServiceProperties.POLICY_MANAGER_PID;
+import static org.codice.ddf.admin.api.services.ContextPolicyServiceProperties.configToPolicyManagerProps;
 
 import java.util.List;
 import java.util.Map;

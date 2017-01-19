@@ -14,15 +14,13 @@
 
 package org.codice.ddf.admin.sources.csw;
 
-import static org.codice.ddf.admin.api.config.services.CswServiceProperties.CSW_FACTORY_PIDS;
-import static org.codice.ddf.admin.api.config.services.CswServiceProperties.servicePropsToCswConfig;
+import static org.codice.ddf.admin.api.services.CswServiceProperties.CSW_FACTORY_PIDS;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.services.CswServiceProperties;
 import org.codice.ddf.admin.api.config.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
@@ -33,6 +31,7 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.Report;
+import org.codice.ddf.admin.api.services.CswServiceProperties;
 import org.codice.ddf.admin.sources.csw.persist.CreateCswSourcePersistMethod;
 import org.codice.ddf.admin.sources.csw.persist.DeleteCswSourcePersistMethod;
 import org.codice.ddf.admin.sources.csw.probe.DiscoverCswSourceProbeMethod;

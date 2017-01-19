@@ -14,10 +14,10 @@
 
 package org.codice.ddf.admin.api.config.context;
 
-import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.validateAuthTypes;
-import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.validateRealm;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateContextPaths;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateMapping;
+import static org.codice.ddf.admin.api.validation.SecurityValidationUtils.validateAuthTypes;
+import static org.codice.ddf.admin.api.validation.SecurityValidationUtils.validateRealm;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateContextPaths;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateMapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;

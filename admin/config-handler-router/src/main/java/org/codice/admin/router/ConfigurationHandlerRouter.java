@@ -49,7 +49,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
 
     @Override
     public void init() {
-        // TODO: tbatie - 1/16/17 - Comment endpoints
+
         post("/test/:configHandlerId/:testId", (req, res) -> {
             Report testReport = new Report();
             String configHandlerId = req.params("configHandlerId");

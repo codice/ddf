@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.admin.sources.csw.persist;
 
-import static org.codice.ddf.admin.api.config.services.CswServiceProperties.cswConfigToServiceProps;
 import static org.codice.ddf.admin.api.config.sources.CswSourceConfiguration.FORCE_SPATIAL_FILTER;
 import static org.codice.ddf.admin.api.config.sources.CswSourceConfiguration.OUTPUT_SCHEMA;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.ENDPOINT_URL;
@@ -22,11 +21,9 @@ import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PASSWO
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.CREATE;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.services.CswServiceProperties.cswConfigToServiceProps;
 
 import java.util.List;
 import java.util.Map;
@@ -46,7 +43,6 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
     public static final String CREATE_CSW_SOURCE_ID = CREATE;
     public static final String DESCRIPTION = "Attempts to create and persist a CSW source given a configuration.";
 
-    //// TODO: tbatie - 1/17/17 - Add the event service address field EVENT_SERVICE_ADDRESS
     public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_NAME, ENDPOINT_URL, FACTORY_PID);
     private static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD, OUTPUT_SCHEMA, FORCE_SPATIAL_FILTER);
     private static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PERSIST, "CSW Source successfully created.");
@@ -72,8 +68,7 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
         Configurator configurator = new Configurator();
         configurator.createManagedService(configuration.factoryPid(), cswConfigToServiceProps(configuration));
         OperationReport report = configurator.commit();
-        return report.containsFailedResults() ? new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)))
-                 : new Report(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
+        return Report.createReport(SUCCESS_TYPES, FAILURE_TYPES, null, report.containsFailedResults() ? FAILED_PERSIST : SUCCESSFUL_PERSIST);
     }
 
 }

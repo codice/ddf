@@ -76,6 +76,7 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
             CANNOT_CONNECT,
             CANNOT_BIND));
 
+    // TODO: tbatie - 1/19/17 - Set success types and return messages from probe message if something goes wrong
     public DefaultDirectoryStructureProbe() {
         super(ID, DESCRIPTION, REQUIRED_FIELDS, OPTIONAL_FIELDS, null, FAILURE_TYPES, null);
     }

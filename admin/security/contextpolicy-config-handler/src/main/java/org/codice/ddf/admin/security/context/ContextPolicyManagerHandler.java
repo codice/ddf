@@ -14,7 +14,7 @@
 
 package org.codice.ddf.admin.security.context;
 
-import static org.codice.ddf.admin.api.config.services.PolicyManagerServiceProperties.contextPolicyServiceToContextPolicyConfig;
+import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.contextPolicyServiceToContextPolicyConfig;
 
 import java.util.Arrays;
 import java.util.List;

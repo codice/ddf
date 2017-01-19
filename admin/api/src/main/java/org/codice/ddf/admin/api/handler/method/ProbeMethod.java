@@ -56,8 +56,4 @@ public abstract class ProbeMethod<S extends Configuration> extends Configuration
     }
 
     public abstract ProbeReport probe(S configuration);
-
-    public List<String> getReturnTypes() {
-        return this.returnTypes;
-    }
 }

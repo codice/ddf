@@ -11,13 +11,13 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.api.config.services;
+package org.codice.ddf.admin.api.services;
 
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LDAPS;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LOGIN;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.TLS;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.FACTORY_PID_KEY;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.SERVICE_PID_KEY;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.LDAPS;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.LOGIN;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.TLS;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.FACTORY_PID_KEY;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.SERVICE_PID_KEY;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -46,8 +46,6 @@ public class LdapLoginServiceProperties {
     // ---
 
     public static final LdapConfiguration ldapLoginServiceToLdapConfiguration(Map<String, Object> props) {
-        //The keys below are specific to the Ldap_Login_Config service and mapped to the general LDAP configuration class fields
-        //This should eventually be cleaned up and structured data should be sent between the ldap login and claims services rather than map
         LdapConfiguration ldapConfiguration = new LdapConfiguration();
         ldapConfiguration.servicePid(
                 props.get(SERVICE_PID_KEY) == null ? null : (String) props.get(SERVICE_PID_KEY));

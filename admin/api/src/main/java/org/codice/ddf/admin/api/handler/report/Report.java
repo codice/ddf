@@ -42,20 +42,6 @@ public class Report {
         }
     }
 
-    public List<ConfigurationMessage> messages() {
-        return messages;
-    }
-
-    public Report messages(ConfigurationMessage result) {
-        this.messages.add(result);
-        return this;
-    }
-
-    public Report messages(List<ConfigurationMessage> messages) {
-        this.messages.addAll(messages);
-        return this;
-    }
-
     public boolean containsUnsuccessfulMessages() {
         return messages.stream()
                 .filter(msg -> msg.type() != ConfigurationMessage.MessageType.SUCCESS)
@@ -121,5 +107,21 @@ public class Report {
             }
         }
         return testReport;
+    }
+
+    //Getters
+    public List<ConfigurationMessage> messages() {
+        return messages;
+    }
+
+    //Setters
+    public Report messages(ConfigurationMessage result) {
+        this.messages.add(result);
+        return this;
+    }
+
+    public Report messages(List<ConfigurationMessage> messages) {
+        this.messages.addAll(messages);
+        return this;
     }
 }

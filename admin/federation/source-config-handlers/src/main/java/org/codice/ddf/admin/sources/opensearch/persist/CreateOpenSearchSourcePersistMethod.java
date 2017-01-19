@@ -13,17 +13,14 @@
  */
 package org.codice.ddf.admin.sources.opensearch.persist;
 
-import static org.codice.ddf.admin.api.config.services.OpensearchServiceProperties.openSearchConfigToServiceProps;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.ENDPOINT_URL;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PASSWORD;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNAME;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.CREATE;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.services.OpensearchServiceProperties.openSearchConfigToServiceProps;
 
 import java.util.List;
 import java.util.Map;
@@ -68,9 +65,10 @@ public class CreateOpenSearchSourcePersistMethod
         Configurator configurator = new Configurator();
         configurator.createManagedService(configuration.factoryPid(), openSearchConfigToServiceProps(configuration));
         OperationReport report = configurator.commit();
-        return report.containsFailedResults() ?
-                new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST))) :
-                new Report(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
+        return Report.createReport(SUCCESS_TYPES,
+                FAILURE_TYPES,
+                null,
+                report.containsFailedResults() ? ConfigurationMessage.FAILED_PERSIST : SUCCESSFUL_PERSIST);
     }
 
 }

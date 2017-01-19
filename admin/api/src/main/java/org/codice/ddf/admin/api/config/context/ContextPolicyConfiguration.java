@@ -14,8 +14,8 @@
 
 package org.codice.ddf.admin.api.config.context;
 
-import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.validateContextPolicyBins;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateContextPaths;
+import static org.codice.ddf.admin.api.validation.SecurityValidationUtils.validateContextPolicyBins;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateContextPaths;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,8 +24,8 @@ import java.util.function.Function;
 
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.validation.ValidationUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.validation.ValidationUtils;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -53,6 +53,7 @@ public class ContextPolicyConfiguration extends Configuration {
     public ConfigurationType getConfigurationType() {
         return new ConfigurationType(CONFIGURATION_TYPE, ContextPolicyConfiguration.class);
     }
+
     //Getters
     public List<ContextPolicyBin> contextPolicyBins() {
         return contextPolicyBins;

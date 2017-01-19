@@ -14,12 +14,12 @@
 
 package org.codice.ddf.admin.security.ldap.test;
 
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.DIGEST_MD5_SASL;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.GSSAPI_SASL;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.LDAPS;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.SASL;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.SIMPLE;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.TLS;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.DIGEST_MD5_SASL;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.GSSAPI_SASL;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.LDAPS;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.SASL;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.SIMPLE;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.TLS;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;

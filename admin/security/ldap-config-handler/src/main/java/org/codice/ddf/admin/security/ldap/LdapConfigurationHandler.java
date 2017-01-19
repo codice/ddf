@@ -14,8 +14,8 @@
 
 package org.codice.ddf.admin.security.ldap;
 
-import static org.codice.ddf.admin.api.config.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_MANAGED_SERVICE_FACTORY_PID;
-import static org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties.LDAP_LOGIN_MANAGED_SERVICE_FACTORY_PID;
+import static org.codice.ddf.admin.api.services.LdapClaimsHandlerServiceProperties.LDAP_CLAIMS_HANDLER_MANAGED_SERVICE_FACTORY_PID;
+import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.LDAP_LOGIN_MANAGED_SERVICE_FACTORY_PID;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,13 +23,13 @@ import java.util.stream.Stream;
 
 import org.codice.ddf.admin.api.config.ConfigurationType;
 import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
-import org.codice.ddf.admin.api.config.services.LdapClaimsHandlerServiceProperties;
-import org.codice.ddf.admin.api.config.services.LdapLoginServiceProperties;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.handler.DefaultConfigurationHandler;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
+import org.codice.ddf.admin.api.services.LdapClaimsHandlerServiceProperties;
+import org.codice.ddf.admin.api.services.LdapLoginServiceProperties;
 import org.codice.ddf.admin.security.ldap.persist.CreateLdapConfigMethod;
 import org.codice.ddf.admin.security.ldap.persist.DeleteLdapConfigMethod;
 import org.codice.ddf.admin.security.ldap.probe.DefaultDirectoryStructureProbe;

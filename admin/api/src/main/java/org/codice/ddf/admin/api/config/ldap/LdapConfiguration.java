@@ -14,20 +14,20 @@
 
 package org.codice.ddf.admin.api.config.ldap;
 
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateBindKdcAddress;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateBindRealm;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateBindUserMethod;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateDn;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateEncryptionMethod;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateGroupObjectClass;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapQuery;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapType;
-import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapUseCase;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateFilePath;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateHostName;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateMapping;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validatePort;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateString;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.validateBindKdcAddress;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.validateBindRealm;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.validateBindUserMethod;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.validateDn;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.validateEncryptionMethod;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.validateGroupObjectClass;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.validateLdapQuery;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.validateLdapType;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.validateLdapUseCase;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateFilePath;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateHostName;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateMapping;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validatePort;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateString;
 
 import java.util.List;
 import java.util.Map;
@@ -35,8 +35,8 @@ import java.util.function.Function;
 
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;
-import org.codice.ddf.admin.api.config.validation.ValidationUtils;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
+import org.codice.ddf.admin.api.validation.ValidationUtils;
 
 import com.google.common.collect.ImmutableMap;
 
