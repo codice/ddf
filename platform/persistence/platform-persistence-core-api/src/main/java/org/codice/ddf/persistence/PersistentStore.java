@@ -28,6 +28,8 @@ public interface PersistentStore {
     public static final String WORKSPACE_TYPE = "workspace";
     public static final String PREFERENCES_TYPE = "preferences";
     public static final String USER_ATTRIBUTE_TYPE = "attributes";
+    public static final String SUBSCRIPTION_TYPE = "subscriptions";
+
 
     public static final Set<String> PERSISTENCE_TYPES = new HashSet<String>(Arrays.asList(
             METACARD_TYPE,
@@ -36,7 +38,8 @@ public interface PersistentStore {
             ACTIVITY_TYPE,
             WORKSPACE_TYPE,
             PREFERENCES_TYPE,
-            USER_ATTRIBUTE_TYPE));
+            USER_ATTRIBUTE_TYPE,
+            SUBSCRIPTION_TYPE));
 
     /**
      * Adds item of specified type with the specified properties.

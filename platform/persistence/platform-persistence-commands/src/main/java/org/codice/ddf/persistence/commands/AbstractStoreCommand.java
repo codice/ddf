@@ -36,7 +36,7 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
     protected PrintStream console = System.out;
 
     @Option(name = "Persistence Type", aliases = {"-t",
-            "--type"}, required = true, description = "Type of entry in the persistence store to perform the current operation on.\nOptions: attributes, preferences, metacard, saved_query, notification, activity, or workspace", multiValued = false)
+            "--type"}, required = true, description = "Type of entry in the persistence store to perform the current operation on.\nOptions: attributes, preferences, metacard, saved_query, notification, activity, subscriptions or workspace", multiValued = false)
     protected String type;
 
     @Option(name = "CQL", aliases = {"-c",
