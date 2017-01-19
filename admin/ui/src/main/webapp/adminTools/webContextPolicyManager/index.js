@@ -48,6 +48,7 @@ import DeleteIcon from 'material-ui/svg-icons/action/delete'
 import AddIcon from 'material-ui/svg-icons/content/add-circle-outline'
 import ContentAdd from 'material-ui/svg-icons/content/add'
 import EditModeIcon from 'material-ui/svg-icons/editor/mode-edit'
+import ClearIcon from 'material-ui/svg-icons/content/clear'
 
 import {
   contextPolicyStyle,
@@ -64,6 +65,10 @@ import {
   whitelistContextPathGroupStyle,
   claimsAttributeStyle
 } from './styles.less'
+
+import {
+  error
+} from '../../wizards/components/stage/styles.less'
 
 let Edit = ({editing, binNumber, editModeOn}) => {
   return !editing ? (
@@ -94,6 +99,10 @@ let NewContextPathItem = ({ binNumber, addPath, onEdit, newPath, attribute, addB
     <Flexbox flexDirection='row' justifyContent='space-between'>
       <TextField fullWidth style={{ paddingLeft: '10px' }} id='name' hintText='Add New Path' onChange={(event, value) => onEdit(value)} value={newPath || ''} errorText={error} />
       {(addButtonVisible) ? (<IconButton tooltip={'Add'} tooltipPosition='top-center' onClick={addPath}><AddIcon color={cyanA700} /></IconButton>) : null }
+      {(newPath && newPath.trim() !== '')
+        ? <IconButton style={{ position: 'absolute', left: '-10px', width: '10px', height: '10px' }} iconStyle={{ width: '10px', height: '10px' }} onClick={() => onEdit('')}><ClearIcon /></IconButton>
+        : null
+      }
     </Flexbox>
   </div>
 )
@@ -115,11 +124,15 @@ let ContextPathGroup = ({ bin, binNumber, editing }) => (
 let NewSelectItem = ({ binNumber, addPath, onEdit, newPath, attribute, options, addButtonVisible = true, error }) => (
   <div>
     <Divider />
-    <Flexbox flexDirection='row' justifyContent='space-between'>
+    <Flexbox style={{ position: 'relative' }} flexDirection='row' justifyContent='space-between'>
       <SelectField fullWidth style={{ paddingLeft: '10px' }} id='name' hintText='Add New Path' onChange={(event, i, value) => onEdit(value)} value={newPath || ''} errorText={error}>
         { options.map((item, key) => (<MenuItem value={item} key={key} primaryText={item} />)) }
       </SelectField>
       {(addButtonVisible) ? (<IconButton tooltip={'Add Item'} tooltipPosition='top-center' onClick={addPath}><AddIcon color={cyanA700} /></IconButton>) : null }
+      {(newPath && newPath.trim() !== '')
+        ? <IconButton style={{ position: 'absolute', left: '-15px', width: '10px', height: '10px' }} iconStyle={{ width: '10px', height: '10px' }} onClick={() => onEdit('')}><ClearIcon /></IconButton>
+        : null
+      }
     </Flexbox>
   </div>
 )
@@ -216,14 +229,22 @@ let AttributeTableGroup = ({ bin, binNumber, policyOptions, editAttribute, remov
         </TableRow>)}
       {editing ? (
         <TableRow>
-          <TableRowColumn>
+          <TableRowColumn style={{ position: 'relative' }}>
             <SelectField style={{ margin: '0px', width: '100%', fontSize: '14px' }} id='claims' value={bin.newrequiredClaim || ''} onChange={(event, i, value) => editAttribute('requiredClaim', value)} errorText={claimError}>
               {policyOptions.claims.map((claim, i) => (<MenuItem style={{ fontSize: '12px' }} value={claim} primaryText={claim} key={i} />))}
             </SelectField>
+            {(bin.newrequiredClaim && bin.newrequiredClaim.trim() !== '')
+              ? <IconButton style={{ position: 'absolute', left: '-5px', width: '10px', height: '10px' }} iconStyle={{ width: '10px', height: '10px' }} onClick={() => editAttribute('requiredClaim', '')}><ClearIcon /></IconButton>
+              : null
+            }
           </TableRowColumn>
           <TableRowColumn style={{ width: 120, position: 'relative' }}>
             <TextField fullWidth style={{ margin: '0px', fontSize: '14px' }} id='claims' value={bin.newrequiredAttribute || ''} onChange={(event, value) => editAttribute('requiredAttribute', value)} errorText={attrError} />
             <IconButton style={{ position: 'absolute', right: 0, top: 0 }} tooltip={'Add Item'} tooltipPosition='top-center' onClick={addAttributeMapping}><AddIcon color={cyanA700} /></IconButton>
+            {(bin.newrequiredAttribute && bin.newrequiredAttribute.trim() !== '')
+              ? <IconButton style={{ position: 'absolute', left: '-5px', width: '10px', height: '10px' }} iconStyle={{ width: '10px', height: '10px' }} onClick={() => editAttribute('requiredAttribute', '')}><ClearIcon /></IconButton>
+              : null
+            }
           </TableRowColumn>
         </TableRow>
       ) : null }
@@ -261,6 +282,16 @@ const WhitelistBin = ({ policyBin, binNumber, editing, editingBinNumber }) => (
   </Paper>
 )
 
+let ErrorBanner = ({ editing, message }) => {
+  return (editing && message) ? (
+    <Flexbox flexDirection='row' justifyContent='center' className={error}>{message}</Flexbox>
+    ) : null
+}
+ErrorBanner = connect(
+  (state) => ({
+    message: getWcpmErrors(state).general
+  }))(ErrorBanner)
+
 const PolicyBin = ({ policyBin, binNumber, editing, editingBinNumber }) => (
   <Paper className={policyBinOuterStyle} >
     <Flexbox flexDirection='row'>
@@ -280,6 +311,7 @@ const PolicyBin = ({ policyBin, binNumber, editing, editingBinNumber }) => (
         </Flexbox>
       </Flexbox>
     </Flexbox>
+    <ErrorBanner editing={editing} />
     <Edit editing={editing} binNumber={binNumber} />
     <ConfirmationPanel bin={policyBin} binNumber={binNumber} editing={editing} allowDelete />
     { (!editing && editingBinNumber !== null) ? <DisabledPanel /> : null }

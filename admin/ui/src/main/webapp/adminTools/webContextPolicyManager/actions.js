@@ -109,11 +109,14 @@ export const persistChanges = (binNumber, url) => (dispatch, getState) => {
     hasErrors = true
     console.log('reqAttr error')
   }
-  if (hasErrors) { return } // do not persist if any errors are present
+  if (hasErrors) {
+    dispatch(setError('general', 'Please address marked fields above before saving.'))
+    return
+  } // do not persist if any errors are present
 
   // TODO: check for duplicate context paths
 
-  dispatch(editModeSave(binNumber))
+  // dispatch(editModeSave(binNumber))
 
   const formattedBody = {
     configurationType: 'context-policy-manager',
@@ -130,13 +133,23 @@ export const persistChanges = (binNumber, url) => (dispatch, getState) => {
   window.fetch(url, opts)
     .then((res) => Promise.all([ res.status, res.json() ]))
     .then(([status, json]) => {
-      if (status === 200) {
-      } else {
+      // check for server exceptions
+      if (json.messages[0].exceptions.length > 0) {
+        dispatch(setError('general', 'The server encountered an error. Please check the server logs for more information.'))
         dispatch(backendError(json))
+        return
+      }
+      // handle responses
+      const result = json.messages[0].subType
+      if (result === 'SUCCESSFUL_PERSIST') {
+        dispatch(editModeSave(binNumber))
+      } else {
+        dispatch(setError('general', 'Could not save. Reason for issue: ' + json.messages[0].message))
       }
     })
     .catch(() => {
 //    TODO handle probe errors
+      dispatch(setError('general', 'Could not save configuration - there may have been network errors.'))
     })
 }
 
