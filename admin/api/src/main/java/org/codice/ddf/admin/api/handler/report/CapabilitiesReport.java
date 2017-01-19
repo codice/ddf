@@ -18,25 +18,23 @@ import java.util.List;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
-
+import com.google.gson.annotations.Expose;
 public class CapabilitiesReport {
 
+    @Expose
     private String configurationType;
 
+    @Expose
     private String configurationHandlerId;
 
+    @Expose
     private List<TestMethod> testMethods;
 
+    @Expose
     private List<ProbeMethod> probeMethods;
 
+    @Expose
     private List<PersistMethod> persistMethods;
-
-    public CapabilitiesReport(String configurationType, String configurationHandlerId,
-            List<TestMethod> testMethods) {
-        this.configurationType = configurationType;
-        this.configurationHandlerId = configurationHandlerId;
-        this.testMethods = testMethods;
-    }
 
     public CapabilitiesReport(String configurationType, String configurationHandlerId,
             List<TestMethod> testMethods, List<ProbeMethod> probeMethods,

@@ -26,6 +26,9 @@
     <name>DDF Admin (Beta)</name>
     <packaging>pom</packaging>
 
+    <properties>
+        <gson.version>2.7</gson.version>
+    </properties>
     <modules>
         <module>api</module>
         <module>config-handler-router</module>

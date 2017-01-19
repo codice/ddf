@@ -47,18 +47,6 @@ public class ConfigurationHandlerRouter implements SparkApplication {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationHandlerRouter.class);
     private List<ConfigurationHandler> handlers = new ArrayList<>();
 
-    private Gson getGsonParser() {
-        RuntimeTypeAdapterFactory rtaf = RuntimeTypeAdapterFactory.of(Configuration.class,
-                CONFIGURATION_TYPE_FIELD);
-        handlers.stream()
-                .map(handler -> handler.getConfigurationType())
-                .forEach(configType -> rtaf.registerSubtype(configType.configClass(),
-                        configType.configTypeName()));
-
-        return new GsonBuilder().registerTypeAdapterFactory(rtaf)
-                .create();
-    }
-
     @Override
     public void init() {
         // TODO: tbatie - 1/16/17 - Comment endpoints
@@ -123,25 +111,6 @@ public class ConfigurationHandlerRouter implements SparkApplication {
             return probeReport;
         }, this::toJson);
 
-        // TODO: tbatie - 1/15/17 - Need to apply an @Expose to fields, random objects are showing up in the reports
-        get("/capabilities",
-                (req, res) -> handlers.stream()
-                        .map(handler -> handler.getCapabilities())
-                        .collect(Collectors.toList()),
-                this::toJson);
-
-        get("/capabilities/:configHandlerId",
-                (req, res) -> {
-                    String configHandlerId = req.params("configHandlerId");
-                    ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
-                    if(configHandler == null) {
-                        res.status(400);
-                        return new Report(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
-                    }
-                    return configHandler.getCapabilities();
-                },
-                this::toJson);
-
         get("/configurations/:configHandlerId",
                 (req, res) -> {
                     String configHandlerId = req.params("configHandlerId");
@@ -153,6 +122,24 @@ public class ConfigurationHandlerRouter implements SparkApplication {
                     return configHandler.getConfigurations();
                 },
                 this::toJson);
+
+        get("/capabilities",
+                (req, res) -> handlers.stream()
+                        .map(handler -> handler.getCapabilities())
+                        .collect(Collectors.toList()),
+                this::toFilteredJson);
+
+        get("/capabilities/:configHandlerId",
+                (req, res) -> {
+                    String configHandlerId = req.params("configHandlerId");
+                    ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
+                    if(configHandler == null) {
+                        res.status(400);
+                        return new Report(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+                    }
+                    return configHandler.getCapabilities();
+                },
+                this::toFilteredJson);
 
         after("/*", (req, res) -> res.type(APPLICATION_JSON));
 
@@ -180,8 +167,27 @@ public class ConfigurationHandlerRouter implements SparkApplication {
         return foundConfigHandler.isPresent() ? foundConfigHandler.get() : null;
     }
 
+
+    private Gson getGsonParser() {
+        RuntimeTypeAdapterFactory rtaf = RuntimeTypeAdapterFactory.of(Configuration.class,
+                CONFIGURATION_TYPE_FIELD);
+        handlers.stream()
+                .map(handler -> handler.getConfigurationType())
+                .forEach(configType -> rtaf.registerSubtype(configType.configClass(),
+                        configType.configTypeName()));
+
+        return new GsonBuilder().registerTypeAdapterFactory(rtaf)
+                .create();
+    }
+
     private String toJson(Object body) {
         return getGsonParser().toJson(body);
+    }
+
+    private String toFilteredJson(Object body) {
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+                .create()
+                .toJson(body);
     }
 
     public void setConfigurationHandlers(List<ConfigurationHandler> configurationHandlers) {

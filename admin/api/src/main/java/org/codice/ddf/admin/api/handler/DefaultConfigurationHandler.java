@@ -95,7 +95,7 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        return new CapabilitiesReport(null,
+        return new CapabilitiesReport(getConfigurationType().configTypeName(),
                 getConfigurationHandlerId(),
                 getTestMethods(),
                 getProbeMethods(),

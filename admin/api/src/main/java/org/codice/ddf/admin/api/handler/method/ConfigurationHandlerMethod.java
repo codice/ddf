@@ -17,15 +17,24 @@ package org.codice.ddf.admin.api.handler.method;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.annotations.Expose;
+
 public abstract class ConfigurationHandlerMethod {
 
     //The following fields are used by the json parser although they look unused
+    @Expose
     final String id;
+    @Expose
     final String description;
+    @Expose
     final List<String> requiredFields;
+    @Expose
     final List<String> optionalFields;
+    @Expose
     final Map<String, String> successTypes;
+    @Expose
     final Map<String, String> failureTypes;
+    @Expose
     final Map<String, String> warningTypes;
 
     public ConfigurationHandlerMethod(String id, String description,

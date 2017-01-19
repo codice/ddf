@@ -39,12 +39,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.danilopianini</groupId>
-            <artifactId>gson-extras</artifactId>
-            <version>0.1.0</version>
+            <version>${gson.version}</version>
         </dependency>
     </dependencies>
 
@@ -56,13 +51,15 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}-beta</Bundle-SymbolicName>
+                        <Private-Package>
+                            <!-- Need to private package this for the RuntimeTypeAdapterFactory class since the gson 2.7 bundle doesn't export it -->
+                            com.google.gson.internal.*
+                        </Private-Package>
                         <Embed-Dependency>
-                            spark-core,
-                            gson,
-                            gson-extras
+                            spark-core
                         </Embed-Dependency>
                         <Import-Package>
-                            <!--TODO these versions were matched to the standard packages exported by jetty on startup, should be looked at again-->
+                            <!--these are the versions exported at start up-->
                             org.eclipse.jetty.server;version="9.2.19",
                             org.eclipse.jetty.server.handler;version="9.2.19",
                             org.eclipse.jetty.server.session;version="9.2.19",

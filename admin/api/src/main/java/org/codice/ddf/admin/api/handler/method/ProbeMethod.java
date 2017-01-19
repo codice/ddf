@@ -20,9 +20,12 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 
+import com.google.gson.annotations.Expose;
+
 public abstract class ProbeMethod<S extends Configuration> extends ConfigurationHandlerMethod {
 
-    private List<String> returnTypes;
+    @Expose
+    final List<String> returnTypes;
 
     // TODO: tbatie - 1/12/17 - (Ticket) Remove this constructor and enforce the returnTypes field
     public ProbeMethod(String id, String description, List<String> requiredFields,
@@ -35,6 +38,7 @@ public abstract class ProbeMethod<S extends Configuration> extends Configuration
                 successTypes,
                 failureTypes,
                 warningTypes);
+        this.returnTypes = null;
     }
 
     public ProbeMethod(String id, String description, List<String> requiredFields,
