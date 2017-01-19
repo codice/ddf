@@ -86,6 +86,16 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
         }
     }
 
+    public static boolean isNotDeleted(Metacard metacard) {
+        return !isDeleted(metacard);
+    }
+
+    public static boolean isDeleted(Metacard metacard) {
+        return metacard instanceof DeletedMetacard || getDeletedMetacardType().getName()
+                .equals(metacard.getMetacardType()
+                        .getName());
+    }
+
     public static MetacardType getDeletedMetacardType() {
         return METACARD_TYPE;
     }

@@ -403,6 +403,7 @@ public class Historian {
             final Action action, Subject subject) {
         return metacards.stream()
                 .filter(MetacardVersionImpl::isNotVersion)
+                .filter(DeletedMetacardImpl::isNotDeleted)
                 .map(metacard -> new MetacardVersionImpl(metacard, action, subject))
                 .collect(Collectors.toMap(MetacardVersionImpl::getVersionOfId,
                         Function.identity()));
