@@ -24,6 +24,10 @@
         <property name="priority" value="-1"/>
 	</bean>
 
-	<service ref="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver"/>
+	<service ref="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver">
+		<service-properties>
+			<entry key="name" value="tikaMimeTypeResolver" />
+		</service-properties>
+	</service>
 
 </blueprint>
