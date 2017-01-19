@@ -84,6 +84,8 @@ public class ConfigurationApplication implements SparkApplication {
 
     private Boolean isIngest = true;
 
+    private Boolean isCacheDisabled = false;
+
     private BrandingPlugin branding;
 
     private Integer timeout = 300000;
@@ -239,6 +241,7 @@ public class ConfigurationApplication implements SparkApplication {
         config.put("sourcePollInterval", sourcePollInterval);
         config.put("scheduleFrequencyList", scheduleFrequencyList);
         config.put("isEditingAllowed", isEditingAllowed);
+        config.put("isCacheDisabled", isCacheDisabled);
 
         return config;
     }
@@ -499,6 +502,10 @@ public class ConfigurationApplication implements SparkApplication {
 
     public void setIngest(Boolean isIngest) {
         this.isIngest = isIngest;
+    }
+
+    public void setCacheDisabled(Boolean cacheDisabled) {
+        this.isCacheDisabled = cacheDisabled;
     }
 
     public Boolean getIsEditingAllowed() {

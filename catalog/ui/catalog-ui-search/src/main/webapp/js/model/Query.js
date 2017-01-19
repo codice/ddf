@@ -585,8 +585,9 @@ define([
                     return [];
                 }
 
-                // the "cache" source is always added to the search
-                sources.unshift("cache");
+                if (!properties.isCacheDisabled) {
+                    sources.unshift("cache");
+                }
 
                 var cqlString = data.cql;
                 if (options.limitToDeleted) {
