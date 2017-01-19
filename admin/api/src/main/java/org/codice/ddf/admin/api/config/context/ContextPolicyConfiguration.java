@@ -14,19 +14,13 @@
 
 package org.codice.ddf.admin.api.config.context;
 
-import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.AUTH_TYPES;
-import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.CONTEXT_PATHS;
-import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.REALM;
 import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.validateContextPolicyBins;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateContextPaths;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.config.ConfigurationType;

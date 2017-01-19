@@ -1,4 +1,3 @@
-// TODO: tbatie - 1/18/17 - Should the codice license be here?
 /**
  * Copyright (c) Codice Foundation
  * <p>
@@ -16,6 +15,8 @@
  * Copied to apply bug fix for https://github.com/google/gson/issues/712
  * It's also recommended to not use gson-extras as a dependency and instead copy the code you need
  */
+// TODO: tbatie - 1/18/17 - Should the codice license be here?
+
 
 /*
  * Copyright (C) 2011 Google Inc.
