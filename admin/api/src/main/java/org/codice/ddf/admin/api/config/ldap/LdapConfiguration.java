@@ -23,12 +23,10 @@ import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.val
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapQuery;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapType;
 import static org.codice.ddf.admin.api.config.validation.LdapValidationUtils.validateLdapUseCase;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateFactoryPid;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateFilePath;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateHostName;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateMapping;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validatePort;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateServicePid;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateString;
 
 import java.util.List;
@@ -89,8 +87,8 @@ public class LdapConfiguration extends Configuration {
     private String attributeMappingsPath;
 
     private static final Map<String, Function<LdapConfiguration, List<ConfigurationMessage>>> FIELD_TO_VALIDATION_FUNC = new ImmutableMap.Builder<String, Function<LdapConfiguration, List<ConfigurationMessage>>>()
-                    .put(SERVICE_PID, config -> validateServicePid(config.servicePid(), SERVICE_PID))
-                    .put(FACTORY_PID, config -> validateFactoryPid(config.factoryPid(), FACTORY_PID))
+                    .put(SERVICE_PID, config -> validateString(config.servicePid(), SERVICE_PID))
+                    .put(FACTORY_PID, config -> validateString(config.factoryPid(), FACTORY_PID))
                     .put(HOST_NAME, config -> validateHostName(config.hostName(), HOST_NAME))
                     .put(PORT, config -> validatePort(config.port(), PORT))
                     .put(ENCRYPTION_METHOD, config -> validateEncryptionMethod(config.encryptionMethod(), ENCRYPTION_METHOD))

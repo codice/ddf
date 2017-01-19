@@ -69,7 +69,6 @@ public class WfsSourceUtils {
 
     public static boolean isAvailable(String url, WfsSourceConfiguration config) {
         int status;
-        long contentLength;
         String contentType;
         HttpClient client = HttpClientBuilder.create()
                 .setDefaultRequestConfig(RequestConfig.custom()

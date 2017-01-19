@@ -16,7 +16,6 @@ package org.codice.ddf.admin.api.config.sources;
 
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateHostName;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validatePort;
-import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateServicePid;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateString;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateUrl;
 
@@ -85,7 +84,7 @@ public class SourceConfiguration extends Configuration {
                 .put(USERNAME, config -> validateString(config.sourceUserName(), USERNAME))
                 .put(PASSWORD, config -> validateString(config.sourceUserPassword(), PASSWORD))
                 .put(ENDPOINT_URL, config -> validateUrl(config.endpointUrl(), ENDPOINT_URL))
-                .put(SERVICE_PID, config -> validateServicePid(config.servicePid(), SERVICE_PID))
+                .put(SERVICE_PID, config -> validateString(config.servicePid(), SERVICE_PID))
                 .build();
     }
 
