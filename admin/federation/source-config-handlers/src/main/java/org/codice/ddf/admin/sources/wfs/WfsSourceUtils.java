@@ -42,9 +42,14 @@ import org.apache.http.ssl.SSLContexts;
 import org.codice.ddf.admin.api.config.sources.WfsSourceConfiguration;
 import org.w3c.dom.Document;
 
+import com.google.common.collect.ImmutableList;
+
 public class WfsSourceUtils {
 
     public static final String GET_CAPABILITIES_PARAMS = "?service=WFS&request=GetCapabilities";
+
+    private static final List<String> VALID_WFS_CONTENT_TYPES = ImmutableList.of("text/xml",
+            "application/xml");
 
     private static final List<String> URL_FORMATS = Arrays.asList("https://%s:%d/services/wfs",
             "https://%s:%d/wfs",
@@ -79,9 +84,7 @@ public class WfsSourceUtils {
                     .getStatusCode();
             contentType = ContentType.getOrDefault(response.getEntity())
                     .getMimeType();
-            contentLength = response.getEntity()
-                    .getContentLength();
-            if (status == HTTP_OK && contentType.equals("text/xml") && contentLength > 0) {
+            if (status == HTTP_OK && VALID_WFS_CONTENT_TYPES.contains(contentType)) {
                 config.trustedCertAuthority(true);
                 return true;
             }
@@ -105,9 +108,7 @@ public class WfsSourceUtils {
                         .getStatusCode();
                 contentType = ContentType.getOrDefault(response.getEntity())
                         .getMimeType();
-                contentLength = response.getEntity()
-                        .getContentLength();
-                if (status == HTTP_OK && contentType.equals("text/xml") && contentLength > 0) {
+                if (status == HTTP_OK && VALID_WFS_CONTENT_TYPES.contains(contentType)) {
                     config.trustedCertAuthority(false);
                     return true;
                 }
@@ -119,7 +120,8 @@ public class WfsSourceUtils {
         return false;
     }
 
-    public static Optional<WfsSourceConfiguration> getPreferredConfig(WfsSourceConfiguration configuration) {
+    public static Optional<WfsSourceConfiguration> getPreferredConfig(
+            WfsSourceConfiguration configuration) {
         String wfsVersionExp = "//ows:ServiceIdentification//ows:ServiceTypeVersion/text()";
         HttpClient client = HttpClientBuilder.create()
                 .build();

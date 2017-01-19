@@ -45,7 +45,7 @@ public class ProbeReport extends Report {
     }
 
     public ProbeReport probeResults(Map<String, Object> results) {
-        probeResults.putAll(probeResults);
+        probeResults.putAll(results);
         return this;
     }
 
