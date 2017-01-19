@@ -262,10 +262,10 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
                 StandardCharsets.UTF_8.name())) {
             XppReader source = new XppReader(inputStreamReader, parser);
 
-        // if multi-threading, cannot abstract PrintWriter to class member
+            // if multi-threading, cannot abstract PrintWriter to class member
             destination = writerProvider.build(Metacard.class);
 
-        new HierarchicalStreamCopier().copy(source, destination);
+            new HierarchicalStreamCopier().copy(source, destination);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
