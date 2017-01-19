@@ -30,7 +30,6 @@ import org.codice.ddf.admin.sources.impl.test.ValidUrlTestMethod;
 
 import com.google.common.collect.ImmutableList;
 
-// TODO: tbatie - 12/14/16 - Let's figure out a better name than impl
 public class SourceConfigurationHandlerImpl extends
         DefaultConfigurationHandler<SourceConfiguration> {
 

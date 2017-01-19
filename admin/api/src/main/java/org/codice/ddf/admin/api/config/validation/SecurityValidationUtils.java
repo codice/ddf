@@ -13,14 +13,19 @@
  */
 package org.codice.ddf.admin.api.config.validation;
 
+import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.AUTH_TYPES;
+import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.CONTEXT_PATHS;
+import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.REALM;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateString;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.admin.api.config.context.ContextPolicyBin;
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 import com.google.common.collect.ImmutableList;
@@ -38,6 +43,20 @@ public class SecurityValidationUtils {
     public static final String CAS = "CAS";
     public static final String GUEST = "GUEST";
     public static final List<String> ALL_AUTH_TYPES = ImmutableList.of(SAML, BASIC, PKI, CAS, GUEST);
+
+    public static final List<ConfigurationMessage> validateContextPolicyBins(List<ContextPolicyBin> bins, String configId){
+        List<ConfigurationMessage> errors = new ArrayList<>();
+        if(bins == null || bins.isEmpty()) {
+            errors.add(createMissingRequiredFieldMsg(configId));
+        } else {
+            errors.addAll(bins.stream()
+                    .map(cpb -> cpb.validate(Arrays.asList(REALM, CONTEXT_PATHS, AUTH_TYPES)))
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList()));
+            // TODO: tbatie - 1/16/17 - Check if the req attri fields has values, if so validate
+        }
+        return errors;
+    }
 
     public static final List<ConfigurationMessage> validateRealm(String realm, String configId) {
         List<ConfigurationMessage> errors = validateString(realm, configId);

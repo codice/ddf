@@ -63,7 +63,6 @@ public class DeleteWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
             return new Report(results);
         }
         OperationReport report;
-        // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
         configurator.deleteManagedService(configuration.servicePid());
         report = configurator.commit();
         return report.containsFailedResults() ?

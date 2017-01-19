@@ -48,11 +48,9 @@ public class LdapClaimsHandlerServiceProperties {
     public static final String PROPERTY_FILE_LOCATION = "propertyFileLocation";
     // ---
 
-    // TODO: tbatie - 1/18/17 - need to perform null checks on these fields
     public static final LdapConfiguration ldapClaimsHandlerServiceToLdapConfig(Map<String, Object> props) {
         LdapConfiguration config = new LdapConfiguration();
         config.servicePid(props.get(SERVICE_PID_KEY) == null ? null : (String) props.get(SERVICE_PID_KEY));
-        // TODO: tbatie - 1/18/17 - Does this scheme match our expected encryption types in validation?
         URI ldapUri = getUriFromProperty((String) props.get(URL));
         config.encryptionMethod(ldapUri.getScheme());
         config.hostName(ldapUri.getHost());

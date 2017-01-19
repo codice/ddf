@@ -16,7 +16,6 @@ package org.codice.ddf.admin.api.config;
 
 public abstract class Configuration {
 
-    // TODO: tbatie - 1/17/17 - Validate these fields
     public static final String CONFIGURATION_HANDLER_ID = "configurationHandlerId";
     public static final String FACTORY_PID = "factoryPid";
     public static final String SERVICE_PID = "servicePid";

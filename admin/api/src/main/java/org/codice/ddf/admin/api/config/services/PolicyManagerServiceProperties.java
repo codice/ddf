@@ -44,7 +44,7 @@ public class PolicyManagerServiceProperties {
     }
 
 
-    // TODO: tbatie - 1/17/17 - Get rid of this PolicyManager reference and break this dependency.
+    // TODO: tbatie - 1/17/17 - (Ticket) Get rid of this PolicyManager reference and break this dependency.
     public static List<ContextPolicyBin> policyManagerSettingsToBins(PolicyManager policyManager) {
         List<ContextPolicyBin> bins = new ArrayList<>();
 

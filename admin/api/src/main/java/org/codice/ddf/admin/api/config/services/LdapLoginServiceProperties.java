@@ -60,7 +60,6 @@ public class LdapLoginServiceProperties {
         ldapConfiguration.userNameAttribute((String) props.get(USER_NAME_ATTRIBUTE));
         ldapConfiguration.baseUserDn((String) props.get(USER_BASE_DN));
         ldapConfiguration.baseGroupDn((String) props.get(GROUP_BASE_DN));
-        // TODO: tbatie - 1/18/17 - Does this scheme match our expected encryption types in validation?
         URI ldapUri = getUriFromProperty((String) props.get(LDAP_URL));
         ldapConfiguration.encryptionMethod(ldapUri.getScheme());
         ldapConfiguration.hostName(ldapUri.getHost());

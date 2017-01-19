@@ -56,7 +56,6 @@ public class Report {
         return this;
     }
 
-    // TODO: tbatie - 1/14/17 - Rename this to something different, this was a point in time when subtypes of config messages weren't implemented
     public boolean containsUnsuccessfulMessages() {
         return messages.stream()
                 .filter(msg -> msg.type() != ConfigurationMessage.MessageType.SUCCESS)

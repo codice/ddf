@@ -1,3 +1,4 @@
+// TODO: tbatie - 1/18/17 - Should the codice license be here?
 /**
  * Copyright (c) Codice Foundation
  * <p>
@@ -16,7 +17,6 @@
  * It's also recommended to not use gson-extras as a dependency and instead copy the code you need
  */
 
-// TODO: tbatie - 11/29/16 - MAKE SURE TO REVIEW THIS BEFORE MERGE
 /*
  * Copyright (C) 2011 Google Inc.
  *

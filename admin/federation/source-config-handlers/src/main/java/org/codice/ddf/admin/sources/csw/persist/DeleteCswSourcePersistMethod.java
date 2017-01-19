@@ -60,7 +60,6 @@ public class DeleteCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
         }
         Configurator configurator = new Configurator();
         OperationReport report;
-        // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
         configurator.deleteManagedService(configuration.servicePid());
         report = configurator.commit();
         return report.containsFailedResults() ? new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST))) : new Report(buildMessage(SUCCESS,

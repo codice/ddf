@@ -17,6 +17,7 @@ package org.codice.ddf.admin.api.config.context;
 import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.AUTH_TYPES;
 import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.CONTEXT_PATHS;
 import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.REALM;
+import static org.codice.ddf.admin.api.config.validation.SecurityValidationUtils.validateContextPolicyBins;
 import static org.codice.ddf.admin.api.config.validation.ValidationUtils.validateContextPaths;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
@@ -49,21 +50,6 @@ public class ContextPolicyConfiguration extends Configuration {
 
     private List<ContextPolicyBin> contextPolicyBins;
     private List<String> whiteListContexts;
-
-    // TODO: tbatie - 1/17/17 - Move to SecurityValidationUtils
-    public static final List<ConfigurationMessage> validateContextPolicyBins(List<ContextPolicyBin> bins, String configId){
-        List<ConfigurationMessage> errors = new ArrayList<>();
-        if(bins == null || bins.isEmpty()) {
-            errors.add(createMissingRequiredFieldMsg(configId));
-        } else {
-            errors.addAll(bins.stream()
-                    .map(cpb -> cpb.validate(Arrays.asList(REALM, CONTEXT_PATHS, AUTH_TYPES)))
-                    .flatMap(List::stream)
-                    .collect(Collectors.toList()));
-            // TODO: tbatie - 1/16/17 - Check if the req attri fields has values, if so validate
-        }
-        return errors;
-    }
 
     public List<ConfigurationMessage> validate(List<String> fields) {
         return ValidationUtils.validate(fields, this, FIELD_TO_VALIDATION_FUNC);

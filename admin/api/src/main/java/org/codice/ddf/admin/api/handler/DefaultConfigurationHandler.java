@@ -95,7 +95,6 @@ public abstract class DefaultConfigurationHandler<S extends Configuration>
 
     @Override
     public CapabilitiesReport getCapabilities() {
-        // TODO: tbatie - 1/11/17 - Need to pass configType. Figure out the config type and configuration handler Id difference first before passing the config type
         return new CapabilitiesReport(null,
                 getConfigurationHandlerId(),
                 getTestMethods(),

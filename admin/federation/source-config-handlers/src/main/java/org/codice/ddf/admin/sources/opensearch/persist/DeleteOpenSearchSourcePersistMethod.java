@@ -59,7 +59,6 @@ public class DeleteOpenSearchSourcePersistMethod extends PersistMethod<OpenSearc
         if (!results.isEmpty()) {
             return new Report(results);
         }
-        // TODO: tbatie - 12/20/16 - Passed in factory pid and commit totally said it passed, should have based servicePid
         configurator.deleteManagedService(configuration.servicePid());
         OperationReport report = configurator.commit();
         return report.containsFailedResults() ? new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST)))

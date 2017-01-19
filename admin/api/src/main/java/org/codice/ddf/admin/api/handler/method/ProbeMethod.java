@@ -24,7 +24,7 @@ public abstract class ProbeMethod<S extends Configuration> extends Configuration
 
     private List<String> returnTypes;
 
-    // TODO: tbatie - 1/12/17 - Remove this constructor and enforce the returnTypes field
+    // TODO: tbatie - 1/12/17 - (Ticket) Remove this constructor and enforce the returnTypes field
     public ProbeMethod(String id, String description, List<String> requiredFields,
             List<String> optionalFields, Map<String, String> successTypes,
             Map<String, String> failureTypes, Map<String, String> warningTypes) {

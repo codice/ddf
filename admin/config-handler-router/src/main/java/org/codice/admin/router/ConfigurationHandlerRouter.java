@@ -72,11 +72,9 @@ public class ConfigurationHandlerRouter implements SparkApplication {
                 return testReport.messages(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
             }
 
-            // TODO: tbatie - 1/16/17 - Catch transformation error
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
             testReport = configHandler.test(testId, config);
 
-            // TODO: tbatie - 1/14/17 - Once subtypes are used on the front end instead of status codes, only change it to 400 when there are failure messages
             if (testReport.containsUnsuccessfulMessages()) {
                 res.status(400);
             }
@@ -158,7 +156,6 @@ public class ConfigurationHandlerRouter implements SparkApplication {
 
         after("/*", (req, res) -> res.type(APPLICATION_JSON));
 
-        // TODO: tbatie - 1/16/17 - May need to log real exception and throw a filtered one
         exception(Exception.class, (ex, req, res) -> {
             LOGGER.error("Configuration Handler router error: ", ex);
             res.status(500);
