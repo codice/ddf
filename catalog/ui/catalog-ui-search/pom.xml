@@ -183,19 +183,9 @@
             <version>4.0.0</version>
         </dependency>
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-terracotta</artifactId>
-            <version>2.1.1</version>
-        </dependency>
-        <dependency>
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
             <version>0.9.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>2.10.2.2.21</version>
         </dependency>
         <dependency>
             <groupId>ddf.persistence.core</groupId>
@@ -274,8 +264,6 @@
                             quartz-jobs,
                             c3p0,
                             terracotta-toolkit-runtime-ee,
-                            ehcache-terracotta,
-                            ehcache,
                             ddf-security-common
                         </Embed-Dependency>
                         <Web-ContextPath>/search/catalog</Web-ContextPath>
