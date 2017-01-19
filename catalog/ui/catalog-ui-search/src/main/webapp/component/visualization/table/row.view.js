@@ -92,7 +92,7 @@ module.exports = Marionette.ItemView.extend({
                     value: value,
                     html: html,
                     class: className,
-                    hidden: hiddenColumns.indexOf(property) >= 0 || properties.isHidden(property) || metacardDefinitions.isHiddenType(property)
+                    hidden: hiddenColumns.indexOf(property) >= 0 || properties.isHidden(property) || metacardDefinitions.isHiddenTypeExceptThumbnail(property)
                 };
             })
         };

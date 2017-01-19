@@ -24,6 +24,13 @@ define([
             this.getMetacardTypes();
             this.getDatatypeEnum();
         },
+        isHiddenTypeExceptThumbnail: function(id){
+            if (id === 'thumbnail'){
+                return false;
+            } else {
+                return this.isHiddenType(id);
+            }
+        },
         isHiddenType: function(id){
             return this.metacardTypes[id].type === 'XML' ||
             this.metacardTypes[id].type === 'BINARY' ||
