@@ -1,0 +1,36 @@
+
+.[[_metacard_attributes_table]]Metacard: Attributes in this group describe the metacard itself.
+[cols="5" options="header"]
+|===
+|Term
+|Definition
+|Datatype
+|Constraints
+|Example Value
+
+|metacard.created
+|The creation date of the metacard
+|Date
+| 
+|
+
+|metacard.modified
+|The modified date of the metacard
+|Date
+| 
+| 
+
+|metacard.owner
+|The email address of the metacard owner.
+|String
+|< 1024 characters
+| 
+ 
+|metacard-tags
+|Collections of data that go together, used for filtering
+query results.
+|String
+|Strings < 1024 characters
+| 
+
+|===

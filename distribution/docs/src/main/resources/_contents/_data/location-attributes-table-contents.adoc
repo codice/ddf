@@ -1,0 +1,36 @@
+
+.[[_location_attributes_table]]Location: Attributes in this group reflect location aspects about the resource.
+[cols="1,2,1,1,1" options="header"]
+|===
+|Term
+|Definition
+|Datatype
+|Constraints
+|Example Value
+
+|location.altitude-meters
+|Altitude of the resource in meters
+|Double
+|> 0
+| 
+ 
+|location.country-code
+|One or more country codes associated with the resource
+|String
+|http://www.iso.org/iso/country_codes[ISO_3166-1] alpha-3
+codes
+| 
+
+|location.crs-code
+|Coordinate reference system code of the resource
+|String
+|< 1024 characters
+|EPSG:4326
+ 
+|location.crs-name
+|Coordinate reference system name of the resource
+|String
+|< 1024 characters
+|WGS 84
+ 
+|===

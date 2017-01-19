@@ -1,0 +1,61 @@
+
+.[[_history_attributes_table]]History: Attributes in this group describe the history/versioning of the metacard.
+[cols="1,2,1,1,1" options="header"]
+|===
+|Term
+|Definition
+|Datatype
+|Constraints
+|Example Value
+
+|version.id
+|Internal attribute identifier for which metacard this
+version is representing
+|String
+| 
+| 
+
+|version.edited-by
+|Internal attribute identifying the editor of a history
+metacard
+|String
+| 
+| 
+
+|version.versioned-by
+|Internal attribute for the versioned date of a metacard
+version
+|Date
+| 
+| 
+
+|version.action
+|Internal attribute for the action associated with a
+history metacard
+|String
+|One of `Created`, `Created-Content`, `Updated`,
+`Updated-Content`, `Deleted`
+| 
+
+|version.tags
+|Internal attribute for the tags that were on the original
+metacard
+|String
+| 
+| 
+
+|version.type
+|Internal attribute for the metacard type of the original
+metacard
+|String
+| 
+| 
+
+|version.type-binary
+|Internal attribute for the serialized metacard type of the
+original metacard
+|Binary
+| 
+| 
+
+|===

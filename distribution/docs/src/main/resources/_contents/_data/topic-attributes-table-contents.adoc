@@ -1,0 +1,32 @@
+﻿
+.[[_topic_attributes_table]]Topic: Attributes in this group describe the topic of the resource.
+[cols="1,2,1,1,1" options="header"]
+|===
+
+|Term
+|Definition
+|Datatype
+|Constraints
+|Example Value
+
+|topic.category
+|A category code from a given vocabulary.
+|String
+|should be restricted to the values in a given vocabulary
+|
+
+|topic.keyword
+|One or more keywords describing the subject matter of the
+metacard or resource.
+|String
+|< 1024 characters
+|
+
+|topic.vocabulary
+|An identifier of a controlled vocabulary from which the
+topic category is derived.
+|String
+|< 1024 characters
+|
+
+|===
