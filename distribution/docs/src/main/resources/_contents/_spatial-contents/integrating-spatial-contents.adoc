@@ -1066,10 +1066,10 @@ The `DistributedSearch` element must be specific with a `hopCount` greater than 
         <ns10:Constraint version="1.1.0">
             <ns2:Filter>
               <ns2:And>
-                <ns2:PropertyIsEqualToLike wildCard="*" singleChar="#" escapeChar="!">
+                <ns2:PropertyIsEqualTo wildCard="*" singleChar="#" escapeChar="!">
                   <ns2:PropertyName>source-id</ns2:PropertyName>
                   <ns2:Literal>Source1</ns2:Literal>
-                </ns2:PropertyIsLike>
+                </ns2:PropertyIsEqualTo>
                 <ns2:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
                   <ns2:PropertyName>title</ns2:PropertyName>
                     <ns2:Literal>*</ns2:Literal>
