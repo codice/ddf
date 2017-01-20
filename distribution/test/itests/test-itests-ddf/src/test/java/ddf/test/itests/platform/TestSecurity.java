@@ -14,6 +14,7 @@
 package ddf.test.itests.platform;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
@@ -411,6 +412,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         waitForSecurityHandlers(url);
 
         //test that we get a 401 if no credentials are specified
+        waitForBasicAuthReady(url);
         when().get(url)
                 .then()
                 .log()
@@ -483,6 +485,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         String openSearchQuery =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
         waitForSecurityHandlers(openSearchQuery);
+        waitForBasicAuthReady(openSearchQuery);
         given().auth()
                 .basic("admin", "admin")
                 .when()
@@ -497,6 +500,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                         + "']/value[text()='myTitle']"));
 
         configureRestForGuest();
+        waitForGuestAuthReady(openSearchQuery);
         deleteMetacard(recordId);
     }
 
@@ -524,6 +528,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         String openSearchQuery =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
         waitForSecurityHandlers(openSearchQuery);
+        waitForBasicAuthReady(openSearchQuery);
         given().auth()
                 .basic("admin", "admin")
                 .when()
@@ -598,6 +603,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                         */
 
         configureRestForGuest();
+        waitForGuestAuthReady(openSearchQuery);
         deleteMetacard(recordId);
     }
 
@@ -1271,6 +1277,24 @@ public class TestSecurity extends AbstractIntegrationTest {
                 fail("Failed waiting for security handlers to become available.");
             }
         }
+    }
+
+    private void waitForBasicAuthReady(String url) {
+        expect("Waiting for basic auth").within(120, TimeUnit.SECONDS)
+                .checkEvery(1, TimeUnit.SECONDS)
+                .until(() -> when().get(url)
+                        .then()
+                        .extract()
+                        .statusCode() == 401);
+    }
+
+    private void waitForGuestAuthReady(String url) {
+        expect("Waiting for basic auth").within(120, TimeUnit.SECONDS)
+                .checkEvery(1, TimeUnit.SECONDS)
+                .until(() -> when().get(url)
+                        .then()
+                        .extract()
+                        .statusCode() == 200);
     }
 
     public String sendPermittedRequest(String jolokiaEndpoint) {
