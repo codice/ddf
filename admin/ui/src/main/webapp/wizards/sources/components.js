@@ -146,11 +146,13 @@ export const SourceInfo = ({ id, label, value }) => (
   </div>
 )
 
+const prettyName = (id) => id.replace('-', ' ')
+
 const SourceRadioButtonsView = ({ disabled, options = [], onEdits, configurationType, setSource, displayName }) => {
   return (
     <div style={{display: 'inline-block', margin: '10px'}}>
       {options.map((item, i) => (
-        <SourceRadioButton key={i} value={displayName(item.configurationType)} disabled={disabled} valueSelected={displayName(configurationType)} item={item} onSelect={() => setSource(options[i])} />
+        <SourceRadioButton key={i} label={prettyName(item.configurationType)} value={item.configurationType} disabled={disabled} valueSelected={configurationType} item={item} onSelect={() => setSource(options[i])} />
       ))}
     </div>
   )
@@ -174,7 +176,7 @@ export const SourceRadioButtons = connect(mapStateToProps, mapDispatchToProps)(S
 
 const alertMessage = 'SSL certificate is untrusted and possibly insecure'
 
-const SourceRadioButton = ({ disabled, value, valueSelected = 'undefined', onSelect, item }) => {
+const SourceRadioButton = ({ disabled, value, label, valueSelected = 'undefined', onSelect, item }) => {
   if (item.trustedCertAuthority) {
     return (
       <div>
@@ -182,7 +184,7 @@ const SourceRadioButton = ({ disabled, value, valueSelected = 'undefined', onSel
           <RadioButton disabled={disabled}
             style={{whiteSpace: 'nowrap', padding: '3px', fontSize: '16px'}}
             value={value}
-            label={value} />
+            label={label} />
         </RadioButtonGroup>
       </div>
     )
@@ -199,7 +201,7 @@ const SourceRadioButton = ({ disabled, value, valueSelected = 'undefined', onSel
             }}
             value={value}
             labelStyle={{ color: '#f90' }}
-            label={value} />
+            label={label} />
         </RadioButtonGroup>
         <IconButton
           touch
