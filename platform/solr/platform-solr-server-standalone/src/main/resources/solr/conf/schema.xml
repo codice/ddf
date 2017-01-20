@@ -565,7 +565,7 @@
         <analyzer>
             <!-- The TrimFilter removes any leading or trailing whitespace -->
             <filter class="solr.TrimFilterFactory" />
-            <!-- Truncate the field to 1000 Characters -->
+            <!-- Truncate the field to 127 Characters, the maximum value allowed -->
             <filter class="solr.TruncateTokenFilterFactory" prefixLength="127" />
             <!-- KeywordTokenizer does no actual tokenizing, so the entire
                  input string is preserved as a single token
