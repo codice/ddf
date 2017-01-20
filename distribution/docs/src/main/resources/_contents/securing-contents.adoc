@@ -1051,7 +1051,7 @@ Enabling CRL revocation or modifying the CRL file will require a restart of ${br
 
 ["lowerroman"]
 . Place the CRL in <${branding}.home>/etc/keystores.
-. Uncomment the following line in `<${branding}.home>/etc/ws-security/server/encryption.properties`, `<${branding}_HOME>/etc/ws-security/server/encryption.properties`, `<${branding-lowercase}.home>/etc/ws-security/issuer/encryption.properties`, `<${branding}_HOME>/etc/ws-security/server/signature.properties`, and `<${branding}_HOME>/etc/ws-security/issuer/signature.properties`  and replace the filename with the CRL file used in previous step.
+. Uncomment the following line in `<${branding}.home>/etc/ws-security/server/encryption.properties`, `<${branding}_HOME>/etc/ws-security/server/encryption.properties`, `<${branding-lowercase}.home>/etc/ws-security/issuer/encryption.properties`, `<${branding}_HOME>/etc/ws-security/server/signature.properties`, and `<${branding}_HOME>/etc/ws-security/issuer/signature.properties`  and replace the filename with the CRL file used in previous step (This can be a URL, or the file path).
 
 [source]
 ----
@@ -1077,7 +1077,7 @@ The PKIHandler implements CRL revocation, so any web context that is configured 
 With guest access, a user with a revoked cert will be given a 401 error, but users without a certificate will be able to access the web context as the guest user.
 
 The STS CRL interceptor does not need a web context specified.
-The CRL interceptor for the STS will become active after specifying the CRL file in the `encryption.properties` file and restarting ${branding}.
+The CRL interceptor for the STS will become active after specifying the CRL file, or URL of the CRL in the `encryption.properties` file and restarting ${branding}.
 
 [NOTE]
 ====

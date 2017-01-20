@@ -16,6 +16,9 @@ package org.codice.ddf.security.handler.pki;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.cert.CRL;
 import java.security.cert.CertificateFactory;
@@ -108,20 +111,35 @@ public class CrlChecker {
     /**
      * Generates a new CRL object from the given location.
      *
-     * @param location Path to the CRL file
-     * @return A CRL object constructed from the given file path. Null if an error occurred while attempting to read the file.
+     * @param location File Path or URL to the CRL file
+     * @return A CRL object constructed from the given file path or URL. Null if an error occurred while attempting to read the file.
      */
     private CRL createCrl(String location) {
-        try (FileInputStream fis = new FileInputStream(new File(location))) {
+        URL url = urlFromPath(location);
+
+        //If we get a URL, use URL, otherwise use as local file path
+        try (InputStream is = url != null ?
+                url.openStream() :
+                new FileInputStream(new File(location))) {
+
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            return cf.generateCRL(fis);
+            return cf.generateCRL(is);
         } catch (IOException e) {
             LOGGER.debug("An error occurred while accessing {}", location, e);
             return null;
         } catch (GeneralSecurityException e) {
             LOGGER.warn(
                     "Encountered an error while generating CRL from file {}. CRL checking may not work correctly. Check the CRL file.",
-                    location, e);
+                    location,
+                    e);
+            return null;
+        }
+    }
+
+    URL urlFromPath(String location) {
+        try {
+            return new URL(location);
+        } catch (MalformedURLException e) {
             return null;
         }
     }
