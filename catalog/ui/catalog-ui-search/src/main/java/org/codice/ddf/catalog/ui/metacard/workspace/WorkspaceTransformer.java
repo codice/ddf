@@ -13,6 +13,7 @@
  **/
 package org.codice.ddf.catalog.ui.metacard.workspace;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.AbstractMap;
@@ -28,6 +29,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeDescriptor;
@@ -36,9 +39,12 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
 public class WorkspaceTransformer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceTransformer.class);
 
     private final CatalogFramework catalogFramework;
 
@@ -178,11 +184,12 @@ public class WorkspaceTransformer {
     }
 
     public String toMetacardXml(Metacard m) {
-        try {
-            return IOUtils.toString(catalogFramework.transform(m, "xml", null)
-                    .getInputStream());
-        } catch (Exception e) {
-            return "";
+        try (InputStream stream = catalogFramework.transform(m, "xml", null)
+                .getInputStream()) {
+            return IOUtils.toString(stream);
+
+        } catch (IOException | CatalogTransformerException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -65,16 +65,17 @@ public class VideoInputTransformer implements InputTransformer {
 
         ClassLoader tccl = Thread.currentThread()
                 .getContextClassLoader();
-        try {
+        try (InputStream stream = TikaMetadataExtractor.class.getResourceAsStream("/metadata.xslt")) {
             Thread.currentThread()
                     .setContextClassLoader(getClass().getClassLoader());
             templates = TransformerFactory.newInstance(TransformerFactoryImpl.class.getName(),
                     this.getClass()
                             .getClassLoader())
-                    .newTemplates(new StreamSource(TikaMetadataExtractor.class.getResourceAsStream(
-                            "/metadata.xslt")));
+                    .newTemplates(new StreamSource(stream));
         } catch (TransformerConfigurationException e) {
             LOGGER.debug("Couldn't create XML transformer", e);
+        } catch (IOException e) {
+            LOGGER.debug("Could not get Tiki metadata XSLT", e);
         } finally {
             Thread.currentThread()
                     .setContextClassLoader(tccl);

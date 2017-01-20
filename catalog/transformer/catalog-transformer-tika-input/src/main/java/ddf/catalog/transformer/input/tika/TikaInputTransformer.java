@@ -174,16 +174,17 @@ public class TikaInputTransformer implements InputTransformer {
 
         ClassLoader tccl = Thread.currentThread()
                 .getContextClassLoader();
-        try {
+        try (InputStream stream = TikaMetadataExtractor.class.getResourceAsStream("/metadata.xslt")) {
             Thread.currentThread()
                     .setContextClassLoader(getClass().getClassLoader());
             templates =
                     TransformerFactory.newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
                             net.sf.saxon.TransformerFactoryImpl.class.getClassLoader())
-                            .newTemplates(new StreamSource(TikaMetadataExtractor.class.getResourceAsStream(
-                                    "/metadata.xslt")));
+                            .newTemplates(new StreamSource(stream));
         } catch (TransformerConfigurationException e) {
             LOGGER.debug("Couldn't create XML transformer", e);
+        } catch (IOException e) {
+            LOGGER.debug("Could not get Tiki metadata XSLT", e);
         } finally {
             Thread.currentThread()
                     .setContextClassLoader(tccl);
@@ -314,12 +315,9 @@ public class TikaInputTransformer implements InputTransformer {
                             .filter(mediaTypeStringEntry -> mediaType.is(mediaTypeStringEntry.getKey()))
                             .findFirst();
 
-            if (!fallback.isPresent()) {
-                return OVERALL_FALLBACK_DATA_TYPE;
-            }
+            return fallback.map(Map.Entry::getValue)
+                    .orElse(OVERALL_FALLBACK_DATA_TYPE);
 
-            return fallback.get()
-                    .getValue();
         }
 
         return returnType.get()
