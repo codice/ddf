@@ -27,8 +27,9 @@ public class LdapValidationUtils {
 
     public static final String LDAPS = "ldaps";
     public static final String TLS = "tls";
+    public static final String START_TLS ="startTls";
     public static final String NONE = "none";
-    public static final ImmutableList<String> LDAP_ENCRYPTION_METHODS = ImmutableList.of(LDAPS, TLS, NONE);
+    public static final ImmutableList<String> LDAP_ENCRYPTION_METHODS = ImmutableList.of(LDAPS, TLS, START_TLS, NONE);
 
     public static final String SIMPLE = "Simple";
     public static final String SASL = "SASL";

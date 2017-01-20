@@ -124,6 +124,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
                             .name()));
         }
 
+        // TODO: tbatie - 1/11/17 - We can perform much better query below since since we have the attributes to search
         Connection ldapConnection = connectionAttempt.connection();
         List<SearchResultEntry> baseUsersResults = getLdapQueryResults(ldapConnection,
                 "objectClass=*",

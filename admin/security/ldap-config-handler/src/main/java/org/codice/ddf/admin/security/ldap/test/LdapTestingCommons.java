@@ -19,7 +19,7 @@ import static org.codice.ddf.admin.api.validation.LdapValidationUtils.GSSAPI_SAS
 import static org.codice.ddf.admin.api.validation.LdapValidationUtils.LDAPS;
 import static org.codice.ddf.admin.api.validation.LdapValidationUtils.SASL;
 import static org.codice.ddf.admin.api.validation.LdapValidationUtils.SIMPLE;
-import static org.codice.ddf.admin.api.validation.LdapValidationUtils.TLS;
+import static org.codice.ddf.admin.api.validation.LdapValidationUtils.START_TLS;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_BIND;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONFIGURE;
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CONNECT;
@@ -55,7 +55,7 @@ public class LdapTestingCommons {
                     .equalsIgnoreCase(LDAPS)) {
                 ldapOptions.setSSLContext(SSLContext.getDefault());
             } else if (ldapConfiguration.encryptionMethod()
-                    .equalsIgnoreCase(TLS)) {
+                    .equalsIgnoreCase(START_TLS)) {
                 ldapOptions.setUseStartTLS(true);
             }
 

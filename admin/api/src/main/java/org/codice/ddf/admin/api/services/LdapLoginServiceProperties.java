@@ -90,7 +90,7 @@ public class LdapLoginServiceProperties {
 
     public static boolean isStartTls(LdapConfiguration config) {
         return config.encryptionMethod()
-                .equalsIgnoreCase(TLS);
+                .equalsIgnoreCase(START_TLS);
     }
 
     public static String getLdapUrl(LdapConfiguration config) {

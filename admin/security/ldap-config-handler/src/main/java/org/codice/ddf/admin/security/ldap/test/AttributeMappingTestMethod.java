@@ -21,6 +21,7 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvali
 import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.STS_CLAIMS_CONFIGURATION_CONFIG_ID;
 import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.STS_CLAIMS_PROPS_KEY_CLAIMS;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,7 +58,7 @@ public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
             return report;
         }
 
-        List stsClaims = (List)new Configurator().getConfig(STS_CLAIMS_CONFIGURATION_CONFIG_ID).get(STS_CLAIMS_PROPS_KEY_CLAIMS);
+        List stsClaims = Arrays.asList((String[]) new Configurator().getConfig(STS_CLAIMS_CONFIGURATION_CONFIG_ID).get(STS_CLAIMS_PROPS_KEY_CLAIMS));
         Optional<String> unknownStsClaim = configuration.attributeMappings()
                 .keySet()
                 .stream()
