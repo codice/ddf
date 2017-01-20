@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.sources.wfs.test;
+package org.codice.ddf.admin.sources.wfs.probe;
 
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.ENDPOINT_URL;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.BAD_CONFIG;

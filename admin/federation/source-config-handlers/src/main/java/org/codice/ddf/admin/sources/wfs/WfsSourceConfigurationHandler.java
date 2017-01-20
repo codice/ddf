@@ -36,7 +36,7 @@ import org.codice.ddf.admin.sources.commons.ManualUrlTestMethod;
 import org.codice.ddf.admin.sources.wfs.persist.CreateWfsSourcePersistMethod;
 import org.codice.ddf.admin.sources.wfs.persist.DeleteWfsSourcePersistMethod;
 import org.codice.ddf.admin.sources.wfs.probe.DiscoverWfsSourceProbeMethod;
-import org.codice.ddf.admin.sources.wfs.test.WfsConfigFromUrlProbeMethod;
+import org.codice.ddf.admin.sources.wfs.probe.WfsConfigFromUrlProbeMethod;
 
 public class WfsSourceConfigurationHandler extends DefaultConfigurationHandler<SourceConfiguration>
         implements SourceConfigurationHandler<SourceConfiguration> {
