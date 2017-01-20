@@ -38,6 +38,7 @@ import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.osgi.framework.BundleContext;
@@ -76,7 +77,30 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
 
     private static final int MAX_FFMPEG_PROCESSES = 4;
 
-    private static final PumpStreamHandler DEV_NULL = new PumpStreamHandler(null);
+    private static final PumpStreamHandler DEV_NULL = new PumpStreamHandler(null) {
+
+        @Override
+        public void setProcessErrorStream(InputStream inputStream) {
+            consumeStream(inputStream);
+        }
+
+        @Override
+        public void setProcessOutputStream(InputStream inputStream) {
+            consumeStream(inputStream);
+        }
+
+        private void consumeStream(InputStream inputStream) {
+            try {
+                while (inputStream.available() > 0) {
+                    inputStream.skip(1024);
+                }
+            } catch (IOException e) {
+                //ignore
+            } finally {
+                IOUtils.closeQuietly(inputStream);
+            }
+        }
+    };
 
     private final Semaphore limitFFmpegProcessesSemaphore;
 
