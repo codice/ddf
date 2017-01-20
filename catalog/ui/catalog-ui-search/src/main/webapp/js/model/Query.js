@@ -49,6 +49,20 @@ define([
             });
         }
 
+        function limitToHistoric(cqlString){
+            return CQLUtils.transformFilterToCQL({
+                type: 'AND',
+                filters: [
+                    CQLUtils.transformCQLToFilter(cqlString),
+                    {
+                        property: '"metacard-tags"',
+                        type: "ILIKE",
+                        value: 'revision'
+                    }
+                ]
+            });
+        }
+
         Query.Model = Backbone.AssociatedModel.extend({
             relations: [
                 {
@@ -497,7 +511,11 @@ define([
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
 
-            startSearch: function (forDeleted) {
+            startSearch: function (options) {
+                options = _.extend({
+                    limitToDeleted: false,
+                    limitToHistoric: false
+                }, options);
                 this.cancelCurrentSearches();
 
                 var data = Common.duplicate(this.buildSearchData());
@@ -569,9 +587,13 @@ define([
 
                 // the "cache" source is always added to the search
                 sources.unshift("cache");
-                   
+
                 var cqlString = data.cql;
-                cqlString = forDeleted ? limitToDeleted(cqlString) : cqlString;
+                if (options.limitToDeleted) {
+                    cqlString = limitToDeleted(cqlString);
+                } else if (options.limitToHistoric) {
+                    cqlString = limitToHistoric(cqlString);
+                }
                 this.currentSearches = sources.map(function (src) {
                     data.src = src;
 

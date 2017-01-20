@@ -36,6 +36,7 @@ define([
             'click .interaction-delete': 'handleDelete',
             'click .interaction-duplicate': 'handleDuplicate',
             'click .interaction-deleted': 'handleDeleted',
+            'click .interaction-historic': 'handleHistoric',
             'click': 'handleClick'
         },
         ui: {
@@ -54,7 +55,9 @@ define([
             this.model.collection.remove(this.model);
         },
         handleDeleted: function(){
-            this.model.startSearch(true);
+            this.model.startSearch({
+                limitToDeleted: true
+            });
         },
         handleDuplicate: function(){
             if (this.model.collection.canAddQuery()){
@@ -64,6 +67,11 @@ define([
                 var newQuery = new this.model.constructor(copyAttributes);
                 store.setQueryByReference(newQuery);
             }
+        },
+        handleHistoric: function(){
+            this.model.startSearch({
+                limitToHistoric: true
+            });
         },
         handleClick: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
