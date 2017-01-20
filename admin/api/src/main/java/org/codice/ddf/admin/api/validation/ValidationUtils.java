@@ -42,7 +42,7 @@ public class ValidationUtils {
 
     private static final Pattern HOST_NAME_PATTERN = Pattern.compile("[0-9a-zA-Z\\.-]+");
 
-    private static final UriPathValidator pathValidator = new UriPathValidator();
+    private static final UriPathValidator PATH_VALIDATOR = new UriPathValidator();
 
     public static final List<ConfigurationMessage> validateString(String strToCheck,
             String configId) {
@@ -75,7 +75,7 @@ public class ValidationUtils {
         List<ConfigurationMessage> errors = new ArrayList<>();
         errors.addAll(validateString(contextPath, configId));
         if (errors.isEmpty()) {
-            if (!pathValidator.isValidPath(contextPath)) {
+            if (!PATH_VALIDATOR.isValidPath(contextPath)) {
                 errors.add(createInvalidFieldMsg("Improperly formatted context path.",
                         contextPath));
             }

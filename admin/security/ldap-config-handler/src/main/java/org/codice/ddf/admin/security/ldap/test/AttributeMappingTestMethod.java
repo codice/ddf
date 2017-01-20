@@ -14,22 +14,32 @@
 
 package org.codice.ddf.admin.security.ldap.test;
 
+import static org.codice.ddf.admin.api.config.ldap.LdapConfiguration.ATTRIBUTE_MAPPINGS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
+import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
+import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.STS_CLAIMS_CONFIGURATION_CONFIG_ID;
+import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.STS_CLAIMS_PROPS_KEY_CLAIMS;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
+import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
 
     public static final String LDAP_ATTRIBUTE_MAPPING_TEST_ID = "attribute-mapping";
 
-    public static final String DESCRIPTION = "Verifies that mapping values are valid and exist.";
+    public static final String DESCRIPTION = "Verifies that sts mapping values are valid and exist.";
+
+    public static final List<String> REQUIRED_FIELDS = ImmutableList.of(ATTRIBUTE_MAPPINGS);
 
     public static final String VALIDATED = "validated";
 
@@ -37,12 +47,29 @@ public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
             "Attribute mapping was successfully validated.");
 
     public AttributeMappingTestMethod() {
-        super(LDAP_ATTRIBUTE_MAPPING_TEST_ID, DESCRIPTION, null, null, SUCCESS_TYPES, null, null);
+        super(LDAP_ATTRIBUTE_MAPPING_TEST_ID, DESCRIPTION, REQUIRED_FIELDS, null, SUCCESS_TYPES, null, null);
     }
 
     @Override
     public Report test(LdapConfiguration configuration) {
-        // TODO: tbatie - 12/15/16 - Make sure the attributes are in the schema, if they aren't report error. Give a warning there are no users in group or base user dn with the given attributes
+        Report report = new Report(configuration.validate(REQUIRED_FIELDS));
+        if(report.containsFailureMessages()) {
+            return report;
+        }
+
+        List stsClaims = (List)new Configurator().getConfig(STS_CLAIMS_CONFIGURATION_CONFIG_ID).get(STS_CLAIMS_PROPS_KEY_CLAIMS);
+        Optional<String> unknownStsClaim = configuration.attributeMappings()
+                .keySet()
+                .stream()
+                .filter(claim -> !stsClaims.contains(claim))
+                .findFirst();
+
+        if(unknownStsClaim.isPresent()) {
+            return new Report(createInvalidFieldMsg("Unknown STS claim \"" + unknownStsClaim.get()
+                            + "\", the STS properties are not set to handle this claim.",
+                    ATTRIBUTE_MAPPINGS));
+        }
+
         return new Report(buildMessage(SUCCESS, VALIDATED, SUCCESS_TYPES.get(VALIDATED)));
     }
 
