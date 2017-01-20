@@ -81,6 +81,7 @@ public class CswSourceConfigurationHandler extends DefaultConfigurationHandler<S
                         .values()
                         .stream())
                 .map(CswServiceProperties::servicePropsToCswConfig)
+                .map(config -> config.sourceUserPassword("*****"))
                 .collect(Collectors.toList());
     }
 

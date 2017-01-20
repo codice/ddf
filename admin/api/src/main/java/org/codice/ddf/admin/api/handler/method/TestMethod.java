@@ -20,6 +20,10 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.Configuration;
 import org.codice.ddf.admin.api.handler.report.Report;
 
+/**
+ * <b> This code is experimental. While this class is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ */
 public abstract class TestMethod<S extends Configuration> extends ConfigurationHandlerMethod {
 
     public TestMethod(String id, String description, List<String> requiredFields,

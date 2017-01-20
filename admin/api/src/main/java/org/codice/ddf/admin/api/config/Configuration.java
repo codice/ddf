@@ -14,6 +14,10 @@
 
 package org.codice.ddf.admin.api.config;
 
+/**
+ * <b> This code is experimental. While this class is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ */
 public abstract class Configuration {
 
     public static final String CONFIGURATION_HANDLER_ID = "configurationHandlerId";

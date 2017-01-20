@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Transactional handler factory for creating and deleting managed services.
+ *
+ * <b> This code is experimental. While this class is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
  */
 public abstract class ManagedServiceOperation
         implements Operation<String, Map<String, Map<String, Object>>> {

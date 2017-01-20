@@ -80,6 +80,7 @@ public class OpenSearchSourceConfigurationHandler extends DefaultConfigurationHa
                 .values()
                 .stream()
                 .map(OpensearchServiceProperties::servicePropsToOpenSearchConfig)
+                .map(config -> config.sourceUserPassword("*****"))
                 .collect(Collectors.toList());
     }
 
