@@ -4241,6 +4241,350 @@ public class SolrProviderTest extends SolrProviderTestCase {
     }
 
     @Test
+    public void testTextualSort() throws Exception {
+        deleteAllIn(provider);
+
+        List<Metacard> list = new ArrayList<Metacard>();
+
+        DateTime now = new DateTime();
+
+        for (int i = 65; i < 65 + 5; i++) {
+
+            MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
+
+            m.setEffectiveDate(now.minus(5L * i)
+                    .toDate());
+
+            m.setTitle((char) i + " Record ");
+
+            list.add(m);
+
+        }
+
+        create(list);
+
+        Filter filter = null;
+        QueryImpl query = null;
+        SourceResponse sourceResponse = null;
+
+        // Sort all Textual ASCENDING
+
+        filter = filterBuilder.attribute(Metacard.EFFECTIVE)
+                .before()
+                .date(now.plusMillis(1)
+                        .toDate());
+
+        query = new QueryImpl(filter);
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE,
+                SortOrder.ASCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        int ascii = 65;
+        for (int i = 0; i < list.size(); i++) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals((char) (i + ascii) + " Record ",
+                    r.getMetacard()
+                            .getTitle());
+        }
+
+        // Sort all Textual DESCENDING
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE,
+                SortOrder.DESCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        int asciiE = 69;
+        for (int i = (list.size() - 1); i >= 0; i--) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals((char) (asciiE - i) + " Record ",
+                    r.getMetacard()
+                            .getTitle());
+        }
+    }
+
+    @Test
+    public void testNumericSort() throws Exception {
+        deleteAllIn(provider);
+
+        /* SETUP */
+        String doubleField = "hertz";
+        double doubleFieldValue = 16065.435;
+
+        String floatField = "inches";
+        float floatFieldValue = 4.435f;
+
+        String intField = "count";
+        int intFieldValue = 4;
+
+        String longField = "milliseconds";
+        long longFieldValue = 9876543293L;
+
+        String shortField = "daysOfTheWeek";
+        short shortFieldValue = 1;
+
+        int factor = 5;
+
+        List<Metacard> list = new ArrayList<Metacard>();
+
+        DateTime now = new DateTime();
+
+        for (int i = 0; i < 5; i++) {
+            Set<AttributeDescriptor> descriptors = numericalDescriptors(doubleField,
+                    floatField,
+                    intField,
+                    longField,
+                    shortField);
+
+            MetacardTypeImpl mType = new MetacardTypeImpl("numberMetacardType", descriptors);
+
+            MetacardImpl customMetacard1 = new MetacardImpl(mType);
+            customMetacard1.setAttribute(Metacard.ID, "");
+            customMetacard1.setAttribute(doubleField, doubleFieldValue + factor * i);
+            customMetacard1.setAttribute(floatField, floatFieldValue + factor * i);
+            customMetacard1.setAttribute(intField, intFieldValue + factor * i);
+            customMetacard1.setAttribute(longField, longFieldValue + factor * i);
+            customMetacard1.setAttribute(shortField, shortFieldValue + factor * i);
+
+            list.add(customMetacard1);
+        }
+
+        create(list);
+
+        Filter filter = null;
+        QueryImpl query = null;
+        SourceResponse sourceResponse = null;
+
+        // Sort all Double ASCENDING
+
+        filter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                .like()
+                .text("*");
+
+        query = new QueryImpl(filter);
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(doubleField,
+                SortOrder.ASCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        for (int i = 0; i < list.size(); i++) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals(doubleFieldValue + factor * i,
+                    r.getMetacard()
+                            .getAttribute(doubleField)
+                            .getValue());
+        }
+
+        // Sort all double DESCENDING
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(doubleField,
+                SortOrder.DESCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        int counter = 0;
+        for (int i = (list.size() - 1); i >= 0; i--) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals(doubleFieldValue + factor * counter,
+                    r.getMetacard()
+                            .getAttribute(doubleField)
+                            .getValue());
+            counter++;
+        }
+
+        // Sort all Float ASCENDING
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(floatField,
+                SortOrder.ASCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        for (int i = 0; i < list.size(); i++) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals(floatFieldValue + factor * i,
+                    r.getMetacard()
+                            .getAttribute(floatField)
+                            .getValue());
+        }
+
+        // Sort all Float DESCENDING
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(floatField,
+                SortOrder.DESCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        counter = 0;
+        for (int i = (list.size() - 1); i >= 0; i--) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals(floatFieldValue + factor * counter,
+                    r.getMetacard()
+                            .getAttribute(floatField)
+                            .getValue());
+            counter++;
+        }
+
+        // Sort all int ASCENDING
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(intField,
+                SortOrder.ASCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        for (int i = 0; i < list.size(); i++) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals(intFieldValue + factor * i,
+                    r.getMetacard()
+                            .getAttribute(intField)
+                            .getValue());
+        }
+
+        // Sort all int DESCENDING
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(intField,
+                SortOrder.DESCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        counter = 0;
+        for (int i = (list.size() - 1); i >= 0; i--) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals(intFieldValue + factor * counter,
+                    r.getMetacard()
+                            .getAttribute(intField)
+                            .getValue());
+            counter++;
+        }
+
+        // Sort all long ASCENDING
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(longField,
+                SortOrder.ASCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        for (int i = 0; i < list.size(); i++) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals(longFieldValue + factor * i,
+                    r.getMetacard()
+                            .getAttribute(longField)
+                            .getValue());
+        }
+
+        // Sort all long DESCENDING
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(longField,
+                SortOrder.DESCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        counter = 0;
+        for (int i = (list.size() - 1); i >= 0; i--) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals(longFieldValue + factor * counter,
+                    r.getMetacard()
+                            .getAttribute(longField)
+                            .getValue());
+            counter++;
+        }
+
+        // Sort all short ASCENDING
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(shortField,
+                SortOrder.ASCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        for (int i = 0; i < list.size(); i++) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals((short) (shortFieldValue + factor * i),
+                    r.getMetacard()
+                            .getAttribute(shortField)
+                            .getValue());
+        }
+
+        // Sort all short DESCENDING
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(shortField,
+                SortOrder.DESCENDING.name()));
+
+        sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        counter = 0;
+        for (int i = (list.size() - 1); i >= 0; i--) {
+            Result r = sourceResponse.getResults()
+                    .get(i);
+            assertEquals((short) (shortFieldValue + factor * counter),
+                    r.getMetacard()
+                            .getAttribute(shortField)
+                            .getValue());
+            counter++;
+        }
+    }
+
+    @Test
     public void testSorting() throws Exception {
 
         deleteAllIn(provider);
