@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,6 +16,8 @@ package ddf.catalog.impl.operations;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +25,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,50 +59,38 @@ public class MetacardFactory {
             throws MetacardCreationException, MimeTypeParseException {
 
         Metacard generatedMetacard = null;
-        InputTransformer transformer = null;
-        StringBuilder causeMessage = new StringBuilder("Could not create metacard with mimeType ");
-        try {
-            MimeType mimeType = new MimeType(mimeTypeRaw);
 
-            List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
-                    InputTransformer.class,
-                    mimeType);
+        MimeType mimeType = new MimeType(mimeTypeRaw);
 
-            LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
+        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
+                InputTransformer.class,
+                mimeType);
+        List<String> stackTraceList = new ArrayList<>();
 
-            for (InputTransformer candidate : listOfCandidates) {
-                transformer = candidate;
+        LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
 
-                try (InputStream transformerStream = com.google.common.io.Files.asByteSource(
-                        tmpContentPath.toFile())
-                        .openStream()) {
-                    generatedMetacard = transformer.transform(transformerStream);
-                }
-                if (generatedMetacard != null) {
-                    break;
-                }
+        for (InputTransformer candidate : listOfCandidates) {
+            try (InputStream transformerStream = com.google.common.io.Files.asByteSource(
+                    tmpContentPath.toFile())
+                    .openStream()) {
+                generatedMetacard = candidate.transform(transformerStream);
+            } catch (CatalogTransformerException | IOException e) {
+                List<String> stackTraces = Arrays.asList(ExceptionUtils.getRootCauseStackTrace(e));
+                stackTraceList.add(String.format("Transformer [%s] could not create metacard.",
+                        candidate));
+                stackTraceList.addAll(stackTraces);
+                LOGGER.debug("Transformer [{}] could not create metacard.", candidate, e);
             }
-        } catch (CatalogTransformerException | IOException e) {
-            causeMessage.append(mimeTypeRaw)
-                    .append(". Reason: ")
-                    .append(System.lineSeparator())
-                    .append(e.getMessage());
-
-            // The caught exception more than likely does not have the root cause message
-            // that is needed to inform the caller as to why things have failed.  Therefore
-            // we need to iterate through the chain of cause exceptions and gather up
-            // all of their message details.
-            Throwable cause = e.getCause();
-            while (cause != null && cause != cause.getCause()) {
-                causeMessage.append(System.lineSeparator())
-                        .append(cause.getMessage());
-                cause = cause.getCause();
+            if (generatedMetacard != null) {
+                break;
             }
-            LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
         }
 
         if (generatedMetacard == null) {
-            throw new MetacardCreationException(causeMessage.toString());
+            throw new MetacardCreationException(String.format(
+                    "Could not create metacard with mimeType %s : %s",
+                    mimeTypeRaw,
+                    StringUtils.join(stackTraceList, "\n")));
         }
 
         if (id != null) {

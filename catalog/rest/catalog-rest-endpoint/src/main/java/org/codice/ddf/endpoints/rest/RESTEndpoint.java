@@ -60,6 +60,7 @@ import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
@@ -1122,14 +1123,16 @@ public class RESTEndpoint implements RESTService {
     private Metacard generateMetacard(MimeType mimeType, String id, InputStream message,
             String transformerId) throws MetacardCreationException {
 
+        Metacard generatedMetacard = null;
+
         List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
                 InputTransformer.class,
                 mimeType);
+        List<String> stackTraceList = new ArrayList<>();
 
         LOGGER.trace("Entering generateMetacard.");
-        LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
 
-        Metacard generatedMetacard = null;
+        LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
 
         try (TemporaryFileBackedOutputStream fileBackedOutputStream = new TemporaryFileBackedOutputStream()) {
 
@@ -1154,29 +1157,16 @@ public class RESTEndpoint implements RESTService {
                         .iterator();
             }
 
-            StringBuilder causeMessage = new StringBuilder(
-                    "Could not create metacard with mimeType ");
-            causeMessage.append(mimeType);
-            causeMessage.append(". Reason: ");
             while (it.hasNext()) {
                 InputTransformer transformer = it.next();
-
                 try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
                         .openStream()) {
                     generatedMetacard = transformer.transform(inputStreamMessageCopy);
                 } catch (CatalogTransformerException | IOException e) {
-                    causeMessage.append(System.lineSeparator());
-                    causeMessage.append(e.getMessage());
-                    // The caught exception more than likely does not have the root cause message
-                    // that is needed to inform the caller as to why things have failed.  Therefore
-                    // we need to iterate through the chain of cause exceptions and gather up
-                    // all of their message details.
-                    Throwable cause = e.getCause();
-                    while (null != cause && cause != cause.getCause()) {
-                        causeMessage.append(System.lineSeparator());
-                        causeMessage.append(cause.getMessage());
-                        cause = cause.getCause();
-                    }
+                    List<String> stackTraces = Arrays.asList(ExceptionUtils.getRootCauseStackTrace(e));
+                    stackTraceList.add(String.format("Transformer [%s] could not create metacard.",
+                            transformer));
+                    stackTraceList.addAll(stackTraces);
                     LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
                 }
                 if (generatedMetacard != null) {
@@ -1185,7 +1175,10 @@ public class RESTEndpoint implements RESTService {
             }
 
             if (generatedMetacard == null) {
-                throw new MetacardCreationException(causeMessage.toString());
+                throw new MetacardCreationException(String.format(
+                        "Could not create metacard with mimeType %s : %s",
+                        mimeType,
+                        StringUtils.join(stackTraceList, "\n")));
             }
 
             if (id != null) {
@@ -1199,7 +1192,6 @@ public class RESTEndpoint implements RESTService {
             throw new MetacardCreationException("Could not determine transformer", e);
         }
         return generatedMetacard;
-
     }
 
     private MimeType getMimeType(HttpHeaders headers) {
