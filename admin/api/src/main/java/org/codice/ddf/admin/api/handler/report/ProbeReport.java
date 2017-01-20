@@ -21,6 +21,10 @@ import java.util.Map;
 
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
+/**
+ * A special {@link Report} with an additional {@link Map} of information about results from a
+ * {@link org.codice.ddf.admin.api.handler.ConfigurationHandler#probe(String, Configuration)} call.
+ */
 public class ProbeReport extends Report {
 
     private Map<String, Object> probeResults = new HashMap<>();

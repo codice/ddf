@@ -21,6 +21,10 @@ import java.util.Map;
 
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
+/**
+ * A {@link Report} is used to relay the results to the caller of an operation performed on a {@link org.codice.ddf.admin.api.config.Configuration}
+ * by the {@link org.codice.ddf.admin.api.handler.ConfigurationHandler}.
+ */
 public class Report {
 
     List<ConfigurationMessage> messages;

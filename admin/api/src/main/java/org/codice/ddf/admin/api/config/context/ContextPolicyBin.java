@@ -32,6 +32,10 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * A {@link ContextPolicyBin} represents a context policy and performs authentication and realm information
+ * about the context policy.
+ */
 public class ContextPolicyBin {
 
     public static final String REALM = "realm";

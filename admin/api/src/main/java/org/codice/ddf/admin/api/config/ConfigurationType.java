@@ -15,7 +15,7 @@
 package org.codice.ddf.admin.api.config;
 
 /**
- * Identifier for a specific {@link Configuration}
+ * Identifier for a specific {@link Configuration}.
  */
 public class ConfigurationType {
     private String configTypeName;

@@ -24,6 +24,13 @@ import org.codice.ddf.admin.api.handler.report.Report;
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
+
+/**
+ * Represents a test that can be performed on a {@link Configuration}. For example, a {@link TestMethod}
+ * may test for a missing required field.
+ *
+ * @param <S> the {@link Configuration} type to test.
+ */
 public abstract class TestMethod<S extends Configuration> extends ConfigurationHandlerMethod {
 
     public TestMethod(String id, String description, List<String> requiredFields,

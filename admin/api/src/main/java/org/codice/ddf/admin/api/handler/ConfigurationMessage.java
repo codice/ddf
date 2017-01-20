@@ -16,10 +16,10 @@ package org.codice.ddf.admin.api.handler;
 
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+/**
+ * A {@link ConfigurationMessage} encapsulates the results of an operation performed on a {@link org.codice.ddf.admin.api.config.Configuration}.
+ * {@link ConfigurationMessage}s are wrapped by {@link org.codice.ddf.admin.api.handler.report.Report}s to relay messages about the {@link org.codice.ddf.admin.api.handler.method.ConfigurationHandlerMethod}s results.
+ */
 public class ConfigurationMessage {
 
     // Default error message subtypes
@@ -33,31 +33,27 @@ public class ConfigurationMessage {
     private String subType;
     private String message;
     private String configId;
-    private List<Exception> exceptions;
 
-    public ConfigurationMessage(MessageType type, String subType, String message, String configId,
-            Exception... exceptions) {
+    /**
+     * Creates a new {@link ConfigurationMessage}. A {@link ConfigurationMessage} is structured such that
+     * it has a high level description of the problem of {@param #type} {@link MessageType} and a more detailed description
+     * of {@param subType}. For instance, if the {@param #type}  was {@link MessageType#FAILURE}, the {@param subType}
+     * could be {@link #MISSING_REQUIRED_FIELD}
+     *
+     * @param type a high level description message
+     * @param subType a more specific type of the message
+     * @param message a message indicating additional details about this {@link ConfigurationMessage}
+     * @param configId the id of the {@link org.codice.ddf.admin.api.config.Configuration}
+     */
+    public ConfigurationMessage(MessageType type, String subType, String message, String configId) {
         this.type = type;
         this.subType = subType;
         this.message = message;
         this.configId = configId;
-        this.exceptions = new ArrayList<>();
-        if (exceptions != null) {
-            this.exceptions.addAll(Arrays.asList(exceptions));
-        }
-    }
-
-    public ConfigurationMessage(MessageType type, String subType, String message, String configId) {
-        this(type, subType, message, configId, null);
-    }
-
-    public ConfigurationMessage(MessageType type, String subType, String message,
-            Exception... exceptions) {
-        this(type, subType, message, null, exceptions);
     }
 
     public ConfigurationMessage(MessageType type, String subType, String message) {
-        this(type, subType, message, null, null);
+        this(type, subType, message, null);
     }
 
     public enum MessageType {
@@ -83,10 +79,6 @@ public class ConfigurationMessage {
 
     public String configId() {
         return configId;
-    }
-
-    public List<Exception> exceptions() {
-        return exceptions;
     }
 
     // Setters

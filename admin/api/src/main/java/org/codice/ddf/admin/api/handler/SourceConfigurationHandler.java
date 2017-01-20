@@ -18,7 +18,13 @@ import org.codice.ddf.admin.api.config.sources.SourceConfiguration;
 /**
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
- * */
+ */
+
+/**
+ * A marker interface that signifies this {@link ConfigurationHandler} can handle a {@link SourceConfiguration}.
+ *
+ * @param <S> the {@link org.codice.ddf.admin.api.config.Configuration} this {@link SourceConfigurationHandler} can handle.
+ */
 public interface SourceConfigurationHandler<S extends SourceConfiguration>
         extends ConfigurationHandler<S> {
 

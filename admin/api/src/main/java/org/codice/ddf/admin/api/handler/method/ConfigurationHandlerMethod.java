@@ -23,6 +23,10 @@ import com.google.gson.annotations.Expose;
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
+
+/**
+ * A {@link ConfigurationHandlerMethod} represents a method that is meant to be performed on a {@link org.codice.ddf.admin.api.config.Configuration}.
+ */
 public abstract class ConfigurationHandlerMethod {
 
     @Expose

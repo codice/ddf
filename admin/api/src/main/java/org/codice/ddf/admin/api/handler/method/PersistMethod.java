@@ -24,6 +24,12 @@ import org.codice.ddf.admin.api.handler.report.Report;
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
+
+/**
+ * A {@link PersistMethod} is a method that is used to persist a {@link Configuration}.
+ *
+ * @param <S> the {@link Configuration} type to persist.
+ */
 public abstract class PersistMethod<S extends Configuration> extends ConfigurationHandlerMethod {
     public PersistMethod(String id, String description, List<String> requiredFields,
             List<String> optionalFields, Map<String, String> successTypes,

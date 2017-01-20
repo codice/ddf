@@ -29,6 +29,10 @@ import org.codice.ddf.admin.api.validation.ValidationUtils;
 
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * A {@link ContextPolicyConfiguration} is a container for {@link ContextPolicyBin}s and white listed
+ * context policies.
+ */
 public class ContextPolicyConfiguration extends Configuration {
 
     public static final String CONFIGURATION_TYPE = "context-policy-manager";

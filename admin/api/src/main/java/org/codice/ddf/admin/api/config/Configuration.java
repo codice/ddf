@@ -18,6 +18,11 @@ package org.codice.ddf.admin.api.config;
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
+
+/**
+ * A {@link Configuration} is the super class for all configurations that can be handled by the
+ * {@link org.codice.ddf.admin.api.handler.ConfigurationHandler}.
+ */
 public abstract class Configuration {
 
     public static final String CONFIGURATION_HANDLER_ID = "configurationHandlerId";
