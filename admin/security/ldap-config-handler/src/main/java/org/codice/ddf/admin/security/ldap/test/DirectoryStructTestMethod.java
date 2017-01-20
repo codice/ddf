@@ -103,6 +103,8 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
                 WARNING_TYPES);
     }
 
+    public static final int MAX_ENTRIES_TO_SEARCH = 300;
+
     @Override
     public Report test(LdapConfiguration configuration) {
         // TODO: tbatie - 1/11/17 - validate membershipNameAttribute once implemented
@@ -125,7 +127,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
         Connection ldapConnection = connectionAttempt.connection();
         List<SearchResultEntry> baseUsersResults = getLdapQueryResults(ldapConnection,
                 "objectClass=*",
-                configuration.baseUserDn());
+                configuration.baseUserDn(), MAX_ENTRIES_TO_SEARCH);
 
         Map<String, String> resultsWithConfigIds = new HashMap<>();
 
@@ -137,7 +139,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
             resultsWithConfigIds.put(FOUND_BASE_USER_DN.name(), BASE_USER_DN);
             List<SearchResultEntry> userNameAttribute = getLdapQueryResults(ldapConnection,
                     configuration.userNameAttribute() + "=*",
-                    configuration.baseUserDn());
+                    configuration.baseUserDn(), MAX_ENTRIES_TO_SEARCH);
             if (userNameAttribute.isEmpty()) {
                 resultsWithConfigIds.put(USER_NAME_ATTRIBUTE_NOT_FOUND.name(), USER_NAME_ATTRIBUTE);
             } else {
@@ -147,7 +149,7 @@ public class DirectoryStructTestMethod extends TestMethod<LdapConfiguration> {
 
         List<SearchResultEntry> baseGroupResults = getLdapQueryResults(ldapConnection,
                 "objectClass=*",
-                configuration.baseGroupDn());
+                configuration.baseGroupDn(), MAX_ENTRIES_TO_SEARCH);
 
         if (baseGroupResults.isEmpty()) {
             resultsWithConfigIds.put(BASE_GROUP_DN_NOT_FOUND.name(), BASE_GROUP_DN);

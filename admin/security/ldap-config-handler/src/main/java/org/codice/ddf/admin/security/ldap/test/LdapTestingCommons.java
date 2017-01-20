@@ -150,17 +150,24 @@ public class LdapTestingCommons {
         return request;
     }
 
+    /**
+     * Executes a query against the ldap connection
+     * @param ldapConnection Ldap connection to run query on
+     * @param ldapQuery Query to perform
+     * @param ldapSearchBaseDN Base DN to run the query on
+     * @param maxResults Max number of results to return from query. Use -1 for all results
+     * @return
+     */
     public static List<SearchResultEntry> getLdapQueryResults(Connection ldapConnection,
-            String ldapQuery, String ldapSearchBaseDN) {
+            String ldapQuery, String ldapSearchBaseDN, int maxResults) {
 
         final ConnectionEntryReader reader = ldapConnection.search(ldapSearchBaseDN,
                 SearchScope.WHOLE_SUBTREE,
                 ldapQuery);
 
         List<SearchResultEntry> entries = new ArrayList<>();
-
         try {
-            while (reader.hasNext()) {
+            while (entries.size() < maxResults && reader.hasNext()) {
                 if (!reader.isReference()) {
                     SearchResultEntry resultEntry = reader.readEntry();
                     entries.add(resultEntry);

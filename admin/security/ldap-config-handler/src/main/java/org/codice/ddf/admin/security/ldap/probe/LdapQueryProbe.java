@@ -45,8 +45,10 @@ import com.google.common.collect.ImmutableList;
 
 public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
 
+
     public static final String LDAP_QUERY_ID = "query";
     private static final String DESCRIPTION = "Probe to execute arbitrary query against an LDAP server and return the results.";
+    public static final int MAX_QUERY_RESULTS = 50;
 
     private static final List<String> REQUIRED_FIELDS = ImmutableList.of(
             LDAP_TYPE,
@@ -83,7 +85,7 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
         Connection connection = bindUserToLdapConnection(configuration).connection();
         List<SearchResultEntry> searchResults = getLdapQueryResults(connection,
                 configuration.query(),
-                configuration.queryBase());
+                configuration.queryBase(), MAX_QUERY_RESULTS);
         List<Map<String, String>> convertedSearchResults = new ArrayList<>();
 
         for (SearchResultEntry entry : searchResults) {

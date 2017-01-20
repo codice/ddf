@@ -43,6 +43,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
+/**
+ * <b> This code is experimental. While this class is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ */
 public abstract class ServerGuesser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerGuesser.class);
 

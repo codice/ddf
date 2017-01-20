@@ -95,6 +95,7 @@ public class LdapConfigurationHandler extends DefaultConfigurationHandler<LdapCo
                 .collect(Collectors.toList());
 
         return Stream.concat(ldapLoginConfigs.stream(), ldapClaimsHandlerConfigs.stream())
+                .map(config -> config.bindUserPassword("*******"))
                 .collect(Collectors.toList());
     }
 }
