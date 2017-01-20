@@ -512,7 +512,7 @@ public class DeleteOperations {
         QueryImpl queryImpl =
                 new QueryImpl(queryOperations.getFilterWithAdditionalFilters(idFilters),
                         1,  /* start index */
-                        0,  /* page size */
+                        deleteRequest.getAttributeValues().size(),  /* page size */
                         null,
                         false, /* total result count */
                         0   /* timeout */);
