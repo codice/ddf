@@ -31,11 +31,12 @@ import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.Report;
+import org.codice.ddf.admin.sources.commons.ManualUrlTestMethod;
 import org.codice.ddf.admin.api.services.OpensearchServiceProperties;
 import org.codice.ddf.admin.sources.opensearch.persist.CreateOpenSearchSourcePersistMethod;
 import org.codice.ddf.admin.sources.opensearch.persist.DeleteOpenSearchSourcePersistMethod;
 import org.codice.ddf.admin.sources.opensearch.probe.DiscoverOpenSearchSourceProbeMethod;
-import org.codice.ddf.admin.sources.opensearch.test.OpenSearchUrlTestMethod;
+import org.codice.ddf.admin.sources.opensearch.probe.OpenSearchConfigFromUrlProbeMethod;
 
 public class OpenSearchSourceConfigurationHandler extends DefaultConfigurationHandler<SourceConfiguration>
         implements SourceConfigurationHandler<SourceConfiguration> {
@@ -44,12 +45,12 @@ public class OpenSearchSourceConfigurationHandler extends DefaultConfigurationHa
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
-        return Arrays.asList(new DiscoverOpenSearchSourceProbeMethod());
+        return Arrays.asList(new DiscoverOpenSearchSourceProbeMethod(), new OpenSearchConfigFromUrlProbeMethod());
     }
 
     @Override
     public List<TestMethod> getTestMethods() {
-        return Arrays.asList(new OpenSearchUrlTestMethod());
+        return Arrays.asList(new ManualUrlTestMethod());
     }
 
     @Override

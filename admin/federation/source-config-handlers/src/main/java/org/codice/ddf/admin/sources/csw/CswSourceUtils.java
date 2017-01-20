@@ -14,6 +14,7 @@
 package org.codice.ddf.admin.sources.csw;
 
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CERT_ERROR;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.OWS_NAMESPACE_CONTEXT;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.PING_TIMEOUT;
 import static org.codice.ddf.admin.api.services.CswServiceProperties.CSW_GMD_FACTORY_PID;
@@ -23,6 +24,7 @@ import static org.codice.ddf.admin.api.services.CswServiceProperties.CSW_SPEC_FA
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.net.ssl.SSLContext;
@@ -42,6 +44,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.codice.ddf.admin.api.config.sources.CswSourceConfiguration;
+import org.codice.ddf.admin.api.handler.commons.UrlAvailability;
 import org.w3c.dom.Document;
 
 public class CswSourceUtils {
@@ -66,7 +69,8 @@ public class CswSourceUtils {
             "//ows:OperationsMetadata/ows:Operation[@name='GetRecords']/ows:Parameter[@name='OutputSchema' or @name='outputSchema']/ows:Value[1]/text()";
 
     // Given a config with an endpoint URL, determines if that URL is a functional CSW endpoint.
-    public static boolean isAvailable(String url, CswSourceConfiguration config) {
+    public static UrlAvailability getUrlAvailability(String url) {
+        UrlAvailability result = new UrlAvailability();
         String contentType;
         int status;
         long contentLength;
@@ -86,13 +90,12 @@ public class CswSourceUtils {
             contentLength = response.getEntity()
                     .getContentLength();
             if (status == HTTP_OK && contentType.equals("text/xml") && contentLength > 0) {
-                config.trustedCertAuthority(true);
-                return true;
+                return result.trustedCertAuthority(true).certError(false).available(true);
+            } else {
+                return result.trustedCertAuthority(true).certError(false).available(false);
             }
-            return false;
         } catch (SSLPeerUnverifiedException e) {
-            config.certError(true);
-            return false;
+            return result.trustedCertAuthority(false).certError(true).available(false);
         } catch (IOException e) {
             try {
                 // We want to trust any root CA, but maintain all other standard SSL checks
@@ -114,14 +117,13 @@ public class CswSourceUtils {
                 contentLength = response.getEntity()
                         .getContentLength();
                 if (status == HTTP_OK && contentType.equals("text/xml") && contentLength > 0) {
-                    config.trustedCertAuthority(false);
-                    return true;
+                    return result.trustedCertAuthority(false).certError(false).available(true);
                 }
             } catch (Exception e1) {
-                return false;
+                return result.trustedCertAuthority(false).certError(false).available(false);
             }
         }
-        return false;
+        return result;
     }
 
     // Given a configuration, determines the preferred CSW source type and output schema and returns
@@ -165,7 +167,17 @@ public class CswSourceUtils {
                 .map(formatUrl -> String.format(formatUrl,
                         config.sourceHostName(),
                         config.sourcePort()))
-                .filter(url -> CswSourceUtils.isAvailable(url, config) || config.certError())
+                .map(url -> {
+                    UrlAvailability avail = getUrlAvailability(url);
+                    if (avail.isAvailable()) {
+                        return url;
+                    }
+                    if (avail.isCertError()) {
+                        return CERT_ERROR;
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
                 .findFirst()
                 .map(Optional::of)
                 .orElse(Optional.empty());

@@ -70,6 +70,9 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
         }
         Optional<String> url = WfsSourceUtils.confirmEndpointUrl(configuration);
         if (url.isPresent()) {
+            if (url.get().equals(CERT_ERROR)) {
+                return new ProbeReport(buildMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
+            }
             configuration.endpointUrl(url.get());
         } else {
             results.add(buildMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));

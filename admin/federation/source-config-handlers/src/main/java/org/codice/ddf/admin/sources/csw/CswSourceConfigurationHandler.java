@@ -32,10 +32,11 @@ import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.Report;
 import org.codice.ddf.admin.api.services.CswServiceProperties;
+import org.codice.ddf.admin.sources.commons.ManualUrlTestMethod;
 import org.codice.ddf.admin.sources.csw.persist.CreateCswSourcePersistMethod;
 import org.codice.ddf.admin.sources.csw.persist.DeleteCswSourcePersistMethod;
+import org.codice.ddf.admin.sources.csw.probe.CswConfigFromUrlProbeMethod;
 import org.codice.ddf.admin.sources.csw.probe.DiscoverCswSourceProbeMethod;
-import org.codice.ddf.admin.sources.csw.test.CswUrlTestMethod;
 
 public class CswSourceConfigurationHandler extends DefaultConfigurationHandler<SourceConfiguration>
         implements SourceConfigurationHandler<SourceConfiguration> {
@@ -44,12 +45,12 @@ public class CswSourceConfigurationHandler extends DefaultConfigurationHandler<S
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
-        return Arrays.asList(new DiscoverCswSourceProbeMethod());
+        return Arrays.asList(new DiscoverCswSourceProbeMethod(), new CswConfigFromUrlProbeMethod());
     }
 
     @Override
     public List<TestMethod> getTestMethods() {
-        return Arrays.asList(new CswUrlTestMethod());
+        return Arrays.asList(new ManualUrlTestMethod());
     }
 
     @Override

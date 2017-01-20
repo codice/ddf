@@ -14,11 +14,13 @@
 package org.codice.ddf.admin.sources.opensearch;
 
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CERT_ERROR;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.PING_TIMEOUT;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.net.ssl.SSLContext;
@@ -33,6 +35,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.codice.ddf.admin.api.config.sources.OpenSearchSourceConfiguration;
+import org.codice.ddf.admin.api.handler.commons.UrlAvailability;
 
 public class OpenSearchSourceUtils {
     private static final List<String> URL_FORMATS = Arrays.asList(
@@ -47,14 +50,25 @@ public class OpenSearchSourceUtils {
                 .map(formatUrl -> String.format(formatUrl,
                         config.sourceHostName(),
                         config.sourcePort()))
-                .filter(url -> isAvailable(url, config) || config.certError())
+                .map(url -> {
+                    UrlAvailability avail = getUrlAvailability(url);
+                    if (avail.isAvailable()) {
+                        return url;
+                    }
+                    if (avail.isCertError()) {
+                        return CERT_ERROR;
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
                 .findFirst()
                 .map(Optional::of)
                 .orElse(Optional.empty());
     }
 
     // Given a configuration with and endpointUrl, determines if that URL is available as an OS source
-    public static boolean isAvailable(String url, OpenSearchSourceConfiguration config) {
+    public static UrlAvailability getUrlAvailability(String url) {
+        UrlAvailability result = new UrlAvailability();
         int status;
         String contentType;
         HttpClient client = HttpClientBuilder.create()
@@ -70,13 +84,12 @@ public class OpenSearchSourceUtils {
             contentType = ContentType.getOrDefault(response.getEntity())
                     .getMimeType();
             if (status == HTTP_OK && contentType.equals("application/atom+xml")) {
-                config.trustedCertAuthority(true);
-                return true;
+                return result.trustedCertAuthority(true).certError(false).available(true);
+            } else {
+                return result.trustedCertAuthority(true).certError(false).available(false);
             }
-            return false;
         } catch (SSLPeerUnverifiedException e) {
-            config.certError(true);
-            return false;
+            return result.trustedCertAuthority(false).certError(true).available(false);
         } catch (IOException e) {
             try {
                 SSLContext sslContext = SSLContexts.custom()
@@ -95,13 +108,12 @@ public class OpenSearchSourceUtils {
                 contentType = ContentType.getOrDefault(response.getEntity())
                         .getMimeType();
                 if (status == HTTP_OK && contentType.equals("application/atom+xml")) {
-                    config.trustedCertAuthority(false);
-                    return true;
+                    return result.trustedCertAuthority(false).certError(false).available(true);
                 }
-                return false;
             } catch (Exception e1) {
-                return false;
+                return result.trustedCertAuthority(false).certError(false).available(false);
             }
         }
+        return result;
     }
 }

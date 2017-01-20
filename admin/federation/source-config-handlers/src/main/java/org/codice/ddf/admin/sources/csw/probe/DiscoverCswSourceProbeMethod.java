@@ -66,27 +66,30 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
 
     @Override
     public ProbeReport probe(CswSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
+        CswSourceConfiguration config = configuration;
+        List<ConfigurationMessage> results = config.validate(REQUIRED_FIELDS);
         if(!results.isEmpty()) {
             return new ProbeReport(results);
         }
-        Optional<String> url = CswSourceUtils.confirmEndpointUrl(configuration);
+        Optional<String> url = CswSourceUtils.confirmEndpointUrl(config);
         if (url.isPresent()) {
-            configuration.endpointUrl(url.get());
-        } else if (configuration.certError()) {
-            results.add(buildMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
-            return new ProbeReport(results);
+            if (url.get().equals(CERT_ERROR)) {
+                results.add(buildMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
+                return new ProbeReport(results);
+            } else {
+                config.endpointUrl(url.get());
+            }
         } else {
             results.add(buildMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
             return new ProbeReport(results);
         }
 
-        Optional<CswSourceConfiguration> preferred = CswSourceUtils.getPreferredConfig(configuration);
+        Optional<CswSourceConfiguration> preferred = CswSourceUtils.getPreferredConfig(config);
         if (preferred.isPresent()) {
-            configuration = preferred.get();
+            config= preferred.get();
             results.add(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
             return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
-                    configuration.configurationHandlerId(CSW_SOURCE_CONFIGURATION_HANDLER_ID));
+                    config.configurationHandlerId(CSW_SOURCE_CONFIGURATION_HANDLER_ID));
         } else {
             results.add(buildMessage(FAILURE, INTERNAL_ERROR, FAILURE_TYPES.get(INTERNAL_ERROR)));
             return new ProbeReport(results);

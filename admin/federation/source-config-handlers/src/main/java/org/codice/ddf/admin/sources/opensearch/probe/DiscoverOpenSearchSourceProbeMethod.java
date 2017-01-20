@@ -74,15 +74,15 @@ public class DiscoverOpenSearchSourceProbeMethod
         }
         Optional<String> url = OpenSearchSourceUtils.confirmEndpointUrl(configuration);
         if (url.isPresent()) {
-            configuration.endpointUrl(url.get());
-            configuration.factoryPid(OPENSEARCH_FACTORY_PID);
+            if (url.get().equals(CERT_ERROR)) {
+                results.add(buildMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
+                return new ProbeReport(results);
+            }
+            configuration.endpointUrl(url.get()).factoryPid(OPENSEARCH_FACTORY_PID);
             results.add(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
             return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
                     configuration.configurationHandlerId(OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID));
 
-        } else if (configuration.certError()) {
-            results.add(buildMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
-            return new ProbeReport(results);
         } else {
             results.add(buildMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
             return new ProbeReport(results);

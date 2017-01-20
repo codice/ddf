@@ -32,15 +32,19 @@ public class SourceHandlerCommons {
 
     //Common probe, persist and test id's
     public static final String DISCOVER_SOURCES_ID = "discover-sources";
+    public static final String CONFIG_FROM_URL_ID = "config-from-url";
     public static final String VALID_URL_TEST_ID = "valid-url";
     public static final String MANUAL_URL_TEST_ID = "manual-url";
 
     //Common success types
+    public static final String CONFIG_CREATED = "CONFIG_CREATED";
     public static final String VERIFIED_URL = "VERIFIED_URL";
     public static final String ENDPOINT_DISCOVERED = "ENDPOINT_DISCOVERED";
+    public static final String REACHED_URL = "REACHED_URL";
 
     //Common warning types
     public static final String CANNOT_VERIFY = "CANNOT_VERIFY";
+    public static final String UNTRUSTED_CA = "UNTRUSTED_CA";
 
     //Common failed types
     public static final String CANNOT_CONNECT = "CANNOT_CONNECT";
@@ -60,7 +64,7 @@ public class SourceHandlerCommons {
             return Optional.of(buildMessage(FAILURE, INVALID_FIELD, "URL is improperly formatted."));
         } catch (Exception e) {
             // TODO: tbatie - 1/13/17 - Fix the subtype here. Subtype is dependent on test, consider not returning a configuration message from this method
-            Optional.of(buildMessage(FAILURE, null, "Unable to reach specified URL."));
+            Optional.of(buildMessage(FAILURE, CANNOT_CONNECT, "Cannot reach URL."));
         }
         return Optional.empty();
     }

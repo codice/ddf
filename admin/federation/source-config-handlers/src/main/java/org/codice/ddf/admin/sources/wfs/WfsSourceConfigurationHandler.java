@@ -32,10 +32,11 @@ import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.Report;
 import org.codice.ddf.admin.api.services.WfsServiceProperties;
+import org.codice.ddf.admin.sources.commons.ManualUrlTestMethod;
 import org.codice.ddf.admin.sources.wfs.persist.CreateWfsSourcePersistMethod;
 import org.codice.ddf.admin.sources.wfs.persist.DeleteWfsSourcePersistMethod;
 import org.codice.ddf.admin.sources.wfs.probe.DiscoverWfsSourceProbeMethod;
-import org.codice.ddf.admin.sources.wfs.test.WfsUrlTestMethod;
+import org.codice.ddf.admin.sources.wfs.test.WfsConfigFromUrlProbeMethod;
 
 public class WfsSourceConfigurationHandler extends DefaultConfigurationHandler<SourceConfiguration>
         implements SourceConfigurationHandler<SourceConfiguration> {
@@ -44,12 +45,12 @@ public class WfsSourceConfigurationHandler extends DefaultConfigurationHandler<S
 
     @Override
     public List<ProbeMethod> getProbeMethods() {
-        return Arrays.asList(new DiscoverWfsSourceProbeMethod());
+        return Arrays.asList(new DiscoverWfsSourceProbeMethod(), new WfsConfigFromUrlProbeMethod());
     }
 
     @Override
     public List<TestMethod> getTestMethods() {
-        return Arrays.asList(new WfsUrlTestMethod());
+        return Arrays.asList(new ManualUrlTestMethod());
     }
 
     @Override

@@ -47,8 +47,6 @@ public class SourceConfiguration extends Configuration {
     private String sourceUserName;
     private String sourceUserPassword;
     private String endpointUrl;
-    private boolean certError;
-    private boolean trustedCertAuthority;
 
     public SourceConfiguration() {
 
@@ -62,8 +60,6 @@ public class SourceConfiguration extends Configuration {
         this.sourceUserName = sourceConfiguration.sourceUserName;
         this.sourceUserPassword = sourceConfiguration.sourceUserPassword;
         this.endpointUrl = sourceConfiguration.endpointUrl;
-        this.certError = sourceConfiguration.certError;
-        this.trustedCertAuthority = sourceConfiguration.trustedCertAuthority;
     }
 
     public static <T extends SourceConfiguration> Map<String, Function<T, List<ConfigurationMessage>>> getBaseFieldValidationMap() {
@@ -89,12 +85,6 @@ public class SourceConfiguration extends Configuration {
     }
 
     //Getters
-    public boolean trustedCertAuthority() {
-        return trustedCertAuthority;
-    }
-    public boolean certError() {
-        return certError;
-    }
     public int sourcePort() {
         return sourcePort;
     }
@@ -129,14 +119,6 @@ public class SourceConfiguration extends Configuration {
     }
     public SourceConfiguration sourceUserPassword(String sourceUserPassword) {
         this.sourceUserPassword = sourceUserPassword;
-        return this;
-    }
-    public SourceConfiguration certError(boolean certError) {
-        this.certError = certError;
-        return this;
-    }
-    public SourceConfiguration trustedCertAuthority(boolean trustedCertAuthority) {
-        this.trustedCertAuthority = trustedCertAuthority;
         return this;
     }
     public SourceConfiguration sourcePort(int sourcePort) {
