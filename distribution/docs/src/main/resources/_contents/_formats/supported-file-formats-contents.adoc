@@ -62,8 +62,3 @@ These are the attributes common to any of the media file types which support add
 * `contact.publisher-name`
 * `contact.point-of-contact-phone`
 * `topic.keyword`
-
-Some file types support attributes unique to that individual type:
-
-.Additional Unique Attributes by File Type
-Mp4:: `ext.mp4.audio-sample-rate`

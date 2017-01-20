@@ -13,10 +13,14 @@
  */
 package ddf.catalog.transformer.common.tika;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tika.metadata.DublinCore;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.Office;
+import org.apache.tika.metadata.TIFF;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +29,20 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Media;
+import ddf.catalog.data.types.Topic;
 
 /**
  * Creates {@link Metacard}s from Tika {@link Metadata} objects.
  */
 public class MetacardCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardCreator.class);
+
+    public static final String COMPRESSION_TYPE_METADATA_KEY = "Compression Type";
+
+    public static final String DURATION_METDATA_KEY = "xmpDM:duration";
 
     /**
      * @param metadata     the {@code Metadata} object containing the metadata relevant to the
@@ -46,15 +58,9 @@ public class MetacardCreator {
             final String metadataXml, MetacardType metacardType) {
         final Metacard metacard = new MetacardImpl(metacardType);
 
-        final String contentType = metadata.get(Metadata.CONTENT_TYPE);
-        if (StringUtils.isNotBlank(contentType)) {
-            metacard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, contentType));
-        }
+        setAttribute(metacard, Metacard.TITLE, metadata.get(TikaCoreProperties.TITLE));
 
-        final String title = metadata.get(TikaCoreProperties.TITLE);
-        if (StringUtils.isNotBlank(title)) {
-            metacard.setAttribute(new AttributeImpl(Metacard.TITLE, title));
-        }
+        setAttribute(metacard, Metacard.CONTENT_TYPE, metadata.get(Metadata.CONTENT_TYPE));
 
         final String createdDateStr = metadata.get(TikaCoreProperties.CREATED);
         final Date createdDate = convertDate(createdDateStr);
@@ -68,22 +74,83 @@ public class MetacardCreator {
             metacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, modifiedDate));
         }
 
-        if (StringUtils.isNotBlank(id)) {
-            metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
-        }
+        setAttribute(metacard, Metacard.ID, id);
 
-        if (StringUtils.isNotBlank(metadataXml)) {
-            metacard.setAttribute(new AttributeImpl(Metacard.METADATA, metadataXml));
-        }
-
+        setAttribute(metacard, Metacard.METADATA, metadataXml);
         final String lat = metadata.get(Metadata.LATITUDE);
         final String lon = metadata.get(Metadata.LONGITUDE);
-        final String wkt = toWkt(lon, lat);
-        if (StringUtils.isNotBlank(wkt)) {
-            metacard.setAttribute(new AttributeImpl(Metacard.GEOGRAPHY, wkt));
-        }
+        setAttribute(metacard, Metacard.GEOGRAPHY, toWkt(lon, lat));
+
+        setAttribute(metacard, Media.FORMAT, metadata.get(TikaCoreProperties.FORMAT));
+
+        setAttribute(metacard, Core.DESCRIPTION, metadata.get(TikaCoreProperties.DESCRIPTION));
+
+        setAttribute(metacard, Media.TYPE, metadata.get(Metadata.CONTENT_TYPE));
+
+        setAttribute(metacard, Media.BITS_PER_SAMPLE, metadata.getInt(TIFF.BITS_PER_SAMPLE));
+
+        setAttribute(metacard, Media.HEIGHT, metadata.getInt(TIFF.IMAGE_LENGTH));
+
+        setAttribute(metacard, Media.WIDTH, metadata.getInt(TIFF.IMAGE_WIDTH));
+
+        setAttribute(metacard, Media.COMPRESSION, metadata.get(COMPRESSION_TYPE_METADATA_KEY));
+
+        setDoubleAttributeFromString(metacard, Media.DURATION, metadata.get(DURATION_METDATA_KEY));
+
+        setAttribute(metacard, Contact.CREATOR_NAME, metadata.get(TikaCoreProperties.CREATOR));
+
+        setMultipleAttributes(metacard,
+                Topic.KEYWORD,
+                metadata.getValues(TikaCoreProperties.KEYWORDS));
+
+        setAttribute(metacard,
+                Contact.POINT_OF_CONTACT_NAME,
+                metadata.get(Office.USER_DEFINED_METADATA_NAME_PREFIX + "owner"));
+
+        setAttribute(metacard, Contact.CONTRIBUTOR_NAME, metadata.get(Office.LAST_AUTHOR));
+
+        setAttribute(metacard,
+                Contact.POINT_OF_CONTACT_PHONE,
+                metadata.get(Office.USER_DEFINED_METADATA_NAME_PREFIX + "Telephone number"));
+
+        setAttribute(metacard, Contact.PUBLISHER_NAME, metadata.get(DublinCore.PUBLISHER));
 
         return metacard;
+    }
+
+    private static void setAttribute(Metacard metacard, String attributeName,
+            String attributeValue) {
+        if (metacard != null && StringUtils.isNotBlank(attributeValue) && StringUtils.isNotBlank(
+                attributeName)) {
+            metacard.setAttribute(new AttributeImpl(attributeName, attributeValue));
+        }
+    }
+
+    private static void setAttribute(Metacard metacard, String attributeName,
+            Integer attributeValue) {
+        if (metacard != null && attributeValue != null && StringUtils.isNotBlank(attributeName)) {
+            metacard.setAttribute(new AttributeImpl(attributeName, attributeValue));
+        }
+    }
+
+    private static void setMultipleAttributes(Metacard metacard, String attributeName,
+            String[] attributeValues) {
+        if (metacard != null && attributeValues != null && StringUtils.isNotBlank(attributeName)) {
+            metacard.setAttribute(new AttributeImpl(attributeName, Arrays.asList(attributeValues)));
+        }
+    }
+
+    private static void setDoubleAttributeFromString(Metacard metacard, String attributeName,
+            String attributeValue) {
+        if (metacard != null && attributeValue != null && StringUtils.isNotBlank(attributeName)) {
+            try {
+                metacard.setAttribute(new AttributeImpl(attributeName,
+                        Double.valueOf(attributeValue.trim())));
+            } catch (NumberFormatException nfe) {
+                LOGGER.debug("Expected double but was not double. This is expected behavior when "
+                        + "a defined double attribute does not exist on the ingested product.");
+            }
+        }
     }
 
     private static String toWkt(final String lon, final String lat) {
