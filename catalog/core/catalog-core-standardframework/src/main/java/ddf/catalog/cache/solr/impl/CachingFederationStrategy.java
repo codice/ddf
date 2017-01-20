@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.codice.ddf.configuration.SystemInfo;
 import org.opengis.filter.sort.SortOrder;
@@ -42,6 +43,8 @@ import com.google.common.collect.ImmutableList;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.Federatable;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.operation.CreateResponse;
@@ -552,15 +555,16 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             }
 
             final SourceResponse sourceResponse = source.query(queryRequest);
+            final SourceResponse clonedSourceResponse = cloneResponse(sourceResponse);
 
             if (INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
-                cacheCommitPhaser.add(sourceResponse.getResults());
+                cacheCommitPhaser.add(clonedSourceResponse.getResults());
             } else if (!NATIVE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
                 if (isCachingEverything || UPDATE_QUERY_MODE.equals(request.getPropertyValue(
                         QUERY_MODE))) {
                     cacheExecutorService.submit(() -> {
                         try {
-                            cacheBulkProcessor.add(sourceResponse.getResults());
+                            cacheBulkProcessor.add(clonedSourceResponse.getResults());
                         } catch (Throwable throwable) {
                             LOGGER.warn("Unable to add results for bulk processing", throwable);
                         }
@@ -568,6 +572,17 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 }
             }
             return sourceResponse;
+        }
+
+        private SourceResponse cloneResponse(SourceResponse sourceResponse) {
+            List<Result> clonedResults = sourceResponse.getResults()
+                    .stream()
+                    .map(Result::getMetacard)
+                    .map(m -> new MetacardImpl(m, m.getMetacardType()))
+                    .map(ResultImpl::new)
+                    .collect(Collectors.toList());
+
+            return new QueryResponseImpl(sourceResponse.getRequest(), clonedResults, true, sourceResponse.getHits(), sourceResponse.getProperties());
         }
     }
 
