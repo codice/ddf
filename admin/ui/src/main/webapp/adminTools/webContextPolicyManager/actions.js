@@ -41,6 +41,12 @@ export const addContextPath = (attribute, binNumber) => (dispatch, getState) => 
   // test for non-empty path
   if (!newPath || newPath.trim() === '') { return }
 
+  // simple test for invalid path - backend also validates paths as an additional precaution
+  if (!(/^(\/[!#$&-;=?-[\]_a-z~]+)+/.test(newPath))) {
+    dispatch(setError('contextPaths', 'Invalid context path.'))
+    return
+  }
+
   // test for duplicate paths
   let duplicateBinNumber
   bins.forEach((bin, binNumber) => bin.contextPaths.forEach((oldPath) => { oldPath === newPath ? duplicateBinNumber = binNumber : null }))
