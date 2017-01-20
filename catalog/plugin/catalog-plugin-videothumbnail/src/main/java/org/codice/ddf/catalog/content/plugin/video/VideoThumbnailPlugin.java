@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.content.plugin.video;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -90,11 +91,13 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
         }
 
         private void consumeStream(InputStream inputStream) {
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+            byte[] buf = new byte[1024];
             try {
-                while (inputStream.available() > 0) {
-                    inputStream.skip(1024);
+                while (bufferedInputStream.available() > 0 && bufferedInputStream.read(buf) > 0) {
+                    Thread.sleep(100);
                 }
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 //ignore
             } finally {
                 IOUtils.closeQuietly(inputStream);
