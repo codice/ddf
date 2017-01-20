@@ -108,7 +108,7 @@
 
         <AD id="readOnly"
             name="Read Only Metacard Attributes"
-            description="List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as Javascript regular expressions when matched against metacard attributes."
+            description="List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
             type="String"
             cardinality="10000"
             default="^checksum$,^checksum-algorithm$,^id$,^metadata$,^metacard-type$,^source-id$,^metacard\\.,^version\\.,^validation\\."
@@ -137,7 +137,7 @@
 
         <AD id="hiddenAttributes"
             name="Hidden Attributes"
-            description="List of attributes to be hidden. NOTE: the provided values will be evaluated as Javascript regular expressions when matched against metacard attributes."
+            description="List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
             type="String"
             cardinality="10000"
             default="^metacard\\.modified$,^metacard\\.created$,^metacard-tags$,^metacard\\.owner$,^validation-errors$,^validation-warnings$,^sortOrder$,

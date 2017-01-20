@@ -1,0 +1,4 @@
+|<<org.codice.ddf.catalog.ui.security,Workspace Security>>
+|org.codice.ddf.catalog.ui.security
+|Workspace security
+

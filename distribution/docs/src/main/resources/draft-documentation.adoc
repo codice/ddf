@@ -734,6 +734,11 @@ include::{adoc-include}/_developing/developing-intro-contents.adoc[]
 Installation and configuration details by application.
 ====
 
+== ${catalog-ui} Reference
+[small]#Version: ${project.version}#
+
+include::{adoc-include}/_catalog-ui-contents/managing-catalog-ui-contents.adoc[]
+
 == ${ddf-admin} Reference
 [small]#Version: ${project.version}#
 
