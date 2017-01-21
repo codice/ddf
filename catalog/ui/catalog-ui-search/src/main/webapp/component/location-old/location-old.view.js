@@ -259,9 +259,9 @@ define([
                         return (Math.abs((currentValue - distanceFromMeters)) > deltaThreshold) || currentValue <= minimumBuffer ? distanceFromMeters : currentValue;
                 }
             }, polygonConverter = function (direction, value) {
-                if (value && direction === 'ViewToModel') {
+                if (value !== undefined && direction === 'ViewToModel') {
                     return $.parseJSON(value);
-                } else if (value && direction === 'ModelToView') {
+                } else if (value !== undefined && direction === 'ModelToView') {
                     var retVal = '[';
                     for (var i = 0; i < value.length; i++) {
                         var point = value[i];
@@ -380,13 +380,13 @@ define([
         getCurrentValue: function () {
             var modelJSON = this.model.toJSON();
             var type;
-            if (modelJSON.north && modelJSON.south && modelJSON.east && modelJSON.west) {
+            if (modelJSON.north !== undefined && modelJSON.south !== undefined && modelJSON.east !== undefined && modelJSON.west !== undefined) {
                 type = 'BBOX';
-            } else if (modelJSON.polygon) {
+            } else if (modelJSON.polygon !== undefined) {
                 type = 'POLYGON';
-            } else if (modelJSON.lat && modelJSON.lon && (modelJSON.radius !== undefined)) {
+            } else if (modelJSON.lat !== undefined && modelJSON.lon !== undefined && (modelJSON.radius !== undefined)) {
                 type = 'POINTRADIUS'
-            } else if (modelJSON.line && (modelJSON.lineWidth !== undefined)) {
+            } else if (modelJSON.line !== undefined && (modelJSON.lineWidth !== undefined)) {
                 type = 'LINE';
             }
 
