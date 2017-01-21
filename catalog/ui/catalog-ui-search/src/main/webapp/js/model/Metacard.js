@@ -22,11 +22,12 @@ define([
         'terraformer-wkt-parser',
         'js/CQLUtils',
         '@turf/turf',
+        'moment',
         'backboneassociations',
         'backbone.paginator'
     ],
     function (Backbone, _, $, wreqr, metacardDefinitions, Sources, Terraformer, TerraformerWKTParser, CQLUtils,
-              Turf) {
+              Turf, moment) {
         "use strict";
 
         var blacklist = [];
@@ -206,8 +207,8 @@ define([
         }
 
         function matchesBEFORE(value, filter){
-            var date1 = new Date(value);
-            var date2 = new Date(filter.value);
+            var date1 = moment(value);
+            var date2 = moment(filter.value);
             if (date1 <= date2){
                 return true;
             }
@@ -215,8 +216,8 @@ define([
         }
 
         function matchesAFTER(value, filter){
-            var date1 = new Date(value);
-            var date2 = new Date(filter.value);
+            var date1 = moment(value);
+            var date2 = moment(filter.value);
             if (date1 >= date2){
                 return true;
             }

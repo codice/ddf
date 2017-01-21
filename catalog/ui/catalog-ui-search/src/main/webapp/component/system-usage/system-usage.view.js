@@ -19,6 +19,23 @@ var CustomElements = require('js/CustomElements');
 var properties = require('properties');
 var user = require('component/singletons/user-instance.js');
 var preferences = user.get('user').get('preferences');
+var $ = require('jquery');
+
+function getSrc() {
+    return '<html class="is-iframe" style="font-size: '+preferences.get('fontSize')+'px">' +
+    '<link href="css/index.css" rel="stylesheet">' +
+    properties.ui.systemUsageMessage +
+    '</html>';
+}
+
+function populateIframe(view){
+    var $iframe = view.$el.find('iframe');
+    $iframe.ready(function(){
+        $iframe.contents()[0].open();
+        $iframe.contents()[0].write(getSrc());
+        $iframe.contents()[0].close();
+    });
+}
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -27,9 +44,6 @@ module.exports = Marionette.LayoutView.extend({
         'click button': 'handleClick'
     },
     initialize: function(){
-        this.listenTo(preferences, 'change:fontSize', function(){
-            this.render();
-        }.bind(this));
     },
     serializeData: function(){
         return {
@@ -39,5 +53,14 @@ module.exports = Marionette.LayoutView.extend({
     },
     handleClick: function(){
         this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
+    },
+    onAttach: function(){
+        if (user.fetched){
+            populateIframe(this);
+        } else {
+            user.once('sync', function(){
+                populateIframe(this);
+            }.bind(this));
+        }
     }
 });

@@ -17,11 +17,14 @@ var _ = require('underscore');
 var GeometryView = Marionette.ItemView.extend({
     template: false,
     geometry: undefined,
+    isSelected: undefined,
+    isClustered: undefined,
     initialize: function(options) {
         var geometry = this.model.get('metacard').get('geometry');
         if (geometry) {
             this.geometry = [];
             this.handleGeometry(geometry.toJSON());
+            this.updateSelected = _.debounce(this.updateSelected, 100, {trailing: true, leading: true});
             this.updateSelected();
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.updateSelected);
             this.listenTo(this.options.clusterCollection, 'add remove update', this.checkIfClustered);
@@ -102,18 +105,26 @@ var GeometryView = Marionette.ItemView.extend({
         }
     },
     updateDisplay: function(isSelected) {
-        this.geometry.forEach(function(geometry) {
-            this.options.map.updateGeometry(geometry, {
-                color: this.model.get('metacard').get('color'),
-                isSelected: isSelected
-            });
-        }.bind(this));
+        if (!this.isClustered && this.isSelected !== isSelected) {
+            this.isSelected = isSelected;
+            this.geometry.forEach(function(geometry) {
+                this.options.map.updateGeometry(geometry, {
+                    color: this.model.get('metacard').get('color'),
+                    isSelected: isSelected
+                });
+            }.bind(this));
+        }
     },
     checkIfClustered: function() {
-        if (this.options.clusterCollection.isClustered(this.model)) {
-            this.hideGeometry();
-        } else {
-            this.showGeometry();
+        var isClustered = this.options.clusterCollection.isClustered(this.model);
+        if (this.isClustered !== isClustered){
+            this.isClustered = isClustered;
+            if (isClustered){
+                this.hideGeometry();
+            } else {
+                this.updateSelected();
+                this.showGeometry();
+            }
         }
     },
     showGeometry: function() {

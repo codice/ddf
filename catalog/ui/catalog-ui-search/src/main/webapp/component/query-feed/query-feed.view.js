@@ -55,7 +55,7 @@ define([
 
     function getLastRan(initiated) {
         if (!_.isUndefined(initiated)) {
-            return moment(new Date(initiated)).fromNow();
+            return moment(initiated).fromNow();
         } else {
             return '';
         }

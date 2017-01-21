@@ -19,12 +19,14 @@ var ClusterView = Marionette.ItemView.extend({
     template: false,
     geometry: undefined,
     convexHull: undefined,
+    selectionType: undefined,
     initialize: function(options) {
         this.geometry = [];
         this.geoController = options.geoController;
         this.handleCluster();
         this.addConvexHull();
         this.updateSelected();
+        this.updateSelected = _.debounce(this.updateSelected, 100, {trailing: true, leading: true});
         this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.updateSelected);
     },
     handleCluster: function() {
@@ -90,11 +92,27 @@ var ClusterView = Marionette.ItemView.extend({
             }.bind(this));
         }
         if (selected === results.length) {
-            this.showFullySelected();
+            this.updateDisplay('fullySelected');
         } else if (selected > 0) {
-            this.showPartiallySelected();
+            this.updateDisplay('partiallySelected');
         } else {
-            this.showUnselected();
+            this.updateDisplay('unselected');
+        }
+    },
+    updateDisplay: function(selectionType){
+        if (this.selectionType !== selectionType) {
+            this.selectionType = selectionType;
+            switch(selectionType){
+                case 'fullySelected':
+                    this.showFullySelected();
+                break;
+                case 'partiallySelected':
+                    this.showPartiallySelected();
+                break;
+                case 'unselected': 
+                    this.showUnselected();
+                break;
+            }
         }
     },
     showFullySelected: function() {

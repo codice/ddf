@@ -1,13 +1,16 @@
 @{customElementNamespace}query-basic {
   .customElement;
 
-  overflow: auto;
+  overflow: hidden;
 
   form {
     height: 100%;
+    overflow: hidden;
   }
 
   .editor-properties {
+    display: inline-block;  // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
+    width: 100%;
     overflow: auto;
     max-height: ~"calc(100% - 2*@{minimumButtonSize})";
     padding: 10px 10px;

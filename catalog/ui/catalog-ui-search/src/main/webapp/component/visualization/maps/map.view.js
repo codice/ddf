@@ -92,8 +92,20 @@ module.exports = Marionette.LayoutView.extend({
         is finished loading / starting up.
         Also, make sure you resolve that deferred by passing the reference to the map implementation.
     */
-    createMap: function() {
+    loadMap: function() {
         throw 'Map not implemented';
+    },
+    createMap: function(Map){
+        this.map = Map(this.el.querySelector('#mapContainer'),
+                this.options.selectionInterface, this.mapDrawingPopup.el);
+        this.setupCollections();
+        this.setupListeners();
+        this.endLoading();
+    },
+    initializeMap: function(){
+        this.loadMap().then(function(Map) {
+            this.createMap(Map);
+        }.bind(this));
     },
     startLoading: function() {
         LoadingCompanionView.beginLoading(this);
@@ -104,13 +116,7 @@ module.exports = Marionette.LayoutView.extend({
     onShow: function() {
         this.startLoading();
         setTimeout(function() {
-            this.createMap().then(function(Map) {
-                this.map = Map(this.el.querySelector('#mapContainer'),
-                    this.options.selectionInterface, this.mapDrawingPopup.el);
-                this.setupCollections();
-                this.setupListeners();
-                this.endLoading();
-            }.bind(this));
+            this.initializeMap();
         }.bind(this), 1000);
     },
     toggleClustering: function() {
@@ -189,6 +195,15 @@ module.exports = Marionette.LayoutView.extend({
         this.map.destroyShapes();
     },
     onDestroy: function() {
+        if (this.geometryCollectionView){
+            this.geometryCollectionView.destroy();
+        }
+        if (this.clusterCollectionView){
+            this.clusterCollectionView.destroy();
+        }
+        if (this.clusterCollection){
+            this.clusterCollection.reset();
+        }
         if (this.map) {
             this.map.destroy();
         }

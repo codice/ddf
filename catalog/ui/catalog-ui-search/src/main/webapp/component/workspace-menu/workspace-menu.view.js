@@ -23,10 +23,8 @@ define([
     'component/dropdown/dropdown',
     'component/dropdown/workspace-interactions/dropdown.workspace-interactions.view',
     'js/store',
-    'js/Common',
-    'component/singletons/user-instance'
 ], function (Marionette, _, $, template, CustomElements, TitleView, DropdownModel, 
-    WorkspaceInteractionsView, store, Common, user) {
+    WorkspaceInteractionsView, store) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -44,7 +42,6 @@ define([
             }
             this.listenTo(this.model, 'change:currentWorkspace', this.updateWorkspaceInteractions);
             this.listenTo(this.model, 'change:currentWorkspace', this.handleWorkspaceChange);
-            this.listenTo(user.get('user').get('preferences'), 'change:fontSize', this.handleFontChange);
         },
         onBeforeShow: function(){
             this.title.show(new TitleView());
@@ -56,30 +53,6 @@ define([
                     model: new DropdownModel(),
                     modelForComponent: this.model.get('currentWorkspace')
                 }));
-            }
-        },
-        animationFrameId: undefined,
-        fontAnimationFrameId: undefined,
-        handleWorkspaceChange: function(workspace){
-            if (workspace && ((workspace.changed.title !== undefined) ||
-             workspace.changed.currentWorkspace)) {
-                this.handleTitle();
-            }
-        },
-        handleFontChange: function(){
-            window.cancelAnimationFrame(this.fontAnimationFrameId);
-            this.fontAnimationFrameId = Common.repaintForTimeframe(300, this.handleTitle.bind(this));
-        },
-        handleTitle: function(){
-            this.$el.toggleClass('is-blank', this.$el.find('input').val() === '');
-            var clientWidth = this.$el.find('input')[0].clientWidth;
-            var scrollWidth = this.$el.find('input')[0].scrollWidth;
-            if (scrollWidth > clientWidth){
-                this.$el.find('> .content-title').css('width', scrollWidth);
-            } else {
-                this.$el.find('> .content-title').css('width', clientWidth - 100);
-                window.cancelAnimationFrame(this.animationFrameId);
-                this.animationFrameId = Common.executeAfterRepaint(this.handleTitle.bind(this));
             }
         }
     });

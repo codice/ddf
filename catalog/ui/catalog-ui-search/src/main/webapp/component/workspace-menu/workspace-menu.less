@@ -11,7 +11,6 @@
     text-overflow: ellipsis;
     width: auto;
     max-width: ~'calc(100% - @{minimumButtonSize})';
-    transition: width @coreTransitionTime ease-out;
   }
 
   > .content-interactions {
@@ -25,11 +24,4 @@
     vertical-align: top;
   }
 
-}
-
-@{customElementNamespace}workspace-menu.is-blank {
-
-  > .content-title {
-    min-width: 11.25rem;
-  }
 }

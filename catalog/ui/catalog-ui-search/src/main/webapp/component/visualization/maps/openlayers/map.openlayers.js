@@ -15,6 +15,7 @@ var $ = require('jquery');
 var _ = require('underscore');
 var Map = require('../map');
 var utility = require('./utility');
+var DrawingUtility = require('../DrawingUtility');
 
 var DrawBBox = require('js/widgets/openlayers.bbox');
 var DrawCircle = require('js/widgets/openlayers.circle');
@@ -28,9 +29,6 @@ var LayerCollectionController = require('js/controllers/ol.layerCollection.contr
 var user = require('component/singletons/user-instance');
 var User = require('js/model/User');
 var wreqr = require('wreqr');
-
-var billboardMarker = require('../billboardMarker.hbs');
-var clusterMarker = require('../clusterMarker.hbs');
 
 var defaultColor = '#3c6dd5';
 
@@ -148,24 +146,6 @@ function determineIdFromPosition(position, map) {
     if (features.length > 0) {
         return features[0].getId();
     }
-}
-
-function getSVGImage(color, selected) {
-    var svg = billboardMarker({
-        fill: color || defaultColor,
-        selected: selected
-    });
-    return 'data:image/svg+xml;base64,' + window.btoa(svg);
-}
-
-function getSVGImageForCluster(color, count, outline, textFill) {
-    var svg = clusterMarker({
-        fill: color || defaultColor,
-        count: count,
-        outline: outline || 'white',
-        textFill: textFill || 'white'
-    });
-    return 'data:image/svg+xml;base64,' + window.btoa(svg);
 }
 
 function convertPointCoordinate(point) {
@@ -403,7 +383,11 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
 
             feature.setStyle(new Openlayers.style.Style({
                 image: new Openlayers.style.Icon({
-                    src: getSVGImageForCluster(options.color, options.id.length)
+                    img: DrawingUtility.getCircleWithText({
+                        fillColor: options.color,
+                        text: options.id.length,
+                    }),
+                    imgSize: [44, 44]
                 })
             }));
 
@@ -433,7 +417,10 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
 
             feature.setStyle(new Openlayers.style.Style({
                 image: new Openlayers.style.Icon({
-                    src: getSVGImage(options.color)
+                    img: DrawingUtility.getCircle({
+                        fillColor: options.color
+                    }),
+                    imgSize: [22, 22]
                 })
             }));
 
@@ -513,7 +500,13 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                 if (geometryInstance.constructor === Openlayers.geom.Point) {
                     feature.setStyle(new Openlayers.style.Style({
                         image: new Openlayers.style.Icon({
-                            src: getSVGImageForCluster(options.color, options.count, options.outline, options.textFill)
+                            img: DrawingUtility.getCircleWithText({
+                                fillColor: options.color,
+                                strokeColor: options.outline,
+                                text: options.count,
+                                textColor: options.textFill
+                            }),
+                            imgSize: [44, 44]
                         })
                     }));
                 } else if (geometryInstance.constructor === Openlayers.geom.LineString) {
@@ -550,7 +543,11 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                 if (geometryInstance.constructor === Openlayers.geom.Point) {
                     feature.setStyle(new Openlayers.style.Style({
                         image: new Openlayers.style.Icon({
-                            src: getSVGImage(options.color, options.isSelected)
+                            img: DrawingUtility.getCircle({
+                                fillColor: options.color,
+                                strokeColor: options.isSelected ? 'black' : 'white' 
+                            }),
+                            imgSize: [22, 22]
                         })
                     }));
                 } else if (geometryInstance.constructor === Openlayers.geom.LineString) {

@@ -86,7 +86,7 @@ define([
         getCurrentValue: function(){
             var currentValue = this.$el.find('input').val();
             if (currentValue){
-                return (new Date(this.$el.find('input').val())).toISOString();
+                return (moment(this.$el.find('input').val(), Common.getDateFormat())).toISOString();
             } else {
                 return null;
             }

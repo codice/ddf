@@ -29,10 +29,11 @@ define([
     'component/router/router',
     'component/singletons/user-instance',
     'component/singletons/metacard-definitions',
+    'moment',
     'behaviors/button.behavior'
 ], function (Backbone, Marionette, _, $, template, CustomElements, store, Common, DropdownModel,
              MetacardInteractionsDropdownView, ResultIndicatorView, properties, router, user,
-             metacardDefinitions) {
+             metacardDefinitions, moment) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -133,7 +134,7 @@ define([
         massageResult: function(result){
             //make a nice date
             result.local = Boolean(result.metacard.properties['source-id'] === 'ddf.distribution');
-            var dateModified = new Date(result.metacard.properties.modified);
+            var dateModified = moment(result.metacard.properties.modified);
             result.niceDiff = Common.getMomentDate(dateModified);
             //check validation errors
             var validationErrors = result.metacard.properties['validation-errors'];

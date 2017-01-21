@@ -21,8 +21,9 @@ define([
     'js/CustomElements',
     'js/Common',
     '../input.view',
-    'component/dropdown/dropdown.view'
-], function (Marionette, _, $, template, CustomElements, Common, InputView, DropdownView) {
+    'component/dropdown/dropdown.view',
+    'moment'
+], function (Marionette, _, $, template, CustomElements, Common, InputView, DropdownView, moment) {
 
     function getValue(model){
         var multivalued = model.get('property').get('enumMulti');
@@ -104,7 +105,7 @@ define([
             switch(this.model.getCalculatedType()){
                 case 'date':
                     if (currentValue){
-                        return (new Date(currentValue)).toISOString();
+                        return (moment(currentValue)).toISOString();
                     } else {
                         return null;
                     }

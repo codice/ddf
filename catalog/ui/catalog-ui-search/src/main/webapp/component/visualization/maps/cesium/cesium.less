@@ -19,6 +19,10 @@
   .fa-cube {
     display: none;
   }
+
+  > .not-supported {
+    display: none;
+  }
 }
 
 @{customElementNamespace}map.is-cesium.is-hovering {
@@ -43,5 +47,28 @@
 
   .fa-cube {
     display: inline-block;
+  }
+}
+
+@{customElementNamespace}map.is-cesium.not-supported {
+  #mapDrawingPopup,
+  #mapTools,
+  #mapContainer {
+    display: none;
+  }
+
+  > .not-supported {
+    display: block;
+    padding: 20px;
+
+    button {
+      width: 100%;
+      height: 5*@minimumButtonSize;
+      line-height: 5*@minimumButtonSize;
+    }
+
+    * + * {
+      margin-top: 20px;
+    }
   }
 }

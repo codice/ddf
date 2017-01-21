@@ -61,28 +61,6 @@ define([
         getDateFormat: function(){
             return format;
         },
-        getNiceDate: function(date){
-            var niceDiff;
-            var dateModified = new Date(date);
-            var diffMs = (new Date()) - dateModified;
-            var diffDays = Math.round(diffMs / 86400000); // days
-            var diffHrs = Math.round((diffMs % 86400000) / 3600000); // hours
-            var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
-            if (diffDays > 2){
-                niceDiff = dateModified.toDateString() + ', ' + dateModified.toLocaleTimeString();
-            } else if (diffDays > 0) {
-                niceDiff = 'Yesterday, ' + dateModified.toLocaleTimeString();
-            } else if (diffHrs > 4) {
-                niceDiff = 'Today, ' + dateModified.toLocaleTimeString();
-            } else if (diffHrs > 1){
-                niceDiff = diffHrs + ' hours ago';
-            } else if (diffMins > 0){
-                niceDiff = diffMins + ' minutes ago';
-            } else {
-                niceDiff = 'A few seconds ago';
-            }
-            return niceDiff;
-        },
         getMomentDate: function(date){
            return moment(date).fromNow();
         },

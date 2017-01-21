@@ -42,7 +42,16 @@ define([
         selectionInterface: store,
         initialize: function(options){
             this.selectionInterface = options.selectionInterface || store;
-            this.render = _.throttle(this.render, 250);
+            this.render = _.debounce(this.render, 200, {
+                leading: true,
+                trailing: true
+            });
+        },
+        render: function() {
+            if (this.isDestroyed) {
+                return;  // not likely, but possible with the debounce that the view could get destroyed
+            }
+            Marionette.CollectionView.prototype.render.call(this);
         },
         onAddChild: function (childView) {
             childView.$el.attr('data-index', this.children.length - 1);

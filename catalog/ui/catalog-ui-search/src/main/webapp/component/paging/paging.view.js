@@ -25,7 +25,8 @@ define([
         tagName: CustomElements.register('paging'),
         template: template,
         initialize: function (options) {
-            this.listenTo(this.model, 'pageable:state:change', _.throttle(this.render, 200));
+            this.listenTo(this.model, 'reset', this.render);
+            this.updateSelectionInterface = _.debounce(this.updateSelectionInterface, 200, {leading: true, trailing: true});
         },
         updateSelectionInterface: function(){
             this.options.selectionInterface.setActiveSearchResults(this.model.reduce(function(results, result){
@@ -44,19 +45,15 @@ define([
         },
         firstPage: function() {
             this.model.getFirstPage();
-            this.render();
         },
         previousPage: function() {
             this.model.getPreviousPage();
-            this.render();
         },
         nextPage: function() {
             this.model.getNextPage();
-            this.render();
         },
         lastPage: function() {
             this.model.getLastPage();
-            this.render();
         },
         onRender: function(){
             this.updateSelectionInterface();

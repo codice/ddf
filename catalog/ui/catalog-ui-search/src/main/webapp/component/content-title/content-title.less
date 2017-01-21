@@ -2,7 +2,23 @@
   .customElement;
   position: relative;
 
+  .title-display {
+    display: inline-block;
+    padding: 4px 10px 5px 10px;
+    height: ~'calc(100% - 2px)';
+    transition: padding @coreTransitionTime linear;
+    transition-delay: @coreTransitionTime;
+    visibility: hidden;
+  }
+  
+  .title-display:empty::after {
+    content: 'Workspace Title';
+  }
+
   input {
+    position: absolute;
+    left: 0px;
+    top: 0px;
     display: inline-block;
     vertical-align: top;
     height: ~'calc(100% - 2px)';
@@ -13,17 +29,22 @@
     background: @navigation-background-color;
     border: none;
     font-size: @largeFontSize;
-    padding-top: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
     cursor: pointer;
   }
+  
   input:focus {
     cursor: text;
     text-decoration: none;
     outline-style: solid;
     outline-width: 1px;
     outline-color: grey;
+  }
+
+  input:focus + .title-display {
+    padding: 4px 25px 5px 25px;
+    transition-delay: 0s;
   }
 }

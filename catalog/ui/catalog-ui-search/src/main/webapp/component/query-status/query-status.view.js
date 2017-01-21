@@ -20,8 +20,9 @@ define([
     './query-status.hbs',
     'js/CustomElements',
     'component/loading/loading.view',
-    'js/store'
-], function (Marionette, _, $, template, CustomElements, LoadingView, store) {
+    'js/store',
+    'moment'
+], function (Marionette, _, $, template, CustomElements, LoadingView, store, moment) {
     
     return Marionette.ItemView.extend({
         setDefaultModel: function(){
@@ -76,7 +77,7 @@ define([
                     });
                     json = {
                         status: status,
-                        initiated: initiated
+                        initiated: moment(initiated).format('lll')
                     }
                 }
             }

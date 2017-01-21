@@ -8,6 +8,7 @@
     height: 100%;
 
     > .slideout-cover {
+        background: rgba(0,0,0,0); // in IE10, clicking on openlayers map to close the slideout won't work without this
         position: fixed;
         z-index: @zIndexSlideout;
         left: 100%;

@@ -1,7 +1,7 @@
 @{customElementNamespace}query-advanced {
   .customElement;
 
-  overflow: auto;
+  overflow: hidden;
 
   .query-advanced-label {
     color: grey;
@@ -14,9 +14,12 @@
 
   form {
     height: 100%;
+    overflow: hidden;
   }
 
   .editor-properties {
+    display: inline-block; // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
+    width: 100%;
     overflow: auto;
     max-height: ~"calc(100% - 2*@{minimumButtonSize})";
     padding: 10px 10px 0px 10px;

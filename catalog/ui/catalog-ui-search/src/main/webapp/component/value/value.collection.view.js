@@ -19,8 +19,9 @@ define([
     'jquery',
     './value.view',
     './value.collection',
-    'js/CustomElements'
-], function (Marionette, _, $, ValueView, ValueCollection, CustomElements) {
+    'js/CustomElements',
+    'moment'
+], function (Marionette, _, $, ValueView, ValueCollection, CustomElements, moment) {
 
     return Marionette.CollectionView.extend({
         childView: ValueView,
@@ -39,7 +40,7 @@ define([
                     currentValue.sort();
                     return currentValue.toString() !==  this.model.getInitialValue().map(function(dateValue){
                             if (dateValue){
-                                return (new Date(dateValue)).toISOString();
+                                return (moment(dateValue)).toISOString();
                             } else {
                                 return dateValue;
                             }

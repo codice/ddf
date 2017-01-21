@@ -102,7 +102,6 @@ module.exports = Marionette.LayoutView.extend({
         this.syncScrollbars();
     },
     syncScrollbars: function() {
-        this.$el.find('.container-header').on('scroll', syncScrollbars.bind(this, this.$el.find('.container-body')[0], this.$el.find('.container-header')[0]));
         this.$el.find('.container-body').on('scroll', syncScrollbars.bind(this, this.$el.find('.container-header')[0], this.$el.find('.container-body')[0]));
     },
     startRearrange: function() {
