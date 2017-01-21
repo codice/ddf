@@ -22,13 +22,13 @@ import static org.codice.ddf.admin.api.validation.ValidationUtils.SERVICE_PID_KE
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
-import org.codice.ddf.admin.api.configurator.ConfiguratorException;
 import org.codice.ddf.configuration.PropertyResolver;
 
 public class LdapLoginServiceProperties {
-
+    public static final Pattern URI_MATCHER = Pattern.compile("\\w*://.*");
     // --- Ldap Login Service Properties
     public static final String LDAP_LOGIN_MANAGED_SERVICE_FACTORY_PID = "Ldap_Login_Config";
     public static final String LDAP_LOGIN_FEATURE = "security-sts-ldaplogin";
@@ -98,15 +98,11 @@ public class LdapLoginServiceProperties {
                 .equalsIgnoreCase(LDAPS) ? "ldaps://" : "ldap://";
     }
 
-
     public static final URI getUriFromProperty(String ldapUrl) {
-        try {
-            ldapUrl = PropertyResolver.resolveProperties(ldapUrl);
-            if (!ldapUrl.matches("\\w*://.*")) {
-                ldapUrl = "ldap://" + ldapUrl;
-            }
-        } catch (ConfiguratorException e) {
-            return null;
+        ldapUrl = PropertyResolver.resolveProperties(ldapUrl);
+        if (!URI_MATCHER.matcher(ldapUrl)
+                .matches()) {
+            ldapUrl = "ldap://" + ldapUrl;
         }
         return URI.create(ldapUrl);
     }

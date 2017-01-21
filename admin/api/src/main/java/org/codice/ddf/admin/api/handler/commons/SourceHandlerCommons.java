@@ -63,7 +63,6 @@ public class SourceHandlerCommons {
         } catch (MalformedURLException | IllegalArgumentException e) {
             return Optional.of(buildMessage(FAILURE, INVALID_FIELD, "URL is improperly formatted."));
         } catch (Exception e) {
-            // TODO: tbatie - 1/13/17 - Fix the subtype here. Subtype is dependent on test, consider not returning a configuration message from this method
             Optional.of(buildMessage(FAILURE, CANNOT_CONNECT, "Cannot reach URL."));
         }
         return Optional.empty();

@@ -63,6 +63,10 @@ public interface ConfigurationHandler<S extends Configuration> {
      */
     List<S> getConfigurations();
 
+    /**
+     * Returns a CapabilitiesReport containing the capabilities of the {@link ConfigurationHandler}.
+     * @return {@link CapabilitiesReport} containing all {@link org.codice.ddf.admin.api.handler.method.ConfigurationHandlerMethod}s the {@link ConfigurationHandler} supports.
+     */
     CapabilitiesReport getCapabilities();
 
     /**
@@ -73,7 +77,7 @@ public interface ConfigurationHandler<S extends Configuration> {
     String getConfigurationHandlerId();
 
     /**
-     * Specifics the type of {@link Configuration} the {@link ConfigurationHandler} can handle. This will by used by the {@link ConfigurationHandlerRouter}identify the configuration as a child class of {@link Configuration}.
+     * Specifics the type of {@link Configuration} the {@link ConfigurationHandler} can handle.
      *
      * @return a {@link ConfigurationType}
      */

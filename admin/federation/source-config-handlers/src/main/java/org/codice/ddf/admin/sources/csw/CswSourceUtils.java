@@ -95,6 +95,8 @@ public class CswSourceUtils {
                 return result.trustedCertAuthority(true).certError(false).available(false);
             }
         } catch (SSLPeerUnverifiedException e) {
+            // This is the hostname != cert name case - if this occurs, the URL's SSL cert configuration
+            // is incorrect, or a serious network security issue has occurred.
             return result.trustedCertAuthority(false).certError(true).available(false);
         } catch (IOException e) {
             try {

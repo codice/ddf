@@ -51,7 +51,7 @@ public class OpenSearchSourceUtils {
                         config.sourceHostName(),
                         config.sourcePort()))
                 .map(url -> {
-                    UrlAvailability avail = getUrlAvailability(url);
+                    UrlAvailability avail = OpenSearchSourceUtils.getUrlAvailability(url);
                     if (avail.isAvailable()) {
                         return url;
                     }
@@ -89,6 +89,8 @@ public class OpenSearchSourceUtils {
                 return result.trustedCertAuthority(true).certError(false).available(false);
             }
         } catch (SSLPeerUnverifiedException e) {
+            // This is the hostname != cert name case - if this occurs, the URL's SSL cert configuration
+            // is incorrect, or a serious network security issue has occurred.
             return result.trustedCertAuthority(false).certError(true).available(false);
         } catch (IOException e) {
             try {

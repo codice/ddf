@@ -63,7 +63,7 @@ public class EditContextPolicyMethod extends PersistMethod<ContextPolicyConfigur
         Configurator configurator = new Configurator();
         configurator.updateConfigFile(POLICY_MANAGER_PID,
                 configToPolicyManagerProps(config),
-                true);
+                false);
 
         OperationReport configReport = configurator.commit();
 

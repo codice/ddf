@@ -65,6 +65,8 @@ public class AttributeMappingTestMethod extends TestMethod<LdapConfiguration> {
                 .filter(claim -> !stsClaims.contains(claim))
                 .findFirst();
 
+        // TODO: tbatie - 1/20/17 - Make sure the user attributes are in accordance with the LDAP schema
+
         if(unknownStsClaim.isPresent()) {
             return new Report(createInvalidFieldMsg("Unknown STS claim \"" + unknownStsClaim.get()
                             + "\", the STS properties are not set to handle this claim.",

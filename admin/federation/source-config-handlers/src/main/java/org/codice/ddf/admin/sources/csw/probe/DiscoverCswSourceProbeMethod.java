@@ -18,7 +18,6 @@ import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PORT;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SOURCE_HOSTNAME;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.INTERNAL_ERROR;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.BAD_CONFIG;
@@ -26,14 +25,13 @@ import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CERT
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.DISCOVER_SOURCES_ID;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.ENDPOINT_DISCOVERED;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.NO_ENDPOINT;
-import static org.codice.ddf.admin.sources.csw.CswSourceConfigurationHandler.CSW_SOURCE_CONFIGURATION_HANDLER_ID;
+import static org.codice.ddf.admin.api.handler.report.ProbeReport.createProbeReport;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.codice.ddf.admin.api.config.sources.CswSourceConfiguration;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.sources.csw.CswSourceUtils;
@@ -66,34 +64,29 @@ public class DiscoverCswSourceProbeMethod extends ProbeMethod<CswSourceConfigura
 
     @Override
     public ProbeReport probe(CswSourceConfiguration configuration) {
-        CswSourceConfiguration config = configuration;
-        List<ConfigurationMessage> results = config.validate(REQUIRED_FIELDS);
-        if(!results.isEmpty()) {
-            return new ProbeReport(results);
-        }
-        Optional<String> url = CswSourceUtils.confirmEndpointUrl(config);
-        if (url.isPresent()) {
-            if (url.get().equals(CERT_ERROR)) {
-                results.add(buildMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
-                return new ProbeReport(results);
-            } else {
-                config.endpointUrl(url.get());
-            }
-        } else {
-            results.add(buildMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
-            return new ProbeReport(results);
+        CswSourceConfiguration config = new CswSourceConfiguration(configuration);
+        ProbeReport results = new ProbeReport(config.validate(REQUIRED_FIELDS));
+        if(results.containsFailureMessages()) {
+            return results;
         }
 
-        Optional<CswSourceConfiguration> preferred = CswSourceUtils.getPreferredConfig(config);
-        if (preferred.isPresent()) {
-            config= preferred.get();
-            results.add(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
-            return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
-                    config.configurationHandlerId(CSW_SOURCE_CONFIGURATION_HANDLER_ID));
-        } else {
-            results.add(buildMessage(FAILURE, INTERNAL_ERROR, FAILURE_TYPES.get(INTERNAL_ERROR)));
-            return new ProbeReport(results);
+        Optional<String> url = CswSourceUtils.confirmEndpointUrl(config);
+        if (!url.isPresent()) {
+            return createProbeReport(SUCCESS_TYPES, FAILURE_TYPES, null, NO_ENDPOINT);
+        } else if (url.get()
+                .equals(CERT_ERROR)) {
+            return createProbeReport(SUCCESS_TYPES, FAILURE_TYPES, null, CERT_ERROR);
         }
+
+        config.endpointUrl(url.get());
+        Optional<CswSourceConfiguration> preferred = CswSourceUtils.getPreferredConfig(config);
+
+        if(!preferred.isPresent()) {
+            return createProbeReport(SUCCESS_TYPES, FAILURE_TYPES, null, INTERNAL_ERROR);
+        }
+
+        return new ProbeReport(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)))
+                    .probeResults(ImmutableMap.of(CSW_DISCOVER_SOURCES_ID, preferred.get()));
     }
 
 }

@@ -28,14 +28,11 @@ import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.S
 import static org.codice.ddf.admin.api.services.PolicyManagerServiceProperties.STS_CLAIMS_PROPS_KEY_CLAIMS;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.security.ldap.ServerGuesser;
@@ -85,10 +82,10 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
 
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
-        List<ConfigurationMessage> checkMessages = configuration.validate(REQUIRED_FIELDS);
+        ProbeReport probeReport = new ProbeReport(configuration.validate(REQUIRED_FIELDS));
 
-        if (CollectionUtils.isNotEmpty(checkMessages)) {
-            return new ProbeReport(checkMessages);
+        if (probeReport.containsFailureMessages()) {
+            return probeReport;
         }
 
         Object subjectClaims = new Configurator().getConfig(STS_CLAIMS_CONFIGURATION_CONFIG_ID)
@@ -112,7 +109,7 @@ public class SubjectAttributeProbe extends ProbeMethod<LdapConfiguration> {
         }
 
         // TODO: tbatie - 1/19/17 - Need to return messages about the probe result and/or if something goes wrong
-        return new ProbeReport(new ArrayList<>()).probeResult(SUBJECT_CLAIMS_ID, subjectClaims)
+        return probeReport.probeResult(SUBJECT_CLAIMS_ID, subjectClaims)
                 .probeResult(USER_ATTRIBUTES, ldapEntryAttributes);
     }
 }

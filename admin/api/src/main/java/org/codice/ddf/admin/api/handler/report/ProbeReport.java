@@ -23,7 +23,7 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
 /**
  * A special {@link Report} with an additional {@link Map} of information about results from a
- * {@link org.codice.ddf.admin.api.handler.ConfigurationHandler#probe(String, Configuration)} call.
+ * {@link org.codice.ddf.admin.api.handler.ConfigurationHandler#probe(String, org.codice.ddf.admin.api.config.Configuration)} call.
  */
 public class ProbeReport extends Report {
 
@@ -66,5 +66,10 @@ public class ProbeReport extends Report {
 
     public Map<String, Object> getProbeResults() {
         return probeResults;
+    }
+
+    public ProbeReport messages(ConfigurationMessage message) {
+        super.messages(message);
+        return this;
     }
 }

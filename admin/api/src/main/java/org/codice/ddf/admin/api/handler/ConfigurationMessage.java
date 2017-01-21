@@ -32,7 +32,7 @@ public class ConfigurationMessage {
     private MessageType type;
     private String subType;
     private String message;
-    private String configId;
+    private String configFieldId;
 
     /**
      * Creates a new {@link ConfigurationMessage}. A {@link ConfigurationMessage} is structured such that
@@ -43,13 +43,13 @@ public class ConfigurationMessage {
      * @param type a high level description message
      * @param subType a more specific type of the message
      * @param message a message indicating additional details about this {@link ConfigurationMessage}
-     * @param configId the id of the {@link org.codice.ddf.admin.api.config.Configuration}
+     * @param configFieldId the id of the {@link org.codice.ddf.admin.api.config.Configuration} field being referenced in the {@link ConfigurationMessage}
      */
-    public ConfigurationMessage(MessageType type, String subType, String message, String configId) {
+    public ConfigurationMessage(MessageType type, String subType, String message, String configFieldId) {
         this.type = type;
         this.subType = subType;
         this.message = message;
-        this.configId = configId;
+        this.configFieldId = configFieldId;
     }
 
     public ConfigurationMessage(MessageType type, String subType, String message) {
@@ -77,22 +77,22 @@ public class ConfigurationMessage {
         return message;
     }
 
-    public String configId() {
-        return configId;
+    public String configFieldId() {
+        return configFieldId;
     }
 
     // Setters
-    public ConfigurationMessage configId(String configId) {
-        this.configId = configId;
+    public ConfigurationMessage configFieldId(String configFieldId) {
+        this.configFieldId = configFieldId;
         return this;
     }
 
     //Builders
-    public static ConfigurationMessage createInvalidFieldMsg(String description, String configId) {
-        return new ConfigurationMessage(FAILURE, INVALID_FIELD, description, configId);
+    public static ConfigurationMessage createInvalidFieldMsg(String description, String configFieldId) {
+        return new ConfigurationMessage(FAILURE, INVALID_FIELD, description, configFieldId);
     }
 
-    public static ConfigurationMessage createMissingRequiredFieldMsg(String configId) {
-        return new ConfigurationMessage(FAILURE, MISSING_REQUIRED_FIELD, "Missing required field: " + configId, configId);
+    public static ConfigurationMessage createMissingRequiredFieldMsg(String configFieldId) {
+        return new ConfigurationMessage(FAILURE, MISSING_REQUIRED_FIELD, "Missing required field \"" + configFieldId + "\".", configFieldId);
     }
 }

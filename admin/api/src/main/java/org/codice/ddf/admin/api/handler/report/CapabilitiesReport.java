@@ -19,6 +19,11 @@ import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import com.google.gson.annotations.Expose;
+
+/**
+ * A container for the available {@link org.codice.ddf.admin.api.handler.method.ConfigurationHandlerMethod}s supported by a
+ * {@link org.codice.ddf.admin.api.handler.ConfigurationHandler}.
+ */
 public class CapabilitiesReport {
 
     @Expose
@@ -36,6 +41,15 @@ public class CapabilitiesReport {
     @Expose
     private List<PersistMethod> persistMethods;
 
+    /**
+     * Creates a new {@link CapabilitiesReport}.
+     *
+     * @param configurationType the type of {@link org.codice.ddf.admin.api.config.Configuration} supported by the {@link org.codice.ddf.admin.api.handler.ConfigurationHandler}
+     * @param configurationHandlerId id of the {@link org.codice.ddf.admin.api.handler.ConfigurationHandler}
+     * @param testMethods available {@link TestMethod}s supported by the {@link org.codice.ddf.admin.api.handler.ConfigurationHandler}
+     * @param probeMethods available {@link ProbeMethod}s supported by the {@link org.codice.ddf.admin.api.handler.ConfigurationHandler}
+     * @param persistMethods available {@link PersistMethod}s supported by the {@link org.codice.ddf.admin.api.handler.ConfigurationHandler}
+     */
     public CapabilitiesReport(String configurationType, String configurationHandlerId,
             List<TestMethod> testMethods, List<ProbeMethod> probeMethods,
             List<PersistMethod> persistMethods) {

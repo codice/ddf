@@ -35,15 +35,12 @@ import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.CANNOT_CON
 import static org.codice.ddf.admin.security.ldap.LdapConnectionResult.toDescriptionMap;
 import static org.codice.ddf.admin.security.ldap.test.LdapTestingCommons.bindUserToLdapConnection;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.security.ldap.ServerGuesser;
@@ -83,11 +80,10 @@ public class DefaultDirectoryStructureProbe extends ProbeMethod<LdapConfiguratio
 
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
-        ProbeReport probeReport = new ProbeReport(new ArrayList<>());
-        List<ConfigurationMessage> checkMessages = configuration.validate(REQUIRED_FIELDS);
+        ProbeReport probeReport = new ProbeReport(configuration.validate(REQUIRED_FIELDS));
 
-        if (CollectionUtils.isNotEmpty(checkMessages)) {
-            return new ProbeReport(checkMessages);
+        if (probeReport.containsFailureMessages()) {
+            return probeReport;
         }
 
         String ldapType = configuration.ldapType();

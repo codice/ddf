@@ -19,11 +19,9 @@ import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PASSWO
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SOURCE_NAME;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.CREATE;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.handler.report.Report.createReport;
 import static org.codice.ddf.admin.api.services.WfsServiceProperties.wfsConfigToServiceProps;
 
 import java.util.List;
@@ -32,7 +30,6 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.sources.WfsSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
 
@@ -60,17 +57,16 @@ public class CreateWfsSourcePersistMethod extends PersistMethod<WfsSourceConfigu
 
     @Override
     public Report persist(WfsSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
-        if (!results.isEmpty()) {
-            return new Report(results);
+        Report results = new Report(configuration.validate(REQUIRED_FIELDS));
+        if (!results.containsFailureMessages()) {
+            return results;
         }
+
         Configurator configurator = new Configurator();
         OperationReport report;
         configurator.createManagedService(configuration.factoryPid(), wfsConfigToServiceProps(configuration));
         report = configurator.commit();
-        return report.containsFailedResults() ?
-                new Report(buildMessage(FAILURE, FAILED_PERSIST, FAILURE_TYPES.get(FAILED_PERSIST))) :
-                new Report(buildMessage(SUCCESS, SUCCESSFUL_PERSIST, SUCCESS_TYPES.get(SUCCESSFUL_PERSIST)));
+        return createReport(SUCCESS_TYPES, FAILURE_TYPES, null, report.containsFailedResults() ? FAILED_PERSIST : SUCCESSFUL_PERSIST);
     }
 
 }

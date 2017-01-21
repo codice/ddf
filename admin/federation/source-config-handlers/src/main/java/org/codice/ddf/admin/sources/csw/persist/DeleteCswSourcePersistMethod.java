@@ -24,7 +24,6 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
 
@@ -51,14 +50,14 @@ public class DeleteCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
 
     @Override
     public Report persist(CswSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
-        if (!results.isEmpty()) {
-            return new Report(results);
+        Report validateResults = new Report(configuration.validate(REQUIRED_FIELDS));
+        if(validateResults.containsFailureMessages()) {
+            return validateResults;
         }
+
         Configurator configurator = new Configurator();
-        OperationReport report;
         configurator.deleteManagedService(configuration.servicePid());
-        report = configurator.commit();
+        OperationReport report = configurator.commit();
         return Report.createReport(SUCCESS_TYPES, FAILURE_TYPES, null, report.containsFailedResults() ? FAILED_PERSIST : SUCCESSFUL_PERSIST);
     }
 
