@@ -21,6 +21,7 @@ import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CERT
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CONFIG_CREATED;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CONFIG_FROM_URL_ID;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.UNTRUSTED_CA;
+import static org.codice.ddf.admin.api.handler.report.ProbeReport.createProbeReport;
 import static org.codice.ddf.admin.sources.wfs.WfsSourceConfigurationHandler.WFS_SOURCE_CONFIGURATION_HANDLER_ID;
 
 import java.util.HashMap;
@@ -29,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.codice.ddf.admin.api.config.sources.WfsSourceConfiguration;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.commons.UrlAvailability;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
@@ -43,6 +43,7 @@ public class WfsConfigFromUrlProbeMethod extends ProbeMethod<WfsSourceConfigurat
     public static final String WFS_CONFIG_FROM_URL_ID = CONFIG_FROM_URL_ID;
     public static final String DESCRIPTION = "Attempts to create a WFS configuration from a given URL.";
     public static final List<String> REQUIRED_FIELDS = ImmutableList.of(ENDPOINT_URL);
+    // TODO: tbatie - 1/20/17 - Consider adding optional fields for username and password
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(CONFIG_CREATED, "WFS configuration was successfully created.");
     public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(
             BAD_CONFIG, "Failed to create config from provided URL.",
@@ -64,10 +65,11 @@ public class WfsConfigFromUrlProbeMethod extends ProbeMethod<WfsSourceConfigurat
 
     @Override
     public ProbeReport probe(WfsSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
-        if (!results.isEmpty()) {
-            return new ProbeReport(results);
+        ProbeReport results = new ProbeReport(configuration.validate(REQUIRED_FIELDS));
+        if (!results.containsFailureMessages()) {
+            return results;
         }
+
         UrlAvailability status = WfsSourceUtils.getUrlAvailability(configuration.endpointUrl());
         String result;
         Map<String, Object> probeResult = new HashMap<>();
@@ -82,6 +84,6 @@ public class WfsConfigFromUrlProbeMethod extends ProbeMethod<WfsSourceConfigurat
         } else {
             result = status.isCertError() ? CERT_ERROR : CANNOT_CONNECT;
         }
-        return ProbeReport.createProbeReport(SUCCESS_TYPES, FAILURE_TYPES, WARNING_TYPES, result).probeResults(probeResult);
+        return createProbeReport(SUCCESS_TYPES, FAILURE_TYPES, WARNING_TYPES, result).probeResults(probeResult);
     }
 }

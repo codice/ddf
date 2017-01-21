@@ -20,6 +20,7 @@ import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNA
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.CREATE;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.handler.report.Report.createReport;
 import static org.codice.ddf.admin.api.services.OpensearchServiceProperties.openSearchConfigToServiceProps;
 
 import java.util.List;
@@ -57,15 +58,15 @@ public class CreateOpenSearchSourcePersistMethod
 
     @Override
     public Report persist(OpenSearchSourceConfiguration configuration) {
-        List<ConfigurationMessage> results =
-                configuration.validate(REQUIRED_FIELDS);
-        if (!results.isEmpty()) {
-            return new Report(results);
+        Report validationResults = new Report(configuration.validate(REQUIRED_FIELDS));
+        if (validationResults.containsFailureMessages()) {
+            return validationResults;
         }
+
         Configurator configurator = new Configurator();
         configurator.createManagedService(configuration.factoryPid(), openSearchConfigToServiceProps(configuration));
         OperationReport report = configurator.commit();
-        return Report.createReport(SUCCESS_TYPES,
+        return createReport(SUCCESS_TYPES,
                 FAILURE_TYPES,
                 null,
                 report.containsFailedResults() ? ConfigurationMessage.FAILED_PERSIST : SUCCESSFUL_PERSIST);

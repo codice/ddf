@@ -17,6 +17,7 @@ import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SERVIC
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.FAILED_PERSIST;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.DELETE;
 import static org.codice.ddf.admin.api.handler.commons.HandlerCommons.SUCCESSFUL_PERSIST;
+import static org.codice.ddf.admin.api.handler.report.Report.createReport;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,6 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.sources.OpenSearchSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
 
@@ -52,13 +52,14 @@ public class DeleteOpenSearchSourcePersistMethod extends PersistMethod<OpenSearc
     @Override
     public Report persist(OpenSearchSourceConfiguration configuration) {
         Configurator configurator = new Configurator();
-        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
-        if (!results.isEmpty()) {
-            return new Report(results);
+        Report validationResults = new Report(configuration.validate(REQUIRED_FIELDS));
+        if(validationResults.containsFailureMessages()) {
+            return validationResults;
         }
+
         configurator.deleteManagedService(configuration.servicePid());
         OperationReport report = configurator.commit();
-        return Report.createReport(SUCCESS_TYPES, FAILURE_TYPES, null, report.containsFailedResults() ? FAILED_PERSIST : SUCCESSFUL_PERSIST);
+        return createReport(SUCCESS_TYPES, FAILURE_TYPES, null, report.containsFailedResults() ? FAILED_PERSIST : SUCCESSFUL_PERSIST);
     }
 
 }

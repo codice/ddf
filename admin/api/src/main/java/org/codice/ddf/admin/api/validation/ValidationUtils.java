@@ -16,6 +16,8 @@ package org.codice.ddf.admin.api.validation;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -70,25 +72,17 @@ public class ValidationUtils {
         return errors;
     }
 
-    public static List<ConfigurationMessage> validateContextPath(String contextPath,
-            String configId) {
-        List<ConfigurationMessage> errors = new ArrayList<>();
-        errors.addAll(validateString(contextPath, configId));
-        if (errors.isEmpty()) {
-            if (!PATH_VALIDATOR.isValidPath(contextPath)) {
-                errors.add(createInvalidFieldMsg("Improperly formatted context path.",
-                        contextPath));
-            }
+    public static List<ConfigurationMessage> validateContextPath(String contextPath, String configId) {
+        List<ConfigurationMessage> errors = validateString(contextPath, configId);
+        if (errors.isEmpty() && !PATH_VALIDATOR.isValidPath(contextPath)) {
+            errors.add(createInvalidFieldMsg("Improperly formatted context path.", contextPath));
         }
         return errors;
     }
 
     public static List<ConfigurationMessage> validateUrl(String url, String configId) {
-        List<ConfigurationMessage> errors = new ArrayList<>();
-        if (url == null) {
-            errors.add(createMissingRequiredFieldMsg(configId));
-        }
-        if (validUrlFormat(url)) {
+        List<ConfigurationMessage> errors = validateString(url, configId);
+        if (errors.isEmpty() && !validUrlFormat(url)) {
             errors.add(createInvalidFieldMsg("Endpoint URL is not in a valid format.", configId));
         }
         return errors;
@@ -105,7 +99,6 @@ public class ValidationUtils {
                     .flatMap(List::stream)
                     .collect(Collectors.toList()));
         }
-
         return errors;
     }
 
@@ -126,11 +119,11 @@ public class ValidationUtils {
 
     public static final List<ConfigurationMessage> validateFilePath(String filePath,
             String configId) {
-        List<ConfigurationMessage> errors = new ArrayList<>();
-        errors.addAll(validateString(filePath, configId));
+        List<ConfigurationMessage> errors = validateString(filePath, configId);
 
         if(errors.isEmpty()) {
             try {
+                // TODO: tbatie - 1/20/17 - Need to double check if this is actually validating correctly
                 Paths.get(filePath);
             } catch (InvalidPathException e) {
                 LOGGER.debug("Received an invalid path {}", filePath, e);
@@ -140,13 +133,17 @@ public class ValidationUtils {
         return errors;
     }
 
-    public static final boolean validUrlFormat(String url) {
-        String[] schemes = {"http", "https"};
-        UrlValidator validator = new UrlValidator(schemes);
-        return validator.isValid(url);
+    public static boolean validUrlFormat(String uriStr) {
+        try {
+            new URI(uriStr);
+            return true;
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 
     public static final boolean validHostnameFormat(String hostname) {
+        // TODO: tbatie - 1/20/17 - Can we use the UrlValidator for this instead?
         return HOST_NAME_PATTERN.matcher(hostname)
                 .matches();
     }

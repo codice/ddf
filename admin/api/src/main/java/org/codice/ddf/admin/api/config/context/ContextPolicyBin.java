@@ -33,18 +33,17 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * A {@link ContextPolicyBin} represents a context policy and performs authentication and realm information
- * about the context policy.
+ * A {@link ContextPolicyBin} represents a context policy to be applied to a set of context paths.
  */
 public class ContextPolicyBin {
 
-    public static final String REALM = "realm";
     public static final String CONTEXT_PATHS = "contextPaths";
+    public static final String REALM = "realm";
     public static final String AUTH_TYPES = "authenticationTypes";
     public static final String REQ_ATTRIS = "requiredAttributes";
 
-    private String realm;
     private Set<String> contextPaths;
+    private String realm;
     private List<String> authenticationTypes;
     private Map<String, String> requiredAttributes;
 

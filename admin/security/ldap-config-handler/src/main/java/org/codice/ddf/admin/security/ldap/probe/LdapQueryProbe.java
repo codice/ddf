@@ -32,9 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.admin.api.config.ldap.LdapConfiguration;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.forgerock.opendj.ldap.Attribute;
@@ -76,10 +74,10 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
 
     @Override
     public ProbeReport probe(LdapConfiguration configuration) {
-        List<ConfigurationMessage> validateResults = configuration.validate(REQUIRED_FIELDS);
+        ProbeReport probeReport = new ProbeReport(configuration.validate(REQUIRED_FIELDS));
 
-        if (CollectionUtils.isNotEmpty(validateResults)) {
-            return new ProbeReport(validateResults);
+        if (probeReport.containsFailureMessages()) {
+            return probeReport;
         }
 
         Connection connection = bindUserToLdapConnection(configuration).connection();
@@ -94,12 +92,14 @@ public class LdapQueryProbe extends ProbeMethod<LdapConfiguration> {
                 entryMap.put("name",
                         entry.getName()
                                 .toString());
-                entryMap.put(attri.getAttributeDescriptionAsString(), attri.firstValueAsString());
+                if (!attri.getAttributeDescriptionAsString().toLowerCase().contains("password")) {
+                    entryMap.put(attri.getAttributeDescriptionAsString(), attri.firstValueAsString());
+                }
             }
             convertedSearchResults.add(entryMap);
         }
 
-        return new ProbeReport(new ArrayList<>()).probeResult(LDAP_QUERY_RESULTS,
+        return probeReport.probeResult(LDAP_QUERY_RESULTS,
                 convertedSearchResults);
     }
 }

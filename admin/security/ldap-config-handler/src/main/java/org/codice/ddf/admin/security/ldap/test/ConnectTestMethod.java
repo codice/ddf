@@ -83,36 +83,6 @@ public class ConnectTestMethod extends TestMethod<LdapConfiguration> {
                 null,
                 Arrays.asList(connectionAttempt.result()
                         .name()));
-
-        //      ---  Experimental code to try connecting to ldap using all other configuration options
-        //
-        //        List<String> encryptionMethodsToTry = new ArrayList<>();
-        //        Collections.copy(Arrays.asList(LdapConfiguration.LDAP_ENCRYPTION_METHODS),
-        //                encryptionMethodsToTry);
-        //        encryptionMethodsToTry.remove(configuration.encryptionMethod());
-        //
-        //        List<LdapConfiguration> configsToTest = new ArrayList<>();
-        //
-        //        encryptionMethodsToTry.stream()
-        //                .forEach(encryptM -> configsToTest.add(configuration.copy()
-        //                        .encryptionMethod(encryptM)));
-        //
-        //        for (LdapConfiguration testConfig : configsToTest) {
-        //            LdapConfigurationHandler.LdapTestResult<Connection> connectionTestRetryResult = getLdapConnection(testConfig);
-        //
-        //            if (connectionTestRetryResult.type() == SUCCESSFUL_CONNECTION) {
-        //                connectionTestRetryResult.value()
-        //                        .close();
-        //                testResults.messages(buildMessage(WARNING,
-        //                        "We were unable to connect to the host with the given encryption method but we were able successfully connect using the encryption method "
-        //                                + testConfig.encryptionMethod()
-        //                                + ". If this is acceptable, please change the encryption method field and resubmit."));
-        //                return testResults;
-        //            }
-        //        }
-        //
-        //        testResults.messages(buildMessage(FAILURE,
-        //                "Unable to reach the specified host. We tried the other available encryption methods without success. Make sure your host and port are correct, your LDAP is running and that your network is not restricting access."));
     }
 
 }

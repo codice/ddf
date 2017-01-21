@@ -60,8 +60,8 @@ public class AvailableOptionsProbeMethod extends ProbeMethod<ContextPolicyConfig
     public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(SUCCESSFUL_PROBE, "Successfully retrieved context policy options.");
     public static final List<String> RETURN_TYPES = ImmutableList.of(REALMS_KEY, AUTH_TYPES_KEY, CLAIMS_KEY);
 
-    Configurator configurator = new Configurator();
-    ConfigurationHandler ldapConfigHandler;
+    private Configurator configurator = new Configurator();
+    private ConfigurationHandler ldapConfigHandler;
 
     public AvailableOptionsProbeMethod(ConfigurationHandler ldapConfigHandler) {
         super(ID,

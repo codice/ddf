@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.codice.ddf.admin.api.config.sources.OpenSearchSourceConfiguration;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.sources.opensearch.OpenSearchSourceUtils;
@@ -45,15 +44,23 @@ public class DiscoverOpenSearchSourceProbeMethod
         extends ProbeMethod<OpenSearchSourceConfiguration> {
 
     public static final String OPENSEARCH_DISCOVER_SOURCES_ID = DISCOVER_SOURCES_ID;
-    public static final String DESCRIPTION = "Attempts to discover a OpenSearch endpoint based on a hostname and port using optional authentication information.";
+
+    public static final String DESCRIPTION =
+            "Attempts to discover a OpenSearch endpoint based on a hostname and port using optional authentication information.";
 
     public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_HOSTNAME, PORT);
+
     public static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
-    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED, "Discovered OpenSearch endpoint.");
-    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(
-            CERT_ERROR, "The discovered source has incorrectly configured SSL certificates and is insecure.",
-            NO_ENDPOINT, "No OpenSearch endpoint found.",
-            BAD_CONFIG, "Endpoint discovered, but could not create valid configuration.");
+
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED,
+            "Discovered OpenSearch endpoint.");
+
+    public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(CERT_ERROR,
+            "The discovered source has incorrectly configured SSL certificates and is insecure.",
+            NO_ENDPOINT,
+            "No OpenSearch endpoint found.",
+            BAD_CONFIG,
+            "Endpoint discovered, but could not create valid configuration.");
 
     public DiscoverOpenSearchSourceProbeMethod() {
         super(OPENSEARCH_DISCOVER_SOURCES_ID,
@@ -67,25 +74,33 @@ public class DiscoverOpenSearchSourceProbeMethod
 
     @Override
     public ProbeReport probe(OpenSearchSourceConfiguration configuration) {
-        List<ConfigurationMessage> results =
-                configuration.validate(REQUIRED_FIELDS);
-        if (!results.isEmpty()) {
-            return new ProbeReport(results);
+        ProbeReport validationResults = new ProbeReport(configuration.validate(REQUIRED_FIELDS));
+        if (validationResults.containsFailureMessages()) {
+            return validationResults;
         }
+
         Optional<String> url = OpenSearchSourceUtils.confirmEndpointUrl(configuration);
         if (url.isPresent()) {
             if (url.get().equals(CERT_ERROR)) {
-                results.add(buildMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
-                return new ProbeReport(results);
+                return validationResults.messages(buildMessage(FAILURE,
+                        CERT_ERROR,
+                        FAILURE_TYPES.get(CERT_ERROR)));
             }
-            configuration.endpointUrl(url.get()).factoryPid(OPENSEARCH_FACTORY_PID);
-            results.add(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
-            return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
-                    configuration.configurationHandlerId(OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID));
+            OpenSearchSourceConfiguration opensearchConfig = new OpenSearchSourceConfiguration(
+                    configuration);
 
+            opensearchConfig.endpointUrl(url.get())
+                    .factoryPid(OPENSEARCH_FACTORY_PID)
+                    .configurationHandlerId(OPENSEARCH_SOURCE_CONFIGURATION_HANDLER_ID);
+
+            return validationResults.messages(buildMessage(SUCCESS,
+                    ENDPOINT_DISCOVERED,
+                    SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)))
+                    .probeResults(ImmutableMap.of(DISCOVER_SOURCES_ID, opensearchConfig));
         } else {
-            results.add(buildMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
-            return new ProbeReport(results);
+            return new ProbeReport(buildMessage(FAILURE,
+                    NO_ENDPOINT,
+                    FAILURE_TYPES.get(NO_ENDPOINT)));
         }
     }
 

@@ -83,6 +83,7 @@ public class WfsSourceConfigurationHandler extends DefaultConfigurationHandler<S
                         .values()
                         .stream())
                 .map(WfsServiceProperties::servicePropsToWfsConfig)
+                .map(prop -> prop.sourceUserPassword("*******"))
                 .collect(Collectors.toList());
     }
 

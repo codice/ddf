@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.codice.ddf.admin.beta</groupId>
             <artifactId>admin-api</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!--ldap connection dependencies-->
@@ -64,7 +64,7 @@
             <artifactId>grizzly-framework</artifactId>
             <version>2.3.14</version>
         </dependency>
-        <!--ldap connection dependencie end-->
+        <!--ldap connection dependencies end-->
     </dependencies>
 
     <build>
@@ -121,7 +121,6 @@
                             i18n-slf4j,
                             i18n-core
                             <!--ldap connection dependencies end -->
-
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

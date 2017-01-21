@@ -42,10 +42,8 @@ public class ContextPolicyServiceProperties {
                     .stream()
                     .forEach(context -> {
                         realmsProps.add(context + "=" + bin.realm());
-                        authTypesProps.add(
-                                context + "=" + String.join("|", bin.authenticationTypes()));
-                        if (bin.requiredAttributes()
-                                .isEmpty()) {
+                        authTypesProps.add(context + "=" + String.join("|", bin.authenticationTypes()));
+                        if (bin.requiredAttributes().isEmpty()) {
                             reqAttrisProps.add(context + "=");
                         } else {
                             reqAttrisProps.add(context + "={" + String.join(";",

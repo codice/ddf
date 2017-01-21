@@ -31,7 +31,6 @@ import java.util.Map;
 import org.codice.ddf.admin.api.config.sources.CswSourceConfiguration;
 import org.codice.ddf.admin.api.configurator.Configurator;
 import org.codice.ddf.admin.api.configurator.OperationReport;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.PersistMethod;
 import org.codice.ddf.admin.api.handler.report.Report;
 
@@ -60,9 +59,9 @@ public class CreateCswSourcePersistMethod extends PersistMethod<CswSourceConfigu
 
     @Override
     public Report persist(CswSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
-        if (!results.isEmpty()) {
-            return new Report(results);
+        Report validationResults = new Report(configuration.validate(REQUIRED_FIELDS));
+        if (validationResults.containsFailureMessages()) {
+            return validationResults;
         }
 
         Configurator configurator = new Configurator();

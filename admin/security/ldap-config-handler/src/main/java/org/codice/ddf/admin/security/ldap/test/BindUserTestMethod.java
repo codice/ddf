@@ -40,6 +40,7 @@ import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.TestMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.api.handler.report.Report;
+import org.codice.ddf.admin.api.validation.LdapValidationUtils;
 
 import com.google.common.collect.ImmutableList;
 
@@ -84,9 +85,15 @@ public class BindUserTestMethod extends TestMethod<LdapConfiguration> {
     public Report test(LdapConfiguration configuration) {
         List<ConfigurationMessage> checkMessages = configuration.validate(REQUIRED_FIELDS);
 
-        // TODO: tbatie - 1/19/17 - Validate optional fields if they exist
         if (CollectionUtils.isNotEmpty(checkMessages)) {
             return new ProbeReport(checkMessages);
+        }
+
+        if(configuration.bindUserMethod().equals(LdapValidationUtils.GSSAPI_SASL)) {
+            checkMessages.addAll(configuration.validate(OPTIONAL_FIELDS));
+            if (CollectionUtils.isNotEmpty(checkMessages)) {
+                return new ProbeReport(checkMessages);
+            }
         }
 
         LdapTestingCommons.LdapConnectionAttempt bindConnectionAttempt = bindUserToLdapConnection(

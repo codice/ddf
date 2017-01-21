@@ -18,6 +18,7 @@ import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.CONTEXT_P
 import static org.codice.ddf.admin.api.config.context.ContextPolicyBin.REALM;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvalidFieldMsg;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createMissingRequiredFieldMsg;
+import static org.codice.ddf.admin.api.validation.ValidationUtils.validateString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,11 +32,13 @@ import com.google.common.collect.ImmutableList;
 
 public class SecurityValidationUtils {
 
+    // TODO: tbatie - 1/20/17 - (Ticket) These realms eventually need to be configurable
     public static final String KARAF = "karaf";
     public static final String LDAP = "ldap";
     public static final String IDP = "IdP";
     public static final List<String> ALL_REALMS = ImmutableList.of(KARAF, LDAP, IDP);
 
+    // TODO: tbatie - 1/20/17 - (Ticket) These auth types eventually need to be configurable
     public static final String SAML = "SAML";
     public static final String BASIC = "basic";
     public static final String PKI = "PKI";
@@ -58,10 +61,9 @@ public class SecurityValidationUtils {
     }
 
     public static final List<ConfigurationMessage> validateRealm(String realm, String configId) {
-        List<ConfigurationMessage> errors = ValidationUtils.validateString(realm, configId);
+        List<ConfigurationMessage> errors = validateString(realm, configId);
         if (errors.isEmpty() && !ALL_REALMS.contains(realm)) {
-            errors.add(createInvalidFieldMsg("Unknown realm: " + realm + ". Realm must be one of " + ALL_REALMS.stream().collect(
-                    Collectors.joining(",")), configId));
+            errors.add(createInvalidFieldMsg("Unknown realm \"" + realm + "\". Realm must be one of " + String.join(",", ALL_REALMS), configId));
         }
 
         return errors;
@@ -74,7 +76,7 @@ public class SecurityValidationUtils {
         } else {
             for (String authType : authTypes) {
                 if (!ALL_AUTH_TYPES.contains(authType)) {
-                    errors.add(createInvalidFieldMsg("Unknown authentication type: " + authType + ". Authentication type must be one of: " + ALL_AUTH_TYPES.stream().collect(Collectors.joining(",")), configId));
+                    errors.add(createInvalidFieldMsg("Unknown authentication type \"" + authType + "\". Authentication type must be one of: " + String.join(",", ALL_AUTH_TYPES), configId));
                 }
             }
         }

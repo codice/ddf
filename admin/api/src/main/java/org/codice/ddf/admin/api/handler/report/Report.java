@@ -99,15 +99,15 @@ public class Report {
             if (successTypes != null && successTypes.containsKey(resultName)) {
                 testReport.messages(new ConfigurationMessage(ConfigurationMessage.MessageType.SUCCESS,
                         resultName,
-                        successTypes.get(resultName)).configId(resultConfigId));
+                        successTypes.get(resultName)).configFieldId(resultConfigId));
             } else if (warningTypes != null && warningTypes.containsKey(resultName)) {
                 testReport.messages(new ConfigurationMessage(ConfigurationMessage.MessageType.WARNING,
                         resultName,
-                        warningTypes.get(resultName)).configId(resultConfigId));
+                        warningTypes.get(resultName)).configFieldId(resultConfigId));
             } else if (failureTypes != null && failureTypes.containsKey(resultName)) {
                 testReport.messages(new ConfigurationMessage(ConfigurationMessage.MessageType.FAILURE,
                         resultName,
-                        failureTypes.get(resultName)).configId(resultConfigId));
+                        failureTypes.get(resultName)).configFieldId(resultConfigId));
             }
         }
         return testReport;
@@ -124,6 +124,7 @@ public class Report {
         return this;
     }
 
+    // TODO: tbatie - 1/20/17 - rename to addMessages
     public Report messages(List<ConfigurationMessage> messages) {
         this.messages.addAll(messages);
         return this;

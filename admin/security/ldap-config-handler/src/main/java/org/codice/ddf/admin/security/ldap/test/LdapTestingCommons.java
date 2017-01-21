@@ -138,7 +138,6 @@ public class LdapTestingCommons {
             ((DigestMD5SASLBindRequest) request).getQOPs()
                     .add(DigestMD5SASLBindRequest.QOP_AUTH);
             if (realm != null && !realm.equals("")) {
-                //            if (StringUtils.isNotEmpty(realm)) {
                 ((DigestMD5SASLBindRequest) request).setRealm(realm);
             }
             break;

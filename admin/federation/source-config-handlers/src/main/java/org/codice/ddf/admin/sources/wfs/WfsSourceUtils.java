@@ -59,13 +59,14 @@ public class WfsSourceUtils {
             "http://%s:%d/services/wfs",
             "http://%s:%d/wfs");
 
+    // TODO: tbatie - 1/20/17 - Consider returning configurationMessages instead of string
     public static Optional<String> confirmEndpointUrl(WfsSourceConfiguration config) {
         return URL_FORMATS.stream()
                 .map(formatUrl -> String.format(formatUrl,
                         config.sourceHostName(),
                         config.sourcePort()))
                 .map(url -> {
-                    UrlAvailability avail = getUrlAvailability(url);
+                    UrlAvailability avail = WfsSourceUtils.getUrlAvailability(url);
                     if (avail.isAvailable()) {
                         return url;
                     }
@@ -101,6 +102,8 @@ public class WfsSourceUtils {
                 return result.trustedCertAuthority(true).certError(false).available(true);
             }
         } catch (SSLPeerUnverifiedException e) {
+            // This is the hostname != cert name case - if this occurs, the URL's SSL cert configuration
+            // is incorrect, or a serious network security issue has occurred.
             return result.trustedCertAuthority(false).certError(true).available(false);
         } catch (IOException e) {
             try {

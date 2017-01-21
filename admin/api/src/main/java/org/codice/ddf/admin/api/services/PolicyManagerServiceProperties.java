@@ -56,6 +56,7 @@ public class PolicyManagerServiceProperties {
                     .collect(Collectors.toMap(map -> map.getAttributeName(),
                             map -> map.getAttributeValue()));
 
+            //Check if bin containing an identical context policy exists already, if so add the context path to it
             for (ContextPolicyBin bin : bins) {
                 if (bin.realm()
                         .equals(policy.getRealm()) && bin.authenticationTypes()

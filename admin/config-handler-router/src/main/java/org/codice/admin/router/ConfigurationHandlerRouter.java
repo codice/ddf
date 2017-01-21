@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.config.Configuration;
@@ -57,7 +56,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
             ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
             if(configHandler == null) {
                 res.status(400);
-                return testReport.messages(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+                return testReport.messages(createInvalidFieldMsg("No configuration handler with id of \"" + configHandlerId + "\" found.", CONFIGURATION_TYPE_FIELD));
             }
 
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
@@ -77,7 +76,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
             ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
             if(configHandler == null) {
                 res.status(400);
-                return persistReport.messages(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+                return persistReport.messages(createInvalidFieldMsg("No configuration handler with id of \"" + configHandlerId + "\" found.", CONFIGURATION_TYPE_FIELD));
             }
 
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
@@ -98,7 +97,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
 
             if(configHandler == null) {
                 res.status(400);
-                return probeReport.messages(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+                return probeReport.messages(createInvalidFieldMsg("No configuration handler with id of \"" + configHandlerId + "\" found.", CONFIGURATION_TYPE_FIELD));
             }
 
             Configuration config = getGsonParser().fromJson(req.body(), Configuration.class);
@@ -117,7 +116,7 @@ public class ConfigurationHandlerRouter implements SparkApplication {
                     ConfigurationHandler configHandler = getConfigurationHandler(configHandlerId);
                     if(configHandler == null) {
                         res.status(400);
-                        return new Report(createInvalidFieldMsg("No configuration handler with id of: " + configHandlerId + " found.", configHandlerId));
+                        return new Report(createInvalidFieldMsg("No configuration handler with id of \"" + configHandlerId + "\" found.", CONFIGURATION_TYPE_FIELD));
                     }
                     return configHandler.getConfigurations();
                 },
@@ -159,12 +158,11 @@ public class ConfigurationHandlerRouter implements SparkApplication {
     }
 
     public ConfigurationHandler getConfigurationHandler(String configurationId) {
-        Optional<ConfigurationHandler> foundConfigHandler = handlers.stream()
+        return handlers.stream()
                 .filter(handler -> handler.getConfigurationHandlerId()
                         .equals(configurationId))
-                .findFirst();
-
-        return foundConfigHandler.isPresent() ? foundConfigHandler.get() : null;
+                .findFirst()
+                .orElse(null);
     }
 
 

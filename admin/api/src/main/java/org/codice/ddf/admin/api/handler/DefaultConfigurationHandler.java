@@ -27,13 +27,33 @@ import org.codice.ddf.admin.api.handler.report.Report;
 /**
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
+ *
+ *  The {@link DefaultConfigurationHandler} will find and invoke a {@link org.codice.ddf.admin.api.handler.method.ConfigurationHandlerMethod} if one exists,
+ *  otherwise it will return a no method found {@link Report}.
  */
 public abstract class DefaultConfigurationHandler<S extends Configuration> implements ConfigurationHandler<S> {
 
+    // TODO: tbatie - 1/20/17 - We should move the required field validation down to this level
+    /**
+     * Return all the {@link ProbeMethod} this {@link ConfigurationHandler} supports.
+     *
+     * @return a {@link List} of {@link ProbeMethod}
+     */
     public abstract List<ProbeMethod> getProbeMethods();
 
+    /**
+     * Return all the {@link TestMethod} this {@link ConfigurationHandler} supports.
+     *
+     * @return a {@link List} of {@link TestMethod}
+     */
     public abstract List<TestMethod> getTestMethods();
 
+    /**
+     * Return all the {@link PersistMethod} this {@link ConfigurationHandler} supports.
+     *
+     *
+     * @return a {@link List} of {@link PersistMethod}
+     */
     public abstract List<PersistMethod> getPersistMethods();
 
     @Override
@@ -85,13 +105,13 @@ public abstract class DefaultConfigurationHandler<S extends Configuration> imple
                 getNoTestFoundReport(persistId);
     }
 
-    public Report getNoTestFoundReport(String badId){
+    private Report getNoTestFoundReport(String badId){
         return new Report(ConfigurationMessage.buildMessage(ConfigurationMessage.MessageType.FAILURE,
                 ConfigurationMessage.NO_METHOD_FOUND,
                 "Unknown method id: \"" + (badId == null ? "null" : badId + "\".")));
     }
 
-    public ProbeReport getNoProbeFoundReport(String badId){
+    private ProbeReport getNoProbeFoundReport(String badId){
         return new ProbeReport(ConfigurationMessage.buildMessage(ConfigurationMessage.MessageType.FAILURE, ConfigurationMessage.NO_METHOD_FOUND,
                 "Unknown probe id \"" + (badId == null ? "null" : badId) + "\"."));
     }

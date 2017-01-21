@@ -15,8 +15,8 @@
 
     <bean id="sourceConfigurationHandler"
           class="org.codice.ddf.admin.sources.impl.SourceConfigurationHandlerImpl">
-        <property name="sourceConfigurationHandlers" ref="sourceConfigurationHandlers"/>
-    </bean>
+            <property name="sourceConfigurationHandlers" ref="sourceConfigurationHandlers"/>
+        </bean>
     <service ref="sourceConfigurationHandler"
              interface="org.codice.ddf.admin.api.handler.ConfigurationHandler">
     </service>

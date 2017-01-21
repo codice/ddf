@@ -17,7 +17,6 @@ import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.getLd
 import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.getUriFromProperty;
 import static org.codice.ddf.admin.api.services.LdapLoginServiceProperties.isStartTls;
 import static org.codice.ddf.admin.api.validation.LdapValidationUtils.CREDENTIAL_STORE;
-import static org.codice.ddf.admin.api.validation.LdapValidationUtils.TLS;
 import static org.codice.ddf.admin.api.validation.ValidationUtils.SERVICE_PID_KEY;
 
 import java.net.URI;
@@ -56,7 +55,7 @@ public class LdapClaimsHandlerServiceProperties {
         config.hostName(ldapUri.getHost());
         config.port(ldapUri.getPort());
         if ((Boolean) props.get(START_TLS)) {
-            config.encryptionMethod(TLS);
+            config.encryptionMethod(org.codice.ddf.admin.api.validation.LdapValidationUtils.START_TLS);
         }
         config.bindUserDn((String) props.get(LDAP_BIND_USER_DN));
         config.bindUserPassword((String) props.get(PASSWORD));

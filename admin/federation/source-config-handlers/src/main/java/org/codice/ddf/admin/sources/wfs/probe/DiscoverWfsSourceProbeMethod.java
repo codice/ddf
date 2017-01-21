@@ -18,13 +18,13 @@ import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.PORT;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.SOURCE_HOSTNAME;
 import static org.codice.ddf.admin.api.config.sources.SourceConfiguration.USERNAME;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.FAILURE;
-import static org.codice.ddf.admin.api.handler.ConfigurationMessage.MessageType.SUCCESS;
 import static org.codice.ddf.admin.api.handler.ConfigurationMessage.buildMessage;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.BAD_CONFIG;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.CERT_ERROR;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.DISCOVER_SOURCES_ID;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.ENDPOINT_DISCOVERED;
 import static org.codice.ddf.admin.api.handler.commons.SourceHandlerCommons.NO_ENDPOINT;
+import static org.codice.ddf.admin.api.handler.report.ProbeReport.createProbeReport;
 import static org.codice.ddf.admin.sources.wfs.WfsSourceConfigurationHandler.WFS_SOURCE_CONFIGURATION_HANDLER_ID;
 
 import java.util.List;
@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.codice.ddf.admin.api.config.sources.WfsSourceConfiguration;
-import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 import org.codice.ddf.admin.api.handler.method.ProbeMethod;
 import org.codice.ddf.admin.api.handler.report.ProbeReport;
 import org.codice.ddf.admin.sources.wfs.WfsSourceUtils;
@@ -46,7 +45,7 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
     public static final String DESCRIPTION = "Attempts to discover a WFS endpoint based on a hostname and port using optional authentication information.";
     public static final List<String> REQUIRED_FIELDS = ImmutableList.of(SOURCE_HOSTNAME, PORT);
     public static final List<String> OPTIONAL_FIELDS = ImmutableList.of(USERNAME, PASSWORD);
-    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED, "Discovered Wfs endpoint.");
+    public static final Map<String, String> SUCCESS_TYPES = ImmutableMap.of(ENDPOINT_DISCOVERED, "Discovered WFS endpoint.");
     public static final Map<String, String> FAILURE_TYPES = ImmutableMap.of(
             CERT_ERROR, "The discovered source has incorrectly configured SSL certificates and is insecure.",
             NO_ENDPOINT, "No Wfs endpoint found.",
@@ -64,30 +63,28 @@ public class DiscoverWfsSourceProbeMethod extends ProbeMethod<WfsSourceConfigura
 
     @Override
     public ProbeReport probe(WfsSourceConfiguration configuration) {
-        List<ConfigurationMessage> results = configuration.validate(REQUIRED_FIELDS);
-        if (!results.isEmpty()) {
-            return new ProbeReport(results);
+        ProbeReport probeReport = new ProbeReport(configuration.validate(REQUIRED_FIELDS));
+        if (probeReport.containsFailureMessages()) {
+            return probeReport;
         }
         Optional<String> url = WfsSourceUtils.confirmEndpointUrl(configuration);
         if (url.isPresent()) {
             if (url.get().equals(CERT_ERROR)) {
-                return new ProbeReport(buildMessage(FAILURE, CERT_ERROR, FAILURE_TYPES.get(CERT_ERROR)));
+                return createProbeReport(SUCCESS_TYPES, FAILURE_TYPES, null, CERT_ERROR);
             }
             configuration.endpointUrl(url.get());
         } else {
-            results.add(buildMessage(FAILURE, NO_ENDPOINT, FAILURE_TYPES.get(NO_ENDPOINT)));
-            return new ProbeReport(results);
+            return createProbeReport(SUCCESS_TYPES, FAILURE_TYPES, null, NO_ENDPOINT);
         }
 
         Optional<WfsSourceConfiguration> preferred = WfsSourceUtils.getPreferredConfig(configuration);
         if (preferred.isPresent()) {
-            configuration = preferred.get();
-            results.add(buildMessage(SUCCESS, ENDPOINT_DISCOVERED, SUCCESS_TYPES.get(ENDPOINT_DISCOVERED)));
-            return new ProbeReport(results).probeResult(DISCOVER_SOURCES_ID,
-                    configuration.configurationHandlerId(WFS_SOURCE_CONFIGURATION_HANDLER_ID));
+            Map<String, Object> results = ImmutableMap.of(WFS_DISCOVER_SOURCES_ID,
+                    preferred.get()
+                            .configurationHandlerId(WFS_SOURCE_CONFIGURATION_HANDLER_ID));
+            return createProbeReport(SUCCESS_TYPES, FAILURE_TYPES, null, ENDPOINT_DISCOVERED).probeResults(results);
         } else {
-            results.add(buildMessage(FAILURE, BAD_CONFIG, FAILURE_TYPES.get(BAD_CONFIG)));
-            return new ProbeReport(results);
+            return probeReport.messages(buildMessage(FAILURE, BAD_CONFIG, FAILURE_TYPES.get(BAD_CONFIG)));
         }
     }
 

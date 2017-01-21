@@ -17,7 +17,6 @@ import static org.codice.ddf.admin.api.handler.ConfigurationMessage.createInvali
 import static org.codice.ddf.admin.api.validation.ValidationUtils.validateString;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.api.handler.ConfigurationMessage;
 
@@ -45,14 +44,9 @@ public class LdapValidationUtils {
 
     public static final List<ConfigurationMessage> validateEncryptionMethod(String encryptionMethod, String configId) {
         List<ConfigurationMessage> errors = validateString(encryptionMethod, configId);
-        if (errors.isEmpty() && !LDAP_ENCRYPTION_METHODS.stream()
-                .filter(e -> e.equalsIgnoreCase(encryptionMethod))
-                .findFirst()
-                .isPresent()) {
-            errors.add(createInvalidFieldMsg("Unknown encryption method: " + encryptionMethod + ". Encryption method must be one of: " + LDAP_ENCRYPTION_METHODS.stream().collect(
-                    Collectors.joining(",")), configId));
+        if (errors.isEmpty() && LDAP_ENCRYPTION_METHODS.stream().noneMatch(e -> e.equalsIgnoreCase(encryptionMethod))) {
+            errors.add(createInvalidFieldMsg("Unknown encryption method \"" + encryptionMethod + "\". Encryption method must be one of: " + String.join(",", LDAP_ENCRYPTION_METHODS), configId));
         }
-
         return errors;
     }
 
@@ -64,7 +58,7 @@ public class LdapValidationUtils {
     public static final List<ConfigurationMessage> validateBindUserMethod(String bindMethod, String configId) {
         List<ConfigurationMessage> errors = validateString(bindMethod, configId);
         if(errors.isEmpty() && !BIND_METHODS.contains(bindMethod)) {
-            errors.add(createInvalidFieldMsg("Unknown bind method: " + bindMethod + ". Bind method must be one of: " + BIND_METHODS.stream().collect(Collectors.joining(",")), configId));
+            errors.add(createInvalidFieldMsg("Unknown bind method \"" + bindMethod + "\". Bind method must be one of: " + String.join(",", BIND_METHODS), configId));
         }
         return errors;
     }
@@ -92,7 +86,7 @@ public class LdapValidationUtils {
     public static final List<ConfigurationMessage> validateLdapUseCase(String ldapUseCase, String configId) {
         List<ConfigurationMessage> errors = validateString(ldapUseCase, configId);
         if(errors.isEmpty() && !LDAP_USE_CASES.contains(ldapUseCase)) {
-            errors.add(createInvalidFieldMsg("Unknown LDAP use case: " + ldapUseCase + ". LDAP use case must be one of: " + LDAP_USE_CASES.stream().collect(Collectors.joining(",")), configId));
+            errors.add(createInvalidFieldMsg("Unknown LDAP use case \"" + ldapUseCase + "\". LDAP use case must be one of: " + String.join(",", LDAP_USE_CASES), configId));
         }
         return errors;
     }
@@ -101,6 +95,4 @@ public class LdapValidationUtils {
         // TODO: tbatie - 1/16/17 - not sure if there is any additional validation we should do here at the syntax level
         return validateString(objectClass, configId);
     }
-
-
 }
