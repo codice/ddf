@@ -38,5 +38,3 @@ waitForReady = {
  echo "System Ready"
 };
 wfr = { waitForReady };
-findb = { bundle:list | grep -i $args } ;
-findf = { feature:list | grep -i $args } ;
