@@ -19,7 +19,7 @@
 
     <reference id="brandingRegistry" interface="org.codice.ddf.branding.BrandingRegistry" />
 
-    <bean id="configurationStore" class="org.codice.admin.router.configuration.Configuration"
+    <bean id="configurationStore" class="org.codice.admin.ui.configuration.Configuration"
           factory-method="getInstance">
         <cm:managed-properties persistent-id="org.codice.admin.ui.configuration"
                                update-strategy="container-managed"/>
