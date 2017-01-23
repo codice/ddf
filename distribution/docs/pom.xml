@@ -213,6 +213,10 @@
                                         <outputDirectory>${project.build.directory}/docs/html
                                         </outputDirectory>
                                         <imagesDir>${project.build.directory}/doc-contents/images</imagesDir>
+                                        <attributes>
+                                            <webfonts>false</webfonts>
+                                            <iconfont-remote>false</iconfont-remote>
+                                        </attributes>
                                     </configuration>
                                 </execution>
                                 <execution>
