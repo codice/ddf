@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.content.plugin.video;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,7 @@ import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.osgi.framework.BundleContext;
@@ -78,32 +77,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
 
     private static final int MAX_FFMPEG_PROCESSES = 4;
 
-    private static final PumpStreamHandler DEV_NULL = new PumpStreamHandler(null) {
-
-        @Override
-        public void setProcessErrorStream(InputStream inputStream) {
-            consumeStream(inputStream);
-        }
-
-        @Override
-        public void setProcessOutputStream(InputStream inputStream) {
-            consumeStream(inputStream);
-        }
-
-        private void consumeStream(InputStream inputStream) {
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-            byte[] buf = new byte[1024];
-            try {
-                while (bufferedInputStream.available() > 0 && bufferedInputStream.read(buf) > 0) {
-                    Thread.sleep(100);
-                }
-            } catch (IOException | InterruptedException e) {
-                //ignore
-            } finally {
-                IOUtils.closeQuietly(inputStream);
-            }
-        }
-    };
+    private static final PumpStreamHandler DEV_NULL = new PumpStreamHandler(new NullOutputStream());
 
     private final Semaphore limitFFmpegProcessesSemaphore;
 
@@ -285,7 +259,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
         final CommandLine command = getFFmpegInfoCommand(videoFilePath);
-        final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, 3, streamHandler);
+        final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, 15, streamHandler);
         resultHandler.waitFor();
 
         return parseVideoDuration(outputStream.toString(StandardCharsets.UTF_8.name()));
@@ -347,7 +321,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     private byte[] createGifFromThumbnailFiles() throws IOException, InterruptedException {
         final DefaultExecuteResultHandler resultHandler = executeFFmpeg(
                 getFFmpegCreateAnimatedGifCommand(),
-                3,
+                15,
                 DEV_NULL);
 
         resultHandler.waitFor();
