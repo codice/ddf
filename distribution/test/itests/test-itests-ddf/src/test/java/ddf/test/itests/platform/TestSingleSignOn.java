@@ -125,6 +125,9 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             getServiceManager().startFeature(true, "security-idp", "search-ui", "catalog-ui");
             getServiceManager().waitForAllBundles();
 
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/idp/login/metadata");
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/saml/sso/metadata");
+
             // Get all of the metadata
             String metadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();
             String ddfSpMetadata = get(SERVICE_ROOT + "/saml/sso/metadata").asString();
