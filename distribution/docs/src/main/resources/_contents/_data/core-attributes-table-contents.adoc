@@ -9,7 +9,7 @@
 |Example Value
 
 |title
-|A name for the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#elements-title[Dublin Core elements-title]
+|A name for the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#elements-title[Dublin Core elements-title].
 |String
 |< 1024 characters
 |
@@ -20,38 +20,39 @@
 |< 1024 characters
 |
 
-|metadata-content-type *[deprecated]*
-|Content type of the resource
+|metadata-content-type *[deprecated]* _see <<_media_attributes_table,Media Attributes>>_
+|Content type of the resource.
 |String
 |< 1024 characters
 | 
 
-|metadata-content-type-version *[deprecated]*
-|Version of the metadata content type of the resource
+|metadata-content-type-version *[deprecated]* _see <<_media_attributes_table,Media Attributes>>_
+|Version of the metadata content type of the resource.
 |String
 |< 1024 characters
 | 
 
-|metadata-target-namespace *[deprecated]*
-|Target namespace of the metadata
+|metadata-target-namespace *[deprecated]* _see <<_media_attributes_table,Media Attributes>>_
+|Target namespace of the metadata.
 |String
 |< 1024 characters
 | 
 
 |metadata
-|Additional XML metadata describing the resource
+|Additional XML metadata describing the resource.
 |XML
-|
+|A valid XML string per RFC 4825 (must be well-formed but not necessarily schema-compliant).
 |
 
 |location
-|The primary geospatial location of the resource
+|The primary geospatial location of the resource.
 |Geometry
-|Valid Well Known Text (WKT)
+|Valid Well Known Text (WKT) per http://www.opengeospatial.org/standards/wkt-crs +
+__Coordinates must be in *lon-lat* coordinate order__
 |POINT(150 30)
 
 |expiration
-|The expiration date of the resource
+|The expiration date of the resource.
 |Date
 |
 |
@@ -69,7 +70,7 @@
 |
 
 |resource-uri
-|Location of the resource for the metacard
+|Location of the resource for the metacard.
 |String
 |Valid URI per RFC 2396
 |
@@ -83,62 +84,68 @@
 |resource-size
 |Size in bytes of resource.
 |String
-|
+|Although this type cannot be changed for legacy reasons, its value should always be a parseable whole number.
 |
 
 |thumbnail
 |The thumbnail for the resource in JPEG format.
-|Binary
+|Base 64 encoded binary string per RFC 4648
 |<= 128 KB
 |
 
 |description
-|An account of the resource. http://dublincore.org/documents/dcmi-terms/#elements-description[Dublin Core elements-description]
+|An account of the resource. http://dublincore.org/documents/dcmi-terms/#elements-description[Dublin Core elements-description].
 |String
 |
 |
 
 |checksum
-|Checksum value for the primary resource for the metacard
+|Checksum value for the primary resource for the metacard.
 |String
 |< 1024 characters
 |
 
 |checksum-algorithm
-|Algorithm used to calculate the checksum on the primary resource of the metacard
+|Algorithm used to calculate the checksum on the primary resource of the metacard.
 |String
 |< 1024 characters
 |
 
 |created
-|The creation date of the resource http://dublincore.org/documents/dcmi-terms/#terms-created[Dublin Core terms-created]
+|The creation date of the resource http://dublincore.org/documents/dcmi-terms/#terms-created[Dublin Core terms-created].
 |Date
 |
 |
 
 
 |modified
-|The modification date of the resource http://dublincore.org/documents/dcmi-terms/#terms-modified[Dublin Core terms-modified]
+|The modification date of the resource http://dublincore.org/documents/dcmi-terms/#terms-modified[Dublin Core terms-modified].
 |Date
 |
 |
 
 |language
-|The language of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#language[Dublin Core language]
-|String
-|Alpha-3 language code per ISO_639-2
+|The language(s) of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#language[Dublin Core language].
+|List of Strings
+|Alpha-3 language code(s) per ISO_639-2.
 |
 
-|resource-derived-download-url
-|Download URL for accessing the derived formats for the metacard resource.
-|String
-|Valid URL per RFC 2396
+|resource.derived-download-url
+|Download URL(s) for accessing the derived formats for the metacard resource.
+|List of Strings
+|Valid URL(s) per RFC 2396.
+|
+
+|resource.derived-uri
+|Location(s) for accessing the derived formats for the metacard resource.
+|List of Strings
+|Valid URI per RFC 2396
 |
 
 |datatype
-|The generic type of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#terms-type[Dublin Core terms-type] and extended to include other DDF supported types.
-|String
-|Collection, Dataset, Event, Image, Interactive Resource, Service, Software, Sound, Text, Video, Document
+|The generic type(s) of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#terms-type[Dublin Core terms-type] and extended to include other DDF supported types.
+|List of Strings
+|Collection, Dataset, Event, Image, Interactive Resource, Service, Software, Sound, Text, Video, Document.
 |
 
 |===

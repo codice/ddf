@@ -9,13 +9,13 @@
 |Example Value
 
 |metacard.created
-|The creation date of the metacard
+|The creation date of the metacard.
 |Date
 | 
 |
 
 |metacard.modified
-|The modified date of the metacard
+|The modified date of the metacard.
 |Date
 | 
 | 
@@ -23,14 +23,14 @@
 |metacard.owner
 |The email address of the metacard owner.
 |String
-|< 1024 characters
+|A valid email address per RFC 5322
 | 
  
 |metacard-tags
-|Collections of data that go together, used for filtering
-query results.
-|String
-|Strings < 1024 characters
+|Collections of data that go together, used for filtering.
+query results. NOTE: these are system tags. For descriptive tags, <<_topic_attributes_table,Topic Attributes>>.
+|List of Strings
+|< 1024 characters per entry
 | 
 
 |===
