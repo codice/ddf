@@ -87,6 +87,8 @@ public class TestRegistry extends AbstractIntegrationTest {
 
     private static final String REMOTE_METACARD_ID = "09876543210987654321098765432100";
 
+    private static final long SLEEP_TIME = 2000;
+
     private static String storeId;
 
     private static FederatedCswMockServer cswServer;
@@ -184,7 +186,7 @@ public class TestRegistry extends AbstractIntegrationTest {
                     "2018-02-26T17:16:34.996Z");
             cswServer.setupDefaultQueryResponseExpectation(defaultResponse);
             cswServer.start();
-
+            waitForMockServer();
             getServiceManager().createManagedService(FACTORY_PID,
                     getCswRegistryStoreProperties(REGISTRY_CATALOG_STORE_ID,
                             "http://localhost:" + CSW_STUB_SERVER_PORT.getPort() + "/services/csw",
@@ -211,6 +213,8 @@ public class TestRegistry extends AbstractIntegrationTest {
                 "2018-02-26T17:16:34.996Z");
         cswServer.setupDefaultQueryResponseExpectation(defaultResponse);
         cswServer.reset();
+        waitForMockServer();
+        getCatalogBundle().waitForCatalogStore(storeId);
     }
 
     @After
@@ -311,6 +315,9 @@ public class TestRegistry extends AbstractIntegrationTest {
                 REMOTE_METACARD_ID,
                 "Node Name"));
         cswServer.reset();
+        waitForMockServer();
+        getCatalogBundle().waitForCatalogStore(storeId);
+
         cswServer.whenHttp()
                 .match(post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
@@ -572,7 +579,7 @@ public class TestRegistry extends AbstractIntegrationTest {
                 fail("Registry Metacard was not created in the allowed time");
 
             }
-            Thread.sleep(2000);
+            Thread.sleep(SLEEP_TIME);
         }
         return mcardId;
     }
@@ -584,6 +591,35 @@ public class TestRegistry extends AbstractIntegrationTest {
         return federationAdminServiceImpl.addRegistryEntry(getRegistryNode(id, regId, remoteRegId),
                 new HashSet(destinations));
 
+    }
+
+    private void waitForMockServer() throws Exception {
+        long startTime = System.currentTimeMillis();
+        long timeout = TimeUnit.MINUTES.toMillis(2);
+        boolean available = false;
+        LOGGER.info("Waiting for Csw Mock Server to come up");
+        while (!available) {
+            try {
+                given().auth()
+                        .preemptive()
+                        .basic(ADMIN, ADMIN)
+                        .body("<csw:GetCapabilities service=\"CSW\" xmlns:csw=\"http://www.opengis.net/cat/csw\" xmlns:ows=\"http://www.opengis.net/ows\"/>")
+                        .header("Content-Type", "text/xml")
+                        .expect()
+                        .log()
+                        .all()
+                        .statusCode(200)
+                        .when()
+                        .post(CSW_PATH.getUrl());
+                available = true;
+                LOGGER.info("Csw Mock Server is running");
+            } catch (Error e) {
+                if (System.currentTimeMillis() - startTime > timeout) {
+                    fail("Csw mock server didn't come up within allotted time.");
+                }
+                Thread.sleep(SLEEP_TIME);
+            }
+        }
     }
 }
 

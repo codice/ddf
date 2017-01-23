@@ -626,7 +626,10 @@ public class FederationAdminServiceImpl implements FederationAdminService {
         for(ProcessingDetails detail : details){
             pw.append(detail.getSourceId());
             pw.append(":");
-            detail.getException().printStackTrace(pw);
+            if(detail.hasException()) {
+                detail.getException()
+                        .printStackTrace(pw);
+            }
             pw.append(System.lineSeparator());
         }
         return pw.toString();

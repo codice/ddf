@@ -160,6 +160,8 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
             throw new IngestException("One or more of the metacards is not a registry metacard");
         }
 
+        validateOperation();
+
         List<Filter> regIdFilters = request.getMetacards()
                 .stream()
                 .map(e -> filterBuilder.attribute(RegistryObjectMetacardType.REMOTE_METACARD_ID)

@@ -360,6 +360,11 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
     }
 
     protected void validateOperation() {
+        if (capabilities == null) {
+            throw new UnsupportedOperationException(
+                    "The CSW Store is not available. Operations can not be performed on it.");
+        }
+
         Optional result = capabilities.getOperationsMetadata()
                 .getOperation()
                 .stream()
