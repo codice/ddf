@@ -30,7 +30,6 @@
         <joda-time.version>2.2</joda-time.version>
         <joda-convert.version>1.7</joda-convert.version>
         <osgi.version>5.0.0</osgi.version>
-        <shiro.version>1.2.4</shiro.version>
         <cas.client.version>3.1.10</cas.client.version>
         <javax.inject.version>1</javax.inject.version>
         <!--  Third-party bundle versions. These should only be used in the features.xml file.
@@ -228,11 +227,6 @@
                 <artifactId>cxf-rt-transports-http-jetty</artifactId>
                 <version>${cxf.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.shiro</groupId>
-                <artifactId>shiro-core</artifactId>
-                <version>${shiro.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
