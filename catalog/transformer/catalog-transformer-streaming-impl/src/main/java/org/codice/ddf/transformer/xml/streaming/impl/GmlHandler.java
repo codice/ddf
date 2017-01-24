@@ -15,13 +15,16 @@ package org.codice.ddf.transformer.xml.streaming.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import javax.xml.stream.XMLStreamException;
 
 import org.codice.ddf.transformer.xml.streaming.AbstractSaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
+import org.codice.ddf.transformer.xml.streaming.lib.SaxEventHandlerUtils;
 import org.codice.ddf.transformer.xml.streaming.lib.SaxEventToXmlElementConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +36,11 @@ import com.vividsolutions.jts.io.WKTWriter;
 import com.vividsolutions.jts.io.gml2.GMLHandler;
 
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.impl.types.ValidationAttributes;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.validation.ValidationException;
 
@@ -47,6 +53,8 @@ import ddf.catalog.validation.ValidationException;
 public class GmlHandler extends AbstractSaxEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GmlHandler.class);
+
+    private static Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
 
     GMLHandler gh;
 
@@ -63,6 +71,13 @@ public class GmlHandler extends AbstractSaxEventHandler {
     private Gml3ToWkt gml3Converter;
 
     private Stack<String> state;
+
+    private SaxEventHandlerUtils saxEventHandlerUtils = new SaxEventHandlerUtils();
+
+    static {
+        attributeDescriptors.addAll(new ValidationAttributes().getAttributeDescriptors());
+        attributeDescriptors.add(new CoreAttributes().getAttributeDescriptor(Metacard.GEOGRAPHY));
+    }
 
     public GmlHandler(GMLHandler gmlHandler, Gml3ToWkt gml3Converter) {
         this.gh = gmlHandler;
@@ -82,7 +97,14 @@ public class GmlHandler extends AbstractSaxEventHandler {
      */
     @Override
     public List<Attribute> getAttributes() {
-        return attributes;
+        return saxEventHandlerUtils.getCombinedMultiValuedAttributes(
+                getSupportedAttributeDescriptors(),
+                attributes);
+    }
+
+    @Override
+    public Set<AttributeDescriptor> getSupportedAttributeDescriptors() {
+        return attributeDescriptors;
     }
 
     @Override

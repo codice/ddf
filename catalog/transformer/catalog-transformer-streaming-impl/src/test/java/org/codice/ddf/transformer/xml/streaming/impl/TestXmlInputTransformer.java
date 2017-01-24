@@ -48,7 +48,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.gml2.GMLHandler;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.validation.ValidationException;
@@ -77,18 +76,18 @@ public class TestXmlInputTransformer {
 
         inputStream = new FileInputStream("src/test/resources/metacard2.xml");
         saxEventHandlerFactory = new XmlSaxEventHandlerFactoryImpl();
-        assertThat(saxEventHandlerFactory.getSupportedAttributeDescriptors()
-                .size(), is(greaterThan(0)));
-        assertThat(new GmlHandlerFactory().getSupportedAttributeDescriptors()
-                .size(), is(greaterThan(0)));
         saxEventHandler = saxEventHandlerFactory.getNewSaxEventHandler();
+        assertThat(saxEventHandler.getSupportedAttributeDescriptors()
+                .size(), is(greaterThan(0)));
 
         GMLHandler gh = new GMLHandler(new GeometryFactory(), (ErrorHandler) null);
         gmlHandler = new GmlHandler(gh, gml3ToWkt);
+        assertThat(gmlHandler.getSupportedAttributeDescriptors()
+                .size(), is(greaterThan(0)));
         saxEventHandlerDelegate = new SaxEventHandlerDelegate(Arrays.asList(saxEventHandler,
-                gmlHandler)).setMetacardType(BasicTypes.BASIC_METACARD);
+                gmlHandler));
 
-        Metacard metacard = saxEventHandlerDelegate.read(inputStream);
+        Metacard metacard = saxEventHandlerDelegate.read(inputStream).getMetacard(null);
         assertThat(metacard.getAttribute(Metacard.TITLE)
                 .getValues()
                 .size(), is(1));
@@ -144,7 +143,9 @@ public class TestXmlInputTransformer {
         saxEventHandlerDelegate = new SaxEventHandlerDelegate(Collections.singletonList(
                 saxEventHandler));
         inputStream = new FileInputStream("src/test/resources/metacard2.xml");
-        Metacard metacard = saxEventHandlerDelegate.read(inputStream);
+
+        saxEventHandlerDelegate.read(inputStream);
+        Metacard metacard = saxEventHandlerDelegate.getMetacard(null);
         assertThat(metacard.getAttribute(Metacard.TITLE)
                 .getValues()
                 .size(), is(1));
@@ -194,7 +195,7 @@ public class TestXmlInputTransformer {
                 .endElement(anyString(), anyString(), anyString());
         gmlHandler = new GmlHandler(gh, gml3ToWkt);
         saxEventHandlerDelegate = new SaxEventHandlerDelegate(Arrays.asList(saxEventHandler,
-                gmlHandler)).setMetacardType(BasicTypes.BASIC_METACARD);
+                gmlHandler));
 
         saxEventHandlerDelegate.read(inputStream);
 
