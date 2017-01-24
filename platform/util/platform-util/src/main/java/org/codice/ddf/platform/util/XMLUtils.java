@@ -198,7 +198,9 @@ public class XMLUtils {
         boolean keepProcessing = true;
 
         try (StringReader strReader = new StringReader(xml)) {
-            xmlStreamReader = xmlInputFactory.createXMLStreamReader(strReader);
+            synchronized (XMLUtils.class) {
+                xmlStreamReader = xmlInputFactory.createXMLStreamReader(strReader);
+            }
             while (keepProcessing && xmlStreamReader.hasNext()) {
                 int event = xmlStreamReader.next();
                 if (event == XMLStreamConstants.START_ELEMENT) {

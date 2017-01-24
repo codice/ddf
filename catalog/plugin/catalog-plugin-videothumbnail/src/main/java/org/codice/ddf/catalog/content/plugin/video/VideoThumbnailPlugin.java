@@ -122,8 +122,11 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
      */
     public void destroy() {
         if (ffmpegPath != null) {
-            final File ffmpegDirectory =
-                    new File(FilenameUtils.getFullPathNoEndSeparator(ffmpegPath));
+            String fullPathNoEndSeparator = FilenameUtils.getFullPathNoEndSeparator(ffmpegPath);
+            if (fullPathNoEndSeparator == null) {
+                fullPathNoEndSeparator = ffmpegPath;
+            }
+            final File ffmpegDirectory = new File(fullPathNoEndSeparator);
             if (!FileUtils.deleteQuietly(ffmpegDirectory)) {
                 ffmpegDirectory.deleteOnExit();
             }

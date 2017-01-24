@@ -195,7 +195,12 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                     LOGGER.debug("Re-registered Keystore Editor MBean");
                 }
             } catch (Exception e) {
-                LOGGER.info("Could not register MBean [{}].", objectName.toString(), e);
+                //objectName is not always non-null because new ObjectName(...) can throw an exception
+                LOGGER.info("Could not register MBean [{}].",
+                        objectName != null ?
+                                objectName.toString() :
+                                KeystoreEditor.class.getName(),
+                        e);
             }
         }
     }

@@ -216,12 +216,14 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
         try (InputStream stream = Files.newInputStream(Paths.get(userAttributesFile.toURI()))) {
             json = MAPPER.parser()
                     .parseMap(stream);
-            if (json.containsKey(oldHostName)) {
-                json.put(System.getProperty(SystemBaseUrl.HOST), json.remove(oldHostName));
-            }
+            if (json != null) {
+                if (json.containsKey(oldHostName)) {
+                    json.put(System.getProperty(SystemBaseUrl.HOST), json.remove(oldHostName));
+                }
 
-            for (Map.Entry<String, Object> entry : json.entrySet()) {
-                json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
+                for (Map.Entry<String, Object> entry : json.entrySet()) {
+                    json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
+                }
             }
         } catch (IOException e) {
             LOGGER.warn("Unable to read system user attribute file for hostname update.", e);

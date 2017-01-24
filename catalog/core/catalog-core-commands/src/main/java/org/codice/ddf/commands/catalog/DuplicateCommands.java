@@ -148,7 +148,9 @@ public abstract class DuplicateCommands extends CqlCommands {
                             filter,
                             i,
                             getQuerySizeFromIndex(totalWanted, i));
-                    ingestMetacards(ingestFacade, getMetacardsFromSourceResponse(response));
+                    if (response != null) {
+                        ingestMetacards(ingestFacade, getMetacardsFromSourceResponse(response));
+                    }
                     printProgressAndFlush(start, totalWanted, ingestedCount.get());
                 });
             }
@@ -170,7 +172,9 @@ public abstract class DuplicateCommands extends CqlCommands {
                         filter,
                         queryIndex.get(),
                         getQuerySizeFromIndex(totalWanted, queryIndex.get()));
-                ingestMetacards(ingestFacade, getMetacardsFromSourceResponse(response));
+                if (response != null) {
+                    ingestMetacards(ingestFacade, getMetacardsFromSourceResponse(response));
+                }
             }
         }
 

@@ -506,8 +506,9 @@ public class IngestCommand extends CatalogCommands {
                         e);
             }
         } finally {
-            IntStream.range(0, metacards.size())
-                    .forEach(i -> phaser.arriveAndDeregister());
+            IntStream range = IntStream.range(0, metacards.size());
+            range.forEach(i -> phaser.arriveAndDeregister());
+            range.close();
         }
 
         if (createResponse != null) {

@@ -78,6 +78,7 @@ import org.apache.wss4j.dom.validate.SignatureTrustValidator;
 import org.apache.wss4j.dom.validate.Validator;
 import org.apache.xml.security.exceptions.XMLSecurityException;
 import org.apache.xml.security.keys.content.X509Data;
+import org.apache.xml.security.keys.content.x509.XMLX509Certificate;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -224,8 +225,11 @@ public class X509PathTokenValidator implements TokenValidator {
                 binarySecurity.setEncodingType(BASE64_ENCODING);
                 X509Data x509Data = new X509Data((Element) validateTarget.getToken(), "");
                 if (x509Data.containsCertificate()) {
-                    X509Certificate cert = x509Data.itemCertificate(0)
-                            .getX509Certificate();
+                    XMLX509Certificate xmlx509Certificate = x509Data.itemCertificate(0);
+                    if (xmlx509Certificate == null) {
+                        throw new WSSecurityException(WSSecurityException.ErrorCode.INVALID_SECURITY_TOKEN);
+                    }
+                    X509Certificate cert = xmlx509Certificate.getX509Certificate();
                     ((X509Security) binarySecurity).setX509Certificate(cert);
                 }
             } catch (WSSecurityException ex) {

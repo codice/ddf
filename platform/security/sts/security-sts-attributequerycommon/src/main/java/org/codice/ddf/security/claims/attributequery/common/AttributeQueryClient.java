@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -179,8 +180,12 @@ public class AttributeQueryClient {
             }
 
             // Extract Response from Soap message.
-            Node responseNode = responseDocument.getElementsByTagNameNS(SAML2_PROTOCOL, "Response")
-                    .item(0);
+            NodeList elementsByTagNameNS = responseDocument.getElementsByTagNameNS(SAML2_PROTOCOL,
+                    "Response");
+            if (elementsByTagNameNS == null) {
+                throw new AttributeQueryException("Unable to find SAML Response.");
+            }
+            Node responseNode = elementsByTagNameNS.item(0);
             Element responseElement = (Element) responseNode;
 
             Unmarshaller unmarshaller = XMLObjectProviderRegistrySupport.getUnmarshallerFactory()

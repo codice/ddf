@@ -97,7 +97,7 @@ public class SparkServlet extends HttpServlet {
 
     private MatcherFilter matcherFilter;
 
-    public void setRequestSupplier(
+    public synchronized void setRequestSupplier(
             BiFunction<HttpServletRequest, String, HttpServletRequestWrapper> requestSupplier) {
         this.requestSupplier = requestSupplier;
     }
@@ -141,7 +141,10 @@ public class SparkServlet extends HttpServlet {
             throws ServletException, IOException {
         final String relativePath = getRelativePath(req, filterPath);
 
-        HttpServletRequestWrapper requestWrapper = requestSupplier.apply(req, relativePath);
+        HttpServletRequestWrapper requestWrapper;
+        synchronized (this) {
+            requestWrapper = requestSupplier.apply(req, relativePath);
+        }
 
         // handle static resources
         boolean consumed = StaticFilesConfiguration.servletInstance.consume(req, resp);
@@ -198,7 +201,7 @@ public class SparkServlet extends HttpServlet {
         return path;
     }
 
-    private void populateWrapperSupplier(ServletConfig config) {
+    private synchronized void populateWrapperSupplier(ServletConfig config) {
         // Do not override an injected supplier through initialization
         if (requestSupplier != null) {
             return;

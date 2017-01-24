@@ -199,10 +199,12 @@ public class DynamicSchemaResolver {
             QueryResponse response = client.query(query);
             for (Entry<String, ?> e : ((SimpleOrderedMap<?>) (response.getResponse()
                     .get(FIELDS_KEY)))) {
-                fieldsCache.add(e.getKey());
-                if (e.getKey()
-                        .endsWith(SchemaFields.TEXT_SUFFIX)) {
-                    anyTextFieldsCache.add(e.getKey());
+                if (e != null) {
+                    fieldsCache.add(e.getKey());
+                    if (e.getKey()
+                            .endsWith(SchemaFields.TEXT_SUFFIX)) {
+                        anyTextFieldsCache.add(e.getKey());
+                    }
                 }
             }
         } catch (SolrServerException | SolrException | IOException e) {

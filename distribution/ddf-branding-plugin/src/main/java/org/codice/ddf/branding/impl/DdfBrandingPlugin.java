@@ -15,6 +15,7 @@
 package org.codice.ddf.branding.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Base64;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -94,11 +95,12 @@ public class DdfBrandingPlugin implements BrandingPlugin {
 
     @Override
     public String getBase64ProductImage() throws IOException {
-        byte[] productImageAsBytes =
-                IOUtils.toByteArray(DdfBrandingPlugin.class.getResourceAsStream(getProductImage()));
-        if (productImageAsBytes.length > 0) {
-            return Base64.getEncoder()
-                    .encodeToString(productImageAsBytes);
+        try (InputStream inputStream = DdfBrandingPlugin.class.getResourceAsStream(getProductImage())) {
+            byte[] productImageAsBytes = IOUtils.toByteArray(inputStream);
+            if (productImageAsBytes.length > 0) {
+                return Base64.getEncoder()
+                        .encodeToString(productImageAsBytes);
+            }
         }
         return "";
     }
@@ -120,11 +122,12 @@ public class DdfBrandingPlugin implements BrandingPlugin {
 
     @Override
     public String getBase64VendorImage() throws IOException {
-        byte[] vendorImageAsBytes = IOUtils.toByteArray(DdfBrandingPlugin.class.getResourceAsStream(
-                getVendorImage()));
-        if (vendorImageAsBytes.length > 0) {
-            return Base64.getEncoder()
-                    .encodeToString(vendorImageAsBytes);
+        try (InputStream inputStream = DdfBrandingPlugin.class.getResourceAsStream(getVendorImage())) {
+            byte[] vendorImageAsBytes = IOUtils.toByteArray(inputStream);
+            if (vendorImageAsBytes.length > 0) {
+                return Base64.getEncoder()
+                        .encodeToString(vendorImageAsBytes);
+            }
         }
         return "";
     }
@@ -136,11 +139,12 @@ public class DdfBrandingPlugin implements BrandingPlugin {
 
     @Override
     public String getBase64FavIcon() throws IOException {
-        byte[] favIconAsBytes = IOUtils.toByteArray(DdfBrandingPlugin.class.getResourceAsStream(
-                getFavIcon()));
-        if (favIconAsBytes.length > 0) {
-            return Base64.getEncoder()
-                    .encodeToString(favIconAsBytes);
+        try (InputStream inputStream = DdfBrandingPlugin.class.getResourceAsStream(getFavIcon())) {
+            byte[] favIconAsBytes = IOUtils.toByteArray(inputStream);
+            if (favIconAsBytes.length > 0) {
+                return Base64.getEncoder()
+                        .encodeToString(favIconAsBytes);
+            }
         }
         return "";
     }

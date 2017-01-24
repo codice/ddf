@@ -255,9 +255,9 @@ public class SaxEventToXmlElementConverter {
     }
 
     private boolean checkNamespaceAdded(String uri, Map<String, String> scopedNamespaces) {
-
-        return scopeOfNamespacesAdded.peek()
-                .containsKey(uri) && scopeOfNamespacesAdded.peek().get(uri).contains(scopedNamespaces.get(uri));
+        Multimap<String, String> peek = scopeOfNamespacesAdded.peek();
+        return peek != null && peek.containsKey(uri) && peek.get(uri)
+                .contains(scopedNamespaces.get(uri));
     }
 
     private static class NamespaceMapping {

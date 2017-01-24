@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -136,7 +137,9 @@ public class CswRecordCollectionMessageBodyWriter
         }
 
         if (content != null) {
-            IOUtils.copy(content.getInputStream(), outStream);
+            try (InputStream inputStream = content.getInputStream()) {
+                IOUtils.copy(inputStream, outStream);
+            }
         } else {
             throw new WebApplicationException(new CatalogTransformerException(
                     "Transformer returned null."));

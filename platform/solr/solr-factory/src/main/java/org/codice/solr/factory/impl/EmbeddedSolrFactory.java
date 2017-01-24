@@ -146,6 +146,9 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
 
         if (solrSchemaFile == null) {
             solrSchemaFile = getConfigFile("managed-schema", configProxy, coreName);
+            if (solrSchemaFile == null) {
+                throw new IllegalArgumentException("Unable to find Solr schema file.");
+            }
         }
 
         File solrConfigHome = new File(solrConfigFile.getParent());
@@ -179,7 +182,7 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
                 }
             } else {
                 PluginInfo info = solrConfig.getPluginInfo(DirectoryFactory.class.getName());
-                if (!"solr.RAMDirectoryFactory".equals(info.className)) {
+                if (info != null && !"solr.RAMDirectoryFactory".equals(info.className)) {
                     LOGGER.debug("Using in-memory configuration without RAMDirectoryFactory.");
                 }
             }
