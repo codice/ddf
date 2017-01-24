@@ -88,10 +88,7 @@
                                     mvn:org.codice.ddf.registry/registry-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.ui.search/search-ui-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.ui/catalog-ui-app/${project.version}/xml/features
+                                    mvn:ddf.ui/search-ui-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
                                     mvn:ddf.admin/admin-app/${project.version}/xml/features
@@ -328,15 +325,8 @@
             <type>xml</type>
         </dependency>
         <dependency>
-            <groupId>ddf.ui.search</groupId>
-            <artifactId>search-ui-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
             <groupId>ddf.ui</groupId>
-            <artifactId>catalog-ui-app</artifactId>
+            <artifactId>search-ui-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>

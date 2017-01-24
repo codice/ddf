@@ -29,7 +29,6 @@
         <module>search-redirect</module>
         <module>search-htmltransformer</module>
         <module>search-endpoint</module>
-        <module>search-ui-app</module>
     </modules>
     <dependencyManagement>
         <dependencies>
