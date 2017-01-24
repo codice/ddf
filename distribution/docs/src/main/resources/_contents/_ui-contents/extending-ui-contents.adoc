@@ -1,8 +1,0 @@
-
-This section supports developers creating extensions of the existing framework.
-
-=== Whitelist
-
-The following packages have been exported by the ${ddf-ui} application and are approved for use by third parties:
-
-None.
