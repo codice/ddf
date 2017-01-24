@@ -61,9 +61,10 @@ public class CqlResult {
     private static final Logger LOGGER = LoggerFactory.getLogger(CqlQueryResponse.class);
 
     private static final Map<String, String> SPATIAL_CONTEXT_ARGUMENTS = ImmutableMap.of(
-            "spatialContextFactory", JtsSpatialContextFactory.class.getName(),
-            "allowMultiOverlap", "true"
-    );
+            "spatialContextFactory",
+            JtsSpatialContextFactory.class.getName(),
+            "allowMultiOverlap",
+            "true");
 
     private static final SpatialContext SPATIAL_CONTEXT = SpatialContextFactory.makeSpatialContext(
             SPATIAL_CONTEXT_ARGUMENTS,
@@ -202,7 +203,9 @@ public class CqlResult {
 
     private Map<String, Object> metacardToMap(Result result) {
         Map<String, Object> geoJson = null;
-        MetacardImpl resultMetacard = new MetacardImpl(result.getMetacard());
+        MetacardImpl resultMetacard = new MetacardImpl(result.getMetacard(),
+                result.getMetacard()
+                        .getMetacardType());
         try {
 
             for (AttributeDescriptor descriptor : resultMetacard.getMetacardType()
