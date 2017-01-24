@@ -245,7 +245,10 @@ public class Security {
                 new GuestAuthenticationToken(BaseAuthenticationToken.DEFAULT_REALM, ipAddress);
         LOGGER.debug("Getting new Guest user token for {}", ipAddress);
         try {
-            subject = getSecurityManager().getSubject(token);
+            SecurityManager securityManager = getSecurityManager();
+            if (securityManager != null) {
+                subject = securityManager.getSubject(token);
+            }
         } catch (SecurityServiceException sse) {
             LOGGER.info("Unable to request subject for guest user.", sse);
         }

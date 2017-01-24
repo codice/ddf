@@ -170,6 +170,9 @@ public class MpegTransportStreamMetadataExtractor {
         final int pointer = payload.get() & 0xff;
         payload.position(payload.position() + pointer);
         final PATSection programAssociationTable = PATSection.parse(payload);
+        if (programAssociationTable == null) {
+            throw new JCodecException("Program association table does not exist.");
+        }
         programMapTablePacketIdDirectory.addAll(programAssociationTable.getPrograms()
                 .values());
 

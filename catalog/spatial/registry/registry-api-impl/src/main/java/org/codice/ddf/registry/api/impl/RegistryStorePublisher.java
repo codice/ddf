@@ -200,6 +200,10 @@ public class RegistryStorePublisher implements EventHandler {
 
         BundleContext bundleContext = getBundleContext();
 
+        if (bundleContext == null) {
+            return;
+        }
+
         RegistryStore registryStore =
                 (RegistryStore) bundleContext.getService(((ServiceEvent) event.getProperty(
                         EventConstants.EVENT)).getServiceReference());

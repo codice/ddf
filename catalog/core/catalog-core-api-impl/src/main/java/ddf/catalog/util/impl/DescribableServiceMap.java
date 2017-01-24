@@ -50,7 +50,10 @@ public class DescribableServiceMap<V extends Describable> implements Map<String,
 
         Dictionary props = new Hashtable();
         props.put(EventConstants.EVENT_TOPIC, topics);
-        getContext().registerService(EventHandler.class.getName(), this, props);
+        BundleContext context = getContext();
+        if (context != null) {
+            context.registerService(EventHandler.class.getName(), this, props);
+        }
     }
 
     protected BundleContext getContext() {

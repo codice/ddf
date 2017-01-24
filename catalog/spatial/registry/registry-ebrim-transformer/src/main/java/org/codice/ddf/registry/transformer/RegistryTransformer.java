@@ -15,6 +15,7 @@ package org.codice.ddf.registry.transformer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -100,9 +101,12 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
                 metacard.setAttribute(Metacard.ID, id);
             }
 
-            String xml = CharStreams.toString(fileBackedOutputStream.asByteSource()
+            String xml;
+            try (Reader reader = fileBackedOutputStream.asByteSource()
                     .asCharSource(Charsets.UTF_8)
-                    .openStream());
+                    .openStream()) {
+                xml = CharStreams.toString(reader);
+            }
 
             metacard.setAttribute(Metacard.METADATA, xml);
             metacard.setTags(Collections.singleton(RegistryConstants.REGISTRY_TAG));

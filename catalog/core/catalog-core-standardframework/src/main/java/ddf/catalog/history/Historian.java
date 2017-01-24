@@ -161,6 +161,11 @@ public class Historian {
         CreateStorageResponse createStorageResponse = versionContentItems(oldContent,
                 versionMetacards);
 
+        if (createStorageResponse == null) {
+            LOGGER.debug("Could not version content items.");
+            return updateStorageResponse;
+        }
+
         setResourceUriForContent(/*mutable*/ versionMetacards, createStorageResponse);
 
         CreateResponse createResponse = storeVersionMetacards(versionMetacards);

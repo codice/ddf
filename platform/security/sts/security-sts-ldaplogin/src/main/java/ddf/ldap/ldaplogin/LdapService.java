@@ -78,7 +78,7 @@ public class LdapService {
      *
      * @return list of modules.
      */
-    List<Module> getModules() {
+    synchronized List<Module> getModules() {
         return Collections.unmodifiableList(this.modules);
     }
 }

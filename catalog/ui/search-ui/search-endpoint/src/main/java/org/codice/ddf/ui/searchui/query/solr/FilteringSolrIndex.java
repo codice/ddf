@@ -89,7 +89,13 @@ public class FilteringSolrIndex {
             ConfigurationFileProxy configProxy) {
 
         File configFile = getConfigFile(IMMEMORY_SOLRCONFIG_XML, configProxy, coreName);
+        if (configFile == null) {
+            throw new IllegalArgumentException("Unable to find Solr configuration file");
+        }
         File schemaFile = getConfigFile(DEFAULT_SCHEMA_XML, configProxy, coreName);
+        if (schemaFile == null) {
+            throw new IllegalArgumentException("Unable to find Solr schema file");
+        }
         File solrConfigHome = new File(configFile.getParent());
 
         ClassLoader tccl = Thread.currentThread()

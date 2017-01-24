@@ -38,6 +38,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordM
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
+import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.IsEqualsToImpl;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
@@ -188,7 +189,7 @@ public class CswQueryFactory {
         filter = transformCustomFunctionToFilter(filter);
 
         try {
-            visitor.setVisitedFilter((Filter) filter.accept(visitor, null));
+            visitor.setVisitedFilter((Filter) filter.accept(visitor, new FilterFactoryImpl()));
         } catch (UnsupportedOperationException ose) {
             throw new CswException(ose.getMessage(), CswConstants.INVALID_PARAMETER_VALUE, null);
         }

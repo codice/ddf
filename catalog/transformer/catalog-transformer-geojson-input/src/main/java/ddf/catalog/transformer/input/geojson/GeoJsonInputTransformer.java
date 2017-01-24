@@ -89,6 +89,10 @@ public class GeoJsonInputTransformer implements InputTransformer {
         Map<String, Object> rootObject = MAPPER.parser()
                 .parseMap(input);
 
+        if (rootObject == null) {
+            throw new CatalogTransformerException("Unable to parse JSON for metacard.");
+        }
+
         Object typeValue = rootObject.get(CompositeGeometry.TYPE_KEY);
         if (typeValue == null || !typeValue.equals("Feature")) {
             throw new CatalogTransformerException(new UnsupportedOperationException(

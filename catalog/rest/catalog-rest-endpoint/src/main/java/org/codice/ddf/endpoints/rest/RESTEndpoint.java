@@ -942,8 +942,11 @@ public class RESTEndpoint implements RESTService {
                             Double.valueOf(IOUtils.toString(inputStream))));
                     break;
                 case DATE:
-                    attributes.add(new AttributeImpl(parsedName, Date.from(
-                            Instant.parse(IOUtils.toString(inputStream)))));
+                    Instant instant = Instant.parse(IOUtils.toString(inputStream));
+                    if (instant == null) {
+                        break;
+                    }
+                    attributes.add(new AttributeImpl(parsedName, Date.from(instant)));
                     break;
                 case BINARY:
                     attributes.add(new AttributeImpl(parsedName,

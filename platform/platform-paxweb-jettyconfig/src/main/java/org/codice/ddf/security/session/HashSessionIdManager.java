@@ -35,12 +35,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -56,7 +56,7 @@ import org.eclipse.jetty.server.session.AbstractSessionIdManager;
 public class HashSessionIdManager extends AbstractSessionIdManager {
 
     private final Map<String, Set<WeakReference<HttpSession>>> sessions =
-            new HashMap<String, Set<WeakReference<HttpSession>>>();
+            new ConcurrentHashMap<>();
 
     public HashSessionIdManager() {
         super(RandomNumberGenerator.create());
@@ -77,7 +77,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
      * @return Collection of Sessions for the passed session ID
      */
     public Collection<HttpSession> getSession(String id) {
-        ArrayList<HttpSession> sessions = new ArrayList<HttpSession>();
+        ArrayList<HttpSession> sessions = new ArrayList<>();
         Set<WeakReference<HttpSession>> refs = this.sessions.get(id);
         if (refs != null) {
             for (WeakReference<HttpSession> ref : refs) {
@@ -106,9 +106,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
      */
     @Override
     public boolean idInUse(String id) {
-        synchronized (this) {
-            return sessions.containsKey(id);
-        }
+        return sessions.containsKey(id);
     }
 
     /**
@@ -117,12 +115,12 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
     @Override
     public void addSession(HttpSession session) {
         String id = getClusterId(session.getId());
-        WeakReference<HttpSession> ref = new WeakReference<HttpSession>(session);
+        WeakReference<HttpSession> ref = new WeakReference<>(session);
 
         synchronized (this) {
             Set<WeakReference<HttpSession>> sessions = this.sessions.get(id);
             if (sessions == null) {
-                sessions = new HashSet<WeakReference<HttpSession>>();
+                sessions = new HashSet<>();
                 this.sessions.put(id, sessions);
             } else {
                 //Check for session already in cluster, copy over session information to new session

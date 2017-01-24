@@ -421,7 +421,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
         return subscriptionId;
     }
 
-    private CswSubscription getSubscription(String subscriptionId) {
+    private synchronized CswSubscription getSubscription(String subscriptionId) {
         ServiceRegistration sr = (ServiceRegistration) registeredSubscriptions.get(subscriptionId);
         if (sr == null) {
             return null;
@@ -624,15 +624,19 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
             org.osgi.framework.Filter filter = getBundleContext().createFilter(filterStr);
             LOGGER.debug("filter.toString() = {}", filter.toString());
 
-            Configuration[] configs = getConfigAdmin().listConfigurations(filter.toString());
+            ConfigurationAdmin configAdmin = getConfigAdmin();
 
-            if (configs == null) {
-                LOGGER.debug("Did NOT find a configuration for filter {}", filterStr);
-            } else if (configs.length != 1) {
-                LOGGER.debug("Found multiple configurations for filter {}", filterStr);
-            } else {
-                LOGGER.debug("Found exactly one configuration for filter {}", filterStr);
-                config = configs[0];
+            if (configAdmin != null) {
+                Configuration[] configs = configAdmin.listConfigurations(filter.toString());
+
+                if (configs == null) {
+                    LOGGER.debug("Did NOT find a configuration for filter {}", filterStr);
+                } else if (configs.length != 1) {
+                    LOGGER.debug("Found multiple configurations for filter {}", filterStr);
+                } else {
+                    LOGGER.debug("Found exactly one configuration for filter {}", filterStr);
+                    config = configs[0];
+                }
             }
         } catch (InvalidSyntaxException e) {
             LOGGER.debug("Invalid syntax for filter used for searching configuration instances", e);

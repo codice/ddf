@@ -105,8 +105,11 @@ public class ServiceManagerImpl implements ServiceManager {
 
     @Override
     public BundleContext getBundleContext() {
-        return FrameworkUtil.getBundle(getClass())
-                .getBundleContext();
+        Bundle bundle = FrameworkUtil.getBundle(getClass());
+        if (bundle != null) {
+            return bundle.getBundleContext();
+        }
+        return null;
     }
 
     @Override
@@ -141,7 +144,16 @@ public class ServiceManagerImpl implements ServiceManager {
         ServiceManagerImpl.ServiceConfigurationListener listener =
                 new ServiceManagerImpl.ServiceConfigurationListener(sourceConfig.getPid());
 
-        getBundleContext().registerService(ConfigurationListener.class.getName(), listener, null);
+        BundleContext bundleContext = getBundleContext();
+
+        bundleContext = waitForBundleContext(bundleContext);
+
+        if (bundleContext == null) {
+            LOGGER.info("Unable to get bundle context.");
+            return;
+        }
+
+        bundleContext.registerService(ConfigurationListener.class.getName(), listener, null);
 
         waitForService(sourceConfig);
 
@@ -166,6 +178,22 @@ public class ServiceManagerImpl implements ServiceManager {
                     sourceConfig.getPid(),
                     TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
         }
+    }
+
+    private BundleContext waitForBundleContext(BundleContext bundleContext) {
+        long millis = 0;
+        while (bundleContext == null && millis < MANAGED_SERVICE_TIMEOUT) {
+            try {
+                Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL_MILLIS);
+                millis += CONFIG_UPDATE_WAIT_INTERVAL_MILLIS;
+            } catch (InterruptedException e) {
+                LOGGER.info("Interrupted exception while trying to sleep for bundle context",
+                        e);
+            }
+            LOGGER.info("Waiting for bundle context...{}ms", millis);
+            bundleContext = getBundleContext();
+        }
+        return bundleContext;
     }
 
     private void waitForService(Configuration sourceConfig) {
@@ -241,19 +269,20 @@ public class ServiceManagerImpl implements ServiceManager {
         boolean ready = false;
         long timeoutLimit = System.currentTimeMillis() + FEATURES_AND_BUNDLES_TIMEOUT;
         while (!ready) {
-            ServiceReference<FeaturesService> featuresServiceRef =
-                    FrameworkUtil.getBundle(getClass())
-                            .getBundleContext()
-                            .getServiceReference(FeaturesService.class);
-            try {
-                if (featuresServiceRef != null) {
-                    featuresService = getBundleContext().getService(featuresServiceRef);
-                    if (featuresService != null) {
-                        ready = true;
+            Bundle bundle = FrameworkUtil.getBundle(getClass());
+            if (bundle != null) {
+                ServiceReference<FeaturesService> featuresServiceRef = bundle.getBundleContext()
+                        .getServiceReference(FeaturesService.class);
+                try {
+                    if (featuresServiceRef != null) {
+                        featuresService = getBundleContext().getService(featuresServiceRef);
+                        if (featuresService != null) {
+                            ready = true;
+                        }
                     }
+                } catch (NullPointerException e) {
+                    //ignore
                 }
-            } catch (NullPointerException e) {
-                //ignore
             }
 
             if (!ready) {
@@ -263,6 +292,7 @@ public class ServiceManagerImpl implements ServiceManager {
                 }
                 Thread.sleep(1000);
             }
+
         }
 
         return featuresService;
@@ -270,9 +300,15 @@ public class ServiceManagerImpl implements ServiceManager {
 
     // TODO - we should really make this a bundle and inject this.
     private ApplicationService getApplicationService() {
+        BundleContext bundleContext = getBundleContext();
+
+        bundleContext = waitForBundleContext(bundleContext);
+        if (bundleContext == null) {
+            throw new RuntimeException("Unable to get bundle context for application service.");
+        }
         ServiceReference<ApplicationService> applicationServiceRef =
-                getBundleContext().getServiceReference(ApplicationService.class);
-        return getBundleContext().getService(applicationServiceRef);
+                bundleContext.getServiceReference(ApplicationService.class);
+        return bundleContext.getService(applicationServiceRef);
     }
 
     @Override

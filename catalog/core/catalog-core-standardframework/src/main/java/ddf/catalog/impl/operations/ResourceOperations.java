@@ -480,7 +480,10 @@ public class ResourceOperations extends DescribableImpl {
             throws StopProcessingException {
         for (PreResourcePlugin plugin : frameworkProperties.getPreResource()) {
             try {
-                resourceReq = plugin.process(resourceReq);
+                ResourceRequest processed = plugin.process(resourceReq);
+                if (processed != null) {
+                    resourceReq = processed;
+                }
             } catch (PluginExecutionException e) {
                 LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.",
                         e);

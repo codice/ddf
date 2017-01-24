@@ -68,7 +68,12 @@ public class Geocoding implements GeocodingMBean {
                     LOGGER.debug("Re-registered Geocoding Configuration MBean");
                 }
             } catch (Exception e) {
-                LOGGER.info("Could not register MBean [{}].", objectName.toString(), e);
+                //objectName is not always non-null because new ObjectName(...) can throw an exception
+                LOGGER.info("Could not register MBean [{}].",
+                        objectName != null ?
+                                objectName.toString() :
+                                Geocoding.class.getName(),
+                        e);
             }
         }
     }
@@ -81,7 +86,9 @@ public class Geocoding implements GeocodingMBean {
         LOGGER.debug("Downloading : {}{}.zip", url, countryCode);
         LOGGER.debug("Create Index : {}", createIndex);
 
-        geoEntryExtractor.setUrl(url);
+        if (url != null) {
+            geoEntryExtractor.setUrl(url);
+        }
         return updateIndex(countryCode, createIndex.equals("true"));
 
     }

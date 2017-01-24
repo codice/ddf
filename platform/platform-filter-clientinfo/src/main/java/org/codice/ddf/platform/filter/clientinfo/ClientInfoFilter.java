@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -82,9 +83,10 @@ public class ClientInfoFilter implements Filter {
         clientInfoMap.put(SERVLET_REMOTE_ADDR, request.getRemoteAddr());
         clientInfoMap.put(SERVLET_REMOTE_HOST, request.getRemoteHost());
         clientInfoMap.put(SERVLET_SCHEME, request.getScheme());
-        clientInfoMap.put(SERVLET_CONTEXT_PATH,
-                request.getServletContext()
-                        .getContextPath());
+        ServletContext servletContext = request.getServletContext();
+        if (servletContext != null) {
+            clientInfoMap.put(SERVLET_CONTEXT_PATH, servletContext.getContextPath());
+        }
         LOGGER.debug("Creating client info map with the following pairs, {}",
                 clientInfoMap.toString());
         return clientInfoMap;

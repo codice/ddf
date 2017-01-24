@@ -20,6 +20,7 @@ import static spark.Spark.put;
 import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -147,6 +148,10 @@ public class UserApplication implements SparkApplication {
             Map<String, Object> preferences = JsonFactory.create()
                     .parser()
                     .parseMap(req.body());
+
+            if (preferences == null) {
+                preferences = new HashMap<>();
+            }
 
             setUserPreferences(subject, preferences);
 

@@ -140,16 +140,16 @@ public class LandingPage extends HttpServlet {
         sortAnnouncementsByDate();
     }
 
-    public void setLinks(List<String> links) {
+    public synchronized void setLinks(List<String> links) {
         this.links = links;
         parseLinks();
     }
 
-    public Map<String, String> getParsedLinks() {
+    public synchronized Map<String, String> getParsedLinks() {
         return parsedLinks;
     }
 
-    private void parseLinks() {
+    private synchronized void parseLinks() {
         parsedLinks = new HashMap<>();
         for (String link : links) {
             if (StringUtils.countMatches(link, ",") != 1) {
@@ -209,7 +209,7 @@ public class LandingPage extends HttpServlet {
                 .orElse("");
     }
 
-    private void sortAnnouncementsByDate() {
+    private synchronized void sortAnnouncementsByDate() {
         Collections.sort(announcements, (firstAnnouncement, secondAnnouncement) -> {
             // Try to extract the dates from the announcements.
             String firstDateString = extractDate(firstAnnouncement, false);

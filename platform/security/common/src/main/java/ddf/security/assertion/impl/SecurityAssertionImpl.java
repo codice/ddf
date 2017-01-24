@@ -285,6 +285,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                                 subjectConfirmations.add(value);
                             }
                         }
+                        break;
                     case Assertion.DEFAULT_ELEMENT_LOCAL_NAME:
                         attrs = xmlStreamReader.getAttributeCount();
                         for (int i = 0; i < attrs; i++) {
