@@ -29,7 +29,15 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 
+/**
+ * The {@code ContentUriAccessPlugin} prevents a {@link Metacard}s {@link Metacard#RESOURCE_URI} with a scheme of
+ * {@link ContentItem#CONTENT_SCHEME} from being overridden by an incoming {@link UpdateRequest}.
+ */
 public class ContentUriAccessPlugin implements AccessPlugin {
+
+    private static final String CANNOT_OVERWRITE_MESSAGE =
+            "Cannot overwrite resource URI in content store.";
+
     @Override
     public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
         return input;
@@ -41,17 +49,32 @@ public class ContentUriAccessPlugin implements AccessPlugin {
         for (Map.Entry<Serializable, Metacard> entry : input.getUpdates()) {
             Metacard existingMetacard = existingMetacards.get(entry.getKey()
                     .toString());
+
+            if (existingMetacard.getResourceURI() != null && !ContentItem.CONTENT_SCHEME.equals(
+                    existingMetacard.getResourceURI()
+                            .getScheme())) {
+                continue;
+            }
+
+            if (oneOrOtherUriNull(existingMetacard, entry.getValue())) {
+                throw new StopProcessingException(CANNOT_OVERWRITE_MESSAGE);
+            }
+
             if (entry.getValue()
-                    .getResourceURI() != null && existingMetacard.getResourceURI() != null
-                    && !existingMetacard.getResourceURI()
+                    .getResourceURI() != null && !existingMetacard.getResourceURI()
                     .equals(entry.getValue()
-                            .getResourceURI())
-                    && ContentItem.CONTENT_SCHEME.equals(existingMetacard.getResourceURI()
-                    .getScheme())) {
-                throw new StopProcessingException("Cannot overwrite resource URI in content store.");
+                            .getResourceURI())) {
+                throw new StopProcessingException(CANNOT_OVERWRITE_MESSAGE);
             }
         }
         return input;
+    }
+
+    private boolean oneOrOtherUriNull(Metacard existingMetacard, Metacard updatedMetacard) {
+        return (existingMetacard.getResourceURI() == null
+                && updatedMetacard.getResourceURI() != null) || (
+                existingMetacard.getResourceURI() != null
+                        && updatedMetacard.getResourceURI() == null);
     }
 
     @Override

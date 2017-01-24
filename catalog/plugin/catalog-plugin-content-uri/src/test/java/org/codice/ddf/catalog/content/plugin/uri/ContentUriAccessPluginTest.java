@@ -33,9 +33,11 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.StopProcessingException;
 
-public class TestContentUriAccessPlugin {
+public class ContentUriAccessPluginTest {
 
     public static final String ID_OR_URI = "ID_OR_URI";
+
+    public static final String CONTENT_URI = "content:abc123";
 
     private UpdateRequest input;
 
@@ -61,6 +63,14 @@ public class TestContentUriAccessPlugin {
     }
 
     @Test
+    public void bothUrisAreContentAndEqual() throws StopProcessingException, URISyntaxException {
+        when(updateCard.getResourceURI()).thenReturn(new URI(CONTENT_URI));
+        when(existingMetacard.getResourceURI()).thenReturn(new URI(CONTENT_URI));
+        contentUriAccessPlugin.processPreUpdate(input, existingMetacards);
+        assertNoChanges();
+    }
+
+    @Test
     public void bothUrisNull() throws StopProcessingException {
         when(updateCard.getResourceURI()).thenReturn(null);
         when(existingMetacard.getResourceURI()).thenReturn(null);
@@ -68,26 +78,24 @@ public class TestContentUriAccessPlugin {
         assertNoChanges();
     }
 
-    @Test
+    @Test(expected = StopProcessingException.class)
     public void updateUriNull() throws StopProcessingException, URISyntaxException {
         when(updateCard.getResourceURI()).thenReturn(null);
-        when(existingMetacard.getResourceURI()).thenReturn(new URI(""));
+        when(existingMetacard.getResourceURI()).thenReturn(new URI(CONTENT_URI));
         contentUriAccessPlugin.processPreUpdate(input, existingMetacards);
-        assertNoChanges();
     }
 
-    @Test
+    @Test(expected = StopProcessingException.class)
     public void existingUriNull() throws StopProcessingException, URISyntaxException {
-        when(updateCard.getResourceURI()).thenReturn(new URI(""));
+        when(updateCard.getResourceURI()).thenReturn(new URI(CONTENT_URI));
         when(existingMetacard.getResourceURI()).thenReturn(null);
         contentUriAccessPlugin.processPreUpdate(input, existingMetacards);
-        assertNoChanges();
     }
 
     @Test
     public void existingUriNonContent() throws StopProcessingException, URISyntaxException {
-        when(updateCard.getResourceURI()).thenReturn(new URI(""));
-        when(existingMetacard.getResourceURI()).thenReturn(new URI(""));
+        when(updateCard.getResourceURI()).thenReturn(new URI(CONTENT_URI));
+        when(existingMetacard.getResourceURI()).thenReturn(new URI("blah:abc123"));
         contentUriAccessPlugin.processPreUpdate(input, existingMetacards);
         assertNoChanges();
     }
