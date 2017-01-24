@@ -53,10 +53,18 @@ public class SynchronizedConfiguration {
         config.update(new Hashtable<>(configProps));
 
         long timeoutLimit = System.currentTimeMillis() + CONFIG_UPDATE_MAX_WAIT_MILLIS;
+        boolean retried = false;
         while (true) {
             if (configCallable.call()) {
                 break;
             } else {
+                //this is a hack to retry the configuration since it sometimes fails
+                //if it still keeps failing then we should remove this
+                if (!retried && System.currentTimeMillis()
+                        > timeoutLimit - CONFIG_UPDATE_MAX_WAIT_MILLIS / 2) {
+                    config.update(new Hashtable<>(configProps));
+                    retried = true;
+                }
                 if (System.currentTimeMillis() > timeoutLimit) {
                     fail(String.format("Timed out waiting for configuration change for %s", pid));
                 } else {
