@@ -983,12 +983,17 @@ public class CatalogFrameworkImplTest {
 
         Metacard insertedCard = response.getCreatedMetacards()
                 .get(0);
+
+        MetacardImpl updatedMetacard = new MetacardImpl();
+        updatedMetacard.setId(insertedCard.getId());
+
         List<ContentItem> updatedContentItems = new ArrayList<>();
-        updatedContentItems.add(new ContentItemImpl(insertedCard.getId(),
+        updatedContentItems.add(new ContentItemImpl(updatedMetacard.getId(),
                 byteSource,
                 "application/octet-stream",
-                insertedCard));
+                updatedMetacard));
         UpdateStorageRequest request = new UpdateStorageRequestImpl(updatedContentItems, null);
+
         List<Result> mockFederationResults = Stream.of(insertedCard)
                 .map(m -> {
                     Result mockResult = mock(Result.class);
@@ -997,16 +1002,18 @@ public class CatalogFrameworkImplTest {
                 })
                 .collect(Collectors.toList());
 
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
-                mockFederationResults,
-                1));
+        QueryResponse mockQueryResponse = mock(QueryResponse.class);
+        when(mockQueryResponse.getResults()).thenReturn(mockFederationResults);
+
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(mockQueryResponse);
         // send update to framework
         List<Update> returnedCards = framework.update(request)
                 .getUpdatedMetacards();
-        for (Update curCard : returnedCards) {
-            assertNotNull(curCard.getNewMetacard()
+        for (Update update : returnedCards) {
+            assertNotNull(update.getNewMetacard()
                     .getId());
+            assertThat(update.getNewMetacard()
+                    .getResourceURI(), is(insertedCard.getResourceURI()));
         }
 
         assertEquals(response.getCreatedMetacards()
