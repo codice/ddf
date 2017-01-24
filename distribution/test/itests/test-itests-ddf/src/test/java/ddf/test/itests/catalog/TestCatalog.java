@@ -2347,7 +2347,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)
+    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testMetacardDefinitionJsonFile() throws Exception {
         final String newMetacardTypeName = "new.metacard.type";
         File file = ingestDefinitionJsonWithWaitCondition("definitions.json", () -> {
@@ -2413,7 +2413,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)
+    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testDefaultValuesCreate() throws Exception {
         final String customMetacardTypeName = "custom";
         File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
@@ -2479,7 +2479,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)
+    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testDefaultValuesUpdate() throws Exception {
         final String customMetacardTypeName = "custom";
         File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
@@ -2552,7 +2552,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)
+    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testInjectAttributesOnCreate() throws Exception {
         final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
             expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
@@ -2603,7 +2603,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)
+    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testInjectAttributesOnUpdate() throws Exception {
         final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
             expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
@@ -2713,7 +2713,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)
+    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testTypeValidation() throws Exception {
         String invalidCardId = null;
         String validCardId = null;
