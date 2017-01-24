@@ -13,14 +13,15 @@
  */
 package org.codice.ddf.transformer.xml.streaming;
 
-import java.util.Set;
-
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.util.Describable;
 
 /**
  * A factory for {@link SaxEventHandler}
  * {@inheritDoc}
+ * <p>
+ * <b> This code is experimental. While this class is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ * </p>
  */
 public interface SaxEventHandlerFactory extends Describable {
 
@@ -30,12 +31,5 @@ public interface SaxEventHandlerFactory extends Describable {
      * @return a new handler to handle SAX events
      */
     SaxEventHandler getNewSaxEventHandler();
-
-    /**
-     * Get all the possible attribute types that can be returned by this factory's handler
-     *
-     * @return a set of attribute descriptors that can be returned by this handler
-     */
-    Set<AttributeDescriptor> getSupportedAttributeDescriptors();
 
 }
