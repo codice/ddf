@@ -409,6 +409,7 @@ public class ServiceManagerImpl implements ServiceManager {
                         }
                     } else if (bundleState != null) {
                         if (BundleState.Failure.equals(bundleState)) {
+                            printInactiveBundles();
                             fail("The bundle " + bundleName + " failed.");
                         } else if (!BundleState.Active.equals(bundleState)) {
                             LOGGER.info("{} bundle not ready with state {}",
