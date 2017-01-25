@@ -90,6 +90,7 @@
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+                <bean class="ddf.catalog.transformer.common.tika.Mp4MetacardType"/>
             </list>
         </argument>
     </bean>
@@ -151,14 +152,55 @@
     </bean>
 
 
-    <service ref="commonMetacardType" interface="ddf.catalog.data.MetacardType">
+    <service ref="commonTikaMetacardType" interface="ddf.catalog.data.MetacardType">
         <service-properties>
-            <entry key="name" value="tika"/>
+            <entry key="name" value="fallback.common"/>
+        </service-properties>
+    </service>
+
+    <service ref="fallbackExcelMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="fallback.excel"/>
+        </service-properties>
+    </service>
+
+    <service ref="fallbackJpegMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="fallback.jpeg"/>
+        </service-properties>
+    </service>
+
+    <service ref="fallbackMp4MetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="fallback.mp4"/>
+        </service-properties>
+    </service>
+
+    <service ref="fallbackMpegMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="fallback.mpeg"/>
+        </service-properties>
+    </service>
+
+    <service ref="fallbackOfficeDocMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="fallback.doc"/>
+        </service-properties>
+    </service>
+
+    <service ref="fallbackPdfMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="fallback.pdf"/>
+        </service-properties>
+    </service>
+
+    <service ref="fallbackPowerpointMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="fallback.powerpoint"/>
         </service-properties>
     </service>
 
     <!-- Register the Transformers -->
     <service auto-export="interfaces" ref="tikaTransformer"/>
-
 
 </blueprint>
