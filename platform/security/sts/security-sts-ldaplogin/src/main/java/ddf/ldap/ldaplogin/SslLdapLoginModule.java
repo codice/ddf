@@ -145,6 +145,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         if (user == null) {
             return false;
         }
+        user = user.trim();
+        validateUsername(user);
 
         char[] tmpPassword = ((PasswordCallback) callbacks[1]).getPassword();
 
@@ -333,6 +335,28 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         }
 
         return true;
+    }
+
+    void validateUsername(String username) throws LoginException {
+        boolean hasBadCharacters = false;
+        for (int i = 0; i < username.length(); i++) {
+            char curChar = username.charAt(i);
+            switch (curChar) {
+            case '\\':
+            case ',':
+            case '+':
+            case '"':
+            case '<':
+            case '>':
+            case ';':
+            case '#':
+                hasBadCharacters = true;
+                break;
+            }
+            if (hasBadCharacters) {
+                throw new LoginException("Bad characters present in user name.");
+            }
+        }
     }
 
     @Override

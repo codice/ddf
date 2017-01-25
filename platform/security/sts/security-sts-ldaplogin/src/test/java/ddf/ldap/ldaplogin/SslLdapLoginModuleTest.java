@@ -63,4 +63,16 @@ public class SslLdapLoginModuleTest {
         Boolean loginBool = testLoginModule.doLogin();
         assertThat(loginBool, is(false));
     }
+
+    @Test(expected = LoginException.class)
+    public void testBadCharacters() throws LoginException {
+        SslLdapLoginModule sslLdapLoginModule = new SslLdapLoginModule();
+        sslLdapLoginModule.validateUsername("<user>");
+    }
+
+    @Test
+    public void testGoodCharacters() throws LoginException {
+        SslLdapLoginModule sslLdapLoginModule = new SslLdapLoginModule();
+        sslLdapLoginModule.validateUsername("abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    }
 }
