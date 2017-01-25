@@ -57,6 +57,11 @@ public class PointOfContactPolicyPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreUpdate(Metacard newMetacard,
             Map<String, Serializable> properties) throws StopProcessingException {
+        //If it's not a resource metacard, don't apply the policy.
+        if (!newMetacard.getTags().isEmpty() && !newMetacard.getTags().contains("resource")) {
+            return new PolicyResponseImpl();
+        }
+
         List<Metacard> previousStateMetacards = ((OperationTransaction) properties.get(
                 OPERATION_TRANSACTION_KEY)).getPreviousStateMetacards();
 

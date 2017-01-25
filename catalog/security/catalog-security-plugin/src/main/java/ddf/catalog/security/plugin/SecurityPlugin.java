@@ -51,8 +51,10 @@ public class SecurityPlugin implements AccessPlugin {
         if (input.getMetacards() != null && subject != null) {
             input.getMetacards()
                     .forEach(metacard -> {
-                        metacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
-                                SubjectUtils.getEmailAddress(subject)));
+                        if (metacard.getTags().isEmpty() || metacard.getTags().contains("resource")) {
+                            metacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
+                                    SubjectUtils.getEmailAddress(subject)));
+                        }
                     });
         }
 

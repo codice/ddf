@@ -24,8 +24,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,12 +89,35 @@ public class PointOfContactPolicyPluginTest {
     }
 
     @Test
-    public void processPreUpdateReturnsPolicyWhenPointOfContactsAreDifferent()
-            throws java.lang.Exception {
+    public void processPreUpdateDoesNothingWithWorkspaceMetacard() throws java.lang.Exception {
+        Set<String> setOfTags = getSetWithGivenTag("workspace");
+
         MetacardImpl oldMetacard = getMetacardWithPointOfContact("edited-" + TEST_POINT_OF_CONTACT);
+        oldMetacard.setTags(setOfTags);
+
+        MetacardImpl newMetacard = getMetacardWithPointOfContact(TEST_POINT_OF_CONTACT);
+        newMetacard.setTags(setOfTags);
 
         PolicyResponse response = pointOfContactPolicyPlugin.processPreUpdate(
-                getMetacardWithPointOfContact(TEST_POINT_OF_CONTACT),
+                newMetacard,
+                setupAndGetInputProperties(oldMetacard));
+
+        responseIsEmpty(response);
+    }
+
+    @Test
+    public void processPreUpdateReturnsPolicyWhenPointOfContactsAreDifferent()
+            throws java.lang.Exception {
+        Set<String> setOfTags = getSetWithGivenTag("resource");
+
+        MetacardImpl oldMetacard = getMetacardWithPointOfContact("edited-" + TEST_POINT_OF_CONTACT);
+        oldMetacard.setTags(setOfTags);
+
+        MetacardImpl newMetacard = getMetacardWithPointOfContact(TEST_POINT_OF_CONTACT);
+        newMetacard.setTags(setOfTags);
+
+        PolicyResponse response = pointOfContactPolicyPlugin.processPreUpdate(
+                newMetacard,
                 setupAndGetInputProperties(oldMetacard));
 
         responseHasPolicy(response);
@@ -169,6 +194,12 @@ public class PointOfContactPolicyPluginTest {
                 ResourceResponse.class), new MetacardImpl());
 
         responseIsEmpty(response);
+    }
+
+    private Set<String> getSetWithGivenTag(String tag) {
+        Set<String> setOfTags = new HashSet<String>();
+        setOfTags.add(tag);
+        return setOfTags;
     }
 
     private MetacardImpl getMetacardWithPointOfContact(String pointOfContact) {

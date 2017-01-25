@@ -45,6 +45,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
@@ -55,7 +56,7 @@ public class SecurityPluginTest {
     public static final String TEST_USER = "test-user";
 
     @Test
-    public void testNominalCaseCreateWithEmail() throws Exception {
+    public void testNominalCaseCreateWithEmailAndNoTags() throws Exception {
         Subject mockSubject = setupMockSubject();
 
         ThreadContext.bind(mockSubject);
@@ -71,6 +72,31 @@ public class SecurityPluginTest {
         request.getMetacards()
                 .forEach(metacard -> assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
                         .getValue(), equalTo(TEST_USER)));
+    }
+
+    @Test
+    public void testNominalCaseCreateWithEmailAndResourceTag() throws Exception {
+        Subject mockSubject = setupMockSubject();
+        ThreadContext.bind(mockSubject);
+
+        MetacardImpl metacardWithTags = new MetacardImpl();
+        Set<String> setOfTags = new HashSet<String>();
+        setOfTags.add("resource");
+        metacardWithTags.setTags(setOfTags);
+
+        CreateRequest request = new CreateRequestImpl(metacardWithTags);
+        SecurityPlugin plugin = new SecurityPlugin();
+
+        request = plugin.processPreCreate(request);
+
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
+        assertThat(request.getMetacards()
+                .size(), is(1));
+        assertThat(request.getMetacards()
+                .get(0)
+                .getAttribute(Metacard.POINT_OF_CONTACT)
+                .getValue(), equalTo(TEST_USER));
     }
 
     @Test
@@ -90,6 +116,30 @@ public class SecurityPluginTest {
         request.getMetacards()
                 .forEach(metacard -> assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT),
                         is(nullValue())));
+    }
+
+    @Test
+    public void testNominalCaseCreateWithNonResourceMetacard() throws Exception {
+        Subject mockSubject = setupMockSubject();
+        ThreadContext.bind(mockSubject);
+
+        MetacardImpl metacardWithTags = new MetacardImpl();
+        Set<String> setOfTags = new HashSet<String>();
+        setOfTags.add("workspace");
+        metacardWithTags.setTags(setOfTags);
+
+        CreateRequest request = new CreateRequestImpl(metacardWithTags);
+        SecurityPlugin plugin = new SecurityPlugin();
+
+        request = plugin.processPreCreate(request);
+
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
+        assertThat(request.getMetacards()
+                .size(), is(1));
+        assertThat(request.getMetacards()
+                .get(0)
+                .getAttribute(Metacard.POINT_OF_CONTACT), is(nullValue()));
     }
 
     @Test
