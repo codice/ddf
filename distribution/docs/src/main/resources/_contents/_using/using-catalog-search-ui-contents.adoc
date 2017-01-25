@@ -247,7 +247,7 @@ Restore an archived record to return it to active search results.
 
 Restore all archived records to active search results.
 
-. Select *Settings* icon (image:settings.png[settings]) on navigation bar.
+. Select *Settings* icon (image:gear-icon.png[settings]) on navigation bar.
 . Select *Hidden*.
 . Remove selected from hidden list.
 .. Or select *Remove All* to clear list.

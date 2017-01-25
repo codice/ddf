@@ -5,7 +5,6 @@ Version ${project.version}. Copyright (c) Codice Foundation
 :source-highlighter: coderay
 :sectlinks:
 :sectanchors:
-:icons: font
 :data-uri:
 :sectnums:
 :branding: DDF
@@ -18,7 +17,7 @@ This page last updated:
 
 ifdef::backend-pdf[]
 [colophon]
-= License
+== License
 Copyright (c) Codice Foundation. +
 This work is licensed under a http://creativecommons.org/licenses/by/4.0[Creative Commons Attribution 4.0 International License].
 This page last updated:

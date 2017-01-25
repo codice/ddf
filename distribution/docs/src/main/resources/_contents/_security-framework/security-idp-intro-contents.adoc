@@ -1,6 +1,4 @@
 
-=== Security IdP
-
 The Security IdP application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers) or SPs (Service Providers).
 This capability allows use of ${ddf-branding} as the SSO solution for an entire enterprise.
 

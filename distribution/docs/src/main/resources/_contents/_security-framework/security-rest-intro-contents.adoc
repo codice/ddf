@@ -1205,13 +1205,13 @@ Callers of the expansion service provide a key and an original value to be expan
 The expansion service then looks up the set of rules for the specified key.
 The expansion service then cumulatively applies each of the rules in the set starting with the original value, with the resulting set of values being returned to the caller.
 
-[cols="3m" options="header"]
+[cols="1,2m,2m" options="header"]
 |===
 
 |Key (Attribute)
-2.1+^|Rules (original → new)
+2+^|Rules (original -> new)
 
-1.3+^|key1
+.3+|key1
 |value1
 |replacement1
 
@@ -1221,7 +1221,7 @@ The expansion service then cumulatively applies each of the rules in the set sta
 |value3
 |replacement3
 
-1.2+^|key2
+.2+|key2
 |value1
 |replacement1
 
@@ -1229,15 +1229,16 @@ The expansion service then cumulatively applies each of the rules in the set sta
 |replacement2
 
 |===
+
 The examples below use the following collection of rule sets:
 
-[cols="3m" options="header"]
+[cols="1,2m,2m" options="header"]
 |===
 
 |Key (Attribute)
-2.1+^|Rules (original → new)
+2+^|Rules (original -> new)
 
-1.3+^|Location
+.3+|Location
 |Goodyear
 |Goodyear AZ
 
@@ -1247,7 +1248,7 @@ The examples below use the following collection of rule sets:
 |CA
 |CA USA
 
-1.2+^|Title
+.2+^|Title
 |VP-Sales
 |VP-Sales VP Sales
 
