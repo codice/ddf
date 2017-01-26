@@ -68,8 +68,6 @@ public class OverrideAttributesSupport {
                 .filter(Objects::nonNull)
                 .filter(attribute -> !attribute.getName()
                         .equals(Metacard.ID))
-                .filter(attribute -> !attribute.getName()
-                        .equals(Metacard.RESOURCE_URI))
                 .filter(attribute -> !onlyFillNull
                         || metacard.getAttribute(attribute.getName()) == null)
                 .forEach(metacard::setAttribute);
