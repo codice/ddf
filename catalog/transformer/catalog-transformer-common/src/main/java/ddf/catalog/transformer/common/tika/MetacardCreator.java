@@ -22,6 +22,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.Office;
 import org.apache.tika.metadata.TIFF;
 import org.apache.tika.metadata.TikaCoreProperties;
+import org.apache.tika.metadata.XMPDM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,6 +115,10 @@ public class MetacardCreator {
                 metadata.get(Office.USER_DEFINED_METADATA_NAME_PREFIX + "Telephone number"));
 
         setAttribute(metacard, Contact.PUBLISHER_NAME, metadata.get(DublinCore.PUBLISHER));
+
+        setAttribute(metacard,
+                Mp4MetacardType.AUDIO_SAMPLE_RATE,
+                metadata.get(XMPDM.AUDIO_SAMPLE_RATE));
 
         return metacard;
     }
