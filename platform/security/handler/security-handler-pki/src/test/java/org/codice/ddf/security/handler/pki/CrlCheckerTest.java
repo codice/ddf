@@ -18,6 +18,7 @@ import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -119,6 +120,102 @@ public class CrlCheckerTest {
         assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
     }
 
+    @Test
+    public void testEnabledCrlFromURLRevokedCertFails() throws CertificateException {
+
+        CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-none.properties");
+
+        //Get a URL path for the file, this will generate a URL
+        String urlPath = ClassLoader.getSystemResource("crl-revoked.pem")
+                .toString();
+        crlChecker.setCrlLocation(urlPath);
+
+        //Cert should fail
+        String certificateString = getRevokedCert();
+        X509Certificate[] certs = extractX509CertsFromString(certificateString);
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(false));
+    }
+
+    @Test
+    public void testEnabledCrlFromURLUnRevokedCertPasses() throws CertificateException {
+
+        CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-none.properties");
+
+        //Get a URL path for the file, this will generate a URL
+        String urlPath = ClassLoader.getSystemResource("crl-revoked.pem")
+                .toString();
+        crlChecker.setCrlLocation(urlPath);
+
+        //Cert should pass
+        String certificateString = getUnrevokedCert();
+        X509Certificate[] certs = extractX509CertsFromString(certificateString);
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
+    }
+
+    @Test
+    public void testEnabledEmptyCrlFromURLRevokedCertPasses() throws CertificateException {
+
+        CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-none.properties");
+
+        //Get a URL path for the file, this will generate a URL
+        String urlPath = ClassLoader.getSystemResource("crl-valid.pem")
+                .toString();
+        crlChecker.setCrlLocation(urlPath);
+
+        //Cert should pass
+        String certificateString = getRevokedCert();
+        X509Certificate[] certs = extractX509CertsFromString(certificateString);
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
+    }
+
+    @Test
+    public void testEnabledEmptyCrlFromURLUnRevokedCertPasses() throws CertificateException {
+
+        CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-none.properties");
+
+        //Get a URL path for the file, this will generate a URL
+        String urlPath = ClassLoader.getSystemResource("crl-valid.pem")
+                .toString();
+        crlChecker.setCrlLocation(urlPath);
+
+        //Cert should pass
+        String certificateString = getUnrevokedCert();
+        X509Certificate[] certs = extractX509CertsFromString(certificateString);
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
+    }
+
+    @Test
+    public void testCrlFromUrlDoesNotExist() throws CertificateException {
+
+        //Start with valid CRL with revoked certs
+        CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-revoked.properties");
+
+        //URL does not contain a CRL
+        String urlPath = "http://example.com/";
+        crlChecker.setCrlLocation(urlPath);
+
+        //Cert should pass because a crl should not be set
+        String certificateString = getRevokedCert();
+        X509Certificate[] certs = extractX509CertsFromString(certificateString);
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
+    }
+
+    @Test
+    public void testCrlFromUrlDoesNotResolve() throws CertificateException {
+
+        //Start with valid CRL with revoked certs
+        CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-revoked.properties");
+
+        //URL does not resolve
+        String urlPath = "http://example.com/nocrl.pem";
+        crlChecker.setCrlLocation(urlPath);
+
+        //Cert should pass because a crl should not be set
+        String certificateString = getRevokedCert();
+        X509Certificate[] certs = extractX509CertsFromString(certificateString);
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
+    }
+
     private CrlChecker getConfiguredCrlChecker(String encryptionProperties) {
         CrlChecker crlChecker = new CrlChecker();
         Properties prop = crlChecker.loadProperties(encryptionProperties);
@@ -128,10 +225,18 @@ public class CrlCheckerTest {
         if (crlPropertyValue == null) {
             crlChecker.setCrlLocation(crlPropertyValue);
         } else {
-            String crlRelativePath = "/" + prop.getProperty(crlChecker.CRL_PROPERTY_KEY);
-            String crlAbsolutePath = PKIHandlerTest.class.getResource(crlRelativePath)
-                    .getPath();
-            crlChecker.setCrlLocation(crlAbsolutePath);
+            URL url = crlChecker.urlFromPath(crlPropertyValue);
+            String crlPath;
+
+            //If this isn't a URL get the absolute path
+            if (url != null) {
+                crlPath = crlPropertyValue;
+            } else {
+                String crlRelativePath = "/" + prop.getProperty(crlChecker.CRL_PROPERTY_KEY);
+                crlPath = PKIHandlerTest.class.getResource(crlRelativePath)
+                        .getPath();
+            }
+            crlChecker.setCrlLocation(crlPath);
         }
 
         return crlChecker;

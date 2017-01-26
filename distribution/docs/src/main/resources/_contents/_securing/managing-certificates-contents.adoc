@@ -178,7 +178,7 @@ Enabling CRL revocation or modifying the CRL file will require a restart of ${br
 ====
 
 . Place the CRL in <${branding}.home>/etc/keystores.
-. Add the line `org.apache.ws.security.crypto.merlin.x509crl.file=etc/keystores/<CRL_FILENAME>` to the following files:
+. Add the line `org.apache.ws.security.crypto.merlin.x509crl.file=etc/keystores/<CRL_FILENAME>` to the following files (It is possible to specify a URL, or file path as the CRL location):
 .. `<${branding}.home>/etc/ws-security/server/encryption.properties`
 .. `<${branding}_HOME>/etc/ws-security/server/encryption.properties`
 .. `<${branding-lowercase}.home>/etc/ws-security/issuer/encryption.properties`
@@ -205,7 +205,7 @@ The PKIHandler implements CRL revocation, so any web context that is configured 
 With guest access, a user with a revoked certificate will be given a 401 error, but users without a certificate will be able to access the web context as the guest user.
 
 The STS CRL interceptor does not need a web context specified.
-The CRL interceptor for the STS will become active after specifying the CRL file in the `encryption.properties` file and restarting ${branding}.
+The CRL interceptor for the STS will become active after specifying the CRL file, or URL for the CRL in the `encryption.properties` file and restarting ${branding}.
 
 [NOTE]
 ====
