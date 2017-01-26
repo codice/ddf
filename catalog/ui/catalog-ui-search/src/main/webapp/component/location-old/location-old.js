@@ -26,22 +26,22 @@ define([
     function convertToValid(key, model){
         if (key.mapSouth !== undefined && 
             (key.mapSouth >= key.mapNorth || 
-            (!key.mapNorth && key.mapSouth >= model.get('mapNorth')))){
+            (key.mapNorth === undefined && key.mapSouth >= model.get('mapNorth')))){
             key.mapSouth = parseFloat((key.mapNorth || model.get('mapNorth'))) - minimumDifference;
         }
         if (key.mapEast !== undefined &&
             (key.mapEast <= key.mapWest || 
-            (!key.mapWest && key.mapEast <= model.get('mapWest')))){
+            (key.mapWest === undefined && key.mapEast <= model.get('mapWest')))){
             key.mapEast = parseFloat((key.mapWest || model.get('mapWest'))) + minimumDifference;
         }
         if (key.mapWest !== undefined && 
             (key.mapWest >= key.mapEast || 
-            (!key.mapEast && key.mapWest >= model.get('mapEast')))){
+            (key.mapEast === undefined && key.mapWest >= model.get('mapEast')))){
             key.mapWest = parseFloat((key.mapEast || model.get('mapEast'))) - minimumDifference;
         }
         if (key.mapNorth !== undefined &&
             (key.mapNorth <= key.mapSouth || 
-            (!key.mapSouth && key.mapNorth <= model.get('mapSouth')))){
+            (key.mapSouth === undefined && key.mapNorth <= model.get('mapSouth')))){
             key.mapNorth = parseFloat((key.mapSouth || model.get('mapSouth'))) + minimumDifference;
         }
         if (key.mapNorth !== undefined){
@@ -139,7 +139,7 @@ define([
         },
 
         repositionLatLon: function () {
-            if (this.get('usngbb')) {
+            if (this.get('usngbb') !== undefined) {
                 var result = converter.USNGtoLL(this.get('usngbb'));
                 var newResult = {};
                 newResult.mapNorth = result.north;
@@ -158,7 +158,7 @@ define([
                 result.south = this.get('mapSouth');
                 result.west = this.get('mapWest');
                 result.east = this.get('mapEast');
-                if (!(result.north && result.south && result.west && result.east) && this.get('usngbb')) {
+                if (!(result.north !== undefined && result.south !== undefined && result.west !== undefined && result.east !== undefined) && this.get('usngbb')) {
                     result = converter.USNGtoLL(this.get('usngbb'));
                 }
                 this.set(result);
@@ -179,7 +179,7 @@ define([
                 south = this.get('south'),
                 west = this.get('west'),
                 east = this.get('east');
-            if (north && south && east && west) {
+            if (north !== undefined && south !== undefined && east !== undefined && west !== undefined) {
                 try {
                     var usngsStr = converter.LLBboxtoUSNG(north, south, east, west);
 
@@ -196,7 +196,7 @@ define([
         setRadiusLatLon: function () {
             var lat = this.get('lat'),
                 lon = this.get('lon');
-            if (lat && lon) {
+            if (lat !== undefined && lon !== undefined) {
                 try {
                     var usngsStr = converter.LLtoUSNG(lat, lon, 6);
                     this.set('usng', usngsStr, {silent: true});
@@ -225,7 +225,7 @@ define([
             var west = parseFloat(this.get('west'));
             var east = parseFloat(this.get('east'));
 
-            if (north && south && east && west) {
+            if (north !== undefined && south !== undefined && east !== undefined && west !== undefined) {
                 this.set('bbox', [west, south, east, north].join(','), {silent: this.get('locationType') === 'usng' && !this.drawing});
             }
             if (this.get('locationType') !== 'usng') {
@@ -235,7 +235,7 @@ define([
 
         setRadiusUsng: function () {
             var usng = this.get('usng');
-            if (usng){
+            if (usng !== undefined){
                 var result = converter.USNGtoLL(usng, true);
                 this.set(result);
             }

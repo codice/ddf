@@ -169,7 +169,7 @@ define([
                     obj[key] = toRad(val);
                 });
                 var rectangle = new Cesium.Rectangle();
-                if (!obj.north || isNaN(obj.north) || !obj.south || isNaN(obj.south) || !obj.east || isNaN(obj.east) || !obj.west || isNaN(obj.west)) {
+                if (obj.north === undefined || isNaN(obj.north) || obj.south === undefined || isNaN(obj.south) || obj.east === undefined || isNaN(obj.east) || obj.west === undefined || isNaN(obj.west)) {
                     return null;
                 }
 

@@ -74,7 +74,7 @@ define([
             },
 
             updateGeometry: function (model) {
-                if (model.get('lon') && model.get('lat') && model.get('radius')) {
+                if (model.get('lon') !== undefined && model.get('lat') !== undefined && model.get('radius')) {
                     var circle = this.modelToCircle(model);
                     if (circle) {
                         this.drawBorderedPolygon(circle);

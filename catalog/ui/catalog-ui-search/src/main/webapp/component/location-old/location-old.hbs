@@ -24,7 +24,7 @@
         <i class="fa fa-circle-o"></i>
         Polygon
     </label>
-    <label id="locationPoint" class="btn location {{#if lat}}active{{/if}}" data-target="#pointradius{{cid}}" data-toggle="tab">
+    <label id="locationPoint" class="btn location {{#if lat includeZero=true}}active{{/if}}" data-target="#pointradius{{cid}}" data-toggle="tab">
         <input type="radio" name="pointRadiusButton">
         <i class="fa fa-circle"></i>
         <i class="fa fa-circle-o"></i>
@@ -83,7 +83,7 @@
         </div>
     </div>
 
-    <div id="pointradius{{cid}}" class="tab-pane {{#if lat}}active{{/if}}">
+    <div id="pointradius{{cid}}" class="tab-pane {{#if lat includeZero=true}}active{{/if}}">
         <input type="hidden" name="radius" value="{{radius}}">
 
         <div class="col-lg-10">
