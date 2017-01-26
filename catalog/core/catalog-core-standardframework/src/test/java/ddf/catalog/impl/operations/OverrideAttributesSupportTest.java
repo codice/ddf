@@ -63,7 +63,7 @@ public class OverrideAttributesSupportTest {
                 .getTitle(), is("updated"));
         assertThat(metacardMap.get("original")
                 .getResourceURI()
-                .toString(), is("content:stuff"));
+                .toString(), is("content:newstuff"));
         assertThat(metacardMap.get("original")
                 .getId(), is("original"));
         assertThat(metacardMap.get("original")
@@ -99,7 +99,7 @@ public class OverrideAttributesSupportTest {
                 .getTitle(), is("updated"));
         assertThat(metacardMap.get("original")
                 .getResourceURI()
-                .toString(), is("content:stuff"));
+                .toString(), is("content:newstuff"));
         assertThat(metacardMap.get("original")
                 .getId(), is("original"));
         assertThat(metacardMap.get("original")
@@ -128,7 +128,7 @@ public class OverrideAttributesSupportTest {
         assertThat(updatedMetacard.getMetadata(), is("updated"));
         assertThat(updatedMetacard.getTitle(), is("updated"));
         assertThat(updatedMetacard.getResourceURI()
-                .toString(), is("content:stuff"));
+                .toString(), is("content:newstuff"));
         assertThat(updatedMetacard.getId(), is("original"));
         assertThat(updatedMetacard.getMetacardType()
                 .getName(), is("ddf.metacard"));
@@ -155,7 +155,7 @@ public class OverrideAttributesSupportTest {
         assertThat(updatedMetacard.getMetadata(), is("updated"));
         assertThat(updatedMetacard.getTitle(), is("updated"));
         assertThat(updatedMetacard.getResourceURI()
-                .toString(), is("content:stuff"));
+                .toString(), is("content:newstuff"));
         assertThat(updatedMetacard.getId(), is("original"));
         assertThat(updatedMetacard.getMetacardType()
                 .getName(), is("other"));

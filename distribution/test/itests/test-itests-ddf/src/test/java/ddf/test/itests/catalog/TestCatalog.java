@@ -2803,6 +2803,39 @@ public class TestCatalog extends AbstractIntegrationTest {
         deleteMetacard(id);
     }
 
+    @Test
+    public void testUpdateStorageCannotOverrideResourceUri()
+            throws IOException {
+        String fileName = testName.getMethodName() + ".jpg";
+        String overrideResourceUri = "content:abc123";
+        String overrideTitle = "overrideTitle";
+
+        File tmpFile = createTemporaryFile(fileName,
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
+
+        String id = given().multiPart("parse.resource", tmpFile)
+                .multiPart(Core.TITLE, overrideTitle)
+                .multiPart(Core.RESOURCE_URI, overrideResourceUri)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        given().multiPart("parse.resource", tmpFile)
+                .multiPart(Core.RESOURCE_URI, overrideResourceUri)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .when()
+                .put(REST_PATH.getUrl() + id);
+
+        deleteMetacard(id);
+    }
+
     private ValidatableResponse executeOpenSearch(String format, String... query) {
         StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH.getUrl()).append("?")
                 .append("format=")
