@@ -21,7 +21,7 @@
     </AD>
     
     <AD name="Interval" id="intervalString"
-        description="The Interval String for each execution.  Based on the Interval Type, this will either be a Cron String, or a Second Interval.  (e.x. '0 0 0 1/1 * ? *' or '12')"
+        description="The Interval String for each execution. Based on the Interval Type, this will either be a Cron String or a Second Interval.  (e.x. '0 0 0 1/1 * ? *' or '12')"
         required="true" type="String"/>
 
     <AD name="Interval Type" id="intervalType"
