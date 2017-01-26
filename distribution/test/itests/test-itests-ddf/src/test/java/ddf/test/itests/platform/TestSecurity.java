@@ -58,7 +58,6 @@ import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.hamcrest.xml.HasXPath;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -352,11 +351,6 @@ public class TestSecurity extends AbstractIntegrationTest {
     public void configurePDP() throws Exception {
     }
 
-    @Before
-    public void before() throws Exception {
-        configureRestForGuest();
-    }
-
     private void configureRestForGuest() throws Exception {
         getSecurityPolicy().configureRestForGuest(SDK_SOAP_CONTEXT);
     }
@@ -368,6 +362,9 @@ public class TestSecurity extends AbstractIntegrationTest {
     @Test
     public void testGuestRestAccess() throws Exception {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+
+        configureRestForGuest();
+
         waitForSecurityHandlers(url);
 
         //test that guest works and check that we get an sso token
@@ -506,6 +503,10 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testBasicFederatedAuth() throws Exception {
+        configureRestForGuest();
+
+        waitForGuestAuthReady(SERVICE_ROOT.getUrl());
+
         String recordId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
         configureRestForBasic();
 

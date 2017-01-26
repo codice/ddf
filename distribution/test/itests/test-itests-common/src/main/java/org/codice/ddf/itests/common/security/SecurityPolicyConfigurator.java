@@ -53,7 +53,7 @@ public class SecurityPolicyConfigurator {
     }
 
     public void configureRestForGuest(String whitelist) throws Exception {
-        configureWebContextPolicy(null, null, null, createWhitelist(whitelist));
+        configureWebContextPolicy(null, GUEST_AUTH_TYPES, null, createWhitelist(whitelist));
     }
 
     public void configureRestForBasic() throws Exception {
