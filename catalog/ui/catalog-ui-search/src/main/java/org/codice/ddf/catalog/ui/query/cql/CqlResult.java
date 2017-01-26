@@ -206,6 +206,7 @@ public class CqlResult {
         MetacardImpl resultMetacard = new MetacardImpl(result.getMetacard(),
                 result.getMetacard()
                         .getMetacardType());
+
         try {
 
             for (AttributeDescriptor descriptor : resultMetacard.getMetacardType()
