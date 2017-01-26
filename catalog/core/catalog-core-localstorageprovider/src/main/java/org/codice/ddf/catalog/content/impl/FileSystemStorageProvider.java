@@ -331,7 +331,7 @@ public class FileSystemStorageProvider implements StorageProvider {
             return !dirStream.iterator()
                     .hasNext();
         } catch (IOException e) {
-            LOGGER.error("Unable to open directory stream for {}", dir.toString(), e);
+            LOGGER.debug("Unable to open directory stream for {}", dir.toString(), e);
             throw e;
         }
     }
