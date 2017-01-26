@@ -111,7 +111,7 @@ define([
                     return;
                 }
             } else {
-                if (this.isEmpty() && !this.get('regex') && !this.get('required')) {
+                if (!this.get('value') && !this.get('regex') && !this.get('required')) {
                     this.set('error', error);
                     return;
                 }
