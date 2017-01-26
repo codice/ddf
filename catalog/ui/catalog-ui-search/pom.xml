@@ -178,11 +178,6 @@
             <version>2.2.3</version>
         </dependency>
         <dependency>
-            <groupId>org.terracotta</groupId>
-            <artifactId>terracotta-toolkit-runtime-ee</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-        <dependency>
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
             <version>0.9.1.1</version>
@@ -263,7 +258,6 @@
                             quartz,
                             quartz-jobs,
                             c3p0,
-                            terracotta-toolkit-runtime-ee,
                             ddf-security-common
                         </Embed-Dependency>
                         <Web-ContextPath>/search/catalog</Web-ContextPath>
@@ -285,7 +279,6 @@
                             !org.jboss.*,
                             !javax.ejb.*,
                             !com.tc.*,
-                            !com.terracottatech.*,
                             !org.terracotta.*,
                             !org.apache.commons.cli.*,
                             !org.hibernate.*,
