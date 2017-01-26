@@ -32,8 +32,8 @@
             <artifactId>tika-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>tika-bundle</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
@@ -89,6 +89,20 @@
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
         </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parsers</artifactId>
+            <scope>test</scope>
+            <!-- https://issues.apache.org/jira/browse/TIKA-2094 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.poi</groupId>
+                    <artifactId>poi-ooxml-schemas</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -101,7 +115,6 @@
                         <Embed-Dependency>
                             catalog-transformer-common,
                             catalog-core-api-impl,
-                            platform-util,
                             imgscalr-lib,
                             jai-imageio-core,
                             jai-imageio-jpeg2000,
@@ -113,7 +126,10 @@
                             ddf.catalog.transformer.input.tika,
                             ddf.catalog.data.impl.*
                         </Private-Package>
-                        <Import-Package>!sun.security.action, *</Import-Package>
+                        <Import-Package>
+                            !sun.security.action,
+                            *
+                        </Import-Package>
                         <Export-Package/>
                     </instructions>
                 </configuration>

@@ -16,6 +16,7 @@ package ddf.catalog.transformer.input.tika;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -143,9 +144,8 @@ public class TikaInputTransformerTest {
         BundleContext mockBundleContext = mock(BundleContext.class);
         TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(mockBundleContext,
                 getMetacardType(COMMON_METACARDTYPE_NAME));
-        verify(mockBundleContext).registerService(eq(InputTransformer.class),
-                eq(tikaInputTransformer),
-                any(Hashtable.class));
+        verify(mockBundleContext).registerService(eq(InputTransformer.class), eq(
+                tikaInputTransformer), any(Hashtable.class));
     }
 
     @Test
@@ -423,8 +423,8 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"Compression Lossless\" content=\"true\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"Compression Lossless\" content=\"true\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/png"));
         assertThat(metacard.getAttribute(Core.DATATYPE)
                 .getValue(), is(IMAGE));
@@ -642,14 +642,28 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 11:06:08 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2013-02-13 06:52:10 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("This is a sample Open Office document, written in NeoOffice 2.2.1"));
+        assertThat(metacard.getMetadata(), containsString(
+                "This is a sample Open Office document, written in NeoOffice 2.2.1"));
         assertThat(metacard.getContentTypeName(), is("application/vnd.oasis.opendocument.text"));
 
         // Reset timezone back to local time zone.
         TimeZone.setDefault(defaultTimeZone);
         assertThat(metacard.getAttribute(Core.DATATYPE)
                 .getValue(), is(DOCUMENT));
+    }
+
+    @Test
+    public void testVisio() throws Exception {
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("testVisio.vsdx");
+        Metacard metacard = transform(stream);
+        assertThat(convertDate(metacard.getModifiedDate()), is("2015-08-16 23:37:46 UTC"));
+        assertThat(convertDate(metacard.getCreatedDate()), is("2015-08-16 23:13:05 UTC"));
+        assertThat(metacard.getMetadata(), notNullValue());
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"Content-Type\" content=\"application/vnd.ms-visio.drawing\"/>"));
+        assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
     }
 
     private String convertDate(Date date) {

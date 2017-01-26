@@ -58,7 +58,7 @@
             <artifactId>platform-configuration</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.tika</groupId>
+            <groupId>org.codice.thirdparty</groupId>
             <artifactId>tika-bundle</artifactId>
         </dependency>
         <dependency>
