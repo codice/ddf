@@ -1,24 +1,15 @@
 ==== Catalog Solr External Provider
 
-The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+The Solr Provider is an implementation of the Provider interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
 
-The Solr Catalog Provider is used in conjunction with an Apache Solr Server data store and acts as the client for an external Solr Server.
+The Solr Provider is used in conjunction with an Apache Solr Server data store and acts as the client for an external Solr Server.
 It is meant to be used only with the Standalone Solr Server (`catalog-solr-server`).
-
-===== Installing the Catalog Solr External Provider
-
-The Catalog Solr External Provider is is not installed by default with a standard installation in the ${ddf-solr} application.
-
-. Navigate to the *${admin-console}*.
-. Select the *${ddf-solr}* application.
-. Select *Features*.
-. Select *Start* on the `catalog-solr-external-provider` feature.
 
 ===== Configuring the Catalog Solr External Provider
 
-In order for the external Solr Catalog Provider to work, it must be pointed at an external Solr Server.
+In order for the external Solr Provider to work, it must be pointed at an external Solr Server.
 When the `catalog-solr-external-provider` feature is installed, it is in an unconfigured state until the user provides an HTTP URL to the external Solr Server. 
-The configurable properties for this SCP are accessed from the Catalog External Solr Catalog Provider configurations in the Web Console.
+The configurable properties for this Solr Provider are accessed from the Catalog External Solr Provider configurations in the Web Console.
 
 include::{adoc-include}/_tables/ddf.catalog.solr.external.SolrHttpCatalogProvider-table-contents.adoc[]
 
@@ -29,9 +20,9 @@ Refer to the Standalone Solr Server recommended configuration.
 
 ===== Indexing Text with the Solr External Catalog Provider
 
-When storing fields, the Solr Catalog Provider will analyze and tokenize the text values of `STRING_TYPE` and `XML_TYPE` `AttributeTypes`.
+When storing fields, the Solr Provider will analyze and tokenize the text values of `STRING_TYPE` and `XML_TYPE` `AttributeTypes`.
 These types of fields are indexed in at least three ways: in raw form, analyzed with case sensitivity, and analyzed without concern to case sensitivity.
-Concerning XML, the Solr Catalog Provider will analyze and tokenize XML CDATA sections, XML element text values, and XML attribute values. 
+Concerning XML, the Solr Provider will analyze and tokenize XML CDATA sections, XML element text values, and XML attribute values. 
 
 ==== Standalone Solr Server
 
@@ -45,8 +36,8 @@ This feature can  create a data store.
 Use this style of deployment over an embedded Java Solr Server if having a Solr Server on a separate, dedicated machine is desired, potentially for the isolating data storage or simplifying maintenance. 
 The Standalone Solr Server can now run in its own JVM (separate from endpoints and other frameworks) and accept calls with its "REST-like HTTP/XML and JSON API." 
 
-This Standalone Solr Server is meant to be used in conjunction with the Solr Catalog Provider for External Solr.
-The Solr Catalog Provider acts as a client to the Solr Server.
+This Standalone Solr Server is meant to be used in conjunction with the Solr Provider for External Solr.
+The Solr Provider acts as a client to the Solr Server.
 
 ===== Installing a Standalone Solr Server
 
@@ -55,7 +46,7 @@ The Standalone Solr Server, as its name suggests, does not require or depend on 
 Therefore, it is recommended to have the Solr Server app run on a lightweight ${branding} distribution, such as the ${branding} Distribution Kernel.
 If clustering is necessary, the Solr Server application can run alongside the Platform application for clustering support.
 
-The features for the Standalone Solr Server and External Solr Catalog Provider are installed by default on a standard installation.
+The features for the Standalone Solr Server and External Solr Provider are installed by default on a standard installation.
 
 ===== Remove Data from Solr Core
 
@@ -76,7 +67,7 @@ ${secure_url}/solr
 
 ===== Configuring a Standalone Solr Server
 
-The Standalone Solr Server comes pre-configured to work with Solr Catalog External Provider implementations.
+The Standalone Solr Server comes pre-configured to work with Solr External Provider implementations.
 For most use cases, no other configuration to the Solr Server is necessary with the standard distribution.
 
 ===== Solr Standalone Server Meta Catalog Backup
@@ -154,31 +145,31 @@ Here are some helpful suggestions for setting up data backups and recoveries:
 ===== Solr Configuration Files
 
 The Apache Solr product has Configuration files to customize behavior for the Solr Server. These files can be found at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/etc/solr`.
-Care must be taken in editing these files because they will directly affect functionality and performance of the Solr Catalog Provider.
+Care must be taken in editing these files because they will directly affect functionality and performance of the Solr Provider.
 A restart of the distribution is necessary for changes to take effect. 
  
 [WARNING]
 ====
 *Solr Configuration File Changes* +
 Solr Configuration files should not be changed in most cases.
-Changes to the `schema.xml` will most likely need code changes within the Solr Catalog Provider.
+Changes to the `schema.xml` will most likely need code changes within the Solr Provider.
 ====
 
 ===== Move Solr Data to a New Location
 
-If SCP has been installed for the first time, changing the Data Directory File Path property and restarting the distribution is all that is necessary because no data had been written into Solr previously.
+If the Solr Provider has been installed for the first time, changing the Data Directory File Path property and restarting the distribution is all that is necessary because no data had been written into Solr previously.
 Nonetheless, if a user needs to change the location after the user has already ingested data in a previous location, complete the following procedure:
 
-. Change the data directory file path property within the *Catalog Embedded Solr Catalog Provider* configuration in the Admin Console to the desired future location of the Solr data files.
+. Change the data directory file path property within the *Catalog Embedded Solr Provider* configuration in the Admin Console to the desired future location of the Solr data files.
 . Shut down the distribution.
 . Find the future location on the drive. If the current location does not exist, create the directories.
 . Find the location of where the current Solr data files exist and copy all the directories in that location to the future the location. For instance, if the previous Solr data files existed at C:\solr_data and it is necessary to move it to C:\solr_data_new, copy all directories within `C:\solr_data` into `C:\solr_data_new`. Usually this consists of copying the index and tlog directories into the new data directory.
-. Start the distribution. SCP should recognize the index files and be able to query them again.
+. Start the distribution. The Solr Provider should recognize the index files and be able to query them again.
 
 [WARNING]
 ====
 *Changes Require a Distribution Restart* +
-If the Data Directory File Path property is changed, no changes will occur to the SCP until the distribution has been restarted.
+If the Data Directory File Path property is changed, no changes will occur to the Solr Provider until the distribution has been restarted.
 ====
 
 [NOTE]

@@ -96,6 +96,7 @@ Changing these values without also changing the passwords of the JKS causes unde
 |String
 a|The hostname or IP address used to advertise the system. Do not enter `localhost`. Possibilities include the address of a single node or that of a load balancer in a multi-node deployment.
 
+
 [IMPORTANT]
 ====
 If the hostname is changed during the install to something other than `localhost` a new keystore and truststore must be provided. See <<_configuring_new_certificates,Configuring New Certificates>> for details.
@@ -344,6 +345,36 @@ application/x-msdownload,
 application/x-msmetafile
 |Yes
 
+6+^h|Solr Provider Properties
+
+|Solr Client
+|solr.client
+|String
+|Solr Provider selected.
+|HttpSolrClient, CloudSolrClient, EmbeddedSolrServer
+|Yes
+
+|Solr Provider Url
+|solr.http.url
+|String
+|Solr Provider Url for a Standalone Solr Server (HttpSolrClient)
+|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}/solr
+|No
+
+|Solr Data Directory
+|solr.data.dir
+|String
+|Solr Data Directory
+|${karaf.home}/data/solr
+|No
+
+|Zookeeper Nodes
+|solr.cloud.zookeeper
+|String
+|Zookeeper hostnames and port numbers
+|zookeeperhost1:2181,zookeeperhost2:2181,zookeeperhost3:2181
+|No
+
 |===
 
 These properties are available to be used as variable parameters in input url fields within the ${admin-console}.
@@ -581,9 +612,9 @@ The new service can now be used as if it was created using the ${admin-console}.
 
 |===
 
-==== Configuring Solr Catalog Provider Data Directory
+==== Configuring Solr Provider Data Directory
 
-The Solr Catalog Provider writes index files to the file system.
+The Solr Provider and the Embedded Solr Provider writes index files to the file system.
 By default, these files are stored under `${branding}_HOME/data/solr/catalog/data`.
 If there is inadequate space in `${branding}_HOME`, or if it is desired to maintain backups of the indexes only, this directory can be changed.
 

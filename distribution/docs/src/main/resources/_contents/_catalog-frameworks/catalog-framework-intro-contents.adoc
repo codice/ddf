@@ -64,7 +64,7 @@ These examples are for illustrative purposes only and do not necessarily represe
 +------+      +--------------------------------------------------------------------------------------------------------------------+
 | cDEF |      |/-----------------------\/--------------------------\/---------------\/----------------\/--------------------------\|/--------------------\
 |Client|      ||c369  <<Endpoint>>     ||c369<<CatalogFramework>>  ||c369           ||c369            ||c369<<CatalogProvider>>   |||c369<<External>>    |
-+------+      ||Ingest Service Endpoint||Standard Catalog Framework||PreIngestPlugin||PostIngestPlugin||  Solr Catalog Provider   ||| Solr Search Server |
++------+      ||Ingest Service Endpoint||Standard Catalog Framework||PreIngestPlugin||PostIngestPlugin||  Solr Provider   ||| Solr Search Server |
   :           |\-----------------------/\--------------------------/\---------------/\----------------/\--------------------------/|\--------------------/
   |Web Service|Ingest Request :                       :                       :               :                     :              |           :
   |-----------|-------------->|                       |                       |               |                     |              |           |
@@ -124,7 +124,7 @@ log:set
 +------+      +--------------------------------------------------------------------------------------------------------------------+
 |      |      |/-----------------------\/--------------------------\/---------------\/----------------\/--------------------------\|/--------------------\
 |Client|      ||c369  <<Endpoint>>     ||c369<<CatalogFramework>>  ||c369           ||c369            ||c369<<CatalogProvider>>   |||c369<<External>>    |
-+------+      || Query Service Endpoint||Standard Catalog Framework||PreQueryPlugin ||PostQueryPlugin ||  Solr Catalog Provider   ||| Solr Search Server |
++------+      || Query Service Endpoint||Standard Catalog Framework||PreQueryPlugin ||PostQueryPlugin ||  Solr Provider   ||| Solr Search Server |
   :           |\-----------------------/\--------------------------/\---------------/\----------------/\--------------------------/|\--------------------/
   |Web Service|Query Request  :                       :                       :               :                     :              |         :
   |-----------|-------------->|                       |                       |               |                     |              |         |

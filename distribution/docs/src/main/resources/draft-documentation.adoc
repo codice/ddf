@@ -785,6 +785,7 @@ include::{adoc-include}/_draft-security-contents/managing-security-contents.adoc
 [small]#Version: ${project.version}#
 
 include::{adoc-include}/_draft-solr-contents/managing-solr-contents.adoc[]
+include::{adoc-include}/_sources/solrcloud-contents.adoc[]
 
 <<<
 

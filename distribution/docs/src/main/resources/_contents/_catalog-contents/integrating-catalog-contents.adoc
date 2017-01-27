@@ -1181,7 +1181,7 @@ The FTP endpoint can be accessed from any FTP client of choice. Some common clie
 
 ===== Implementation Details
 
-The FTP endpoint is implemented using the Apache FTP Server and Apache Mina. Apache Mina provides an API for transport protocols such as TCP and UDP. The FTP server is built on top of Apache Mina to transport its messages. ${branding} implements a custom Ftplet by overriding the `DefaultFtplet` class provided by Apache FTP Server. 
+The FTP endpoint is implemented using the Apache FTP Server and Apache Mina. Apache Mina provides an API for transport protocols such as TCP and UDP. The FTP server is built on top of Apache Mina to transport its messages. ${branding} implements a custom Ftplet by overriding the `DefaultFtplet` class provided by Apache FTP Server.
 
 ====== Known Issues
 
@@ -1338,7 +1338,7 @@ These examples are for illustrative purposes only and do not necessarily represe
 +------+      +--------------------------------------------------------------------------------------------------------------------+
 | cDEF |      |/-----------------------\/--------------------------\/---------------\/----------------\/--------------------------\|/--------------------\
 |Client|      ||c369  <<Endpoint>>     ||c369<<CatalogFramework>>  ||c369           ||c369            ||c369<<CatalogProvider>>   |||c369<<External>>    |
-+------+      ||Ingest Service Endpoint||Standard Catalog Framework||PreIngestPlugin||PostIngestPlugin||  Solr Catalog Provider   ||| Solr Search Server |
++------+      ||Ingest Service Endpoint||Standard Catalog Framework||PreIngestPlugin||PostIngestPlugin||  Solr Provider   ||| Solr Search Server |
   :           |\-----------------------/\--------------------------/\---------------/\----------------/\--------------------------/|\--------------------/
   |Web Service|Ingest Request :                       :                       :               :                     :              |           :
   |-----------|-------------->|                       |                       |               |                     |              |           |
@@ -1398,7 +1398,7 @@ log:set
 +------+      +--------------------------------------------------------------------------------------------------------------------+
 |      |      |/-----------------------\/--------------------------\/---------------\/----------------\/--------------------------\|/--------------------\
 |Client|      ||c369  <<Endpoint>>     ||c369<<CatalogFramework>>  ||c369           ||c369            ||c369<<CatalogProvider>>   |||c369<<External>>    |
-+------+      || Query Service Endpoint||Standard Catalog Framework||PreQueryPlugin ||PostQueryPlugin ||  Solr Catalog Provider   ||| Solr Search Server |
++------+      || Query Service Endpoint||Standard Catalog Framework||PreQueryPlugin ||PostQueryPlugin ||  Solr Provider   ||| Solr Search Server |
   :           |\-----------------------/\--------------------------/\---------------/\----------------/\--------------------------/|\--------------------/
   |Web Service|Query Request  :                       :                       :               :                     :              |         :
   |-----------|-------------->|                       |                       |               |                     |              |         |
@@ -1500,7 +1500,7 @@ The following may be defined in a JSON definition file:
 - Default Attribute Values
 - Attribute Injections
 
-Within a definition file you may define as many of the types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
+Within a definition file you may define as many of the types as you wish. This means that types can be defined across multiple files for grouping or clarity.
 
 ==== Deploying
 The file must have a `.json` extension in order to be picked up by the deployer. Once the definition file is ready to be deployed, put the definition file `<filename>.json` into the `etc/definitions` folder.

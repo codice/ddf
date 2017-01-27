@@ -230,6 +230,7 @@ include::${project.build.directory}/doc-contents/_contents/_security-contents/ex
 [small]#Version: ${project.version}#
 
 include::${project.build.directory}/doc-contents/_contents/_solr-contents/extending-solr-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_sources/solrcloud-contents.adoc[]
 
 <<<
 
