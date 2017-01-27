@@ -34,5 +34,6 @@
         <module>catalog-plugin-content-uri</module>
         <module>catalog-plugin-clientinfo</module>
         <module>catalog-plugin-metacardingest-network</module>
+        <module>catalog-plugin-pointofcontactupdate</module>
     </modules>
 </project>

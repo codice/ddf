@@ -147,6 +147,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
 
     public static final String ADMIN = "admin";
+
     public static final String ADMIN_EMAIL = "admin@localhost.local";
 
     @Rule
@@ -299,8 +300,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 .body(hasXPath("/metacard[@id='" + id + "']"))
-                .body(hasXPath("/metacard/string[@name='point-of-contact']/value[text()='" + ADMIN_EMAIL
-                        + "']"));
+                .body(hasXPath(
+                        "/metacard/string[@name='point-of-contact']/value[text()='" + ADMIN_EMAIL
+                                + "']"));
 
         deleteMetacard(id);
     }
@@ -334,6 +336,48 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .statusCode(HttpStatus.SC_BAD_REQUEST)
                 .when()
                 .put(new DynamicUrl(REST_PATH, id).getUrl());
+
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testPointOfContactUpdatePlugin() throws Exception {
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(IOUtils.toInputStream(getFileContent("/metacard1.xml")), writer);
+        String id = given().body(writer.toString())
+                .auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .header(HttpHeaders.CONTENT_TYPE, "text/xml")
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        given().auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .header(HttpHeaders.CONTENT_TYPE, "text/xml")
+                .body(writer.toString())
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_OK)
+                .when()
+                .put(new DynamicUrl(REST_PATH, id).getUrl());
+
+        when().get(REST_PATH.getUrl() + id)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .body(hasXPath("/metacard[@id='" + id + "']"))
+                .body(hasXPath(
+                        "/metacard/string[@name='point-of-contact']/value[text()='" + ADMIN_EMAIL
+                                + "']"));
 
         deleteMetacard(id);
     }

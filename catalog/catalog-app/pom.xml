@@ -344,6 +344,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-pointofcontactupdate</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.admin</groupId>
             <artifactId>catalog-admin-module-sources</artifactId>
             <version>${project.version}</version>
