@@ -31,17 +31,6 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>npm test</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <phase>test</phase>
-                        <configuration>
-                            <skip>${skipTests}</skip>
-                            <arguments>test</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>grunt build</id>
                         <goals>
                             <goal>grunt</goal>
@@ -49,6 +38,17 @@
                         <configuration>
                             <skip>true</skip>
                             <arguments>build</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>yarn test</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <skip>${skipTests}</skip>
+                            <arguments>test</arguments>
                         </configuration>
                     </execution>
                 </executions>

@@ -39,9 +39,9 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>npm test</id>
+                        <id>yarn test</id>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>yarn</goal>
                         </goals>
                         <phase>test</phase>
                         <configuration>

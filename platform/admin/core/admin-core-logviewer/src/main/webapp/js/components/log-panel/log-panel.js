@@ -47,7 +47,7 @@ export default () => {
     <div>
       {iframeNewTab()}
       <div className={panelClass()}>
-        <LogPanel/>
+        <LogPanel />
       </div>
     </div>
   )

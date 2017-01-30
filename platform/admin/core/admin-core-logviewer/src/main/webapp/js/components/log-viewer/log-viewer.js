@@ -31,7 +31,7 @@ export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
 
   const displayedLogs = filteredLogs.slice(0, displaySize)
     .map(function (row, i) {
-      return <LogEntry key={i} entry={row.entry} marks={row.marks} expandedHash={expandedHash} dispatch={dispatch}/>
+      return <LogEntry key={i} entry={row.entry} marks={row.marks} expandedHash={expandedHash} dispatch={dispatch} />
     })
 
   // grow the log display when the bottom is reached

@@ -16,7 +16,7 @@ An Express application has been included to allow rapid development without havi
 * Install package.json with `npm`
 
 ```
-npm install
+yarn install
 ```
 * Make sure an instance of `ddf` is running locally on port 8181
 * Run the default `grunt` task in a separate window
