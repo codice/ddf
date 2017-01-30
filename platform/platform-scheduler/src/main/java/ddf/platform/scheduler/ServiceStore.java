@@ -22,19 +22,17 @@ import java.util.Map;
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public class ServiceStore {
 
     private static ServiceStore uniqueInstance;
 
-    private Map<String, Object> map = new HashMap<String, Object>();
+    private Map<String, Object> map = new HashMap<>();
 
     private ServiceStore() {
     }
 
     /**
-     *
      * @return a unique instance of {@link ServiceStore}
      */
     public static synchronized ServiceStore getInstance() {
@@ -47,8 +45,7 @@ public class ServiceStore {
     /**
      * Stores objects based on their interface
      *
-     * @param object
-     *            implementation of at least one interface
+     * @param object implementation of at least one interface
      */
     public void setObject(Object object) {
 
@@ -63,9 +60,7 @@ public class ServiceStore {
     }
 
     /**
-     *
-     * @param key
-     *            fully qualified interface name
+     * @param key fully qualified interface name
      * @return object that implements the interface
      */
     public Object getObject(String key) {

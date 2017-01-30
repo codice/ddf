@@ -28,7 +28,7 @@ public interface ScheduledTask {
     /**
      * Creates and schedules new task
      */
-    public void newTask();
+    void newTask();
 
     /**
      * Removes a task completely so that it does not run or exist.
@@ -36,13 +36,13 @@ public interface ScheduledTask {
      * @param code - not used
      * @see https://issues.apache.org/jira/browse/ARIES-1436
      */
-    public void deleteTask(int code);
+    void deleteTask(int code);
 
     /**
      * Updates an existing task with new properties.
      *
      * @param properties
      */
-    public void updateTask(Map properties);
+    void updateTask(Map<String, Object> properties);
 
 }

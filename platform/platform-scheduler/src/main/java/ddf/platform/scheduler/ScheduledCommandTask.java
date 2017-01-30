@@ -13,12 +13,15 @@
  */
 package ddf.platform.scheduler;
 
+import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -34,17 +37,26 @@ import org.slf4j.LoggerFactory;
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public class ScheduledCommandTask implements ScheduledTask {
 
+    public static final String SECOND_INTERVAL = "secondInterval";
+
+    public static final String CRON_STRING = "cronString";
+
+    public static final String INTERVAL_STRING = "intervalString";
+
+    public static final String INTERVAL_TYPE = "intervalType";
+
+    public static final String ONE_DAY = "0 0 0 1/1 * ? *";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledCommandTask.class);
 
-    private static final int ONE_DAY = 60 * 60 * 24;
+    private Class<? extends Job> jobClass;
 
-    private Class<? extends Job> classObject;
+    private String intervalString = ONE_DAY;
 
-    private int intervalInSeconds = ONE_DAY;
+    private String intervalType = CRON_STRING;
 
     private String command;
 
@@ -55,45 +67,65 @@ public class ScheduledCommandTask implements ScheduledTask {
     private TriggerKey triggerKey;
 
     /**
-     *
-     * @param scheduler
-     * @param classObject
+     * @param scheduler - A reference to the Quartz Scheduler
+     * @param jobClass  - A reference to the Quartz Job Implementing Class
      */
-    public ScheduledCommandTask(Scheduler scheduler, Class classObject) {
-
+    public ScheduledCommandTask(Scheduler scheduler, Class jobClass) {
         this.scheduler = scheduler;
-        this.classObject = classObject;
+        this.jobClass = jobClass;
     }
 
     public void setCommand(String command) {
         this.command = command;
     }
 
-    public void setIntervalInSeconds(int intervalInSeconds) {
-        this.intervalInSeconds = intervalInSeconds;
+    public String getCommand() {
+        return command;
+    }
+
+    public void setIntervalString(String intervalString) {
+        if (StringUtils.isNotEmpty(intervalString)) {
+            this.intervalString = intervalString;
+        }
+    }
+
+    public String getIntervalString() {
+        return intervalString;
+    }
+
+    public void setIntervalType(String intervalType) {
+        if (StringUtils.isNotEmpty(intervalType)) {
+            this.intervalType = intervalType;
+        }
+    }
+
+    public String getIntervalType() {
+        return intervalType;
     }
 
     @Override
     public void newTask() {
-
-        LOGGER.debug("Creating new Task.");
+        LOGGER.trace("Creating new Task.");
 
         long identifier = System.currentTimeMillis();
 
-        this.jobKey = new JobKey("job" + identifier, classObject.getSimpleName());
+        this.jobKey = new JobKey("job" + identifier, jobClass.getSimpleName());
 
-        this.triggerKey = new TriggerKey("trigger" + identifier, classObject.getSimpleName());
+        this.triggerKey = new TriggerKey("trigger" + identifier, jobClass.getSimpleName());
 
         JobDetail jobDetail = createJob();
 
         Trigger trigger = createTrigger();
+
+        if (trigger == null) {
+            return;
+        }
 
         try {
             scheduler.scheduleJob(jobDetail, trigger);
         } catch (SchedulerException e) {
             LOGGER.info("Error with scheduling of task.", e);
         }
-
     }
 
     @Override
@@ -106,42 +138,46 @@ public class ScheduledCommandTask implements ScheduledTask {
     }
 
     @Override
-    public void updateTask(Map properties) {
-
-        if (properties == null) {
-            LOGGER.info("No properties detected. No action taken.");
+    public void updateTask(Map<String, Object> properties) {
+        if (MapUtils.isEmpty(properties)) {
+            LOGGER.info("Empty or null properties map. No action taken.");
             return;
         }
+
         Object commandValue = properties.get(CommandJob.COMMAND_KEY);
-
-        Object intervalValue = properties.get("intervalInSeconds");
-
         if (commandValue != null) {
             this.command = commandValue.toString();
         }
 
-        if (intervalValue != null) {
-            this.intervalInSeconds = Integer.parseInt(intervalValue.toString());
+        Object intervalString = properties.get(INTERVAL_STRING);
+        if (intervalString != null) {
+            LOGGER.debug("Updating intervalString : {}", intervalString);
+            this.intervalString = (String) intervalString;
+        }
+
+        Object intervalType = properties.get(INTERVAL_TYPE);
+        if (intervalType != null) {
+            LOGGER.debug("Updating intervalType : {}", intervalType);
+            this.intervalType = (String) intervalType;
         }
 
         JobDetail newJob = createJob();
-
         Trigger newTrigger = createTrigger();
 
-        boolean overWritePreviousJob = true;
+        if (newTrigger == null) {
+            return;
+        }
 
         try {
-            scheduler.addJob(newJob, overWritePreviousJob);
-
+            scheduler.addJob(newJob, true);
             scheduler.rescheduleJob(triggerKey, newTrigger);
         } catch (SchedulerException e) {
             LOGGER.info("Error with rescheduling of task.", e);
         }
-
     }
 
     private JobDetail createJob() {
-        return newJob().ofType(classObject)
+        return newJob().ofType(jobClass)
                 .withIdentity(jobKey)
                 .storeDurably()
                 .usingJobData(CommandJob.COMMAND_KEY, command)
@@ -149,10 +185,38 @@ public class ScheduledCommandTask implements ScheduledTask {
     }
 
     private Trigger createTrigger() {
+        Trigger newTrigger = null;
+        if (CRON_STRING.equals(this.intervalType)) {
+            newTrigger = createCronTrigger();
+        } else if (SECOND_INTERVAL.equals(this.intervalType)) {
+            try {
+                Integer secondsInterval = Integer.parseInt(this.intervalString);
+                newTrigger = createSimpleTrigger(secondsInterval);
+            } catch (NumberFormatException e) {
+                LOGGER.warn("Unable to update platform scheduler.  Invalid second interval specified : {}",
+                        this.intervalString,
+                        e);
+            }
+        } else {
+            LOGGER.warn("Unable to update platform scheduler with given interval type : {}", this.intervalType);
+        }
+        return newTrigger;
+    }
+
+    private Trigger createSimpleTrigger(int secondsInterval) {
+        LOGGER.debug("Creating trigger with {} second interval", secondsInterval);
         return newTrigger().withIdentity(triggerKey)
                 .startNow()
-                .withSchedule(simpleSchedule().withIntervalInSeconds(intervalInSeconds)
+                .withSchedule(simpleSchedule().withIntervalInSeconds(secondsInterval)
                         .repeatForever())
+                .build();
+    }
+
+    private Trigger createCronTrigger() {
+        LOGGER.debug("Creating trigger with cron string : {}", intervalString);
+        return newTrigger().withIdentity(triggerKey)
+                .startNow()
+                .withSchedule(cronSchedule(intervalString))
                 .build();
     }
 }

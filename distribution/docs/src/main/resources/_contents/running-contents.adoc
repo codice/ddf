@@ -709,7 +709,8 @@ In addition, when the container is restarted, the commands are rescheduled and e
 . Select *${branding} Platform*
 . Select *Platform Command Scheduler*.
 . Type the command or commands to be executed in the *Command* text field. Commands can be separated by a semicolon and will execute in order from left to right.
-. Type in a positive integer for the *Interval In Seconds* field.
+. Type in an interval in the *Interval* field.  This can either be a Quartz Cron expression or a positive integer (seconds) (e.x. '0 0 0 1/1 * ? *' or '12').
+. Select the interval type in the *Interval Type* drop-down.
 . Select the *Save* button. Once the *Save* button is selected, the command is executed immediately. It's next scheduled execution begins after the amount of seconds specified in the *Interval In Seconds* field and repeats indefinitely until the container is shut down or the scheduled command is deleted.
 
 [NOTE]
@@ -726,7 +727,7 @@ To update, modify the fields and click *Save*.
 . Click on the *Configuration* tab.
 . Under the *Platform Command Scheduler* configuration are all the scheduled commands.
 Scheduled commands have the following syntax `${ddf-branding-lowercase}.platform.scheduler.Command.{GUID}` such as `${ddf-branding-lowercase}.platform.scheduler.Command.4d60c917-003a-42e8-9367-1da0f822ca6e`.
-. Find the desired configuration to modify and update either the *Command* text field or the *Interval In Seconds* field or both.
+. Find the desired configuration to modify and update either the *Command* text field, the *Interval* field, or the *Interval Type*.
 . Click *Save changes*.
 Once the Save button has been clicked, the command will be executed immediately.
 Its next scheduled execution happens after the time specified in Interval In Seconds and repeats indefinitely until the container is shutdown or the Scheduled Command is deleted.
