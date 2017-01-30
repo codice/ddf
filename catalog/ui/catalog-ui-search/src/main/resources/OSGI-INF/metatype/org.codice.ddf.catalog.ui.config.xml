@@ -147,9 +147,7 @@
             description="List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
             type="String"
             cardinality="10000"
-            default="^metacard\\.modified$,^metacard\\.created$,^metacard-tags$,^metacard\\.owner$,^validation-errors$,^validation-warnings$,^sortOrder$,
-            ^sortField$,^cql$,^enterprise$,^polling$,^security\\.access-groups$,^security\\.access-individuals$,^failed-validators-warnings$,
-            ^failed-validators-errors$,^sources$,^federation$,^metacard\\.sharing$,^cached$"
+            default="^sortOrder$,^sortField$,^cql$,^polling$,^cached$"
             required="false"/>
 
         <AD id="scheduleFrequencyList"
