@@ -88,9 +88,16 @@
 
 |Use External Authentication
 |externalAuthentication
+|Use an external authentication point, such as IdP
 |Boolean
-|"layer2"
-|"alpha": 0.3 }
+|false
+|false
+
+|Disable Cache
+|cacheDisabled
+|Locally cached results will not be returned in search results.
+|Boolean
+|false
 |false
 
 |Type Name Mapping

@@ -41,7 +41,7 @@ replace with next unreleased version
 - This version will require data to be reindexed.
 
 ### NEW FEATURES
-
+- [DDF-2729](https://codice.atlassian.net/browse/DDF-2729) Added ability for administrators to disable the use of the cache when using the Catalog UI
 - [DDF-2535](https://codice.atlassian.net/browse/DDF-2535) Added Confluence Federated Source
 - [DDF-2639](https://codice.atlassian.net/browse/DDF-2639) Catalog security plugin to protect resource URIs
 - [DDF-2467](https://codice.atlassian.net/browse/DDF-2467) Initial support for Solr Cloud

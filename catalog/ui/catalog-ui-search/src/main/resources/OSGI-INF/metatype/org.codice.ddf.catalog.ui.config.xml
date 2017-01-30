@@ -99,6 +99,13 @@
             default="false"
             required="false"/>
 
+        <AD id="cacheDisabled"
+            name="Disable Cache"
+            description="Locally cached results will not be returned in search results."
+            type="Boolean"
+            default="false"
+            required="false"/>
+
         <AD id="typeNameMapping"
             name="Type Name Mapping"
             description="Mapping of display names to content types in the form name=type."
