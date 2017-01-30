@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.async.data.api.internal;
 
+import javax.annotation.Nullable;
+
 /**
  * The {@code ProcessResourceItem} represents the data that will be processed by the {@link ProcessingFramework}.
  * It maps a specific {@link ddf.catalog.data.Metacard} to an associated {@link ProcessResource}.
@@ -25,7 +27,7 @@ public interface ProcessResourceItem extends ProcessItem {
      *
      * @return {@code ProcessResource}
      */
-    ProcessResource getProcessResource();
+    @Nullable ProcessResource getProcessResource();
 
     /**
      * Determines whether or not the metacard from {@link ProcessItem#getMetacard()} has been modified

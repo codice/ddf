@@ -37,7 +37,6 @@ public class ProcessUpdateItemImpl extends ProcessItemImpl implements ProcessUpd
             Metacard oldMetacard, boolean isMetacardModified) {
         super(newMetacard);
 
-        notNull(processResource, "ProcessUpdateItemImpl argument processResource may not be null");
         notNull(oldMetacard, "ProcessUpdateItemImpl argument newMetacard may not be null");
 
         this.processResource = processResource;

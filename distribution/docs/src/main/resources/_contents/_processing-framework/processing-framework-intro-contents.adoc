@@ -1,0 +1,72 @@
+[NOTE]
+====
+This code is experimental. While this interface is functional and tested, it may change or be removed in a future version of the library.
+====
+
+The *Asynchronous Processing Framework* is a way to run plugins asynchronously. Generally, plugins that take a significant amount of processing time and whose
+results are not immediately required are good candidates for being asynchronously processed. A *Processing Framework* can either be run on the local or
+remote system. Once the *Processing Framework* finishes processing incoming requests, it submits its results back to the Catalog. The type of plugins that a *Processing Framework*
+runs are the *Post-Process Plugins*. These plugins are run after the *Post-Ingest Plugins* and after all metacards have been ingested into the Catalog. This feature is uninstalled by default.
+
+[WARNING]
+====
+The *Processing Framework* does not support partial updates to the Catalog. This means that if any changes are made to a metacard in the Catalog between the time
+asynchronous processing starts and ends, those changes will be overridden by the *ProcessingFramework* updates sent back to the Catalog. This feature should be used with caution.
+====
+
+=== The Asynchronous Processing Framework API Interfaces
+
+. `org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework`
+. `org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin`
+. `org.codice.ddf.catalog.async.data.api.internal.ProcessItem`
+. `org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem`
+. `org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem`
+. `org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem`
+. `org.codice.ddf.catalog.async.data.api.internal.ProcessRequest`
+. `org.codice.ddf.catalog.async.data.api.internal.ProcessResoure`
+. `org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem`
+
+==== ProcessingFramework
+
+The `ProcessingFramework` is responsible for processing incoming `ProcessRequests` that contains a `ProcessItem`. A `ProcessingFramework` should never block. It receives
+its `ProcessRequests` from a `PostIngestPlugin` on all CUD operations to the Catalog. In order to determine whether or not asynchronous processing
+is required by the `ProcessingFramework`, the `ProcessingFramework` should mark any request it has submitted back the Catalog, otherwise a processing loop may occur.
+
+==== ProcessRequest
+
+Contains a list of `ProcessItems` for the `ProcessingFramework` to process. Once a `ProcessRequest` has been processed by a `ProcessingFramework`, the `ProcessingFramework`
+should mark the `ProcessRequest` as already being processed, so that it does not process it again.
+
+==== PostProcessPlugin
+
+The `PostProcessPlugin` is a plugin that will be run by the `ProcessingFramework`. It is capable of processing `ProcessCreateItem`, `ProcessUpdateItem`, and `ProcessDeleteItems`.
+
+==== ProcessItem
+
+The `ProcessItem` is contained by a `ProcessRequest`. It can be either a `ProcessCreateItem`, `ProcessUpdateItem`, or `ProcessDeleteItem`.
+
+==== ProcessResource
+
+The `ProcessResource` is a piece of content that is attached to a metacard. The piece of content can be either local or remote.
+
+==== ProcessResourceItem
+
+[WARNING]
+====
+Do not implement `ProcessResourceItem` directly; it is intended for use only as a common base interface for `ProcessCreateItem` and `ProcessUpdateItem`.
+====
+
+The `ProcessResourceItem` indicates that the item being processed has a `ProcessResource` associated with it.
+
+==== ProcessCreateItem
+
+The `ProcessCreateItem` is an item for a metacard that has been created in the Catalog. It contains the created metacard and, optionally, a `ProcessResource`.
+
+==== ProcessUpdateItem
+
+The `ProcessUpdateItem` is an item for a metacard that has been updated in the Catalog. It contains the original metacard, updated metacard and, optionally, a `ProcessResource`.
+
+==== ProcessDeleteItem
+
+The `ProcessDeleteItem` is an item for a metacard that has been deleted in the Catalog. It contains the deleted metacard.
+

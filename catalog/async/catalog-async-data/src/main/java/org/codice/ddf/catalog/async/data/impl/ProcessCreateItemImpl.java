@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.async.data.impl;
 
+import javax.annotation.Nullable;
+
 import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
 
@@ -36,6 +38,7 @@ public class ProcessCreateItemImpl extends ProcessItemImpl implements ProcessCre
     }
 
     @Override
+    @Nullable
     public ProcessResource getProcessResource() {
         return processResource;
     }

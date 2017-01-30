@@ -114,9 +114,10 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
                 return (boolean) prop;
             } else {
                 LOGGER.debug(
-                        "{} request property was not a boolean. Clearing the property and returning false.",
+                        "{} request property was not a boolean. Clearing the property and returning true. PostProcessingPlugins will not be run as an infinite loop may occur.",
                         POST_PROCESS_COMPLETE);
                 properties.remove(POST_PROCESS_COMPLETE);
+                return true;
             }
         }
         return false;
@@ -173,7 +174,7 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
 
     private ProcessResource getProcessResource(Metacard metacard) {
         LOGGER.trace(
-                "Getting process resource from catalog framework for metacard with id:{}, sourceId:{}.",
+                "Attempting to retrieve process resource metacard with id \"{}\" and sourceId \"{}\".",
                 metacard.getId(),
                 metacard.getSourceId());
 

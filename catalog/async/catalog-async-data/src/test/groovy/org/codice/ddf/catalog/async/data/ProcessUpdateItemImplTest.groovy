@@ -11,18 +11,24 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package groovy.org.codice.ddf.catalog.async.data.impl
+package org.codice.ddf.catalog.async.data
 
-import org.codice.ddf.catalog.async.data.impl.ProcessItemImpl
+import ddf.catalog.data.Metacard
+import org.codice.ddf.catalog.async.data.api.internal.ProcessResource
+import org.codice.ddf.catalog.async.data.impl.ProcessUpdateItemImpl
 import spock.lang.Specification
 
-class ProcessItemImplTest extends Specification {
-
-    def 'ProcessItemImpl null metacard throws IllegalArgumentException'() {
+class ProcessUpdateItemImplTest extends Specification {
+    def 'ProcessUpdateItemImpl IllegalArgument exceptions on null inputs'() {
         when:
-        new ProcessItemImpl(null)
+        new ProcessUpdateItemImpl(processResource, newMetacard, oldMetacard)
 
         then:
         thrown(IllegalArgumentException)
+
+        where:
+        processResource       | newMetacard    | oldMetacard
+        Mock(ProcessResource) | null           | Mock(Metacard)
+        Mock(ProcessResource) | Mock(Metacard) | null
     }
 }

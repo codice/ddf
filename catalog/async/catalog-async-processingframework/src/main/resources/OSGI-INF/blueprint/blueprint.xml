@@ -41,8 +41,13 @@
     <!-- ProcessPlugins -->
     <reference-list id="postProcessPlugins"
                     interface="org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin"
-                    availability="optional"/>
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="postProcessPluginsSortedList"/>
+    </reference-list>
 
     <service ref="processingFramework"
              interface="org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework"/>
+
+    <bean id="postProcessPluginsSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
 </blueprint>

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -83,11 +84,29 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
 
     public void cleanUp() {
         LOGGER.debug("Stopping PostProcessPlugin thread pool.");
-        threadPool.shutdown();
-        try {
-            threadPool.awaitTermination(1, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            threadPool.shutdownNow();
+        if (threadPool != null && !threadPool.isShutdown()) {
+            threadPool.shutdown();
+            try {
+                if (!threadPool.awaitTermination(600, TimeUnit.SECONDS)) {
+                    LOGGER.debug(
+                            "Some asynchronous plugins did not finish running. Waited 10 minutes. Metacards may not be in intended state. Attempting to shutdown now.");
+                    threadPool.shutdownNow();
+
+                    if (!threadPool.awaitTermination(60, TimeUnit.SECONDS)) {
+                        LOGGER.debug(
+                                "InMemoryProcessingFramework asynchronous processing did not terminate.");
+                    }
+                }
+            } catch (InterruptedException e) {
+                threadPool.shutdownNow();
+                Thread.currentThread()
+                        .interrupt();
+
+                LOGGER.debug(
+                        "Interrupted while shutting down InMemoryProcessingFramework asynchronous ThreadPool.");
+            }
+        } else {
+            LOGGER.debug("InMemoryProcessingFramework asynchronous ThreadPool already shutdown.");
         }
     }
 
@@ -111,6 +130,7 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                 }
 
                 storeProcessRequest(request);
+                closeInputStream(request);
             });
         }
     }
@@ -135,6 +155,7 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                 }
 
                 storeProcessRequest(request);
+                closeInputStream(request);
             });
         }
     }
@@ -161,6 +182,22 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         }
     }
 
+    private <T extends ProcessResourceItem> void closeInputStream(ProcessRequest<T> request) {
+        request.getProcessItems()
+                .stream()
+                .map(ProcessResourceItem::getProcessResource)
+                .filter(Objects::nonNull)
+                .forEach(resource -> {
+                    try {
+                        resource.getInputStream()
+                                .close();
+                    } catch (IOException e) {
+                        LOGGER.debug(
+                                "Failed to close stream of asynchronous request. There may be temporary files left in data/tmp.");
+                    }
+                });
+    }
+
     private <T extends ProcessResourceItem> void storeProcessRequest(
             ProcessRequest<T> processRequest) {
         LOGGER.trace("Storing update request post processing change(s)");
@@ -169,7 +206,7 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         Set<Metacard> metacardsToUpdate = new HashSet<>();
 
         for (T item : processRequest.getProcessItems()) {
-            if (item.isMetacardModified()) {
+            if (item.getProcessResource() == null && item.isMetacardModified()) {
                 metacardsToUpdate.add(item.getMetacard());
             }
 

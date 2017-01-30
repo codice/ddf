@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package groovy.org.codice.ddf.catalog.async.data.impl
+package org.codice.ddf.catalog.async.data
 
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource
 import org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl
@@ -147,7 +147,20 @@ class ProcessResourceImplTest extends Specification {
 
     def 'test process resource IllegalArgumentException with invalid size'() {
         when:
-        new ProcessResourceImpl(ID, inputStream, MIME_TYPE, RESOURCE_NAME, -2, QUALIFIER)
+        new ProcessResourceImpl(ID, inputStream, MIME_TYPE, RESOURCE_NAME, size, QUALIFIER)
+
+        then:
+        thrown IllegalArgumentException
+
+        where:
+        size | _
+        0    | _
+        -2   | _
+    }
+
+    def 'test process resource IllegalArgumentException with null inputStream'() {
+        when:
+        new ProcessResourceImpl(ID, null, MIME_TYPE, RESOURCE_NAME, SIZE, QUALIFIER)
 
         then:
         thrown IllegalArgumentException

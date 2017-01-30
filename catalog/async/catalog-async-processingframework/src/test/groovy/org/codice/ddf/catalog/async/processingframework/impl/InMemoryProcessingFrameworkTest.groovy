@@ -25,10 +25,8 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem
 import org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin
-import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream
 import spock.lang.Specification
 
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 
@@ -93,7 +91,7 @@ class InMemoryProcessingFrameworkTest extends Specification {
         0 * catalogFramework._
     }
 
-    def 'test submitCreate'() {
+    def 'test submitCreate with one ProcessItem with Metacard, and one ProcessItem with Metacard+ProcessResource'() {
         given:
         def postProcessPlugin = Mock(PostProcessPlugin)
         inMemoryProcessingFramework.setPostProcessPlugins([postProcessPlugin])
@@ -371,6 +369,71 @@ class InMemoryProcessingFrameworkTest extends Specification {
         }
     }
 
+    def 'test cleanup already shutdown'() {
+        when:
+        inMemoryProcessingFramework.cleanUp()
+
+        then:
+        1 * threadPool.isShutdown() >> {
+            return true
+        }
+        0 * threadPool.shutdown()
+        0 * threadPool.awaitTermination(_ as int, _ as TimeUnit)
+        0 * threadPool.shutdownNow()
+    }
+
+    def 'test cleanup success shutdown'() {
+        when:
+        inMemoryProcessingFramework.cleanUp()
+
+        then:
+        1 * threadPool.isShutdown() >> {
+            return false
+        }
+
+        1 * threadPool.shutdown()
+        1 * threadPool.awaitTermination(600, TimeUnit.SECONDS) >> {
+            return true
+        }
+        0 * threadPool.shutdownNow()
+    }
+
+    def 'test cleanup success shutdown with unfinished processes'() {
+        when:
+        inMemoryProcessingFramework.cleanUp()
+
+        then:
+        1 * threadPool.isShutdown() >> {
+            return false
+        }
+
+        1 * threadPool.shutdown()
+        1 * threadPool.awaitTermination(600, TimeUnit.SECONDS) >> {
+            return false
+        }
+        1 * threadPool.shutdownNow()
+        1 * threadPool.awaitTermination(60, TimeUnit.SECONDS)
+    }
+
+//    def 'test cleanup success shutdown with unfinished processes and interrupted exception'() {
+//        when:
+//        inMemoryProcessingFramework.cleanUp()
+//
+//        then:
+//        1 * threadPool.isShutdown() >> {
+//            return false
+//        }
+//
+//        1 * threadPool.shutdown()
+//        1 * threadPool.awaitTermination(600, TimeUnit.SECONDS) >> {
+//            return false
+//        }
+//        2 * threadPool.shutdownNow()
+//        1 * threadPool.awaitTermination(60, TimeUnit.SECONDS) >> {
+//            throw new InterruptedException()
+//        }
+//    }
+
     private <T extends ProcessResourceItem> ProcessRequest<T> createMockProcessResourceRequest() {
         return createMockProcessResourceRequest(new ByteArrayInputStream((_ as String).getBytes()))
     }
@@ -383,12 +446,18 @@ class InMemoryProcessingFrameworkTest extends Specification {
                 isMetacardModified() >> false
 
                 getMetacard() >> Mock(Metacard) {
-                    getId() >> "test resource id"
+                    getId() >> "test resource id 1"
                 }
 
                 getProcessResource() >> Mock(ProcessResource) {
                     isModified() >> false
                     getInputStream() >> inputStream
+                }
+            }, Mock(T) {
+                isMetacardModified() >> false
+
+                getMetacard() >> Mock(Metacard) {
+                    getId() >> "test resource id 2"
                 }
             }]
         }

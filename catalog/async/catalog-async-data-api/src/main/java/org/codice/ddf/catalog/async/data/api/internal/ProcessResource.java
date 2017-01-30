@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-import javax.annotation.Nullable;
-
 /**
  * <p>
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
@@ -70,7 +68,7 @@ public interface ProcessResource {
      * @return the {@link ProcessResource}'s input stream
      * @throws IOException if the input stream is not available
      */
-    @Nullable InputStream getInputStream() throws IOException;
+    InputStream getInputStream() throws IOException;
 
     /**
      * Return the total number of bytes in the {@link ProcessResource}'s input stream.

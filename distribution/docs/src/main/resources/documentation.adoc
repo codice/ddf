@@ -635,6 +635,12 @@ include::{adoc-include}/_plugins/video-thumbnail-plugin-contents.adoc[]
 include::{adoc-include}/_plugins/post-update-storage-plugin-intro-contents.adoc[]
 
 include::{adoc-include}/_plugins/post-update-storage-plugins-contents.adoc[]
+
+//post-process
+include::{adoc-include}/_plugins/post-process-plugin-intro-contents.adoc[]
+
+include::{adoc-include}/_plugins/post-process-plugins-contents.adoc[]
+
 //Policy
 include::{adoc-include}/_plugins/policy-plugin-intro-contents.adoc[]
 
@@ -781,6 +787,10 @@ include::{adoc-include}/_action-framework/action-framework-intro-contents.adoc[]
 include::{adoc-include}/_action-framework/action-providers-contents.adoc[]
 
 include::{adoc-include}/_action-framework/developing-action-components-contents.adoc[]
+
+== Asynchronous Processing Framework
+
+include::{adoc-include}/_processing-framework/processing-framework-intro-contents.adoc[]
 
 == Migration API
 

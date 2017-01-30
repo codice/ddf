@@ -11,12 +11,27 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package groovy.org.codice.ddf.catalog.async.data.impl
+package org.codice.ddf.catalog.async.data
 
+import org.codice.ddf.catalog.async.data.api.internal.ProcessItem
 import org.codice.ddf.catalog.async.data.impl.ProcessRequestImpl
 import spock.lang.Specification
 
 class ProcessRequestImplTest extends Specification {
+
+    def 'test ProcessRequestImpl(ProcessItems, Map<String, Serializable>) success' () {
+        setup:
+        def processItems = [Mock(ProcessItem)]
+        def properties = ["key": "value"]
+
+        when:
+        def request = new ProcessRequestImpl<>(processItems, properties)
+
+        then:
+        request.getProcessItems() == processItems
+        request.getProperties() == properties
+        properties.get("key") == "value"
+    }
 
     def 'ProcessRequestImpl null ProcessItems throws IllegalArgumentException'() {
         when:

@@ -13,12 +13,12 @@
  */
 package org.codice.ddf.catalog.async.data.impl;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import javax.annotation.Nullable;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
@@ -45,22 +45,22 @@ public class ProcessResourceImpl implements ProcessResource {
 
     private boolean isModified;
 
-    public ProcessResourceImpl(String metacardId, @Nullable InputStream inputStream,
+    public ProcessResourceImpl(String metacardId, InputStream inputStream,
             String mimeType, String name) {
         this(metacardId, inputStream, mimeType, name, UNKNOWN_SIZE, "", true);
     }
 
-    public ProcessResourceImpl(String metacardId, @Nullable InputStream inputStream,
+    public ProcessResourceImpl(String metacardId, InputStream inputStream,
             String mimeType, String name, long size) {
         this(metacardId, inputStream, mimeType, name, size, "", true);
     }
 
-    public ProcessResourceImpl(String metacardId, @Nullable InputStream inputStream,
+    public ProcessResourceImpl(String metacardId, InputStream inputStream,
             String mimeType, String name, long size, boolean isModified) {
         this(metacardId, inputStream, mimeType, name, size, "", isModified);
     }
 
-    public ProcessResourceImpl(String metacardId, @Nullable InputStream inputStream,
+    public ProcessResourceImpl(String metacardId, InputStream inputStream,
             String mimeType, String name, long size, String qualifier) {
         this(metacardId, inputStream, mimeType, name, size, qualifier, true);
     }
@@ -68,21 +68,28 @@ public class ProcessResourceImpl implements ProcessResource {
     /**
      * Creates a new {@link ProcessResource}.
      *
-     * @param metacardId    schema specific part of {@link URI}, throws {@link IllegalArgumentException} if blank or null
-     * @param inputStream   {@link InputStream} of the {@link ProcessResource}, can be null
-     * @param mimeType      mime type of the {@link ProcessResource}, defaults to {@link #DEFAULT_MIME_TYPE}
-     * @param name          name of the {@link ProcessResource}, defaults to {@link #DEFAULT_NAME}
-     * @param size          size of the {@link ProcessResource}'s {@param inputStream}, throws {@link IllegalArgumentException}
-     *                      if less than -1
-     * @param qualifier     fragment of the {@link ProcessResource}'s {@link URI}, defaults to empty string
-     * @param isModified    flags whether {@link ddf.catalog.content.operation.UpdateStorageRequest}s are sent back to the {@link ddf.catalog.CatalogFramework}
-     *                      for this {@link ProcessResource}
+     * @param metacardId  schema specific part of {@link URI}, throws {@link IllegalArgumentException} if empty or null
+     * @param inputStream {@link InputStream} of the {@link ProcessResource}, can be null
+     * @param mimeType    mime type of the {@link ProcessResource}, defaults to {@link #DEFAULT_MIME_TYPE}
+     * @param name        name of the {@link ProcessResource}, defaults to {@link #DEFAULT_NAME}
+     * @param size        size of the {@link ProcessResource}'s {@param inputStream}, throws {@link IllegalArgumentException}
+     *                    if less than -1
+     * @param qualifier   fragment of the {@link ProcessResource}'s {@link URI}, defaults to empty string
+     * @param isModified  flags whether {@link ddf.catalog.content.operation.UpdateStorageRequest}s are sent back to the {@link ddf.catalog.CatalogFramework}
+     *                    for this {@link ProcessResource}
      */
-    public ProcessResourceImpl(String metacardId, @Nullable InputStream inputStream,
+    public ProcessResourceImpl(String metacardId, InputStream inputStream,
             String mimeType, String name, long size, String qualifier, boolean isModified) {
-        if (size < -1) {
-            throw new IllegalArgumentException("ProcessResourceImpl size may not be less than -1");
+        if (size < -1 || size == 0) {
+            throw new IllegalArgumentException("ProcessResourceImpl size may not be less than -1 or 0.");
         }
+
+        if (StringUtils.isEmpty(metacardId)) {
+            throw new IllegalArgumentException(
+                    "ProcessResourceImpl argument \"metacardId\" may not be null or empty.");
+        }
+
+        notNull(inputStream, "ProcessResourceImpl argument \"inputStream\" may not be null");
 
         this.qualifier = qualifier;
         this.isModified = isModified;
@@ -105,7 +112,10 @@ public class ProcessResourceImpl implements ProcessResource {
                 uri = new URI(CONTENT_SCHEME, metacardId, null);
             }
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Unable to create content URI.", e);
+            throw new IllegalArgumentException(String.format(
+                    "Unable to create content URI with metacardId \"%s\" and qualifier \"%s\".",
+                    metacardId,
+                    qualifier), e);
         }
     }
 
@@ -130,7 +140,7 @@ public class ProcessResourceImpl implements ProcessResource {
     }
 
     @Override
-    @Nullable public InputStream getInputStream() throws IOException {
+    public InputStream getInputStream() throws IOException {
         return inputStream;
     }
 

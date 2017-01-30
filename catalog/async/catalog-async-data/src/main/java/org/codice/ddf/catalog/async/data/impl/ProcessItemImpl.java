@@ -19,7 +19,7 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessItem;
 
 import ddf.catalog.data.Metacard;
 
-public class ProcessItemImpl implements ProcessItem {
+public abstract class ProcessItemImpl implements ProcessItem {
 
     private Metacard metacard;
 

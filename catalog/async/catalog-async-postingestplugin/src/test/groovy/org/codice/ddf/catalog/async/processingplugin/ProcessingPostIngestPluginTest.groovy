@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package groovy.org.codice.ddf.catalog.async.processingplugin
+package org.codice.ddf.catalog.async.processingplugin
 
 import ddf.catalog.CatalogFramework
 import ddf.catalog.data.Metacard
@@ -101,7 +101,27 @@ class ProcessingPostIngestPluginTest extends Specification {
         }
 
         where:
-        properties << [createFalseProcessingCompleteProperties(), createNotBooleanProcessingCompleteProperties(), [:]]
+        properties << [createFalseProcessingCompleteProperties(), [:]]
+    }
+
+    def 'test process CreateResponse invalid already-processed request property'() {
+        setup:
+        def input = Mock(CreateResponse) {
+            getRequest() >> Mock(CreateRequest) {
+                getProperties() >> createNotBooleanProcessingCompleteProperties()
+            }
+
+            getCreatedMetacards() >> []
+        }
+
+        when:
+        def output = processingPostIngestPlugin.process(input)
+
+        then:
+        output == input
+
+        0 * processingFramework.submitCreate(_ as ProcessRequest<ProcessCreateItem>)
+        !input.getRequest().getProperties().containsKey(ProcessingPostIngestPlugin.POST_PROCESS_COMPLETE)
     }
 
     def 'test process CreateResponse with no created metacards'() {
@@ -131,10 +151,10 @@ class ProcessingPostIngestPluginTest extends Specification {
         }
 
         where:
-        properties << [createFalseProcessingCompleteProperties(), createNotBooleanProcessingCompleteProperties(), [:]]
+        properties << [createFalseProcessingCompleteProperties(), [:]]
     }
 
-    def 'test CreateProcess with null input and null metacards'() {
+    def 'test CreateResponse with null input and null metacards'() {
         when:
         def output = processingPostIngestPlugin.process(input as CreateResponse)
 
@@ -196,7 +216,10 @@ class ProcessingPostIngestPluginTest extends Specification {
         output == input
 
         3 * catalogFramework.getResource(_ as ResourceRequest, _ as String) >> Mock(ResourceResponse) {
-            getResource() >> Mock(Resource)
+            getResource() >> Mock(Resource) {
+                getSize() >> 1
+                getInputStream() >> Mock(InputStream)
+            }
         }
         1 * processingFramework.submitUpdate(_ as ProcessRequest<ProcessUpdateItem>) >> { ProcessRequest<ProcessUpdateItem> processUpdateRequest ->
             assert processUpdateRequest.getProcessItems().size() == 3
@@ -207,7 +230,27 @@ class ProcessingPostIngestPluginTest extends Specification {
         }
 
         where:
-        properties << [createFalseProcessingCompleteProperties(), createNotBooleanProcessingCompleteProperties(), [:]]
+        properties << [createFalseProcessingCompleteProperties(), [:]]
+    }
+
+    def 'test process UpdateResponse invalid already-processed request property'() {
+        setup:
+        def input = Mock(UpdateResponse) {
+            getRequest() >> Mock(UpdateRequest) {
+                getProperties() >> createNotBooleanProcessingCompleteProperties()
+            }
+
+            getUpdatedMetacards() >> []
+        }
+
+        when:
+        def output = processingPostIngestPlugin.process(input)
+
+        then:
+        output == input
+
+        0 * processingFramework.submitUpdate(_ as ProcessRequest<ProcessUpdateItem>)
+        !input.getRequest().getProperties().containsKey(ProcessingPostIngestPlugin.POST_PROCESS_COMPLETE)
     }
 
     def 'test process UpdateResponse without no updated metacards'() {
@@ -237,7 +280,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         }
 
         where:
-        properties << [createFalseProcessingCompleteProperties(), createNotBooleanProcessingCompleteProperties(), [:]]
+        properties << [createFalseProcessingCompleteProperties(), [:]]
     }
 
     def 'test UpdateResponse with null input and null metacards'() {
@@ -296,7 +339,27 @@ class ProcessingPostIngestPluginTest extends Specification {
         }
 
         where:
-        properties << [createFalseProcessingCompleteProperties(), createNotBooleanProcessingCompleteProperties(), [:]]
+        properties << [createFalseProcessingCompleteProperties(), [:]]
+    }
+
+    def 'test process DeleteResponse invalid already-processed request property'() {
+        setup:
+        def input = Mock(DeleteResponse) {
+            getRequest() >> Mock(DeleteRequest) {
+                getProperties() >> createNotBooleanProcessingCompleteProperties()
+            }
+
+            getDeletedMetacards() >> []
+        }
+
+        when:
+        def output = processingPostIngestPlugin.process(input)
+
+        then:
+        output == input
+
+        0 * processingFramework.submitDelete(_ as ProcessRequest<ProcessDeleteItem>)
+        !input.getRequest().getProperties().containsKey(ProcessingPostIngestPlugin.POST_PROCESS_COMPLETE)
     }
 
     def 'test process DeleteResponse with no deleted metacards'() {
@@ -326,7 +389,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         }
 
         where:
-        properties << [createFalseProcessingCompleteProperties(), createNotBooleanProcessingCompleteProperties(), [:]]
+        properties << [createFalseProcessingCompleteProperties(), [:]]
     }
 
     def 'test DeleteResponse with null input and null metacards'() {
