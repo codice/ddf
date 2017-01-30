@@ -192,19 +192,21 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
      * configurations if the right conditions are met but will never delete a configuration other
      * than for switching a configuration from enabled to disabled or vice-versa
      *
-     * @param metacard    Registry metacard with new service binding info
-     * @param createEvent Flag indicating if this was a metacard create or update event
+     * @param metacard       Registry metacard with new service binding info
+     * @param activationHint Flag indicating if the created/updated configuration should be activated.
+     *                       Configuration activation is not determined solely on this field but in
+     *                       conjunction with {@see setActivateConfigurations} and {@see setPreserveActiveConfigurations}.
      * @throws IOException
      * @throws InvalidSyntaxException
      * @throws ParserException
      */
-    private synchronized void updateRegistryConfigurations(Metacard metacard, boolean createEvent)
+    private synchronized void updateRegistryConfigurations(Metacard metacard, boolean activationHint)
             throws IOException, InvalidSyntaxException, ParserException {
         if(RegistryUtility.isIdentityNode(metacard)){
             return;
         }
 
-        boolean autoActivateConfigurations = activateConfigurations && (createEvent
+        boolean autoActivateConfigurations = activateConfigurations && (activationHint
                 || !preserveActiveConfigurations);
 
         List<ServiceBindingType> bindingTypes = registryTypeHelper.getBindingTypes(
@@ -690,7 +692,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
                     if (deleteOldConfig) {
                         deleteRegistryConfigurations(metacard);
                     }
-                    updateRegistryConfigurations(metacard, false);
+                    updateRegistryConfigurations(metacard, deleteOldConfig);
                 } catch (InvalidSyntaxException | ParserException | IOException e) {
                     LOGGER.debug(
                             "Unable to update registry configurations. Registry source configurations won't be updated for metacard id: {}",
@@ -799,7 +801,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
                                 + registryId);
             }
             deleteRegistryConfigurations(metacards.get(0));
-            updateRegistryConfigurations(metacards.get(0), false);
+            updateRegistryConfigurations(metacards.get(0), true);
         } catch (IOException | ParserException | InvalidSyntaxException e) {
             throw new FederationAdminException(
                     "Error regenerating sources for registry entry " + registryId, e);
