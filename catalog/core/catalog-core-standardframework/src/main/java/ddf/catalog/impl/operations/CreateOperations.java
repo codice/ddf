@@ -340,8 +340,8 @@ public class CreateOperations {
         return new CreateRequestImpl(metacards, request.getProperties(), request.getStoreIds());
     }
 
-    private void applyAttributeOverridesToMetacardMap(Map<String, String> attributeOverrideMap,
-            Map<String, Metacard> metacardMap) {
+    private void applyAttributeOverridesToMetacardMap(
+            Map<String, Serializable> attributeOverrideMap, Map<String, Metacard> metacardMap) {
 
         if (MapUtils.isEmpty(attributeOverrideMap) || MapUtils.isEmpty(metacardMap)) {
             return;
@@ -359,51 +359,53 @@ public class CreateOperations {
                         .forEach(metacard::setAttribute));
     }
 
-    private AttributeImpl overrideAttributeValue(AttributeDescriptor attributeDescriptor,
-            String overrideValue) {
-        try {
-            Serializable newValue;
-            switch (attributeDescriptor.getType()
-                    .getAttributeFormat()) {
-            case INTEGER:
-                newValue = Integer.parseInt(overrideValue);
-                break;
-            case FLOAT:
-                newValue = Float.parseFloat(overrideValue);
-                break;
-            case DOUBLE:
-                newValue = Double.parseDouble(overrideValue);
-                break;
-            case SHORT:
-                newValue = Short.parseShort(overrideValue);
-                break;
-            case LONG:
-                newValue = Long.parseLong(overrideValue);
-                break;
-            case DATE:
-                Calendar calendar = DatatypeConverter.parseDateTime(overrideValue);
-                newValue = calendar.getTime();
-                break;
-            case BOOLEAN:
-                newValue = Boolean.parseBoolean(overrideValue);
-                break;
-            case BINARY:
-                newValue = overrideValue.getBytes(Charset.forName("UTF-8"));
-                break;
-            case OBJECT:
-            case STRING:
-            case GEOMETRY:
-            case XML:
-                newValue = overrideValue;
-                break;
-
-            default:
+    AttributeImpl overrideAttributeValue(AttributeDescriptor attributeDescriptor,
+            Serializable overrideValue) {
+        List<Serializable> newValue = new ArrayList<>();
+        for (Object o : overrideValue instanceof List ?
+                (List) overrideValue :
+                Collections.singletonList(overrideValue)) {
+            try {
+                String override = String.valueOf(o);
+                switch (attributeDescriptor.getType()
+                        .getAttributeFormat()) {
+                case INTEGER:
+                    newValue.add(Integer.parseInt(override));
+                    break;
+                case FLOAT:
+                    newValue.add(Float.parseFloat(override));
+                    break;
+                case DOUBLE:
+                    newValue.add(Double.parseDouble(override));
+                    break;
+                case SHORT:
+                    newValue.add(Short.parseShort(override));
+                    break;
+                case LONG:
+                    newValue.add(Long.parseLong(override));
+                    break;
+                case DATE:
+                    Calendar calendar = DatatypeConverter.parseDateTime(override);
+                    newValue.add(calendar.getTime());
+                    break;
+                case BOOLEAN:
+                    newValue.add(Boolean.parseBoolean(override));
+                    break;
+                case BINARY:
+                    newValue.add(override.getBytes(Charset.forName("UTF-8")));
+                    break;
+                case OBJECT:
+                case STRING:
+                case GEOMETRY:
+                case XML:
+                    newValue.add(override);
+                    break;
+                }
+            } catch (IllegalArgumentException e) {
                 return null;
             }
-            return new AttributeImpl(attributeDescriptor.getName(), newValue);
-        } catch (IllegalArgumentException e) {
-            return null;
         }
+        return new AttributeImpl(attributeDescriptor.getName(), newValue);
     }
 
     private CreateRequest setDefaultValues(CreateRequest createRequest) {
@@ -701,8 +703,8 @@ public class CreateOperations {
     private CreateStorageRequest applyAttributeOverrides(CreateStorageRequest createStorageRequest,
             Map<String, Metacard> metacardMap) {
         // Get attributeOverrides, apply them and then remove them from the streamCreateRequest so they are not exposed to plugins
-        Map<String, String> attributeOverrideHeaders =
-                (HashMap<String, String>) createStorageRequest.getProperties()
+        Map<String, Serializable> attributeOverrideHeaders =
+                (HashMap<String, Serializable>) createStorageRequest.getProperties()
                         .get(Constants.ATTRIBUTE_OVERRIDES_KEY);
         applyAttributeOverridesToMetacardMap(attributeOverrideHeaders, metacardMap);
         createStorageRequest.getProperties()

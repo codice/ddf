@@ -23,6 +23,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
 
 public interface ServiceManager {
 
@@ -39,7 +40,7 @@ public interface ServiceManager {
      * @param properties the service properties for the Managed Service
      * @throws IOException if access to persistent storage fails
      */
-    void createManagedService(String factoryPid, Map<String, Object> properties) throws IOException;
+    Configuration createManagedService(String factoryPid, Map<String, Object> properties) throws IOException;
 
     /**
      * Starts a Managed Service. Waits for the asynchronous call that the properties have been

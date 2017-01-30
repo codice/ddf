@@ -113,12 +113,14 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public void createManagedService(String factoryPid, Map<String, Object> properties)
+    public Configuration createManagedService(String factoryPid, Map<String, Object> properties)
             throws IOException {
 
         Configuration sourceConfig = adminConfig.createFactoryConfiguration(factoryPid, null);
 
         startManagedService(sourceConfig, properties);
+
+        return sourceConfig;
     }
 
     @Override

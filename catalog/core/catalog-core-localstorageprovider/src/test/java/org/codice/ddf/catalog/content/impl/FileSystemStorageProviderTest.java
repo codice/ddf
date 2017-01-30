@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -28,16 +29,21 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
@@ -51,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 
+import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
@@ -150,6 +157,32 @@ public class FileSystemStorageProviderTest {
                 .getUri());
 
         assertReadRequest(uri, NITF_MIME_TYPE);
+    }
+
+    @Test(expected = StorageException.class)
+    public void testReadDeletedReference() throws Exception {
+        Path tempFile = Files.createTempFile("test", "nitf");
+        Files.write(tempFile, TEST_INPUT_CONTENTS.getBytes());
+        CreateStorageResponse createResponse = assertContentItem(TEST_INPUT_CONTENTS,
+                NITF_MIME_TYPE,
+                TEST_INPUT_FILENAME,
+                Collections.singletonMap(Constants.STORE_REFERENCE_KEY,
+                        tempFile.toFile()
+                                .getAbsolutePath()));
+        URI uri = new URI(createResponse.getCreatedContentItems()
+                .get(0)
+                .getUri());
+
+        ReadStorageResponse read =
+                provider.read(new ReadStorageRequestImpl(new URI(createResponse.getCreatedContentItems()
+                        .get(0)
+                        .getUri()), Collections.emptyMap()));
+        assertThat(read.getContentItem(), is(notNullValue()));
+        Files.delete(tempFile);
+        provider.read(new ReadStorageRequestImpl(new URI(createResponse.getCreatedContentItems()
+                .get(0)
+                .getUri()), Collections.emptyMap()));
+
     }
 
     @Test
@@ -573,9 +606,70 @@ public class FileSystemStorageProviderTest {
         }
     }
 
+    @Test
+    public void testDeleteReference() throws Exception {
+        String path = baseTmpDir + File.separator + TEST_INPUT_FILENAME;
+        FileUtils.writeStringToFile(new File(path), TEST_INPUT_CONTENTS);
+
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(Constants.STORE_REFERENCE_KEY, path);
+
+        CreateStorageResponse createResponse = assertContentItem(TEST_INPUT_CONTENTS,
+                NITF_MIME_TYPE,
+                TEST_INPUT_FILENAME,
+                properties);
+
+        String id = createResponse.getCreatedContentItems()
+                .get(0)
+                .getId();
+        DeleteStorageRequest deleteRequest =
+                new DeleteStorageRequestImpl(createResponse.getCreatedContentItems()
+                        .stream()
+                        .map(ContentItem::getMetacard)
+                        .collect(Collectors.toList()), null);
+        when(deleteRequest.getMetacards()
+                .get(0)
+                .getId()).thenReturn(id);
+
+        DeleteStorageResponse deleteResponse = provider.delete(deleteRequest);
+        List<ContentItem> items = deleteResponse.getDeletedContentItems();
+        ContentItem item = items.get(0);
+
+        LOGGER.debug("Item retrieved: {}", item);
+        assertEquals(id, item.getId());
+        assertThat(item.getFilename(), isEmptyString());
+
+        assertTrue(new File(path).exists());
+    }
+
+    @Test
+    public void testCreateAndReadReference() throws Exception {
+        String path = baseTmpDir + File.separator + TEST_INPUT_FILENAME;
+        FileUtils.writeStringToFile(new File(path), TEST_INPUT_CONTENTS);
+
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(Constants.STORE_REFERENCE_KEY, path);
+
+        CreateStorageResponse createResponse = assertContentItem(TEST_INPUT_CONTENTS,
+                NITF_MIME_TYPE,
+                TEST_INPUT_FILENAME,
+                properties);
+
+        URI uri = new URI(createResponse.getCreatedContentItems()
+                .get(0)
+                .getUri());
+
+        assertReadRequest(uri, NITF_MIME_TYPE, true);
+    }
+
     /**
      * *******************************************************************************
      */
+
+    private CreateStorageResponse assertContentItem(String data, String mimeTypeRawData,
+            String filename, Map<String, Serializable> properties) throws Exception {
+        return assertContentItemWithQualifier(data, mimeTypeRawData, filename, "", "", properties);
+    }
 
     private CreateStorageResponse assertContentItem(String data, String mimeTypeRawData,
             String filename) throws Exception {
@@ -584,6 +678,12 @@ public class FileSystemStorageProviderTest {
 
     public CreateStorageResponse assertContentItemWithQualifier(String data, String mimeTypeRawData,
             String filename, String id, String qualifier) throws Exception {
+        return assertContentItemWithQualifier(data, mimeTypeRawData, filename, id, qualifier, null);
+    }
+
+    public CreateStorageResponse assertContentItemWithQualifier(String data, String mimeTypeRawData,
+            String filename, String id, String qualifier, Map<String, Serializable> properties)
+            throws Exception {
         // Simulates what ContentFrameworkImpl would do
         String uuid = StringUtils.defaultIfBlank(id,
                 UUID.randomUUID()
@@ -603,7 +703,7 @@ public class FileSystemStorageProviderTest {
                 byteSource.size(),
                 mock(Metacard.class));
         CreateStorageRequest createRequest = new CreateStorageRequestImpl(Collections.singletonList(
-                contentItem), null);
+                contentItem), properties);
         CreateStorageResponse createResponse = provider.create(createRequest);
         List<ContentItem> createdContentItems = createResponse.getCreatedContentItems();
         ContentItem createdContentItem =
@@ -639,6 +739,11 @@ public class FileSystemStorageProviderTest {
     }
 
     private void assertReadRequest(URI uri, String mimeType) throws StorageException, IOException {
+        assertReadRequest(uri, mimeType, false);
+    }
+
+    private void assertReadRequest(URI uri, String mimeType, boolean extension)
+            throws StorageException, IOException {
         ReadStorageRequest readRequest = new ReadStorageRequestImpl(uri, null);
 
         ReadStorageResponse readResponse = provider.read(readRequest);
@@ -661,6 +766,9 @@ public class FileSystemStorageProviderTest {
                         + (StringUtils.isNotBlank(item.getQualifier()) ?
                         File.separator + item.getQualifier() :
                         "") + File.separator + item.getFilename();
+        if (extension) {
+            expectedFilePath = expectedFilePath + "." + FileSystemStorageProvider.REF_EXT;
+        }
         assertThat(Files.exists(Paths.get(expectedFilePath)), is(true));
         assertTrue(item.getSize() > 0);
     }
