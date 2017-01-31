@@ -55,7 +55,6 @@ import org.codice.ddf.commands.catalog.export.ExportItem;
 import org.codice.ddf.commands.catalog.export.IdAndUriMetacard;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
 import org.geotools.filter.text.cql2.CQLException;
-import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.osgi.framework.InvalidSyntaxException;
@@ -118,8 +117,7 @@ public class ExportCommand extends CqlCommands {
 
     private Filter revisionFilter;
 
-    @Reference
-    private JarSigner jarSigner;
+    private JarSigner jarSigner = new JarSigner();
 
     @Reference
     private StorageProvider storageProvider;
@@ -192,13 +190,14 @@ public class ExportCommand extends CqlCommands {
         }
 
         console.println("Signing zip file...");
+        start = Instant.now();
         jarSigner.signJar(zipFile.getFile(),
                 System.getProperty("org.codice.ddf.system.hostname"),
                 System.getProperty("javax.net.ssl.keyStorePassword"),
                 System.getProperty("javax.net.ssl.keyStore"),
                 System.getProperty("javax.net.ssl.keyStorePassword"));
-        console.println("zip file signed.");
-
+        console.println("zip file signed in: " + Duration.between(start, Instant.now()));
+        console.println("Export complete.");
         return null;
     }
 
@@ -217,7 +216,7 @@ public class ExportCommand extends CqlCommands {
     }
 
     private List<ExportItem> doMetacardExport(ZipFile zipFile, Filter filter) {
-        List<ExportItem> exportedItems = new ArrayList<>(1024);
+        List<ExportItem> exportedItems = new ArrayList<>();
         for (Result result : new QueryResulterable(catalogFramework,
                 (i) -> getQuery(filter, i, PAGE_SIZE),
                 PAGE_SIZE)) {
@@ -263,7 +262,7 @@ public class ExportCommand extends CqlCommands {
                         .getSchemeSpecificPart()))
                 .collect(Collectors.toList());
 
-        List<ExportItem> exportedContentItems = new ArrayList<>(1024);
+        List<ExportItem> exportedContentItems = new ArrayList<>();
         for (ExportItem contentItem : contentItemsToExport) {
             ResourceResponse resource;
             try {
@@ -286,6 +285,21 @@ public class ExportCommand extends CqlCommands {
         Instant start;
         console.println("Starting delete");
         start = Instant.now();
+        for (ExportItem exportedContentItem : exportedContentItems) {
+            try {
+                DeleteStorageRequestImpl deleteRequest =
+                        new DeleteStorageRequestImpl(Collections.singletonList(new IdAndUriMetacard(
+                                exportedContentItem.getId(),
+                                exportedContentItem.getResourceURI())),
+                                exportedContentItem.getId(),
+                                Collections.emptyMap());
+                storageProvider.delete(deleteRequest);
+                storageProvider.commit(deleteRequest);
+            } catch (StorageException e) {
+                printErrorMessage(
+                        "Could not content for metacard: " + exportedContentItem.toString());
+            }
+        }
         for (ExportItem exported : exportedItems) {
             try {
                 catalogProvider.delete(new DeleteRequestImpl(exported.getId()));
@@ -294,16 +308,6 @@ public class ExportCommand extends CqlCommands {
             }
         }
 
-        for (ExportItem exportedContentItem : exportedContentItems) {
-            try {
-                storageProvider.delete(new DeleteStorageRequestImpl(Collections.singletonList(new IdAndUriMetacard(
-                        exportedContentItem.getId(),
-                        exportedContentItem.getResourceURI())), Collections.emptyMap()));
-            } catch (StorageException e) {
-                printErrorMessage(
-                        "Could not content for metacard: " + exportedContentItem.toString());
-            }
-        }
         console.println(
                 "Metacards and Content deleted in: " + Duration.between(start, Instant.now()));
         console.println("Number of content deleted: " + exportedItems.size());
@@ -446,23 +450,11 @@ public class ExportCommand extends CqlCommands {
                 TimeUnit.MINUTES.toMillis(1)), new HashMap<>());
     }
 
-    private And getIdsFilter(List<String> ids, int pageSize, Integer index) {
-        return filterBuilder.allOf(filterBuilder.attribute(Metacard.TAGS)
-                        .is()
-                        .like()
-                        .text("*"),
-                filterBuilder.anyOf(ids.stream()
-                        .skip(Math.max(0, index - 1))
-                        .limit(pageSize)
-                        .map(id -> filterBuilder.attribute(Metacard.ID)
-                                .is()
-                                .equalTo()
-                                .text(id))
-                        .collect(Collectors.toList())));
-    }
-
     /**
      * Effectively a cursor over the results of a filter that automatically pages through all results
+     * <br/>
+     * Throws a {@link CatalogCommandRuntimeException} if anything goes wrong during iteration or
+     * querying
      */
     class QueryResulterable implements Iterable<Result> {
         private final CatalogFramework catalog;
@@ -475,7 +467,8 @@ public class ExportCommand extends CqlCommands {
          * For paging through a single filter with a default pageSize of 64
          *
          * @param catalog catalog to query
-         * @param filter  The filter to query with
+         * @param filter  A dynamic supplier of a filter that takes the current index such that
+         *                the caller can control iteration based on their own logic
          */
         public QueryResulterable(CatalogFramework catalog, Function<Integer, QueryRequest> filter) {
             this(catalog, filter, 64);
@@ -485,7 +478,8 @@ public class ExportCommand extends CqlCommands {
          * For paging through a single filter.
          *
          * @param catalog  catalog to query
-         * @param filter   The filter to query with
+         * @param filter   A dynamic supplier of a filter that takes the current index such that
+         *                 the caller can control iteration based on their own logic
          * @param pageSize How many results should each page hold
          */
         public QueryResulterable(CatalogFramework catalog, Function<Integer, QueryRequest> filter,
@@ -495,18 +489,6 @@ public class ExportCommand extends CqlCommands {
             this.pageSize = pageSize;
         }
 
-        //        /**
-        //         * For efficient batching and iterating by a given list of metacard ids.
-        //         *
-        //         * @param catalog  catalog to query
-        //         * @param ids      List of ids to query for and iterate through
-        //         * @param pageSize How many results should each page hold
-        //         */
-        //        QueryResulterable(CatalogFramework catalog, Function<Integer, QueryRequestImpl> filter, int pageSize) {
-        //            this.catalog = catalog;
-        //            this.filter = (i) -> getQuery(getIdsFilter(ids, pageSize, i), 1, pageSize + 1);
-        //            this.pageSize = pageSize;
-        //        }
         @Override
         public Iterator<Result> iterator() {
             return new ResultQueryIterator();
