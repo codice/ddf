@@ -20,7 +20,7 @@
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
 
-    <bean id="jarSigner" class="org.codice.ddf.catalog.transformer.zip.JarSigner"/>
+    <bean id="jarSigner" class="org.codice.ddf.catalog.transformer.common.sign.JarSigner"/>
 
     <bean id="zipValidation" class="org.codice.ddf.catalog.transformer.zip.ZipValidator" init-method="init">
         <property name="signaturePropertiesPath"
