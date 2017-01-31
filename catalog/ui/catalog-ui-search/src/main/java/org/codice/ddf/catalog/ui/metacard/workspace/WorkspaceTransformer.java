@@ -174,7 +174,7 @@ public class WorkspaceTransformer {
                 .filter(Objects::nonNull)
                 .map(this::remapJsonEntry)
                 .filter(e -> e.getKey() != null && e.getValue() != null)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (left, right) -> left));
     }
 
     public List<Map<String, Object>> transform(List<Metacard> metacards) {
