@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.security.common.util.Security;
+
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
@@ -74,6 +75,16 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
     private final Executor configurationExecutor;
 
+    private static final int MAX_THREAD_SIZE = 8;
+
+    private static final int MIN_THREAD_SIZE = 1;
+
+    private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
+
+    private Integer numThreads;
+
+    private Integer readLockIntervalMilliseconds;
+
     Processor systemSubjectBinder = new SystemSubjectBinder();
 
     /**
@@ -106,6 +117,36 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         this.maxRetries = maxRetries;
         this.delayBetweenRetries = delayBetweenRetries;
         this.configurationExecutor = configurationExecutor;
+    }
+
+    /**
+     * Set the thread pool size with the given argument.  If the given argument is less than 1,
+     * numThreads is set to 1.  If the given argument is greater than the MAX_THREAD_SIZE, numThreads
+     * is set to MAX_THREAD_SIZE.
+     *
+     * @param numThreads - the specified size to make the thread pool
+     */
+    public void setNumThreads(Integer numThreads) {
+        this.numThreads = Math.max(numThreads, MIN_THREAD_SIZE);
+        this.numThreads = Math.min(this.numThreads, MAX_THREAD_SIZE);
+    }
+
+    public Integer getNumThreads() {
+        return numThreads;
+    }
+
+    /**
+     * Set the read lock interval for the Camel Route with the given argument.  If the readLockIntervalMilliseconds
+     * is less than 100, set it to 100.
+     *
+     * @param readLockIntervalMilliseconds
+     */
+    public void setReadLockIntervalMilliseconds(Integer readLockIntervalMilliseconds) {
+        this.readLockIntervalMilliseconds = Math.max(readLockIntervalMilliseconds, MIN_READLOCK_INTERVAL_MILLISECONDS);
+    }
+
+    public Integer getReadLockIntervalMilliseconds() {
+        return readLockIntervalMilliseconds;
     }
 
     /**
@@ -179,6 +220,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         if (properties != null) {
             setMonitoredDirectoryPath((String) properties.get("monitoredDirectoryPath"));
             setProcessingMechanism((String) properties.get("processingMechanism"));
+            setNumThreads((Integer) properties.get("numThreads"));
+            setReadLockIntervalMilliseconds((Integer) properties.get("readLockIntervalMilliseconds"));
             String[] parameterArray = (String[]) properties.get(Constants.ATTRIBUTE_OVERRIDES_KEY);
             if (parameterArray != null) {
                 setAttributeOverrides(Arrays.asList(parameterArray));
@@ -270,11 +313,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                // Configure the camel route to ignore changing file (larger files that are in the process of being copied)
+                // Configure the camel route to ignore changing files (larger files that are in the process of being copied)
                 // Set the readLockTimeout to continuously poll the directory so long as the directory monitor exists
-                // Set the readLockCheckInterval to check every 5 seconds
+                // Set the readLockCheckInterval to check every readLockIntervalMilliseconds
                 String inbox = "file:" + monitoredDirectory
-                        + "?recursive=true&moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval=5000";
+                        + "?idempotent=true&readLockMinLength=0&recursive=true&moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval="
+                        + readLockIntervalMilliseconds;
                 switch (processingMechanism) {
                 case DELETE:
                     inbox += "&delete=true";
@@ -294,17 +338,17 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                     String attributeOverrideString = attributeOverrides.stream()
                             .map(String::trim)
                             .collect(Collectors.joining(","));
-                    routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY,
-                            simple(attributeOverrideString));
+                    routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY, simple(
+                            attributeOverrideString));
                 }
                 if (IN_PLACE.equals(processingMechanism)) {
-                    routeDefinition.setHeader(Constants.STORE_REFERENCE_KEY,
-                            simple(String.valueOf(IN_PLACE.equals(processingMechanism)),
-                                    Boolean.class));
+                    routeDefinition.setHeader(Constants.STORE_REFERENCE_KEY, simple(String.valueOf(
+                                    IN_PLACE.equals(processingMechanism)), Boolean.class));
                 }
 
                 LOGGER.trace("About to process scheme content:framework");
-                routeDefinition.process(systemSubjectBinder)
+                routeDefinition.threads(numThreads)
+                        .process(systemSubjectBinder)
                         .to("content:framework");
             }
         };

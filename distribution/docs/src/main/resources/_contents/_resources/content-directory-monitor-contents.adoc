@@ -1,8 +1,8 @@
 
 === Directory Monitors
 
-====  Content Directory Monitor
-The Content Directory Monitor provides the capability to easily add content and metacards into the ${ddf-catalog} by placing a file in a directory.
+====  Content Directory Monitor (CDM)
+The Content Directory Monitor (CDM) provides the capability to easily add content and metacards into the ${ddf-catalog} by placing a file in a directory.
 
 ===== Installing the Content Directory Monitor
 
@@ -10,7 +10,7 @@ The Content Directory Monitor is installed by default with a standard installati
 
 ===== Configuring the Content Directory Monitor
 
-Configure the Content Directory Monitor from the ${admin-console}:
+Configure the CDM from the ${admin-console}:
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
@@ -21,7 +21,7 @@ include::{adoc-include}/_tables/org.codice.ddf.catalog.content.monitor.ContentDi
 
 ===== Using the Content Directory Monitor
 
-The Content Directory Monitor processes files in a directory, and all of its sub-directories. The Content Directory Monitor offers three options:
+The CDM processes files in a directory, and all of its sub-directories. The CDM offers three options:
 
 * Delete
 * Move
@@ -47,8 +47,16 @@ Regardless of the option, the ${branding} takes each file in a monitored directo
 ** If the original file is modified, the metacard is updated to reflect the new content.
 ** If the original file is renamed, the old metacard is deleted and a new metacard is created.
 
-.Atribute Mapper
-The Content Directory Monitor supports setting metacard attributes directly when ${branding} ingests a file. Custom mappings are entered in the form:
+.Parallel Processing
+The CDM supports parallel processing of files (up to 8 files processed concurrently).  This is configured by setting the number of *Maximum Concurrent Files* in the configuration.  A maximum of 8 is imposed to protect system resources.
+
+.Read Lock
+When the CDM is set up, the directory specified is continuously scanned, and files are locked for processing based on the *ReadLock Time Interval*.  This does not apply to the *Monitor in place* processing directive.  Files will not be ingested without having a ReadLock that has observed no change in the file size.
+This is done so that files that are in transit will not be ingested prematurely.  It is recommended that the *ReadLock Time Interval* be set to a lower amount of time when the *Maximum Concurrent Files* is set above 1 so that files are
+locked in a timely manner and processed as soon as possible.  When a higher *ReadLock Time Interval* is set, the time it takes for files to be processed is increased.
+
+.Attribute Mapper
+The CDM supports setting metacard attributes directly when ${branding} ingests a file. Custom mappings are entered in the form:
 
 `*attribute-name=attribute-value*`
 
@@ -65,7 +73,7 @@ To set multi-valued attributes, use a separate override for each value. For exam
 `*topic.keyword=radiology*`
 
 .Errors
-If the directory monitor fails to read the file, an error will be logged in the ingest log. If the directory monitor is
+If the CDM fails to read the file, an error will be logged in the ingest log. If the directory monitor is
 configured to *Delete* or *Move*, the original file is also moved to the `\.errors` directory.
 
 .Other
