@@ -16,6 +16,7 @@ package org.codice.ddf.configuration.admin;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -76,7 +77,42 @@ public class ConfigurationFilesPollerTest {
         configurationFilesPoller.init();
 
         // Verify
+        verify(mockConfigurationDirectory).register(mockWatchService,
+                StandardWatchEventKinds.ENTRY_CREATE);
         verify(mockExecutorService).execute(configurationFilesPoller);
+    }
+
+    /**
+     * Verify that when the configurationDirectoryPath fails to register with the WatchService,
+     * the init method fails.
+     */
+    @Test(expected = IOException.class)
+    public void testInitFailsToRegisterPathWithWatchService() throws Exception {
+        // Setup
+        Path mockPath = getMockPath(PID, FILE_EXT);
+        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath,
+                StandardWatchEventKinds.ENTRY_CREATE);
+        List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
+        WatchKey mockWatchKey = getMockWatchKey(watchEvents);
+        WatchService mockWatchService = getMockWatchService(mockWatchKey);
+        Path mockConfigurationDirectory = mock(Path.class);
+        when(mockConfigurationDirectory.register(mockWatchService,
+                StandardWatchEventKinds.ENTRY_CREATE)).thenThrow(new IOException());
+        ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
+                mockConfigurationDirectory,
+                FILE_EXT,
+                mockWatchService,
+                mockExecutorService);
+
+        // Perform Test
+        try {
+            configurationFilesPoller.init();
+        } catch (IOException e) {
+            // Verify
+            verify(mockExecutorService, never()).execute(configurationFilesPoller);
+            verify(mockWatchService, never()).take();
+            throw e;
+        }
     }
 
     /**
@@ -129,7 +165,7 @@ public class ConfigurationFilesPollerTest {
         configurationFilesPoller.run();
 
         // Verify
-        verify(mockChangeListener, times(0)).notify(any(Path.class));
+        verify(mockChangeListener, never()).notify(any(Path.class));
     }
 
     /**
@@ -157,7 +193,7 @@ public class ConfigurationFilesPollerTest {
         configurationFilesPoller.run();
 
         // Verify
-        verify(mockChangeListener, times(0)).notify(any(Path.class));
+        verify(mockChangeListener, never()).notify(any(Path.class));
     }
 
     /**
@@ -185,7 +221,7 @@ public class ConfigurationFilesPollerTest {
         configurationFilesPoller.run();
 
         // Verify
-        verify(mockChangeListener, times(0)).notify(any(Path.class));
+        verify(mockChangeListener, never()).notify(any(Path.class));
     }
 
     /**
@@ -242,37 +278,7 @@ public class ConfigurationFilesPollerTest {
         configurationFilesPoller.run();
 
         // Verify
-        verify(mockChangeListener, times(0)).notify(any(Path.class));
-    }
-
-    /**
-     * Verify that when the configurationDirectoryPath fails to register with the WatchService,
-     * the run method exits and the WatchService does not attempt to take any watch keys.
-     */
-    @Test
-    public void testRunFailsToRegisterPathWithWatchService() throws Exception {
-        // Setup
-        Path mockPath = getMockPath(PID, FILE_EXT);
-        WatchEvent<?> mockWatchEvent = getMockWatchEvent(mockPath,
-                StandardWatchEventKinds.ENTRY_CREATE);
-        List<WatchEvent<?>> watchEvents = getSingleMockWatchEvent(mockWatchEvent);
-        WatchKey mockWatchKey = getMockWatchKey(watchEvents);
-        WatchService mockWatchService = getMockWatchService(mockWatchKey);
-        Path mockConfigurationDirectory = mock(Path.class);
-        when(mockConfigurationDirectory.register(mockWatchService,
-                StandardWatchEventKinds.ENTRY_CREATE)).thenThrow(new IOException());
-        ConfigurationFilesPoller configurationFilesPoller = new ConfigurationFilesPoller(
-                mockConfigurationDirectory,
-                FILE_EXT,
-                mockWatchService,
-                mockExecutorService);
-        configurationFilesPoller.register(mockChangeListener);
-
-        // Perform Test
-        configurationFilesPoller.run();
-
-        // Verify
-        verify(mockWatchService, times(0)).take();
+        verify(mockChangeListener, never()).notify(any(Path.class));
     }
 
     /**
@@ -300,7 +306,7 @@ public class ConfigurationFilesPollerTest {
         configurationFilesPoller.run();
 
         // Verify
-        verify(mockChangeListener, times(0)).notify(any(Path.class));
+        verify(mockChangeListener, never()).notify(any(Path.class));
     }
 
     @Test
