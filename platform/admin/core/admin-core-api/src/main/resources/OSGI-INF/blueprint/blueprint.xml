@@ -20,11 +20,20 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
+    <bean id="propertiesFileSupport" class="org.codice.ddf.ui.admin.api.util.PropertiesFileReader"/>
+
     <bean id="guestClaimsHandlerExt" class="org.codice.ddf.ui.admin.api.GuestClaimsHandlerExt"
           init-method="init">
-        <property name="availableClaimsFile" value="${ddf.home}/etc/ws-security/attributeMap.properties"/>
-        <property name="profileDir" value="${ddf.home}/etc/ws-security/profiles/"/>
-        <property name="immutableClaims" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
+        <argument ref="propertiesFileSupport"/>
+        <argument>
+            <list value-type="java.lang.String">
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier</value>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role</value>
+            </list>
+        </argument>
+        <argument value="${ddf.home}/etc/ws-security/profiles/"/>
+        <argument value="${ddf.home}/etc/ws-security/profile-banners/"/>
+        <argument value="${ddf.home}/etc/ws-security/attributeMap.properties"/>
     </bean>
 
     <bean id="configAdminMbean" class="org.codice.ddf.ui.admin.api.ConfigurationAdmin"
@@ -37,7 +46,8 @@
         <property name="guestClaimsHandlerExt" ref="guestClaimsHandlerExt"/>
     </bean>
 
-    <bean id="systemProperties" class="org.codice.ddf.ui.admin.api.impl.SystemPropertiesAdmin" destroy-method="shutdown" />
+    <bean id="systemProperties" class="org.codice.ddf.ui.admin.api.impl.SystemPropertiesAdmin"
+          destroy-method="shutdown"/>
 
     <reference-list id="configurationAdminPluginList"
                     interface="org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin"

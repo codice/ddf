@@ -19,11 +19,13 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.codice.ddf.ui.admin.api.util.PropertiesFileReader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +34,8 @@ import org.junit.rules.TemporaryFolder;
 public class GuestClaimsHandlerExtTest {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    private static final String BANNER_DIRECTORY = "fake/banner/directory/";
 
     private boolean filesCreated = false;
 
@@ -89,51 +93,43 @@ public class GuestClaimsHandlerExtTest {
 
     @Test
     public void testInitNormal() throws Exception {
-        GuestClaimsHandlerExt ache = new GuestClaimsHandlerExt();
-        ache.setAvailableClaimsFile(availableClaimsFilePath);
-        ache.setProfileDir(profileDirPath);
-        ache.setImmutableClaims("testClaim1,testClaim2");
-        ache.init();
-        assertThat(ache.getClaims()
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profileDirPath,
+                availableClaimsFilePath);
+        handlerExt.init();
+        assertThat(handlerExt.getClaims()
                 .size(), equalTo(2));
-        assertThat(ache.getClaimsProfiles()
+        assertThat(handlerExt.getClaimsProfiles()
                 .size(), equalTo(2));
     }
 
     @Test
     public void testInitBadClaimsPath() throws Exception {
-        GuestClaimsHandlerExt ache = new GuestClaimsHandlerExt();
-        ache.setAvailableClaimsFile("/this/path/is/bad/12321231");
-        ache.setProfileDir(profileDirPath);
-        ache.setImmutableClaims("testClaim1,testClaim2");
-        ache.init();
-        assertThat(ache.getClaims()
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profileDirPath,
+                "/this/path/is/bad/12321231");
+        handlerExt.init();
+        assertThat(handlerExt.getClaims()
                 .size(), equalTo(2));
-        assertThat(ache.getClaimsProfiles()
+        assertThat(handlerExt.getClaimsProfiles()
                 .size(), equalTo(2));
     }
 
     @Test
     public void testInitBadProfilePath() throws Exception {
-        GuestClaimsHandlerExt ache = new GuestClaimsHandlerExt();
-        ache.setAvailableClaimsFile(availableClaimsFilePath);
-        ache.setProfileDir("/this/path/is/bad/12321231");
-        ache.setImmutableClaims("testClaim1,testClaim2");
-        ache.init();
-        assertThat(ache.getClaims()
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest("/this/path/is/bad/12321231",
+                availableClaimsFilePath);
+        handlerExt.init();
+        assertThat(handlerExt.getClaims()
                 .size(), equalTo(2));
-        assertThat(ache.getClaimsProfiles()
+        assertThat(handlerExt.getClaimsProfiles()
                 .size(), equalTo(2));
     }
 
     @Test
     public void testGetClaimsProfilesNormal() throws Exception {
-        GuestClaimsHandlerExt ache = new GuestClaimsHandlerExt();
-        ache.setAvailableClaimsFile(availableClaimsFilePath);
-        ache.setProfileDir(profileDirPath);
-        ache.setImmutableClaims("testClaim1,testClaim2");
-        ache.init();
-        Map<String, Object> profiles = ache.getClaimsProfiles();
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profileDirPath,
+                availableClaimsFilePath);
+        handlerExt.init();
+        Map<String, Object> profiles = handlerExt.getClaimsProfiles();
         assertThat(profiles.size(), equalTo(2));
         assertNotNull(profiles.get("availableProfiles"));
         assertNotNull(profiles.get("profileNames"));
@@ -146,12 +142,10 @@ public class GuestClaimsHandlerExtTest {
 
     @Test
     public void testGetClaimsNormal() throws Exception {
-        GuestClaimsHandlerExt ache = new GuestClaimsHandlerExt();
-        ache.setAvailableClaimsFile(availableClaimsFilePath);
-        ache.setProfileDir(profileDirPath);
-        ache.setImmutableClaims("testClaim1,testClaim2");
-        ache.init();
-        Map<String, Object> claims = ache.getClaims();
+        GuestClaimsHandlerExt handlerExt = new GuestClaimsHandlerUnderTest(profileDirPath,
+                availableClaimsFilePath);
+        handlerExt.init();
+        Map<String, Object> claims = handlerExt.getClaims();
         assertThat(claims.size(), equalTo(2));
         assertNotNull(claims.get("availableClaims"));
         assertNotNull(claims.get("immutableClaims"));
@@ -159,5 +153,15 @@ public class GuestClaimsHandlerExtTest {
         assertThat(availClaims.size(), equalTo(3));
         List<String> immutableClaims = (List<String>) claims.get("immutableClaims");
         assertThat(immutableClaims.size(), equalTo(2));
+    }
+
+    private static class GuestClaimsHandlerUnderTest extends GuestClaimsHandlerExt {
+        public GuestClaimsHandlerUnderTest(String profilesDirectory, String availableClaimsFile) {
+            super(new PropertiesFileReader(),
+                    Arrays.asList("testClaim1", "testClaim2"),
+                    profilesDirectory,
+                    BANNER_DIRECTORY,
+                    availableClaimsFile);
+        }
     }
 }

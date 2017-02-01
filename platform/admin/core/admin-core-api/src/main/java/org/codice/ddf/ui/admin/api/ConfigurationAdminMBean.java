@@ -184,6 +184,22 @@ public interface ConfigurationAdminMBean {
     boolean update(String pid, Map<String, Object> configurationTable) throws IOException;
 
     /**
+     * Interceptor method for special handling of guest claims profile data.
+     *
+     * @param pid                the persistent identifier of the configuration
+     * @param configurationTable the table of properties
+     * @throws IOException if the operation fails
+     * @see GuestClaimsHandlerExt for details on the usage of this special case of
+     * {@link #update(String, Map)}.
+     * @see #update(String, Map) for the generic version of this method; this method acts as an
+     * interceptor to handle the special case where processing specific to guest claims occurs before
+     * passing the configuration data to {@link #update(String, Map)} for persistence in OSGi's
+     * configuration admin.
+     */
+    boolean updateGuestClaimsProfile(String pid, Map<String, Object> configurationTable)
+            throws IOException;
+
+    /**
      * Update the configuration with the supplied properties For each property entry, the following
      * row is supplied
      * <p>
