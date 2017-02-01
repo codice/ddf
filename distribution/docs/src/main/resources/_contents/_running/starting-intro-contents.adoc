@@ -7,12 +7,12 @@ Run one of the start scripts from a command shell to start the distribution and 
 
 .Start Script: \*NIX
 ----
-INSTALLATION_HOME/bin/${ddf-branding-lowercase}
+<${branding}_HOME>/bin/${ddf-branding-lowercase}
 ----
 
 .Start Script: Windows
 ----
-INSTALLATION_HOME/bin/${branding-lowercase}.bat
+<${branding}_HOME>/bin/${branding-lowercase}.bat
 ----
 
 ==== Starting as a Service
@@ -67,12 +67,12 @@ ${branding-lowercase}${at-symbol}local>shutdown -f
 
 .*NIX
 ----
-${branding}_INSTALL/bin/stop
+<${branding}_HOME>/bin/stop
 ----
 
 .Windows
 ----
-${branding}_INSTALL/bin/stop.bat
+<${branding}_HOME>/bin/stop.bat
 ----
 
 .Shut Down
@@ -92,57 +92,55 @@ Because ${branding} is built on top of Apache Karaf, ${branding} can use the Kar
 .Within the ${branding} console
 ----
 ${branding-lowercase}${at-symbol}local> feature:install wrapper
-${branding-lowercase}${at-symbol}local> wrapper:install -s AUTO_START -n ${ddf-branding-lowercase} -d ${ddf-branding-lowercase} -D "${branding} Service"
+${branding-lowercase}${at-symbol}local> wrapper:install -s AUTO_START -n ${branding-lowercase} -d ${branding-lowercase} -D "${branding} Service"
 ----
 +
-. (Windows users skip to next step) (All *NIX) If ${branding} was installed to run as a non-root user (recommended,) edit `INSTALLATION_HOME/bin/${branding-lowercase}-service`.
+. (Windows users skip to next step) (All *NIX) If ${branding} was installed to run as a non-root user (recommended,) edit `<${branding}_HOME>/bin/${branding-lowercase}-service`.
 +
 Change:
 +
-.INSTALLATION_HOME/bin/${branding-lowercase}-service
+.<${branding}_HOME>/bin/${branding-lowercase}-service
 ----
 #RUN_AS_USER=
 ----
 +
 to:
 +
-.INSTALLATION_HOME/bin/${branding-lowercase}-service
+.<${branding}_HOME>/bin/${branding-lowercase}-service
 ----
 RUN_AS_USER=<${branding-lowercase}-user>
 ----
 +
 . Set the memory in the wrapper config to match with ${branding} default memory setting.
 +
-.INSTALLATION_HOME/etc/${branding-lowercase}-wrapper.conf
+.<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
 [source,java,linenums]
 ----
 #Add the following:
 wrapper.java.additional.10=-D${ddf-branding-lowercase}.home=%KARAF_HOME%
-wrapper.java.additional.12=-Dderby.storage.fileSyncTransactionLog=true
-wrapper.java.additional.11=-server
+wrapper.java.additional.11=-Dderby.storage.fileSyncTransactionLog=true
+wrapper.java.additional.12=-server
 wrapper.java.additional.13=-Dcom.sun.management.jmxremote
-wrapper.java.additional.12=-Djava.security.egd=file:/dev/./urandom
-wrapper.java.additional.14=-Dfile.encoding=UTF8
-wrapper.java.additional.13=-Dkaraf.instances=%KARAF_HOME%/instances
-wrapper.java.additional.15=-D${ddf-branding-lowercase}.home=%${branding}_HOME%
-wrapper.java.additional.14=-Dkaraf.restart.jvm.supported=true
-wrapper.java.additional.15=-Djava.io.tmpdir=%KARAF_HOME%/data/tmp
-wrapper.java.additional.16=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
-wrapper.java.additional.17=-Dfile.encoding=UTF8
-wrapper.java.additional.18=-XX:+UnlockDiagnosticVMOptions
-wrapper.java.additional.19=-XX:+UnsyncloadClass
-wrapper.java.additional.20=-Dderby.system.home=%KARAF_HOME%/data/derby
-wrapper.java.additional.21=-Dderby.storage.fileSyncTransactionLog=true
+wrapper.java.additional.14=-Djava.security.egd=file:/dev/./urandom
+wrapper.java.additional.15=-Dfile.encoding=UTF8
+wrapper.java.additional.16=-Dkaraf.instances=%KARAF_HOME%/instances
+wrapper.java.additional.17=-D${ddf-branding-lowercase}.home=%${ddf-branding}_HOME%
+wrapper.java.additional.18=-Dkaraf.restart.jvm.supported=true
+wrapper.java.additional.19=-Djava.io.tmpdir=%KARAF_HOME%/data/tmp
+wrapper.java.additional.20=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
+wrapper.java.additional.21=-XX:+UnlockDiagnosticVMOptions
+wrapper.java.additional.22=-XX:+UnsyncloadClass
+wrapper.java.additional.23=-Dderby.system.home=%KARAF_HOME%/data/derby
 
 #Update the following:
 wrapper.java.maxmemory=2048
 ----
 +
-. Set the `${branding}_HOME` property.
+. Set the `${ddf-branding}_HOME` property.
 +
-.INSTALLATION_HOME/etc/${branding-lowercase}-wrapper.conf
+.<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
 ----
-set.default.${branding}_HOME=%KARAF_HOME%
+set.default.${ddf-branding}_HOME=%KARAF_HOME%
 ----
 +
 . Install the wrapper startup/shutdown scripts.
@@ -152,33 +150,33 @@ set.default.${branding}_HOME=%KARAF_HOME%
 Run the following command in a console window. The command must be run with elevated permissions.
 +
 ----
-INSTALLATION_HOME/bin/${ddf-branding-lowercase}-service.bat install
+<${branding}_HOME>/bin/${branding-lowercase}-service.bat install
 ----
 Startup and shutdown settings can then be managed through *Services -> MMC Start -> Control Panel -> Administrative Tools -> Services*.
 +
 *Redhat*
 +
 ----
-root${at-symbol}localhost# ln -s ${branding}_INSTALL/bin/${branding-lowercase}-service /etc/init.d/
-root${at-symbol}localhost# chkconfig ${ddf-branding-lowercase}-service --add
-root${at-symbol}localhost# chkconfig ${ddf-branding-lowercase}-service on
+root${at-symbol}localhost# ln -s <${branding}_HOME>/bin/${branding-lowercase}-service /etc/init.d/
+root${at-symbol}localhost# chkconfig ${branding-lowercase}-service --add
+root${at-symbol}localhost# chkconfig ${branding-lowercase}-service on
 ----
 +
 *Ubuntu*
 +
 ----
-root${at-symbol}localhost# ln -s ${branding}_INSTALL/bin/${branding-lowercase}-service /etc/init.d/
-root${at-symbol}localhost# update-rc.d -f ${ddf-branding-lowercase}-service defaults
+root${at-symbol}localhost# ln -s <${branding}_HOME>/bin/${branding-lowercase}-service /etc/init.d/
+root${at-symbol}localhost# update-rc.d -f ${branding-lowercase}-service defaults
 ----
 +
 *Solaris*
 +
 ----
-root${at-symbol}localhost# ln -s ${branding}_INSTALL/bin/${branding-lowercase}-service /etc/init.d/
-root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc0.d/K20${ddf-branding-lowercase}-service
-root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc1.d/K20${ddf-branding-lowercase}-service
-root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc2.d/K20${ddf-branding-lowercase}-service
-root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc3.d/S20${ddf-branding-lowercase}-service
+root${at-symbol}localhost# ln -s <${branding}_HOME>/bin/${branding-lowercase}-service /etc/init.d/
+root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc0.d/K20${branding-lowercase}-service
+root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc1.d/K20${branding-lowercase}-service
+root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc2.d/K20${branding-lowercase}-service
+root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc3.d/S20${branding-lowercase}-service
 ----
 +
 [WARNING]
@@ -192,16 +190,16 @@ While it is not a necessary step, information on how to convert the System V ini
 Due to a slight difference between the Linux and Solaris implementation of the `ps` command, the `${ddf-branding-lowercase}-service` script needs to be modified.
 ====
 +
-. Locate the following line in ${branding}_INSTALL/bin/${branding-lowercase}-service
+. Locate the following line in <${branding}_HOME>/bin/${branding-lowercase}-service
 +
-.Solaris ${branding}_INSTALL/bin/${branding-lowercase}-service
+.Solaris <${branding}_HOME>/bin/${branding-lowercase}-service
 ----
 pidtest=`$PSEXE -p $pid -o command | grep $WRAPPER_CMD | tail -1`
 ----
 +
 . Change the word command to comm.
 +
-.Solaris ${branding}_Install/bin/${branding-lowercase}-service
+.Solaris <${branding}_HOME>/bin/${branding-lowercase}-service
 ----
 pidtest=`$PSEXE -p $pid -o comm | grep $WRAPPER_CMD | tail -1`
 ----

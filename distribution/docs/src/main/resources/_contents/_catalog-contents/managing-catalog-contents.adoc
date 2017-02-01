@@ -5,19 +5,20 @@ Clients typically perform create, read, update, and delete (CRUD) operations aga
 
 At the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.
 
-=== ${ddf-catalog} Application Prerequisites
+==== ${ddf-catalog} Application Prerequisites
 
 To use the ${ddf-catalog} Application, the following applications/features must be installed:
 
 * ${ddf-platform}
 
-=== Installing the ${ddf-catalog} Application
+==== Installing the ${ddf-catalog} Application
 
 The ${ddf-catalog} is pre-installed with a standard installation.
 
-=== Configuring the ${ddf-catalog} Application
+==== Configuring the ${ddf-catalog} Application
 
 These configurations are available throught the ${ddf-catalog} application.
+
 .${ddf-catalog} Available Configurations
 [cols="1,1m,2" options="header"]
 |===

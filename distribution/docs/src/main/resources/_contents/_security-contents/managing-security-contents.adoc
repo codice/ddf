@@ -13,17 +13,17 @@ This section documents the installation, maintenance, and support of this applic
 * Security PDP
 * Security STS
 
-=== ${ddf-security} Prerequisites
+====  ${ddf-security} Prerequisites
 
 To use the ${ddf-security} application, the following applications/features must be installed:
 
 * ${ddf-platform}
 
-=== Installing ${ddf-security}
+====  Installing ${ddf-security}
 
 ${ddf-security} is included with a standard installation.
 
-=== Configuring ${ddf-security}
+====  Configuring ${ddf-security}
 
 From the ${admin-console}, the following configurations are available from a standard installation.
 
