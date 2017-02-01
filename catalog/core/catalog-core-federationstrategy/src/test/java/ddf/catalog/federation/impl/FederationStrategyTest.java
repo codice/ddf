@@ -98,7 +98,7 @@ public class FederationStrategyTest {
 
     private static final long SHORT_TIMEOUT = 25;
 
-    private static final long LONG_TIMEOUT = 100;
+    private static final long LONG_TIMEOUT = TimeUnit.MINUTES.toMillis(1);
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(FederationStrategyTest.class.getName());
@@ -107,11 +107,16 @@ public class FederationStrategyTest {
 
     private ExecutorService executor;
 
+    private Query mockQuery;
+
     @Rule
     public PowerMockRule rule = new PowerMockRule();
 
     @Before
     public void setup() throws Exception {
+        mockQuery = mock(Query.class);
+        when(mockQuery.getTimeoutMillis()).thenReturn(LONG_TIMEOUT);
+
         filterFactory = new FilterFactoryImpl();
         refreshExecutor();
     }
@@ -269,12 +274,10 @@ public class FederationStrategyTest {
 
     @Test
     public void testNegativePageSizeQuery() throws Exception {
-        Query query = mock(Query.class);
-        when(query.getPageSize()).thenReturn(-1);
-        when(query.getTimeoutMillis()).thenReturn(LONG_TIMEOUT);
+        when(mockQuery.getPageSize()).thenReturn(-1);
 
         QueryRequest fedQueryRequest = mock(QueryRequest.class);
-        when(fedQueryRequest.getQuery()).thenReturn(query);
+        when(fedQueryRequest.getQuery()).thenReturn(mockQuery);
 
         Result mockResult = mock(Result.class);
 
@@ -309,7 +312,7 @@ public class FederationStrategyTest {
     }
 
     /**
-     * Verify that a modified version of the query passed is used by the sources.
+     * Verify that a modified version of the mockQuery passed is used by the sources.
      * <p>
      * Special results handling done by OffsetResultsHandler.
      */
@@ -329,7 +332,7 @@ public class FederationStrategyTest {
         ArgumentCaptor<QueryRequest> argument2 = ArgumentCaptor.forClass(QueryRequest.class);
 
         /**
-         * When using a modified query to query the sources, the desired offset and page size are
+         * When using a modified mockQuery to mockQuery the sources, the desired offset and page size are
          * NOT used. So, the results returned by each source start at index 1 and end at (offset +
          * pageSize - 1).
          *
@@ -352,7 +355,7 @@ public class FederationStrategyTest {
         when(mockSource1.getId()).thenReturn("####### MOCK SOURCE 1.3 #######");
 
         /**
-         * When using a modified query to query the sources, the desired offset and page size are
+         * When using a modified mockQuery to mockQuery the sources, the desired offset and page size are
          * NOT used. So, the results returned by each source start at index 1 and end at (offset +
          * pageSize - 1).
          *
@@ -496,8 +499,6 @@ public class FederationStrategyTest {
     @Test
     public void testFederateOneSourceOffsetTwoPageSizeTwo() throws Exception {
         LOGGER.debug("testFederate_OneSource_OffsetTwo_PageSizeTwo()");
-        // Test Setup
-        Query mockQuery = mock(QueryImpl.class);
         // Offset of 2
         when(mockQuery.getStartIndex()).thenReturn(2);
         // Page size of 2
@@ -537,8 +538,9 @@ public class FederationStrategyTest {
         // Verification
         assertNotNull(federatedResponse);
 
-        LOGGER.debug("Federated response result size: {}", federatedResponse.getResults()
-                .size());
+        LOGGER.debug("Federated response result size: {}",
+                federatedResponse.getResults()
+                        .size());
 
         /**
          * Verify two results (page size) are returned. The results returned by the source already
@@ -570,8 +572,6 @@ public class FederationStrategyTest {
     @Test
     public void testFederateTwoSourcesOffsetOnePageSizeThree() throws Exception {
         LOGGER.debug("testFederate_TwoSources_OffsetOne_PageSizeThree()");
-        // Test Setup
-        Query mockQuery = mock(QueryImpl.class);
         // Offset of 1
         when(mockQuery.getStartIndex()).thenReturn(1);
         // Page size of 3
@@ -648,8 +648,9 @@ public class FederationStrategyTest {
         // Verification
         assertNotNull(federatedResponse);
 
-        LOGGER.debug("Federated response result size: {}", federatedResponse.getResults()
-                .size());
+        LOGGER.debug("Federated response result size: {}",
+                federatedResponse.getResults()
+                        .size());
 
         /**
          * Verify three results (page size) are returned. Since we are using mock Results, the
@@ -706,8 +707,6 @@ public class FederationStrategyTest {
     @Test
     public void testFederateOneSourceOffsetOnePageSizeTwo() throws Exception {
         LOGGER.debug("testFederate_OneSource_OffsetOne_PageSizeTwo()");
-        // Test Setup
-        Query mockQuery = mock(QueryImpl.class);
         // Offset of 1
         when(mockQuery.getStartIndex()).thenReturn(1);
         // Page size of 2
@@ -746,8 +745,9 @@ public class FederationStrategyTest {
         // Verification
         assertNotNull(federatedResponse);
 
-        LOGGER.debug("Federated response result size: {}", federatedResponse.getResults()
-                .size());
+        LOGGER.debug("Federated response result size: {}",
+                federatedResponse.getResults()
+                        .size());
 
         /**
          * Verify two results (page size) are returned. The results returned by the source already
