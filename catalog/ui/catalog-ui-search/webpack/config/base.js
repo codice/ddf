@@ -73,7 +73,6 @@ module.exports = {
             bootstrapselect: 'bootstrap-select/dist/js/bootstrap-select.min',
             bootstrapDatepicker: 'eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
             spin: 'spin.js/spin',
-            q: 'q/q',
             strapdown: 'strapdown/v/0.2',
             // backbone
             backboneassociations: 'backbone-associations',
