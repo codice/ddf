@@ -26,6 +26,11 @@ module.exports = {
                 from: resolve('node_modules/bootstrap'),
                 to: resolve('target/webapp/lib/bootstrap'),
                 force: true
+            },
+            {
+                from: resolve('node_modules/font-awesome'),
+                to: resolve('target/webapp/lib/font-awesome'),
+                force: true
             }
         ])
     ],

@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "font-awesome": "4.6.3",
     "jquery-ui-multiselect-widget": "1.14",
     "usng.js": "0.2.2",
     "wellknown": "connexta/wellknown#4d9ae612e7e308509ec76400b258c9db1581ea82",

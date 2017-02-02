@@ -3268,6 +3268,10 @@ flatten@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
 
+font-awesome@4.6.3:
+  version "4.6.3"
+  resolved "https://registry.yarnpkg.com/font-awesome/-/font-awesome-4.6.3.tgz#86933651540ee00874c664017f50f2172f6531a2"
+
 for-each@~0.3.2:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/for-each/-/for-each-0.3.2.tgz#2c40450b9348e97f281322593ba96704b9abd4d4"
