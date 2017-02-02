@@ -25,6 +25,11 @@ module.exports = {
             {
                 from: resolve('node_modules/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css'),
                 to: resolve('target/webapp/lib/eonasdan-bootstrap-datetimepicker/css/bootstrap-datetimepicker.css'),
+                force:true
+            },
+            {
+                from: resolve('node_modules/bootstrap'),
+                to: resolve('target/webapp/lib/bootstrap'),
                 force: true
             }
         ])
