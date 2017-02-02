@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "jquery-ui-multiselect-widget": "1.14",
-    "usng.js": "0.2.2",
     "wellknown": "connexta/wellknown#4d9ae612e7e308509ec76400b258c9db1581ea82",
     "bootstrap-select": "1.6.4"
   }
