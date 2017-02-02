@@ -36,6 +36,11 @@ module.exports = {
                 from: resolve('node_modules/font-awesome'),
                 to: resolve('target/webapp/lib/font-awesome'),
                 force: true
+            },
+            {
+                from: resolve('target/META-INF/resources/webjars/jquery-ui-multiselect-widget/1.14'),
+                to: resolve('target/webapp/lib/jquery-ui-multiselect-widget'),
+                force: true
             }
         ])
     ],
@@ -109,8 +114,8 @@ module.exports = {
             mouse: 'jquery-ui/mouse',
             datepickerOverride: 'jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
             purl: 'purl/purl',
-            multiselect$: 'jquery-ui-multiselect-widget/src/jquery.multiselect',
-            multiselectfilter: 'jquery-ui-multiselect-widget/src/jquery.multiselect.filter',
+            multiselect$: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
+            multiselectfilter: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect.filter',
             'jquery.ui.widget': 'jquery-ui/widget',
             jquerySortable: 'jquery-ui/sortable',
             // map
@@ -128,6 +133,7 @@ module.exports = {
             './src/main/webapp/js',
             './src/main/webapp/lib/',
             './target/webapp/lib',
+            './target/META-INF/resources/webjars/',
         ].map(resolve)
     }
 };
