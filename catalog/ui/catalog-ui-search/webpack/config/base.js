@@ -21,6 +21,11 @@ module.exports = {
                 from: resolve('node_modules/cesium/Build/Cesium'),
                 to: resolve('target/webapp/cesium'),
                 force: true
+            },
+            {
+                from: resolve('node_modules/bootstrap'),
+                to: resolve('target/webapp/lib/bootstrap'),
+                force: true
             }
         ])
     ],
