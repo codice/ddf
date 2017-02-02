@@ -43,6 +43,12 @@
             <version>${project.version}</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parsers</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>tika-input-transformer</artifactId>

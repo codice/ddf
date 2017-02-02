@@ -540,5 +540,9 @@
             <artifactId>catalog-confluence-source</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>tika-bundle</artifactId>
+        </dependency>
     </dependencies>
 </project>
