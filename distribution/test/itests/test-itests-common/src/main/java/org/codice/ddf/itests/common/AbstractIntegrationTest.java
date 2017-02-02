@@ -88,7 +88,7 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String LOGGER_PREFIX = AdminConfig.LOGGER_PREFIX;
 
-    protected static final String KARAF_VERSION = "4.0.5";
+    protected static final String KARAF_VERSION = "4.0.7";
 
     protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
 
