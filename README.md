@@ -47,6 +47,7 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
  * Security
      - Web Service Security (WSS) functionality that comes with DDF is integrated throughout the system
          - SAML 2.0 Web Browser SSO Profile with included IdP server and client
+         - SAML ECP Profile
          - SAML Security Token Service (STS) based on WS-Trust
          - Automatic protection and Single Sign On (SSO) for web applications without modifying the application itself
          - Extensible PDP with XACML 3.0 support for authorization decisions
