@@ -72,7 +72,6 @@ module.exports = {
             bootstrap: 'bootstrap/dist/js/bootstrap.min',
             bootstrapselect: 'bootstrap-select/dist/js/bootstrap-select.min',
             bootstrapDatepicker: 'eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
-            spin: 'spin.js/spin',
             strapdown: 'strapdown/v/0.2',
             // backbone
             backboneassociations: 'backbone-associations',
@@ -103,7 +102,6 @@ module.exports = {
             multiselect$: 'jquery-ui-multiselect-widget/src/jquery.multiselect',
             multiselectfilter: 'jquery-ui-multiselect-widget/src/jquery.multiselect.filter',
             'jquery.ui.widget': 'jquery-ui/widget',
-            fileupload: 'jquery-file-upload/js/jquery.fileupload',
             jquerySortable: 'jquery-ui/sortable',
             // map
             //openlayers$: 'openlayers/dist/ol-debug.js',  // useful for debugging openlayers
