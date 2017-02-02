@@ -72,10 +72,22 @@ public class ConfigurationFilesPoller implements Runnable {
         this.fileExtension = fileExtension;
     }
 
-    public void init() {
+    public void init() throws IOException {
         LOGGER.debug("Starting {}...",
                 this.getClass()
                         .getName());
+
+        try {
+            LOGGER.debug("Registering path [{}] with Watch Service.",
+                    configurationDirectoryPath.toString());
+            configurationDirectoryPath.register(watchService, ENTRY_CREATE);
+        } catch (IOException e) {
+            LOGGER.error("Unable to register path [{}] with Watch Service",
+                    configurationDirectoryPath.toString(),
+                    e);
+            throw e;
+        }
+
         executorService.execute(this);
     }
 
@@ -87,17 +99,6 @@ public class ConfigurationFilesPoller implements Runnable {
     @Override
     public void run() {
         try {
-            try {
-                LOGGER.debug("Registering path [{}] with Watch Service.",
-                        configurationDirectoryPath.toString());
-                configurationDirectoryPath.register(watchService, ENTRY_CREATE);
-            } catch (IOException e) {
-                LOGGER.info("Unable to register path [{}] with Watch Service",
-                        configurationDirectoryPath.toString(),
-                        e);
-                return;
-            }
-
             WatchKey key;
 
             while (!Thread.currentThread()
