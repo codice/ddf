@@ -43,7 +43,13 @@ public class PaosOutInterceptor extends AbstractPhaseInterceptor<Message> {
                 acceptHeaders = new ArrayList<>();
             }
 
-            acceptHeaders.add("application/vnd.paos+xml");
+            if (acceptHeaders.size() == 0) {
+                acceptHeaders.add("application/vnd.paos+xml");
+                acceptHeaders.add("*/*");
+            } else {
+                acceptHeaders.add("application/vnd.paos+xml");
+            }
+
             headers.put(HttpHeaders.ACCEPT, acceptHeaders);
 
             List<String> paosHeaders = new ArrayList<>();
