@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,8 @@ import org.codice.ddf.branding.BrandingRegistry;
 import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.impl.BinaryContentImpl;
@@ -162,7 +165,7 @@ public class ConfigurationStore {
         config.put("resultCount", resultCount);
         config.put("typeNameMapping", typeNameMapping);
         config.put("terrainProvider", proxiedTerrainProvider);
-        config.put("imageryProviders", proxiedImageryProviders);
+        config.put("imageryProviders", getProxiedImageryProviders());
         config.put("gazetteer", isGazetteer);
         config.put("showIngest", isIngest);
         config.put("projection", projection);
@@ -214,7 +217,16 @@ public class ConfigurationStore {
     }
 
     public List<Map<String, Object>> getProxiedImageryProviders() {
-        return proxiedImageryProviders;
+        if (proxiedImageryProviders.isEmpty()) {
+            return Collections.singletonList(ImmutableMap.of(
+                    "type", "SI",
+                    "url", "/search/standard/images/natural_earth_50m.png",
+                    "parameters", ImmutableMap.of(
+                            "imageSize", Arrays.asList(10800, 5400)),
+                    "alpha", 1));
+        } else {
+            return proxiedImageryProviders;
+        }
     }
 
     public List<String> getImageryProviders() {
