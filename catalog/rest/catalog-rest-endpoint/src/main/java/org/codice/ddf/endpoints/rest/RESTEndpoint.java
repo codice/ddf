@@ -715,7 +715,7 @@ public class RESTEndpoint implements RESTService {
                 if (multipartBody != null) {
                     List<Attachment> contentParts = multipartBody.getAllAttachments();
                     if (contentParts != null && contentParts.size() > 0) {
-                        createInfo = parseAttachment(contentParts.get(0));
+                        createInfo = parseAttachments(contentParts, transformerParam);
                     } else {
                         LOGGER.debug("No file contents attachment found");
                     }

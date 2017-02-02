@@ -122,6 +122,7 @@ import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 
 /**
@@ -2901,6 +2902,76 @@ public class TestCatalog extends AbstractIntegrationTest {
 
             configureShowInvalidMetacardsReset();
         }
+    }
+
+    @Test
+    public void testCreateStorageCannotOverrideResourceUri()
+            throws IOException {
+        String fileName = testName.getMethodName() + ".jpg";
+        String overrideResourceUri = "content:abc123";
+        String overrideTitle = "overrideTitle";
+
+        File tmpFile = createTemporaryFile(fileName,
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
+
+        String id = given().multiPart("parse.resource", tmpFile)
+                .multiPart(Core.TITLE, overrideTitle)
+                .multiPart(Core.RESOURCE_URI, overrideResourceUri)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(201)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        String metacardPath = format("/metacards/metacard[@id=\"%s\"]", id);
+
+        ValidatableResponse response = executeOpenSearch("xml", "q=*").log()
+                .all();
+
+        response.assertThat()
+                .body(hasXPath(metacardPath + "/string[@name=\"" + Core.RESOURCE_URI + "\"]/value",
+                        is(not(overrideResourceUri))));
+
+        response.assertThat()
+                .body(hasXPath(metacardPath + "/string[@name=\"" + Core.TITLE + "\"]/value",
+                        is(overrideTitle)));
+
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testUpdateStorageCannotOverrideResourceUri()
+            throws IOException {
+        String fileName = testName.getMethodName() + ".jpg";
+        String overrideResourceUri = "content:abc123";
+        String overrideTitle = "overrideTitle";
+
+        File tmpFile = createTemporaryFile(fileName,
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
+
+        String id = given().multiPart("parse.resource", tmpFile)
+                .multiPart(Core.TITLE, overrideTitle)
+                .multiPart(Core.RESOURCE_URI, overrideResourceUri)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        given().multiPart("parse.resource", tmpFile)
+                .multiPart(Core.RESOURCE_URI, overrideResourceUri)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .when()
+                .put(REST_PATH.getUrl() + id);
+
+        deleteMetacard(id);
     }
 
     private ValidatableResponse executeOpenSearch(String format, String... query) {
