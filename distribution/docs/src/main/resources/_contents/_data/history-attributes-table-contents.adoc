@@ -8,54 +8,59 @@
 |Constraints
 |Example Value
 
-|version.id
+|metacard.version.id
 |Internal attribute identifier for which metacard this
 version is representing
 |String
 | 
 | 
 
-|version.edited-by
+|metacard.version.edited-by
 |Internal attribute identifying the editor of a history
 metacard
 |String
 | 
 | 
 
-|version.versioned-by
+|metacard.version.versioned-on
 |Internal attribute for the versioned date of a metacard
 version
 |Date
 | 
 | 
 
-|version.action
+|metacard.version.action
 |Internal attribute for the action associated with a
 history metacard
 |String
-|One of `Created`, `Created-Content`, `Updated`,
-`Updated-Content`, `Deleted`
+|One of `Deleted`, `Deleted-Content`, `Versioned`, `Versioned-Content`
 | 
 
-|version.tags
+|metacard.version.tags
 |Internal attribute for the tags that were on the original
 metacard
 |String
 | 
 | 
 
-|version.type
+|metacard.version.type
 |Internal attribute for the metacard type of the original
 metacard
 |String
 | 
 | 
 
-|version.type-binary
+|metacard.version.type-binary
 |Internal attribute for the serialized metacard type of the
 original metacard
 |Binary
 | 
 | 
+
+|metacard.version.resource-uri
+|Internal attribute for the original resource uri
+|URI
+|
+|
 
 |===
