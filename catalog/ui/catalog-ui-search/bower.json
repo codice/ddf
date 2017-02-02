@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "jquery-ui-multiselect-widget": "1.14",
-    "bootstrap-select": "1.6.4"
+    "jquery-ui-multiselect-widget": "1.14"
   }
 }
