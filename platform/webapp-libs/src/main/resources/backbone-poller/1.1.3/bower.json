@@ -1,0 +1,22 @@
+{
+  "name": "backbone-poller",
+  "version": "1.1.3",
+  "homepage": "https://github.com/uzikilon/backbone-poller",
+  "description": "Backbone poller is a simple utility that allows polling on any backbone model or collection.",
+  "main": "backbone.poller.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ],
+  "dependencies": {
+    "underscore": "*",
+    "backbone": ">=0.9.*"
+  },
+  "devDependencies": {
+    "requirejs": "*",
+    "jquery": "*",
+    "sinon": "http://sinonjs.org/releases/sinon-1.15.0.js"
+  }
+}

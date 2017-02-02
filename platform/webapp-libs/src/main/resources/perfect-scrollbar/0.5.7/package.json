@@ -1,0 +1,43 @@
+{
+  "name": "perfect-scrollbar",
+  "version": "0.5.7",
+  "description": "Tiny but perfect jquery scrollbar plugin.",
+  "author": "Hyunje Alex Jun <me@noraesae.net>",
+  "contributors": [
+    {
+      "name": "Hyunje Alex Jun",
+      "email": "me@noraesae.net"
+    }
+  ],
+  "main": "src/perfect-scrollbar.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noraesae/perfect-scrollbar"
+  },
+  "bugs": {
+    "url": "https://github.com/noraesae/perfect-scrollbar/issues"
+  },
+  "keywords": [
+    "jquery-plugin",
+    "scroll",
+    "scrollbar"
+  ],
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-bump": "0.0.16",
+    "grunt-contrib-clean": "~0.4.1",
+    "grunt-contrib-csslint": "~0.1.2",
+    "grunt-contrib-cssmin": "~0.6.1",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-uglify": "~0.1.1",
+    "grunt-sass": "^0.16.1",
+    "load-grunt-tasks": "^1.0.0"
+  },
+  "scripts": {
+    "test": "grunt travis --verbose"
+  },
+  "license": "MIT"
+}

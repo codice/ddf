@@ -1,0 +1,17 @@
+{
+  "name": "cesium",
+  "version": "1.17.0",
+  "authors": [
+    "Cesium Contributors",
+    "Michael Lodge-Paolini <maikuru@nautsoft.com>"
+  ],
+  "description": "WebGL virtual globe and map engine",
+  "main": [
+    "Cesium/Cesium.js",
+    "Cesium/Widgets/widgets.css"
+  ],
+  "license": "Apache-2.0",
+  "ignore": [
+    "src", ".git*"
+  ]
+}

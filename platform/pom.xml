@@ -377,5 +377,6 @@
         <module>country-converter</module>
         <module>platform-app</module>
         <module>platform-filter-clientinfo</module>
+        <module>webapp-libs</module>
     </modules>
 </project>
