@@ -133,6 +133,11 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-attributeregistry</artifactId>
             <version>${project.version}</version>
@@ -176,7 +181,8 @@
                             ddf-security-common,
                             platform-util,
                             platform-util-unavailableurls,
-                            commons-lang3
+                            commons-lang3,
+                            security-core-impl
                         </Embed-Dependency>
                         <Private-Package>
                             org.codice.ddf.spatial.ogc.csw.catalog.endpoint.*

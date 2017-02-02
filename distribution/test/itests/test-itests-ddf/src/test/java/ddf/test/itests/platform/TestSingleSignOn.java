@@ -14,10 +14,14 @@
 package ddf.test.itests.platform;
 
 import static org.codice.ddf.itests.common.WaitCondition.expect;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
@@ -63,6 +67,7 @@ import org.xml.sax.SAXException;
 
 import com.jayway.restassured.response.Response;
 
+import ddf.catalog.data.Metacard;
 import ddf.security.samlp.SamlProtocol;
 
 @RunWith(PaxExam.class)
@@ -70,7 +75,7 @@ import ddf.security.samlp.SamlProtocol;
 public class TestSingleSignOn extends AbstractIntegrationTest {
 
     private static final String IDP_AUTH_TYPES =
-            "/=SAML|GUEST,/search=IDP,/solr=SAML|PKI|basic,/services/whoami=IDP|GUEST";
+            "/=SAML|GUEST,/search=IDP,/solr=SAML|PKI|basic,/services=IDP";
 
     private static final String KEY_STORE_PATH = System.getProperty("javax.net.ssl.keyStore");
 
@@ -90,14 +95,17 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     private static final DynamicUrl LOGOUT_REQUEST_URL = new DynamicUrl(SERVICE_ROOT,
             "/logout/actions");
 
+    private static final String RECORD_TITLE_1 = "myTitle";
+
+    private static String metacardId;
+
     private enum Binding {
         REDIRECT {
             @Override
             public String toString() {
                 return "Redirect";
             }
-        },
-        POST {
+        }, POST {
             @Override
             public String toString() {
                 return "POST";
@@ -115,18 +123,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
-            getSecurityPolicy().configureWebContextPolicy(null, IDP_AUTH_TYPES, null, null);
-            getServiceManager().waitForAllBundles();
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-            getServiceManager().waitForHttpEndpoint(WHO_AM_I_URL.getUrl());
-
             // Start the services needed for testing.
             // We need to start the Search UI to test that it redirects properly
             getServiceManager().startFeature(true, "security-idp", "search-ui", "catalog-ui");
             getServiceManager().waitForAllBundles();
-
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/idp/login/metadata");
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/saml/sso/metadata");
 
             // Get all of the metadata
             String metadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();
@@ -142,6 +142,28 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             setConfig("org.codice.ddf.security.idp.server.IdpEndpoint",
                     "spMetadata",
                     new String[] {ddfSpMetadata});
+
+            getCatalogBundle().waitForCatalogProvider();
+
+            metacardId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
+                    "application/json");
+
+            getSecurityPolicy().configureWebContextPolicy(null, IDP_AUTH_TYPES, null, null);
+            getServiceManager().waitForAllBundles();
+
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+            getServiceManager().waitForHttpEndpoint(WHO_AM_I_URL.getUrl());
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/idp/login/metadata");
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/saml/sso/metadata");
+
+            Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
+                    OPENSEARCH_SOURCE_ID,
+                    OPENSEARCH_PATH.getUrl(),
+                    getServiceManager());
+            openSearchProperties.put("username", "admin");
+            openSearchProperties.put("password", "admin");
+            getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
+            getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
@@ -153,7 +175,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         // Prepare the schema and xml
         String schemaFileName = "saml-schema-" + schema.toString()
                 .toLowerCase() + "-2.0.xsd";
-        URL schemaURL = AbstractIntegrationTest.class.getClassLoader().getResource(schemaFileName);
+        URL schemaURL = AbstractIntegrationTest.class.getClassLoader()
+                .getResource(schemaFileName);
         StreamSource streamSource = new StreamSource(new StringReader(xml));
 
         // If we fail to create a validator we don't want to stop the show, so we just log a warning
@@ -193,7 +216,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         // @formatter:on
     }
 
-    private ResponseHelper getSearchResponse(boolean isPassiveRequest) throws Exception {
+    private ResponseHelper getSearchResponse(boolean isPassiveRequest, String url)
+            throws Exception {
 
         // We should be redirected to the IdP when we first try to hit the search page
         // @formatter:off
@@ -203,7 +227,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 expect().
                         statusCode(302).
                 when().
-                        get(SEARCH_URL.getUrl());
+                        get(url == null ? SEARCH_URL.getUrl() : url);
         // @formatter:on
         // Because we get back a 302, we know the redirect location is in the header
         ResponseHelper searchHelper = new ResponseHelper(searchResponse);
@@ -270,7 +294,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 new String[] {confluenceSpMetadata});
 
         // Get the authn request
-        String mockAuthnRequest = String.format(getFileContent("confluence-sp-authentication-request.xml"),
+        String mockAuthnRequest = String.format(getFileContent(
+                "confluence-sp-authentication-request.xml"),
                 binding.toString(),
                 AUTHENTICATION_REQUEST_ISSUER);
         validateSaml(mockAuthnRequest, SamlSchema.PROTOCOL);
@@ -317,7 +342,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     @Test
     public void testBadUsernamePassword() throws Exception {
-        ResponseHelper searchHelper = getSearchResponse(false);
+        ResponseHelper searchHelper = getSearchResponse(false, null);
 
         // We're using an AJAX call, so anything other than 200 means not authenticated
         // @formatter:off
@@ -336,7 +361,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     public void testPkiAuth() throws Exception {
 
         // Note that PKI is passive (as opposed to username/password which is not)
-        ResponseHelper searchHelper = getSearchResponse(true);
+        ResponseHelper searchHelper = getSearchResponse(true, null);
 
         // @formatter:off
         given().
@@ -354,7 +379,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     @Test
     public void testGuestAuth() throws Exception {
-        ResponseHelper searchHelper = getSearchResponse(false);
+        ResponseHelper searchHelper = getSearchResponse(false, null);
 
         // @formatter:off
         given().
@@ -374,7 +399,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         assertThat(getUserName(), not("admin"));
 
         // First time hitting search, expect to get redirected to the Identity Provider.
-        ResponseHelper searchHelper = getSearchResponse(false);
+        ResponseHelper searchHelper = getSearchResponse(false, null);
 
         // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
         // The redirect is currently done via javascript and not an HTTP redirect.
@@ -441,7 +466,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         assertThat(getUserName(), not("admin"));
 
         // First time hitting search, expect to get redirected to the Identity Provider.
-        ResponseHelper searchHelper = getSearchResponse(false);
+        ResponseHelper searchHelper = getSearchResponse(false, null);
 
         // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
         // The redirect is currently done via javascript and not an HTTP redirect.
@@ -514,6 +539,76 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
         // Verify admin user is no longer logged in
         assertThat(getUserName(), not("admin"));
+    }
+
+    @Test
+    public void testEcpByFederatedQueryWithUsernamePassword() throws Exception {
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=xml&src=" + OPENSEARCH_SOURCE_ID;
+        // First time hitting search, expect to get redirected to the Identity Provider.
+        ResponseHelper searchHelper = getSearchResponse(false, queryUrl);
+
+        // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
+        // The redirect is currently done via javascript and not an HTTP redirect.
+        // @formatter:off
+        Response idpResponse =
+                given().
+                        auth().preemptive().basic("admin", "admin").
+                        param("AuthMethod", "up").
+                        params(searchHelper.params).
+                expect().
+                        statusCode(200).
+                when().
+                        get(searchHelper.redirectUrl);
+        // @formatter:on
+
+        ResponseHelper idpHelper = new ResponseHelper(idpResponse);
+
+        // Perform a bunch of checks to make sure we're valid against both the spec and schema
+        assertThat(idpHelper.parseBody(), is(Binding.REDIRECT));
+        String inflatedSamlResponse = RestSecurity.inflateBase64(idpHelper.get("SAMLResponse"));
+        validateSaml(inflatedSamlResponse, SamlSchema.PROTOCOL);
+        assertThat(inflatedSamlResponse,
+                allOf(containsString("urn:oasis:names:tc:SAML:2.0:status:Success"),
+                        containsString("ds:SignatureValue"),
+                        containsString("saml2:Assertion")));
+        assertThat(idpHelper.get("SigAlg"), not(isEmptyOrNullString()));
+        assertThat(idpHelper.get("Signature"), not(isEmptyOrNullString()));
+        assertThat(idpHelper.get("RelayState")
+                .length(), is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(80))));
+
+        // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
+        // @formatter:off
+        Response acsResponse =
+                given().
+                        params(idpHelper.params).
+                        redirects().follow(false).
+                expect().
+                        statusCode(anyOf(is(302), is(303))).
+                        when().
+                get(idpHelper.redirectUrl);
+        // @formatter:on
+
+        ResponseHelper acsHelper = new ResponseHelper(acsResponse);
+        acsHelper.parseHeader();
+
+        Response response = given().
+                cookies(acsResponse.getCookies())
+                .
+                        expect()
+                .
+                        statusCode(200)
+                .
+                        when()
+                .
+                        get(queryUrl);
+
+        //The federated query using username/password against the IDP auth type on all of /services would fail without ECP
+
+        // @formatter:off
+        response.then().log().all().assertThat().body(hasXPath(
+                "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
+                        + RECORD_TITLE_1 + "']"), hasXPath("/metacards/metacard/geometry/value"));
+        // @formatter:on
     }
 
     private class ResponseHelper {

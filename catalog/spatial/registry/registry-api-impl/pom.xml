@@ -184,6 +184,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -227,7 +232,8 @@
                             platform-util,
                             platform-util-unavailableurls,
                             jaxb2-basics-runtime,
-                            commons-lang3
+                            commons-lang3,
+                            security-core-impl
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

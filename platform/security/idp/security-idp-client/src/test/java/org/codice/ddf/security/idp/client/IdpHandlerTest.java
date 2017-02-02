@@ -75,6 +75,7 @@ public class IdpHandlerTest {
         when(relayStates.decode(RELAY_STATE_VAL)).thenReturn(LOCATION);
         httpRequest = mock(HttpServletRequest.class);
         when(httpRequest.getRequestURL()).thenReturn(new StringBuffer("https://localhost:8993"));
+        when(httpRequest.getMethod()).thenReturn("GET");
         httpResponse = mock(HttpServletResponse.class);
 
         idpHandler = new IdpHandler(simpleSign, idpMetadata, relayStates);

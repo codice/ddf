@@ -23,11 +23,13 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
@@ -116,6 +118,15 @@ public class IdpEndpointTest {
     String authNRequestPassivePkiPost =
             "PHNhbWwycDpBdXRoblJlcXVlc3QgSXNQYXNzaXZlPSJ0cnVlIiBBc3NlcnRpb25Db25zdW1lclNlcnZpY2VVUkw9Imh0dHBzOi8vbG9jYWxob3N0Ojg5OTMvc2VydmljZXMvc2FtbC9zc28iIERlc3RpbmF0aW9uPSJodHRwczovL2xvY2FsaG9zdDo4OTkzL3NlcnZpY2VzL2lkcC9sb2dpbiIgSUQ9Il9hNTU2YjNjZi1iNmVjLTQwMzItYjUxNC1lZThmOGRjMmQyMTMiIElzc3VlSW5zdGFudD0iMjAxNS0xMC0yOVQxNzoyMzoyOC4wMDBaIiBQcm90b2NvbEJpbmRpbmc9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpiaW5kaW5nczpIVFRQLVBPU1QiIFZlcnNpb249IjIuMCIgeG1sbnM6c2FtbDJwPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6cHJvdG9jb2wiPjxzYW1sMjpJc3N1ZXIgeG1sbnM6c2FtbDI9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iPmh0dHBzOi8vbG9jYWxob3N0Ojg5OTMvc2VydmljZXMvc2FtbDwvc2FtbDI6SXNzdWVyPjxzYW1sMnA6TmFtZUlEUG9saWN5IEFsbG93Q3JlYXRlPSJ0cnVlIiBGb3JtYXQ9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpuYW1laWQtZm9ybWF0OnBlcnNpc3RlbnQiIFNQTmFtZVF1YWxpZmllcj0iaHR0cHM6Ly9sb2NhbGhvc3Q6ODk5My9zZXJ2aWNlcy9zYW1sIi8+PC9zYW1sMnA6QXV0aG5SZXF1ZXN0Pg==";
 
+    String soapRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"> <soapenv:Header> <ecp:RelayState xmlns:ecp=\"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp\" soapenv:actor=\"http://schemas.xmlsoap.org/soap/actor/next\" soapenv:mustUnderstand=\"1\">relaystate</ecp:RelayState> </soapenv:Header> <soapenv:Body>" + authNRequestGetForce + "</soapenv:Body></soapenv:Envelope>";
+
+    String soapRequestUserPass = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"> <soapenv:Header> <wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" soap:mustUnderstand=\"1\"> <wsse:UsernameToken wsu:Id=\"UsernameToken-1\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\n"
+            + "    <wsse:Username>user</wsse:Username>\n"
+            + "    <wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">pass</wsse:Password>\n"
+            + "</wsse:UsernameToken> </wsse:Security> <ecp:RelayState xmlns:ecp=\"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp\" soapenv:actor=\"http://schemas.xmlsoap.org/soap/actor/next\" soapenv:mustUnderstand=\"1\">relaystate</ecp:RelayState> </soapenv:Header> <soapenv:Body>" + authNRequestGetForce + "</soapenv:Body></soapenv:Envelope>";
+
+    String soapRequestSaml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"> <soapenv:Header> <wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" soap:mustUnderstand=\"1\"> " + IOUtils.toString(getClass().getResourceAsStream("/saml.xml")) + " </wsse:Security> <ecp:RelayState xmlns:ecp=\"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp\" soapenv:actor=\"http://schemas.xmlsoap.org/soap/actor/next\" soapenv:mustUnderstand=\"1\">relaystate</ecp:RelayState> </soapenv:Header> <soapenv:Body>" + authNRequestGetForce + "</soapenv:Body></soapenv:Envelope>";
+
     IdpEndpoint idpEndpoint;
 
     String relayState;
@@ -131,6 +142,9 @@ public class IdpEndpointTest {
     String signatureAlgorithm;
 
     String ssoSAMLResponse;
+
+    public IdpEndpointTest() throws IOException {
+    }
 
     public static Document readXml(InputStream is)
             throws SAXException, IOException, ParserConfigurationException {
@@ -215,6 +229,87 @@ public class IdpEndpointTest {
         signature = authNRequestGetSignature;
         signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
         ssoSAMLResponse = "https://localhost:8993/services/saml/sso?SAMLResponse=";
+    }
+
+    @Test
+    public void testDoSoapLogin() throws WSSecurityException {
+        String samlRequest = soapRequest;
+        HttpServletRequest request = mock(HttpServletRequest.class);
+
+        when(request.isSecure()).thenReturn(true);
+        idpEndpoint.setStrictSignature(false);
+        Response response = idpEndpoint.doSoapLogin(
+                new ByteArrayInputStream(samlRequest.getBytes(StandardCharsets.UTF_8)), request);
+
+        assertThat(response.getEntity()
+                .toString(), containsString("soapenv:Envelope"));
+        assertThat(response.getEntity()
+                .toString(), containsString("soapenv:Body"));
+        assertThat(response.getEntity()
+                .toString(), containsString("saml2p:Response"));
+        assertThat(response.getEntity()
+                .toString(), containsString("saml2:Assertion"));
+        assertThat(response.getHeaders()
+                .get("SOAPAction")
+                .get(0), is("http://www.oasis-open.org/committees/security"));
+    }
+
+    @Test
+    public void testDoSoapLoginUserPass() throws WSSecurityException {
+        String samlRequest = soapRequestUserPass;
+        HttpServletRequest request = mock(HttpServletRequest.class);
+
+        when(request.isSecure()).thenReturn(true);
+        idpEndpoint.setStrictSignature(false);
+        Response response = idpEndpoint.doSoapLogin(
+                new ByteArrayInputStream(samlRequest.getBytes(StandardCharsets.UTF_8)), request);
+
+        assertThat(response.getEntity()
+                .toString(), containsString("soapenv:Envelope"));
+        assertThat(response.getEntity()
+                .toString(), containsString("soapenv:Body"));
+        assertThat(response.getEntity()
+                .toString(), containsString("saml2p:Response"));
+        assertThat(response.getEntity()
+                .toString(), containsString("saml2:Assertion"));
+        assertThat(response.getHeaders()
+                .get("SOAPAction")
+                .get(0), is("http://www.oasis-open.org/committees/security"));
+    }
+
+    @Test
+    public void testDoSoapLoginSaml() throws WSSecurityException {
+        String samlRequest = soapRequestSaml;
+        HttpServletRequest request = mock(HttpServletRequest.class);
+
+        when(request.isSecure()).thenReturn(true);
+        idpEndpoint.setStrictSignature(false);
+        Response response = idpEndpoint.doSoapLogin(
+                new ByteArrayInputStream(samlRequest.getBytes(StandardCharsets.UTF_8)), request);
+
+        assertThat(response.getEntity()
+                .toString(), containsString("soapenv:Envelope"));
+        assertThat(response.getEntity()
+                .toString(), containsString("soapenv:Body"));
+        assertThat(response.getEntity()
+                .toString(), containsString("saml2p:Response"));
+        assertThat(response.getEntity()
+                .toString(), containsString("saml2:Assertion"));
+        assertThat(response.getHeaders()
+                .get("SOAPAction")
+                .get(0), is("http://www.oasis-open.org/committees/security"));
+    }
+
+    @Test
+    public void testDoSoapLoginFailure() throws WSSecurityException {
+        String samlRequest = soapRequest;
+        HttpServletRequest request = mock(HttpServletRequest.class);
+
+        when(request.isSecure()).thenReturn(true);
+        Response response = idpEndpoint.doSoapLogin(
+                new ByteArrayInputStream(samlRequest.getBytes(StandardCharsets.UTF_8)), request);
+
+        assertNull(response);
     }
 
     @Test

@@ -82,6 +82,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -104,7 +109,8 @@
                             spatial-wfs-common,
                             spatial-ogc-common,
                             spatial-wfs-converter;scope=compile|runtime,
-                            catalog-core-api-impl
+                            catalog-core-api-impl,
+                            security-core-impl
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

@@ -13,18 +13,32 @@
  */
 package ddf.security.samlp;
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.xml.soap.SOAPPart;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
+import org.codehaus.stax2.XMLInputFactory2;
 import org.joda.time.DateTime;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
+import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilder;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
@@ -60,6 +74,7 @@ import org.opensaml.xmlsec.signature.KeyInfo;
 import org.opensaml.xmlsec.signature.X509Certificate;
 import org.opensaml.xmlsec.signature.X509Data;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class SamlProtocol {
 
@@ -69,6 +84,11 @@ public class SamlProtocol {
             "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
 
     public static final String POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
+
+    /**
+     * Input factory
+     */
+    private static volatile XMLInputFactory xmlInputFactory = null;
 
     /**
      * This static block must be before the builder factories to ensure the engine is initialized
@@ -88,6 +108,16 @@ public class SamlProtocol {
             Thread.currentThread()
                     .setContextClassLoader(tccl);
         }
+
+        XMLInputFactory xmlInputFactoryTmp = XMLInputFactory2.newInstance();
+        xmlInputFactoryTmp.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
+                Boolean.FALSE);
+        xmlInputFactoryTmp.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                Boolean.FALSE);
+        xmlInputFactoryTmp.setProperty(XMLInputFactory.SUPPORT_DTD,
+                Boolean.FALSE); // This disables DTDs entirely for that factory
+        xmlInputFactoryTmp.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+        xmlInputFactory = xmlInputFactoryTmp;
     }
 
     private static XMLObjectBuilderFactory builderFactory =
@@ -513,5 +543,55 @@ public class SamlProtocol {
         envelope.setHeader(header);
 
         return envelope;
+    }
+
+    public static SOAPPart parseSoapMessage(String samlRequest) throws XMLStreamException {
+        XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(
+                new StringReader(samlRequest));
+        SoapMessage soapMessage = new SoapMessage(Soap11.getInstance());
+        SAAJInInterceptor.SAAJPreInInterceptor preInInterceptor = new SAAJInInterceptor.SAAJPreInInterceptor();
+        soapMessage.setContent(XMLStreamReader.class, xmlStreamReader);
+        preInInterceptor.handleMessage(soapMessage);
+        SAAJInInterceptor inInterceptor = new SAAJInInterceptor();
+        inInterceptor.handleMessage(soapMessage);
+
+        return ((SOAPPart) soapMessage.getContent(Node.class));
+    }
+
+    public static XMLObject getXmlObjectFromNode(Node node) throws WSSecurityException, XMLStreamException {
+        Element domElement = getDomElement(node);
+        if (domElement != null) {
+            return OpenSAMLUtil.fromDom(domElement);
+        }
+        return null;
+    }
+
+    public static Element getDomElement(Node node) throws WSSecurityException, XMLStreamException {
+        if (node instanceof Element) {
+            node = convertDomImplementation((Element) node);
+            return (Element) node;
+        } else {
+            Node sibling;
+            while ((sibling = node.getNextSibling()) != null) {
+                if (sibling instanceof Element) {
+                    sibling = convertDomImplementation((Element) sibling);
+                    return (Element) sibling;
+                }
+            }
+        }
+        return null;
+    }
+
+    //converting the DOM impl is necessary because OpenSAML expects a particular implementation
+    public static Element convertDomImplementation(Element node) throws XMLStreamException {
+        if (DOMUtils.createDocument()
+                .getImplementation() != node.getOwnerDocument()
+                .getImplementation()) {
+            W3CDOMStreamWriter xmlStreamWriter = new W3CDOMStreamWriter();
+            StaxUtils.copy(node, xmlStreamWriter);
+            node = xmlStreamWriter.getDocument()
+                    .getDocumentElement();
+        }
+        return node;
     }
 }

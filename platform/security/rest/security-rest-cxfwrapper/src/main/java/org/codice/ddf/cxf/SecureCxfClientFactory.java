@@ -27,20 +27,34 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.shiro.subject.Subject;
+import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.PropertyResolver;
+import org.codice.ddf.cxf.paos.PaosInInterceptor;
+import org.codice.ddf.cxf.paos.PaosOutInterceptor;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.opensaml.core.config.ConfigurationService;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.security.liberty.paos.Request;
+import ddf.security.liberty.paos.Response;
+import ddf.security.liberty.paos.impl.RequestBuilder;
+import ddf.security.liberty.paos.impl.RequestMarshaller;
+import ddf.security.liberty.paos.impl.RequestUnmarshaller;
+import ddf.security.liberty.paos.impl.ResponseBuilder;
+import ddf.security.liberty.paos.impl.ResponseMarshaller;
+import ddf.security.liberty.paos.impl.ResponseUnmarshaller;
 
 /**
  * This factory helps construct clients for secure restful communication.
  * For now, the getForSubject methods should only be used to support DDF<->DDF interop, because:
  * <ol>
- *     <li>We do not yet support the open standard for REST security, SAML ECP.</li>
- *     <li>Most non-DDF systems do not know how to handle SAML assertions in the auth header.</li>
+ * <li>Most non-DDF systems do not know how to handle SAML assertions in the auth header.</li>
  * </ol>
  */
 public class SecureCxfClientFactory<T> {
@@ -65,6 +79,16 @@ public class SecureCxfClientFactory<T> {
 
     private Integer receiveTimeout;
 
+    static {
+        OpenSAMLUtil.initSamlEngine();
+        XMLObjectProviderRegistry xmlObjectProviderRegistry = ConfigurationService.get(
+                XMLObjectProviderRegistry.class);
+        xmlObjectProviderRegistry.registerObjectProvider(Request.DEFAULT_ELEMENT_NAME,
+                new RequestBuilder(), new RequestMarshaller(), new RequestUnmarshaller());
+        xmlObjectProviderRegistry.registerObjectProvider(Response.DEFAULT_ELEMENT_NAME,
+                new ResponseBuilder(), new ResponseMarshaller(), new ResponseUnmarshaller());
+    }
+
     /**
      * @see #SecureCxfClientFactory(String, Class, java.util.List, Interceptor, boolean, boolean)
      */
@@ -83,6 +107,7 @@ public class SecureCxfClientFactory<T> {
         this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects,
                 new PropertyResolver(endpointUrl));
     }
+
     /**
      * Constructs a factory that will return security-aware cxf clients. Once constructed,
      * use the getClient* methods to retrieve a fresh client  with the same configuration.
@@ -123,6 +148,10 @@ public class SecureCxfClientFactory<T> {
                 .add(new LoggingInInterceptor());
         jaxrsClientFactoryBean.getOutInterceptors()
                 .add(new LoggingOutInterceptor());
+        jaxrsClientFactoryBean.getInInterceptors()
+                .add(new PaosInInterceptor(Phase.RECEIVE));
+        jaxrsClientFactoryBean.getOutInterceptors()
+                .add(new PaosOutInterceptor(Phase.POST_LOGICAL));
 
         if (CollectionUtils.isNotEmpty(providers)) {
             jaxrsClientFactoryBean.setProviders(providers);
@@ -186,14 +215,8 @@ public class SecureCxfClientFactory<T> {
             boolean allowRedirects, Integer connectionTimeout, Integer receiveTimeout,
             String username, String password) {
 
-        this(endpointUrl,
-                interfaceClass,
-                providers,
-                interceptor,
-                disableCnCheck,
-                allowRedirects,
-                connectionTimeout,
-                receiveTimeout);
+        this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects,
+                connectionTimeout, receiveTimeout);
 
         this.clientFactory.setPassword(password);
         this.clientFactory.setUsername(username);

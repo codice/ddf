@@ -18,6 +18,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -26,7 +27,9 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +41,7 @@ import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.Encoded;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -49,9 +53,18 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeaderElement;
+import javax.xml.soap.SOAPPart;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -61,6 +74,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.boon.Boon;
+import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
@@ -68,6 +82,8 @@ import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
+import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
 import org.codice.ddf.security.idp.binding.api.Binding;
@@ -75,14 +91,20 @@ import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
 import org.codice.ddf.security.idp.binding.post.PostBinding;
 import org.codice.ddf.security.idp.binding.redirect.RedirectBinding;
+import org.codice.ddf.security.idp.binding.soap.SoapBinding;
+import org.codice.ddf.security.idp.binding.soap.SoapRequestDecoder;
 import org.codice.ddf.security.idp.cache.CookieCache;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.security.credential.UsageType;
@@ -91,6 +113,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -99,6 +122,13 @@ import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.liberty.paos.Request;
+import ddf.security.liberty.paos.impl.RequestBuilder;
+import ddf.security.liberty.paos.impl.RequestMarshaller;
+import ddf.security.liberty.paos.impl.RequestUnmarshaller;
+import ddf.security.liberty.paos.impl.ResponseBuilder;
+import ddf.security.liberty.paos.impl.ResponseMarshaller;
+import ddf.security.liberty.paos.impl.ResponseUnmarshaller;
 import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
@@ -122,6 +152,24 @@ public class IdpEndpoint implements Idp {
 
     private static final String CERTIFICATES_ATTR = "javax.servlet.request.X509Certificate";
 
+    /**
+     * Input factory
+     */
+    private static volatile XMLInputFactory xmlInputFactory = null;
+
+    static {
+        XMLInputFactory xmlInputFactoryTmp = XMLInputFactory2.newInstance();
+        xmlInputFactoryTmp.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
+                Boolean.FALSE);
+        xmlInputFactoryTmp.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                Boolean.FALSE);
+        xmlInputFactoryTmp.setProperty(XMLInputFactory.SUPPORT_DTD,
+                Boolean.FALSE); // This disables DTDs entirely for that factory
+        xmlInputFactoryTmp.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+        xmlInputFactory = xmlInputFactoryTmp;
+
+    }
+
     protected CookieCache cookieCache = new CookieCache();
 
     private PKIAuthenticationTokenFactory tokenFactory;
@@ -135,6 +183,8 @@ public class IdpEndpoint implements Idp {
     private String submitForm;
 
     private String redirectPage;
+
+    private String soapMessage;
 
     private Boolean strictSignature = true;
 
@@ -160,16 +210,26 @@ public class IdpEndpoint implements Idp {
                 InputStream submitFormStream = IdpEndpoint.class.getResourceAsStream(
                         "/templates/submitForm.handlebars");
                 InputStream redirectPageStream = IdpEndpoint.class.getResourceAsStream(
-                        "/templates/redirect.handlebars")
+                        "/templates/redirect.handlebars");
+                InputStream soapMessageStream = IdpEndpoint.class.getResourceAsStream(
+                        "/templates/soap.handlebars");
         ) {
             indexHtml = IOUtils.toString(indexStream);
             submitForm = IOUtils.toString(submitFormStream);
             redirectPage = IOUtils.toString(redirectPageStream);
+            soapMessage = IOUtils.toString(soapMessageStream);
         } catch (Exception e) {
             LOGGER.info("Unable to load index page for IDP.", e);
         }
 
         OpenSAMLUtil.initSamlEngine();
+        XMLObjectProviderRegistry xmlObjectProviderRegistry = ConfigurationService.get(
+                XMLObjectProviderRegistry.class);
+        xmlObjectProviderRegistry.registerObjectProvider(Request.DEFAULT_ELEMENT_NAME,
+                new RequestBuilder(), new RequestMarshaller(), new RequestUnmarshaller());
+        xmlObjectProviderRegistry.registerObjectProvider(
+                ddf.security.liberty.paos.Response.DEFAULT_ELEMENT_NAME, new ResponseBuilder(),
+                new ResponseMarshaller(), new ResponseUnmarshaller());
     }
 
     private void parseServiceProviderMetadata(List<String> serviceProviderMetadata) {
@@ -194,6 +254,152 @@ public class IdpEndpoint implements Idp {
                 LOGGER.warn("Unable to parse SP metadata configuration. Check the configuration for SP metadata.", e);
             }
         }
+    }
+
+    @POST
+    @Path("/login")
+    @Consumes({"text/xml", "application/soap+xml"})
+    public Response doSoapLogin(InputStream body, @Context HttpServletRequest request) {
+        if (!request.isSecure()) {
+            throw new IllegalArgumentException("Authn Request must use TLS.");
+        }
+        SoapBinding soapBinding = new SoapBinding(systemCrypto, serviceProviders);
+        try {
+            String bodyStr = IOUtils.toString(body);
+            AuthnRequest authnRequest = soapBinding.decoder()
+                    .decodeRequest(bodyStr);
+            String relayState = ((SoapRequestDecoder) soapBinding.decoder()).decodeRelayState(
+                    bodyStr);
+            soapBinding.validator()
+                    .validateRelayState(relayState);
+            soapBinding.validator()
+                    .validateAuthnRequest(authnRequest, bodyStr, null, null, null, strictSignature);
+            boolean hasCookie = hasValidCookie(request, authnRequest.isForceAuthn());
+            AuthObj authObj = determineAuthMethod(bodyStr, authnRequest);
+            org.opensaml.saml.saml2.core.Response response = handleLogin(authnRequest,
+                    authObj.method, request, authObj, authnRequest.isPassive(), hasCookie);
+
+            Response samlpResponse = soapBinding.creator()
+                    .getSamlpResponse(relayState, authnRequest, response, null, soapMessage);
+            samlpResponse.getHeaders()
+                    .put("SOAPAction", Collections.singletonList(
+                            "http://www.oasis-open.org/committees/security"));
+            return samlpResponse;
+        } catch (IOException e) {
+            LOGGER.debug("Unable to decode SOAP AuthN Request", e);
+        } catch (SimpleSign.SignatureException e) {
+            LOGGER.debug("Unable to validate signature.", e);
+        } catch (ValidationException e) {
+            LOGGER.debug("Unable to validate request.", e);
+        } catch (SecurityServiceException e) {
+            LOGGER.debug("Unable to authenticate user.", e);
+        } catch (WSSecurityException | IllegalArgumentException e) {
+            LOGGER.debug("Bad request.", e);
+        }
+        return null;
+    }
+
+    private AuthObj determineAuthMethod(String bodyStr, AuthnRequest authnRequest) {
+        XMLStreamReader xmlStreamReader = null;
+        try {
+            xmlStreamReader = xmlInputFactory.createXMLStreamReader(new StringReader(bodyStr));
+        } catch (XMLStreamException e) {
+            LOGGER.debug("Unable to parse SOAP message from client.", e);
+        }
+        SoapMessage soapMessage = new SoapMessage(Soap11.getInstance());
+        SAAJInInterceptor.SAAJPreInInterceptor preInInterceptor = new SAAJInInterceptor.SAAJPreInInterceptor();
+        soapMessage.setContent(XMLStreamReader.class, xmlStreamReader);
+        preInInterceptor.handleMessage(soapMessage);
+        SAAJInInterceptor inInterceptor = new SAAJInInterceptor();
+        inInterceptor.handleMessage(soapMessage);
+
+        SOAPPart soapMessageContent = (SOAPPart) soapMessage.getContent(Node.class);
+        AuthObj authObj = new AuthObj();
+        try {
+            Iterator soapHeaderElements = soapMessageContent.getEnvelope()
+                    .getHeader()
+                    .examineAllHeaderElements();
+            while (soapHeaderElements.hasNext()) {
+                SOAPHeaderElement soapHeaderElement = (SOAPHeaderElement) soapHeaderElements.next();
+                if (soapHeaderElement.getLocalName()
+                        .equals("Security")) {
+                    Iterator childElements = soapHeaderElement.getChildElements();
+                    while (childElements.hasNext()) {
+                        Object nextElement = childElements.next();
+                        if (nextElement instanceof SOAPElement) {
+                            SOAPElement element = (SOAPElement) nextElement;
+                            if (element.getLocalName()
+                                    .equals("UsernameToken")) {
+                                Iterator usernameTokenElements = element.getChildElements();
+                                Object next;
+                                while (usernameTokenElements.hasNext()) {
+                                    if ((next = usernameTokenElements.next()) instanceof Element) {
+                                        Element nextEl = (Element) next;
+                                        if (nextEl.getLocalName()
+                                                .equals("Username")) {
+                                            authObj.username = nextEl.getTextContent();
+                                        } else if (nextEl.getLocalName()
+                                                .equals("Password")) {
+                                            authObj.password = nextEl.getTextContent();
+                                        }
+                                    }
+                                }
+                                if (authObj.username != null && authObj.password != null) {
+                                    authObj.method = USER_PASS;
+                                    break;
+                                }
+                            } else if (element.getLocalName()
+                                    .equals("Assertion") && element.getNamespaceURI()
+                                    .equals("urn:oasis:names:tc:SAML:2.0:assertion")) {
+                                authObj.assertion = new SecurityToken(element.getAttribute("ID"),
+                                        element, null, null);
+                                authObj.method = SAML;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (SOAPException e) {
+            LOGGER.debug("Unable to parse SOAP message.", e);
+        }
+
+        RequestedAuthnContext requestedAuthnContext = authnRequest.getRequestedAuthnContext();
+        boolean requestingPki = false;
+        boolean requestingUp = false;
+        if (requestedAuthnContext != null) {
+            List<AuthnContextClassRef> authnContextClassRefs = requestedAuthnContext.getAuthnContextClassRefs();
+            for (AuthnContextClassRef authnContextClassRef : authnContextClassRefs) {
+                String authnContextClassRefStr = authnContextClassRef.getAuthnContextClassRef();
+                if (SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509.equals(authnContextClassRefStr) || SAML2Constants.AUTH_CONTEXT_CLASS_REF_SMARTCARD_PKI.equals(
+                        authnContextClassRefStr) || SAML2Constants.AUTH_CONTEXT_CLASS_REF_SOFTWARE_PKI.equals(
+                        authnContextClassRefStr) || SAML2Constants.AUTH_CONTEXT_CLASS_REF_SPKI.equals(authnContextClassRefStr)
+                        || SAML2Constants.AUTH_CONTEXT_CLASS_REF_TLS_CLIENT.equals(
+                        authnContextClassRefStr)) {
+                    requestingPki = true;
+                } else if (SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD.equals(
+                        authnContextClassRefStr) || SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD_PROTECTED_TRANSPORT.equals(
+                        authnContextClassRefStr)) {
+                    requestingUp = true;
+                }
+            }
+        } else {
+            //The requested auth context isn't required so we don't know what they want... just set both to true
+            requestingPki = true;
+            requestingUp = true;
+        }
+        if (requestingUp && authObj.method != null && authObj.method.equals(USER_PASS)) {
+            LOGGER.trace("Found UsernameToken and correct AuthnContextClassRef");
+            return authObj;
+        } else if (requestingPki && authObj.method == null) {
+            LOGGER.trace("Found no token, but client requested PKI AuthnContextClassRef");
+            authObj.method = PKI;
+            return authObj;
+        } else if (authObj.method == null) {
+            LOGGER.debug(
+                    "No authentication tokens found for the current request and the client did not request PKI authentication");
+        }
+        return authObj;
     }
 
     @POST
@@ -260,8 +466,9 @@ public class IdpEndpoint implements Idp {
                 org.opensaml.saml.saml2.core.Response samlpResponse;
                 try {
                     samlpResponse = handleLogin(authnRequest,
-                            Idp.PKI,
+                            PKI,
                             request,
+                            null,
                             authnRequest.isPassive(),
                             hasCookie);
                     LOGGER.debug("Passive & PKI AuthnRequest logged in successfully.");
@@ -390,6 +597,8 @@ public class IdpEndpoint implements Idp {
             template = submitForm;
         } else if (binding instanceof RedirectBinding) {
             template = redirectPage;
+        } else if (binding instanceof SoapBinding) {
+            template = soapMessage;
         }
         return binding.creator()
                 .getSamlpResponse(relayState, authnRequest, samlResponse, null, template);
@@ -450,6 +659,7 @@ public class IdpEndpoint implements Idp {
             org.opensaml.saml.saml2.core.Response encodedSaml = handleLogin(authnRequest,
                     authMethod,
                     request,
+                    null,
                     false,
                     false);
             LOGGER.debug("Returning SAML Response for relayState: {}" + relayState);
@@ -493,13 +703,14 @@ public class IdpEndpoint implements Idp {
     }
 
     protected org.opensaml.saml.saml2.core.Response handleLogin(AuthnRequest authnRequest,
-            String authMethod, HttpServletRequest request, boolean passive, boolean hasCookie)
+            String authMethod, HttpServletRequest request, AuthObj authObj, boolean passive,
+            boolean hasCookie)
             throws SecurityServiceException, WSSecurityException, SimpleSign.SignatureException,
             ConstraintViolationException {
         LOGGER.debug("Performing login for user. passive: {}, cookie: {}", passive, hasCookie);
         BaseAuthenticationToken token = null;
         request.setAttribute(ContextPolicy.ACTIVE_REALM, BaseAuthenticationToken.ALL_REALM);
-        if (Idp.PKI.equals(authMethod)) {
+        if (PKI.equals(authMethod)) {
             LOGGER.debug("Logging user in via PKI.");
             PKIHandler pkiHandler = new PKIHandler();
             pkiHandler.setTokenFactory(tokenFactory);
@@ -517,16 +728,22 @@ public class IdpEndpoint implements Idp {
             }
         } else if (USER_PASS.equals(authMethod)) {
             LOGGER.debug("Logging user in via BASIC auth.");
-            BasicAuthenticationHandler basicAuthenticationHandler =
-                    new BasicAuthenticationHandler();
-            HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request,
-                    null,
-                    null,
-                    false);
-            if (handlerResult.getStatus()
-                    .equals(HandlerResult.Status.COMPLETED)) {
-                token = handlerResult.getToken();
+            if (authObj != null && authObj.username != null && authObj.password != null) {
+                token = new UPAuthenticationToken(authObj.username, authObj.password,
+                        BaseAuthenticationToken.ALL_REALM);
+            } else {
+                BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
+                HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request,
+                        null, null, false);
+                if (handlerResult.getStatus()
+                        .equals(HandlerResult.Status.COMPLETED)) {
+                    token = handlerResult.getToken();
+                }
             }
+        } else if (SAML.equals(authMethod)) {
+            LOGGER.debug("Logging user in via SAML assertion.");
+            token = new SAMLAuthenticationToken(null, authObj.assertion,
+                    BaseAuthenticationToken.ALL_REALM);
         } else if (GUEST.equals(authMethod)) {
             LOGGER.debug("Logging user in as Guest.");
             token = new GuestAuthenticationToken(BaseAuthenticationToken.ALL_REALM,
@@ -1059,5 +1276,12 @@ public class IdpEndpoint implements Idp {
 
     public RelayStates<LogoutState> getLogoutStates() {
         return this.logoutStates;
+    }
+
+    private static class AuthObj {
+        String method;
+        String username;
+        String password;
+        SecurityToken assertion;
     }
 }
