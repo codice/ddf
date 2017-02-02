@@ -73,4 +73,3 @@ configured to *Delete* or *Move*, the original file is also moved to the `\.erro
 * To support the monitoring in place behavior, ${branding} indexes the files to track their names and modification timestamps. This enables the Content Directory Monitor to take appropriate action when files are changed or deleted.
 * The Content Directory Monitor recursively processes all subdirectories.
 
-|===

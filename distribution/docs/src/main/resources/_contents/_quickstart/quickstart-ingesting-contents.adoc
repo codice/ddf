@@ -19,7 +19,7 @@ XML metadata for text searching is not automatically generated from GeoJson fiel
 
 Querying from the Search UI (${secure_url}/search) will return the record for the file ingested:
 
-* Enter `*` in the Text search box and click the pass:[<b>Search</b>] button.
+* Enter `*` in the Text search box and click the *Search* button.
 
 [NOTE]
 ====

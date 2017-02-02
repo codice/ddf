@@ -1,5 +1,5 @@
 
-=== Documentation Outline
+The ${branding} documentation is organized by audience.
 
 <<_core_concepts,Core Concepts>>::
 This introduction section is intended to give a high level overview of the concepts and capabilities of ${branding}.
@@ -7,7 +7,7 @@ This introduction section is intended to give a high level overview of the conce
 Administrators::
 <<_managing,Managing>> |
 Administrators will be installing, maintaining, and supporting existing applications.
-Use this section to prepare, install, configure, run, and monitor a ${branding}.
+Use this section to <<_installation_prerequisites,prepare>>, <<_installing,install>>, <<_configuring,configure>>, <<_running,run>>, and <<_monitoring,monitor>> a ${branding}.
 
 Users::
 <<_using,Using>> |
@@ -26,23 +26,6 @@ Developers will build or extend the functionality of the applications. 
 
 The following conventions are used within this documentation:
 
-==== Callouts
-
-[TIP]
-====
-This is a *Tip*, used to provide helpful information.
-====
-
-[NOTE]
-====
-This is an *Informational Note*, used to emphasize points, remind users of beneficial information, or indicate minor problems in the outcome of an operation.
-====
-
-[IMPORTANT]
-====
-This is an *Important Warning*, used to alert users about the possibility of an undesirable outcome or condition.
-====
-
 ==== Customizable Values
 
 Many values used in descriptions are customizable and should be changed for specific use cases.
@@ -60,9 +43,7 @@ Simply change the hostname if accessing a remote host.
 
 === Support
 
-Get support for ${ddf-branding}.
-
-Questions about ${ddf-branding} should be posted to the https://groups.google.com/d/forum/ddf-users[ddf-users forum], https://groups.google.com/d/forum/ddf-announcements[ddf-announcements forum], or https://groups.google.com/d/forum/ddf-developers[ddf-developers forum], where they will be responded to quickly by a member of the ${ddf-branding} team.
+Questions about ${ddf-branding} should be posted to the https://groups.google.com/d/forum/ddf-users[ddf-users forum] or https://groups.google.com/d/forum/ddf-developers[ddf-developers forum], where they will be responded to quickly by a member of the ${ddf-branding} team.
 
 ====  Documentation Updates
 

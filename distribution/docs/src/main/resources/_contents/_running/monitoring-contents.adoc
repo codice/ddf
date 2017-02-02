@@ -7,7 +7,7 @@ Metrics are available in several formats and levels of detail.
 
 Complete the following procedure now that several queries have been executed.
 
-. Select *${branding}-Platform*
+. Select *${ddf-platform}*
 . Select *Metrics* tab
 . For individual metrics, choose the format desired from the desired timeframe column:
 .. PNG
@@ -103,11 +103,6 @@ This is the most popular format for access logs and can be parsed by many web se
 127.0.0.1 -  -  [14/Jan/2013:16:21:33 +0000] "GET /services//?stylesheet=1 HTTP/1.1" 200 0
 127.0.0.1 -  -  [14/Jan/2013:16:21:33 +0000] "GET /favicon.ico HTTP/1.1" 200 0
 ----
-
-===== HTTP Access Logging External Resources
-
-http://team.ops4j.org/wiki/display/paxweb/Advanced+Jetty+Configuration[Advanced Jetty Configuration]
-http://wiki.eclipse.org/Jetty/Tutorial/RequestLog[Jetty Request Log Tutorial]
 
 ===== Using the LogViewer
 

@@ -74,7 +74,7 @@ Importing of configurations must take place before starting the new installation
 To import a previously exported configuration:
 
 . Delete all exising `.config` files from `<${branding}_HOME>/etc`:
-.. `cd <{$branding}_HOME>`
+.. `cd <${branding}_HOME>`
 .. `rm etc/*.config`
 .. `unzip /path/to/exported/zip/exportFiles.zip`
 . Unzip the exported files from a previous installation to the new instance's `<${branding}_HOME>/etc` directory: `unzip exportedFiles.zip <${branding}_HOME>/etc`

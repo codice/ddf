@@ -1,34 +1,39 @@
-${ddf-geowebcache} enables a server providing a tile cache and tile service aggregation.
+
+${ddf-geowebcache} enables a server providing a map tile cache and tile service aggregation.
 See (http://geowebcache.org[GeoWebCache]) for more information.
 This application also provides an administrative plugin for the management of GeoWebCached layers.
-GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at \${secure_url}/geowebcache/.
+GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at ${secure_url}/geowebcache/.
 
-=== Prerequisites for ${ddf-geowebcache}
+====  ${ddf-geowebcache} Application Prerequisites
 
-none.
+None.
 
-=== Installing ${ddf-geowebcache}
+====  Installing ${ddf-geowebcache}
 
-The ${ddf-geowebcache} application is *not* installed by default. To install:
+The ${ddf-geowebcache} application is *not* installed by default.
 
-* Navigate to the ${admin-console}.
-* Select *Manage*.
-* Select the ${ddf-geowebcache} application
-* Select the application *Start* button. The application will move to *Active Applications* on startup.
+To install:
 
-=== Configuring ${ddf-geowebcache}
+. Navigate to the ${admin-console}.
+. Select *Manage*.
+. Select the ${ddf-geowebcache} application *Start* button. The application will move to *Active Applications* on startup.
+. Select *Back* in ${admin-console}.
+
+====  Configuring ${ddf-geowebcache}
 
 ${ddf-geowebcache} can be configured to cache layers locally, using the following procedures.
 
-==== Adding GeoWebCache Layers
+===== Adding GeoWebCache Layers
 
-* Navigate to the ${admin-console}.
-* Select the ${ddf-geowebcache} Application.
-* Select the *GeoWebCache Layers* tab.
-* Click the *Add* button.
-* Enter the data in the fields provided.
-* If necessary, click the *Add* button to add additional MIME types.
-* If necessary, click the *Add* button to add additional WMS Layer Names.
+Add layers to the local cache:
+
+. Navigate to the ${admin-console}.
+. Select the ${ddf-geowebcache} Application.
+. Select the *GeoWebCache Layers* tab.
+. Click the *Add* button.
+. Enter the data in the fields provided.
+. If necessary, click the *Add* button to add additional MIME types.
+. If necessary, click the *Add* button to add additional WMS Layer Names.
 
 .Add Layer
 [cols="1,1m,1,2,1,1" options="header"]
@@ -70,24 +75,24 @@ ${ddf-geowebcache} can be configured to cache layers locally, using the followin
 
 |===
 
-==== Editing GeoWebCache Layers
+===== Editing GeoWebCache Layers
 
-* Navigate to the ${admin-console}.
-* Select the ${ddf-geowebcache} application.
-* Navigate to the *GeoWebCache Layers* tab.
-* Click the *Name* field of the layer to edit.
+. Navigate to the ${admin-console}.
+. Select the ${ddf-geowebcache} application.
+. Navigate to the *GeoWebCache Layers* tab.
+. Click the *Name* field of the layer to edit.
 
-==== Removing GeoWebCache Layers
+===== Removing GeoWebCache Layers
 
-* Click the *Delete* icon at the end of the row of the layer to be deleted.
+. Click the *Delete* icon at the end of the row of the layer to be deleted.
 
-==== Configuring GWC Disk Quota
+===== Configuring GWC Disk Quota
 
 Storage usage for a GeoWebCache server is managed by a `diskquota.xml` file with configuration details to prevent image-intensive data from filling the available storage.
 
-To view the disk quota XML representative: \${secure_url}/geowebcache/rest/diskquota.xml"
+To view the disk quota XML representative: ${secure_url}/geowebcache/rest/diskquota.xml
 
-To update the disk quota, a client can post a new XML configuration: `curl -v -k -XPUT -H "Content-type: text/xml" -d @diskquota.xml "${secure_url}/geowebcache/rest/diskquota.xml"`
+To update the disk quota, a client can post a new XML configuration: `curl -v -k -XPUT -H "Content-type: text/xml" -d ${at-symbol}diskquota.xml "${secure_url}/geowebcache/rest/diskquota.xml"`
 
 .Example `diskquota.xml`
 [source,xml,linenums]
@@ -109,17 +114,17 @@ To update the disk quota, a client can post a new XML configuration: `curl -v -k
 
 See http://geowebcache.org/docs/current/configuration/diskquotas.html[Disk Quotas] for more information on configuration options for disk quota.
 
-==== Configuring the Standard Search UI for GeoWebCache
+===== Configuring the Standard Search UI for GeoWebCache
 
 Add a new Imagery Provider in the ${admin-console}:
 
-* Navigate to \https://<localhost>:8993/admin.
-* Select *Configuration* tab.
-* Select *Standard Search UI* configuration.
-* Click the *Add* button next to *Imagery Providers*
-* Enter configuration for Imagery Provider in new textbox:
-** `{"type" "WMS" "url" "https://<HOSTNAME>:<PORT>/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png"} "alpha" 0.5}`
-* Set the Map Projection to `EPSG:900913` or `EPSG:4326`. (GeoWebCache supports either of these projections.)
+. Navigate to \https://<localhost>:8993/admin.
+. Select *Configuration* tab.
+. Select *Standard Search UI* configuration.
+. Click the *Add* button next to *Imagery Providers*
+. Enter configuration for Imagery Provider in new textbox:
+. `{"type" "WMS" "url" "https://<HOSTNAME>:<PORT>/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png"} "alpha" 0.5}`
+. Set the Map Projection to `EPSG:900913` or `EPSG:4326`. (GeoWebCache supports either of these projections.)
 
 [NOTE]
 ====

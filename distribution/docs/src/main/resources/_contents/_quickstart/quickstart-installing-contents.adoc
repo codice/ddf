@@ -9,7 +9,7 @@ For more complete installation and configuration steps, see <<_installing,Instal
 
 These steps will demonstrate:
 
-- [*] <<_${branding-lowercase}_quick_install_prerequisites,Prerequisites>>.
+- [*] <<_quick_install_prerequisites,Prerequisites>>.
 - [*] <<_quick_install_of_${branding-lowercase},Quick Install of ${branding}>>.
 - [*] <<_ingesting_sample_data,Ingesting Data>>.
 
