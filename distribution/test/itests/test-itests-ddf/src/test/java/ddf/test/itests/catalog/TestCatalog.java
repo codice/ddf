@@ -2905,8 +2905,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCreateStorageCannotOverrideResourceUri()
-            throws IOException {
+    public void testCreateStorageCannotOverrideResourceUri() throws IOException {
         String fileName = testName.getMethodName() + ".jpg";
         String overrideResourceUri = "content:abc123";
         String overrideTitle = "overrideTitle";
@@ -2942,8 +2941,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testUpdateStorageCannotOverrideResourceUri()
-            throws IOException {
+    public void testUpdateStorageCannotOverrideResourceUri() throws IOException {
         String fileName = testName.getMethodName() + ".jpg";
         String overrideResourceUri = "content:abc123";
         String overrideTitle = "overrideTitle";
@@ -2962,14 +2960,19 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(REST_PATH.getUrl())
                 .getHeader("id");
 
-        given().multiPart("parse.resource", tmpFile)
-                .multiPart(Core.RESOURCE_URI, overrideResourceUri)
-                .expect()
-                .log()
-                .headers()
-                .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .when()
-                .put(REST_PATH.getUrl() + id);
+        expect("Sending bad HTTP PUT request with overridden resource-uri").within(1,
+                TimeUnit.MINUTES)
+                .until(() -> {
+                    Response response = given().multiPart("parse.resource", tmpFile)
+                            .multiPart(Core.RESOURCE_URI, overrideResourceUri)
+                            .expect()
+                            .log()
+                            .headers()
+                            .when()
+                            .put(REST_PATH.getUrl() + id);
+
+                    return response.getStatusCode() == HttpStatus.SC_BAD_REQUEST;
+                });
 
         deleteMetacard(id);
     }
