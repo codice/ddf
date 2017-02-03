@@ -37,7 +37,7 @@ public class PaosOutInterceptorTest {
         PaosOutInterceptor paosOutInterceptor = new PaosOutInterceptor(Phase.POST_LOGICAL);
         paosOutInterceptor.handleMessage(message);
         assertThat(((Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS)).get(
-                HttpHeaders.ACCEPT), contains("application/vnd.paos+xml"));
+                HttpHeaders.ACCEPT), contains("application/vnd.paos+xml", "*/*"));
         assertTrue(((Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS)).get("PAOS")
                 .contains("ver=\"urn:liberty:paos:2003-08\""));
         assertTrue(((Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS)).get("PAOS")
@@ -54,7 +54,7 @@ public class PaosOutInterceptorTest {
         PaosOutInterceptor paosOutInterceptor = new PaosOutInterceptor(Phase.POST_LOGICAL);
         paosOutInterceptor.handleMessage(message);
         assertThat(((Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS)).get(
-                HttpHeaders.ACCEPT), contains("application/vnd.paos+xml"));
+                HttpHeaders.ACCEPT), contains("application/vnd.paos+xml", "*/*"));
         assertTrue(((Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS)).get("PAOS")
                 .contains("ver=\"urn:liberty:paos:2003-08\""));
         assertTrue(((Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS)).get("PAOS")
