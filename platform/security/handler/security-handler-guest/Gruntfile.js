@@ -13,7 +13,6 @@
 
 module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
-    grunt.loadTasks('src/main/grunt/tasks');
 
     grunt.initConfig({
 
@@ -25,9 +24,6 @@ module.exports = function (grunt) {
 
         clean: {
             build: ['target/webapp']
-        },
-        bower: {
-            install: {}
         },
         cssmin: {
             compress: {
@@ -78,10 +74,6 @@ module.exports = function (grunt) {
             cssFiles: {
                 files: ['src/main/webapp/css/*.css'],
                 tasks: ['cssmin']
-            },
-            bowerFile: {
-                files: ['src/main/webapp/bower.json'],
-                tasks: ['bower']
             }
         },
         express: {
@@ -100,41 +92,17 @@ module.exports = function (grunt) {
                     script: './server.js'
                 }
             }
-        },
-        replace: {
-            dist: {
-                options: {
-                    patterns: [
-                        {
-                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Lato:400,700,400italic"\);/g,
-                            replace: ''
-                        }
-                    ]
-                },
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: 'target/webapp/lib/bootswatch/flatly/*',
-                        dest: 'target/webapp/lib/bootswatch/flatly'
-                    }
-                ]
-            }
         }
     });
 
-    grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-express-server');
     grunt.loadNpmTasks('grunt-casperjs');
-    grunt.loadNpmTasks('grunt-replace');
 
-    var buildTasks = ['clean', 'bower-offline-install', 'replace', 'cssmin', 'jshint'];
-
-    grunt.registerTask('build', buildTasks);
+    grunt.registerTask('build', ['clean', 'cssmin', 'jshint']);
     grunt.registerTask('default', ['build', 'express:server', 'watch']);
 
 };

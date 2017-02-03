@@ -15,9 +15,7 @@
 /*global module,require*/
 
 module.exports = function (grunt) {
-
     require('load-grunt-tasks')(grunt);
-    grunt.loadTasks('src/main/grunt/tasks');
 
     grunt.initConfig({
 
@@ -25,14 +23,6 @@ module.exports = function (grunt) {
 
         clean: {
             build: ['target/webapp']
-        },
-        bower: {
-            install: {
-                options: {
-                    bowerOptions: {"--offline": true}
-                }
-
-            }
         },
         less: {
             css: {
@@ -42,26 +32,6 @@ module.exports = function (grunt) {
                 files: {
                     "target/webapp/css/styles.css": "src/main/webapp/less/styles.less"
                 }
-            }
-        },
-        replace: {
-            dist: {
-                options: {
-                    patterns: [
-                        {
-                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Lato:400,700,400italic"\);/g,
-                            replace: ''
-                        }
-                    ]
-                },
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: 'target/webapp/lib/bootswatch/flatly/*',
-                        dest: 'target/webapp/lib/bootswatch/flatly'
-                    }
-                ]
             }
         },
         jshint: {
@@ -105,10 +75,6 @@ module.exports = function (grunt) {
             lessFiles: {
                 files: ['src/main/webapp/less/*.less', 'src/main/webapp/less/**/*.less', 'src/main/webapp/less/***/*.less'],
                 tasks: ['less']
-            },
-            bowerFile: {
-                files: ['src/main/webapp/bower.json'],
-                tasks: ['bower']
             }
         },
         express: {
@@ -125,16 +91,12 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-replace');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-express-server');
 
-    var buildTasks = ['clean', 'bower-offline-install', 'replace', 'less', 'jshint'];
-
-    grunt.registerTask('build', buildTasks);
+    grunt.registerTask('build', ['clean', 'less', 'jshint']);
     grunt.registerTask('default', ['build', 'express', 'watch']);
 };
