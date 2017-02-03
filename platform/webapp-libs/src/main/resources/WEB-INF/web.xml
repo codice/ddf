@@ -1,0 +1,113 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+    <context-param>
+        <param-name>org.eclipse.jetty.servlet.SessionIdPathParameterName</param-name>
+        <param-value>none</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>org.eclipse.jetty.servlet.SessionPath</param-name>
+        <param-value>/</param-value>
+    </context-param>
+
+    <servlet>
+        <servlet-name>ErrorServlet</servlet-name>
+        <servlet-class>org.codice.ddf.platform.error.servlet.ErrorServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ErrorServlet</servlet-name>
+        <url-pattern>/ErrorServlet</url-pattern>
+    </servlet-mapping>
+
+    <error-page>
+        <error-code>400</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <error-page>
+        <error-code>401</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <error-page>
+        <error-code>403</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <error-page>
+        <error-code>405</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <error-page>
+        <error-code>406</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <error-page>
+        <error-code>500</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <error-page>
+        <error-code>501</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <error-page>
+        <error-code>502</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <error-page>
+        <error-code>503</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <error-page>
+        <error-code>504</error-code>
+        <location>/ErrorServlet</location>
+    </error-page>
+
+    <filter>
+        <filter-name>GzipFilter</filter-name>
+        <filter-class>org.eclipse.jetty.servlets.GzipFilter</filter-class>
+        <init-param>
+            <param-name>mimeTypes</param-name>
+
+            <param-value>text/html,text/plain,text/xml,application/xhtml+xml,text/css,application/javascript,image/svg+xml</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>GzipFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+</web-app>

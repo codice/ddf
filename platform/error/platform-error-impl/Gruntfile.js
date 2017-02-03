@@ -12,9 +12,7 @@
 /*global module,require*/
 
 module.exports = function (grunt) {
-
     require('load-grunt-tasks')(grunt);
-    grunt.loadTasks('src/main/grunt/tasks');
 
     grunt.initConfig({
        
@@ -22,11 +20,6 @@ module.exports = function (grunt) {
 
         clean: {
           build: ['target/webapp']
-        },
-        bower: {
-            install: {
-
-            }
         },
         cssmin: {
             compress: {
@@ -77,10 +70,6 @@ module.exports = function (grunt) {
             cssFiles : {
                 files :['src/main/webapp/css/*.css'],
                 tasks : ['cssmin']
-            },
-            bowerFile: {
-                files: ['src/main/webapp/bower.json'],
-                tasks: ['bower']
             }
         },
         express: {
@@ -103,7 +92,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-express-server');
     
-    grunt.registerTask('build', ['clean', 'bower-offline-install', 'cssmin', 'jshint']);
+    grunt.registerTask('build', ['clean', 'cssmin', 'jshint']);
     grunt.registerTask('default', ['build','express:server','watch']);
 
 };

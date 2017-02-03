@@ -19,38 +19,38 @@
 
         paths: {
 
-            bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
-            q: 'lib/q/q',
+            bootstrap: '/webapp/libs/bootstrap/3.2.0/dist/js/bootstrap.min',
+            q: '/webapp/libs/q/1.0.1/q',
 
             // backbone
-            backbone: 'lib/backbone/backbone',
-            backboneassociation: 'lib/backbone-associations/backbone-associations',
-            underscore: 'lib/lodash/dist/lodash.underscore',
-            marionette: 'lib/marionette/lib/backbone.marionette',
-            modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder',
-            collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder',
-            poller: 'lib/backbone-poller/backbone.poller',
-            iframeresizer: 'lib/iframe-resizer/js/iframeResizer.min',
+            backbone: '/webapp/libs/backbone/1.1.2/backbone',
+            backboneassociation: '/webapp/libs/backbone-associations/0.6.2/backbone-associations',
+            underscore: '/webapp/libs/lodash/2.4.1/dist/lodash.underscore',
+            marionette: '/webapp/libs/marionette/1.8.8/lib/backbone.marionette',
+            modelbinder: '/webapp/libs/backbone.modelbinder/1.1.0/Backbone.ModelBinder',
+            collectionbinder: '/webapp/libs/backbone.modelbinder/1.1.0/Backbone.CollectionBinder',
+            poller: '/webapp/libs/backbone-poller/1.1.3/backbone.poller',
+            iframeresizer: '/webapp/libs/iframe-resizer/2.6.2/js/iframeResizer.min',
 
             // jquery
-            jquery: 'lib/jquery/dist/jquery.min',
-            jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
-            multiselect: 'lib/bootstrap-multiselect/js/bootstrap-multiselect',
-            perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
+            jquery: '/webapp/libs/jquery/1.12.4/dist/jquery.min',
+            jqueryui: '/webapp/libs/jquery-ui/1.10.4/ui/minified/jquery-ui.min',
+            'jquery.ui.widget': '/webapp/libs/jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
+            multiselect: '/webapp/libs/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
+            perfectscrollbar: '/webapp/libs/perfect-scrollbar/0.5.7/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
 
             // handlebars
-            handlebars: 'lib/handlebars/handlebars.min',
+            handlebars: '/webapp/libs/handlebars/2.0.0/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: 'lib/requirejs-plugins/lib/text',
-            css: 'lib/require-css/css',
+            text: '/webapp/libs/requirejs-plugins/1.0.2/lib/text',
+            css: '/webapp/libs/require-css/0.1.5/css',
 
             // default admin ui
             app: 'js/application',
 
-            moment: 'lib/moment/min/moment.min'
+            moment: '/webapp/libs/moment/2.5.1/min/moment.min'
         },
 
 

@@ -21,6 +21,16 @@ module.exports = {
                 from: resolve('node_modules/cesium/Build/Cesium'),
                 to: resolve('target/webapp/cesium'),
                 force: true
+            },
+            {
+                from: resolve('node_modules/bootstrap'),
+                to: resolve('target/webapp/lib/bootstrap'),
+                force: true
+            },
+            {
+                from: resolve('node_modules/font-awesome'),
+                to: resolve('target/webapp/lib/font-awesome'),
+                force: true
             }
         ])
     ],
@@ -67,8 +77,6 @@ module.exports = {
             bootstrap: 'bootstrap/dist/js/bootstrap.min',
             bootstrapselect: 'bootstrap-select/dist/js/bootstrap-select.min',
             bootstrapDatepicker: 'eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
-            spin: 'spin.js/spin',
-            q: 'q/q',
             strapdown: 'strapdown/v/0.2',
             // backbone
             backboneassociations: 'backbone-associations',
@@ -99,7 +107,6 @@ module.exports = {
             multiselect$: 'jquery-ui-multiselect-widget/src/jquery.multiselect',
             multiselectfilter: 'jquery-ui-multiselect-widget/src/jquery.multiselect.filter',
             'jquery.ui.widget': 'jquery-ui/widget',
-            fileupload: 'jquery-file-upload/js/jquery.fileupload',
             jquerySortable: 'jquery-ui/sortable',
             // map
             cesium$: 'cesium/Build/Cesium/Cesium.js',

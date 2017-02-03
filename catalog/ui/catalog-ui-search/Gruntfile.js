@@ -22,7 +22,6 @@ module.exports = function (grunt) {
                 app: 'Google Chrome'
             }
         },
-        bower: { install: {} },
         webpack: {
             build: require('./webpack/config/prod')
         },
@@ -111,10 +110,6 @@ module.exports = function (grunt) {
             cssFiles : {
                 files :['src/main/webapp/css/*.css'],
                 tasks : ['cssmin']
-            },
-            bowerFile: {
-                files: ['src/main/webapp/bower.json'],
-                tasks: ['bower']
             }
         }
     });
@@ -122,7 +117,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-express-server');
 
     grunt.registerTask('build:part', [
-        'bower-offline-install',
         'less',
         'cssmin',
         'jshint'

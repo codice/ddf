@@ -1010,6 +1010,7 @@
         <feature>persistence-core</feature>
         <feature>error</feature>
         <feature>parser-xml</feature>
+        <feature>webapp-libs</feature>
         <feature>landing-page</feature>
     </feature>
 
@@ -1030,6 +1031,11 @@
              description="HTTP to HTTPS proxy.">
         <feature prerequisite="true">camel-jetty9</feature>
         <bundle>mvn:ddf.platform/platform-http-proxy/${project.version}</bundle>
+    </feature>
+
+    <feature name="webapp-libs" install="manual" version="${project.version}"
+             description="WAB that serves all webapp libraries.">
+        <bundle>mvn:ddf.platform/webapp-libs/${project.version}</bundle>
     </feature>
 
     <feature name="landing-page" install="manual" version="${project.version}"

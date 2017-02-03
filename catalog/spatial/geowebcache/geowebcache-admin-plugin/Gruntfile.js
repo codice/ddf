@@ -13,35 +13,11 @@
 
 module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
-    grunt.loadTasks('src/main/grunt/tasks');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: {
             build: ['target/webapp']
-        },
-        bower: {
-            install: {}
-        },
-        replace: {
-            dist: {
-                options: {
-                    patterns: [
-                        {
-                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Lato:400,700,400italic"\);/g,
-                            replace: ''
-                        }
-                    ]
-                },
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: 'target/webapp/lib/bootswatch/flatly/*',
-                        dest: 'target/webapp/lib/bootswatch/flatly'
-                    }
-                ]
-            }
         },
         cssmin: {
             compress: {
@@ -100,17 +76,11 @@ module.exports = function (grunt) {
             cssFiles: {
                 files: ['src/main/webapp/css/*.css'],
                 tasks: ['cssmin']
-            },
-            bowerFile: {
-                files: ['src/main/webapp/bower.json'],
-                tasks: ['bower']
             }
         }
     });
 
-    grunt.loadNpmTasks('grunt-replace');
-
-    grunt.registerTask('build', ['bower-offline-install', 'replace', 'newer:cssmin', 'newer:jshint']);
+    grunt.registerTask('build', ['newer:cssmin', 'newer:jshint']);
     grunt.registerTask('default', ['build', 'watch']);
 
 };

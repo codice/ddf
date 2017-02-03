@@ -1,0 +1,28 @@
+{
+  "name": "Backbone.Undo.js",
+  "version": "0.2.5",
+  "main": "Backbone.Undo.js",
+  "license": "MIT license",
+  "homepage": "http://backbone.undojs.com/",
+  "authors": [
+    "Oliver Sartun <osartun@gmail.com> (http://css3-html5.de)",
+    "creynders <info@creynders.be> (http://www.creynders.be)",
+    "Anton Shuvalov <anton_shuvalov@me.com> (http://anton-shuvalov.info)",
+    "Marcin Lawrowski",
+    "Vladislav Botvin <darkvlados@me.com>"
+  ],
+  "description": "A simple Backbone undo-manager for simple apps",
+  "keywords": [
+    "Backbone", "undo"
+  ],
+  "dependencies" :{
+    "underscore": "1.4.4 - 1.8.3",
+    "backbone": "1.0.0 - 1.2.1"
+  },
+  "ignore": [
+    "Tests",
+    ".gitignore",
+    "sample",
+    "README.md"
+  ]
+}

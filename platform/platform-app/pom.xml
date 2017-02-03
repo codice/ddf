@@ -292,6 +292,11 @@
             <artifactId>failsafe</artifactId>
             <version>${jodah-failsafe.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>webapp-libs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <!-- CXF Properties used in used in platform-app's features.xml
