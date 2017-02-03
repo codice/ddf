@@ -19,53 +19,53 @@
 
         paths: {
 
-            bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
-            spin: 'lib/spin.js/spin',
-            q: 'lib/q/q',
+            bootstrap: '/webapp/libs/bootstrap/3.2.0/dist/js/bootstrap.min',
+            spin: '/webapp/libs/spin.js/1.3.3/spin',
+            q: '/webapp/libs/q/1.0.1/q',
 
             // backbone
-            backbone: 'lib/backbone/backbone',
-            backbonerelational: 'lib/backbone-relational/backbone-relational',
-            underscore: 'lib/lodash/dist/lodash.underscore.min',
-            marionette: 'lib/marionette/lib/backbone.marionette.min',
+            backbone: '/webapp/libs/backbone/1.1.2/backbone',
+            backbonerelational: '/webapp/libs/backbone-relational/0.8.8/backbone-relational',
+            underscore: '/webapp/libs/lodash/2.4.1/dist/lodash.underscore.min',
+            marionette: '/webapp/libs/marionette/1.8.8/lib/backbone.marionette.min',
             // TODO test combining
-            modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
-            collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
-            poller: 'lib/backbone-poller/backbone.poller',
+            modelbinder: '/webapp/libs/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
+            collectionbinder: '/webapp/libs/backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
+            poller: '/webapp/libs/backbone-poller/1.1.3/backbone.poller',
 
             // ddf
             spinnerConfig: 'js/spinnerConfig',
 
             // jquery
-            jquery: 'lib/jquery/dist/jquery.min',
-            jsCookie: 'lib/js-cookie/src/js.cookie',
-            jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
-            multiselect: 'lib/bootstrap-multiselect/js/bootstrap-multiselect',
-            perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
-            fileupload: 'lib/jquery-file-upload/js/jquery.fileupload',
-            fileuploadiframe: 'lib/jquery-file-upload/js/jquery.iframe-transport',
+            jquery: '/webapp/libs/jquery/1.12.4/dist/jquery.min',
+            jsCookie: '/webapp/libs/js-cookie/2.1.1/src/js.cookie',
+            jqueryui: '/webapp/libs/jquery-ui/1.10.4/ui/minified/jquery-ui.min',
+            'jquery.ui.widget': '/webapp/libs/jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
+            multiselect: '/webapp/libs/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
+            perfectscrollbar: '/webapp/libs/perfect-scrollbar/0.4.8/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
+            fileupload: '/webapp/libs/jquery-file-upload/9.5.7/js/jquery.fileupload',
+            fileuploadiframe: '/webapp/libs/jquery-file-upload/9.5.7/js/jquery.iframe-transport',
 
             // handlebars
-            handlebars: 'lib/handlebars/handlebars.min',
+            handlebars: '/webapp/libs/handlebars/2.0.0/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: 'lib/requirejs-plugins/lib/text',
-            css: 'lib/require-css/css',
+            text: '/webapp/libs/requirejs-plugins/1.0.2/lib/text',
+            css: '/webapp/libs/require-css/0.1.5/css',
 
             // default admin ui
             app: 'js/application',
 
             //moment
-            moment: 'lib/moment/moment',
+            moment: '/webapp/libs/moment/2.5.1/moment',
 
 
             //iframe-resizer
-            iframeresizer: 'lib/iframe-resizer/js/iframeResizer.min',
+            iframeresizer: '/webapp/libs/iframe-resizer/2.6.2/js/iframeResizer.min',
 
             //backbone assocations
-            backboneassociations: 'lib/backbone-associations/backbone-associations-min'
+            backboneassociations: '/webapp/libs/backbone-associations/0.6.2/backbone-associations-min'
         },
 
 

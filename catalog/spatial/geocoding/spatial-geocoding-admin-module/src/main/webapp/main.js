@@ -14,34 +14,34 @@
 require.config({
     paths: {
 
-        bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
-        moment: 'lib/moment/min/moment.min',
+        bootstrap: '/webapp/libs/bootstrap/3.2.0/dist/js/bootstrap.min',
+        moment: '/webapp/libs/moment/2.5.1/min/moment.min',
 
         // backbone
-        backbone: 'lib/backbone/backbone',
+        backbone: '/webapp/libs/backbone/1.1.2/backbone',
 
-        underscore: 'lib/lodash/dist/lodash.underscore.min',
+        underscore: '/webapp/libs/lodash/2.4.1/dist/lodash.underscore.min',
 
-        'backbone.marionette': 'lib/marionette/lib/backbone.marionette.min',
+        'backbone.marionette': '/webapp/libs/marionette/2.4.1/lib/backbone.marionette.min',
 
-        modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder',
+        modelbinder: '/webapp/libs/backbone.modelbinder/1.1.0/Backbone.ModelBinder',
 
         // application
         application: 'js/application',
 
         // jquery
-        jquery: 'lib/jquery/dist/jquery.min',
-        jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
-        "jquery.ui.widget": 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
-        fileupload: 'lib/jquery-file-upload/js/jquery.fileupload',
+        jquery: '/webapp/libs/jquery/1.12.4/dist/jquery.min',
+        jqueryuiCore: '/webapp/libs/jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
+        "jquery.ui.widget": '/webapp/libs/jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
+        fileupload: '/webapp/libs/jquery-file-upload/9.5.7/js/jquery.fileupload',
 
         // handlebars
-        handlebars: 'lib/handlebars/handlebars.min',
+        handlebars: '/webapp/libs/handlebars/2.0.0/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
-        text: 'lib/requirejs-plugins/lib/text',
-        css: 'lib/require-css/css.min'
+        text: '/webapp/libs/requirejs-plugins/1.0.2/lib/text',
+        css: '/webapp/libs/require-css/0.1.5/css.min'
 
 
     },
