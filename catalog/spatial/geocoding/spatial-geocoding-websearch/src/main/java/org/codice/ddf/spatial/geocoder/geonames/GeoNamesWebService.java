@@ -33,7 +33,6 @@ import org.codice.ddf.spatial.geocoder.GeoResultCreator;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.context.impl.NearbyLocationImpl;
 import org.locationtech.spatial4j.context.SpatialContext;
-import org.locationtech.spatial4j.context.SpatialContextFactory;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Shape;
@@ -220,7 +219,8 @@ public class GeoNamesWebService implements GeoCoder {
 
     Point createPointFromWkt(String wkt) {
         try {
-            SpatialContextFactory contextFactory = new JtsSpatialContextFactory();
+            JtsSpatialContextFactory contextFactory = new JtsSpatialContextFactory();
+            contextFactory.allowMultiOverlap = true;
             SpatialContext spatialContext = contextFactory.newSpatialContext();
             Shape shape = (Shape) spatialContext.readShapeFromWkt(wkt);
             Point center = shape.getCenter();

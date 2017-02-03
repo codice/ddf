@@ -71,6 +71,9 @@ public class TestGeoNamesWebService {
     private static final String CREATE_POINT_FROM_WKT_POLYGON =
             "POLYGON((30 10, 10 20, 20 40, 40 40, 30 10))";
 
+    private static final String CREATE_POINT_FROM_WKT_GEOMETRY_COLLECTION =
+            "GEOMETRYCOLLECTION (MULTIPOLYGON (((56 9, 64 9, 60 14, 56 9)), ((61 9, 69 9, 65 14, 61 9)), ((51 9, 59 9, 55 14, 51 9))), LINESTRING (50 8, 50 15, 70 15, 70 8, 50 8), MULTIPOINT ((62.5 14), (67.5 14), (57.5 14), (52.5 14)))";
+
     private GeoNamesWebService webService;
 
     private GeoNamesWebService webServiceSpy;
@@ -96,6 +99,12 @@ public class TestGeoNamesWebService {
         p = webService.createPointFromWkt(polygonWkt);
 
         assertThat(p, notNullValue());
+    }
+
+    @Test
+    public void testIntersectingGeometryCollection() {
+        assertThat(webService.createPointFromWkt(CREATE_POINT_FROM_WKT_GEOMETRY_COLLECTION),
+                notNullValue());
     }
 
     @Test
