@@ -25,7 +25,8 @@ function ($,_, Marionette) {
         initialize: function(options) {
             var self = this;
             this.callback = options.callback;
-            this.$button = $(options.anchorSelector);
+            this.spinner = $(options.spinnerSelector);
+            this.$button = $(options.buttonSelector);
             this.counter--;
             this.$button.click(function(){
                 self.startSpinner();
@@ -33,9 +34,9 @@ function ($,_, Marionette) {
         },
         startSpinner: function() {
             var self = this;
-            if (!this.$button.hasClass('fa-spin')) {
+            if (!this.spinner.hasClass('fa-spin')) {
                 this.counter = this.expectedCalls;
-                this.$button.addClass('fa-spin');
+                this.spinner.addClass('fa-spin');
                 setTimeout(function(){
                     self.stopSpinner();
                 }, 2000);
@@ -43,7 +44,7 @@ function ($,_, Marionette) {
             }
         },
         stopSpinner: function() {
-            this.$button.removeClass('fa-spin');
+            this.spinner.removeClass('fa-spin');
         },
         done: function() {
             this.counter--;
@@ -69,20 +70,22 @@ function ($,_, Marionette) {
                     trigger: 'hover'
                 };
             $popoverAnchor.find(selector).popover(options);
-        }, 
+        },
         /**
-         * Utility that handles the starting and stopping of the refresh button spin. Callers simply provide the 
-         * selector text and a function to invoke. When the function has completed, it must call done() to signal a 
+         * Utility that handles the starting and stopping of the refresh button spin. Callers simply provide the
+         * selector text and a function to invoke. When the function has completed, it must call done() to signal a
          * stop spinning.
-         * @param anchorSelector Selector for the refresh button.
-         * @param toExec A function to invoke when the refresh button is pressed. This method should call done() when 
+         * @param buttonSelector Selector for the refresh button
+         * @param spinnerSelector Selector for the refresh icon.
+         * @param toExec A function to invoke when the refresh button is pressed. This method should call done() when
          *               it has finished to signal an end to the spinning.
          * @returns A utility for managing the spinning of the refresh button.
          */
-        refreshButton : function(anchorSelector, toExec) {
+        refreshButton : function(buttonSelector, spinnerSelector, toExec) {
 
             return new RefreshController({
-                anchorSelector: anchorSelector,
+                buttonSelector: buttonSelector,
+                spinnerSelector: spinnerSelector,
                 callback: toExec
             });
         }
