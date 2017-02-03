@@ -54,6 +54,7 @@
                 <value>/idp</value>
                 <value>${org.codice.ddf.system.rootContext}/platform/config/ui</value>
                 <value>/login</value>
+                <value>/webapp/libs</value>
             </array>
         </property>
     </bean>
