@@ -81,6 +81,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleService;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.KarafConsole;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
@@ -207,6 +208,10 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String LOCALHOST_PASSWORD = "localhost";
 
+    private static KarafConsole console;
+
+    private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
+
     private static final int CSW_SOURCE_POLL_INTERVAL = 10;
 
     private static final int MAX_DOWNLOAD_RETRY_ATTEMPTS = 3;
@@ -323,7 +328,11 @@ public class TestFederation extends AbstractIntegrationTest {
             LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body()
                     .prettyPrint());
 
-            getServiceManager().startFeature(true, "search-ui");
+            getServiceManager().startFeature(true, "search-ui", "search-ui-app", "catalog-ui");
+
+            console = new KarafConsole(getServiceManager().getBundleContext(),
+                    features,
+                    sessionFactory);
 
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
@@ -1518,6 +1527,38 @@ public class TestFederation extends AbstractIntegrationTest {
                 "FAILED");
     }
 
+    @Test
+    public void testMetacardCache() throws Exception {
+
+        //Start with a clean cache
+        console.runCommand(CLEAR_CACHE);
+        String cqlUrl = SEARCH_ROOT + "/catalog/internal/cql";
+
+        String srcRequest = "{\"src\":\"" + OPENSEARCH_SOURCE_ID
+                + "\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sort\":\"modified:desc\"}";
+
+        expect("Waiting for metacard cache to clear").checkEvery(1, TimeUnit.SECONDS)
+                .within(20, TimeUnit.SECONDS)
+                .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) == 0);
+
+        //This query will put the ingested metacards from the BeforeExam method into the cache
+        given().contentType("application/json")
+                .auth()
+                .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
+                .body(srcRequest)
+                .when()
+                .post(cqlUrl)
+                .then()
+                .log()
+                .all()
+                .statusCode(200);
+
+        //CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
+        expect("Waiting for metacards to be written to cache").checkEvery(1, TimeUnit.SECONDS)
+                .within(20, TimeUnit.SECONDS)
+                .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) > 0);
+    }
+
     /**
      * Tests that ddf will return the cached copy if there are no changes to the remote metacard
      * Also tests that the file caches correctly when range headers are not supported
@@ -2552,6 +2593,29 @@ public class TestFederation extends AbstractIntegrationTest {
         cometDClient.start();
         channels.forEach(cometDClient::subscribe);
         return cometDClient;
+    }
+
+    private int getMetacardCacheSize(String sourceId) {
+        String cqlUrl = SEARCH_ROOT + "/catalog/internal/cql";
+
+        String cacheRequest =
+                "{\"src\":\"cache\",\"start\":1,\"count\":250,\"cql\":\"((anyText ILIKE '*') AND ((\\\"metacard_source\\\" = '"
+                        + sourceId + "')))\",\"sort\":\"modified:desc\"}";
+
+        return given().contentType("application/json")
+                .auth()
+                .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
+                .body(cacheRequest)
+                .when()
+                .post(cqlUrl)
+                .then()
+                .log()
+                .all()
+                .statusCode(200)
+                .extract()
+                .body()
+                .jsonPath()
+                .getInt("status.hits");
     }
 
     @Override
