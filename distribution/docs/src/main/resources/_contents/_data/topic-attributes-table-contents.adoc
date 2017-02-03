@@ -11,22 +11,22 @@
 
 |topic.category
 |A category code from a given vocabulary.
-|String
-|should be restricted to the values in a given vocabulary
+|List of Strings
+|A valid entry from the corresponding controlled vocabulary.
 |
 
 |topic.keyword
 |One or more keywords describing the subject matter of the
 metacard or resource.
-|String
-|< 1024 characters
+|List of Strings
+|< 1024 characters per entry
 |
 
 |topic.vocabulary
 |An identifier of a controlled vocabulary from which the
 topic category is derived.
-|String
-|< 1024 characters
+|List of Strings
+|Valid URI per RFC 2396.
 |
 
 |===

@@ -10,15 +10,15 @@
 |Example Value
 
 |validation-warnings
-|Textual description of validation warnings on the resource
-|String
-|< 1024 characters
+|Textual description of validation warnings on the resource.
+|List of Strings
+|< 1024 characters per entry
 |
 
 |validation-errors
-|Textual description of validation errors on the resource
-|String
-|< 1024 characters
+|Textual description of validation errors on the resource.
+|List of Strings
+|< 1024 characters per entry
 |
 
 |===

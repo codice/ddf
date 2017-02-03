@@ -17,19 +17,19 @@ resource. http://dublincore.org/documents/dcmi-terms/#elements-format[Dublin Cor
 name for such, note that this is not the mime type
 
 |media.format-version
-|The file format version of the resource.
+|The file format version of the resource. Note that the syntax can vary widely from format to format.
 |String
 |< 1024 characters
-| 
+|POSIX, 2016, 1.0
  
 |media.bit-rate
-|The bit rate of the media, in bps.
+|The bit rate of the media, in bits per second.
 |Double
 | 
 | 
  
 |media.frame-rate
-|The frame rate of the video, in fps.
+|The frame rate of the video, in frames per second.
 |Double
 | 
 | 
@@ -56,7 +56,6 @@ name for such, note that this is not the mime type
 |The type of compression this media uses.
 
 http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html#Compression[EXIF]
-
 STANAG 4559 NC, NM, C1, M1, I1, C3, M3, C4, M4, C5, M5, C8, M8
 |String
 |One of the values defined for EXIF Compression tag.
@@ -69,21 +68,21 @@ STANAG 4559 NC, NM, C1, M1, I1, C3, M3, C4, M4, C5, M5, C8, M8
 | 
 
 |media.type (RFC 2046)
-|A two-part identifier for file formats and format content
+|A two-part identifier for file formats and format content.
 |String
-|a valid https://en.wikipedia.org/wiki/Media_type[mime-type]
+|A valid mime-type per https://www.ietf.org/rfc/rfc2046.txt
 |application/json
 
 |media.encoding
 |The encoding format of the media.
-|String
-|< 1024 characters
-| 
+|List of Strings
+|< 1024 characters per entry
+|MPEG-2, RGB
  
 |media.number-of-bands
 |The number of spectral bands in the media.
 |Integer
-| 
+|The significance of this number is instrumentation-specific, but there are eight commonly recognized bands. https://en.wikipedia.org/wiki/Multispectral_image
 | 
  
 |media.scanning-mode (MPEG2)

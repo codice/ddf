@@ -11,16 +11,16 @@
 
 |security.access-groups
 |Attribute name for storing groups to enforce access
-controls upon
-|String
-|
+controls upon.
+|List of Strings
+|< 1024 characters per entry
 |
 
 |security.access-individuals
 |Attribute name for storing the email addresses of users to
-enforce access controls upon
-|String
-|Valid email address
-|
+enforce access controls upon.
+|List of Strings
+|A valid email address per RFC 5322.
+| 
 
 |===

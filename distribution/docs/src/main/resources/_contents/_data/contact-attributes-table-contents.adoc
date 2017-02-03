@@ -9,101 +9,101 @@
 |Example Value
 
 |contact.creator-name
-|The name of this metacard’s creator.
-|String
-|< 1024 characters
+|The name(s) of this metacard’s creator(s).
+|List of Strings
+|< 1024 characters per entry
 |
  
 |contact.creator-address
-|The physical address of this metacard’s creator.
-|String
-|< 1024 characters
+|The physical address(es) of this metacard’s creator(s).
+|List of Strings
+|< 1024 characters per entry
 | 
  
 |contact.creator-email
-|The email address of this metacard’s creator.
-|String
-|< 1024 characters
+|The email address(es) of this metacard’s creator(s).
+|List of Strings
+|A valid email address per RFC 5322.
 | 
  
 |contact.creator-phone
-|The phone number of this metacard’s creator.
-|String
-|< 1024 characters
+|The phone number(s) of this metacard’s creator(s).
+|List of Strings
+|< 1024 characters per entry
 |
  
 |contact.publisher-name
-| The name of this metacard’s publisher.
-|String
-|< 1024 characters
+| The name(s) of this metacard’s publisher(s).
+|List of Strings
+|< 1024 characters per entry
 | 
  
 |contact.publisher-address
-| The physical address of this metacard’s publisher.
-|String
-|< 1024 characters
+| The physical address(es) of this metacard’s publisher(s).
+|List of Strings
+|< 1024 characters per entry
 | 
  
 |contact.publisher-email
-| The email address of this metacard’s publisher.
-|String
-|< 1024 characters
+| The email address(es) of this metacard’s publisher(s).
+|List of Strings
+|A valid email address per RFC 5322.
 | 
  
 |contact.publisher-phone
-| The phone number of this metacard’s publisher.
-|String
-|< 1024 characters
+| The phone number(s) of this metacard’s publisher(s).
+|List of Strings
+|< 1024 characters per entry
 | 
  
 |contact.contributor-name
-| The name of a contributor to this metacard.
-|String
-|< 1024 characters
+| The name of the contributor(s) to this metacard.
+|List of Strings
+|< 1024 characters per entry
 | 
  
 |contact.contributor-address
-| The physical address of a contributor to this metacard.
-|String
-|< 1024 characters
+| The physical address(es) of the contributor(s) to this metacard.
+|List of Strings
+|< 1024 characters per entry
 | 
  
 |contact.contributor-email
-| The email address of a contributor to this metacard.
-|String
-|< 1024 characters
+| The email address(es) of the contributor(s) to this metacard.
+|List of Strings
+|A valid email address per RFC 5322.
 | 
  
 |contact.contributor-phone
-| The phone number of a contributor to this metacard.
-|String
-|< 1024 characters
+| The phone number(s) of the contributor(s) to this metacard.
+|List of Strings
+|< 1024 characters per entry
 | 
  
 |contact.point-of-contact-name
-| The name of a point of contact for this metacard.
-|String
-|< 1024 characters
+| The name(s) of the point(s) of contact for this metacard.
+|List of Strings
+|< 1024 characters per entry
 | 
  
 |contact.point-of-contact-address
-|The physical address of a point of contact for this
+|The physical address(es) of a point(s) of contact for this
 metacard.
-|String
-|< 1024 characters
+|List of Strings
+|< 1024 characters per entry
 | 
  
 |contact.point-of-contact-email
-|The email address of a point of contact for this
+|The email address(es) of the point(s) of contact for this
 metacard.
-|String
-|< 1024 characters
+|List of Strings
+|A valid email address per RFC 5322.
 | 
 
 |contact.point-of-contact-phone
-|The phone number of a point of contact for this metacard.
-|String
-|< 1024 characters
+|The phone number(s) of the point(s) of contact for this metacard.
+|List of Strings
+|< 1024 characters per entry
 |
 
 |===
