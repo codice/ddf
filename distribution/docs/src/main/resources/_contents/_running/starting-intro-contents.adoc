@@ -40,7 +40,7 @@ If console access is needed while running as a service, run the `client` script:
 
 .Windows
 ----
-<${branding}_HOME>/bin/client.bat
+<${branding}_HOME>/bin/client.bat -h localhost
 ----
 ====
 
