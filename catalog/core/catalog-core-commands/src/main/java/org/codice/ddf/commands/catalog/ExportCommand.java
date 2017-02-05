@@ -16,6 +16,8 @@ package org.codice.ddf.commands.catalog;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -78,7 +81,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.operation.impl.ResourceRequestById;
+import ddf.catalog.operation.impl.ResourceRequestByProductUri;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
@@ -215,7 +218,7 @@ public class ExportCommand extends CqlCommands {
         return new File(resolvedOutput);
     }
 
-    private List<ExportItem> doMetacardExport(ZipFile zipFile, Filter filter) {
+    private List<ExportItem> doMetacardExport(/*Mutable,IO*/ZipFile zipFile, Filter filter) {
         List<ExportItem> exportedItems = new ArrayList<>();
         for (Result result : new QueryResulterable(catalogFramework,
                 (i) -> getQuery(filter, i, PAGE_SIZE),
@@ -225,7 +228,8 @@ public class ExportCommand extends CqlCommands {
                     .getId(),
                     getTag(result),
                     result.getMetacard()
-                            .getResourceURI()));
+                            .getResourceURI(),
+                    getDerivedResources(result)));
             // Fetch and export all history for each exported item
             for (Result revision : new QueryResulterable(catalogFramework,
                     (i) -> getQuery(getHistoryFilter(result), i, PAGE_SIZE),
@@ -235,19 +239,35 @@ public class ExportCommand extends CqlCommands {
                         .getId(),
                         getTag(revision),
                         revision.getMetacard()
-                                .getResourceURI()));
+                                .getResourceURI(),
+                        getDerivedResources(result)));
             }
         }
         return exportedItems;
+    }
+
+    private List<String> getDerivedResources(Result result) {
+        if (result.getMetacard()
+                .getAttribute(Metacard.DERIVED_RESOURCE_URI) == null) {
+            return Collections.emptyList();
+        }
+
+        return result.getMetacard()
+                .getAttribute(Metacard.DERIVED_RESOURCE_URI)
+                .getValues()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(String::valueOf)
+                .collect(Collectors.toList());
     }
 
     private List<ExportItem> doContentExport(/*Mutable,IO*/ZipFile zipFile,
             List<ExportItem> exportedItems) throws ZipException {
         List<ExportItem> contentItemsToExport = exportedItems.stream()
                 // Only things with a resource URI
-                .filter(ei -> ei.getResourceURI() != null)
+                .filter(ei -> ei.getResourceUri() != null)
                 // Only our content scheme
-                .filter(ei -> ei.getResourceURI()
+                .filter(ei -> ei.getResourceUri()
                         .getScheme()
                         .startsWith(ContentItem.CONTENT_SCHEME))
                 // Deleted Metacards have no content associated
@@ -255,10 +275,10 @@ public class ExportCommand extends CqlCommands {
                         .equals("deleted"))
                 // for revision metacards, only those that have their own content
                 .filter(ei -> !ei.getMetacardTag()
-                        .equals("revision") || ei.getResourceURI()
+                        .equals("revision") || ei.getResourceUri()
                         .getSchemeSpecificPart()
                         .equals(ei.getId()))
-                .filter(distinctByKey(ei -> ei.getResourceURI()
+                .filter(distinctByKey(ei -> ei.getResourceUri()
                         .getSchemeSpecificPart()))
                 .collect(Collectors.toList());
 
@@ -266,17 +286,42 @@ public class ExportCommand extends CqlCommands {
         for (ExportItem contentItem : contentItemsToExport) {
             ResourceResponse resource;
             try {
-                resource =
-                        catalogFramework.getLocalResource(new ResourceRequestById(contentItem.getId()));
+                resource = catalogFramework.getLocalResource(new ResourceRequestByProductUri(
+                        contentItem.getResourceUri()));
             } catch (IOException | ResourceNotSupportedException e) {
                 throw new CatalogCommandRuntimeException(
-                        "Something went wrong while fetching resources",
-                        e);
+                        "Unable to retrieve resource for " + contentItem.getId(), e);
             } catch (ResourceNotFoundException e) {
                 continue;
             }
             writeToZip(zipFile, contentItem, resource);
             exportedContentItems.add(contentItem);
+
+            for (String derivedUri : contentItem.getDerivedUris()) {
+                URI uri;
+                try {
+                    uri = new URI(derivedUri);
+                } catch (URISyntaxException e) {
+                    LOGGER.debug(
+                            "Uri [{}] is not a valid URI. Derived content will not be included in export",
+                            derivedUri);
+                    continue;
+                }
+
+                ResourceResponse derivedResource;
+                try {
+                    derivedResource =
+                            catalogFramework.getLocalResource(new ResourceRequestByProductUri(uri));
+                } catch (IOException | ResourceNotSupportedException e) {
+                    throw new CatalogCommandRuntimeException(
+                            "Unable to retrieve resource for " + contentItem.getId(), e);
+                } catch (ResourceNotFoundException e) {
+                    continue;
+                }
+                writeToZip(zipFile, contentItem, derivedResource);
+                // TODO (RCZ) - not sure if i need to add to exported list
+                //exportedContentItems.add(contentItem);
+            }
         }
         return exportedContentItems;
     }
@@ -290,14 +335,14 @@ public class ExportCommand extends CqlCommands {
                 DeleteStorageRequestImpl deleteRequest =
                         new DeleteStorageRequestImpl(Collections.singletonList(new IdAndUriMetacard(
                                 exportedContentItem.getId(),
-                                exportedContentItem.getResourceURI())),
+                                exportedContentItem.getResourceUri())),
                                 exportedContentItem.getId(),
                                 Collections.emptyMap());
                 storageProvider.delete(deleteRequest);
                 storageProvider.commit(deleteRequest);
             } catch (StorageException e) {
                 printErrorMessage(
-                        "Could not content for metacard: " + exportedContentItem.toString());
+                        "Could not delete content for metacard: " + exportedContentItem.toString());
             }
         }
         for (ExportItem exported : exportedItems) {
@@ -319,14 +364,31 @@ public class ExportCommand extends CqlCommands {
         ZipParameters parameters = new ZipParameters();
         parameters.setSourceExternalStream(true);
         String id = exportItem.getId();
-        parameters.setFileNameInZip(Paths.get("metacards",
-                id.substring(0, 3),
-                id,
-                resource.getResource()
-                        .getName())
-                .toString());
+        String path = getContentPath(id, resource);
+        parameters.setFileNameInZip(path);
         zipFile.addStream(resource.getResource()
                 .getInputStream(), parameters);
+    }
+
+    private String getContentPath(String id, ResourceResponse resource) {
+        String path = Paths.get("metacards", id.substring(0, 3), id)
+                .toString();
+        String fragment = ((URI) resource.getRequest()
+                .getAttributeValue()).getFragment();
+
+        if (fragment == null) { // is root content, put in root id folder
+            path = Paths.get(path,
+                    resource.getResource()
+                            .getName())
+                    .toString();
+        } else { // is derived content, put in subfolder
+            path = Paths.get(path,
+                    fragment,
+                    resource.getResource()
+                            .getName())
+                    .toString();
+        }
+        return path;
     }
 
     private void writeToZip(/*Mutable,IO*/ ZipFile zipFile, Result result) {

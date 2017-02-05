@@ -1,7 +1,10 @@
 package org.codice.ddf.commands.catalog.export;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ExportItem {
     private String id = "";
@@ -9,6 +12,16 @@ public class ExportItem {
     private String metacardTag = "";
 
     private URI resourceURI;
+
+    private List<String> derivedUris;
+
+    public ExportItem(String id, String metacardTag, URI resourceURI, List<String> derivedUris) {
+        this.id = id;
+        this.metacardTag = metacardTag;
+        this.resourceURI = resourceURI;
+        this.derivedUris = Optional.ofNullable(derivedUris)
+                .orElseGet(Collections::emptyList);
+    }
 
     public String getId() {
         return id;
@@ -18,14 +31,12 @@ public class ExportItem {
         return metacardTag;
     }
 
-    public URI getResourceURI() {
+    public URI getResourceUri() {
         return resourceURI;
     }
 
-    public ExportItem(String id, String metacardTag, URI resourceURI) {
-        this.id = id;
-        this.metacardTag = metacardTag;
-        this.resourceURI = resourceURI;
+    public List<String> getDerivedUris() {
+        return derivedUris;
     }
 
     @Override
