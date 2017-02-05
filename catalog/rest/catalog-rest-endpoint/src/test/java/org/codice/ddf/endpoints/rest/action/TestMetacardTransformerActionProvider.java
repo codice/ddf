@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Collections;
 
 import org.apache.commons.lang.CharEncoding;
 import org.codice.ddf.configuration.SystemBaseUrl;
@@ -60,6 +61,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
 
         when(metacard.getId()).thenReturn(METACARD_ID);
         when(metacard.getSourceId()).thenReturn(REMOTE_SOURCE_ID);
+        when(metacard.getTags()).thenReturn(Collections.singleton(Metacard.DEFAULT_TAG));
 
         actionUrl = getUrl(METACARD_ID);
 

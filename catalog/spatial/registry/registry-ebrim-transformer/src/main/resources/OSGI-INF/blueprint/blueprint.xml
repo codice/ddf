@@ -43,6 +43,7 @@
             <entry key="id" value="rim:RegistryPackage"/>
             <entry key="mime-type" value="text/xml"/>
             <entry key="schema" value="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"/>
+            <entry key="generateActionProvider" value="false"/>
         </service-properties>
         <bean class="org.codice.ddf.registry.transformer.RegistryTransformer">
             <property name="parser" ref="xmlParser"/>
