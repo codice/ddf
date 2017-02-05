@@ -125,7 +125,7 @@ public class ExportCommand extends CqlCommands {
     @Reference
     private StorageProvider storageProvider;
 
-    @Option(name = "--output", description = "Output file to export Metacards into. Paths are absolute and must be in quotes. Will default to auto generated name inside of ddf.home", multiValued = false, required = false, aliases = {
+    @Option(name = "--output", description = "Output file to export Metacards and contents into. Paths are absolute and must be in quotes. Will default to auto generated name inside of ddf.home", multiValued = false, required = false, aliases = {
             "-o"})
     String output = Paths.get(System.getProperty("ddf.home"), name.get())
             .toString();
@@ -166,7 +166,7 @@ public class ExportCommand extends CqlCommands {
             return null;
         }
 
-        SecurityLogger.audit("Called catalog:dump command with path : {}\nCurrent user: {}",
+        SecurityLogger.audit("Called catalog:export command with path : {}\nCurrent user: {}",
                 output,
                 SubjectUtils.getName(SecurityUtils.getSubject()));
 
@@ -319,8 +319,6 @@ public class ExportCommand extends CqlCommands {
                     continue;
                 }
                 writeToZip(zipFile, contentItem, derivedResource);
-                // TODO (RCZ) - not sure if i need to add to exported list
-                //exportedContentItems.add(contentItem);
             }
         }
         return exportedContentItems;
@@ -518,7 +516,7 @@ public class ExportCommand extends CqlCommands {
      * Throws a {@link CatalogCommandRuntimeException} if anything goes wrong during iteration or
      * querying
      */
-    class QueryResulterable implements Iterable<Result> {
+    static class QueryResulterable implements Iterable<Result> {
         private final CatalogFramework catalog;
 
         private final Function<Integer, QueryRequest> filter;
