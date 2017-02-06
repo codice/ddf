@@ -198,6 +198,9 @@ public class CqlResult {
             LOGGER.debug("Unable to parse query wkt", e);
         }
 
+        if (distance != null && (distance < 0 || distance > Double.MAX_VALUE)) {
+            distance = null;
+        }
         return distance;
     }
 
