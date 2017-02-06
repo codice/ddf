@@ -37,5 +37,5 @@ public interface Associations {
     /**
      * {@link ddf.catalog.data.Attribute} name for accessing the external associations of the {@link Metacard}. <br/>
      */
-    String EXTERNAL = "metacard.associations.external";
+    String EXTERNAL = "associations.external";
 }
