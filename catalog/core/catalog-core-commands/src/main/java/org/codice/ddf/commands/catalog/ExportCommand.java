@@ -45,7 +45,6 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.catalog.transformer.zip.JarSigner;
 import org.codice.ddf.commands.catalog.export.ExportItem;
 import org.codice.ddf.commands.catalog.export.IdAndUriMetacard;
@@ -74,7 +73,6 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
-import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -211,14 +209,18 @@ public class ExportCommand extends CqlCommands {
         for (Result result : new QueryResulterable(catalogFramework,
                 (i) -> getQuery(filter, i, PAGE_SIZE),
                 PAGE_SIZE)) {
-            seenIds.add(result.getMetacard().getId());
-            writeToZip(zipFile, result);
-            exportedItems.add(new ExportItem(result.getMetacard()
-                    .getId(),
-                    getTag(result),
-                    result.getMetacard()
-                            .getResourceURI(),
-                    getDerivedResources(result)));
+            if (!seenIds.contains(result.getMetacard().getId())) {
+                writeToZip(zipFile, result);
+                exportedItems.add(new ExportItem(result.getMetacard()
+                        .getId(),
+                        getTag(result),
+                        result.getMetacard()
+                                .getResourceURI(),
+                        getDerivedResources(result)));
+                seenIds.add(result.getMetacard()
+                        .getId());
+            }
+
             // Fetch and export all history for each exported item
             for (Result revision : new QueryResulterable(catalogFramework,
                     (i) -> getQuery(getHistoryFilter(result), i, PAGE_SIZE),
@@ -233,6 +235,7 @@ public class ExportCommand extends CqlCommands {
                         revision.getMetacard()
                                 .getResourceURI(),
                         getDerivedResources(result)));
+                seenIds.add(revision.getMetacard().getId());
             }
         }
         return exportedItems;
