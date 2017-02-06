@@ -21,6 +21,11 @@ module.exports = {
                 from: resolve('node_modules/cesium/Build/Cesium'),
                 to: resolve('target/webapp/cesium'),
                 force: true
+            },
+            {
+                from: resolve('node_modules/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css'),
+                to: resolve('target/webapp/lib/eonasdan-bootstrap-datetimepicker/css/bootstrap-datetimepicker.css'),
+                force: true
             }
         ])
     ],
