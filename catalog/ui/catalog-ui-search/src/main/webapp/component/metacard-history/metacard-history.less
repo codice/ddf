@@ -15,6 +15,7 @@
     height: 50px;
   }
   .metacardHistory-body {
+    display: inline-block;  // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
     max-height: ~"calc(100% - @{minimumButtonSize}*2 - 20px - @{buttonMargin})";
     overflow: auto;
     overflow-x: hidden;

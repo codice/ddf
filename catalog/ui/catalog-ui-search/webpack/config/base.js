@@ -9,7 +9,7 @@ module.exports = {
     devtool: 'source-map',
     context: resolve('./src/main/webapp/'),
     entry: [
-        resolve('./src/main/webapp/main.js')
+        resolve('./src/main/webapp/js/ApplicationSetup.js')
     ],
     output: {
         path: resolve('./target/webapp'),
@@ -102,6 +102,8 @@ module.exports = {
             fileupload: 'jquery-file-upload/js/jquery.fileupload',
             jquerySortable: 'jquery-ui/sortable',
             // map
+            //openlayers$: 'openlayers/dist/ol-debug.js',  // useful for debugging openlayers
+            //cesium$: 'cesium/Build/CesiumUnminified/Cesium.js',  //useful for debuggin cesium
             cesium$: 'cesium/Build/Cesium/Cesium.js',
             'cesium.css': 'cesium/Build/Cesium/Widgets/widgets.css',
             drawHelper: 'cesium-drawhelper/DrawHelper',

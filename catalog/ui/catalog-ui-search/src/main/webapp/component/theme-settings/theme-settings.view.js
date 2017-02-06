@@ -59,7 +59,7 @@ module.exports = Marionette.LayoutView.extend({
         this.listenToFontSize();
     },
     listenToFontSize: function(){
-        this.$el.find('input').on('change', function(e){
+        this.$el.find('input').on('change input', function(e){
             var preferences = getPreferences(user);
             var newFontSize = $(e.currentTarget).val();
             preferences.set('fontSize', newFontSize);

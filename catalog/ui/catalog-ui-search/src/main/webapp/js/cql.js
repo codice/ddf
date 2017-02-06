@@ -14,7 +14,9 @@
  * See license.txt in the OpenLayers distribution or repository for the
  * full text of the license. */
 // jshint ignore: start
-define(function () {
+define([
+    'moment'
+], function (moment) {
     'use strict';
 
     var comparisonClass = "Comparison",
@@ -272,7 +274,7 @@ define(function () {
                     property = buildTree();
                     return {
                         property: property,
-                        value: (new Date(value)).toISOString(),
+                        value: (moment(value)).toISOString(),
                         type: tok.text.toUpperCase()
                     };
                 case "DURING":

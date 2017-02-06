@@ -28,6 +28,8 @@
     }
 
     .rearrange-columns {
+        display: inline-block; // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
+        width: 100%;
         max-height: ~'calc(100% - @{minimumButtonSize})';
         overflow: auto;
     }

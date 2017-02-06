@@ -14,11 +14,20 @@
  **/
 /*global require*/
 var MapView = require('../map.view');
+var template = require('./cesium.hbs');
 var $ = require('jquery');
+var user = require('component/singletons/user-instance');
+var _ = require('underscore');
 
 module.exports = MapView.extend({
+    template: template,
     className: 'is-cesium',
-    createMap: function() {
+    events: function() {
+        return _.extend({
+            'click > .not-supported button': 'switchTo2DMap'
+        }, MapView.prototype.events);
+    },
+    loadMap: function() {
         var deferred = new $.Deferred();
         require([
             './map.cesium'
@@ -26,5 +35,21 @@ module.exports = MapView.extend({
             deferred.resolve(CesiumMap);
         });
         return deferred;
+    },
+    createMap: function(){
+        try {
+            MapView.prototype.createMap.apply(this, arguments);
+        } catch (err){
+            this.$el.addClass('not-supported');
+            setTimeout(function(){
+                this.switchTo2DMap();
+            }.bind(this), 10000);
+            this.endLoading();
+        }
+    },
+    switchTo2DMap: function(){
+        if (!this.isDestroyed){
+            user.get('user').get('preferences').set('visualization', '2dmap');
+        }
     }
 });

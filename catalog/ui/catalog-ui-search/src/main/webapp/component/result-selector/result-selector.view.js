@@ -120,7 +120,6 @@ define([
              'add remove update reset', this.onBeforeShow);
         },
         startListeningToResult: function(){
-            this.listenTo(this.model.get('result'), 'sync', this.onBeforeShow);
             this.listenTo(this.model.get('result'), 'reset:results', this.onBeforeShow);
         },
         startListeningToFilter: function(){

@@ -1,12 +1,11 @@
 *:focus {
   outline-offset: -1px;
-  animation: focusFade 1s ease-in-out forwards;
+  animation: focusFade 1s ease-in-out;
 }
 
 @keyframes focusFade {
   0% {
-   outline: @primary-color solid 1px;
-   opacity: 1;
+    outline: @primary-color solid 1px;
   }
   100% {
     outline: transparent solid 1px;

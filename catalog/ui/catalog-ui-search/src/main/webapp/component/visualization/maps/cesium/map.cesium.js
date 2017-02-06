@@ -15,6 +15,7 @@ var $ = require('jquery');
 var _ = require('underscore');
 var Map = require('../map');
 var utility = require('./utility');
+var DrawingUtility = require('../DrawingUtility');
 
 var DrawBBox = require('js/widgets/cesium.bbox');
 var DrawCircle = require('js/widgets/cesium.circle');
@@ -28,9 +29,6 @@ var LayerCollectionController = require('js/controllers/cesium.layerCollection.c
 var user = require('component/singletons/user-instance');
 var User = require('js/model/User');
 var wreqr = require('wreqr');
-
-var billboardMarker = require('../billboardMarker.hbs');
-var clusterMarker = require('../clusterMarker.hbs');
 
 var defaultColor = '#3c6dd5';
 var eyeOffset = new Cesium.Cartesian3(0, 0, 0);
@@ -78,13 +76,8 @@ function createMap(insertionElement) {
     }
 
     if (properties.gazetteer) {
-        var container = $('div.cesium-viewer-geocoderContainer');
-        container.html("");
-        viewer._geocoder = new Cesium.Geocoder({
-            container: container[0],
-            url: '/services/',
-            scene: viewer.scene
-        });
+        //old method causes issues on IE11 due to improper destruction of old geocoder
+        viewer.geocoder.viewModel._url = '/services/';
     }
     $(insertionElement).find('.cesium-viewer-toolbar')
         .append("<button class='cesium-button cesium-toolbar-button cluster-button' " +
@@ -211,24 +204,6 @@ function getDestinationForVisiblePan(rectangle, map) {
 function determineCesiumColor(color) {
     return !_.isUndefined(color) ?
         Cesium.Color.fromCssColorString(color) : Cesium.Color.fromCssColorString(defaultColor);
-}
-
-function getSVGImage(color, selected) {
-    var svg = billboardMarker({
-        fill: color || defaultColor,
-        selected: selected
-    });
-    return 'data:image/svg+xml;base64,' + window.btoa(svg);
-}
-
-function getSVGImageForCluster(color, count, outline, textFill) {
-    var svg = clusterMarker({
-        fill: color || defaultColor,
-        count: count,
-        outline: outline || 'white',
-        textFill: textFill || 'white'
-    });
-    return 'data:image/svg+xml;base64,' + window.btoa(svg);
 }
 
 function convertPointCoordinate(coordinate) {
@@ -421,7 +396,10 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             );
             var cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(cartographicPosition);
             var billboardRef = billboardCollection.add({
-                image: getSVGImageForCluster(options.color, options.id.length),
+                image: DrawingUtility.getCircleWithText({
+                    fillColor: options.color,
+                    text: options.id.length,
+                }),
                 position: cartesianPosition,
                 id: options.id,
                 eyeOffset: eyeOffset
@@ -451,7 +429,9 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 pointObject.altitude
             );
             var billboardRef = billboardCollection.add({
-                image: getSVGImage(options.color),
+                image: DrawingUtility.getCircle({
+                    fillColor: options.color
+                }),
                 position: map.scene.globe.ellipsoid.cartographicToCartesian(cartographicPosition),
                 id: options.id,
                 eyeOffset: eyeOffset
@@ -577,7 +557,12 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 }.bind(this));
             }
             if (geometry.constructor === Cesium.Billboard) {
-                geometry.image = getSVGImageForCluster(options.color, options.count, options.outline, options.textFill);
+                geometry.image = DrawingUtility.getCircleWithText({
+                    fillColor: options.color,
+                    strokeColor: options.outline,
+                    text: options.count,
+                    textColor: options.textFill
+                });
             } else if (geometry.constructor === Cesium.PolylineCollection) {
                 geometry._polylines.forEach(function(polyline) {
                     polyline.material = Cesium.Material.fromType('PolylineOutline', {
@@ -603,7 +588,10 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 }.bind(this));
             }
             if (geometry.constructor === Cesium.Billboard) {
-                geometry.image = getSVGImage(options.color, options.isSelected);
+                geometry.image = DrawingUtility.getCircle({
+                    fillColor: options.color,
+                    strokeColor: options.isSelected ? 'black' : 'white' 
+                });
             } else if (geometry.constructor === Cesium.PolylineCollection) {
                 geometry._polylines.forEach(function(polyline) {
                     polyline.material = Cesium.Material.fromType('PolylineOutline', {
@@ -645,7 +633,10 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
         removeGeometry: function(geometry) {
             billboardCollection.remove(geometry);
             map.scene.primitives.remove(geometry);
-            map.entities.remove(geometry);
+            //unminified cesium chokes if you feed a geometry with id as an Array
+            if (geometry.constructor === Cesium.Entity) {
+                map.entities.remove(geometry);
+            }
         },
         showPolygonShape: function(locationModel){
             var polygon = new DrawPolygon.PolygonRenderView({

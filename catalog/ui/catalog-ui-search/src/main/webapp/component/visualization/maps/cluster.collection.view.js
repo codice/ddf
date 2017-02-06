@@ -30,6 +30,7 @@ var ClusterCollectionView = Marionette.CollectionView.extend({
     initialize: function(options) {
         this.isActive = Boolean(options.isActive) || this.isActive;
         this.render = _.throttle(this.render, 200);
+        this.options.map.onLeftClick = _.debounce(this.options.map.onLeftClick, 30);
         this.selectionInterface = options.selectionInterface || this.selectionInterface;
         this.options.map.onLeftClick(this.onMapLeftClick.bind(this));
         this.options.map.onMouseMove(this.handleMapHover.bind(this));
@@ -46,7 +47,7 @@ var ClusterCollectionView = Marionette.CollectionView.extend({
         });
     },
     onMapLeftClick: function(event, mapEvent) {
-        if (mapEvent.mapTarget) {
+        if (mapEvent.mapTarget && mapEvent.mapTarget !== 'userDrawing' && !store.get('content').get('drawing')) {
             if (event.shiftKey) {
                 this.handleShiftClick(mapEvent.mapTarget);
             } else if (event.ctrlKey || event.metaKey) {

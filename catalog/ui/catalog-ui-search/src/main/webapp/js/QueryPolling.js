@@ -17,8 +17,9 @@ define([
     'js/cql',
     'js/CQLUtils',
     'component/singletons/sources-instance',
+    'moment',
     './jquery.whenAll'
-], function($, _, wreqr, cql, CQLUtils, sources) {
+], function($, _, wreqr, cql, CQLUtils, sources, moment) {
 
     var checkForFailures, startSearch, addFailure, handleReattempts;
     var pollingQueries = {};
@@ -28,8 +29,8 @@ define([
         var before = Date.now();
         var after = Date.now() - polling;
         return {
-            before: (new Date(before)).toISOString(),
-            after: (new Date(after)).toISOString()
+            before: (moment(before)).toISOString(),
+            after: (moment(after)).toISOString()
         };
     }
 

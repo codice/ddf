@@ -43,14 +43,20 @@ var GeometryCollectionView = Marionette.CollectionView.extend({
         }
     },
     handleClick: function(id) {
-        this.options.selectionInterface.clearSelectedResults();
-        this.options.selectionInterface.addSelectedResult(this.collection.get(id));
+        if (id.constructor === String) {
+            this.options.selectionInterface.clearSelectedResults();
+            this.options.selectionInterface.addSelectedResult(this.collection.get(id));
+        }
     },
     handleCtrlClick: function(id) {
-        this.options.selectionInterface.addSelectedResult(this.collection.get(id));
+        if (id.constructor === String) {
+            this.options.selectionInterface.addSelectedResult(this.collection.get(id));
+        }
     },
     handleShiftClick: function(id) {
-        this.options.selectionInterface.addSelectedResult(this.collection.get(id));
+        if (id.constructor === String) {
+            this.options.selectionInterface.addSelectedResult(this.collection.get(id));
+        }
     }
 });
 

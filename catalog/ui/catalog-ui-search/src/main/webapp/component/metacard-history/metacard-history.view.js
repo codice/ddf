@@ -23,8 +23,9 @@ define([
     'js/store',
     'js/Common',
     'js/ResultUtils',
-    'component/announcement'
-], function (Marionette, _, $, template, CustomElements, LoadingCompanionView, store, Common, ResultUtils, announcement) {
+    'component/announcement',
+    'moment'
+], function (Marionette, _, $, template, CustomElements, LoadingCompanionView, store, Common, ResultUtils, announcement, moment) {
 
     var selectedVersion;
 
@@ -70,7 +71,7 @@ define([
             var self = this;
             if (this._history){
                 this._history.sort(function(historyItem1, historyItem2){
-                    return (new Date(historyItem2.versioned)) - (new Date(historyItem1.versioned));
+                    return (moment(historyItem2.versioned)) - (moment(historyItem1.versioned));
                 });
                 this._history.forEach(function(historyItem, index){
                     historyItem.niceDate = Common.getMomentDate(historyItem.versioned);

@@ -85,7 +85,7 @@ define([
             } else {
                 return checkIfValueIsValid(values, attribute, result.get('metacard').get('properties').get(attribute));
             }
-        })
+        });
     }
 
     function checkIfValueIsValid(values, attribute, value) {
@@ -179,8 +179,9 @@ define([
         events: {
         },
         initialize: function(){
-            this.showHistogram = _.throttle(this.showHistogram, 200);
-            this.handleResize = _.throttle(this.handleResize, 120);
+            this.showHistogram = _.debounce(this.showHistogram, 30);
+            this.updateHistogram = _.debounce(this.updateHistogram, 30);
+            this.handleResize = _.debounce(this.handleResize, 30);
             this.removeResizeHandler().addResizeHandler();
             this.setupListeners();
         },
@@ -197,6 +198,16 @@ define([
                     this.handleResize();
                     this.listenToHistogram();
                 }.bind(this));
+            } else {
+                this.el.querySelector('.histogram-container').innerHTML = '';
+            }
+        },
+        updateHistogram: function(){
+            if (this.histogramAttribute.currentView.getCurrentValue()[0] && this.options.selectionInterface.getActiveSearchResults().length !== 0){
+                var histogramElement = this.el.querySelector('.histogram-container');
+                Plotly.deleteTraces(histogramElement, 1);
+                Plotly.addTraces(histogramElement, this.determineData(histogramElement)[1]);     
+                this.handleResize();
             } else {
                 this.el.querySelector('.histogram-container').innerHTML = '';
             }
@@ -272,7 +283,7 @@ define([
                     autobinx: false,
                     xbins: xbins
                 }
-            ]
+            ];
 
         },
         handleEmpty: function(){
@@ -282,7 +293,7 @@ define([
             var histogramElement = this.el.querySelector('.histogram-container');
             this.$el.find('rect.drag').off('mousedown');
             if (histogramElement._context) {
-                Plotly.relayout(histogramElement, {autosize: true})
+                Plotly.Plots.resize(histogramElement);
             }
             this.$el.find('rect.drag').on('mousedown', function(event){
                 this.shiftKey = event.shiftKey;
@@ -304,10 +315,10 @@ define([
         },
         setupListeners: function(){
             this.listenTo(this.options.selectionInterface, 'reset:activeSearchResults', this.onBeforeShow);
-            this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update', this.showHistogram);
-            this.listenTo(this.options.selectionInterface.getSelectedResults(), 'add', this.showHistogram);
-            this.listenTo(this.options.selectionInterface.getSelectedResults(), 'remove', this.showHistogram);
-            this.listenTo(this.options.selectionInterface.getSelectedResults(), 'reset', this.showHistogram);
+            this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update', this.updateHistogram);
+            this.listenTo(this.options.selectionInterface.getSelectedResults(), 'add', this.updateHistogram);
+            this.listenTo(this.options.selectionInterface.getSelectedResults(), 'remove', this.updateHistogram);
+            this.listenTo(this.options.selectionInterface.getSelectedResults(), 'reset', this.updateHistogram);
         },
         listenToHistogram: function(){
             this.el.querySelector('.histogram-container').on('plotly_click', this.plotlyClickHandler.bind(this));

@@ -88,8 +88,6 @@
     "jquery-ui": "1.10.4",
     "lodash": "2.4.1",
     "moment": "2.13.0",
-    "openlayers": "3.20.1",
-    "plotly.js": "1.10.5",
     "react": "15.2.1",
     "react-dom": "15.2.1",
     "react-redux": "4.4.5",
@@ -99,7 +97,9 @@
     "terraformer": "1.0.5",
     "terraformer-wkt-parser": "1.1.0",
     "uuid": "2.0.2",
-    "vis": "4.15.0",
-    "eonasdan-bootstrap-datetimepicker": "4.17.45"
+    "eonasdan-bootstrap-datetimepicker": "4.17.45",
+    "openlayers": "3.20.1",
+    "plotly.js": "1.10.5",
+    "vis": "4.15.0"
   }
 }

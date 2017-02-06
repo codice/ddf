@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, window*/
 define([
     'marionette',
     'underscore',
@@ -24,6 +24,19 @@ define([
     'component/hint/hint'
 ], function (Marionette, _, $, template, CustomElements, Dropdown,
              DropdownHintView, Hint) {
+
+    var zeroScale = "matrix(0, 0, 0, 0, 0, 0)";
+
+    // specifically to account for IE Edge Bug, see http://codepen.io/andrewkfiedler/pen/apBbxq
+    function isZeroScale(element){
+        if (element === document){
+            return false;
+        } else if (window.getComputedStyle(element).transform === zeroScale){
+            return true;
+        } else {
+            return isZeroScale(element.parentNode);
+        }
+    }
 
     function findHighestAncestorTop(element) {
         var parent = element.parentNode;
@@ -175,12 +188,9 @@ define([
             this.$el.addClass('is-shown');
             var $elementsWithHints = $('[data-help]');
             _.each($elementsWithHints, function (element) {
-                var dropdownHintView = new DropdownHintView({
-                    model: new Dropdown(),
-                    modelForComponent: new Hint({
-                        hint: element.getAttribute('data-help')
-                    })
-                });
+                if (isZeroScale(element)){
+                    return;
+                }
                 var boundingRect = element.getBoundingClientRect();
                 var top = Math.max(findHighestAncestorTop(element), boundingRect.top);
                 var bottom = Math.min(findLowestAncestorBottom(element), boundingRect.bottom);
@@ -189,6 +199,12 @@ define([
                 var height = bottom - top;
                 var width = right - left;
                 if (boundingRect.width > 0 && height > 0 && width > 0 && !isBlocked(element, boundingRect)) {
+                    var dropdownHintView = new DropdownHintView({
+                        model: new Dropdown(),
+                        modelForComponent: new Hint({
+                            hint: element.getAttribute('data-help')
+                        })
+                    });
                     dropdownHintView.render();
                     this.$el.append(dropdownHintView.$el);
                     dropdownHintView.$el.css('height', height).css('width', width)

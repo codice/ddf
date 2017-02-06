@@ -155,7 +155,7 @@ define([
                 return user.get('user').isGuestUser();
             },
             comparator: function(workspace){
-                return -(new Date(workspace.get('lastModifiedDate'))).getTime();
+                return -(moment(workspace.get('lastModifiedDate'))).unix();
             },
             createWorkspace: function(title){
                 this.create({title: title || 'New Workspace'});

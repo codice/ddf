@@ -22,8 +22,9 @@ define([
     'component/input/input.view',
     'component/multivalue/multivalue.view',
     'component/dropdown/dropdown.view',
-    'js/Common'
-], function (Marionette, _, $, template, CustomElements, InputView, MultivalueView, DropdownView, Common) {
+    'js/Common',
+    'moment'
+], function (Marionette, _, $, template, CustomElements, InputView, MultivalueView, DropdownView, Common, moment) {
 
     return InputView.extend({
         className: 'is-bulk',
@@ -42,6 +43,23 @@ define([
             this.handleOther();
             this.handleBulk();
         },
+        serializeData: function(){
+            // need duplicate (usually toJSON returns a side-effect free version, but this has a nested object that isn't using backbone associations)
+            var modelJSON = Common.duplicate(this.model.toJSON());
+            switch(this.model.getCalculatedType()){
+                case 'date':
+                    modelJSON.values = _.map(modelJSON.values, (function(valueInfo){
+                        valueInfo.value = valueInfo.value.map(function(value){
+                            return Common.getHumanReadableDate(value);
+                        });
+                        return valueInfo;
+                    }));
+                    break;
+                default:
+                    break;
+            }
+            return modelJSON;
+        },
         initializeDropdown: function(){
             var enumValues = [
                 {
@@ -49,20 +67,24 @@ define([
                     value: 'bulkDefault'
                 }
             ];
-            _.forEach( this.model.get('values'), function(value){
-                var label = value.value;
+            _.forEach( this.model.get('values'), function(valueInfo){
+                var value = valueInfo.value;
+                var label = value;
                 switch(this.model.getCalculatedType()){
                     case 'date':
                         label = label.map(function(text){
                            return Common.getHumanReadableDate(text);
+                        });
+                        value = value.map(function(text){
+                            return moment(text);
                         });
                         break;
                     default:
                         break;
                 }
                 enumValues.push({
-                    label: label + '    ('+value.hits+')',
-                    value: value.value
+                    label: label + '    ('+valueInfo.hits+')',
+                    value: value
                 });
             }.bind(this));
             enumValues.push({

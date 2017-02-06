@@ -278,12 +278,14 @@ define([
                 relatedModel: User.Model
             }
         ],
+        fetched: false,
         initialize: function () {
-            this.set('user', new User.Model());
             this.listenTo(this, 'sync', this.handleSync);
+            this.set('user', new User.Model());
             this.fetch();
         },
         handleSync: function(){
+            this.fetched = true;
             this.get('user').get('preferences').handleAlertPersistance();
         },
         getGuestPreferences: function () {

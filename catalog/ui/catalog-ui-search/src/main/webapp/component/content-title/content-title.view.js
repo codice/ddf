@@ -37,24 +37,22 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            this.listenTo(this.model, 'change:currentWorkspace', this.handleChange);
-        },
-        onRender: function(){
-        },
-        handleChange: function(){
-            this.updateInput();
+            this.listenTo(this.model, 'change:currentWorkspace', this.updateInput);
         },
         updateInput: function(){
             if (this.model.get('currentWorkspace')) {
+                var span = this.$el.find('.title-display');
                 var input = this.$el.find('input');
                 var currentTitle = this.model.get('currentWorkspace').get('title');
                 if (input.val() !== currentTitle){
                     input.val(currentTitle);
                 }
+                span.html(currentTitle);
             }
         },
         updateWorkspaceName: function(e){
             this.model.get('currentWorkspace').set('title', e.currentTarget.value);
+            this.updateInput();
         }
     });
 });

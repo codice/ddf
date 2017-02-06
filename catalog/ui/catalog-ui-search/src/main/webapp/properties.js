@@ -10,20 +10,20 @@
  *
  **/
 /*global define*/
-function match(regexList, attribute) {
-    return regexList
-        .map(function(str) {
-            return new RegExp(str);
-        })
-        .find(function(regex) {
-            return regex.exec(attribute);
-        }) !== undefined;
-}
-
 define(function (require) {
     'use strict';
     var $ = require('jquery');
     var _ = require('underscore');
+
+    function match(regexList, attribute) {
+        return _.chain(regexList)
+            .map(function(str) {
+                return new RegExp(str);
+            })
+            .find(function(regex) {
+                return regex.exec(attribute);
+            }).value() !== undefined;
+    }
 
     var properties = {
         product: 'Catalog',
