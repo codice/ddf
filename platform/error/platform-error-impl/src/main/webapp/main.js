@@ -20,22 +20,22 @@
         baseUrl: "/error",
 
         paths: {
-            q: 'lib/q/q',
+            q: 'q/1.0.1/q',
 
             // backbone
-            backbone: 'lib/backbone/backbone',
-            underscore: 'lib/lodash/dist/lodash.underscore.min',
-            marionette: 'lib/marionette/lib/backbone.marionette.min',
+            backbone: 'backbone/1.1.2/backbone',
+            underscore: 'lodash/2.4.1/dist/lodash.underscore.min',
+            marionette: 'marionette/1.8.8/lib/backbone.marionette.min',
 
             // jquery
-            jquery: 'lib/jquery/dist/jquery.min',
+            jquery: 'jquery/1.12.4/dist/jquery.min',
 
             // handlebars
-            handlebars: 'lib/handlebars/handlebars.min',
+            handlebars: 'handlebars/2.0.0/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: 'lib/requirejs-plugins/lib/text',
+            text: 'requirejs-plugins/1.0.2/lib/text',
 
             // default login ui
             app: 'js/application'

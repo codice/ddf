@@ -18,11 +18,9 @@
   "devDependencies": {
     "backbone": "1.1.2",
     "backbone.marionette": "2.4.1",
-    "bower": "1.7.9",
     "colors": "1.1.2",
     "connect-livereload": "0.3.2",
     "grunt": "1.0.1",
-    "grunt-bower-task": "0.4.0",
     "grunt-cli": "1.2.0",
     "grunt-contrib-clean": "1.0.0",
     "grunt-contrib-cssmin": "1.0.2",
@@ -46,5 +44,8 @@
     "node-options": "0.0.3",
     "path": "0.4.9",
     "request": "2.79.0"
+  },
+  "scripts": {
+    "start": "grunt"
   }
 }

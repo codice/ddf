@@ -16,10 +16,8 @@
     "node": ">=0.10.5"
   },
   "devDependencies": {
-    "bower": "1.7.9",
     "connect-livereload": "0.3.2",
     "grunt": "1.0.1",
-    "grunt-bower-task": "0.4.0",
     "grunt-cli": "1.2.0",
     "grunt-contrib-clean": "1.0.0",
     "grunt-contrib-cssmin": "1.0.2",
@@ -37,5 +35,8 @@
     "node-fs": "0.1.7",
     "node-options": "0.0.3",
     "path": "0.4.9"
+  },
+  "scripts": {
+    "start": "grunt"
   }
 }

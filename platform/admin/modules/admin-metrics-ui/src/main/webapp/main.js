@@ -19,48 +19,48 @@
 
         paths: {
 
-            moment: '../../admin/metrics/lib/moment/moment',
+            moment: '../../admin/metrics/moment/2.10.3/moment',
 
-            bootstrap: '../../admin/metrics/lib/bootstrap/dist/js/bootstrap.min',
-            spin: '../../admin/metrics/lib/spin.js/spin',
-            q: '../../admin/metrics/lib/q/q',
+            bootstrap: '../../admin/metrics/bootstrap/3.2.0/dist/js/bootstrap.min',
+            spin: '../../admin/metrics/spin.js/1.3.3/spin',
+            q: '../../admin/metrics/q/1.0.1/q',
 
             // backbone
-            backbone: '../../admin/metrics/lib/backbone/backbone',
-            backboneassociation: '../../admin/metrics/lib/backbone-associations/backbone-associations-min',
-            underscore: '../../admin/metrics/lib/lodash/dist/lodash.underscore.min',
-            marionette: '../../admin/metrics/lib/marionette/lib/backbone.marionette.min',
+            backbone: '../../admin/metrics/backbone/1.1.2/backbone',
+            backboneassociation: '../../admin/metrics/backbone-associations/0.6.2/backbone-associations-min',
+            underscore: '../../admin/metrics/lodash/2.4.1/dist/lodash.underscore.min',
+            marionette: '../../admin/metrics/marionette/1.8.8/lib/backbone.marionette.min',
             // TODO test combining
-            modelbinder: '../../admin/metrics/lib/backbone.modelbinder/Backbone.ModelBinder.min',
-            collectionbinder: '../../admin/metrics/lib/backbone.modelbinder/Backbone.CollectionBinder.min',
-            poller: '../../admin/metrics/lib/backbone-poller/backbone.poller',
-            iframeresizer: '../../admin/metrics/lib/iframe-resizer/js/iframeResizer.min',
+            modelbinder: '../../admin/metrics/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
+            collectionbinder: '../../admin/metrics/backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
+            poller: '../../admin/metrics/backbone-poller/1.1.3/backbone.poller',
+            iframeresizer: '../../admin/metrics/iframe-resizer/2.6.2/js/iframeResizer.min',
 
             // ddf
             spinnerConfig: 'js/spinnerConfig',
 
             // jquery
-            jquery: '../../admin/metrics/lib/jquery/dist/jquery.min',
-            jqueryui: '../../admin/metrics/lib/jquery-ui/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': '../../admin/metrics/lib/jquery-ui/ui/minified/jquery.ui.widget.min',
-            multiselect: '../../admin/metrics/lib/bootstrap-multiselect/js/bootstrap-multiselect',
-            perfectscrollbar: '../../admin/metrics/lib/perfect-scrollbar/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
-            fileupload: '../../admin/metrics/lib/jquery-file-upload/js/jquery.fileupload',
-            fileuploadiframe: '../../admin/metrics/lib/jquery-file-upload/js/jquery.iframe-transport',
+            jquery: '../../admin/metrics/jquery/1.12.4/dist/jquery.min',
+            jqueryui: '../../admin/metrics/jquery-ui/1.10.4/ui/minified/jquery-ui.min',
+            'jquery.ui.widget': '../../admin/metrics/jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
+            multiselect: '../../admin/metrics/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
+            perfectscrollbar: '../../admin/metrics/perfect-scrollbar/0.4.8/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
+            fileupload: '../../admin/metrics/jquery-file-upload/9.5.7/js/jquery.fileupload',
+            fileuploadiframe: '../../admin/metrics/jquery-file-upload/9.5.7/js/jquery.iframe-transport',
 
             // handlebars
-            handlebars: '../../admin/metrics/lib/handlebars/handlebars.min',
+            handlebars: '../../admin/metrics/handlebars/2.0.0/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: '../../admin/metrics/lib/requirejs-plugins/lib/text',
-            css: '../../admin/metrics/lib/require-css/css',
+            text: '../../admin/metrics/requirejs-plugins/1.0.2/lib/text',
+            css: '../../admin/metrics/require-css/0.1.5/css',
 
             // default admin ui
             app: '../../admin/metrics/js/application',
 
             // datatables
-            datatables: '../../admin/metrics/lib/datatables/media/js/jquery.dataTables'
+
         },
 
 

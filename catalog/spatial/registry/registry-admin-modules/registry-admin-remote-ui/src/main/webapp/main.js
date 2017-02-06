@@ -19,28 +19,28 @@
 
         paths: {
 
-            bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
-            q: 'lib/q/q',
+            bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
+            q: 'q/1.0.1/q',
 
             // backbone
-            backbone: 'lib/backbone/backbone',
-            backboneassociation: 'lib/backbone-associations/backbone-associations-min',
-            underscore: 'lib/lodash/dist/lodash.underscore.min',
-            marionette: 'lib/marionette/lib/backbone.marionette.min',
-            modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
-            poller: 'lib/backbone-poller/backbone.poller',
-            iframeresizer: 'lib/iframe-resizer/js/iframeResizer.min',
+            backbone: 'backbone/1.1.2/backbone',
+            backboneassociation: 'backbone-associations/0.6.2/backbone-associations-min',
+            underscore: 'lodash/2.4.1/dist/lodash.underscore.min',
+            marionette: 'marionette/1.8.8/lib/backbone.marionette.min',
+            modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
+            poller: 'backbone-poller/1.1.3/backbone.poller',
+            iframeresizer: 'iframe-resizer/2.6.2/js/iframeResizer.min',
 
             // jquery
-            jquery: 'lib/jquery/dist/jquery.min',
-            jqueryui: 'lib/jquery-ui/ui/minified/jquery-ui.min',
+            jquery: 'jquery/1.12.4/dist/jquery.min',
+            jqueryui: 'jquery-ui/1.10.4/ui/minified/jquery-ui.min',
 
             // handlebars
-            handlebars: 'lib/handlebars/handlebars.min',
+            handlebars: 'handlebars/2.0.0/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: 'lib/requirejs-plugins/lib/text'
+            text: 'requirejs-plugins/1.0.2/lib/text'
         },
 
 
