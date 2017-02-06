@@ -268,6 +268,10 @@ public abstract class AbstractIntegrationTest {
             HTTP_PORT,
             "/services");
 
+    public static final DynamicUrl SEARCH_ROOT = new DynamicUrl(SECURE_ROOT,
+            HTTPS_PORT,
+            "/search");
+
     public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
 
     public static final DynamicUrl OPENSEARCH_PATH = new DynamicUrl(REST_PATH, "query");

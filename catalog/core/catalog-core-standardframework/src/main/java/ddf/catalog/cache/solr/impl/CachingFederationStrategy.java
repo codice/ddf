@@ -14,7 +14,6 @@
 package ddf.catalog.cache.solr.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -241,7 +240,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
                     QueryRequest sourceQueryRequest = new QueryRequestImpl(modifiedQuery,
                             queryRequest.isEnterprise(),
-                            Collections.singleton(source.getId()),
+                            new HashSet<>(queryRequest.getSourceIds()),
                             new HashMap<>(queryRequest.getProperties()));
                     try {
                         for (PreFederatedQueryPlugin service : preQuery) {
