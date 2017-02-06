@@ -401,7 +401,8 @@ define([
                         method: "POST",
                         processData: false,
                         timeout: properties.timeout,
-                        success: function(model, resp, options) {
+                        success: function(model, response, options) {
+                            response.options = options;
                             if (options.resort === true){
                                 model.get('results').fullCollection.sort();
                             }

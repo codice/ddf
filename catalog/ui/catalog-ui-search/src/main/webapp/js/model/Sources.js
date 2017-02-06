@@ -61,7 +61,9 @@ define([
         initialize: function () {
           this._types = new Types();
             poller.get(this, {
-                delay: properties.sourcePollInterval
+                delay: properties.sourcePollInterval,
+                delayed: properties.sourcePollInterval,
+                continueOnError: true
             }).start();
             this.determineLocalCatalog();
             this.fetch({async: false});
