@@ -55,7 +55,7 @@ require.config({
         progressbar: 'jquery-ui/1.10.4/ui/minified/jquery.ui.progressbar.min',
         slider: 'jquery-ui/1.10.4/ui/minified/jquery.ui.slider.min',
         mouse: 'jquery-ui/1.10.4/ui/minified/jquery.ui.mouse.min',
-        datepickerOverride: 'jquery/1.12.4/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
+        datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
         datepickerAddon: 'jqueryui-timepicker-addon/1.4.5/src/jquery-ui-timepicker-addon',
         purl: 'purl/2.3.1/purl',
         multiselect: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
