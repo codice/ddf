@@ -161,6 +161,12 @@ public class ExportCommand extends CqlCommands {
         console.println("Number of metacards exported: " + exportedItems.size());
         console.println();
 
+        SecurityLogger.audit("Ids of exported metacards and content:\n{}",
+                exportedItems.stream()
+                        .map(ExportItem::getId)
+                        .distinct()
+                        .collect(Collectors.joining(", ", "[", "]")));
+
         console.println("Starting content export...");
         start = Instant.now();
         List<ExportItem> exportedContentItems = doContentExport(zipFile, exportedItems);
