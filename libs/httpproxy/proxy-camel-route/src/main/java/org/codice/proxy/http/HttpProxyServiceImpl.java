@@ -17,6 +17,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
@@ -81,6 +84,8 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     private CamelContext camelContext = null;
 
     private String routeEndpointType = SERVLET;
+
+    private final Set<String> endpointIds = Collections.synchronizedSet(new HashSet<>());
 
     public HttpProxyServiceImpl(CamelContext camelContext, String endpointType) throws Exception {
         this(camelContext);
@@ -184,6 +189,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         LOGGER.debug("Started proxy route at servlet endpoint: {}, routing to: {}",
                 endpointName,
                 targetUri);
+        endpointIds.add(endpointName);
         return endpointName;
     }
 
@@ -237,6 +243,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
                         .toArray()));
         camelContext.stopRoute(endpointName);
         camelContext.removeRoute(endpointName);
+        endpointIds.remove(endpointName);
         LOGGER.debug("Route list after = {}",
                 Arrays.toString(camelContext.getRoutes()
                         .toArray()));
@@ -245,6 +252,9 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     public void destroy() {
         try {
+            for (String endpointId : endpointIds) {
+                stop(endpointId);
+            }
             camelContext.stop();
         } catch (Exception e) {
             LOGGER.debug(e.getMessage());
