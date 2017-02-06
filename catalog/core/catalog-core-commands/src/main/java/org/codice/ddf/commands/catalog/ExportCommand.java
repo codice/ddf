@@ -15,7 +15,6 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -24,18 +23,13 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -43,8 +37,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -57,16 +49,13 @@ import org.codice.ddf.catalog.transformer.zip.JarSigner;
 import org.codice.ddf.commands.catalog.export.ExportItem;
 import org.codice.ddf.commands.catalog.export.IdAndUriMetacard;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
+import org.codice.ddf.commands.util.QueryResulterable;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
@@ -74,10 +63,7 @@ import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -85,8 +71,6 @@ import ddf.catalog.operation.impl.ResourceRequestByProductUri;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.security.SubjectUtils;
@@ -114,7 +98,7 @@ public class ExportCommand extends CqlCommands {
     private static final Supplier<String> name =
             () -> "export-" + ISO_8601_DATE_FORMAT.format(Date.from(Instant.now())) + ".zip";
 
-    private static MetacardTransformer transformer;
+    private MetacardTransformer transformer;
 
     private final int PAGE_SIZE = 64;
 
@@ -141,10 +125,11 @@ public class ExportCommand extends CqlCommands {
     @Override
     protected Object executeWithSubject() throws Exception {
         Filter filter = getFilter();
-        transformer = getTransformers(DEFAULT_TRANSFORMER_ID).stream()
-                .findFirst()
-                .orElseThrow(() -> new CatalogCommandRuntimeException(
-                        "Could not find transformer " + DEFAULT_TRANSFORMER_ID));
+        transformer = getServiceByFilter(MetacardTransformer.class,
+                String.format("(%s=%s)",
+                        "id",
+                        DEFAULT_TRANSFORMER_ID)).orElseThrow(() -> new CatalogCommandRuntimeException(
+                "Could not get " + DEFAULT_TRANSFORMER_ID + " transformer"));
         revisionFilter = initRevisionFilter();
 
         final File outputFile = initOutputFile(output);
@@ -376,11 +361,13 @@ public class ExportCommand extends CqlCommands {
 
         if (fragment == null) { // is root content, put in root id folder
             path = Paths.get(path,
+                    "content",
                     resource.getResource()
                             .getName())
                     .toString();
         } else { // is derived content, put in subfolder
             path = Paths.get(path,
+                    "derived",
                     fragment,
                     resource.getResource()
                             .getName())
@@ -394,7 +381,11 @@ public class ExportCommand extends CqlCommands {
         parameters.setSourceExternalStream(true);
         String id = result.getMetacard()
                 .getId();
-        parameters.setFileNameInZip(Paths.get("metacards", id.substring(0, 3), id, id + ".xml")
+        parameters.setFileNameInZip(Paths.get("metacards",
+                id.substring(0, 3),
+                id,
+                "metacard",
+                id + ".xml")
                 .toString());
 
         try {
@@ -476,31 +467,6 @@ public class ExportCommand extends CqlCommands {
         return filter;
     }
 
-    @SuppressWarnings("unchecked")
-    private List<MetacardTransformer> getTransformers(String transformerId) {
-        ServiceReference<MetacardTransformer>[] refs;
-        try {
-            refs = (ServiceReference<MetacardTransformer>[]) bundleContext.getAllServiceReferences(
-                    MetacardTransformer.class.getName(),
-                    String.format("(|(%s=%s))", Constants.SERVICE_ID, transformerId));
-
-        } catch (InvalidSyntaxException e) {
-            console.printf("Failed to get MetacardTransformer references due to %s",
-                    e.getMessage());
-            throw new RuntimeException(e);
-        }
-
-        if (refs == null || refs.length == 0) {
-            throw new RuntimeException("Could not find specified transformer!");
-        }
-
-        return Arrays.stream(refs)
-                .map(bundleContext::getService)
-                .filter(MetacardTransformer.class::isInstance)
-                .map(MetacardTransformer.class::cast)
-                .collect(Collectors.toList());
-    }
-
     private QueryRequestImpl getQuery(Filter filter, int index, int pageSize) {
         return new QueryRequestImpl(new QueryImpl(filter,
                 index,
@@ -510,123 +476,4 @@ public class ExportCommand extends CqlCommands {
                 TimeUnit.MINUTES.toMillis(1)), new HashMap<>());
     }
 
-    /**
-     * Effectively a cursor over the results of a filter that automatically pages through all results
-     * <br/>
-     * Throws a {@link CatalogCommandRuntimeException} if anything goes wrong during iteration or
-     * querying
-     */
-    static class QueryResulterable implements Iterable<Result> {
-        private final CatalogFramework catalog;
-
-        private final Function<Integer, QueryRequest> filter;
-
-        private final int pageSize;
-
-        /**
-         * For paging through a single filter with a default pageSize of 64
-         *
-         * @param catalog catalog to query
-         * @param filter  A dynamic supplier of a filter that takes the current index such that
-         *                the caller can control iteration based on their own logic
-         */
-        public QueryResulterable(CatalogFramework catalog, Function<Integer, QueryRequest> filter) {
-            this(catalog, filter, 64);
-        }
-
-        /**
-         * For paging through a single filter.
-         *
-         * @param catalog  catalog to query
-         * @param filter   A dynamic supplier of a filter that takes the current index such that
-         *                 the caller can control iteration based on their own logic
-         * @param pageSize How many results should each page hold
-         */
-        public QueryResulterable(CatalogFramework catalog, Function<Integer, QueryRequest> filter,
-                int pageSize) {
-            this.catalog = catalog;
-            this.filter = filter;
-            this.pageSize = pageSize;
-        }
-
-        @Override
-        public Iterator<Result> iterator() {
-            return new ResultQueryIterator();
-        }
-
-        @Override
-        public Spliterator<Result> spliterator() {
-            int characteristics = Spliterator.DISTINCT;
-            return Spliterators.spliteratorUnknownSize(this.iterator(), characteristics);
-        }
-
-        public Stream<Result> stream() {
-            return StreamSupport.stream(this.spliterator(), false);
-        }
-
-        class ResultQueryIterator implements Iterator<Result> {
-            private int pageIndex = 1;
-
-            private boolean finished = false;
-
-            private SourceResponse response = null;
-
-            private Iterator<Result> results = null;
-
-            ResultQueryIterator() {
-                if (pageSize <= 0) {
-                    this.finished = true;
-                }
-            }
-
-            @Override
-            public boolean hasNext() {
-                ensureInitialized();
-                if (results.hasNext()) {
-                    return true;
-                }
-                if (finished) {
-                    return false;
-                }
-
-                pageIndex += pageSize;
-                queryNext(pageIndex);
-                return hasNext();
-            }
-
-            @Override
-            public Result next() {
-                ensureInitialized();
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                return results.next();
-            }
-
-            private void queryNext(int index) {
-                try {
-                    Map<String, Serializable> props = new HashMap<>();
-                    // Avoid caching all results while dumping with native query mode
-                    props.put("mode", "native");
-                    response = catalog.query(filter.apply(index));
-                } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
-                    throw new CatalogCommandRuntimeException(e);
-                }
-                List<Result> queryResults = response.getResults();
-                this.results = queryResults.iterator();
-
-                int size = queryResults.size();
-                if (size == 0 || size < pageSize) {
-                    finished = true;
-                }
-            }
-
-            private void ensureInitialized() throws CatalogCommandRuntimeException {
-                if (response != null || results != null) {
-                    return;
-                }
-                queryNext(pageIndex);
-            }
-        }
-    }
 }

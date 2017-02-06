@@ -15,6 +15,7 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.management.InstanceNotFoundException;
@@ -107,7 +108,8 @@ public abstract class CatalogCommands extends SubjectCommands {
             throws InvalidSyntaxException {
         return bundleContext.getServiceReferences(clazz, filter)
                 .stream()
-                .findFirst()
-                .map(ref -> bundleContext.getService(ref));
+                .map(ref -> bundleContext.getService(ref))
+                .filter(Objects::nonNull)
+                .findFirst();
     }
 }
