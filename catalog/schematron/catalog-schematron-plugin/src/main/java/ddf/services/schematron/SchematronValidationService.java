@@ -45,6 +45,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.services.common.Describable;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,6 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import com.google.common.collect.ImmutableSet;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.util.Describable;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ReportingMetacardValidator;
 import ddf.catalog.validation.ValidationException;
@@ -390,7 +390,8 @@ public class SchematronValidationService
         } catch (ValidationException e) {
             LOGGER.warn("Exception validating metacard ID {}\n{}",
                     metacard.getId(),
-                    e.getLocalizedMessage());
+                    e.getLocalizedMessage(),
+                    e);
         }
 
         return Optional.ofNullable(report);
