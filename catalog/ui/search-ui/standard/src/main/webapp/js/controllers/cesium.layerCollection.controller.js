@@ -15,8 +15,9 @@
 define(['underscore',
     'marionette',
     'cesium',
-    'js/controllers/common.layerCollection.controller'
-], function (_, Marionette, Cesium, CommonLayerController) {
+    'js/controllers/common.layerCollection.controller',
+    'properties'
+], function (_, Marionette, Cesium, CommonLayerController, properties) {
     "use strict";
 
     var imageryProviderTypes = {
@@ -45,6 +46,12 @@ define(['underscore',
             this.collection.forEach(function (model) {
                 var type = imageryProviderTypes[model.get('type')];
                 var initObj = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid');
+
+                /* Set the tiling scheme for WMTS imagery providers that are EPSG:4326 */
+                if(model.get('type') === "WMT" && properties.projection === "EPSG:4326") {
+                    initObj.tilingScheme = new Cesium.GeographicTilingScheme();
+                }
+
                 var provider = new type(initObj);
                 var layer = this.map.imageryLayers.addImageryProvider(provider);
                 this.layerForCid[model.cid] = layer;
