@@ -26,7 +26,7 @@ define([
                 }
             },
             containsCsw: function(value, options) {
-                if (value.includes("CSW")) {
+                if (value.indexOf("CSW") >= 0) {
                     return options.fn(this);
                 } else {
                     return options.inverse(this);
