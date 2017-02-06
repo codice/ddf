@@ -30,13 +30,26 @@ import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneIndexer;
 import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
 import org.locationtech.spatial4j.shape.Shape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex {
+
     private static final Logger LOGGER =
             LoggerFactory.getLogger(GeoNamesQueryLuceneDirectoryIndex.class);
+
+    private static final JtsSpatialContextFactory JTS_SPATIAL_CONTEXT_FACTORY =
+            new JtsSpatialContextFactory();
+
+    static {
+        // permits geometry collections with intersecting polygons
+        JTS_SPATIAL_CONTEXT_FACTORY.allowMultiOverlap = true;
+    }
+
+    private static final SpatialContext SPATIAL_CONTEXT =
+            JTS_SPATIAL_CONTEXT_FACTORY.newSpatialContext();
 
     private String indexLocation;
 
@@ -98,10 +111,14 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
                     "GeoNamesQueryLuceneDirectoryIndex.getNearestCities(): argument 'location' may not be null.");
         }
 
-        Shape shape = SpatialContext.GEO.readShapeFromWkt(location);
+        Shape shape = getShape(location);
         final Directory directory = openDirectoryAndCheckForIndex();
 
         return doGetNearestCities(shape, radiusInKm, maxResults, directory);
+    }
+
+    static Shape getShape(String location) throws ParseException {
+        return SPATIAL_CONTEXT.readShapeFromWkt(location);
     }
 
     @Override
@@ -109,7 +126,7 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
             throws GeoEntryQueryException, ParseException {
         final Directory directory = openDirectoryAndCheckForIndex();
 
-        Shape shape = SpatialContext.GEO.readShapeFromWkt(wktLocation);
+        Shape shape = getShape(wktLocation);
         String countryCode = doGetCountryCode(shape, radius, directory);
 
         return Optional.ofNullable(countryCode);

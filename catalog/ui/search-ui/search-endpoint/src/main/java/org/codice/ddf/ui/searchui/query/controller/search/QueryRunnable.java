@@ -77,6 +77,11 @@ public abstract class QueryRunnable implements Runnable {
     protected static final JtsSpatialContextFactory JTS_SPATIAL_CONTEXT_FACTORY =
             new JtsSpatialContextFactory();
 
+    static {
+        // permits geometry collections with intersecting polygons
+        JTS_SPATIAL_CONTEXT_FACTORY.allowMultiOverlap = true;
+    }
+
     protected static final JtsSpatialContext SPATIAL_CONTEXT =
             JTS_SPATIAL_CONTEXT_FACTORY.newSpatialContext();
 
@@ -125,7 +130,7 @@ public abstract class QueryRunnable implements Runnable {
         if (StringUtils.isNotBlank(wkt)) {
             Shape queryShape;
             try {
-                queryShape = SPATIAL_CONTEXT.readShapeFromWkt(wkt);
+                queryShape = getShape(wkt);
             } catch (ParseException e) {
                 LOGGER.debug("Unable to parse query WKT to calculate distance", e);
                 return;
@@ -135,7 +140,7 @@ public abstract class QueryRunnable implements Runnable {
                 if (result.getMetacard() != null && StringUtils.isNotBlank(result.getMetacard()
                         .getLocation())) {
                     try {
-                        Shape locationShape = SPATIAL_CONTEXT.readShapeFromWkt(result.getMetacard()
+                        Shape locationShape = getShape(result.getMetacard()
                                 .getLocation());
 
                         double distance = DistanceUtils.degrees2Dist(SPATIAL_CONTEXT.calcDistance(
@@ -153,6 +158,10 @@ public abstract class QueryRunnable implements Runnable {
                 }
             }
         }
+    }
+
+    static Shape getShape(String wkt) throws ParseException {
+        return SPATIAL_CONTEXT.readShapeFromWkt(wkt);
     }
 
     protected void normalizeRelevance(List<Result> indexResults, Map<String, Result> results) {
