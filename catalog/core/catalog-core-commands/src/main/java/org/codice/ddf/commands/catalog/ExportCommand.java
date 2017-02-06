@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -151,9 +152,8 @@ public class ExportCommand extends CqlCommands {
             return null;
         }
 
-        SecurityLogger.audit("Called catalog:export command with path : {}\nCurrent user: {}",
-                output,
-                SubjectUtils.getName(SecurityUtils.getSubject()));
+        SecurityLogger.audit("Called catalog:export command with path : {}",
+                output);
 
         // TODO (RCZ) - Warn if breaking associations
         ZipFile zipFile = new ZipFile(outputFile);
@@ -186,6 +186,8 @@ public class ExportCommand extends CqlCommands {
                 System.getProperty("javax.net.ssl.keyStorePassword"));
         console.println("zip file signed in: " + Duration.between(start, Instant.now()));
         console.println("Export complete.");
+        console.println("Exported to: " + zipFile.getFile()
+                .getCanonicalPath());
         return null;
     }
 
@@ -204,10 +206,12 @@ public class ExportCommand extends CqlCommands {
     }
 
     private List<ExportItem> doMetacardExport(/*Mutable,IO*/ZipFile zipFile, Filter filter) {
+        Set<String> seenIds = new HashSet<>(1024);
         List<ExportItem> exportedItems = new ArrayList<>();
         for (Result result : new QueryResulterable(catalogFramework,
                 (i) -> getQuery(filter, i, PAGE_SIZE),
                 PAGE_SIZE)) {
+            seenIds.add(result.getMetacard().getId());
             writeToZip(zipFile, result);
             exportedItems.add(new ExportItem(result.getMetacard()
                     .getId(),
@@ -219,6 +223,9 @@ public class ExportCommand extends CqlCommands {
             for (Result revision : new QueryResulterable(catalogFramework,
                     (i) -> getQuery(getHistoryFilter(result), i, PAGE_SIZE),
                     PAGE_SIZE)) {
+                if (seenIds.contains(revision.getMetacard().getId())) {
+                    continue;
+                }
                 writeToZip(zipFile, revision);
                 exportedItems.add(new ExportItem(revision.getMetacard()
                         .getId(),
@@ -338,8 +345,8 @@ public class ExportCommand extends CqlCommands {
 
         console.println(
                 "Metacards and Content deleted in: " + Duration.between(start, Instant.now()));
-        console.println("Number of content deleted: " + exportedItems.size());
-        console.println("Number of metacards deleted: " + exportedContentItems.size());
+        console.println("Number of metacards deleted: " + exportedItems.size());
+        console.println("Number of content deleted: " + exportedContentItems.size());
     }
 
     private void writeToZip(/*Mutable,IO*/ ZipFile zipFile, ExportItem exportItem,

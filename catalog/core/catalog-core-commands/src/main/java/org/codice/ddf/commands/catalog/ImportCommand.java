@@ -1,5 +1,6 @@
 package org.codice.ddf.commands.catalog;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -81,22 +83,25 @@ public class ImportCommand extends CatalogCommands {
                 String type = pathParts[TYPE];
 
                 switch (type) {
-                case "metacard":
+                case "metacard": {
                     String metacardName = pathParts[NAME];
                     Metacard metacard = null;
                     try {
-                        metacard = transformer.transform(zipInputStream, id);
+                        metacard = transformer.transform(new UncloseableBufferedInputStreamWrapper(
+                                zipInputStream), id);
                     } catch (IOException | CatalogTransformerException e) {
                         LOGGER.debug("Could not transform metacard: {}", id);
                     }
                     catalogProvider.create(new CreateRequestImpl(metacard));
                     break;
-                case "content":
-                    // TODO (RCZ) - make sure to fetch content already there and include it
+                }
+                case "content": {
                     String contentFilename = pathParts[NAME];
                     ContentItem contentItem = new ContentItemImpl(id,
-                            new ZipEntryByteSource(zipInputStream),
+                            new ZipEntryByteSource(new UncloseableBufferedInputStreamWrapper(zipInputStream)),
                             null,
+                            contentFilename,
+                            entry.getSize(),
                             null);
                     CreateStorageRequestImpl createStorageRequest = new CreateStorageRequestImpl(
                             Collections.singletonList(contentItem),
@@ -105,11 +110,28 @@ public class ImportCommand extends CatalogCommands {
                     storageProvider.create(createStorageRequest);
                     storageProvider.commit(createStorageRequest);
                     break;
-                case "derived":
-                    // TODO (RCZ) - make sure to fetch content already there and include it
+                }
+                case "derived": {
+                    String qualifier = pathParts[NAME];
+                    String derivedContentName = pathParts[DERIVED_NAME];
+                    ContentItem contentItem = new ContentItemImpl(id,
+                            qualifier,
+                            new ZipEntryByteSource(new UncloseableBufferedInputStreamWrapper(zipInputStream)),
+                            null,
+                            derivedContentName,
+                            entry.getSize(),
+                            null);
+                    CreateStorageRequestImpl createStorageRequest = new CreateStorageRequestImpl(
+                            Collections.singletonList(contentItem),
+                            id,
+                            new HashMap<>());
+                    storageProvider.create(createStorageRequest);
+                    storageProvider.commit(createStorageRequest);
                     break;
-                default:
+                }
+                default: {
                     LOGGER.debug("Cannot interpret type of " + type);
+                }
                 }
 
                 entry = zipInputStream.getNextEntry();
@@ -151,6 +173,38 @@ public class ImportCommand extends CatalogCommands {
         @Override
         public InputStream openStream() throws IOException {
             return input;
+        }
+    }
+
+    /**
+     * Identical to BufferedInputStream with the exception that it does not close the underlying
+     * resource stream when the close() method is called. The buffer is still emptied when closed.
+     * <br/>
+     * This is useful for cases when the inputstream being consumed belongs to something that
+     * should not be closed.
+     */
+    private static class UncloseableBufferedInputStreamWrapper extends BufferedInputStream {
+        private static final AtomicReferenceFieldUpdater<BufferedInputStream, byte[]> bufUpdater =
+                AtomicReferenceFieldUpdater.newUpdater(BufferedInputStream.class,
+                        byte[].class,
+                        "buf");
+
+        public UncloseableBufferedInputStreamWrapper(InputStream in) {
+            super(in);
+        }
+
+        @Override
+        public void close() throws IOException {
+            byte[] buffer;
+            while ((buffer = buf) != null) {
+                if (bufUpdater.compareAndSet(this, buffer, null)) {
+                    InputStream input = in;
+                    in = null;
+                    // Purposely do not close `input`
+                    return;
+                }
+                // Else retry in case a new buf was CASed in fill()
+            }
         }
     }
 }
