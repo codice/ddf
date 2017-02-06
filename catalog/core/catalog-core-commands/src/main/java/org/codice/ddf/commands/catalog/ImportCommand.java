@@ -66,6 +66,7 @@ public class ImportCommand extends CatalogCommands {
             throw new CatalogCommandRuntimeException("Signature on zip file is not valid");
         }
 
+        console.println("Importing file");
         try (InputStream fis = new FileInputStream(file);
                 ZipInputStream zipInputStream = new ZipInputStream(fis)) {
             ZipEntry entry = zipInputStream.getNextEntry();
@@ -137,6 +138,7 @@ public class ImportCommand extends CatalogCommands {
                 entry = zipInputStream.getNextEntry();
             }
         }
+        console.println("File imported successfully.");
         return null;
     }
 

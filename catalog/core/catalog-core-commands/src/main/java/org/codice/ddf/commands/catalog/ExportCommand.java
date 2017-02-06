@@ -150,10 +150,8 @@ public class ExportCommand extends CqlCommands {
             return null;
         }
 
-        SecurityLogger.audit("Called catalog:export command with path : {}",
-                output);
+        SecurityLogger.audit("Called catalog:export command with path : {}", output);
 
-        // TODO (RCZ) - Warn if breaking associations
         ZipFile zipFile = new ZipFile(outputFile);
 
         console.println("Starting metacard export...");
@@ -209,7 +207,8 @@ public class ExportCommand extends CqlCommands {
         for (Result result : new QueryResulterable(catalogFramework,
                 (i) -> getQuery(filter, i, PAGE_SIZE),
                 PAGE_SIZE)) {
-            if (!seenIds.contains(result.getMetacard().getId())) {
+            if (!seenIds.contains(result.getMetacard()
+                    .getId())) {
                 writeToZip(zipFile, result);
                 exportedItems.add(new ExportItem(result.getMetacard()
                         .getId(),
@@ -225,7 +224,8 @@ public class ExportCommand extends CqlCommands {
             for (Result revision : new QueryResulterable(catalogFramework,
                     (i) -> getQuery(getHistoryFilter(result), i, PAGE_SIZE),
                     PAGE_SIZE)) {
-                if (seenIds.contains(revision.getMetacard().getId())) {
+                if (seenIds.contains(revision.getMetacard()
+                        .getId())) {
                     continue;
                 }
                 writeToZip(zipFile, revision);
@@ -235,7 +235,8 @@ public class ExportCommand extends CqlCommands {
                         revision.getMetacard()
                                 .getResourceURI(),
                         getDerivedResources(result)));
-                seenIds.add(revision.getMetacard().getId());
+                seenIds.add(revision.getMetacard()
+                        .getId());
             }
         }
         return exportedItems;
