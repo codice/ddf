@@ -27,9 +27,7 @@ public interface SchematronReport {
      * the suppressWarnings argument is true, then Schematron warnings are also included in the
      * document's validity assessment.
      *
-     * @param suppressWarnings
-     *            do not include Schematron warnings in determining validity
-     *
+     * @param suppressWarnings do not include Schematron warnings in determining validity
      * @return true if no assert or report error messages found in SVRL report, false otherwise
      */
     public boolean isValid(boolean suppressWarnings);
@@ -69,4 +67,10 @@ public interface SchematronReport {
      */
     public String getReportAsText() throws TransformerException;
 
+    /**
+     * If the Schematron report is uninitialized
+     *
+     * @return True is the report is uninitialized.
+     */
+    boolean isEmpty();
 }

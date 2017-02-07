@@ -20,6 +20,8 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -28,7 +30,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.ErrorListener;
@@ -43,6 +44,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.services.common.Describable;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,11 +54,17 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.google.common.collect.ImmutableSet;
+
 import ddf.catalog.data.Metacard;
-import ddf.catalog.util.Describable;
 import ddf.catalog.validation.MetacardValidator;
+import ddf.catalog.validation.ReportingMetacardValidator;
 import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
+import ddf.catalog.validation.impl.report.MetacardValidationReportImpl;
+import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
+import ddf.catalog.validation.report.MetacardValidationReport;
+import ddf.catalog.validation.violation.ValidationViolation;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.TransformerFactoryImpl;
 
@@ -85,15 +93,16 @@ import net.sf.saxon.TransformerFactoryImpl;
  * @author rodgersh
  * @see <a href="http://www.schematron.com">Schematron</a>
  */
-public class SchematronValidationService implements MetacardValidator, Describable {
+public class SchematronValidationService
+        implements MetacardValidator, Describable, ReportingMetacardValidator {
+
+    public static final String DEFAULT_THREAD_POOL_SIZE = "16";
 
     private static final String SCHEMATRON_BASE_FOLDER = Paths.get(System.getProperty("ddf.home"),
             "schematron")
             .toString();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchematronValidationService.class);
-
-    public static final String DEFAULT_THREAD_POOL_SIZE = "16";
 
     private TransformerFactory transformerFactory;
 
@@ -120,6 +129,17 @@ public class SchematronValidationService implements MetacardValidator, Describab
                 "org.codice.ddf.system.threadPoolSize",
                 DEFAULT_THREAD_POOL_SIZE));
         return Executors.newFixedThreadPool(threadPoolSize);
+    }
+
+    /**
+     * Replace tabs, literal carriage returns, and newlines with a single whitespace
+     *
+     * @param input
+     * @return
+     */
+    static String sanitize(final String input) {
+        return input.replaceAll("[\t \r\n]+", " ")
+                .trim();
     }
 
     public void init() throws SchematronInitializationException {
@@ -254,39 +274,74 @@ public class SchematronValidationService implements MetacardValidator, Describab
         }
     }
 
-    public SchematronReport getSchematronReport() {
-        return schematronReport;
-    }
-
     @Override
     public void validate(Metacard metacard) throws ValidationException {
-        try {
-            String metadata = metacard.getMetadata();
-            if (StringUtils.isEmpty(metadata) || (namespace != null
-                    && !namespace.equals(XMLUtils.getRootNamespace(metadata)))) {
-                return;
-            }
-            for (Future<Templates> validator : validators) {
-                schematronReport = generateReport(metadata, validator.get(10, TimeUnit.MINUTES));
-                if (!schematronReport.isValid(suppressWarnings)) {
-                    throw new SchematronValidationException("Schematron validation failed.",
-                            schematronReport.getErrors()
-                                    .stream()
-                                    .map(SchematronValidationService::sanitize)
-                                    .collect(Collectors.toList()),
-                            schematronReport.getWarnings()
-                                    .stream()
-                                    .map(SchematronValidationService::sanitize)
-                                    .collect(Collectors.toList()));
-                }
-            }
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new ValidationExceptionImpl(e);
+
+        MetacardValidationReport report = generateReport(metacard);
+
+        List<String> errors = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
+        report.getMetacardValidationViolations()
+                .forEach(violation -> {
+                    if (violation.getSeverity() == ValidationViolation.Severity.ERROR) {
+                        errors.add(violation.getMessage());
+                    } else {
+                        warnings.add(violation.getMessage());
+                    }
+                });
+
+        SchematronValidationException exception = new SchematronValidationException(
+                "Schematron validation failed",
+                errors,
+                warnings);
+
+        if (!errors.isEmpty()) {
+            throw exception;
         }
+
+        if (!suppressWarnings && !warnings.isEmpty()) {
+            throw exception;
+        }
+
+    }
+
+    private MetacardValidationReport generateReport(Metacard metacard)
+            throws ValidationExceptionImpl {
+        MetacardValidationReportImpl report = new MetacardValidationReportImpl();
+        Set<String> attributes = ImmutableSet.of("metadata");
+        String metadata = metacard.getMetadata();
+        boolean canBeValidated = StringUtils.isNotEmpty(metadata) || namespace == null
+                || namespace.equals(XMLUtils.getRootNamespace(metadata));
+        if (canBeValidated) {
+            try {
+                for (Future<Templates> validator : validators) {
+                    schematronReport = generateReport(metadata,
+                            validator.get(10, TimeUnit.MINUTES));
+                    schematronReport.getErrors()
+                            .forEach(errorMsg -> report.addMetacardViolation(new ValidationViolationImpl(
+                                    attributes,
+                                    sanitize(errorMsg),
+                                    ValidationViolation.Severity.ERROR)));
+                    schematronReport.getWarnings()
+                            .forEach(warningMsg -> report.addMetacardViolation(new ValidationViolationImpl(
+                                    attributes,
+                                    sanitize(warningMsg),
+                                    ValidationViolation.Severity.WARNING)));
+                }
+            } catch (TimeoutException | ExecutionException | InterruptedException e) {
+                throw new ValidationExceptionImpl(e);
+            }
+        }
+        return report;
     }
 
     private SchematronReport generateReport(String metadata, Templates validator)
             throws SchematronValidationException {
+
+        if (StringUtils.isEmpty(metadata)) {
+            return new SvrlReport();
+        }
+
         XMLReader xmlReader = null;
         try {
             XMLReader xmlParser = XMLReaderFactory.createXMLReader();
@@ -303,26 +358,15 @@ public class SchematronValidationService implements MetacardValidator, Describab
         try {
             Transformer transformer = validator.newTransformer();
             DOMResult schematronResult = new DOMResult();
-            transformer.transform(
-                    new SAXSource(xmlReader, new InputSource(new StringReader(metadata))),
-                    schematronResult);
+            transformer.transform(new SAXSource(xmlReader,
+                    new InputSource(new StringReader(metadata))), schematronResult);
             report = new SvrlReport(schematronResult);
         } catch (TransformerException e) {
             throw new SchematronValidationException(
-                    "Could not setup validator to perform validation.", e);
+                    "Could not setup validator to perform validation.",
+                    e);
         }
         return report;
-    }
-
-    /**
-     * Replace tabs, literal carriage returns, and newlines with a single whitespace
-     *
-     * @param input
-     * @return
-     */
-    static String sanitize(final String input) {
-        return input.replaceAll("[\t \r\n]+", " ")
-                .trim();
     }
 
     @Override
@@ -352,6 +396,16 @@ public class SchematronValidationService implements MetacardValidator, Describab
     @Override
     public String getOrganization() {
         return null;
+    }
+
+    @Override
+    public Optional<MetacardValidationReport> validateMetacard(Metacard metacard) {
+        try {
+            return Optional.of(generateReport(metacard));
+        } catch (ValidationExceptionImpl e) {
+            LOGGER.warn("Exception validating metacard ID {}", metacard.getId(), e);
+            return Optional.empty();
+        }
     }
 
     /**

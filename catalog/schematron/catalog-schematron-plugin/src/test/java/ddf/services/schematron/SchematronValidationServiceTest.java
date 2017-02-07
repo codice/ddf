@@ -14,9 +14,8 @@
 
 package ddf.services.schematron;
 
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
@@ -28,6 +27,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -39,13 +39,14 @@ import org.mockito.Mockito;
 
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.validation.ValidationException;
+import ddf.catalog.validation.report.MetacardValidationReport;
 
 public class SchematronValidationServiceTest {
 
+    private static File fileWithSpaces;
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
-
-    private static File fileWithSpaces;
 
     @Before
     public void setup() throws IOException {
@@ -125,7 +126,6 @@ public class SchematronValidationServiceTest {
                 "dog_legs.sch",
                 "dog_paws.sch");
         service.validate(getMetacard("dog_4leg_4paw_namespace.xml"));
-        assertThat(service.getSchematronReport(), is(notNullValue()));
     }
 
     @Test
@@ -136,8 +136,11 @@ public class SchematronValidationServiceTest {
                 true,
                 "dog_legs.sch",
                 "dog_paws.sch");
-        service.validate(getMetacard("dog_4leg_4paw_namespace.xml"));
-        assertThat(service.getSchematronReport(), is(nullValue()));
+        Optional<MetacardValidationReport> report = service.validateMetacard(getMetacard(
+                "dog_4leg_4paw_namespace.xml"));
+        assertThat(report.isPresent(), is(true));
+        assertThat(report.get()
+                .getMetacardValidationViolations(), is(empty()));
     }
 
     @Test(expected = ValidationException.class)
@@ -189,7 +192,6 @@ public class SchematronValidationServiceTest {
         try {
             service.validate(getMetacard("dog_4leg_3paw.xml"));
         } catch (SchematronValidationException ex) {
-            assertThat(service.getSchematronReport(), is(notNullValue()));
             for (String warning : ex.getWarnings()) {
                 assertThat(warning.equals(SchematronValidationService.sanitize(warning)), is(true));
             }
@@ -198,7 +200,6 @@ public class SchematronValidationServiceTest {
         try {
             service.validate(getMetacard("dog_3leg_3paw.xml"));
         } catch (SchematronValidationException ex) {
-            assertThat(service.getSchematronReport(), is(notNullValue()));
             for (String error : ex.getErrors()) {
                 assertThat(error.equals(SchematronValidationService.sanitize(error)), is(true));
             }
