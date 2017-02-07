@@ -62,7 +62,7 @@ A developer should consult a Source's documentation for the limitations, capabil
 
 ==== Commons-DDF Utilities
 
-The `commons-${ddf-branding}`bundle, located in `<DDF_HOME_SOURCE_DIRECTORY>/common/commons-${ddf-branding}`, provides utilities and functionality commonly used across other ${branding} components, such as the endpoints and providers. 
+The `commons-${ddf-branding}`bundle provides utilities and functionality commonly used across other ${branding} components, such as the endpoints and providers. 
 
 ===== FuzzyFunction
 

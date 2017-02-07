@@ -5,5 +5,14 @@ This scenario describes how to reconfigure ${branding} to use a different catalo
 
 This scenario assumes ${branding} is already running.
 
-. Uninstall Catalog Provider (if installed).
-. Install the new Catalog Provider by installing its feature.
+.Uninstall Catalog Provider (if installed).
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-solr}* application.
+. Select the *Features* tab.
+. Find and Stop the installed Catalog Provider
+
+.Install the new Catalog Provider
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-solr}* application.
+. Select the *Features* tab.
+. Find and Start the desired Catalog Provider.

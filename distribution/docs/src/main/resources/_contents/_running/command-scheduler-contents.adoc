@@ -22,7 +22,7 @@ Configure the Command Scheduler to execute a command at specific intervals.
 . Enter the command or commands to be executed in the *Command* text field. Commands can be separated by a semicolon and will execute in order from left to right.
 . Enter an interval in the *Interval* field.  This can either be a Quartz Cron expression or a positive integer (seconds) (e.x. '0 0 0 1/1 * ? *' or '12').
 . Select the interval type in the *Interval Type* drop-down.
-. Select the *Save* button. Once the *Save* button is selected, the command is executed immediately. It's next scheduled execution begins after the amount of seconds specified in the *Interval In Seconds* field and repeats indefinitely until the container is shut down or the scheduled command is deleted.
+. Select the *Save* button.
 
 [NOTE]
 ====

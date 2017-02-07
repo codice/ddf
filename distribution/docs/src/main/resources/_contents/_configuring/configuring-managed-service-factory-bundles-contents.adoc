@@ -1,0 +1,96 @@
+
+==== Configuring Managed Service Factory Bundles
+
+Services that are created using a Managed Service Factory can be configured using `.config` files as well.
+These configuration files, however, follow a different naming convention.
+The files must start with the Managed Service Factory PID, be followed by a unique identifier and have a `.config` extension.
+For instance, assuming that the Managed Service Factory PID is `org.codice.ddf.factory.pid` and two instances of the service need to be configured, files `org.codice.ddf.factory.pid.<UNIQUE ID 1>.config` and `org.codice.ddf.factory.pid.<UNIQUE ID 2>.config` should be created and added to `<${branding}_HOME>/etc`.
+
+The unique identifiers used in the file names have no impact on the order in which the configuration files are processed.
+No specific processing order should be assumed.
+Also, a new service will be created and configured every time a configuration file matching the Managed Service Factory PID is added to the directory, regardless of the _unique id_ used.
+
+These configuration files must also contain a `service.factoryPid` property set to the factory PID (without the sequential number).
+They should not however contain the `service.pid` property.
+
+===== File Format
+
+The basic syntax of the `.config` configuration files is similar to the older `.cfg` files but introduces support for lists and types other than simple strings.
+The type associated with a property must match the type attribute used in the corresponding `metatype.xml` file when applicable.
+
+The following table shows the format to use for each property type supported.
+
+.Property Formats
+[cols="1,2,3" options="header"]
+|===
+|Type
+|Format
+|Example
+
+|Service PID
+|service.pid = "servicePid"
+|service.pid = "org.codice.ddf.security.policy.context.impl.PolicyManager"
+
+|Factory PID
+|service.factoryPid = "serviceFactoryPid"
+|service.factoryPid = "Csw_Federated_Source"
+
+|Strings
+|name = "value"
+|name = "john"
+
+|Booleans
+|name = B"true|false"
+|authorized = B"true"
+
+|Integers
+|name = I"value"
+|timeout=I"60"
+
+|Longs
+|name = L"value"
+|diameter = L"10000"
+
+|Floats
+|name = F"value"
+|cost = F"10.50"
+
+|Doubles
+|name = D"value"
+|latitude = D"45.0234"
+
+|Lists of Strings
+|name = [ "value1", "value2", …​ ]
+|`complexStringArray = [
+    "{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\
+    \"VERSION\"\ \"1.1|1.2\"\ \"image/png\"}\ \"beta\"\ 1}",	"{\"url\"\ \"http://test.sample.com"\ 0.5}",
+	"/solr\=SAML|PKI|basic", "/security-config\=SAML|basic"
+]`
+
+|Lists of Integers
+|name = I[ "value1", "value1", …​ ]
+|sizes = I[ "10", "20", "30" ]
+
+|===
+
+[NOTE]
+====
+* Lists of values can be prefixed with any of the supported types (B, I, L, F or D).
+* To prevent any configuration issues, the = signs used in values should be escaped using a backslash (\).
+* Boolean values will default to false if any value other than true is provided.
+* Escape character in values must be used for double quotes (") and spaces, but cannot be used with { } or [ ] pairings.
+====
+
+.Sample configuration file
+[source,java,linenums]
+----
+service.pid="org.codice.ddf.security.policy.context.impl.PolicyManager"
+
+authenticationTypes=["/\=SAML|GUEST","/admin\=SAML|basic","/system\=basic","/solr\=SAML|PKI|basic","/sources\=SAML|basic","/security-config\=SAML|basic","/search\=basic"]
+
+realms=["/\=karaf"]
+
+requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}"]
+
+whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics","/services/saml","/proxy","/services/csw"]
+----

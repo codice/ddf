@@ -79,7 +79,7 @@ Server: Jetty(7.5.4.v20111024)
 
 Verify GeoJson file was stored using the Content REST endpoint.
 
-* Send a GET command to read the content from the content repository using the Content REST endpoint. This can be done using `cURL` command below. Note that the GUID will be different for each ingest. The GUID can be determined by going to the `<DISTRIBUTION_INSTALL_DIR>/content/store` directory and copying the sub-directory in this folder (there should only be one).
+* Send a GET command to read the content from the content repository using the Content REST endpoint. This can be done using `cURL` command below. Note that the GUID will be different for each ingest. The GUID can be determined by going to the `<${branding}_HOME>/content/store` directory and copying the sub-directory in this folder (there should only be one).
 
 .Windows Example
 [source,terminal]

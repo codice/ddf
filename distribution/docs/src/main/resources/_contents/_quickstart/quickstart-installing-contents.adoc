@@ -132,9 +132,9 @@ The default Windows zip utility (such as double-clicking file) will not work to 
 ====
 +
 . This will create an installation directory, which is typically created with the name and version of the application.
-This installation directory will be referred to as `<INSTALL_DIRECTORY>`.
+This installation directory will be referred to as `<${branding}_HOME>`.
 (Substitute the actual directory name.)
-. Start ${branding} by running the `<INSTALL_DIRECTORY>/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
+. Start ${branding} by running the `<${branding}_HOME>/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
 . The ${command-console} will display.
 
 .${command-console} Prompt

@@ -1,14 +1,14 @@
 
-==== Keystore and Certificate Management
+==== Managing Keystores and Certificates
+
+* *{hardening-step}*
 
 ${branding} uses certificates in two ways:
 
 . Ensuring the privacy and integrity of messages sent or received over a network.
 . Authenticating an incoming user request.
 
-For more certificate configuration options, see <<_configuring_${ddf-security}, Configuring ${ddf-security}>>.
-
-===== Keystore Management
+===== Managing Keystores
 
 Certificates, and sometimes their associated private keys, are stored in keystore files.
 ${branding} includes two default keystore files, the server key store and the server trust store.
@@ -31,7 +31,7 @@ Additionally, keystore files themselves are typically encrypted and the dialog a
 The name and location of the ${branding} trust and key stores can be changed by editing the system properties files, `etc/system.properties`.
 Additionally, the password that ${branding} uses to decrypt (unlock) the key and trust stores can be changed here.
 
-IMPORTANT:
+[IMPORTANT]
 ====
 ${branding} assumes that password used to unlock the keystore is the same password that unlocks private keys in the keystore.
 ====
@@ -57,42 +57,52 @@ This allows the distribution to be unzipped and run immediately.
 If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.
 
 If the hostname is `localhost` or, if the hostname was changed _after_ installation, the default certificates will not allow access to the ${branding} instance from another machine over HTTPS (now the default for many services).
-The default certificates will need to be replaced with certificates that use the fully-qualified hostname of the server running the ${branding} instance.
+The Demo Certificate Authority will need to be replaced with certificates that use the fully-qualified hostname of the server running the ${branding} instance.
 
 ====== Demo Certificate Authority (CA)
 
 ${branding} comes with a populated truststore containing entries for many public certificate authorities, such as Go Daddy and Verisign.
-It also includes an entry for the DDF Demo Root CA.
+It also includes an entry for the ${ddf-branding} Demo Root CA.
 This entry is a self-signed certificate used for testing.
 It enables ${branding} to run immediately after unzipping the distribution.
-The keys and certificates for the DDF demo root CA are included as part of the ${branding} distribution.
+The keys and certificates for the ${ddf-branding} Demo Root CA are included as part of the ${branding} distribution.
 This entry must be removed from the truststore before ${branding} can operate securely.
-See for more information about securely configuring ${branding}.
 
-====== Creating New Server Keystore Entry with the `CertNew` Scripts
+====== Creating New Server Keystore Entry with the CertNew Scripts
 
 To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
-To use the scripts, run them out of the `<INSTALL_HOME>/etc/certs` directory. For *NIX, use the `CertNew.sh` script.
+To use the scripts, run them out of the `<INSTALL_HOME>/etc/certs` directory.
+
+.*NIX Demo CA Script
+****
+
+For *NIX, use the `CertNew.sh` script.
 
 `sh CertNew.sh <FQDN>`
-
-The above command creates a new entry in the server keystore.
-It uses the hostname as the fully qualified domain name (FQDN) when it creates the certificate.
-The Demo Certificate Authority signs the certificate so that it will be trusted by the default configuration.
 
 Alternatively, a FQDN can be provided to the script with a comma-delimited string.
 
 `sh CertNew.sh -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
+****
 
-To create and install the certificates on Windows, use the `CertNew.cmd` file in the same directory.
+.Windows Demo CA Script
+****
+For Windows, use the `CertNew.cmd` script.
 
-`CertNew <FQDN>`
+`CertNew -cn <FQDN>`
 
 Alternatively, a FQDN can be provided to the script with a comma-delimited string.
 
 `CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
+****
 
-To install a certificate signed by a different Certificate Authority, see <<_import_into_a_java_keystore_jks,Import into a Java Keystore (JKS)>>.
+The `CertNew` scripts:
+
+* Create a new entry in the server keystore.
+* Use the hostname as the fully qualified domain name (FQDN) when creating the certificate.
+* Use the Demo Certificate Authority to sign the certificate so that it will be trusted by the default configuration.
+
+To install a certificate signed by a different Certificate Authority, see <<_managing_keystores,Managing Keystores>>.
 
 Finally, restart the ${branding} instance.
 Browse the ${admin-console} at \https://<FQDN>:8993/admin to test changes.
@@ -124,15 +134,22 @@ To enable, the Enable Backup Plugin configuration item must be checked in the Ba
 `Enable Backup Plugin: true`
 ====
 
-** The default password in `config.ldif` for `serverKeystore.jks` is `changeit`. This needs to be modified.
-*** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
-*** `ds-cfg-key-store-type: JKS`
-*** `ds-cfg-key-store-pin: password`
-*** `cn: JKS`
-** The default password in `config.ldif` for `serverTruststore.jks` is `changeit`.  This needs to be modified.
-*** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
-*** `ds-cfg-trust-store-pin: password`
-*** `cn: JKS`
+.Changing Default Passwords
+[NOTE]
+====
+This step is not required for a hardened system.
+If testing ${branding} with a
+
+* The default password in `config.ldif` for `serverKeystore.jks` is `changeit`. This needs to be modified.
+** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
+** `ds-cfg-key-store-type: JKS`
+** `ds-cfg-key-store-pin: password`
+** `cn: JKS`
+* The default password in `config.ldif` for `serverTruststore.jks` is `changeit`.  This needs to be modified.
+** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
+** `ds-cfg-trust-store-pin: password`
+** `cn: JKS`
+====
 
 ====== Updating Key Store / Trust Store via the ${admin-console}
 
@@ -148,14 +165,27 @@ The default trust store and key store files for ${branding} included in `etc/key
 Self-signed certificates should never be used outside of development/testing areas.
 ====
 
-===== Certificate Revocation List (CRL)
+===== Managing Certificate Revocation List (CRL)
+
+* *{hardening-step}*
+
+For hardening purposes, it is recommended to implement a way to verify the CRL at least daily.
 
 A Certificate Revocation List is a collection of formerly-valid certificates that should explicitly _not_ be accepted.
 
 ====== Creating a Certificate Revocation List (CRL)
 
-.  Using the CA create in the above steps, create a CRL in which the `tokenissuer`'s certificate is valid. +
+Create a CRL in which the token issuer's certificate is valid.
+The example uses OpenSSL.
+
 `$> openssl ca -gencrl -out crl-tokenissuer-valid.pem`
+
+.Windows and OpenSSL
+[NOTE]
+====
+Windows does not include OpenSSL by default.
+For Windows platforms, a additional download of https://www.openssl.org/source/[OpenSSL] or an alternative is required.
+====
 
 ====== Revoke a Certificate and Create a New CRL that Contains the Revoked Certificate
 
@@ -177,17 +207,16 @@ $> openssl ca -gencrl -out crl-tokenissuer-revoked.pem
 Enabling CRL revocation or modifying the CRL file will require a restart of ${branding} to apply updates.
 ====
 
-. Place the CRL in <${branding}.home>/etc/keystores.
-. Add the line `org.apache.ws.security.crypto.merlin.x509crl.file=etc/keystores/<CRL_FILENAME>` to the following files (It is possible to specify a URL, or file path as the CRL location):
-.. `<${branding}.home>/etc/ws-security/server/encryption.properties`
+. Place the CRL in <${branding}_HOME>/etc/keystores.
+. Add the line `org.apache.ws.security.crypto.merlin.x509crl.file=etc/keystores/<CRL_FILENAME>` to the following files:
 .. `<${branding}_HOME>/etc/ws-security/server/encryption.properties`
-.. `<${branding-lowercase}.home>/etc/ws-security/issuer/encryption.properties`
+.. `<${branding}_HOME>/etc/ws-security/issuer/encryption.properties`
 .. `<${branding}_HOME>/etc/ws-security/server/signature.properties`
 .. `<${branding}_HOME>/etc/ws-security/issuer/signature.properties`
 . (Replace <CRL_FILENAME> with the CRL file used in previous step.)
 
 Adding this property will also enable CRL revocation for any context policy implementing PKI authentication.
-For example, adding an authentication policy in the Web Context Policy Manager of `/search=PKI|GUEST` will disable basic authentication, and require a certificate for the search UI.
+For example, adding an authentication policy in the Web Context Policy Manager of `/search=SAML|PKI` will disable basic authentication, require a certificate for the search UI, and allow a SAML SSO session to be created.
 If a certificate is not in the CRL, it will be allowed through, otherwise it will get a 401 error.
 If no certificate is provided, the guest handler will grant guest access.
 
@@ -264,3 +293,19 @@ Caused by: java.security.cert.CertPathValidatorException: Certificate has been r
     at org.apache.ws.security.components.crypto.Merlin.verifyTrust(Merlin.java:814)[161:org.apache.ws.security.wss4j:1.6.9]
     ... 45 more
 ----
+
+===== Disallowing Login Without Certificates
+
+${branding} can be configured to prevent login without a valid PKI certificate.
+
+* Navigate to *${admin-console}*
+* Under *${ddf-security}*, select -> *Web Context Policy Manager*
+* Add a policy for each context requiring restriction
+** For example: `/search=SAML|PKI` will disallow login without certificates to the Search UI.
+** The format for the policy should be: `/<CONTEXT>=SAML|PKI`
+* Click *Save*
+
+[NOTE]
+====
+Ensure certificates comply with organizational hardening policies.
+====

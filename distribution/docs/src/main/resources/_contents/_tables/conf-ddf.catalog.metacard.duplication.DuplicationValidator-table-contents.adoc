@@ -1,4 +1,4 @@
-|<<ddf.catalog.metacard.duplication.DuplicationValidator,Catalog Duplicate Validator>>
+|Catalog Duplicate Validator
 |ddf.catalog.metacard.duplication.DuplicationValidator
-|null
+|
 

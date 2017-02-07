@@ -1,4 +1,4 @@
-|<<org.codice.ddf.security.filter.login.Session,Session>>
+|Session
 |org.codice.ddf.security.filter.login.Session
 |Session
 

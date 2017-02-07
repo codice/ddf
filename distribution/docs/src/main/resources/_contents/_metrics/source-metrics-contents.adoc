@@ -49,5 +49,5 @@ If this federated source is then renamed to `fs-1-rename`, the MBeans and Colle
 * `Source Fs1 Rename Queries Total Results`
 
 Note that the metrics with the previous name remain on the Metrics tab because the data collected while the Source had this name remains valid and thus needs to be accessible.
-Therefore, it is possible to access metrics data for sources renamed months ago, i.e., until ${branding} is reinstalled or the metrics data is deleted from the `<${branding}_INSTALL_DIR>/data/metrics` directory.
+Therefore, it is possible to access metrics data for sources renamed months ago, i.e., until ${branding} is reinstalled or the metrics data is deleted from the `<${branding}_HOME>/data/metrics` directory.
 Also note that the source metrics' names are modified to remove all non-alphanumeric characters and renamed in camelCase.

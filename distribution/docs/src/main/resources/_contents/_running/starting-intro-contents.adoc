@@ -21,7 +21,7 @@ Alternatively, to run ${branding} as a background service, run the `start` scrip
 
 .*NIX
 ----
-<${branding}_HOME/bin/start
+<${branding}_HOME>/bin/start
 ----
 
 .Windows
@@ -35,7 +35,7 @@ If console access is needed while running as a service, run the `client` script:
 
 .*NIX
 ----
-<${branding}_HOME/bin/client
+<${branding}_HOME>/bin/client
 ----
 
 .Windows
@@ -136,11 +136,11 @@ wrapper.java.additional.23=-Dderby.system.home=%KARAF_HOME%/data/derby
 wrapper.java.maxmemory=2048
 ----
 +
-. Set the `${ddf-branding}_HOME` property.
+. Set the `<${branding}_HOME>` property.
 +
 .<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
 ----
-set.default.${ddf-branding}_HOME=%KARAF_HOME%
+set.default.<${branding}_HOME>=%KARAF_HOME%
 ----
 +
 . Install the wrapper startup/shutdown scripts.

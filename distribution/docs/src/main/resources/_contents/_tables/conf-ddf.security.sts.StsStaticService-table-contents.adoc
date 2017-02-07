@@ -1,4 +1,4 @@
-|<<ddf.security.sts.StsStaticService,STS Server Token Endpoint>>
+|STS Server Token Endpoint
 |ddf.security.sts.StsStaticService
 |STS Server Token Endpoint
 

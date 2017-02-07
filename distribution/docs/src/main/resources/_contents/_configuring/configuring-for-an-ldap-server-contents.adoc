@@ -1,48 +1,12 @@
 
-=== Managing Features
-
-${branding} includes many components, packaged as _features_, that can be installed and/or uninstalled without restarting the system.
-Features are collections of OSGi bundles, configuration data, and/or other features.
-
-.Transitive Dependencies
-[NOTE]
-====
-Features may have dependencies on other features and will auto-install them as needed.
-====
-
-In the ${admin-console}, Features are found on the *Features* tab of each application.
-
-==== Managing Features Using the ${admin-console}
-
-. Select the appropriate application.
-. Select the *Features* tab.
-. Uninstalled features are shown with a *play* arrow under the *Actions* column.
-.. Select the *play* arrow for the desired feature.
-.. The *Status* will change from *Uninstalled* to *Installed*.
-. Installed features are shown with a *stop* icon under the *Actions* column.
-.. Select the *stop* icon for the desired feature.
-.. The *Status* will change from *Installed* to *Uninstalled*.
-
-===== Adding Feature Repositories
-
-If needed, custom feature repositories can be added to extend ${branding} functionality.
-
-. Select the *Manage* button in the upper right.
-. Select the *Add an Application* tile
-. Select *File Upload* to add a new `.kar` OR `.jar` file.
-. Select the *Maven URL* tab and enter the URL of the feature repository.
-.. Select the *Add URL* button.
-. Select the *Save Changes* button.
-
-
-==== Configuring ${branding} to Use an LDAP Server
+==== Configuring for an LDAP Server
 
 [WARNING]
 ====
 The configurations for Security STS LDAP and Roles Claims Handler and Security STS LDAP Login contain plain text default passwords for the embedded LDAP, which is insecure to use in production.
 ====
 
-Use the encryption service, described in <<Encryption Service>>, on the command line to set passwords for your LDAP server.
+Use the encryption service, described in <<_encryption_service,Encryption Service>>, from the ${command-console} to set passwords for your LDAP server.
 Then change the LDAP Bind User Password in the configurations to use the encrypted password.
 
 .STS Ldap Login Configuration
@@ -114,7 +78,7 @@ A claims manager provides hooks for a developer to plug in claims handlers to en
 Claims handlers convert incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
 For example, the `LDAPClaimsHandler` takes in the user's credentials and retrieves the user's attributes from a backend LDAP server.
 These attributes are then mapped and added to the SAML assertion being created.
-Integrators and developers can add more claims handlers that can handle other types of <<_managing_users,external services that store user attributes>>.
+Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.
 
 .Security STS LDAP and Roles Claims Handler
 [cols="1,1m,1,2,1,1" options="header"]

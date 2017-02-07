@@ -69,8 +69,6 @@ For example, a query received by the OpenSearch Endpoint can be executed again
 \--------------------/ \--------------------=-/ \----------------------/     \-------=--------------/
 ....
 
-=== Federation Strategy
-
 A federation strategy federates a query to all of the Remote Sources in the query's list, processes the results in a unique way, and then returns the results to the client. 
 For example, implementations can choose to halt processing until all results return and then perform a mass sort or return the results back to the client as soon as they are received back from a Federated Source.
 
