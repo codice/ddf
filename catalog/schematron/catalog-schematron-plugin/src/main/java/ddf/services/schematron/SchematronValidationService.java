@@ -315,8 +315,8 @@ public class SchematronValidationService
         MetacardValidationReportImpl report = new MetacardValidationReportImpl();
         Set<String> attributes = ImmutableSet.of("metadata");
         String metadata = metacard.getMetadata();
-        boolean canBeValidated = StringUtils.isNotEmpty(metadata) && namespace != null
-                && namespace.equals(XMLUtils.getRootNamespace(metadata));
+        boolean canBeValidated = StringUtils.isNotEmpty(metadata) || namespace == null
+                || namespace.equals(XMLUtils.getRootNamespace(metadata));
         if (canBeValidated) {
             try {
                 for (Future<Templates> validator : validators) {
