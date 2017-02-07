@@ -30,7 +30,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.ErrorListener;
@@ -276,34 +275,69 @@ public class SchematronValidationService
     }
 
     public SchematronReport getSchematronReport() {
+        ;
         return schematronReport;
     }
 
     @Override
     public void validate(Metacard metacard) throws ValidationException {
-        try {
-            String metadata = metacard.getMetadata();
-            if (StringUtils.isEmpty(metadata) || (namespace != null
-                    && !namespace.equals(XMLUtils.getRootNamespace(metadata)))) {
-                return;
-            }
-            for (Future<Templates> validator : validators) {
-                schematronReport = generateReport(metadata, validator.get(10, TimeUnit.MINUTES));
-                if (!schematronReport.isValid(suppressWarnings)) {
-                    throw new SchematronValidationException("Schematron validation failed.",
-                            schematronReport.getErrors()
-                                    .stream()
-                                    .map(SchematronValidationService::sanitize)
-                                    .collect(Collectors.toList()),
-                            schematronReport.getWarnings()
-                                    .stream()
-                                    .map(SchematronValidationService::sanitize)
-                                    .collect(Collectors.toList()));
-                }
-            }
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new ValidationExceptionImpl(e);
+
+        MetacardValidationReport report = generateReport(metacard);
+
+        List<String> errors = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
+        report.getMetacardValidationViolations()
+                .forEach(violation -> {
+                    if (violation.getSeverity() == ValidationViolation.Severity.ERROR) {
+                        errors.add(violation.getMessage());
+                    } else {
+                        warnings.add(violation.getMessage());
+                    }
+                });
+
+        SchematronValidationException exception = new SchematronValidationException(
+                "Schematron validation failed",
+                errors,
+                warnings);
+
+        if (!errors.isEmpty()) {
+            throw exception;
         }
+
+        if (!suppressWarnings && !warnings.isEmpty()) {
+            throw exception;
+        }
+
+    }
+
+    private MetacardValidationReport generateReport(Metacard metacard)
+            throws ValidationExceptionImpl {
+        MetacardValidationReportImpl report = new MetacardValidationReportImpl();
+        Set<String> attributes = ImmutableSet.of("metadata");
+        String metadata = metacard.getMetadata();
+        boolean canBeValidated = StringUtils.isNotEmpty(metadata) && namespace != null
+                && namespace.equals(XMLUtils.getRootNamespace(metadata));
+        if (canBeValidated) {
+            try {
+                for (Future<Templates> validator : validators) {
+                    schematronReport = generateReport(metadata,
+                            validator.get(10, TimeUnit.MINUTES));
+                    schematronReport.getErrors()
+                            .forEach(errorMsg -> report.addMetacardViolation(new ValidationViolationImpl(
+                                    attributes,
+                                    sanitize(errorMsg),
+                                    ValidationViolation.Severity.ERROR)));
+                    schematronReport.getWarnings()
+                            .forEach(warningMsg -> report.addMetacardViolation(new ValidationViolationImpl(
+                                    attributes,
+                                    sanitize(warningMsg),
+                                    ValidationViolation.Severity.WARNING)));
+                }
+            } catch (TimeoutException | ExecutionException | InterruptedException e) {
+                throw new ValidationExceptionImpl(e);
+            }
+        }
+        return report;
     }
 
     private SchematronReport generateReport(String metadata, Templates validator)
@@ -366,36 +400,12 @@ public class SchematronValidationService
 
     @Override
     public Optional<MetacardValidationReport> validateMetacard(Metacard metacard) {
-
-        MetacardValidationReportImpl report = null;
         try {
-            validate(metacard);
-        } catch (SchematronValidationException e) {
-            report = new MetacardValidationReportImpl();
-            Set<String> attributes = ImmutableSet.of("metadata");
-            if (e.getWarnings() != null) {
-                for (String each : e.getWarnings()) {
-                    report.addMetacardViolation(new ValidationViolationImpl(attributes,
-                            each,
-                            ValidationViolation.Severity.WARNING));
-                }
-            }
-            if (e.getErrors() != null) {
-                for (String each : e.getErrors()) {
-                    report.addMetacardViolation(new ValidationViolationImpl(ImmutableSet.of(metacard.getMetadata()),
-                            each,
-                            ValidationViolation.Severity.ERROR));
-                }
-            }
-        } catch (ValidationException e) {
-            LOGGER.warn("Exception validating metacard ID {}\n{}",
-                    metacard.getId(),
-                    e.getLocalizedMessage(),
-                    e);
+            return Optional.of(generateReport(metacard));
+        } catch (ValidationExceptionImpl e) {
+            LOGGER.warn("Exception validating metacard ID {}", metacard.getId(), e);
+            return Optional.empty();
         }
-
-        return Optional.ofNullable(report);
-
     }
 
     /**
