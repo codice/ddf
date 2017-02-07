@@ -40,13 +40,16 @@ import org.w3c.dom.NodeList;
  * validation.
  *
  * @author rodgersh
- *
  */
 public class SvrlReport implements SchematronReport {
-    /** SVRL report tag for assertion that failed during Schematron validation */
+    /**
+     * SVRL report tag for assertion that failed during Schematron validation
+     */
     private static final String ASSERT_FAIL_TAG = "svrl:failed-assert";
 
-    /** SVRL report tag for report that failed during Schematron validation */
+    /**
+     * SVRL report tag for report that failed during Schematron validation
+     */
     private static final String REPORT_FAIL_TAG = "svrl:failed-report";
 
     /**
@@ -57,7 +60,7 @@ public class SvrlReport implements SchematronReport {
 
     /**
      * Value for svrl:failed-assert tag's flag attribute for warnings.
-     *
+     * <p>
      * Example: <svrl:failed-assert test="if(invalid) then 1 else not($hasInvalids)" flag="warning">
      * ... </svrl:failed-assert>
      */
@@ -65,7 +68,7 @@ public class SvrlReport implements SchematronReport {
 
     /**
      * Value for svrl:failed-assert tag's flag attribute for errors
-     *
+     * <p>
      * Example: <svrl:failed-assert test="if(invalid) then 1 else not($hasInvalids)" flag="error">
      * ... </svrl:failed-assert>
      */
@@ -73,28 +76,27 @@ public class SvrlReport implements SchematronReport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SvrlReport.class);
 
-    /** Schematron report in DOM format */
+    /**
+     * Schematron report in DOM format
+     */
     private DOMResult report;
 
-    /** The root element of the report's DOM tree. */
+    /**
+     * The root element of the report's DOM tree.
+     */
     private Element root = null;
 
     /**
-     * Private default constructor to prevent instantiating SvrlReport without required DOMResult
-     * argument.
-     */
-    private SvrlReport() {
-
-    }
-
-    /**
-     * @param result
-     *            DOM-formatted results from Schematron validation
+     * @param result DOM-formatted results from Schematron validation
      */
     public SvrlReport(DOMResult result) {
         this.report = result;
         this.root = (Element) report.getNode()
                 .getFirstChild();
+    }
+
+    public SvrlReport() {
+
     }
 
     /**
@@ -103,9 +105,7 @@ public class SvrlReport implements SchematronReport {
      * the suppressWarnings argument is true, then Schematron warnings are also included in the
      * document's validity assessment.
      *
-     * @param suppressWarnings
-     *            do not include Schematron warnings in determining validity
-     *
+     * @param suppressWarnings do not include Schematron warnings in determining validity
      * @return true if no assert or report error messages found in SVRL report, false otherwise
      */
     @Override
@@ -143,11 +143,14 @@ public class SvrlReport implements SchematronReport {
      * Retrieve only the specified type of assertion messages (warnings or errors) from the SVRL
      * report.
      *
-     * @parameter type the type of assert message to search for in SVRL report, "warning" or "error"
      * @return list of XML Nodes for all assert nodes of specified type
+     * @parameter type the type of assert message to search for in SVRL report, "warning" or "error"
      */
     public List<Node> getAllAssertMessages(String type) {
-        List<Node> assertions = new ArrayList<Node>();
+        List<Node> assertions = new ArrayList<>();
+        if (isEmpty()) {
+            return assertions;
+        }
 
         NodeList assertFailures = getAllAssertMessages();
         for (int i = 0; i < assertFailures.getLength(); i++) {
@@ -177,8 +180,8 @@ public class SvrlReport implements SchematronReport {
      * Retrieve only the specified type of report messages (warnings or errors) from the SVRL
      * report.
      *
-     * @parameter type the type of report message to search for in SVRL report, "warning" or "error"
      * @return list of XML Nodes for all report nodes
+     * @parameter type the type of report message to search for in SVRL report, "warning" or "error"
      */
     public List<Node> getAllReportMessages(String type) {
         List<Node> reports = new ArrayList<Node>();
@@ -204,7 +207,11 @@ public class SvrlReport implements SchematronReport {
      */
     @Override
     public List<String> getErrors() {
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
+
+        if (isEmpty()) {
+            return errors;
+        }
 
         List<Node> errorAssertions = getAllAssertMessages(ERROR_FLAG_ATTR_TEXT);
         for (Node error : errorAssertions) {
@@ -228,20 +235,26 @@ public class SvrlReport implements SchematronReport {
      */
     @Override
     public List<String> getWarnings() {
-        List<String> warnings = new ArrayList<String>();
+        List<String> warnings = new ArrayList<>();
+
+        if (isEmpty()) {
+            return warnings;
+        }
 
         List<Node> warningAssertions = getAllAssertMessages(WARNING_FLAG_ATTR_TEXT);
         for (Node warning : warningAssertions) {
-            LOGGER.debug("warning(from assertions) = {}", warning.getFirstChild()
-                    .getTextContent());
+            LOGGER.debug("warning(from assertions) = {}",
+                    warning.getFirstChild()
+                            .getTextContent());
             warnings.add(warning.getFirstChild()
                     .getTextContent());
         }
 
         List<Node> warningReports = getAllReportMessages(WARNING_FLAG_ATTR_TEXT);
         for (Node warning : warningReports) {
-            LOGGER.debug("warning(from reports) = {}", warning.getFirstChild()
-                    .getTextContent());
+            LOGGER.debug("warning(from reports) = {}",
+                    warning.getFirstChild()
+                            .getTextContent());
             warnings.add(warning.getFirstChild()
                     .getTextContent());
         }
@@ -269,6 +282,11 @@ public class SvrlReport implements SchematronReport {
         out.close();
 
         return sw.toString();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return root == null;
     }
 
 };

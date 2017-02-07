@@ -274,11 +274,6 @@ public class SchematronValidationService
         }
     }
 
-    public SchematronReport getSchematronReport() {
-        ;
-        return schematronReport;
-    }
-
     @Override
     public void validate(Metacard metacard) throws ValidationException {
 
@@ -342,6 +337,11 @@ public class SchematronValidationService
 
     private SchematronReport generateReport(String metadata, Templates validator)
             throws SchematronValidationException {
+
+        if (StringUtils.isEmpty(metadata)) {
+            return new SvrlReport();
+        }
+
         XMLReader xmlReader = null;
         try {
             XMLReader xmlParser = XMLReaderFactory.createXMLReader();
