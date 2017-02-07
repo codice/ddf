@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
@@ -32,6 +34,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.security.common.audit.SecurityLogger;
 
 @Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "import", description = "Imports Metacards and history into the current Catalog")
@@ -54,6 +57,9 @@ public class ImportCommand extends CatalogCommands {
 
     @Override
     protected Object executeWithSubject() throws Exception {
+        int metacards = 0;
+        int content = 0;
+        int derivedContent = 0;
         ZipValidator zipValidator = initZipValidator();
         File file = initImportFile(importFile);
         InputTransformer transformer = getServiceByFilter(InputTransformer.class,
@@ -66,7 +72,9 @@ public class ImportCommand extends CatalogCommands {
             throw new CatalogCommandRuntimeException("Signature on zip file is not valid");
         }
 
+        SecurityLogger.audit("Called catalog:import command on the file: {}", importFile);
         console.println("Importing file");
+        Instant start = Instant.now();
         try (InputStream fis = new FileInputStream(file);
                 ZipInputStream zipInputStream = new ZipInputStream(fis)) {
             ZipEntry entry = zipInputStream.getNextEntry();
@@ -85,6 +93,7 @@ public class ImportCommand extends CatalogCommands {
 
                 switch (type) {
                 case "metacard": {
+                    metacards++;
                     String metacardName = pathParts[NAME];
                     Metacard metacard = null;
                     try {
@@ -97,9 +106,11 @@ public class ImportCommand extends CatalogCommands {
                     break;
                 }
                 case "content": {
+                    content++;
                     String contentFilename = pathParts[NAME];
                     ContentItem contentItem = new ContentItemImpl(id,
-                            new ZipEntryByteSource(new UncloseableBufferedInputStreamWrapper(zipInputStream)),
+                            new ZipEntryByteSource(new UncloseableBufferedInputStreamWrapper(
+                                    zipInputStream)),
                             null,
                             contentFilename,
                             entry.getSize(),
@@ -113,11 +124,13 @@ public class ImportCommand extends CatalogCommands {
                     break;
                 }
                 case "derived": {
+                    derivedContent++;
                     String qualifier = pathParts[NAME];
                     String derivedContentName = pathParts[DERIVED_NAME];
                     ContentItem contentItem = new ContentItemImpl(id,
                             qualifier,
-                            new ZipEntryByteSource(new UncloseableBufferedInputStreamWrapper(zipInputStream)),
+                            new ZipEntryByteSource(new UncloseableBufferedInputStreamWrapper(
+                                    zipInputStream)),
                             null,
                             derivedContentName,
                             entry.getSize(),
@@ -131,14 +144,22 @@ public class ImportCommand extends CatalogCommands {
                     break;
                 }
                 default: {
-                    LOGGER.debug("Cannot interpret type of " + type);
+                    LOGGER.debug("Cannot interpret type of {}", type);
                 }
                 }
 
                 entry = zipInputStream.getNextEntry();
             }
         }
-        console.println("File imported successfully.");
+        console.println("File imported successfully. Imported in: " + Duration.between(start,
+                Instant.now())
+                .toString()
+                .substring(2)
+                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
+                .toLowerCase());
+        console.println("Number of metacards imported: " + metacards);
+        console.println("Number of content imported: " + content);
+        console.println("Number of derived content imported: " + derivedContent);
         return null;
     }
 

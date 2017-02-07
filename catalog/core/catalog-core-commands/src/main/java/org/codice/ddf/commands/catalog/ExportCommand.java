@@ -114,7 +114,7 @@ public class ExportCommand extends CqlCommands {
             .toString();
 
     @Option(name = "--delete", required = true, aliases = {"-d",
-            "delete"}, multiValued = false, description = "Whether or not to delete metacards after export")
+            "delete"}, multiValued = false, description = "Flag to delete Metacards and content after export")
     boolean delete = false;
 
     @Option(name = "--archived", required = false, aliases = {"-a",
@@ -157,7 +157,11 @@ public class ExportCommand extends CqlCommands {
         console.println("Starting metacard export...");
         Instant start = Instant.now();
         List<ExportItem> exportedItems = doMetacardExport(zipFile, filter);
-        console.println("Metacards exported in in: " + Duration.between(start, Instant.now()));
+        console.println("Metacards exported in: " + Duration.between(start, Instant.now())
+                .toString()
+                .substring(2)
+                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
+                .toLowerCase());
         console.println("Number of metacards exported: " + exportedItems.size());
         console.println();
 
@@ -170,7 +174,11 @@ public class ExportCommand extends CqlCommands {
         console.println("Starting content export...");
         start = Instant.now();
         List<ExportItem> exportedContentItems = doContentExport(zipFile, exportedItems);
-        console.println("Content exported in: " + Duration.between(start, Instant.now()));
+        console.println("Content exported in: " + Duration.between(start, Instant.now())
+                .toString()
+                .substring(2)
+                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
+                .toLowerCase());
         console.println("Number of content exported: " + exportedContentItems.size());
 
         console.println();
@@ -186,7 +194,11 @@ public class ExportCommand extends CqlCommands {
                 System.getProperty("javax.net.ssl.keyStorePassword"),
                 System.getProperty("javax.net.ssl.keyStore"),
                 System.getProperty("javax.net.ssl.keyStorePassword"));
-        console.println("zip file signed in: " + Duration.between(start, Instant.now()));
+        console.println("zip file signed in: " + Duration.between(start, Instant.now())
+                .toString()
+                .substring(2)
+                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
+                .toLowerCase());
         console.println("Export complete.");
         console.println("Exported to: " + zipFile.getFile()
                 .getCanonicalPath());
