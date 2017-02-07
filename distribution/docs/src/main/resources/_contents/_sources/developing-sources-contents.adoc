@@ -87,11 +87,6 @@ Create a custom implementation of a catalog provider.
 
 See the <<_included_catalog_providers,existing Catalog Provider list>> for examples of Catalog Providers included in ${branding}.
 
-[NOTE]
-====
-A code example of a Catalog Provider delivered with ${branding} is the <<catalog_solr_embedded_provider,Catalog Solr Embedded Provider>>.
-====
-
 ===== Developing Federated Sources
 
 . Create a Java class that implements `FederatedSource` and `ConfiguredService`. +

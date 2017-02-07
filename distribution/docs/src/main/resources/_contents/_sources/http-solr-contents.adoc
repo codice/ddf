@@ -1,0 +1,84 @@
+==== HTTP Solr
+
+The HTTP Solr is an external Apache Solr server instance.
+There are two possible installations for the HTTP Solr configuration:
+
+Internal (default):: Points to an Apache Solr server that runs in the same container as {branding}.
+External:: Points to an Apache Solr server in a different container or on a different system.
+
+.HTTP Solr Internal Deployment
+[ditaa,http-solr-internal-diagram,png]
+....
+ Container (JVM)
+ +=----------------+
+ |                 |
+ | /-----\         |
+ | |cDEF |         |
+ | | DDF +--\      |
+ | |     |  |http  |
+ | \-----/  |      |
+ |          |      |
+ |          v      |
+ |      +--------+ |
+ |      |SolrcFF0| |
+ |      +--------+ |
+ |                 |
+ +-----------------+
+....
+
+.HTTP Solr External Deployment
+[ditaa,http-solr-external-diagram,png]
+....
+ Container (JVM)
+ +=----------------+
+ |                 |
+ | /-----\         |
+ | |cDEF |         |  +--------+
+ | | DDF +----------->|SolrcFF0|
+ | |     |   http  |  +--------+
+ | \-----/         |
+ |                 |
+ +-----------------+
+....
+
+===== When to Use HTTP Solr
+
+The HTTP Solr configuration is good for most use cases. See below for details.
+
+====== Tradeoffs
+* Solr Admin UI can be used.
+* Backup can be performed manually or using the Backup command.
+* External installation allows isolation of data storage.
+* Requires additional protection to be secured.
+* Not scalable.
+* External installation has network overhead
+
+===== Installation/Configuration Guide
+
+====== Installing
+
+By default, the ${ddf-solr} application installs a Solr server inside the same container as {branding}.
+To install an External Solr server, refer to https://cwiki.apache.org/confluence/display/solr/Apache+Solr+Reference+Guide[Apache Solr Reference Guide].
+
+====== Configuring
+
+. Edit the `<INSTALLATION_DIR>/etc/system.properties`
+
+.. Comment out the Solr Client Configuration for *Cloud Solr Client* and *Embedded Solr Client* sections.
+.. Uncomment the section for the *Http Solr Client*.
+
+[NOTE]
+====
+To point to an External Solr server instead of the default Internal one, put the url in `solr.http.url` (see below for example).
+Also, two jar files need to be added to the Solr installation as described in <<Installing Solr Cloud,Installing Solr Cloud>>.
+====
+
+.system.properties
+
+----
+
+solr.client = HttpSolrClient
+solr.http.url = https://solr-host-name:8993/solr
+solr.data.dir = ${karaf.home}/data/solr
+
+----

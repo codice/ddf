@@ -156,3 +156,5 @@ Example:
 `<INSTALL-DIR>/data/product-cache/abc123`
 
 include::{adoc-include}/_plugins/metacardingest-network-contents.adoc[]
+
+include::{adoc-include}/_solr-contents/configuring-solr-from-admin-console.adoc[]

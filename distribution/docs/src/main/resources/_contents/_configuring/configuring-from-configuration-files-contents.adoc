@@ -96,6 +96,7 @@ Changing these values without also changing the passwords of the JKS causes unde
 |String
 a|The hostname or IP address used to advertise the system. Do not enter `localhost`. Possibilities include the address of a single node or that of a load balancer in a multi-node deployment.
 
+
 [IMPORTANT]
 ====
 If the hostname is changed during the install to something other than `localhost` a new keystore and truststore must be provided. See <<_configuring_new_certificates,Configuring New Certificates>> for details.
@@ -344,6 +345,36 @@ application/x-msdownload,
 application/x-msmetafile
 |Yes
 
+6+^h|[[SolrProperties]]Solr Catalog Provider Properties
+
+|Solr Client
+|solr.client
+|String
+|Solr Catalog Provider selected.
+|HttpSolrClient, CloudSolrClient, EmbeddedSolrServer
+|Yes
+
+|Solr Data Directory
+|solr.data.dir
+|String
+|Solr Data Directory
+|${karaf.home}/data/solr
+|Yes
+
+|Solr Catalog Provider Url
+|solr.http.url
+|String
+|Url for a HTTP Solr server (required for HTTP Solr)
+|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}/solr
+|No
+
+|Zookeeper Nodes
+|solr.cloud.zookeeper
+|String
+|Zookeeper hostnames and port numbers (required for Solr Cloud)
+|zookeeperhost1:2181,zookeeperhost2:2181,zookeeperhost3:2181
+|No
+
 |===
 
 These properties are available to be used as variable parameters in input url fields within the ${admin-console}.
@@ -583,7 +614,7 @@ The new service can now be used as if it was created using the ${admin-console}.
 
 ==== Configuring Solr Catalog Provider Data Directory
 
-The Solr Catalog Provider writes index files to the file system.
+The HTTP Solr Catalog Provider and the Embedded Solr Catalog Provider writes index files to the file system.
 By default, these files are stored under `${branding}_HOME/data/solr/catalog/data`.
 If there is inadequate space in `${branding}_HOME`, or if it is desired to maintain backups of the indexes only, this directory can be changed.
 
@@ -626,6 +657,19 @@ solr.data.dir = /path/to/new/data/dir
 ----
 +
 . Restart the ${branding}.
+
+[WARNING]
+====
+*Changes Require a Distribution Restart* +
+If the Data Directory File Path property is changed, no changes will occur to the Solr Catalog Provider until the distribution has been restarted.
+====
+
+[NOTE]
+====
+If data directory file path property is changed to a new directory, and the previous data is not moved into that directory, no data will exist in Solr.
+Instead, Solr will create an empty index.
+Therefore, it is possible to have multiple places where Solr files are stored, and a user can toggle between those locations for different sets of data.
+====
 
 ==== Configuring Thread Pools
 

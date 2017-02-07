@@ -178,15 +178,6 @@ The default Windows zip utility (such as double-clicking file) will not work to 
 "C:\Program Files\Java\jdk<JAVA_VERSION>\bin\jar.exe" xf ${branding-lowercase}-${project.version}.zip
 ----
 ====
-+
-. If the ${branding} Standalone Solr Server will be installed later, an additional configuration step is required for the ${branding}.
-Add the following lines to the bottom of the `<INSTALL_DIRECTORY>/etc/org.ops4j.pax.web.cfg` file:
-+
-.Additional Configuration Step
-----
-# Jetty Configuration
-`org.ops4j.pax.web.config.file=<KARAF_HOME>/etc/jetty.xml`
-----
 
 ==== Deployment Guidelines
 
@@ -315,7 +306,7 @@ During ${branding} installation, the major directories and files shown in the ta
 |Log file that records user interactions with the system for auditing purposes.
 
 |`data/log/solr.log`
-|Log file for any info coming from Standalone Solr Server.
+|Log file for any info coming from Solr.
 
 |`deploy`
 |Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon ${branding} installation)

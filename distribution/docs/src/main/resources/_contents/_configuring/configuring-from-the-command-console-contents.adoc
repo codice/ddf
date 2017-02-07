@@ -110,3 +110,5 @@ If ${branding} has not been installed, configure from  <<Configuring HTTP to HTT
 ====
 
 * Type the command `feature:install platform-http-proxy`
+
+include::{adoc-include}/_solr-contents/configuring-solr-from-command-console.adoc[]

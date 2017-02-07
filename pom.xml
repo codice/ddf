@@ -158,7 +158,7 @@
         <ddf-registry>Registry</ddf-registry>
         <ddf-resource-management>Resource Management</ddf-resource-management>
         <ddf-security>Security</ddf-security>
-        <ddf-solr>Solr</ddf-solr>
+        <ddf-solr>Solr Catalog</ddf-solr>
         <ddf-spatial>Spatial</ddf-spatial>
         <ddf-ui>Search UI</ddf-ui>
 
