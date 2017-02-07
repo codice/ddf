@@ -31,7 +31,7 @@ Alternatively, to run ${branding} as a background service, run the `start` scrip
 
 [NOTE]
 ====
-If console access is needed while running as a service, run the `client` script:
+If console access is needed while running as a service, run the `client` script on the host where the ${branding} is running:
 
 .*NIX
 ----
@@ -42,6 +42,8 @@ If console access is needed while running as a service, run the `client` script:
 ----
 <${branding}_HOME>/bin/client.bat -h localhost
 ----
+
+If running the `client` script form a different host, use the `-h` option followed by the name or IP of the host where ${branding} is running.
 ====
 
 ==== Stopping ${branding}
