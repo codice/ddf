@@ -31,13 +31,13 @@ define([
         template: '<input class="form-control" type="text"/>',
         modelEvents: { change: 'updateValue' },
         events: {
-            'keyup .form-control': 'onKeyup'
+            'change .form-control': 'onChange'
         },
         onRender: function () { this.updateValue(); },
         valueKey: function () {
             return this.options.valueKey || 'value';
         },
-        onKeyup: function (e) {
+        onChange: function (e) {
             this.model.set(this.valueKey(), e.target.value);
         },
         updateValue: function () {
