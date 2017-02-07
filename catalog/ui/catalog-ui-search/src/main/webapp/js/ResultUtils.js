@@ -33,5 +33,32 @@ module.exports = {
                 result.refreshData();
             }
         });
+    },
+    updateResults: function(results, attributeMap){
+        if (results.length === undefined) {
+            results = [results];
+        }
+        var ids = results.map(function(result){
+            return result.get('metacard').id;
+        });
+        results.forEach(function(metacard){
+            metacard.get('metacard').get('properties').set(attributeMap);
+        });
+        store.get('workspaces').forEach(function(workspace){
+            workspace.get('queries').forEach(function(query){
+                if (query.get('result')) {
+                    query.get('result').get('results').forEach(function(result){
+                        if (ids.indexOf(result.get('metacard').get('properties').get('id')) !== -1){
+                            result.get('metacard').get('properties').set(attributeMap);
+                        }
+                    });
+                }
+            });
+        });
+        alert.get('currentResult').get('results').forEach(function(result){
+            if (ids.indexOf(result.get('metacard').get('properties').get('id')) !== -1){
+                result.get('metacard').get('properties').set(attributeMap);
+            }
+        });
     }
 };
