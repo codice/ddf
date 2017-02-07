@@ -1528,6 +1528,7 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void testMetacardCache() throws Exception {
 
         //Start with a clean cache
