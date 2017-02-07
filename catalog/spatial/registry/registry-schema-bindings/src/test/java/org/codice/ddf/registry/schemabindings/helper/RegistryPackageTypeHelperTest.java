@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.is;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
@@ -61,7 +62,7 @@ public class RegistryPackageTypeHelperTest {
 
     private SlotTypeHelper stHelper = new SlotTypeHelper();
 
-    private InternationalStringTypeHelper istHelper = new InternationalStringTypeHelper();
+    private InternationalStringTypeHelper istHelper = new InternationalStringTypeHelper(Locale.US);
 
     @BeforeClass
     public static void setUpOnce() throws Exception {
