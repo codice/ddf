@@ -22,12 +22,15 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang.Validate.notNull;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
 
@@ -94,6 +97,7 @@ public class ConfigurationFilesPoller implements Runnable {
     public void register(@NotNull ChangeListener listener) {
         notNull(listener, "ChangeListener cannot be null");
         changeListener = listener;
+        processExistingConfigurationFiles();
     }
 
     @Override
@@ -141,7 +145,7 @@ public class ConfigurationFilesPoller implements Runnable {
                 // Reset key, shutdown watcher if directory not able to be observed
                 // (possibly deleted)
                 if (!key.reset()) {
-                    LOGGER.debug("Configurations in [{}] are no longer able to be observed.",
+                    LOGGER.warn("Configurations in [{}] are no longer able to be observed.",
                             configurationDirectoryPath.toString());
                     break;
                 }
@@ -173,5 +177,26 @@ public class ConfigurationFilesPoller implements Runnable {
             Thread.currentThread()
                     .interrupt();
         }
+    }
+
+    private void processExistingConfigurationFiles() {
+        Predicate<Path> configurationFiles = ((Predicate<Path>) path -> !path.toFile()
+                .isDirectory()).and(path -> path.getFileName()
+                .endsWith(fileExtension));
+
+        try {
+            getExistingFiles().filter(configurationFiles)
+                    .forEach(p -> changeListener.notify(configurationDirectoryPath.resolve(p)));
+        } catch (IOException e) {
+            LOGGER.warn("Error initializing directory contents in {} with extension {}",
+                    configurationDirectoryPath,
+                    fileExtension,
+                    e);
+        }
+    }
+
+    // For unit testing purposes
+    Stream<Path> getExistingFiles() throws IOException {
+        return Files.walk(configurationDirectoryPath);
     }
 }
