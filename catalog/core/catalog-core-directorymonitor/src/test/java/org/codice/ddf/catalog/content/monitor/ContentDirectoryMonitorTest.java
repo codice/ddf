@@ -43,6 +43,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import ddf.catalog.Constants;
+
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
@@ -82,6 +83,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         camelContext.addComponent("content", contentComponent);
 
         monitor = createContentDirectoryMonitor();
+        monitor.setReadLockIntervalMilliseconds(1000);
+        monitor.setNumThreads(1);
     }
 
     @After
@@ -176,12 +179,50 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         submitConfigOptions(monitor,
                 monitoredDirectoryPath,
                 ContentDirectoryMonitor.MOVE,
-                ATTRIBUTE_OVERRIDES);
+                ATTRIBUTE_OVERRIDES,
+                1,
+                1000);
         RouteDefinition routeDefinition = camelContext.getRouteDefinitions()
                 .get(0);
-        assertThat(routeDefinition.toString(),
-                containsString("SetHeader[" + Constants.ATTRIBUTE_OVERRIDES_KEY
+        assertThat(routeDefinition.toString(), containsString(
+                "SetHeader[" + Constants.ATTRIBUTE_OVERRIDES_KEY
                         + ", simple{Simple: test1=someParameter1,test2=someParameter2}"));
+    }
+
+    @Test
+    public void testDirectoryMonitorThreadNumFallback() throws Exception {
+        ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
+        submitConfigOptions(monitor,
+                monitoredDirectoryPath,
+                ContentDirectoryMonitor.MOVE,
+                ATTRIBUTE_OVERRIDES,
+                16,
+                1000);
+        assertThat(monitor.getNumThreads(), is(8));
+    }
+
+    @Test
+    public void testDirectoryMonitorThreadNumMinimum() throws Exception {
+        ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
+        submitConfigOptions(monitor,
+                monitoredDirectoryPath,
+                ContentDirectoryMonitor.MOVE,
+                ATTRIBUTE_OVERRIDES,
+                0,
+                1000);
+        assertThat(monitor.getNumThreads(), is(1));
+    }
+
+    @Test
+    public void testDirectoryMonitorReadLockIntervalMinimum() throws Exception {
+        ContentDirectoryMonitor monitor = createContentDirectoryMonitor();
+        submitConfigOptions(monitor,
+                monitoredDirectoryPath,
+                ContentDirectoryMonitor.MOVE,
+                ATTRIBUTE_OVERRIDES,
+                1,
+                1);
+        assertThat(monitor.getReadLockIntervalMilliseconds(), is(100));
     }
 
     @Test
@@ -242,7 +283,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
                 .getUri();
 
         String expectedUri = "file:" + monitoredDirectory
-                + "?recursive=true&moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval=5000";
+                + "?idempotent=true&readLockMinLength=0&recursive=true&moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval=1000";
         if (ContentDirectoryMonitor.DELETE.equals(processingMechanism)) {
             expectedUri += "&delete=true";
         } else if (ContentDirectoryMonitor.MOVE.equals(processingMechanism)) {
@@ -254,9 +295,9 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         assertThat(uri, equalTo(expectedUri));
         List<ProcessorDefinition<?>> processorDefinitions = routeDefinition.getOutputs();
         if (ContentDirectoryMonitor.IN_PLACE.equals(processingMechanism)) {
-            assertThat(processorDefinitions.size(), is(3));
-        } else {
             assertThat(processorDefinitions.size(), is(2));
+        } else {
+            assertThat(processorDefinitions.size(), is(1));
         }
     }
 
@@ -265,15 +306,20 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         Map<String, Object> properties = new HashMap<>();
         properties.put("monitoredDirectoryPath", monitoredDirectory);
         properties.put("processingMechanism", processingMechanism);
+        properties.put("numThreads", 1);
+        properties.put("readLockIntervalMilliseconds", 1000);
         monitor.updateCallback(properties);
     }
 
     private void submitConfigOptions(ContentDirectoryMonitor monitor, String monitoredDirectory,
-            String processingMechanism, List<String> attributeOverrides) throws Exception {
+            String processingMechanism, List<String> attributeOverrides, int numThreads,
+            int readLockIntervalMilliseconds) throws Exception {
         Map<String, Object> properties = new HashMap<>();
         properties.put("monitoredDirectoryPath", monitoredDirectory);
         properties.put("processingMechanism", processingMechanism);
         properties.put("attributeOverrides", attributeOverrides.toArray());
+        properties.put("numThreads", numThreads);
+        properties.put("readLockIntervalMilliseconds", readLockIntervalMilliseconds);
         monitor.updateCallback(properties);
     }
 
@@ -284,6 +330,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
                 Runnable::run);
         monitor.systemSubjectBinder = exchange -> {
         };
+        monitor.setNumThreads(1);
+        monitor.setReadLockIntervalMilliseconds(1000);
         return monitor;
     }
 }
