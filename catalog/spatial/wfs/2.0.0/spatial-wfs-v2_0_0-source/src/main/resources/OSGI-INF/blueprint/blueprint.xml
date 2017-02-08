@@ -54,7 +54,7 @@
             </property>
             <property name="featureConverterFactoryList" ref="converterList"/>
             <property name="pollInterval" value="5"/>
-            <property name="forceSpatialFilter" value=""/>
+            <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="metacardToFeatureMapper" ref="metacardToFeatureMappers"/>
             <property name="coordinateOrder" value="LAT_LON"/>
             <property name="disableSorting" value="false"/>
