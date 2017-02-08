@@ -934,7 +934,8 @@ var DrawHelper = (function() {
                         _self.stopDrawing();
                         if(typeof options.callback == 'function') {
                             //https://github.com/leforthomas/cesium-drawhelper/issues/13
-                            options.callback(positions);
+                            //need to remove last 2 positions since those are from finishing the drawing
+                            options.callback(positions.slice(0, positions.length - 2));
                         }
                     }
                 }
