@@ -13,10 +13,11 @@
  */
 package org.codice.ddf.ui.admin.api.impl;
 
+import static org.boon.Boon.toPrettyJson;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,11 +31,13 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.felix.utils.properties.Properties;
 import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
+import org.codice.ddf.ui.admin.api.GuestClaimsHandlerExt;
 import org.codice.ddf.ui.admin.api.SystemPropertiesAdminMBean;
 import org.codice.ddf.ui.admin.api.SystemPropertyDetails;
 import org.slf4j.Logger;
@@ -53,6 +56,8 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
     private String oldHostName = SystemBaseUrl.getHost();
 
     private static final String KARAF_ETC = "karaf.etc";
+
+    private static final String LOCAL_HOST = "localhost";
 
     private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
 
@@ -114,7 +119,10 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     private static final ObjectMapper MAPPER = JsonFactory.create();
 
-    public SystemPropertiesAdmin() {
+    private GuestClaimsHandlerExt guestClaimsHandlerExt;
+
+    public SystemPropertiesAdmin(GuestClaimsHandlerExt guestClaimsHandlerExt) {
+        this.guestClaimsHandlerExt = guestClaimsHandlerExt;
         configureMBean();
     }
 
@@ -192,51 +200,79 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
             LOGGER.warn("Exception while writing to system.properties file.", e);
         }
 
-        try {
-            Properties userDotProperties = new Properties(userPropertiesFile);
+        writeOutUsersDotPropertiesFile(userPropertiesFile);
+        writeOutUsersDotAttributesFile(userAttributesFile);
+    }
 
-            if (!userDotProperties.isEmpty()) {
-                String oldHostValue = userDotProperties.getProperty(oldHostName);
+    /*
+     * Writes user property data to the relevant file after replacing the default hostname where
+     * necessary.
+     */
+    private void writeOutUsersDotPropertiesFile(File userPropertiesFile) {
+        try {
+            Properties usersDotProperties = new Properties(userPropertiesFile);
+
+            if (!usersDotProperties.isEmpty()) {
+                String oldHostValue = usersDotProperties.getProperty(oldHostName);
 
                 if (oldHostValue != null) {
-                    userDotProperties.remove(oldHostName);
-                    userDotProperties.setProperty(System.getProperty(SystemBaseUrl.HOST),
+                    usersDotProperties.remove(oldHostName);
+                    usersDotProperties.setProperty(System.getProperty(SystemBaseUrl.HOST),
                             oldHostValue);
 
-                    userDotProperties.save();
+                    usersDotProperties.save();
                 }
 
             }
-
         } catch (IOException e) {
             LOGGER.warn("Exception while writing to users.properties file.", e);
         }
+    }
 
+    /*
+     * Writes security and claims data for the system-level user and default admin.
+     */
+    private void writeOutUsersDotAttributesFile(File userAttributesFile) {
         Map<String, Object> json = null;
         try (InputStream stream = Files.newInputStream(Paths.get(userAttributesFile.toURI()))) {
             json = MAPPER.parser()
                     .parseMap(stream);
-            if (json != null) {
-                if (json.containsKey(oldHostName)) {
-                    json.put(System.getProperty(SystemBaseUrl.HOST), json.remove(oldHostName));
-                }
 
-                for (Map.Entry<String, Object> entry : json.entrySet()) {
-                    json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
-                }
+            addGuestClaimsProfileAttributes(json);
+
+            if (json.containsKey(oldHostName)) {
+                json.put(System.getProperty(SystemBaseUrl.HOST), json.remove(oldHostName));
             }
+
+            for (Map.Entry<String, Object> entry : json.entrySet()) {
+                json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
+            }
+
         } catch (IOException e) {
             LOGGER.warn("Unable to read system user attribute file for hostname update.", e);
         }
 
         if (json != null) {
-            try (OutputStream stream = Files.newOutputStream(Paths.get(userAttributesFile.toURI()))) {
-                MAPPER.writeValue(stream, json);
+            try {
+                FileUtils.writeStringToFile(userAttributesFile, toPrettyJson(json));
             } catch (IOException e) {
-                LOGGER.warn("Unable to write system user attribute file for hostname update.", e);
+                LOGGER.warn("Unable to write user attribute file for system update.", e);
             }
         }
+    }
 
+    /**
+     * Overwrite attributes with those from GuestClaimsHandlerExt so system high is set.
+     */
+    private void addGuestClaimsProfileAttributes(Map<String, Object> json) {
+        Map<String, Object> selectedProfileAttributes =
+                guestClaimsHandlerExt.getProfileSystemClaims();
+        if (selectedProfileAttributes != null) {
+            Map<String, Object> localhost = ((Map<String, Object>) json.get(LOCAL_HOST));
+            if (localhost != null) {
+                localhost.putAll(selectedProfileAttributes);
+            }
+        }
     }
 
     /*
