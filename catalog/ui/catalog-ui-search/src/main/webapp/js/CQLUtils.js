@@ -98,7 +98,9 @@ define([
             var cqlPolygon = model.map(function (point) {
                 return point[0] + ' ' + point[1];
             });
-            cqlPolygon.push(cqlPolygon[0]);
+            if (cqlPolygon[0] !== cqlPolygon[cqlPolygon.length - 1]) {
+                cqlPolygon.push(cqlPolygon[0]);
+            }
             return cqlPolygon;
         },
         lineToCQLLIne: function(model){
