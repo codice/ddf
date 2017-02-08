@@ -11,6 +11,15 @@ table.align-middle {
   }
 }
 
+#source-controls {
+  .btn:hover, .btn:active, .btn:focus {
+    color: darken(#18bc9c, 10) !important;
+  }
+  span {
+    padding-left: 0.5em;
+  }
+}
+
 #page-loading {
   p {
     padding-top: 5em;
@@ -26,6 +35,9 @@ table.align-middle {
 }
 
 #sourcesRegion {
+  table-layout: fixed;
+  width: 100%;
+
   a {
     text-decoration: none;
   }
@@ -47,6 +59,12 @@ table.align-middle {
         background-color: white;
       }
     }
+  }
+  .bindingUrl {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 

@@ -167,8 +167,8 @@ define([
         SourceView.SourcePage = Marionette.Layout.extend({
             template: 'sourcePage',
             events: {
-                'click .removeSourceLink': 'removeSource',
-                'click .addSourceLink': 'addSource'
+                'click #removeSourceButton': 'removeSource',
+                'click #addSourceButton': 'addSource'
             },
             initialize: function () {
                 _.bindAll(this);
@@ -184,7 +184,7 @@ define([
                 sourcesModal: '#sources-modal'
             },
             onShow: function () {
-                this.refreshButton = Utils.refreshButton('.refreshButton', this.refreshSources);
+                this.refreshButton = Utils.refreshButton('#sourceRefreshButton', '#sourceRefreshButton > i.fa-refresh', this.refreshSources);
             },
             onDestroy: function () {
                 this.refreshButton.close();
