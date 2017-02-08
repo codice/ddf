@@ -116,8 +116,12 @@ public class GuestClaimsHandlerExtTest {
         handlerExt.init();
         assertThat(handlerExt.getClaims()
                 .size(), equalTo(2));
-        assertTrue(handlerExt.getClaimsProfiles()
-                .isEmpty());
+
+        Map<String, Object> claimsProfiles = handlerExt.getClaimsProfiles();
+        assertThat(claimsProfiles.size(), equalTo(2));
+        /* The frontend is expecting the object returned to have these fields */
+        assertTrue(claimsProfiles.containsKey("availableProfiles"));
+        assertTrue(claimsProfiles.containsKey("profileNames"));
     }
 
     @Test
