@@ -23,18 +23,44 @@ replace with next unreleased version
 
 
 - Important issues resolved
-	- [Jira view of all issues resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20VERSION_NUMBER%20ORDER%20BY%20priority) in this version.
+	- [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20VERSION_NUMBER%20ORDER%20BY%20priority) in this version.
 
 ### KNOWN ISSUES
 (update {VERSION-NUMBER} in JIRA query
 
 
 - Open bugs affecting this version
-	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20VERSION_NUMBER%20AND%20fixVersion%20!%3D%20VERSION_NUMBER%20ORDER%20BY%20priority) affecting this version.
+	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20VERSION_NUMBER%20AND%20fixVersion%20!%3D%20VERSION_NUMBER%20ORDER%20BY%20priority) affecting this version.
  -->
 
-## 2.10.0
+## 2.10.1
 	Release Date: pending
+
+### NOTES
+
+-
+
+### NEW FEATURES
+
+- List added features here.
+	- [JIRA View of All New Features](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20ddf-2.10.1%20ORDER%20BY%20priority) 
+
+### API CHANGES
+
+- None in this version.
+
+### BUG FIXES
+
+- List bugs fixed here.
+	- [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.10.1%20ORDER%20BY%20resolutiondate)
+	in this version.
+
+### KNOWN ISSUES
+- List known issues / or workarounds here.
+	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20ddf-2.10.0%20AND%20fixVersion%20!%3D%20ddf-2.10.1%20ORDER%20BY%20priority) affecting this version.
+
+## 2.10.0
+	Release Date: 2017-02-08
 
 ### NOTES
 
@@ -58,7 +84,7 @@ replace with next unreleased version
 - [DDF-2508](https://codice.atlassian.net/browse/DDF-2508) Allowed for the ingest of a resource/metadata through the Catalog REST Endpoint.
 - [DDF-2188](https://codice.atlassian.net/browse/DDF-2188) Add service for metadata extraction from text documents
 - [DDF-2125](https://codice.atlassian.net/browse/DDF-2125) Add the ability to inject default values into metacards during ingest
-	- [JIRA View of All New Features](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20ddf-2.10.0%20ORDER%20BY%20priority) 
+	- [](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%JIRA View of All New Features22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20ddf-2.10.0%20ORDER%20BY%20priority) 
 
 ### API CHANGES
 
@@ -84,37 +110,12 @@ replace with next unreleased version
 - [DDF-2090](https://codice.atlassian.net/browse/DDF-2090) GeoJSON input transformer doesn't handle multiple values correctly
 - [DDF-2339](https://codice.atlassian.net/browse/DDF-2339) Fix typo in CSW Metatype Metacard Mappings
 - [DDF-2538](https://codice.atlassian.net/browse/DDF-2538) Updated metacard.handlebars template to properly escape strings
-	- [Jira view of all issues resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.10.0%20ORDER%20BY%20resolutiondate)
+	- [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.10.0%20ORDER%20BY%20resolutiondate)
 	in this version.
 
 ### KNOWN ISSUES
 - None
-	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20ddf-2.10.0%20AND%20fixVersion%20!%3D%20ddf-2.10.0%20ORDER%20BY%20priority) affecting this version.
-
-## 2.9.5
-    Release Build Date: pending
-
-### NOTES
-
- - None in this version.
-
-### NEW FEATURES
-
- - None in this version.
-
-### API CHANGES
-
- - None in this version.
-
-### BUG FIXES
-
- - Bugs fixed in this version.
- 	- [Jira view of all issues resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20fixVersion%20%3D%202.9.5%20ORDER%20BY%20resolutiondate) in this version.
-
-### KNOWN ISSUES
-
- - Open bugs affecting this version.
- 	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Unresolved%20AND%20affectedVersion%20%3D%202.9.5%20ORDER%20BY%20createdDate) affecting this version.
+	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20ddf-2.10.0%20AND%20fixVersion%20!%3D%20ddf-2.10.0%20ORDER%20BY%20priority) affecting this version.
 
 ## 2.9.4
     Release Build Date: 2016-12-1
@@ -134,12 +135,12 @@ replace with next unreleased version
 ### BUG FIXES
 
 - [DDF-2507](https://codice.atlassian.net/browse/DDF-2507): CSW numerical queries returns no results
-	- [Jira view of all issues resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20fixVersion%20%3D%202.9.4%20ORDER%20BY%20resolutiondate) in this version.
+	- [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20fixVersion%20%3D%202.9.4%20ORDER%20BY%20resolutiondate) in this version.
 
 ### KNOWN ISSUES
 
  - Open bugs affecting this version
- 	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Unresolved%20AND%20affectedVersion%20%3D%202.9.4%20ORDER%20BY%20createdDate) affecting this version.
+ 	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Unresolved%20AND%20affectedVersion%20%3D%202.9.4%20ORDER%20BY%20createdDate) affecting this version.
 
 ## 2.9.3
 	Release Date: 2016-10-27
@@ -185,12 +186,12 @@ replace with next unreleased version
 - [DDF-2446](https://codice.atlassian.net/browse/DDF-2446) Checked items in Search UI's Specific Sources drop-down get out of sync with label and makes federated searches confusing
 - [DDF-2434](https://codice.atlassian.net/browse/DDF-2434) Federated opensearch source url isn't populated correctly when it is generated by the registry
 - [DDF-2171](https://codice.atlassian.net/browse/DDF-2171) In the Standard Search UI faceted search view, submitting a textual search with an empty value causes an exception in the search endpoint
-	- [Jira view of all issues resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.9.3%20ORDER%20BY%20resolutiondate) in this version.
+	- [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.9.3%20ORDER%20BY%20resolutiondate) in this version.
 
 ### KNOWN ISSUES
 
 - None
-	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20ddf-2.9.3%20AND%20fixVersion%20!%3D%20ddf-2.9.3%20ORDER%20BY%20priority) affecting this version.
+	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20ddf-2.9.3%20AND%20fixVersion%20!%3D%20ddf-2.9.3%20ORDER%20BY%20priority) affecting this version.
 
 ## 2.9.2
 	Release Date: 2016-08-26
@@ -233,7 +234,7 @@ replace with next unreleased version
 - [DDF-2270](https://codice.atlassian.net/browse/DDF-2270) Various UIs in DDF are fetching fonts from the internet which causes them to load slowly
 - [DDF-1804](https://codice.atlassian.net/browse/DDF-1804) Metacards with MultiPolygon geometry cause a cesium rendering error when results are rendered in the standard search-ui
 
-	- [Jira view of all issues resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.9.2%20ORDER%20BY%20resolutiondate) in this version.
+	- [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.9.2%20ORDER%20BY%20resolutiondate) in this version.
 
 ### KNOWN ISSUES
 
@@ -244,5 +245,5 @@ replace with next unreleased version
 - [DDF-2455](https://codice.atlassian.net/browse/DDF-2455) SchematronValidationService incorrectly appears as a Source in the Sources Admin UI tab
 - [DDF-2432](https://codice.atlassian.net/browse/DDF-2432) Metacard validation UI incorrectly reports a Metacard is a duplicate of itself
 
-	- [Jira view of open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Unresolved%20AND%20affectedVersion%20%3D%20ddf-2.9.2%20ORDER%20BY%20createdDate) affecting this version.
+	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Unresolved%20AND%20affectedVersion%20%3D%20ddf-2.9.2%20ORDER%20BY%20createdDate) affecting this version.
 
