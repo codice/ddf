@@ -41,11 +41,9 @@ public class GeoCoderPlugin implements PreIngestPlugin {
 
     private static final String RADIUS_IN_KM = "radiusInKm";
 
-    private static ServiceSelector<GeoCoder> geoCoderFactory;
+    private ServiceSelector<GeoCoder> geoCoderFactory;
 
     private int radiusInKm = 10;
-
-    private GeoCoder geoCoder;
 
     public GeoCoderPlugin(ServiceSelector<GeoCoder> geoCoderFactory) {
         if (geoCoderFactory == null) {
@@ -63,9 +61,9 @@ public class GeoCoderPlugin implements PreIngestPlugin {
             return input;
         }
 
-        geoCoder = geoCoderFactory.getService();
+        GeoCoder geoCoder = geoCoderFactory.getService();
         input.getMetacards()
-                .forEach(this::setCountryCode);
+                .forEach(metacard -> setCountryCode(metacard, geoCoder));
 
         return input;
     }
@@ -77,11 +75,11 @@ public class GeoCoderPlugin implements PreIngestPlugin {
             return input;
         }
 
-        geoCoder = geoCoderFactory.getService();
+        GeoCoder geoCoder = geoCoderFactory.getService();
         input.getUpdates()
                 .stream()
                 .map(Map.Entry::getValue)
-                .forEach(this::setCountryCode);
+                .forEach(metacard -> setCountryCode(metacard, geoCoder));
 
         return input;
     }
@@ -117,22 +115,20 @@ public class GeoCoderPlugin implements PreIngestPlugin {
      *
      * @param metacard
      */
-    private void setCountryCode(Metacard metacard) {
+    private void setCountryCode(Metacard metacard, GeoCoder geoCoder) {
         Optional<String> wktLocation = Optional.ofNullable(metacard.getLocation());
 
         if (geoCoder != null && wktLocation.isPresent() && !hasCountryCode(metacard)) {
             Optional<String> alpha3CountryCode = geoCoder.getCountryCode(wktLocation.get(),
                     radiusInKm);
 
-            geoCoder.getCountryCode(wktLocation.get(), radiusInKm)
-                    .ifPresent(countryCode -> {
-                        LOGGER.trace("Setting metacard country code to {} for metacard with id {}",
-                                alpha3CountryCode.get(),
-                                metacard.getId());
+            alpha3CountryCode.ifPresent(countryCode -> {
+                LOGGER.trace("Setting metacard country code to {} for metacard with id {}",
+                        countryCode,
+                        metacard.getId());
 
-                        metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE,
-                                alpha3CountryCode.get()));
-                    });
+                metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, countryCode));
+            });
         }
     }
 
