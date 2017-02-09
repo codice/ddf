@@ -108,6 +108,7 @@ public class GuestClaimsHandlerExt {
             this.profiles = (Map<String, Object>) fromJson(json);
         } catch (IOException e) {
             LOGGER.debug("Could not find profiles.json during installation: ", e);
+            this.profiles = new HashMap<>();
         }
 
         availableClaimsMap = propertiesFileReader.loadSinglePropertiesFile(availableClaimsFile);
@@ -170,9 +171,6 @@ public class GuestClaimsHandlerExt {
      */
     public Map<String, Object> getClaimsProfiles() {
         Map<String, Object> claimsProfiles = new HashMap<>();
-        if (profiles == null) {
-            return claimsProfiles;
-        }
         Map<String, Object> flatClaims = flatCopyProfileData(profiles);
         claimsProfiles.put(AVAILABLE_PROFILES, flatClaims);
         claimsProfiles.put(PROFILE_NAMES, flatClaims.keySet());
