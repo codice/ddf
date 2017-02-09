@@ -16,15 +16,13 @@ package ddf.catalog.util.impl;
 
 /**
  * {@link CachedSource} wraps a {@link Source) and caches information about the source
- *
  */
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,11 +56,14 @@ public class CachedSource implements Source {
 
     private SourceStatus sourceStatus;
 
+    private final UUID uuid;
+
     public CachedSource(Source source) {
         this.source = source;
         this.sourceStatus = SourceStatus.UNCHECKED;
         clearContentTypes();
         cachedAttributes = new HashMap<String, String>();
+        uuid = UUID.randomUUID();
     }
 
     @Override
@@ -170,8 +171,7 @@ public class CachedSource implements Source {
                 setVersion(source.getVersion());
                 setSourceStatus(SourceStatus.AVAILABLE);
             } else {
-                LOGGER.debug(
-                        "Source [{}] with id [{}] is not available. Clearing cached values",
+                LOGGER.debug("Source [{}] with id [{}] is not available. Clearing cached values",
                         source,
                         source.getId());
                 setSourceStatus(SourceStatus.UNAVAILABLE);
@@ -200,46 +200,22 @@ public class CachedSource implements Source {
         this.cachedContentTypes = Collections.<ContentType>emptySet();
     }
 
-    public boolean equals(Object cachedSource) {
-        if (cachedSource == null) {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!(cachedSource instanceof CachedSource)) {
-            return false;
-        }
-        CachedSource tmpSource = (CachedSource) cachedSource;
-        Comparator<CachedSource> sourceKeyComparator = Comparator.comparing(
-                CachedSource::getId,
-                Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(CachedSource::getTitle,
-                        Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(CachedSource::getVersion,
-                        Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(CachedSource::getDescription,
-                        Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(CachedSource::getOrganization,
-                        Comparator.nullsLast(Comparator.naturalOrder()));
-        return sourceKeyComparator.compare(this, tmpSource) == 0;
+
+        CachedSource that = (CachedSource) o;
+
+        return uuid.equals(that.uuid);
     }
 
+    @Override
     public int hashCode() {
-        final int number = 31;
-        int code = 1;
-        code = code * number + Optional.ofNullable(getId())
-                .orElse("0")
-                .hashCode();
-        code = code * number + Optional.ofNullable(getTitle())
-                .orElse("0")
-                .hashCode();
-        code = code * number + Optional.ofNullable(getVersion())
-                .orElse("0")
-                .hashCode();
-        code = code * number + Optional.ofNullable(getDescription())
-                .orElse("0")
-                .hashCode();
-        code = code * number + Optional.ofNullable(getOrganization())
-                .orElse("0")
-                .hashCode();
-        return code;
+        return uuid.hashCode();
     }
 }
