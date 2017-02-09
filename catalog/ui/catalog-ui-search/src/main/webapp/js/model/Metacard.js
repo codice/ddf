@@ -32,6 +32,18 @@ define([
 
         var blacklist = [];
 
+        function generateThumbnailUrl(url){
+            var newUrl = url;
+            if(url.indexOf("?") >= 0) {
+                newUrl += '&';
+            } else {
+                newUrl += '?';
+            }
+            newUrl += '_=' +Date.now();
+            return newUrl;
+        }
+
+
         function checkTokenWithWildcard(token, filter){
             var filterRegex = new RegExp(filter.split('*').join('.*'));
             return filterRegex.test(token);
@@ -665,7 +677,7 @@ define([
                     result.metacard.color = color;
                     var thumbnailAction = _.findWhere(result.actions, {id: 'catalog.data.metacard.thumbnail'});
                     if (result.hasThumbnail && thumbnailAction) {
-                        result.metacard.properties.thumbnail = thumbnailAction.url + '&_='+Date.now();
+                        result.metacard.properties.thumbnail = generateThumbnailUrl(thumbnailAction.url);
                     } else {
                         result.metacard.properties.thumbnail = undefined;
                     }
@@ -816,7 +828,7 @@ define([
 
                         var thumbnailAction = _.findWhere(result.actions, {id: 'catalog.data.metacard.thumbnail'});
                         if (result.hasThumbnail && thumbnailAction) {
-                            result.metacard.properties.thumbnail = thumbnailAction.url + '&_='+Date.now();
+                           result.metacard.properties.thumbnail = generateThumbnailUrl(thumbnailAction.url);
                         }
                     });
 
