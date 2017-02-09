@@ -20,8 +20,10 @@ package ddf.catalog.util.impl;
  */
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -196,5 +198,48 @@ public class CachedSource implements Source {
 
     private void clearContentTypes() {
         this.cachedContentTypes = Collections.<ContentType>emptySet();
+    }
+
+    public boolean equals(Object cachedSource) {
+        if (cachedSource == null) {
+            return false;
+        }
+        if (!(cachedSource instanceof CachedSource)) {
+            return false;
+        }
+        CachedSource tmpSource = (CachedSource) cachedSource;
+        Comparator<CachedSource> sourceKeyComparator = Comparator.comparing(
+                CachedSource::getId,
+                Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(CachedSource::getTitle,
+                        Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(CachedSource::getVersion,
+                        Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(CachedSource::getDescription,
+                        Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(CachedSource::getOrganization,
+                        Comparator.nullsLast(Comparator.naturalOrder()));
+        return sourceKeyComparator.compare(this, tmpSource) == 0;
+    }
+
+    public int hashCode() {
+        final int number = 31;
+        int code = 1;
+        code = code * number + Optional.ofNullable(getId())
+                .orElse("0")
+                .hashCode();
+        code = code * number + Optional.ofNullable(getTitle())
+                .orElse("0")
+                .hashCode();
+        code = code * number + Optional.ofNullable(getVersion())
+                .orElse("0")
+                .hashCode();
+        code = code * number + Optional.ofNullable(getDescription())
+                .orElse("0")
+                .hashCode();
+        code = code * number + Optional.ofNullable(getOrganization())
+                .orElse("0")
+                .hashCode();
+        return code;
     }
 }
