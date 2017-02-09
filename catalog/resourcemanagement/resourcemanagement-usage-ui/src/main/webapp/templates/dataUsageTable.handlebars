@@ -13,25 +13,25 @@
  --}}
     <thead>
         <tr>
-            <th>User</th>
-            <th>Data Used</th>
-            <th>Data Remaining</th>
-            <th>Data Limit</th>
+            <th class="user-column">User</th>
+            <th class="non-user-column">Data Used</th>
+            <th class="non-user-column">Data Remaining</th>
+            <th class="data-limit-td">Data Limit</th>
         </tr>
     </thead>
     <tbody class="usertabledata">
     {{#each users}}
         <tr>
-            <td name="user">{{user}}</td>
-            <td>{{usagePercent}}% ({{usage}})
+            <td title={{user}} name="user" class="user-column">{{user}}</td>
+            <td title={{usagePercent}} class="non-user-column"> {{usagePercent}}% ({{usage}})
             {{#if notify}}
                 <span class="limit-warning">
                 <i class="fa fa-exclamation-triangle"></i>
                 Limit Reached </span>
             {{/if}}
             </td>
-            <td>{{usageRemaining}}</td>
-            <td class="data-limit-td">
+            <td title={{usageRemaining}} class="non-user-column">{{usageRemaining}}</td>
+            <td title={{displayLimit}} class="data-limit-td">
             {{#gt displayLimit -2}}
                 <input name="{{user}}"
                        type="number"

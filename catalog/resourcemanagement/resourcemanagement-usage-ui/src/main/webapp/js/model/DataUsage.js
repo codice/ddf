@@ -115,7 +115,7 @@ define(['backbone',
             },
             submitUsageData : function(data) {
                 var that = this;
-                var url = "/admin/jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/updateUserDataLimit/" + JSON.stringify(data);
+                var url = "/admin/jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/updateUserDataLimit/" + encodeURIComponent(JSON.stringify(data));
                 $.ajax({
                     url: url,
                     dataType: 'json',

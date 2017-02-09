@@ -10,6 +10,29 @@
  *
  **/
 
+table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-column {
+    width: 45%;
+}
+.non-user-column {
+    width: 20%;
+}
+
+.data-limit-td {
+    width: 15%;
+}
+
 .save {
     height: 26px;
     padding: 0px 10px 0px 10px;
@@ -40,10 +63,6 @@ hr {
     margin: 30px 0px 30px 0px;
     display: inline-block;
     width: 100%;
-}
-
-td {
-    width: 25%;
 }
 
 input {
