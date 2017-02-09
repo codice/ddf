@@ -50,6 +50,7 @@ import org.codice.ddf.commands.catalog.export.ExportItem;
 import org.codice.ddf.commands.catalog.export.IdAndUriMetacard;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
 import org.codice.ddf.commands.util.QueryResulterable;
+import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
@@ -326,10 +327,19 @@ public class ExportCommand extends CqlCommands {
                 try {
                     derivedResource =
                             catalogFramework.getLocalResource(new ResourceRequestByProductUri(uri));
-                } catch (IOException | ResourceNotSupportedException e) {
+                } catch (IOException e) {
                     throw new CatalogCommandRuntimeException(
                             "Unable to retrieve resource for " + contentItem.getId(), e);
-                } catch (ResourceNotFoundException e) {
+                } catch (ResourceNotFoundException | ResourceNotSupportedException e) {
+                    LOGGER.warn("Could not retreive resource [{}]", uri, e);
+                    console.printf("%sUnable to retrieve resource for export : %s%s%n",
+                            Ansi.ansi()
+                                    .fg(Ansi.Color.RED)
+                                    .toString(),
+                            uri,
+                            Ansi.ansi()
+                                    .reset()
+                                    .toString());
                     continue;
                 }
                 writeToZip(zipFile, contentItem, derivedResource);
@@ -421,9 +431,25 @@ public class ExportCommand extends CqlCommands {
             BinaryContent binaryMetacard = transformer.transform(result.getMetacard(),
                     Collections.emptyMap());
             zipFile.addStream(binaryMetacard.getInputStream(), parameters);
-        } catch (CatalogTransformerException | ZipException e) {
+        } catch (ZipException e) {
             LOGGER.error("Error processing result and adding to ZIP", e);
             throw new CatalogCommandRuntimeException(e);
+        } catch (CatalogTransformerException e) {
+            LOGGER.warn("Could not transform metacard. Metacard will not be added to zip [{}]",
+                    result.getMetacard()
+                            .getId());
+            console.printf(
+                    "%sCould not transform metacard. Metacard will not be included in export. %s - %s%s%n",
+                    Ansi.ansi()
+                            .fg(Ansi.Color.RED)
+                            .toString(),
+                    result.getMetacard()
+                            .getId(),
+                    result.getMetacard()
+                            .getTitle(),
+                    Ansi.ansi()
+                            .reset()
+                            .toString());
         }
     }
 
