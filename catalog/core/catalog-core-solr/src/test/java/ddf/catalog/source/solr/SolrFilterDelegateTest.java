@@ -125,7 +125,7 @@ public class SolrFilterDelegateTest {
     /*
       DDF-314: COmmented out until the ANY_TEXT functionality is added back
       in - then these tests can be activated.
-      
+
     @Test
     public void testPropertyIsEqualTo_AnyText_CaseSensitive() {
         String expectedQuery = "any_text:\"mySearchPhrase\"";
@@ -174,6 +174,30 @@ public class SolrFilterDelegateTest {
     }
     END OMIT per DDF-314*/
 
+
+    @Test
+    public void testPropertyIsEqualToEmpty() {
+        stub(mockResolver.getField("title", AttributeFormat.STRING, true)).toReturn("title_txt");
+
+        String searchPhrase = "";
+        String expectedQuery = "-title_txt:[\"\" TO *]";
+        boolean isCaseSensitive = true;
+
+        SolrQuery isEqualTo = toTest.propertyIsEqualTo("title", searchPhrase, isCaseSensitive);
+
+        assertThat(isEqualTo.getQuery(), is(expectedQuery));
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testPropertyIsEqualToNull() {
+        stub(mockResolver.getField("title", AttributeFormat.STRING, true)).toReturn("title_txt");
+
+        String searchPhrase = null;
+        boolean isCaseSensitive = true;
+
+        toTest.propertyIsEqualTo("title", searchPhrase, isCaseSensitive);
+    }
+
     @Test
     public void testPropertyIsLikeWildcard() {
         stub(mockResolver.anyTextFields()).toReturn(Collections.singletonList("metadata_txt")
@@ -190,6 +214,31 @@ public class SolrFilterDelegateTest {
 
         assertThat(isLikeQuery.getQuery(), is(expectedQuery));
 
+    }
+
+    @Test
+    public void testPropertyIsLikeEmpty() {
+        stub(mockResolver.getField("title", AttributeFormat.STRING, false)).toReturn("title_txt");
+
+        String searchPhrase = "";
+        String expectedQuery = "-title_txt:[\"\" TO *]";
+        boolean isCaseSensitive = false;
+
+        SolrQuery isLikeQuery = toTest.propertyIsLike("title",
+                searchPhrase,
+                isCaseSensitive);
+
+        assertThat(isLikeQuery.getQuery(), is(expectedQuery));
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testPropertyIsNull() {
+        stub(mockResolver.getField("title", AttributeFormat.STRING, false)).toReturn("title_txt");
+
+        String searchPhrase = null;
+        boolean isCaseSensitive = false;
+
+        toTest.propertyIsLike("title", searchPhrase, isCaseSensitive);
     }
 
     @Test
