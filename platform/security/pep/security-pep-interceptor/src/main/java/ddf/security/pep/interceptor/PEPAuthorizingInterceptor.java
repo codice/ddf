@@ -194,10 +194,13 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
         if (StringUtils.isEmpty(actionURI)) {
             BindingOperationInfo bindingOpInfo = message.getExchange()
                     .get(BindingOperationInfo.class);
-            SoapOperationInfo soi = bindingOpInfo.getExtensor(SoapOperationInfo.class);
-            if (soi == null && bindingOpInfo.isUnwrapped()) {
-                soi = bindingOpInfo.getWrappedOperation()
-                        .getExtensor(SoapOperationInfo.class);
+            SoapOperationInfo soi = null;
+            if (bindingOpInfo != null) {
+                soi = bindingOpInfo.getExtensor(SoapOperationInfo.class);
+                if (soi == null && bindingOpInfo.isUnwrapped()) {
+                    soi = bindingOpInfo.getWrappedOperation()
+                            .getExtensor(SoapOperationInfo.class);
+                }
             }
             actionURI = soi == null ? null : soi.getAction();
             actionURI = StringUtils.isEmpty(actionURI) ? null : actionURI;
