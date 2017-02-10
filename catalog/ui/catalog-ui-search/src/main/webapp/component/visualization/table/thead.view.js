@@ -23,7 +23,6 @@ var Common = require('js/Common');
 var user = require('component/singletons/user-instance');
 var properties = require('properties');
 var metacardDefinitions = require('component/singletons/metacard-definitions');
-var blacklist = ['metacard-type', 'source-id', 'cached', 'metacard-tags', 'anyText'];
 
 module.exports = Marionette.ItemView.extend({
     template: template,
@@ -76,9 +75,7 @@ module.exports = Marionette.ItemView.extend({
     },
     serializeData: function() {
         var sortAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function(type) {
-            return type.type === 'STRING' || type.type === 'DATE';
-        }).filter(function(type) {
-            return blacklist.indexOf(type.id) === -1;
+            return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id);
         }).map(function(type) {
             return type.id;
         });
