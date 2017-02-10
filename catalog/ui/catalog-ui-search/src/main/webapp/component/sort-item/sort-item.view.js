@@ -44,7 +44,7 @@ define([
             var sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function(type){
                 return !properties.isHidden(type.id);
             }).filter(function(type){
-                return !metacardDefinitions.isHiddenType(type.id);
+                return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id);
             }).filter(function(type) {
                 return blacklist.indexOf(type.id) === -1;
             }).map(function(metacardType) {
