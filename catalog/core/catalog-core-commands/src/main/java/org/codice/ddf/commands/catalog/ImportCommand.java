@@ -17,6 +17,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.catalog.transformer.zip.ZipValidator;
@@ -55,6 +56,10 @@ public class ImportCommand extends CatalogCommands {
     @Argument(name = "Import File", description = "The file to import", index = 0, multiValued = false, required = true)
     String importFile;
 
+    @Option(name = "--UNSAFE-NO-VERIFY", required = false, multiValued = false, description = "Exports the data but does NOT sign the resulting zip file. "
+            + "This file will not be able to be verified on import for integrity and authenticity.")
+    boolean unsafe = false;
+
     @Override
     protected Object executeWithSubject() throws Exception {
         int metacards = 0;
@@ -68,10 +73,14 @@ public class ImportCommand extends CatalogCommands {
                         DEFAULT_TRANSFORMER_ID)).orElseThrow(() -> new CatalogCommandRuntimeException(
                 "Could not get " + DEFAULT_TRANSFORMER_ID + " input transformer"));
 
-        if (!zipValidator.validateZipFile(importFile)) {
-            throw new CatalogCommandRuntimeException("Signature on zip file is not valid");
+        if (unsafe) {
+            SecurityLogger.audit("Skipping validation check of imported data. There are no "
+                    + "guarantees of integrity or authenticity of the imported data");
+        } else {
+            if (!zipValidator.validateZipFile(importFile)) {
+                throw new CatalogCommandRuntimeException("Signature on zip file is not valid");
+            }
         }
-
         SecurityLogger.audit("Called catalog:import command on the file: {}", importFile);
         console.println("Importing file");
         Instant start = Instant.now();

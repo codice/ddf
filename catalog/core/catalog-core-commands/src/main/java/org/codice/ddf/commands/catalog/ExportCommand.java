@@ -122,6 +122,9 @@ public class ExportCommand extends CqlCommands {
             "archived"}, multiValued = false, description = "Equivalent to --cql \"\\\"metacard-tags\\\" like 'deleted'\"")
     boolean archived = false;
 
+    @Option(name = "--UNSAFE-NO-VERIFY", required = false, multiValued = false, description = "Produces the export zip but does NOT sign the resulting zip file. This file will not be able to be verified on import for integrity and security.")
+    boolean unsafe = false;
+
     @Override
     protected Object executeWithSubject() throws Exception {
         Filter filter = getFilter();
@@ -188,18 +191,23 @@ public class ExportCommand extends CqlCommands {
             doDelete(exportedItems, exportedContentItems);
         }
 
-        console.println("Signing zip file...");
-        start = Instant.now();
-        jarSigner.signJar(zipFile.getFile(),
-                System.getProperty("org.codice.ddf.system.hostname"),
-                System.getProperty("javax.net.ssl.keyStorePassword"),
-                System.getProperty("javax.net.ssl.keyStore"),
-                System.getProperty("javax.net.ssl.keyStorePassword"));
-        console.println("zip file signed in: " + Duration.between(start, Instant.now())
-                .toString()
-                .substring(2)
-                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
-                .toLowerCase());
+        if (!unsafe) {
+            SecurityLogger.audit("Signing exported data. file: [{}]",
+                    zipFile.getFile()
+                            .getName());
+            console.println("Signing zip file...");
+            start = Instant.now();
+            jarSigner.signJar(zipFile.getFile(),
+                    System.getProperty("org.codice.ddf.system.hostname"),
+                    System.getProperty("javax.net.ssl.keyStorePassword"),
+                    System.getProperty("javax.net.ssl.keyStore"),
+                    System.getProperty("javax.net.ssl.keyStorePassword"));
+            console.println("zip file signed in: " + Duration.between(start, Instant.now())
+                    .toString()
+                    .substring(2)
+                    .replaceAll("(\\d[HMS])(?!$)", "$1 ")
+                    .toLowerCase());
+        }
         console.println("Export complete.");
         console.println("Exported to: " + zipFile.getFile()
                 .getCanonicalPath());
