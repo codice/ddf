@@ -23,11 +23,12 @@ define([
         'js/CQLUtils',
         '@turf/turf',
         'moment',
+        'properties',
         'backboneassociations',
         'backbone.paginator'
     ],
     function (Backbone, _, $, wreqr, metacardDefinitions, Sources, Terraformer, TerraformerWKTParser, CQLUtils,
-              Turf, moment) {
+              Turf, moment, properties) {
         "use strict";
 
         var blacklist = [];
@@ -689,7 +690,7 @@ define([
 
         MetaCard.Results = Backbone.PageableCollection.extend({
             state: {
-              pageSize: 25
+              pageSize: properties.getPageSize()
             },
             model: MetaCard.MetacardResult,
             mode: "client",

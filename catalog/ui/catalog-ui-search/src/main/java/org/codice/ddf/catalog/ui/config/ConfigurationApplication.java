@@ -96,6 +96,8 @@ public class ConfigurationApplication implements SparkApplication {
 
     private Integer resultCount = 250;
 
+    private Integer resultPageSize = 25;
+
     private String projection = "EPSG:3857";
 
     private String bingKey = "";
@@ -225,6 +227,7 @@ public class ConfigurationApplication implements SparkApplication {
         config.put("format", format);
         config.put("timeout", timeout);
         config.put("resultCount", resultCount);
+        config.put("resultPageSize", resultPageSize);
         config.put("typeNameMapping", typeNameMapping);
         config.put("terrainProvider", proxiedTerrainProvider);
         config.put("imageryProviders", getConfigImageryProviders());
@@ -470,6 +473,14 @@ public class ConfigurationApplication implements SparkApplication {
 
     public void setResultCount(Integer resultCount) {
         this.resultCount = resultCount;
+    }
+
+    public Integer getResultPageSize() {
+        return resultPageSize;
+    }
+
+    public void setResultPageSize(Integer resultPageSize){
+        this.resultPageSize = resultPageSize;
     }
 
     public Boolean getSignIn() {

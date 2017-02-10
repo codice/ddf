@@ -10,6 +10,8 @@
  *
  **/
 /*global define*/
+var DEFAULT_PAGE_SIZE = 25;
+
 define(function (require) {
     'use strict';
     var $ = require('jquery');
@@ -96,6 +98,9 @@ define(function (require) {
         },
         isEditingRestricted: function(){
             return !this.isEditingAllowed;
+        },
+        getPageSize: function(){
+            return this.resultPageSize || DEFAULT_PAGE_SIZE;
         }
     };
 
