@@ -103,7 +103,7 @@
             <!--Optional: String representing the security level of this instance-->
             <rim:Slot name="securityLevel" slotType="xs:string">
                 <rim:ValueList>
-                    <rim:Value>role=guest</rim:Value>
+                    <rim:Value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</rim:Value>
                 </rim:ValueList>
             </rim:Slot>
 

@@ -14,17 +14,19 @@
 package ddf.security.permission;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
 public class Permissions {
+
+    private static final Pattern PATTERN = Pattern.compile(",");
 
     private Permissions() {
 
@@ -47,10 +49,10 @@ public class Permissions {
                     String[] parts = perm.split("=");
                     if (parts.length == 2) {
                         String attributeName = parts[0];
-                        String attributeValue = parts[1];
-                        String[] attributeValues = attributeValue.split(",");
-                        permissions.put(attributeName,
-                                new HashSet<>(Arrays.asList(attributeValues)));
+                        Set<String> attributeValues = PATTERN.splitAsStream(parts[1])
+                                .map(String::trim)
+                                .collect(Collectors.toSet());
+                        permissions.put(attributeName, attributeValues);
                     }
                 }
             }
