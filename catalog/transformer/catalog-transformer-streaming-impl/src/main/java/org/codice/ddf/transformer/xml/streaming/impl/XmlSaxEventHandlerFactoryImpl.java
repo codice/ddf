@@ -13,17 +13,10 @@
  */
 package org.codice.ddf.transformer.xml.streaming.impl;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
-
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.BasicTypes;
 
 /**
  * {@inheritDoc}
@@ -41,42 +34,7 @@ public class XmlSaxEventHandlerFactoryImpl implements SaxEventHandlerFactory {
 
     private static final String ORGANIZATION = "Codice";
 
-    private static Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
-
     private Map<String, String> xmlToMetacardMapping;
-
-    static {
-        attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.ID,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-        attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.TITLE,
-                true /* indexed */,
-                true /* stored */,
-                true /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-        attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.POINT_OF_CONTACT,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-        attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.METADATA,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.XML_TYPE));
-        attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.DESCRIPTION,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.STRING_TYPE));
-    }
 
     @Override
     public SaxEventHandler getNewSaxEventHandler() {
@@ -85,11 +43,6 @@ public class XmlSaxEventHandlerFactoryImpl implements SaxEventHandlerFactory {
         } else {
             return new XmlSaxEventHandlerImpl();
         }
-    }
-
-    @Override
-    public Set<AttributeDescriptor> getSupportedAttributeDescriptors() {
-        return attributeDescriptors;
     }
 
     @Override

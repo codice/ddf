@@ -20,8 +20,14 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.input.TeeInputStream;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.slf4j.Logger;
@@ -36,6 +42,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -57,9 +64,9 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
 
     private List<SaxEventHandler> eventHandlers = new ArrayList<>();
 
-    private MetacardType metacardType = BasicTypes.BASIC_METACARD;
-
     private InputTransformerErrorHandler inputTransformerErrorHandler;
+
+    private SaxEventHandlerUtils saxEventHandlerUtils = new SaxEventHandlerUtils();
 
     public SaxEventHandlerDelegate() {
         try {
@@ -89,12 +96,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
      * populated with all the {@link Attribute}s parsed by the {@link SaxEventHandlerDelegate#eventHandlers}
      * @throws CatalogTransformerException
      */
-    public Metacard read(InputStream inputStream) throws CatalogTransformerException {
-
-        /*
-         * Create a new MetacardImpl with the proper MetacardType
-         */
-        Metacard metacard = new MetacardImpl(metacardType);
+    public SaxEventHandlerDelegate read(InputStream inputStream) throws CatalogTransformerException {
 
         try {
             InputSource newStream = new InputSource(new BufferedInputStream(inputStream));
@@ -109,48 +111,59 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
                     getInputTransformerErrorHandler().configure(new StringBuilder());
             parser.setErrorHandler(inputTransformerErrorHandler);
             parser.parse(newStream);
+        } catch (IOException | SAXException e) {
+            throw new CatalogTransformerException("Could not properly parse metacard", e);
+        }
 
+        return this;
+    }
+
+    public Metacard getMetacard(String id) {
+        MetacardType metacardType = getMetacardType(id);
+
+        if (metacardType == null) {
+            metacardType = BasicTypes.BASIC_METACARD;
+            LOGGER.debug("No metacard type found. Defaulting to Basic Metacard.");
+        }
+         /*
+         * Create a new MetacardImpl with the proper MetacardType
+         */
+        Metacard metacard = new MetacardImpl(metacardType);
             /*
              * If any major errors occur during parsing, print them out and add them to the metacard as validation errors
              */
-            List<Serializable> errorsAndWarnings =
-                    Arrays.asList(inputTransformerErrorHandler.getParseWarningsErrors());
-            if (!((String) errorsAndWarnings.get(0)).isEmpty()) {
-                LOGGER.debug((String) errorsAndWarnings.get(0));
-                Attribute attr;
-                List<Serializable> values;
-                if ((attr = metacard.getAttribute(Validation.VALIDATION_ERRORS)) != null
-                        && (values = attr.getValues()) != null) {
-                    errorsAndWarnings.addAll(values);
-                }
-                metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
-                        errorsAndWarnings));
+        InputTransformerErrorHandler inputTransformerErrorHandler =
+                (InputTransformerErrorHandler) parser.getErrorHandler();
+        List<Serializable> errorsAndWarnings =
+                Arrays.asList(inputTransformerErrorHandler.getParseWarningsErrors());
+        if (!((String) errorsAndWarnings.get(0)).isEmpty()) {
+            LOGGER.debug((String) errorsAndWarnings.get(0));
+            Attribute attr;
+            List<Serializable> values;
+            if ((attr = metacard.getAttribute(Validation.VALIDATION_ERRORS)) != null
+                    && (values = attr.getValues()) != null) {
+                errorsAndWarnings.addAll(values);
             }
-
-        } catch (IOException | SAXException e) {
-            throw new CatalogTransformerException("Could not properly parse metacard", e);
+            metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
+                    errorsAndWarnings));
         }
 
         /*
          * Populate metacard with all attributes constructed in SaxEventHandlers during parsing
          */
+        Map<String, Boolean> multiValuedMap = saxEventHandlerUtils.getMultiValuedNameMap(metacardType.getAttributeDescriptors());
         for (SaxEventHandler eventHandler : eventHandlers) {
             List<Attribute> attributes = eventHandler.getAttributes();
             for (Attribute attribute : attributes) {
-                Attribute tmpAttr;
 
                 /*
-                 * If metacard already has values in the attribute, put them together into a multivalued list,
+                 * If metacard already has values in the attribute, skip the attribute,
                  * instead of simply overwriting the existing values.
                  */
-                if ((tmpAttr = metacard.getAttribute(attribute.getName())) != null) {
-                    List<Serializable> tmpAttrValues = tmpAttr.getValues();
-                    tmpAttrValues.addAll(attribute.getValues());
-                    tmpAttr = new AttributeImpl(attribute.getName(), tmpAttrValues);
-                    metacard.setAttribute(tmpAttr);
-
-                } else {
+                if (metacard.getAttribute(attribute.getName()) == null) {
                     metacard.setAttribute(attribute);
+                } else if (MapUtils.getBoolean(multiValuedMap, attribute.getName(), false)) {
+                    metacard.getAttribute(attribute.getName()).getValues().addAll(attribute.getValues());
                 }
             }
         }
@@ -244,11 +257,6 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
         }
     }
 
-    public SaxEventHandlerDelegate setMetacardType(MetacardType metacardType) {
-        this.metacardType = metacardType;
-        return this;
-    }
-
     public TeeInputStream getMetadataStream(InputStream inputStream, OutputStream outputStream) {
         return new TeeInputStream(inputStream, outputStream);
     }
@@ -258,6 +266,24 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
             this.inputTransformerErrorHandler = new InputTransformerErrorHandler();
         }
         return this.inputTransformerErrorHandler;
+    }
+
+    /**
+     * Defines and returns a {@link DynamicMetacardType} based on component Sax Event Handlers
+     * and what attributes they populate
+     *
+     * @return a DynamicMetacardType that describes the type of metacard that is created in this transformer
+     */
+    public MetacardType getMetacardType(String id) {
+        Set<AttributeDescriptor> attributeDescriptors =
+                new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+
+        attributeDescriptors.addAll(eventHandlers.stream()
+                .map(SaxEventHandler::getSupportedAttributeDescriptors)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet()));
+
+        return new DynamicMetacardType(attributeDescriptors, id);
     }
 }
 

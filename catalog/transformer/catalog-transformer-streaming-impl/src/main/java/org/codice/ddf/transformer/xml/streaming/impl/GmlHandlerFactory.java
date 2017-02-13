@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.transformer.xml.streaming.impl;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
@@ -23,12 +20,6 @@ import org.xml.sax.ErrorHandler;
 
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.gml2.GMLHandler;
-
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.types.Validation;
 
 public class GmlHandlerFactory implements SaxEventHandlerFactory {
 
@@ -43,41 +34,12 @@ public class GmlHandlerFactory implements SaxEventHandlerFactory {
 
     private static final String ORGANIZATION = "Codice";
 
-    private static Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
-
-    static {
-        attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.GEOGRAPHY,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.GEO_TYPE));
-
-        attributeDescriptors.add(new AttributeDescriptorImpl(Validation.VALIDATION_WARNINGS,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                true /* multivalued */,
-                BasicTypes.STRING_TYPE));
-        attributeDescriptors.add(new AttributeDescriptorImpl(Validation.VALIDATION_ERRORS,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                true /* multivalued */,
-                BasicTypes.STRING_TYPE));
-    }
-
     private Gml3ToWkt gml3ToWkt;
 
     @Override
     public SaxEventHandler getNewSaxEventHandler() {
         return new GmlHandler(new GMLHandler(new GeometryFactory(), (ErrorHandler) null),
                 this.gml3ToWkt);
-    }
-
-    @Override
-    public Set<AttributeDescriptor> getSupportedAttributeDescriptors() {
-        return attributeDescriptors;
     }
 
     @Override

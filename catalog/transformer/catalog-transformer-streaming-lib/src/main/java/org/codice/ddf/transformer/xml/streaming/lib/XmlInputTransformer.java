@@ -19,10 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
@@ -30,11 +27,8 @@ import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.util.Describable;
@@ -80,7 +74,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      *
      * @return a new SaxEventHandlerDelegate
      */
-    private SaxEventHandlerDelegate create() {
+    SaxEventHandlerDelegate create() {
 
         /*
          * Gets new instances of each SaxEventHandler denoted in saxEventHandlerConfiguration
@@ -93,7 +87,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
          * Pass all the new handlers to configure and create a new SaxEventHandlerDelegate and sets
          * the metacardType
          */
-        return new SaxEventHandlerDelegate(filteredSaxEventHandlers).setMetacardType(getMetacardType());
+        return new SaxEventHandlerDelegate(filteredSaxEventHandlers);
 
     }
 
@@ -130,7 +124,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
         /*
          * Read the input stream into the metacard - where all the magic happens
          */
-            Metacard metacard = delegate.read(teeInputStream);
+            Metacard metacard = delegate.read(teeInputStream).getMetacard(id);
 
         /*
          * Read the metadata from the split input stream and set it on the Metacard.METADATA attribute.
@@ -238,28 +232,6 @@ public class XmlInputTransformer implements InputTransformer, Describable {
 
     public void setOrganization(String organization) {
         this.organization = organization;
-    }
-
-    /**
-     * Defines and returns a {@link DynamicMetacardType} based on component Sax Event Handler Factories
-     * and what attributes they populate
-     *
-     * @return a DynamicMetacardType that describes the type of metacard that is created in this transformer
-     */
-
-    public MetacardType getMetacardType() {
-        Set<AttributeDescriptor> attributeDescriptors =
-                new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
-
-        if (saxEventHandlerConfiguration != null && saxEventHandlerFactories != null) {
-            attributeDescriptors.addAll(saxEventHandlerFactories.stream()
-                    .filter(p -> saxEventHandlerConfiguration.contains(p.getId()))
-                    .map(SaxEventHandlerFactory::getSupportedAttributeDescriptors)
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toSet()));
-        }
-
-        return new DynamicMetacardType(attributeDescriptors, id);
     }
 
 }
