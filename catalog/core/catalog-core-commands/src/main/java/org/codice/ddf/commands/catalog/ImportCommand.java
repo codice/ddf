@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p/>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p/>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.commands.catalog;
 
 import java.io.BufferedInputStream;
@@ -56,8 +69,9 @@ public class ImportCommand extends CatalogCommands {
     @Argument(name = "Import File", description = "The file to import", index = 0, multiValued = false, required = true)
     String importFile;
 
-    @Option(name = "--skip-signature-verification", required = false, multiValued = false, description = "Exports the data but does NOT sign the resulting zip file. "
-            + "This file will not be able to be verified on import for integrity and authenticity.")
+    @Option(name = "--skip-signature-verification", required = false, multiValued = false, description =
+            "Exports the data but does NOT sign the resulting zip file. "
+                    + "WARNING: This file will not be able to be verified on import for integrity and authenticity.")
     boolean unsafe = false;
 
     @Override
@@ -216,7 +230,7 @@ public class ImportCommand extends CatalogCommands {
      * should not be closed.
      */
     private static class UncloseableBufferedInputStreamWrapper extends BufferedInputStream {
-        private static final AtomicReferenceFieldUpdater<BufferedInputStream, byte[]> bufUpdater =
+        private static final AtomicReferenceFieldUpdater<BufferedInputStream, byte[]> BUF_UPDATER =
                 AtomicReferenceFieldUpdater.newUpdater(BufferedInputStream.class,
                         byte[].class,
                         "buf");
@@ -229,7 +243,7 @@ public class ImportCommand extends CatalogCommands {
         public void close() throws IOException {
             byte[] buffer;
             while ((buffer = buf) != null) {
-                if (bufUpdater.compareAndSet(this, buffer, null)) {
+                if (BUF_UPDATER.compareAndSet(this, buffer, null)) {
                     InputStream input = in;
                     in = null;
                     // Purposely do not close `input`

@@ -95,12 +95,12 @@ public class ExportCommand extends CqlCommands {
         ISO_8601_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    private static final Supplier<String> name =
+    private static final Supplier<String> FILE_NAMER =
             () -> "export-" + ISO_8601_DATE_FORMAT.format(Date.from(Instant.now())) + ".zip";
 
-    private MetacardTransformer transformer;
+    private static final int PAGE_SIZE = 64;
 
-    private final int PAGE_SIZE = 64;
+    private MetacardTransformer transformer;
 
     private Filter revisionFilter;
 
@@ -111,7 +111,7 @@ public class ExportCommand extends CqlCommands {
 
     @Option(name = "--output", description = "Output file to export Metacards and contents into. Paths are absolute and must be in quotes. Will default to auto generated name inside of ddf.home", multiValued = false, required = false, aliases = {
             "-o"})
-    String output = Paths.get(System.getProperty("ddf.home"), name.get())
+    String output = Paths.get(System.getProperty("ddf.home"), FILE_NAMER.get())
             .toString();
 
     @Option(name = "--delete", required = true, aliases = {"-d",
@@ -123,7 +123,7 @@ public class ExportCommand extends CqlCommands {
     boolean archived = false;
 
     @Option(name = "--force", required = false, aliases = {
-            "-f"}, multivalued = false, description = "Do not prompt")
+            "-f"}, multiValued = false, description = "Do not prompt")
     boolean force = false;
 
     @Option(name = "--skip-signature-verification", required = false, multiValued = false, description = "Produces the export zip but does NOT sign the resulting zip file. This file will not be able to be verified on import for integrity and security.")
@@ -159,7 +159,8 @@ public class ExportCommand extends CqlCommands {
         }
 
         if (delete && !force) {
-            console.println("This action will remove all exported metacards and content from the catalog. Are you sure you wish to continue? (y/N):");
+            console.println(
+                    "This action will remove all exported metacards and content from the catalog. Are you sure you wish to continue? (y/N):");
             String input = getUserInputModifiable().toString();
             if (!input.matches("^[yY][eE]?[sS]?$")) {
                 console.println("ABORTED EXPORT.");
@@ -255,7 +256,7 @@ public class ExportCommand extends CqlCommands {
         File initialOutputFile = new File(output);
         if (initialOutputFile.isDirectory()) {
             // If directory was specified, auto generate file name
-            resolvedOutput = Paths.get(initialOutputFile.getPath(), name.get())
+            resolvedOutput = Paths.get(initialOutputFile.getPath(), FILE_NAMER.get())
                     .toString();
         } else {
             resolvedOutput = output;
