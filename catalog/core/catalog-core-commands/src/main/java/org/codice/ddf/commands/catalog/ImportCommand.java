@@ -56,7 +56,7 @@ public class ImportCommand extends CatalogCommands {
     @Argument(name = "Import File", description = "The file to import", index = 0, multiValued = false, required = true)
     String importFile;
 
-    @Option(name = "--UNSAFE-NO-VERIFY", required = false, multiValued = false, description = "Exports the data but does NOT sign the resulting zip file. "
+    @Option(name = "--skip-signature-verification", required = false, multiValued = false, description = "Exports the data but does NOT sign the resulting zip file. "
             + "This file will not be able to be verified on import for integrity and authenticity.")
     boolean unsafe = false;
 

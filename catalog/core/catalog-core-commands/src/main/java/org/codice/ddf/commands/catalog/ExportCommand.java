@@ -122,7 +122,11 @@ public class ExportCommand extends CqlCommands {
             "archived"}, multiValued = false, description = "Equivalent to --cql \"\\\"metacard-tags\\\" like 'deleted'\"")
     boolean archived = false;
 
-    @Option(name = "--UNSAFE-NO-VERIFY", required = false, multiValued = false, description = "Produces the export zip but does NOT sign the resulting zip file. This file will not be able to be verified on import for integrity and security.")
+    @Option(name = "--force", required = false, aliases = {
+            "-f"}, multivalued = false, description = "Do not prompt")
+    boolean force = false;
+
+    @Option(name = "--skip-signature-verification", required = false, multiValued = false, description = "Produces the export zip but does NOT sign the resulting zip file. This file will not be able to be verified on import for integrity and security.")
     boolean unsafe = false;
 
     @Override
@@ -152,6 +156,15 @@ public class ExportCommand extends CqlCommands {
         if (StringUtils.isBlank(filename) || !filename.endsWith(".zip")) {
             console.println("Filename must end with '.zip' and not be blank");
             return null;
+        }
+
+        if (delete && !force) {
+            console.println("This action will remove all exported metacards and content from the catalog. Are you sure you wish to continue? (y/N):");
+            String input = getUserInputModifiable().toString();
+            if (!input.matches("^[yY][eE]?[sS]?$")) {
+                console.println("ABORTED EXPORT.");
+                return null;
+            }
         }
 
         SecurityLogger.audit("Called catalog:export command with path : {}", output);
@@ -212,6 +225,29 @@ public class ExportCommand extends CqlCommands {
         console.println("Exported to: " + zipFile.getFile()
                 .getCanonicalPath());
         return null;
+    }
+
+    private StringBuilder getUserInputModifiable() throws IOException {
+        int in;
+        StringBuilder builder = new StringBuilder();
+        while ((in = session.getKeyboard()
+                .read()) != '\r') {
+            if (in == 127) {
+                if (builder.length() > 0) {
+                    builder.deleteCharAt(builder.length() - 1);
+                }
+                console.print((char) 8);
+                console.print(' ');
+                console.print((char) 8);
+
+            } else {
+                builder.append((char) in);
+                console.print((char) in);
+            }
+            console.flush();
+        }
+        console.println();
+        return builder;
     }
 
     private File initOutputFile(String output) {
