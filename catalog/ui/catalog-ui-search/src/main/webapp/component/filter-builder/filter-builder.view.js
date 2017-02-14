@@ -135,7 +135,7 @@ define([
                     filters: this.filterContents.currentView.children.map(function(childView){
                         return childView.getFilters();
                     }).filter(function(filter){
-                       return filter && filter.value !== "";
+                       return filter;
                     })
                 }
             }

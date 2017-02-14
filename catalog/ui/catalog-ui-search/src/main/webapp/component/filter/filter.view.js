@@ -181,7 +181,7 @@ define([
         },
         deleteInvalidFilters: function(){
             var currentValue = this.filterInput.currentView.getCurrentValue()[0];
-            if (currentValue === "" || currentValue === null){
+            if (currentValue === null){
                 this.delete();
             }
         },
