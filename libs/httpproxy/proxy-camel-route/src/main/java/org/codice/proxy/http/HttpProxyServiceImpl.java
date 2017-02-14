@@ -252,8 +252,9 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     public void destroy() {
         try {
-            for (String endpointId : endpointIds) {
-                stop(endpointId);
+            Object[] objects = endpointIds.toArray();
+            for (Object endpointId : objects) {
+                stop((String) endpointId);
             }
             camelContext.stop();
         } catch (Exception e) {
