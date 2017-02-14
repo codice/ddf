@@ -76,6 +76,7 @@ import org.opensaml.saml.saml2.core.impl.IDPListBuilder;
 import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.opensaml.saml.saml2.ecp.impl.RelayStateBuilder;
+import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -299,8 +300,12 @@ public class IdpHandler implements AuthenticationHandler {
         String ecpRequest;
         String ecpRelayState;
         try {
-            authnRequest = createAndSignAuthnRequest(true, wantSigned && idpMetadata.getDescriptor()
-                    .getWantAuthnRequestsSigned());
+            IDPSSODescriptor idpssoDescriptor = idpMetadata.getDescriptor();
+            if (idpssoDescriptor == null) {
+                throw new ServletException("IdP metadata is missing. No IDPSSODescriptor present.");
+            }
+            authnRequest = createAndSignAuthnRequest(true,
+                    wantSigned && idpssoDescriptor.getWantAuthnRequestsSigned());
             paosRequest = createPaosRequest();
             ecpRequest = createEcpRequest();
             ecpRelayState = createEcpRelayState((HttpServletRequest) request);
@@ -396,9 +401,13 @@ public class IdpHandler implements AuthenticationHandler {
         String idpRequest = null;
         String relayState = createRelayState(request);
         try {
-            String queryParams = String.format("SAMLRequest=%s&RelayState=%s", encodeAuthnRequest(
-                    createAndSignAuthnRequest(false, idpMetadata.getDescriptor()
-                            .getWantAuthnRequestsSigned()), false),
+            IDPSSODescriptor idpssoDescriptor = idpMetadata.getDescriptor();
+            if (idpssoDescriptor == null) {
+                throw new ServletException("IdP metadata is missing. No IDPSSODescriptor present.");
+            }
+            String queryParams = String.format("SAMLRequest=%s&RelayState=%s",
+                    encodeAuthnRequest(createAndSignAuthnRequest(false,
+                            idpssoDescriptor.getWantAuthnRequestsSigned()), false),
                     URLEncoder.encode(relayState, "UTF-8"));
             idpRequest = idpMetadata.getSingleSignOnLocation() + "?" + queryParams;
             UriBuilder idpUri = new UriBuilderImpl(new URI(idpRequest));
@@ -431,11 +440,15 @@ public class IdpHandler implements AuthenticationHandler {
     private void doHttpPostBinding(HttpServletRequest request, HttpServletResponse response)
             throws ServletException {
         try {
+            IDPSSODescriptor idpssoDescriptor = idpMetadata.getDescriptor();
+            if (idpssoDescriptor == null) {
+                throw new ServletException("IdP metadata is missing. No IDPSSODescriptor present.");
+            }
             response.getWriter()
-                    .printf(postBindingTemplate, idpMetadata.getSingleSignOnLocation(),
+                    .printf(postBindingTemplate,
+                            idpMetadata.getSingleSignOnLocation(),
                             encodeAuthnRequest(createAndSignAuthnRequest(true,
-                                    idpMetadata.getDescriptor()
-                                            .getWantAuthnRequestsSigned()), true),
+                                    idpssoDescriptor.getWantAuthnRequestsSigned()), true),
                             createRelayState(request));
             response.setStatus(200);
             response.flushBuffer();
