@@ -356,38 +356,39 @@ public class ExportCommand extends CqlCommands {
             }
             writeToZip(zipFile, contentItem, resource);
             exportedContentItems.add(contentItem);
+            if (!contentItem.getMetacardTag().equals("revision")) {
+                for (String derivedUri : contentItem.getDerivedUris()) {
+                    URI uri;
+                    try {
+                        uri = new URI(derivedUri);
+                    } catch (URISyntaxException e) {
+                        LOGGER.debug(
+                                "Uri [{}] is not a valid URI. Derived content will not be included in export",
+                                derivedUri);
+                        continue;
+                    }
 
-            for (String derivedUri : contentItem.getDerivedUris()) {
-                URI uri;
-                try {
-                    uri = new URI(derivedUri);
-                } catch (URISyntaxException e) {
-                    LOGGER.debug(
-                            "Uri [{}] is not a valid URI. Derived content will not be included in export",
-                            derivedUri);
-                    continue;
+                    ResourceResponse derivedResource;
+                    try {
+                        derivedResource = catalogFramework.getLocalResource(new ResourceRequestByProductUri(
+                                uri));
+                    } catch (IOException e) {
+                        throw new CatalogCommandRuntimeException(
+                                "Unable to retrieve resource for " + contentItem.getId(), e);
+                    } catch (ResourceNotFoundException | ResourceNotSupportedException e) {
+                        LOGGER.warn("Could not retreive resource [{}]", uri, e);
+                        console.printf("%sUnable to retrieve resource for export : %s%s%n",
+                                Ansi.ansi()
+                                        .fg(Ansi.Color.RED)
+                                        .toString(),
+                                uri,
+                                Ansi.ansi()
+                                        .reset()
+                                        .toString());
+                        continue;
+                    }
+                    writeToZip(zipFile, contentItem, derivedResource);
                 }
-
-                ResourceResponse derivedResource;
-                try {
-                    derivedResource =
-                            catalogFramework.getLocalResource(new ResourceRequestByProductUri(uri));
-                } catch (IOException e) {
-                    throw new CatalogCommandRuntimeException(
-                            "Unable to retrieve resource for " + contentItem.getId(), e);
-                } catch (ResourceNotFoundException | ResourceNotSupportedException e) {
-                    LOGGER.warn("Could not retreive resource [{}]", uri, e);
-                    console.printf("%sUnable to retrieve resource for export : %s%s%n",
-                            Ansi.ansi()
-                                    .fg(Ansi.Color.RED)
-                                    .toString(),
-                            uri,
-                            Ansi.ansi()
-                                    .reset()
-                                    .toString());
-                    continue;
-                }
-                writeToZip(zipFile, contentItem, derivedResource);
             }
         }
         return exportedContentItems;
