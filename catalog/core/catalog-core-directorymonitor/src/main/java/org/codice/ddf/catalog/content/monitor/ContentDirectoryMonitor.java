@@ -15,15 +15,16 @@ package org.codice.ddf.catalog.content.monitor;
 
 import static org.codice.ddf.security.common.Security.runAsAdmin;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -39,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.security.common.util.Security;
-
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
@@ -67,7 +67,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
     private List<RouteDefinition> routeCollection;
 
-    private List<String> attributeOverrides;
+    private Map<String, Serializable> attributeOverrides;
 
     private final int maxRetries;
 
@@ -142,7 +142,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      * @param readLockIntervalMilliseconds
      */
     public void setReadLockIntervalMilliseconds(Integer readLockIntervalMilliseconds) {
-        this.readLockIntervalMilliseconds = Math.max(readLockIntervalMilliseconds, MIN_READLOCK_INTERVAL_MILLISECONDS);
+        this.readLockIntervalMilliseconds = Math.max(readLockIntervalMilliseconds,
+                MIN_READLOCK_INTERVAL_MILLISECONDS);
     }
 
     public Integer getReadLockIntervalMilliseconds() {
@@ -248,7 +249,23 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      * @param attributeOverrides - a list of attributes to override
      */
     public void setAttributeOverrides(List<String> attributeOverrides) {
-        this.attributeOverrides = attributeOverrides;
+        Map<String, Serializable> attributeOverrideMap = new HashMap<>();
+        for (String s : attributeOverrides) {
+            String[] keyValue = s.split("=", 2);
+
+            if (keyValue.length < 2) {
+                LOGGER.error("Invalid attribute override configured for monitored directory");
+                throw new IllegalStateException(
+                        "Invalid attribute override configured for monitored directory");
+            }
+
+            if (attributeOverrideMap.get(keyValue[0]) == null) {
+                attributeOverrideMap.put(keyValue[0], new ArrayList<String>());
+            }
+            ArrayList valueList = (ArrayList) attributeOverrideMap.get(keyValue[0]);
+            valueList.add(keyValue[1]);
+        }
+        this.attributeOverrides = attributeOverrideMap;
     }
 
     public List<RouteDefinition> getRouteDefinitions() {
@@ -335,15 +352,13 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 RouteDefinition routeDefinition = from(inbox);
 
                 if (attributeOverrides != null) {
-                    String attributeOverrideString = attributeOverrides.stream()
-                            .map(String::trim)
-                            .collect(Collectors.joining(","));
-                    routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY, simple(
-                            attributeOverrideString));
+                    routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY)
+                            .constant(attributeOverrides);
                 }
                 if (IN_PLACE.equals(processingMechanism)) {
-                    routeDefinition.setHeader(Constants.STORE_REFERENCE_KEY, simple(String.valueOf(
-                                    IN_PLACE.equals(processingMechanism)), Boolean.class));
+                    routeDefinition.setHeader(Constants.STORE_REFERENCE_KEY,
+                            simple(String.valueOf(IN_PLACE.equals(processingMechanism)),
+                                    Boolean.class));
                 }
 
                 LOGGER.trace("About to process scheme content:framework");
