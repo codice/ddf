@@ -24,3 +24,24 @@
         transform: translateX(0%);
     }
 }
+
+body.has-header @{customElementNamespace}slideout.is-left {
+    > .slideout-content {
+        top: 1.5rem;
+        height: ~'calc(100% - 1.5rem)';
+    }
+}
+
+body.has-footer @{customElementNamespace}slideout.is-left {
+    > .slideout-content {
+        top: 0%;
+        height: ~'calc(100% - 1.5rem)';
+    }
+}
+
+body.has-header.has-footer @{customElementNamespace}slideout.is-left {
+    > .slideout-content {
+        top: 1.5rem;
+        height: ~'calc(100% - 3rem)';
+    }
+}

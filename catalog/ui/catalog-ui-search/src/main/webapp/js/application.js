@@ -52,10 +52,12 @@ define([
     //setup the header
     Application.App.addInitializer(function () {
         Application.App.headerRegion.show(new Marionette.ItemView({
+            tagName: 'header',
             template: header,
-            className: 'header-layout',
             model: Application.AppModel
-        }));
+        }), {
+            replaceElement: true
+        });
         if (Application.AppModel.get('ui').header && Application.AppModel.get('ui').header !== ""){
             $('body').addClass('has-header');
         }
@@ -63,10 +65,12 @@ define([
     //setup the footer
     Application.App.addInitializer(function () {
         Application.App.footerRegion.show(new Marionette.ItemView({
+            tagName: 'footer',
             template: footer,
-            className: 'footer-layout',
             model: Application.AppModel
-        }));
+        }), {
+            replaceElement: true
+        });
         if (Application.AppModel.get('ui').footer &&Application.AppModel.get('ui').footer !== ""){
             $('body').addClass('has-footer');
         }
