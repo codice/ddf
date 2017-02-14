@@ -45,3 +45,24 @@
        transform: translateX(-100%);
     }
 }
+
+body.has-header @{customElementNamespace}slideout {
+    > .slideout-content {
+        top: ~'calc(2*@{minimumLineSize} + 1.5rem)';
+        height: ~'calc(100% - 2*@{minimumLineSize} - 1.5rem)';
+    }
+}
+
+body.has-footer @{customElementNamespace}slideout {
+    > .slideout-content {
+        top: ~'calc(2*@{minimumLineSize})';
+        height: ~'calc(100% - 2*@{minimumLineSize} - 1.5rem)';
+    }
+}
+
+body.has-header.has-footer @{customElementNamespace}slideout {
+    > .slideout-content {
+        top: ~'calc(2*@{minimumLineSize} + 1.5rem)';
+        height: ~'calc(100% - 2*@{minimumLineSize} - 3rem)';
+    }
+}
