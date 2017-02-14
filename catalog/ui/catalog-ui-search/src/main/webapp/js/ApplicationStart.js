@@ -16,22 +16,31 @@ require([
     'application',
     'properties',
     'store',
+    'component/singletons/user-instance',
     'js/MediaQueries',
     'js/Theming',
     'js/SystemUsage'
-], function($, app, properties, store) {
+], function($, app, properties, store, user) {
+
+    var workspaces = store.get('workspaces');
+
+    function attemptToStart() {
+        if (workspaces.fetched && user.fetched){
+            app.App.start({});
+        } else if (!user.fetched){
+            user.once('sync', function() {
+                attemptToStart();
+            });
+        } else {
+            workspaces.once('sync', function() {
+                attemptToStart();
+            });
+        }
+    }
 
     //$(window).trigger('resize');
     $(window.document).ready(function() {
         window.document.title = properties.branding + ' ' + properties.product;
     });
-    // Actually start up the application.  Entire app depends on workspaces, so don't allow anything until they're fetched.
-    var workspaces = store.get('workspaces');
-    if (workspaces.fetched) {
-        app.App.start({});
-    } else {
-        workspaces.once('sync', function() {
-            app.App.start({});
-        });
-    }
+    attemptToStart();
 });
