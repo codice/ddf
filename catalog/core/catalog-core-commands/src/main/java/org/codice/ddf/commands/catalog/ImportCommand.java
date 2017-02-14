@@ -110,7 +110,7 @@ public class ImportCommand extends CatalogCommands {
                     continue;
                 }
 
-                String[] pathParts = filename.split("/");
+                String[] pathParts = filename.split(File.pathSeparator);
                 String id = pathParts[ID];
                 String type = pathParts[TYPE];
 
