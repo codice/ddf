@@ -111,7 +111,8 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
      * {@inheritDoc}
      */
     public <T> boolean canHandle(T subject) {
-        return (subject instanceof Metacard) && (canHandleMetacard((Metacard) subject));
+        return (subject instanceof Metacard) && isResourceMetacard((Metacard) subject)
+                && canHandleMetacard((Metacard) subject);
     }
 
     /**
@@ -183,5 +184,11 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
         }
 
         return SystemInfo.getSiteName();
+    }
+
+    private boolean isResourceMetacard(Metacard metacard) {
+        return metacard.getTags() == null || metacard.getTags()
+                .isEmpty() || metacard.getTags()
+                .contains(Metacard.DEFAULT_TAG);
     }
 }
