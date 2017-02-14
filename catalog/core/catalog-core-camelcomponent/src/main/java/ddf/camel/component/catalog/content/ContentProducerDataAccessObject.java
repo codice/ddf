@@ -16,22 +16,19 @@ package ddf.camel.component.catalog.content;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.camel.Message;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileMessage;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,25 +189,16 @@ public class ContentProducerDataAccessObject {
 
     public void processHeaders(Map<String, Object> headers, StorageRequest storageRequest,
             File ingestedFile) {
-        String attributeOverrideHeaders = (String) headers.get(Constants.ATTRIBUTE_OVERRIDES_KEY);
-        if (StringUtils.isNotEmpty(attributeOverrideHeaders)) {
+        Map<String, Serializable> attributeOverrideHeaders = new HashMap<>((Map) headers.get(
+                Constants.ATTRIBUTE_OVERRIDES_KEY));
+        if (!attributeOverrideHeaders.isEmpty()) {
             storageRequest.getProperties()
                     .put(Constants.ATTRIBUTE_OVERRIDES_KEY,
-                            createAttributeOverrideMapFromHeaders(attributeOverrideHeaders));
+                            (Serializable) attributeOverrideHeaders);
         }
         if (headers.containsKey(Constants.STORE_REFERENCE_KEY)) {
             storageRequest.getProperties()
                     .put(Constants.STORE_REFERENCE_KEY, ingestedFile.getAbsolutePath());
         }
-    }
-
-    public HashMap<String, List<String>> createAttributeOverrideMapFromHeaders(
-            String attributeOverrideHeaders) {
-        return Arrays.stream(attributeOverrideHeaders.split(","))
-                .collect(Collectors.toMap(s -> s.split("=")[0],
-                        s -> Collections.singletonList(s.split("=")[1]),
-                        (a, b) -> Stream.concat(a.stream(), b.stream())
-                                .collect(Collectors.toList()),
-                        HashMap::new));
     }
 }

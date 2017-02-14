@@ -25,7 +25,7 @@
             name="Maximum Concurrent Files" id="numThreads" required="true"
             type="Integer" default="1"/>
 
-        <AD description="Specifies the time to wait (in milliseconds) before acquiring a lock on a file in the monitored directory.  This interval is used for sleeping between attempts to acquire the read lock on a file to be ingested.  The default value of 1000 milliseconds is recommended."
+        <AD description="Specifies the time to wait (in milliseconds) before acquiring a lock on a file in the monitored directory.  This interval is used for sleeping between attempts to acquire the read lock on a file to be ingested.  The default value of 100 milliseconds is recommended. If the value provided is less than 100, the default value will be used."
             name="ReadLock Time Interval" id="readLockIntervalMilliseconds" required="true"
             type="Integer" default="100"/>
 
