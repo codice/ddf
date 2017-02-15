@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
@@ -69,6 +70,7 @@ public class AbstractMetacardActionProviderTest {
     public void setup() {
         when(metacard.getId()).thenReturn(METACARD_ID);
         when(metacard.getSourceId()).thenReturn(SOURCE_ID);
+        when(metacard.getTags()).thenReturn(Collections.singleton(Metacard.DEFAULT_TAG));
     }
 
     private class MetacardActionProvider extends AbstractMetacardActionProvider {
@@ -136,6 +138,15 @@ public class AbstractMetacardActionProviderTest {
 
         assertThat(actionProvider.canHandle(metacard), is(true));
         verify(actionProvider).canHandleMetacard(metacard);
+    }
+
+    @Test
+    public void canHandleMetacardWithoutResourceTag() {
+        MetacardActionProvider actionProvider = createMetacardActionProvider();
+        when(metacard.getTags()).thenReturn(Collections.singleton("my-tag"));
+
+        assertThat(actionProvider.canHandle(metacard), is(false));
+        verify(actionProvider, never()).canHandleMetacard(metacard);
     }
 
     @Test
