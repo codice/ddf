@@ -71,7 +71,7 @@ define([
         },
 
         follows = {
-            LPAREN: ['GEOMETRY', 'SPATIAL', 'PROPERTY', 'VALUE', 'LPAREN'],
+            LPAREN: ['NOT', 'GEOMETRY', 'SPATIAL', 'PROPERTY', 'VALUE', 'LPAREN'],
             RPAREN: ['NOT', 'LOGICAL', 'END', 'RPAREN'],
             PROPERTY: ['COMPARISON', 'BETWEEN', 'COMMA', 'IS_NULL', 'BEFORE', 'AFTER', 'DURING'],
             BETWEEN: ['VALUE'],
@@ -509,20 +509,60 @@ define([
         }
     }
 
+    function collapseNOTs(cqlAst, parentNode){
+        if (cqlAst.filters){
+            cqlAst.filters.forEach(function(filter){
+                collapseNOTs(filter, cqlAst)
+            })
+            if (cqlAst.type === 'NOT'){
+                cqlAst.type = cqlAst.type + ' ' + (cqlAst.filters[0].filters ? cqlAst.filters[0].type : 'AND');
+                cqlAst.filters = cqlAst.filters[0].filters || cqlAst.filters;
+            }
+        }
+    }
+
+    function uncollapseNOTs(cqlAst, parentNode){
+        if (cqlAst.filters){
+            cqlAst.filters.forEach(function(filter){
+                uncollapseNOTs(filter, cqlAst)
+            })
+            if (cqlAst.type === 'NOT OR'){
+                cqlAst.type = 'NOT';
+                cqlAst.filters = [{
+                    type: 'OR',
+                    filters: cqlAst.filters
+                }];
+            } else if (cqlAst.type === 'NOT AND'){
+                cqlAst.type = 'NOT';
+                cqlAst.filters = [{
+                    type: 'AND',
+                    filters: cqlAst.filters
+                }];
+            }
+        }
+    }
+
+    function iterativelySimplify(cqlAst){
+        var prevAst = JSON.parse(JSON.stringify(cqlAst));
+        simplifyAst(cqlAst)
+        while (JSON.stringify(prevAst) !== JSON.stringify(cqlAst)){
+            prevAst = JSON.parse(JSON.stringify(cqlAst));
+            simplifyAst(cqlAst);
+        }
+    }
+
     return {
         read: function (cql) {
             return buildAst(tokenize(cql));
         },
         write: function (filter) {
+            uncollapseNOTs(filter);
             return write(filter);
         },
         simplify: function(cqlAst){
-            var prevAst = JSON.parse(JSON.stringify(cqlAst));
-            simplifyAst(cqlAst)
-            while (JSON.stringify(prevAst) !== JSON.stringify(cqlAst)){
-                prevAst = JSON.parse(JSON.stringify(cqlAst));
-                simplifyAst(cqlAst);
-            }
+            iterativelySimplify(cqlAst);
+            collapseNOTs(cqlAst);
+            iterativelySimplify(cqlAst);
             return cqlAst;
         }
     };
