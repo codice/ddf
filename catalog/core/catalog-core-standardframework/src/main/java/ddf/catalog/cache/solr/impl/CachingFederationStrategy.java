@@ -154,6 +154,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private ValidationQueryFactory validationQueryFactory;
 
+    private CacheQueryFactory cacheQueryFactory;
+
     private boolean showErrors = false;
 
     private boolean showWarnings = true;
@@ -166,7 +168,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     public CachingFederationStrategy(ExecutorService queryExecutorService,
             List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery,
             SolrCache cache, ExecutorService cacheExecutorService,
-            ValidationQueryFactory validationQueryFactory) {
+            ValidationQueryFactory validationQueryFactory, CacheQueryFactory cacheQueryFactory) {
         this.queryExecutorService = queryExecutorService;
         this.preQuery = preQuery;
         this.postQuery = postQuery;
@@ -175,6 +177,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         this.cacheExecutorService = cacheExecutorService;
         cacheBulkProcessor = new CacheBulkProcessor(cache);
         this.validationQueryFactory = validationQueryFactory;
+        this.cacheQueryFactory = cacheQueryFactory;
         cacheSource = new SolrCacheSource(cache);
     }
 
@@ -198,7 +201,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     QueryResponse queryCache(QueryRequest queryRequest) {
-        return sourceFederate(ImmutableList.of(cacheSource), queryRequest);
+        return sourceFederate(ImmutableList.of(cacheSource),
+                cacheQueryFactory.getQueryRequestWithSourcesFilter(queryRequest));
     }
 
     private QueryResponse sourceFederate(List<Source> sources, final QueryRequest queryRequest) {
