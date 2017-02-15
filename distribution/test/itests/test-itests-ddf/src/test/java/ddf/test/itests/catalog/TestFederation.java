@@ -181,16 +181,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final int NO_RETRIES = 0;
 
-    private static final int FAIL_RETRIES = 3;
-
-    private static final String ACTIVITIES_COMPLETED_MESSAGE = "completed";
-
-    private static final String ACTIVITIES_FAILED_MESSAGE = "failed";
-
-    private static final String ACTIVITES_STARTED_MESSAGE = "started";
-
-    private static final int DOWNLOAD_SIZE = 6;
-
     private static final String NOTIFICATIONS_CHANNEL = "/ddf/notifications/**";
 
     private static final String ACTIVITIES_CHANNEL = "/ddf/activities/**";
@@ -1528,7 +1518,6 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void testMetacardCache() throws Exception {
 
         //Start with a clean cache
@@ -1558,6 +1547,24 @@ public class TestFederation extends AbstractIntegrationTest {
         expect("Waiting for metacards to be written to cache").checkEvery(1, TimeUnit.SECONDS)
                 .within(20, TimeUnit.SECONDS)
                 .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) > 0);
+    }
+
+    @Test
+    public void testEnterpriseSearch() throws Exception {
+
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q="+RECORD_TITLE_1+"&format=xml";
+        given().auth()
+                .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
+                .get(queryUrl)
+                .then()
+                .log()
+                .all()
+                .statusCode(200)
+                .assertThat()
+                .body(hasXPath("/metacards/metacard/source[text()='ddf.distribution']"),
+                        hasXPath("/metacards/metacard/source[text()='" + OPENSEARCH_SOURCE_ID
+                                + "']"), hasXPath("/metacards/metacard/source[text()='" + CSW_SOURCE_ID
+                                + "']"));
     }
 
     /**
