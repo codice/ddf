@@ -1,7 +1,7 @@
 
 ==== Federated Source for Atlassian Confluence(R)
 
-The Confluence source provides a Federated Source to retrieve pages, comments, and attachments from a Confluence REST API and turns the results into Metacards the system can use.
+The Confluence source provides a Federated Source to retrieve pages, comments, and attachments from an Atlassian Confluence(R) REST API and turns the results into Metacards the system can use.
 The Confluence source does provide a Connected Source interface but its functionality has not been verified.
 
 Confluence Source has been tested against the following versions of Confluence with REST API v2
