@@ -1,6 +1,8 @@
 
 The following federated sources are included with a standard installation of ${branding}:
 
+<<_federated_source_for_atlassian_confluence,Atlassian Confluence(R) Federated Source>>:: Retrieves pages, comments, and attachments from an Atlassian Confluence(R) REST API.
+
 <<_csw_federated_source,CSW Federated Source>>:: Supports searching collections of descriptive information (metadata) for data, services, and related information objects.
 
 <<_csw_federation_profile_source,CSW Federation Profile Source>>:: Supports searching collections of descriptive information (metadata) for data, services, and related information objects.
