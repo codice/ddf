@@ -32,5 +32,6 @@
         <module>catalog-security-xmlattributeplugin</module>
         <module>catalog-security-metacardattributeplugin</module>
         <module>catalog-security-resourceplugin</module>
+        <module>catalog-security-pointofcontact-policyplugin</module>
     </modules>
 </project>
