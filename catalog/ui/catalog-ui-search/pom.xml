@@ -207,6 +207,11 @@
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
