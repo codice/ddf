@@ -80,7 +80,7 @@ For *NIX, use the `CertNew.sh` script.
 
 `sh CertNew.sh <FQDN>`
 
-Alternatively, a FQDN can be provided to the script with a comma-delimited string.
+Alternatively, a distinguished name can be provided to the script with a comma-delimited string.
 
 `sh CertNew.sh -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
 ****
@@ -91,7 +91,7 @@ For Windows, use the `CertNew.cmd` script.
 
 `CertNew -cn <FQDN>`
 
-Alternatively, a FQDN can be provided to the script with a comma-delimited string.
+Alternatively, a distinguished name can be provided to the script with a comma-delimited string.
 
 `CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
 ****
