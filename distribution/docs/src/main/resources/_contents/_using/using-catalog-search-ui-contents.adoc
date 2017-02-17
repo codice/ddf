@@ -132,6 +132,15 @@ Under the *Notifications* tab for a search, edit the *Frequency* settings to set
 
 The *Status* tab on the search preview displays the creation date and the sources successfully searched.
 
+.Intersecting Polygon Searchs
+[NOTE]
+====
+If a self intersecting polygon is used to perform a geographic search, the polygon will be converted into a non-intersection one via a convex hull conversion. In the example below the blue line shows the original self intersecting search polygon and the red line shows the converted polygon that will be used for the search. The blue dot shows a search result that was not within the original polygon but was returned because it was within the converted polygon.
+
+.Self Intersecting Polygon Conversion Example
+image::convex-hull-transform-example.png[]
+====
+
 ==== Results Tab
 
 Returned search results can be refined further, bookmarked, and/or downloaded from the *Results* tab.
