@@ -58,16 +58,20 @@ public class PolicyManager implements ContextPolicyManager {
     private static final String[] DEFAULT_REALM_CONTEXTS =
             new String[] {"/=" + DEFAULT_REALM_CONTEXT_VALUE};
 
+    private static final int MAX_TRAVERSAL_DEPTH = 500;
+
     private Map<String, ContextPolicy> policyStore = new HashMap<>();
 
     private List<String> whiteListContexts = new ArrayList<>();
 
     private ContextPolicy defaultPolicy = new Policy("/",
             DEFAULT_REALM,
-            new ArrayList<String>(),
-            new ArrayList<ContextAttributeMapping>());
+            new ArrayList<>(),
+            new ArrayList<>());
 
     private Map<String, Object> policyProperties = new HashMap<>();
+
+    private int traversalDepth;
 
     public PolicyManager() {
         policyStore.put("/", defaultPolicy);
@@ -75,11 +79,11 @@ public class PolicyManager implements ContextPolicyManager {
 
     @Override
     public ContextPolicy getContextPolicy(String path) {
-        return getContextPolicy(path, getPolicyStore(), getWhiteListContexts());
+        return getContextPolicy(path, getPolicyStore(), getWhiteListContexts(), 0);
     }
 
     private ContextPolicy getContextPolicy(String path, Map<String, ContextPolicy> policyStore,
-            List<String> whiteListContexts) {
+            List<String> whiteListContexts, int depth) {
         ContextPolicy entry;
         entry = policyStore.get(path);
 
@@ -89,8 +93,8 @@ public class PolicyManager implements ContextPolicyManager {
             return null;
         } else {
             String pathFragment = rollbackPath(path);
-            if (StringUtils.isNotEmpty(pathFragment)) {
-                return getContextPolicy(pathFragment, policyStore, whiteListContexts);
+            if (StringUtils.isNotEmpty(pathFragment) && depth <= traversalDepth) {
+                return getContextPolicy(pathFragment, policyStore, whiteListContexts, ++depth);
             } else {
                 //this is just here for safety
                 //if we get down to the point where we can never get an entry, return the default
@@ -427,11 +431,18 @@ public class PolicyManager implements ContextPolicyManager {
 
     public String rollbackPath(String path) {
         //Continue splitting by last "/"  down path until value found,
-        int idx = path.lastIndexOf("/");
-        if (idx <= 0) {
-            idx++;
+        if (path.endsWith("/")) {
+            while (path.endsWith("/") && path.length() > 1) {
+                path = path.substring(0, path.length() - 1);
+            }
+            return path;
+        } else {
+            int idx = path.lastIndexOf("/");
+            if (idx <= 0) {
+                idx++;
+            }
+            return path.substring(0, idx);
         }
-        return path.substring(0, idx);
     }
 
     public void setAuthenticationTypes(List<String> authenticationTypes) {
@@ -465,6 +476,13 @@ public class PolicyManager implements ContextPolicyManager {
 
     public boolean isWhiteListed(String contextPath) {
         return (getContextPolicy(contextPath) == null);
+    }
+
+    public void setTraversalDepth(int traversalDepth) {
+        this.traversalDepth = traversalDepth;
+        if (this.traversalDepth > MAX_TRAVERSAL_DEPTH) {
+            this.traversalDepth = MAX_TRAVERSAL_DEPTH;
+        }
     }
 
     /**
