@@ -18,9 +18,9 @@ It is recommended to apply the following security mitigations to the ${branding}
 
 |JMX
 |tampering, information disclosure, and unauthorized access
-a|* Remove `-Dcom.sun.management.jmxremote` from `<${branding}_HOME>/bin/karaf`.
-* Disable ${branding}'s JMX management `rmiRegistryPort` and `rmiServerPort` (`1099`, `44444`) by removing these entries from `etc/org.apache.karaf.management.cfg`
-* Uninstall the management bundle using the command line console: `uninstall management`
+a|* Remove `-Dcom.sun.management.jmxremote` from `<${branding}_HOME>/bin/karaf`. +
+* Disable ${branding}'s JMX management `rmiRegistryPort` and `rmiServerPort` (`1099`, `44444`) by removing these entries from `etc/org.apache.karaf.management.cfg` +
+* Uninstall the management bundle using the command line console: `uninstall management` +
 
 |File System Access
 |tampering, information disclosure, and denial of service
@@ -28,15 +28,15 @@ a|Set OS File permissions under the `<${branding}_HOME>` directory (e.g. `/deplo
 
  If Caching is installed:
 
-* Set permissions for the installation directory `/data/product-cache` such that only the ${branding} process and users with the appropriate SCI controls and classification levels can view any stored product.
-* Caching can be turned off as well to mitigate this risk.
-** To disable caching, navigate to ${ddf-catalog}
-** Select *Standard Catalog Framework*
-** Uncheck the `Enable Product Caching` box.
-* Install ${ddf-security} to ensure only the appropriate users are accessing the products.
-** From the ${admin-console}, select *Manage Applications*.
-** Install ${ddf-security}, if applicable.
-* Cached files are written by the user running the ${branding} `process/application`.
+* Set permissions for the installation directory `/data/product-cache` such that only the ${branding} process and users with the appropriate SCI controls and classification levels can view any stored product. +
+* Caching can be turned off as well to mitigate this risk. +
+** To disable caching, navigate to ${ddf-catalog} +
+** Select *Standard Catalog Framework* +
+** Uncheck the `Enable Product Caching` box. +
+* Install ${ddf-security} to ensure only the appropriate users are accessing the products. +
+** From the ${admin-console}, select *Manage Applications*. +
+** Install ${ddf-security}, if applicable. +
+* Cached files are written by the user running the ${branding} `process/application`. +
 
 On system: ensure that not everyone can change ACLs on your object.
 
@@ -62,4 +62,13 @@ a|Update the `<${branding}_HOME>/etc/org.ops4j.pax.web.cfg` file to add the entr
 Setting this configuration may break compatibility to legacy systems that do not support two-way SSL.
 ====
 
+|Session Inactivity Timeout
+|unauthorized access
+a|Update the Session configuration to have no greater than 10 minute Session Timeout. + 
+
+ * Navigate to the *${admin-console}*. +
+ * Select the *${ddf-security}* application. +
+ * Select the *Configuration* tab. +
+ * Select `Session`. +
+ * Set `Session Timeout (in minutes)` to `10` (or less). +
 |===
