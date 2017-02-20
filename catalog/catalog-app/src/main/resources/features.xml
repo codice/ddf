@@ -331,6 +331,15 @@
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-pointofcontactupdate/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-security-uploader-policy" install="manual" version="${project.version}"
+             description="DDF Uploader Policy">
+        <feature prerequisite="true">catalog-app</feature>
+        <feature prerequisite="true">security-pdp-authz</feature>
+        <feature prerequisite="true">security-core-api</feature>
+        <bundle>mvn:ddf.catalog.security/catalog-security-uploader-policyextension/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.security/catalog-security-uploader-policyplugin/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-security-metacardattributeplugin" install="auto" version="${project.version}"
              description="DDF Catalog Metacard Attribute Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>

@@ -649,6 +649,8 @@ include::{adoc-include}/_plugins/metacard-validity-filter-plugin-contents.adoc[]
 include::{adoc-include}/_plugins/registry-policy-plugin-contents.adoc[]
 
 include::{adoc-include}/_plugins/xml-attribute-security-policy-plugin-contents.adoc[]
+
+include::{adoc-include}/_plugins/uploader-policy-plugin-contents.adoc[]
 //Access
 include::{adoc-include}/_plugins/access-plugin-intro-contents.adoc[]
 

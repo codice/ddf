@@ -146,7 +146,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
 
-    public static final String ADMIN = "admin";
+    private static final String ADMIN = "admin";
 
     public static final String ADMIN_EMAIL = "admin@localhost.local";
 
@@ -2867,6 +2867,81 @@ public class TestCatalog extends AbstractIntegrationTest {
                                 null), hasSize(1));
                 return null;
             });
+        }
+    }
+
+    @Test
+    public void testUploaderPolicyAllowsUploaderToQueryAndUpdateMetacard() throws Exception {
+        String xmlFileContent = getFileContent(XML_RECORD_RESOURCE_PATH + "/sampleCleanMetacard.xml");
+        String id = given().auth()
+                .preemptive()
+                .basic(ADMIN, ADMIN)
+                .body(xmlFileContent)
+                .header(HttpHeaders.CONTENT_TYPE, "text/xml")
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+        try {
+            String url = REST_PATH.getUrl() + id;
+
+            getServiceManager().startFeature(true, "sample-filter");
+
+            LOGGER.info("Getting response to {}", url);
+            given().auth()
+                    .preemptive()
+                    .basic(ADMIN, ADMIN)
+                    .when()
+                    .get(url)
+                    .then()
+                    .log()
+                    .all()
+                    .statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+
+            given().auth()
+                    .preemptive()
+                    .basic(ADMIN, ADMIN)
+                    .header(HttpHeaders.CONTENT_TYPE, "text/xml")
+                    .body(xmlFileContent)
+                    .expect()
+                    .log()
+                    .all()
+                    .statusCode(HttpStatus.SC_BAD_REQUEST)
+                    .when()
+                    .put(new DynamicUrl(REST_PATH, id).getUrl());
+
+            getServiceManager().startFeature(true, "catalog-security-uploader-policy");
+
+            given().auth()
+                    .preemptive()
+                    .basic(ADMIN, ADMIN)
+                    .when()
+                    .get(url)
+                    .then()
+                    .log()
+                    .all()
+                    .assertThat()
+                    .body(hasXPath("/metacard[@id='" + id + "']"))
+                    .statusCode(HttpStatus.SC_OK);
+
+            given().auth()
+                    .preemptive()
+                    .basic(ADMIN, ADMIN)
+                    .header(HttpHeaders.CONTENT_TYPE, "text/xml")
+                    .body(xmlFileContent)
+                    .expect()
+                    .log()
+                    .all()
+                    .statusCode(HttpStatus.SC_OK)
+                    .when()
+                    .put(new DynamicUrl(REST_PATH, id).getUrl());
+        } finally {
+            deleteMetacard(id);
+            getServiceManager().stopFeature(true, "sample-filter");
+            getServiceManager().stopFeature(true, "catalog-security-uploader-policy");
         }
     }
 
