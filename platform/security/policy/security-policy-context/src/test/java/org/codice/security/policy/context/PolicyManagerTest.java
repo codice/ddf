@@ -90,6 +90,7 @@ public class PolicyManagerTest {
     @Before
     public void setup() {
         manager = new PolicyManager();
+        manager.setTraversalDepth(10);
         manager.setContextPolicy("/", new Policy("/", null, new ArrayList<String>(), null));
         manager.setContextPolicy("/search",
                 new Policy("/search", null, new ArrayList<String>(), null));
@@ -108,6 +109,12 @@ public class PolicyManagerTest {
                 new Policy("/aaa/aaa", null, new ArrayList<String>(), null));
         manager.setContextPolicy("/foo/bar",
                 new Policy("/foo/bar", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/1/2",
+                new Policy("/1/2", null, new ArrayList<String>(), null));
+        manager.setContextPolicy(
+                "/1/2/3/4/5/6/7/8/9/10/11/12/13/14",
+                new Policy(
+                        "/1/2/3/4/5/6/7/8/9/10/11/12/13/14", null, new ArrayList<String>(), null));
         manager.setWhiteListContexts(Arrays.asList("/foo"));
 
         Map<String, Object> contextPolicies = new HashMap<>();
@@ -117,6 +124,44 @@ public class PolicyManagerTest {
 
         rollBackTestManager = new PolicyManager();
         rollBackTestManager.setPolicies(contextPolicies);
+    }
+
+    @Test
+    public void testBadTraversal() {
+        //test that we can still resolve policies for paths larger than the limit
+        ContextPolicy contextPolicy = manager.getContextPolicy(
+                "/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15");
+        Assert.assertEquals("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", contextPolicy.getContextPath());
+
+        //test that extra /s are removed from the end
+        ContextPolicy contextPolicy1 = manager.getContextPolicy(
+                "/1/2/3/4/5/6/7/8/9/10/11/12/13/14////////////////");
+        Assert.assertEquals("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", contextPolicy1.getContextPath());
+
+        //test that all slashes resolves to just /
+        ContextPolicy contextPolicy2 = manager.getContextPolicy(
+                "///////////////////////////////////////////////////////////////////////////");
+        Assert.assertEquals("/", contextPolicy2.getContextPath());
+
+        //test that we can remove slashes within paths and still resolve a policy
+        ContextPolicy contextPolicy3 = manager.getContextPolicy(
+                "/1/2/3/////////////////////////////////////4/5//6/7////////////////");
+        Assert.assertEquals("/1/2", contextPolicy3.getContextPath());
+
+        //test same as above but with a path that is too long so it resolves to /
+        ContextPolicy contextPolicy4 = manager.getContextPolicy(
+                "/1/2/3////////4/5//////////6/7/8//////////9/10//////////11/12/13/14////////////////");
+        Assert.assertEquals("/", contextPolicy4.getContextPath());
+
+        //test two slashes
+        ContextPolicy contextPolicy5 = manager.getContextPolicy(
+                "//");
+        Assert.assertEquals("/", contextPolicy5.getContextPath());
+
+        //test one slash
+        ContextPolicy contextPolicy6 = manager.getContextPolicy(
+                "/");
+        Assert.assertEquals("/", contextPolicy6.getContextPath());
     }
 
     /**
