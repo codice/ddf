@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import ddf.catalog.CatalogFramework;
@@ -209,7 +210,10 @@ public class ContentProducerDataAccessObjectTest {
         String mimeType = "txt";
 
         Map<String, Object> headers = new HashedMap();
-        headers.put(Constants.ATTRIBUTE_OVERRIDES_KEY, "example=something");
+        Map<String, Serializable> attributeOverrides = new HashMap<>();
+        attributeOverrides.put("example", ImmutableList.of("something", "something1"));
+        attributeOverrides.put("example2", ImmutableList.of("something2"));
+        headers.put(Constants.ATTRIBUTE_OVERRIDES_KEY, attributeOverrides);
 
         kind = StandardWatchEventKinds.ENTRY_CREATE;
         contentProducerDataAccessObject.createContentItem(mockFileSystemPersistenceProvider,
@@ -243,17 +247,22 @@ public class ContentProducerDataAccessObjectTest {
         StorageRequest storageRequest = mock(StorageRequest.class);
         doReturn(requestProperties).when(storageRequest)
                 .getProperties();
+
         Map<String, Object> camelHeaders = new HashMap<>();
-        camelHeaders.put(Constants.ATTRIBUTE_OVERRIDES_KEY, "foo=bar,foo=baz");
+        Map<String, Serializable> attributeOverrides = new HashMap<>();
+        attributeOverrides.put("example", ImmutableList.of("something", "something1"));
+        attributeOverrides.put("example2", ImmutableList.of("something2"));
+        camelHeaders.put(Constants.ATTRIBUTE_OVERRIDES_KEY, attributeOverrides);
+
         contentProducerDataAccessObject.processHeaders(camelHeaders,
                 storageRequest,
                 Files.createTempFile("foobar", "txt")
                         .toFile());
         assertThat(requestProperties.containsKey(Constants.STORE_REFERENCE_KEY), is(false));
         assertThat(((Map<String, List<String>>) requestProperties.get(Constants.ATTRIBUTE_OVERRIDES_KEY)).get(
-                "foo"), is(Arrays.asList("bar", "baz")));
+                "example"), is(Arrays.asList("something", "something1")));
         requestProperties.clear();
-        camelHeaders.put(Constants.ATTRIBUTE_OVERRIDES_KEY, "");
+        camelHeaders.put(Constants.ATTRIBUTE_OVERRIDES_KEY, ImmutableMap.of());
         camelHeaders.put(Constants.STORE_REFERENCE_KEY, "true");
         contentProducerDataAccessObject.processHeaders(camelHeaders,
                 storageRequest,
