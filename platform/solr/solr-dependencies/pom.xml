@@ -23,6 +23,13 @@
     <name>DDF :: Platform :: Solr :: Dependencies</name>
     <description>Shaded jar of Solr core dependencies.</description>
     <packaging>jar</packaging>
+    <properties>
+        <io.dropwizard.metrics.version>3.1.2</io.dropwizard.metrics.version>
+        <info.ganglia.gmetric4j.version>1.0.7</info.ganglia.gmetric4j.version>
+        <org.slf4j.version>1.7.7</org.slf4j.version>
+        <log4j.version>1.2.17</log4j.version>
+        <jts.version>1.13</jts.version>
+    </properties>
     <dependencies>
         <!-- DDF-915: upgrade commons-fileupload version due to security concerns -->
         <dependency>
@@ -37,7 +44,62 @@
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
-            <version>1.13</version>
+            <version>${jts.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jetty9</artifactId>
+            <version>${io.dropwizard.metrics.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-graphite</artifactId>
+            <version>${io.dropwizard.metrics.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-ganglia</artifactId>
+            <version>${io.dropwizard.metrics.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jvm</artifactId>
+            <version>${io.dropwizard.metrics.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>${io.dropwizard.metrics.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>info.ganglia.gmetric4j</groupId>
+            <artifactId>gmetric4j</artifactId>
+            <version>${info.ganglia.gmetric4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${org.slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${org.slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>${org.slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${org.slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -103,10 +165,19 @@
                             <include>org.apache.solr:solr-core</include>
                             <include>org.apache.solr:solr-solrj</include>
                             <include>org.locationtech.spatial4j:spatial4j</include>
-                            <include>org.codehaus.woodstox:stax2-api</include>
                             <include>com.tdunning:t-digest</include>
                             <include>org.codehaus.woodstox:woodstox-core-asl</include>
                             <include>org.apache.zookeeper:zookeeper</include>
+                            <include>io.dropwizard.metrics:metrics-jetty9</include>
+                            <include>io.dropwizard.metrics:metrics-graphite</include>
+                            <include>io.dropwizard.metrics:metrics-ganglia</include>
+                            <include>io.dropwizard.metrics:metrics-jvm</include>
+                            <include>io.dropwizard.metrics:metrics-core</include>
+                            <include>info.ganglia.gmetric4j:gmetric4j</include>
+                            <include>org.slf4j:slf4j-log4j12</include>
+                            <include>org.slf4j:jul-to-slf4j</include>
+                            <include>org.slf4j:jcl-over-slf4j</include>
+                            <include>log4j:log4j</include>
                         </includes>
                     </artifactSet>
                     <filters>

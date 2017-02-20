@@ -28,7 +28,7 @@ public class SolrCoreContainer extends CoreContainer {
         this.load();
     }
 
-    public void register(String coreName, SolrCore core, boolean publish) {
-        this.registerCore(coreName, core, publish);
+    public void register(String coreName, SolrCore core, boolean publish, boolean skipRecovery) {
+        this.registerCore(coreName, core, publish, skipRecovery);
     }
 }
