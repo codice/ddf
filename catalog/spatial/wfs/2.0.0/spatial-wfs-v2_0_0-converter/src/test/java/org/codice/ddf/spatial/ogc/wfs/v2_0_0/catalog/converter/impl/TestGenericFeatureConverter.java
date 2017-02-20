@@ -33,8 +33,8 @@ import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.constants.Constants;
+import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxDriver;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
@@ -101,7 +101,7 @@ public class TestGenericFeatureConverter {
         converter.setMetacardType(buildMetacardType());
 
         converter.setSourceId(SOURCE_ID);
-        converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
+        converter.setCoordinateOrder(GeospatialUtil.LAT_LON_ORDER);
         xstream.registerConverter(converter);
         xstream.registerConverter(new GmlGeometryConverter());
 
@@ -179,7 +179,7 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(fcConverter);
 
         converter.setMetacardType(buildMetacardType());
-        converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
+        converter.setCoordinateOrder(GeospatialUtil.LAT_LON_ORDER);
         xstream.registerConverter(converter);
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
@@ -210,7 +210,7 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(fcConverter);
 
         converter.setMetacardType(buildStatesMetacardType());
-        converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
+        converter.setCoordinateOrder(GeospatialUtil.LAT_LON_ORDER);
         xstream.registerConverter(converter);
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
         InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
@@ -246,7 +246,7 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(fcConverter);
 
         converter.setMetacardType(buildStatesMetacardType());
-        converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
+        converter.setCoordinateOrder(GeospatialUtil.LAT_LON_ORDER);
         xstream.registerConverter(converter);
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
         InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
@@ -282,7 +282,7 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(fcConverter);
 
         converter.setMetacardType(buildStatesMetacardType());
-        converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
+        converter.setCoordinateOrder(GeospatialUtil.LAT_LON_ORDER);
         xstream.registerConverter(converter);
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
         InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
@@ -395,7 +395,7 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(fcConverter);
 
         converter.setMetacardType(buildStatesMetacardType());
-        converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
+        converter.setCoordinateOrder(GeospatialUtil.LAT_LON_ORDER);
         xstream.registerConverter(converter);
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
         InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(

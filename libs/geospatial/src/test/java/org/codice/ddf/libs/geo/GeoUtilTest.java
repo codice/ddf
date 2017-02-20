@@ -19,7 +19,18 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.nullValue;
 
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
 import org.junit.Test;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 public class GeoUtilTest {
 
@@ -87,6 +98,102 @@ public class GeoUtilTest {
     public void testNullLon() throws GeoFormatException {
         Double lon = GeospatialUtil.parseDMSLongitudeWithDecimalSeconds(null);
         assertThat(lon, nullValue());
+    }
+
+    @Test
+    public void testTransformEpsg4326LonLat() throws GeoFormatException {
+        GeometryFactory gf = new GeometryFactory();
+        Coordinate coord = new Coordinate(25.22, 33.45);
+        Point point = gf.createPoint(coord);
+        Geometry convertedGeometry = GeospatialUtil.transformToEPSG4326LonLatFormat(point,
+                GeospatialUtil.EPSG_4326);
+        assertThat(convertedGeometry.getCoordinates()[0].x, is(33.45));
+        assertThat(convertedGeometry.getCoordinates()[0].y, is(25.22));
+    }
+
+    @Test
+    public void testTransformEpsg4326UTM()
+            throws FactoryException, TransformException, GeoFormatException {
+        double lon = 33.45;
+        double lat = 25.22;
+        double easting = 545328.48;
+        double northing = 2789384.24;
+
+        CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:32636");
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Coordinate utmCoordinate = new Coordinate(easting, northing);
+        Point utmPoint = geometryFactory.createPoint(utmCoordinate);
+        Envelope envelope = JTS.toEnvelope(utmPoint);
+        Geometry utmGeometry = JTS.toGeometry(envelope);
+        Geometry lonLatGeom = GeospatialUtil.transformToEPSG4326LonLatFormat(utmGeometry,
+                sourceCRS);
+        assertThat(lonLatGeom.getCoordinates()[0].x, closeTo(lon, .00001));
+        assertThat(lonLatGeom.getCoordinates()[0].y, closeTo(lat, .00001));
+    }
+
+    @Test
+    public void testTransformEpsg4326EpsgMatch()
+            throws FactoryException, TransformException, GeoFormatException {
+        double lon = 33.45;
+        double lat = 25.22;
+
+        CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Coordinate coordinate = new Coordinate(lon, lat);
+        Point utmPoint = geometryFactory.createPoint(coordinate);
+        Envelope envelope = JTS.toEnvelope(utmPoint);
+        Geometry utmGeometry = JTS.toGeometry(envelope);
+        Geometry lonLatGeom = GeospatialUtil.transformToEPSG4326LonLatFormat(utmGeometry,
+                sourceCRS);
+        assertThat(lonLatGeom.getCoordinates()[0].x, closeTo(lon, .00001));
+        assertThat(lonLatGeom.getCoordinates()[0].y, closeTo(lat, .00001));
+    }
+
+    @Test
+    public void testTransformEpsg4326EpsgNoSourceCRS()
+            throws FactoryException, TransformException, GeoFormatException {
+        double lon = 33.45;
+        double lat = 25.22;
+
+        CoordinateReferenceSystem sourceCRS = null;
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Coordinate coordinate = new Coordinate(lon, lat);
+        Point utmPoint = geometryFactory.createPoint(coordinate);
+        Envelope envelope = JTS.toEnvelope(utmPoint);
+        Geometry utmGeometry = JTS.toGeometry(envelope);
+        Geometry lonLatGeom = GeospatialUtil.transformToEPSG4326LonLatFormat(utmGeometry,
+                sourceCRS);
+        assertThat(lonLatGeom.getCoordinates()[0].x, closeTo(lon, .00001));
+        assertThat(lonLatGeom.getCoordinates()[0].y, closeTo(lat, .00001));
+    }
+
+    @Test(expected = GeoFormatException.class)
+    public void testTransformEpsg4326EpsgNullGeom()
+            throws FactoryException, TransformException, GeoFormatException {
+        CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
+        Geometry lonLatGeom = GeospatialUtil.transformToEPSG4326LonLatFormat(null, sourceCRS);
+    }
+
+    @Test(expected = GeoFormatException.class)
+    public void testTransformEpsg4326LonLatBadSrs() throws GeoFormatException {
+        GeometryFactory gf = new GeometryFactory();
+        Coordinate coord = new Coordinate(25.22, 33.45);
+        Point point = gf.createPoint(coord);
+        Geometry geom = GeospatialUtil.transformToEPSG4326LonLatFormat(point, "ESPG:Bad");
+    }
+
+    @Test
+    public void testTransformEpsg4326LonLatNullSrs() throws GeoFormatException {
+        GeometryFactory gf = new GeometryFactory();
+        Coordinate coord = new Coordinate(25.22, 33.45);
+        Point point = gf.createPoint(coord);
+        Geometry geom = GeospatialUtil.transformToEPSG4326LonLatFormat(point, (String) null);
+        assertThat(geom, is(point));
+    }
+
+    @Test(expected = GeoFormatException.class)
+    public void testTransformEpsg4326LonLatNullGeom() throws GeoFormatException {
+        Geometry geom = GeospatialUtil.transformToEPSG4326LonLatFormat(null, "EPSG:4326");
     }
 
     @Test(expected = GeoFormatException.class)

@@ -926,7 +926,7 @@ public class CswEndpoint implements Csw {
             try {
                 queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
                         request.getOutputSchema());
-                LOGGER.debug("Attempting to execute query: {}", response.getRequest());
+                LOGGER.debug("Attempting to execute query: {}", queryRequest);
                 QueryResponse queryResponse = framework.query(queryRequest);
                 response.setSourceResponse(queryResponse);
             } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {

@@ -153,6 +153,11 @@
             <artifactId>security-core-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>geospatial</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -186,6 +191,7 @@
                             gml-v_3_2_1-schema,
                             security-rest-cxfwrapper,
                             ddf-security-common,
+                            geospatial,
                             platform-util-unavailableurls,
                             platform-util,
                             security-core-impl

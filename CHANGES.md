@@ -42,6 +42,7 @@ replace with next unreleased version
 
 ### NEW FEATURES
 - [DDF-2818](https://codice.atlassian.net/browse/DDF-2818) Upgrade Solr from version 6.0.0 to version 6.4.1 
+- [DDF-2815](https://codice.atlassian.net/browse/DDF-2815) Added UTM support for the CSW Endpoint
 
 ### API CHANGES
 

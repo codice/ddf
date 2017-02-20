@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.libs.geo.GeoFormatException;
+import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
@@ -49,11 +51,22 @@ import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
 import org.opengis.filter.spatial.Beyond;
+import org.opengis.filter.spatial.Contains;
+import org.opengis.filter.spatial.Crosses;
 import org.opengis.filter.spatial.DWithin;
+import org.opengis.filter.spatial.Disjoint;
+import org.opengis.filter.spatial.Equals;
+import org.opengis.filter.spatial.Intersects;
+import org.opengis.filter.spatial.Overlaps;
+import org.opengis.filter.spatial.Touches;
+import org.opengis.filter.spatial.Within;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.temporal.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.helpers.NamespaceSupport;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -111,6 +124,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     public Object visit(BBOX filter, Object extraData) {
         Expression geometry1 = visit(filter.getExpression1(), SPATIAL_QUERY_TAG);
         Expression geometry2 = visit(filter.getExpression2(), extraData);
+        convertGeometryExpressionToEpsg4326(geometry1);
+        convertGeometryExpressionToEpsg4326(geometry2);
         return getFactory(extraData).within(geometry1, geometry2);
     }
 
@@ -120,6 +135,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
         Expression geometry1 = visit(filter.getExpression1(), SPATIAL_QUERY_TAG);
         Expression geometry2 = visit(filter.getExpression2(), extraData);
+        convertGeometryExpressionToEpsg4326(geometry1);
+        convertGeometryExpressionToEpsg4326(geometry2);
 
         return getFactory(extraData).beyond(geometry1,
                 geometry2,
@@ -133,6 +150,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
         Expression geometry1 = visit(filter.getExpression1(), SPATIAL_QUERY_TAG);
         Expression geometry2 = visit(filter.getExpression2(), extraData);
+        convertGeometryExpressionToEpsg4326(geometry1);
+        convertGeometryExpressionToEpsg4326(geometry2);
 
         return getFactory(extraData).dwithin(geometry1,
                 geometry2,
@@ -141,11 +160,68 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     }
 
     @Override
+    public Object visit(Intersects filter, Object extraData) {
+        convertGeometryExpressionToEpsg4326(filter.getExpression1());
+        convertGeometryExpressionToEpsg4326(filter.getExpression2());
+        return super.visit(filter, extraData);
+    }
+
+    @Override
+    public Object visit(Contains filter, Object extraData) {
+        convertGeometryExpressionToEpsg4326(filter.getExpression1());
+        convertGeometryExpressionToEpsg4326(filter.getExpression2());
+        return super.visit(filter, extraData);
+    }
+
+    @Override
+    public Object visit(Crosses filter, Object extraData) {
+        convertGeometryExpressionToEpsg4326(filter.getExpression1());
+        convertGeometryExpressionToEpsg4326(filter.getExpression2());
+        return super.visit(filter, extraData);
+    }
+
+    @Override
+    public Object visit(Disjoint filter, Object extraData) {
+        convertGeometryExpressionToEpsg4326(filter.getExpression1());
+        convertGeometryExpressionToEpsg4326(filter.getExpression2());
+        return super.visit(filter, extraData);
+    }
+
+    @Override
+    public Object visit(Equals filter, Object extraData) {
+        convertGeometryExpressionToEpsg4326(filter.getExpression1());
+        convertGeometryExpressionToEpsg4326(filter.getExpression2());
+        return super.visit(filter, extraData);
+    }
+
+    @Override
+    public Object visit(Overlaps filter, Object extraData) {
+        convertGeometryExpressionToEpsg4326(filter.getExpression1());
+        convertGeometryExpressionToEpsg4326(filter.getExpression2());
+        return super.visit(filter, extraData);
+    }
+
+    @Override
+    public Object visit(Touches filter, Object extraData) {
+        convertGeometryExpressionToEpsg4326(filter.getExpression1());
+        convertGeometryExpressionToEpsg4326(filter.getExpression2());
+        return super.visit(filter, extraData);
+    }
+
+    @Override
+    public Object visit(Within filter, Object extraData) {
+        convertGeometryExpressionToEpsg4326(filter.getExpression1());
+        convertGeometryExpressionToEpsg4326(filter.getExpression2());
+        return super.visit(filter, extraData);
+    }
+
+    @Override
     public Object visit(PropertyName expression, Object extraData) {
         if (expression == null) {
             LOGGER.debug("Attempting to visit a null expression");
             return null;
         }
+        convertGeometryExpressionToEpsg4326(expression);
         String propertyName = expression.getPropertyName();
         String name;
 
@@ -501,6 +577,27 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
             return function;
         } else {
             return super.visit(function, extraData);
+        }
+    }
+
+    private static void convertGeometryExpressionToEpsg4326(Expression expression) {
+        if (expression instanceof LiteralExpressionImpl) {
+            LiteralExpressionImpl literalExpression = (LiteralExpressionImpl) expression;
+            Object valueObj = literalExpression.getValue();
+            if (valueObj instanceof Geometry) {
+                Geometry geometry = (Geometry) valueObj;
+                Object userDataObj = geometry.getUserData();
+                if (userDataObj instanceof CoordinateReferenceSystem) {
+                    CoordinateReferenceSystem sourceCRS = (CoordinateReferenceSystem) userDataObj;
+                    Geometry convertedGeometry = null;
+                    try {
+                        convertedGeometry = GeospatialUtil.transformToEPSG4326LonLatFormat(geometry, sourceCRS);
+                        literalExpression.setValue(convertedGeometry);
+                    } catch (GeoFormatException e) {
+                        LOGGER.trace("Unable to convert geometry to EPSG:4326 format", e);
+                    }
+                }
+            }
         }
     }
 }

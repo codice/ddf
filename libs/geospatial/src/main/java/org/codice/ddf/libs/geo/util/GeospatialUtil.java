@@ -13,9 +13,37 @@
  */
 package org.codice.ddf.libs.geo.util;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.libs.geo.GeoFormatException;
+import org.geotools.factory.Hints;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.ReferencingFactoryFinder;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.ReferenceIdentifier;
+import org.opengis.referencing.crs.CRSAuthorityFactory;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.vividsolutions.jts.geom.Geometry;
+
+/**
+ * Convenience methods for performing geospatial conversions.
+ */
 public class GeospatialUtil {
+    public static final String EPSG_4326 = "EPSG:4326";
+
+    public static final String EPSG_4326_URN = "urn:ogc:def:crs:EPSG::4326";
+
+    public static final String LAT_LON_ORDER = "LAT_LON";
+
+    public static final String LON_LAT_ORDER = "LON_LAT";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeospatialUtil.class);
+
     /**
      * Parses Latitude in the DMS format of DD:MM:SS.S N/S
      *
@@ -170,5 +198,89 @@ public class GeospatialUtil {
         }
 
         return lon;
+    }
+
+    /**
+     * Transform a geometry to EPSG:4326 format with lon/lat coordinate ordering.
+     * NOTE: This method will perform the transform swapping coordinates even if the sourceCrsName is
+     * EPSG:4326
+     *
+     * @param geometry      - Geometry to transform
+     * @param sourceCrsName - Source geometry's coordinate reference system
+     * @return Geometry - Transformed geometry into EPSG:4326 lon/lat coordinate system
+     */
+    public static Geometry transformToEPSG4326LonLatFormat(Geometry geometry, String sourceCrsName)
+            throws GeoFormatException {
+        if (geometry == null) {
+            throw new GeoFormatException("Unable to convert null geometry");
+        }
+
+        //If we don't have source CRS just return geometry as we can't transform without that information
+        if (sourceCrsName == null) {
+            return geometry;
+        }
+
+        try {
+            CoordinateReferenceSystem sourceCrs = CRS.decode(sourceCrsName);
+            Hints hints = new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE);
+            CRSAuthorityFactory factory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG",
+                    hints);
+            CoordinateReferenceSystem targetCRS =
+                    factory.createCoordinateReferenceSystem(EPSG_4326);
+            MathTransform transform = CRS.findMathTransform(sourceCrs, targetCRS);
+            return JTS.transform(geometry, transform);
+        } catch (FactoryException | TransformException e) {
+            throw new GeoFormatException("Unable to convert coordinate to " + EPSG_4326, e);
+        }
+    }
+
+    /**
+     * Transform a geometry to EPSG:4326 format with lon/lat coordinate ordering.
+     * NOTE: This method will NOT perform the transform swapping coordinates even if the sourceCrsName is
+     * EPSG:4326.
+     *
+     * @param geometry  - Geometry to transform
+     * @param sourceCrs - Source geometry's coordinate reference system
+     * @return Geometry - Transformed geometry into EPSG:4326 lon/lat coordinate system
+     */
+    public static Geometry transformToEPSG4326LonLatFormat(Geometry geometry,
+            CoordinateReferenceSystem sourceCrs) throws GeoFormatException {
+
+        if (geometry == null) {
+            throw new GeoFormatException("Unable to convert null geometry");
+        }
+
+        //If we don't have source CRS just return geometry as we can't transform without that information
+        if (sourceCrs == null || CollectionUtils.isEmpty(sourceCrs.getIdentifiers())) {
+            return geometry;
+        }
+
+        Geometry transformedGeometry = geometry;
+        try {
+            boolean sourceCrsMatchesTarget = false;
+
+            for (ReferenceIdentifier referenceIdentifier : sourceCrs.getIdentifiers()) {
+                if (referenceIdentifier.toString()
+                        .equalsIgnoreCase(EPSG_4326)) {
+                    sourceCrsMatchesTarget = true;
+                    break;
+                }
+            }
+
+            if (!sourceCrsMatchesTarget) {
+                Hints hints = new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE);
+                CRSAuthorityFactory factory =
+                        ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", hints);
+                CoordinateReferenceSystem targetCRS = factory.createCoordinateReferenceSystem(
+                        EPSG_4326);
+
+                MathTransform transform = CRS.findMathTransform(sourceCrs, targetCRS);
+                transformedGeometry = JTS.transform(geometry, transform);
+                LOGGER.debug("Converted CRS {} into {} : {}", sourceCrs, EPSG_4326, geometry);
+            }
+        } catch (FactoryException | TransformException e) {
+            throw new GeoFormatException("Unable to convert coordinate to " + EPSG_4326, e);
+        }
+        return transformedGeometry;
     }
 }
