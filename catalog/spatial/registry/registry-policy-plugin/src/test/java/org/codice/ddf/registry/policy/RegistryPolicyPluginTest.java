@@ -18,8 +18,13 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
@@ -203,6 +208,61 @@ public class RegistryPolicyPluginTest {
 
         assertThat(response.itemPolicy()
                 .isEmpty(), is(true));
+    }
+
+    @Test
+    public void testSecurityValueSet() throws Exception {
+        RegistryPolicyPlugin rpp = createRegistryPlugin();
+
+        Map<String, Set<String>> expectedPolicy = new HashMap<>();
+        Set<String> firstSet = new HashSet<>();
+        Set<String> secondSet = new HashSet<>();
+        firstSet.add("Charles");
+        firstSet.add("Haller");
+        secondSet.add("Nikolaevna");
+        secondSet.add("Alexandria");
+        secondSet.add("Rasputin");
+        expectedPolicy.put("David", firstSet);
+        expectedPolicy.put("Illyana", secondSet);
+
+        Metacard mcard = new MetacardImpl();
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+        mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
+        mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+        List<Serializable> securityValues = new ArrayList<>();
+        securityValues.add("David=Charles,Haller");
+        securityValues.add("Illyana=Nikolaevna, Alexandria, Rasputin");
+        mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.SECURITY_LEVEL,
+                securityValues));
+
+        PolicyResponse response = rpp.processPreCreate(mcard, null);
+        assertThat(response.operationPolicy()
+                .size(), is(0));
+        assertThat(response.itemPolicy()
+                .size(), is(2));
+        assertThat(response.itemPolicy(), equalTo(expectedPolicy));
+    }
+
+    @Test
+    public void testSecurityValueInvalidStrings() throws Exception {
+        RegistryPolicyPlugin rpp = createRegistryPlugin();
+
+        Metacard mcard = new MetacardImpl();
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
+        mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validId"));
+        mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
+        List<Serializable> securityValues = new ArrayList<>();
+        securityValues.add(" ");
+        securityValues.add("");
+        securityValues.add("badString");
+        mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.SECURITY_LEVEL,
+                securityValues));
+
+        PolicyResponse response = rpp.processPreCreate(mcard, null);
+        assertThat(response.operationPolicy()
+                .size(), is(0));
+        assertThat(response.itemPolicy()
+                .size(), is(0));
     }
 
     @Test
