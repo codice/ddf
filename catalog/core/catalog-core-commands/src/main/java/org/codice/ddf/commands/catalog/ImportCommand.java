@@ -89,7 +89,8 @@ public class ImportCommand extends CatalogCommands {
 
         if (unsafe) {
             SecurityLogger.audit("Skipping validation check of imported data. There are no "
-                    + "guarantees of integrity or authenticity of the imported data");
+                    + "guarantees of integrity or authenticity of the imported data."
+                    + "File being imported: {}", importFile);
         } else {
             if (!zipValidator.validateZipFile(importFile)) {
                 throw new CatalogCommandRuntimeException("Signature on zip file is not valid");
