@@ -56,6 +56,9 @@
                 <value>/login</value>
             </array>
         </property>
+        <property name="traversalDepth">
+            <value>20</value>
+        </property>
     </bean>
 
     <service ref="policyMgr"

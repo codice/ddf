@@ -19,6 +19,11 @@
          name="Web Context Policy Manager"
          id="org.codice.ddf.security.policy.context.impl.PolicyManager">
 
+        <AD description="Depth to which paths will be traversed. Any value greater than 500 will be set to 500."
+            name="Context Traversal Depth" id="traversalDepth" required="true"
+            type="Integer"
+            default="20"/>
+
         <AD description="List of realms supporting each context. Karaf is provided by default. Example: /=karaf"
             name="Context Realms" id="realms" required="true" cardinality="100"
             type="String"
