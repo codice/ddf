@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:ogc="http://www.opengis.net/ogc"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            service="CSW"
+            version="2.0.2"
+            maxRecords="10"
+            startPosition="1"
+            resultType="results"
+            outputFormat="application/xml"
+            outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+            xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd">
+    <Query typeNames="Record">
+        <ElementSetName>full</ElementSetName>
+        <Constraint version="1.1.0">
+            <ogc:Filter>
+                <ogc:And>
+                    <ogc:PropertyIsEqualTo matchCase="true">
+                        <ogc:PropertyName>AnyText</ogc:PropertyName>
+                        <ogc:Literal>7c8da3209c994668b76102309b8f4769</ogc:Literal>
+                    </ogc:PropertyIsEqualTo>
+                    <ogc:Not>
+                        <ogc:PropertyIsLike escapeChar="\" singleChar="?" wildCard="*">
+                            <ogc:PropertyName>dc:title</ogc:PropertyName>
+                            <ogc:Literal>Aliquam *</ogc:Literal>
+                        </ogc:PropertyIsLike>
+                    </ogc:Not>
+                </ogc:And>
+            </ogc:Filter>
+        </Constraint>
+    </Query>
+</GetRecords>
