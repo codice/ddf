@@ -60,7 +60,6 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        assertThat(xmlInputTransformer.getMetacardType(), notNullValue());
         Metacard metacard = null;
         try {
             metacard = xmlInputTransformer.transform(inputStream, "test");
@@ -118,10 +117,15 @@ public class TestGenericXmlLib {
         when(saxEventHandlerFactory.getId()).thenReturn("test");
         SaxEventHandler handler = getNewHandler();
         when(saxEventHandlerFactory.getNewSaxEventHandler()).thenReturn(handler);
+
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        MetacardType metacardType = xmlInputTransformer.getMetacardType();
+
+        xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
+
+        SaxEventHandlerDelegate delegate = xmlInputTransformer.create();
+        MetacardType metacardType = delegate.getMetacardType(xmlInputTransformer.getId());
         assertThat(metacardType.getAttributeDescriptors(),
                 is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
     }
@@ -130,8 +134,10 @@ public class TestGenericXmlLib {
     public void testNoFactoriesTransform() {
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
-        xmlInputTransformer.setSaxEventHandlerFactories(null);
-        MetacardType metacardType = xmlInputTransformer.getMetacardType();
+        xmlInputTransformer.setSaxEventHandlerFactories(Collections.emptyList());
+
+        SaxEventHandlerDelegate delegate = xmlInputTransformer.create();
+        MetacardType metacardType = delegate.getMetacardType(xmlInputTransformer.getId());
         assertThat(metacardType.getAttributeDescriptors(),
                 is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
     }
@@ -151,7 +157,7 @@ public class TestGenericXmlLib {
                 return inputTransformerErrorHandler;
             }
         };
-        Metacard metacard = saxEventHandlerDelegate.read(inputStream);
+        Metacard metacard = saxEventHandlerDelegate.read(inputStream).getMetacard(null);
         assertThat(metacard.getAttribute(Validation.VALIDATION_ERRORS)
                 .getValue(), is("mock-errors-and-warnings"));
 
@@ -170,7 +176,6 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        assertThat(xmlInputTransformer.getMetacardType(), notNullValue());
         Metacard metacard = null;
         try {
             metacard = xmlInputTransformer.transform(inputStream, "test");

@@ -14,16 +14,22 @@
 package org.codice.ddf.transformer.xml.streaming;
 
 import java.util.List;
+import java.util.Set;
 
 import org.xml.sax.ContentHandler;
 
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 
 /**
  * Interface used to handle sax events fired from {@link org.codice.ddf.transformer.xml.streaming.lib.SaxEventHandlerDelegate} and {@link org.codice.ddf.transformer.xml.streaming.lib.XMLInputTransformer}.
  * At the end of parsing, it will have a list of {@link Attribute}s that can be used to populate a metacard.
  * A specific implementation can be used to handle specific XML elements and metacards. @see ddf.catalog.transformer.generic.xml.impl.XMLSaxEventHandlerImpl
  * {@inheritDoc}
+ * <p>
+ * <b> This code is experimental. While this class is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ * </p>
  */
 public interface SaxEventHandler extends ContentHandler {
 
@@ -32,4 +38,10 @@ public interface SaxEventHandler extends ContentHandler {
      */
     List<Attribute> getAttributes();
 
+    /**
+     * Get all the possible attribute types that can be returned by this factory's handler
+     *
+     * @return a set of attribute descriptors that can be returned by this handler
+     */
+    Set<AttributeDescriptor> getSupportedAttributeDescriptors();
 }

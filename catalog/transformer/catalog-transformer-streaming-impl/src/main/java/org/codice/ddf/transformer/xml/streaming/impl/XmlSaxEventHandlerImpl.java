@@ -15,15 +15,21 @@ package org.codice.ddf.transformer.xml.streaming.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.codice.ddf.transformer.xml.streaming.AbstractSaxEventHandler;
+import org.codice.ddf.transformer.xml.streaming.lib.SaxEventHandlerUtils;
 import org.xml.sax.Attributes;
 
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.CoreAttributes;
 
 /**
  * A sax event handler used to parse urn:catalog:metacard {@link Metacard}s. By default, handles all elements defined in the {@link XmlSaxEventHandlerImpl#xmlToMetacard}
@@ -31,6 +37,8 @@ import ddf.catalog.data.impl.AttributeImpl;
  * {@inheritDoc}
  */
 public class XmlSaxEventHandlerImpl extends AbstractSaxEventHandler {
+
+    private static Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
 
     /*
      * A list of Attributes that is populated during parsing and then returned by getAttributes
@@ -52,9 +60,27 @@ public class XmlSaxEventHandlerImpl extends AbstractSaxEventHandler {
      */
     private Map<String, String> xmlToMetacard;
 
+    private SaxEventHandlerUtils saxEventHandlerUtils = new SaxEventHandlerUtils();
+
+    static {
+        CoreAttributes coreAttributes = new CoreAttributes();
+        attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Metacard.ID));
+        attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Metacard.TITLE));
+        attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Metacard.METADATA));
+        attributeDescriptors.add(coreAttributes.getAttributeDescriptor(Metacard.DESCRIPTION));
+        attributeDescriptors.add(new ContactAttributes().getAttributeDescriptor(Metacard.POINT_OF_CONTACT));
+    }
+
     @Override
     public List<Attribute> getAttributes() {
-        return attributes;
+        return saxEventHandlerUtils.getCombinedMultiValuedAttributes(
+                getSupportedAttributeDescriptors(),
+                attributes);
+    }
+
+    @Override
+    public Set<AttributeDescriptor> getSupportedAttributeDescriptors() {
+        return attributeDescriptors;
     }
 
     protected XmlSaxEventHandlerImpl() {
