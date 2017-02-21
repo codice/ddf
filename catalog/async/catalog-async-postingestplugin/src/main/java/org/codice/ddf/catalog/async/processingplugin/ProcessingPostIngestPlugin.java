@@ -34,7 +34,6 @@ import org.codice.ddf.catalog.async.data.impl.ProcessRequestImpl;
 import org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl;
 import org.codice.ddf.catalog.async.data.impl.ProcessUpdateItemImpl;
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework;
-import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +52,8 @@ import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 
 /**
  * The {@code ProcessingPostIngestPlugin} is a {@link PostIngestPlugin} that is responsible for
@@ -135,9 +136,8 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
 
         processCreateItems = createResponse.getCreatedMetacards()
                 .stream()
-                .map(metacard -> new ProcessCreateItemImpl(getProcessResource(metacard),
-                        metacard,
-                        false))
+                .map(metacard -> new ProcessCreateItemImpl(getProcessResource(metacard,
+                        getSubject(createResponse)), metacard, false))
                 .collect(Collectors.toList());
 
         return new ProcessRequestImpl(processCreateItems,
@@ -151,15 +151,18 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
         for (Update update : updates) {
             Metacard oldCard = update.getOldMetacard();
             Metacard newCard = update.getNewMetacard();
-            ProcessUpdateItem processItem = new ProcessUpdateItemImpl(getProcessResource(newCard),
-                    newCard,
-                    oldCard,
-                    false);
+            ProcessUpdateItem processItem = new ProcessUpdateItemImpl(getProcessResource(newCard,
+                    getSubject(updateResponse)), newCard, oldCard, false);
             processUpdateItems.add(processItem);
         }
 
         return new ProcessRequestImpl(processUpdateItems,
                 putPostProcessCompleteFlagAndGet(updateResponse.getProperties()));
+    }
+
+    private Subject getSubject(Response response) {
+        return (Subject) response.getProperties()
+                .get(SecurityConstants.SECURITY_SUBJECT);
     }
 
     private ProcessRequest<ProcessDeleteItem> createDeleteRequest(DeleteResponse deleteResponse) {
@@ -172,7 +175,7 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
                 putPostProcessCompleteFlagAndGet(deleteResponse.getProperties()));
     }
 
-    private ProcessResource getProcessResource(Metacard metacard) {
+    private ProcessResource getProcessResource(Metacard metacard, Subject subject) {
         LOGGER.trace(
                 "Attempting to retrieve process resource metacard with id \"{}\" and sourceId \"{}\".",
                 metacard.getId(),
@@ -180,7 +183,12 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
 
         ResourceRequest request = new ResourceRequestById(metacard.getId());
 
-        return Security.runAsAdmin(() -> {
+        if (subject == null) {
+            LOGGER.debug("No available subject to fetch metacard resource. Returning null");
+            return null;
+        }
+
+        return subject.execute(() -> {
             try {
                 ResourceResponse response = catalogFramework.getResource(request,
                         metacard.getSourceId());

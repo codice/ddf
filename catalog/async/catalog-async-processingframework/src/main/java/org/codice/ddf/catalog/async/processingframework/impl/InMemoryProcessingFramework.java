@@ -38,7 +38,7 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
 import org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin;
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +55,8 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 
 /**
  * The {@code InMemoryProcessingFramework} processes requests using a thread pool and submits the
@@ -205,6 +207,7 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         Set<ContentItem> contentItemsToUpdate = new HashSet<>();
         Set<Metacard> metacardsToUpdate = new HashSet<>();
 
+        List<TemporaryFileBackedOutputStream> tfbosToCleanUp = new ArrayList<>();
         for (T item : processRequest.getProcessItems()) {
             if (item.getProcessResource() == null && item.isMetacardModified()) {
                 metacardsToUpdate.add(item.getMetacard());
@@ -213,8 +216,10 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
             final ProcessResource processResource = item.getProcessResource();
             if (processResource != null && processResource.isModified()) {
                 try {
-                    byte[] byteArray = IOUtils.toByteArray(processResource.getInputStream());
-                    ByteSource byteSource = ByteSource.wrap(byteArray);
+                    TemporaryFileBackedOutputStream tfbos = new TemporaryFileBackedOutputStream();
+                    long c = IOUtils.copyLarge(processResource.getInputStream(), tfbos);
+                    LOGGER.debug("Coppied {} bytes to TemporaryFileBackedOutputStream.", c);
+                    ByteSource byteSource = tfbos.asByteSource();
 
                     ContentItem contentItem = new ContentItemImpl(item.getMetacard()
                             .getId(),
@@ -226,6 +231,7 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                             item.getMetacard());
 
                     contentItemsToUpdate.add(contentItem);
+                    tfbosToCleanUp.add(tfbos);
                 } catch (IOException e) {
                     LOGGER.debug("Unable to store process request", e);
                 }
@@ -234,6 +240,7 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
 
         storeContentItemUpdates(contentItemsToUpdate, processRequest.getProperties());
         storeMetacardUpdates(metacardsToUpdate, processRequest.getProperties());
+        close(tfbosToCleanUp);
     }
 
     private void storeContentItemUpdates(Set<ContentItem> contentItemsToUpdate,
@@ -244,19 +251,36 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
             UpdateStorageRequest updateStorageRequest =
                     new UpdateStorageRequestImpl(new ArrayList<>(contentItemsToUpdate), properties);
 
-            Security.runAsAdmin(() -> {
-                try {
-                    catalogFramework.update(updateStorageRequest);
-                    LOGGER.debug("Successfully completed update storage request");
-                } catch (IngestException | SourceUnavailableException e) {
-                    LOGGER.debug("Unable to complete update storage request", e);
-                }
+            Subject subject = (Subject) updateStorageRequest.getProperties()
+                    .get(SecurityConstants.SECURITY_SUBJECT);
+            if (subject == null) {
+                LOGGER.debug(
+                        "No subject to send UpdateStorageRequest. Updates will not be sent back to the catalog");
+            } else {
+                subject.execute(() -> {
+                    try {
+                        catalogFramework.update(updateStorageRequest);
+                        LOGGER.debug("Successfully completed update storage request");
+                    } catch (IngestException | SourceUnavailableException e) {
+                        LOGGER.debug("Unable to complete update storage request", e);
+                    }
 
-                return null;
-            });
+                    return null;
+                });
+            }
         } else {
             LOGGER.debug("No content items to update");
         }
+    }
+
+    private void close(List<TemporaryFileBackedOutputStream> tfbosToCleanUp) {
+        tfbosToCleanUp.forEach(tfbos -> {
+            try {
+                tfbos.close();
+            } catch (IOException e) {
+                LOGGER.debug("Failed to cleanup temporary file.");
+            }
+        });
     }
 
     private void storeMetacardUpdates(Set<Metacard> metacardsToUpdate,
@@ -273,16 +297,24 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                     UpdateRequest.UPDATE_BY_ID,
                     properties);
 
-            Security.runAsAdmin(() -> {
-                try {
-                    catalogFramework.update(updateMetacardsRequest);
-                    LOGGER.debug("Successfully completed update metacards request");
-                } catch (IngestException | SourceUnavailableException e) {
-                    LOGGER.debug("Unable to complete update storage request", e);
-                }
+            Subject subject = (Subject) updateMetacardsRequest.getProperties()
+                    .get(SecurityConstants.SECURITY_SUBJECT);
 
-                return null;
-            });
+            if (subject == null) {
+                LOGGER.debug(
+                        "No subject to send UpdateRequest. Updates will not be sent back to the catalog.");
+            } else {
+                subject.execute(() -> {
+                    try {
+                        catalogFramework.update(updateMetacardsRequest);
+                        LOGGER.debug("Successfully completed update metacards request");
+                    } catch (IngestException | SourceUnavailableException e) {
+                        LOGGER.debug("Unable to complete update request", e);
+                    }
+
+                    return null;
+                });
+            }
         } else {
             LOGGER.debug("No metacards to update");
         }

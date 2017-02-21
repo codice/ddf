@@ -97,9 +97,6 @@
                             platform-util-unavailableurls,
                             catalog-async-data
                         </Embed-Dependency>
-                        <Private-Package>
-                            org.codice.ddf.catalog.async.processingframework.impl
-                        </Private-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -121,17 +118,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.95</minimum>
+                                            <minimum>0.91</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.90</minimum>
+                                            <minimum>0.84</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.90</minimum>
+                                            <minimum>0.81</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

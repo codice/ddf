@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
 
@@ -46,22 +48,23 @@ public class ProcessResourceImpl implements ProcessResource {
     private boolean isModified;
 
     public ProcessResourceImpl(String metacardId, InputStream inputStream,
-            String mimeType, String name) {
+            @Nullable String mimeType, @Nullable String name) {
         this(metacardId, inputStream, mimeType, name, UNKNOWN_SIZE, "", true);
     }
 
     public ProcessResourceImpl(String metacardId, InputStream inputStream,
-            String mimeType, String name, long size) {
+            @Nullable String mimeType, @Nullable String name, long size) {
         this(metacardId, inputStream, mimeType, name, size, "", true);
     }
 
     public ProcessResourceImpl(String metacardId, InputStream inputStream,
-            String mimeType, String name, long size, boolean isModified) {
+            @Nullable String mimeType, @Nullable String name, long size, boolean isModified) {
         this(metacardId, inputStream, mimeType, name, size, "", isModified);
     }
 
     public ProcessResourceImpl(String metacardId, InputStream inputStream,
-            String mimeType, String name, long size, String qualifier) {
+            @Nullable String mimeType, @Nullable String name, long size,
+            @Nullable String qualifier) {
         this(metacardId, inputStream, mimeType, name, size, qualifier, true);
     }
 
@@ -78,10 +81,11 @@ public class ProcessResourceImpl implements ProcessResource {
      * @param isModified  flags whether {@link ddf.catalog.content.operation.UpdateStorageRequest}s are sent back to the {@link ddf.catalog.CatalogFramework}
      *                    for this {@link ProcessResource}
      */
-    public ProcessResourceImpl(String metacardId, InputStream inputStream,
-            String mimeType, String name, long size, String qualifier, boolean isModified) {
+    public ProcessResourceImpl(String metacardId, InputStream inputStream, String mimeType,
+            @Nullable String name, long size, @Nullable String qualifier, boolean isModified) {
         if (size < -1 || size == 0) {
-            throw new IllegalArgumentException("ProcessResourceImpl size may not be less than -1 or 0.");
+            throw new IllegalArgumentException(
+                    "ProcessResourceImpl size may not be less than -1 or 0.");
         }
 
         if (StringUtils.isEmpty(metacardId)) {
@@ -91,7 +95,7 @@ public class ProcessResourceImpl implements ProcessResource {
 
         notNull(inputStream, "ProcessResourceImpl argument \"inputStream\" may not be null");
 
-        this.qualifier = qualifier;
+        this.qualifier = qualifier == null ? "" : qualifier;
         this.isModified = isModified;
         this.inputStream = inputStream;
         this.size = size;

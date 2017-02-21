@@ -98,9 +98,6 @@
                             platform-util-unavailableurls,
                             catalog-async-data
                         </Embed-Dependency>
-                        <Private-Package>
-                            org.codice.ddf.catalog.async.processingplugin*
-                        </Private-Package>
                     </instructions>
                 </configuration>
             </plugin>

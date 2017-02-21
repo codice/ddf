@@ -19,6 +19,8 @@ import ddf.catalog.operation.*
 import ddf.catalog.resource.Resource
 import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.resource.ResourceNotSupportedException
+import ddf.security.SecurityConstants
+import ddf.security.Subject
 import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem
 import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem
 import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
@@ -26,6 +28,8 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework
 import org.codice.ddf.catalog.async.processingplugin.ProcessingPostIngestPlugin
 import spock.lang.Specification
+
+import java.util.concurrent.Callable
 
 class ProcessingPostIngestPluginTest extends Specification {
 
@@ -64,7 +68,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         def metacard2 = mockMetacard("2", sourceId)
         def metacard3 = mockMetacard("3", sourceId)
 
-        def responseProperties = [a: _]
+        def responseProperties = propertiesWithSubject()
 
         def input = Mock(CreateResponse) {
             getRequest() >> Mock(CreateRequest) {
@@ -186,7 +190,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         def oldCard3 = Mock(Metacard)
         def newCard3 = mockMetacard("3", "s3")
 
-        def responseProperties = [a: _]
+        def responseProperties = propertiesWithSubject()
 
         def input = Mock(UpdateResponse) {
             getRequest() >> Mock(UpdateRequest) {
@@ -423,7 +427,7 @@ class ProcessingPostIngestPluginTest extends Specification {
             getSourceId() >> sourceId
         }
 
-        def responseProperties = [a: _]
+        def responseProperties = propertiesWithSubject()
 
         def input = Mock(CreateResponse) {
             getRequest() >> Mock(CreateRequest) {
@@ -461,25 +465,31 @@ class ProcessingPostIngestPluginTest extends Specification {
     helper methods
      */
 
-    static Map<String, Serializable> createProcessingCompleteProperties() {
+    Map<String, Serializable> createProcessingCompleteProperties() {
         def properties = [:]
         properties.put(ProcessingPostIngestPlugin.POST_PROCESS_COMPLETE, true)
         return properties
     }
 
-    static Map<String, Serializable> createFalseProcessingCompleteProperties() {
+    Map<String, Serializable> createFalseProcessingCompleteProperties() {
         def properties = [:]
         properties.put(ProcessingPostIngestPlugin.POST_PROCESS_COMPLETE, false)
         return properties
     }
 
-    static Map<String, Serializable> createNotBooleanProcessingCompleteProperties() {
+    Map<String, Serializable> createNotBooleanProcessingCompleteProperties() {
         def properties = [:]
         properties.put(ProcessingPostIngestPlugin.POST_PROCESS_COMPLETE, 3)
         return properties
     }
 
-    static postProcessCompleteEntryAdded(newProperties, originalProperties) {
+    Map<String, Serializable> propertiesWithSubject() {
+        def properties = [:]
+        properties.put(SecurityConstants.SECURITY_SUBJECT, mockSubject())
+        return properties
+    }
+
+    def postProcessCompleteEntryAdded(newProperties, originalProperties) {
         Map<String, Serializable> expectedProperties = new HashMap<>(originalProperties)
         expectedProperties.put(ProcessingPostIngestPlugin.POST_PROCESS_COMPLETE, true)
 
@@ -496,5 +506,11 @@ class ProcessingPostIngestPluginTest extends Specification {
     def verifyUpdate(ProcessUpdateItem processUpdateItem, Metacard newMetacard, Metacard oldMetacard) {
         assert processUpdateItem.getMetacard() == newMetacard
         assert processUpdateItem.getOldMetacard() == oldMetacard
+    }
+
+    def mockSubject() {
+        return Mock(Subject) {
+            execute(_ as Callable) >> {Callable callable -> callable.call()}
+        }
     }
 }

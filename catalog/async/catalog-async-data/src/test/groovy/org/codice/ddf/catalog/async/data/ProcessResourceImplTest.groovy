@@ -110,7 +110,7 @@ class ProcessResourceImplTest extends Specification {
 
         then:
         assert processResource.getUri().toString() == RESOURCE_URI
-        assert processResource.getQualifier() == null
+        assert processResource.getQualifier() == ''
 
         assert !processResource.isModified()
         assert processResource.getName() == RESOURCE_NAME

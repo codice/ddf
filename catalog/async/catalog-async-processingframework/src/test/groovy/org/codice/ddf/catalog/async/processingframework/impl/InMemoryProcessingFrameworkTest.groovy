@@ -20,6 +20,7 @@ import ddf.catalog.operation.UpdateRequest
 import ddf.catalog.plugin.PluginExecutionException
 import ddf.catalog.source.IngestException
 import ddf.catalog.source.SourceUnavailableException
+import ddf.security.Subject
 import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem
 import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource
@@ -27,6 +28,7 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem
 import org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin
 import spock.lang.Specification
 
+import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 
@@ -415,32 +417,17 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * threadPool.awaitTermination(60, TimeUnit.SECONDS)
     }
 
-//    def 'test cleanup success shutdown with unfinished processes and interrupted exception'() {
-//        when:
-//        inMemoryProcessingFramework.cleanUp()
-//
-//        then:
-//        1 * threadPool.isShutdown() >> {
-//            return false
-//        }
-//
-//        1 * threadPool.shutdown()
-//        1 * threadPool.awaitTermination(600, TimeUnit.SECONDS) >> {
-//            return false
-//        }
-//        2 * threadPool.shutdownNow()
-//        1 * threadPool.awaitTermination(60, TimeUnit.SECONDS) >> {
-//            throw new InterruptedException()
-//        }
-//    }
-
     private <T extends ProcessResourceItem> ProcessRequest<T> createMockProcessResourceRequest() {
         return createMockProcessResourceRequest(new ByteArrayInputStream((_ as String).getBytes()))
     }
 
     private <T extends ProcessResourceItem> ProcessRequest<T> createMockProcessResourceRequest(inputStream) {
         return Mock(ProcessRequest) {
-            getProperties() >> [test: _]
+            def subject = Mock(Subject) {
+                execute(_ as Callable) >> { Callable callable -> callable.call() }
+            }
+
+            getProperties() >> ['ddf.security.subject': subject]
 
             getProcessItems() >> [Mock(T) {
                 isMetacardModified() >> false
@@ -473,10 +460,8 @@ class InMemoryProcessingFrameworkTest extends Specification {
     }
 
     private ProcessRequest<ProcessDeleteItem> createMockDeleteRequest() {
-        Mock(ProcessRequest) {
+        return Mock(ProcessRequest) {
             getProperties() >> [test: _]
-
-            getDeleteMetacards() >> [Mock(Metacard)]
         }
     }
 }
