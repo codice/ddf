@@ -23,11 +23,8 @@
 
         <property name="authenticationTypes">
             <array value-type="java.lang.String">
-                <value>/=SAML|GUEST</value>
-                <value>/admin=SAML|basic</value>
-                <value>/system=basic</value>
-                <value>/solr=SAML|PKI|basic</value>
-                <value>/security-config=SAML|basic</value>
+                <value>/=IDP</value>
+                <value>/solr=SAML|PKI|BASIC</value>
             </array>
         </property>
         <property name="realms">

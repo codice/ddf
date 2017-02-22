@@ -249,6 +249,9 @@ public class TestFederation extends AbstractIntegrationTest {
             getCatalogBundle().setupMaxDownloadRetryAttempts(MAX_DOWNLOAD_RETRY_ATTEMPTS);
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
 
+            configureRestForGuest();
+            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
+
             Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
                     OPENSEARCH_SOURCE_ID,
                     OPENSEARCH_PATH.getUrl(),

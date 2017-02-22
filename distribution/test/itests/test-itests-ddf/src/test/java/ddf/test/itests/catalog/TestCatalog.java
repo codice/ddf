@@ -171,6 +171,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                     features,
                     sessionFactory);
 
+            configureRestForGuest();
+            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());

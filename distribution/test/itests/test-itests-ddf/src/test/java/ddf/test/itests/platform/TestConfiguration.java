@@ -230,6 +230,9 @@ public class TestConfiguration extends AbstractIntegrationTest {
                     sessionFactory);
             symbolicLink = Paths.get(ddfHome)
                     .resolve("link");
+
+            configureRestForGuest();
+            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());

@@ -13,8 +13,12 @@
  **/
 package org.codice.ddf.itests.common.security;
 
+import static org.codice.ddf.itests.common.WaitCondition.expect;
+import static com.jayway.restassured.RestAssured.when;
+
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.itests.common.ServiceManager;
@@ -37,7 +41,7 @@ public class SecurityPolicyConfigurator {
             "/=SAML|GUEST,/admin=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic";
 
     public static final String DEFAULT_WHITELIST =
-            "/services/SecurityTokenService,/services/internal,/proxy";
+            "/services/SecurityTokenService,/services/internal/metrics,/services/saml,/proxy,/services/idp,/idp,/services/platform/config/ui,/login";
 
     private ServiceManager services;
 
@@ -64,6 +68,24 @@ public class SecurityPolicyConfigurator {
         configureWebContextPolicy(null, BASIC_AUTH_TYPES, null, createWhitelist(whitelist));
     }
 
+    public void waitForBasicAuthReady(String url) {
+        expect("Waiting for basic auth").within(120, TimeUnit.SECONDS)
+                .checkEvery(1, TimeUnit.SECONDS)
+                .until(() -> when().get(url)
+                        .then()
+                        .extract()
+                        .statusCode() == 401);
+    }
+
+    public void waitForGuestAuthReady(String url) {
+        expect("Waiting for guest auth").within(120, TimeUnit.SECONDS)
+                .checkEvery(1, TimeUnit.SECONDS)
+                .until(() -> when().get(url)
+                        .then()
+                        .extract()
+                        .statusCode() == 200);
+    }
+
     public static String createWhitelist(String whitelist) {
         return DEFAULT_WHITELIST + (StringUtils.isNotBlank(whitelist) ? "," + whitelist : "");
     }
@@ -71,8 +93,19 @@ public class SecurityPolicyConfigurator {
     public void configureWebContextPolicy(String realms, String authTypes,
             String requiredAttributes, String whitelist) throws Exception {
 
-        Map<String, Object> policyProperties = services.getMetatypeDefaults(SYMBOLIC_NAME,
-                FACTORY_PID);
+        Map<String, Object> policyProperties = null;
+        int retries = 0;
+
+        while (policyProperties == null || policyProperties.isEmpty()) {
+            policyProperties = services.getMetatypeDefaults(SYMBOLIC_NAME,
+                    FACTORY_PID);
+            if (retries < 5 && policyProperties.isEmpty()) {
+                Thread.sleep(10000);
+            } else {
+                break;
+            }
+            retries++;
+        }
 
         if (realms != null) {
             putPolicyValues(policyProperties, "realms", realms);

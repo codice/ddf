@@ -106,6 +106,9 @@ public class TestFtp extends AbstractIntegrationTest {
 
             System.setProperty(FTP_PORT_PROPERTY, FTP_PORT.getPort());
             getServiceManager().startFeature(true, FTP_ENDPOINT_FEATURE);
+
+            configureRestForGuest();
+            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());

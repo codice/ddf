@@ -170,6 +170,8 @@ public class TestRegistry extends AbstractIntegrationTest {
             getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getCatalogBundle().waitForCatalogProvider();
+            configureRestForGuest();
+            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
             getServiceManager().startFeature(true, CATALOG_REGISTRY);
             getServiceManager().waitForAllBundles();
             getServiceManager().startFeature(true, CATALOG_REGISTRY_CORE);

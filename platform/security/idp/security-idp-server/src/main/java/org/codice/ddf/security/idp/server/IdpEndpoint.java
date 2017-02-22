@@ -194,6 +194,8 @@ public class IdpEndpoint implements Idp {
 
     private RelayStates<LogoutState> logoutStates;
 
+    private boolean guestAccess = true;
+
     public static final ImmutableSet<UsageType> USAGE_TYPES = ImmutableSet.of(UsageType.UNSPECIFIED,
             UsageType.SIGNING);
 
@@ -522,6 +524,7 @@ public class IdpEndpoint implements Idp {
                         false));
                 String encodedAuthn = RestSecurity.deflateAndBase64Encode(authn);
                 responseMap.put(PKI, hasCerts);
+                responseMap.put(GUEST, guestAccess);
                 responseMap.put(SAML_REQ, encodedAuthn);
                 responseMap.put(RELAY_STATE, relayState);
                 String assertionConsumerServiceURL =
@@ -744,7 +747,7 @@ public class IdpEndpoint implements Idp {
             LOGGER.debug("Logging user in via SAML assertion.");
             token = new SAMLAuthenticationToken(null, authObj.assertion,
                     BaseAuthenticationToken.ALL_REALM);
-        } else if (GUEST.equals(authMethod)) {
+        } else if (GUEST.equals(authMethod) && guestAccess) {
             LOGGER.debug("Logging user in as Guest.");
             token = new GuestAuthenticationToken(BaseAuthenticationToken.ALL_REALM,
                     request.getRemoteAddr());
@@ -1276,6 +1279,10 @@ public class IdpEndpoint implements Idp {
 
     public RelayStates<LogoutState> getLogoutStates() {
         return this.logoutStates;
+    }
+
+    public void setGuestAccess(boolean guestAccess) {
+        this.guestAccess = guestAccess;
     }
 
     private static class AuthObj {

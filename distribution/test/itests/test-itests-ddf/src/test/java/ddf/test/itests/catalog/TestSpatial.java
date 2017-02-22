@@ -168,6 +168,9 @@ public class TestSpatial extends AbstractIntegrationTest {
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
 
             loadResourceQueries(CSW_QUERY_RESOURCES, savedCswQueries);
+
+            configureRestForGuest();
+            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LOGGER.error("Failed to start required apps:", e);
             fail("Failed to start required apps: " + e.getMessage());
