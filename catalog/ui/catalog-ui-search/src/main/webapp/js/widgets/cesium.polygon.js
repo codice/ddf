@@ -41,7 +41,9 @@ define([
                 if (setArr.length < 3) {
                     return;
                 }
-                polygonPoints.push(polygonPoints[0]);
+                if (polygonPoints[0].toString() !== polygonPoints[polygonPoints.length - 1].toString()) {
+                    polygonPoints.push(polygonPoints[0]);
+                }
 
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
