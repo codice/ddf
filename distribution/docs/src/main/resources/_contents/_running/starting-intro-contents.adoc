@@ -93,7 +93,7 @@ Because ${branding} is built on top of Apache Karaf, ${branding} can use the Kar
 +
 .Within the ${branding} console
 ----
-${branding-lowercase}${at-symbol}local> feature:install wrapper
+${branding-lowercase}${at-symbol}local> feature:install -r wrapper
 ${branding-lowercase}${at-symbol}local> wrapper:install -s AUTO_START -n ${branding-lowercase} -d ${branding-lowercase} -D "${branding} Service"
 ----
 +
@@ -113,6 +113,13 @@ to:
 RUN_AS_USER=<${branding-lowercase}-user>
 ----
 +
+. Set the `DDF_HOME` property.
++
+.<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
+----
+set.default.DDF_HOME=%KARAF_HOME%
+----
++
 . Set the memory in the wrapper config to match with ${branding} default memory setting.
 +
 .<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
@@ -126,23 +133,16 @@ wrapper.java.additional.13=-Dcom.sun.management.jmxremote
 wrapper.java.additional.14=-Djava.security.egd=file:/dev/./urandom
 wrapper.java.additional.15=-Dfile.encoding=UTF8
 wrapper.java.additional.16=-Dkaraf.instances=%KARAF_HOME%/instances
-wrapper.java.additional.17=-D${ddf-branding-lowercase}.home=%${ddf-branding}_HOME%
-wrapper.java.additional.18=-Dkaraf.restart.jvm.supported=true
-wrapper.java.additional.19=-Djava.io.tmpdir=%KARAF_HOME%/data/tmp
-wrapper.java.additional.20=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
-wrapper.java.additional.21=-XX:+UnlockDiagnosticVMOptions
-wrapper.java.additional.22=-XX:+UnsyncloadClass
-wrapper.java.additional.23=-Dderby.system.home=%KARAF_HOME%/data/derby
+wrapper.java.additional.17=-Dkaraf.restart.jvm.supported=true
+wrapper.java.additional.18=-Djava.io.tmpdir=%KARAF_HOME%/data/tmp
+wrapper.java.additional.19=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
+wrapper.java.additional.20=-XX:+UnlockDiagnosticVMOptions
+wrapper.java.additional.21=-XX:+UnsyncloadClass
+wrapper.java.additional.22=-Dderby.system.home=%KARAF_HOME%/data/derby
+wrapper.java.additional.23=-Djava.awt.headless=true
 
 #Update the following:
 wrapper.java.maxmemory=2048
-----
-+
-. Set the `<${branding}_HOME>` property.
-+
-.<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
-----
-set.default.<${branding}_HOME>=%KARAF_HOME%
 ----
 +
 . Install the wrapper startup/shutdown scripts.
