@@ -13,12 +13,14 @@
  */
 package ddf.catalog.source.solr;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -28,11 +30,19 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.joda.time.DateTime;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.context.jts.ValidationRule;
 import org.locationtech.spatial4j.distance.DistanceUtils;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
+import org.locationtech.spatial4j.io.ShapeReader;
+import org.locationtech.spatial4j.shape.Shape;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -81,6 +91,21 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private static final int QUADRANT_SEGMENTS = 12;
 
     private static final WKTWriter WKT_WRITER = new WKTWriter();
+
+    // For queries we use repairConvexHull which my cause false positives to be returned but this
+    // is better than potentially missing some results due to false negatives.
+    private static final Map<String, String> SPATIAL_CONTEXT_ARGUMENTS = ImmutableMap.of(
+            "spatialContextFactory",
+            JtsSpatialContextFactory.class.getName(),
+            "validationRule",
+            ValidationRule.repairConvexHull.name());
+
+    private static final SpatialContext SPATIAL_CONTEXT = SpatialContextFactory.makeSpatialContext(
+            SPATIAL_CONTEXT_ARGUMENTS,
+            SolrFilterDelegate.class.getClassLoader());
+
+    private static final ShapeReader WKT_READER = SPATIAL_CONTEXT.getFormats()
+            .getWktReader();
 
     private static final String END_PAREN = " ) ";
 
@@ -631,11 +656,23 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
         Geometry geo = null;
         try {
-            geo = reader.read(wkt);
+            geo = reader.read(sanitizeGeometry(wkt));
         } catch (ParseException e) {
             LOGGER.info("Failed to read WKT: {}", wkt, e);
         }
         return geo;
+    }
+
+    private String sanitizeGeometry(String wkt) {
+        try {
+            Shape wktShape = WKT_READER.read(wkt);
+            return SPATIAL_CONTEXT.getFormats()
+                    .getWktWriter()
+                    .toString(wktShape);
+        } catch (IOException | java.text.ParseException | InvalidShapeException e) {
+            LOGGER.info("Failed to sanitize or read WKT: {}", wkt, e);
+        }
+        return wkt;
     }
 
     @Override
@@ -912,7 +949,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             throw new UnsupportedOperationException("Wkt should not be null or empty.");
         }
 
-        String geoQuery = geoIndexName + ":\"" + operation + "(" + wkt + ")\"";
+        String geoQuery = geoIndexName + ":\"" + operation + "(" + sanitizeGeometry(wkt) + ")\"";
 
         Geometry pnt = getGeometry(wkt);
         if (pnt != null) {

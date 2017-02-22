@@ -34,6 +34,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.context.SpatialContextFactory;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
+import org.locationtech.spatial4j.context.jts.ValidationRule;
 import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.locationtech.spatial4j.io.ShapeReader;
 import org.locationtech.spatial4j.shape.Shape;
@@ -60,9 +61,13 @@ public class CqlResult {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CqlQueryResponse.class);
 
+    // For queries we use repairConvexHull which my cause false positives to be returned but this
+    // is better than potentially missing some results due to false negatives.
     private static final Map<String, String> SPATIAL_CONTEXT_ARGUMENTS = ImmutableMap.of(
             "spatialContextFactory",
             JtsSpatialContextFactory.class.getName(),
+            "validationRule",
+            ValidationRule.repairConvexHull.name(),
             "allowMultiOverlap",
             "true");
 
