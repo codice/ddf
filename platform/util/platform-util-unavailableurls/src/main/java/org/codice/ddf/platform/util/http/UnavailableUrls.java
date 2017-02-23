@@ -24,14 +24,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * /**
  * A class to contain a set of unavailable URL's. They will be periodically checked
  * to determine if the URL has become available. If the URL is reachable, this implies
  * the web service is available, and the URL will be removed from the set.
  * <p>
- * NOTE: to avoid excessive network traffic, the period to wait before checking for a
+ * NOTE:
+ * to avoid excessive network traffic, the period to wait before checking for a
  * URL increases exponentially.
  */
 public class UnavailableUrls {
+
+    // Name of system property
+    static final String MAX_TIMEOUT_SECONDS_PROPERTY =
+            "org.codice.ddf.platform.util.http.maxRetryInterval";
+
+    // Name of system property
+    static final String INITIAL_TIMEOUT_SECONDS_PROPERTY =
+            "org.codice.ddf.platform.util.http.initialRetryInterval";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnavailableUrls.class);
 
@@ -44,12 +54,6 @@ public class UnavailableUrls {
 
     // time to give the ping request before we stop trying
     private static final long PING_TIMEOUT_SECONDS = 10;
-
-    // initial timeout for checking a URL
-    private static final long INITIAL_TIMEOUT_SECONDS = 3;
-
-    // maximum timeout for checking a URL
-    private static final long MAX_TIMEOUT_SECONDS = TimeUnit.HOURS.toSeconds(7);
 
     private final ConcurrentHashMap<String, UrlChecker> checkers = new ConcurrentHashMap<>();
 
@@ -101,7 +105,7 @@ public class UnavailableUrls {
 
         private final String url;
 
-        private long timeout = INITIAL_TIMEOUT_SECONDS;
+        private long timeout = getInitialRetryInterval();
 
         /**
          * Let me check that URL for you!
@@ -116,15 +120,31 @@ public class UnavailableUrls {
         }
 
         /**
-         * Computes the next timeout, doesn't exceed MAX_TIMEOUT_SECONDS
+         * Computes the next timeout, doesn't exceed maximum internval
          */
         private void backoff() {
-            timeout = Math.min(timeout * INITIAL_TIMEOUT_SECONDS, MAX_TIMEOUT_SECONDS);
+            // Because the interval doubles, we check against getMaxRetryInterval() / 2.
+            // This prevents a timeout whose period is larger than MAX.
+            if (timeout >= getMaxRetryInterval() / 2) {
+                timeout = getMaxRetryInterval();
+            } else {
+                timeout += timeout;
+            }
         }
 
         private void schedule() {
             getScheduler().schedule(this, timeout, TimeUnit.SECONDS);
             backoff(); // the only reason to schedule is because of a failed ping
+        }
+
+        private int getMaxRetryInterval() {
+            String property = System.getProperty(MAX_TIMEOUT_SECONDS_PROPERTY);
+            return Integer.parseInt(property);
+        }
+
+        private int getInitialRetryInterval() {
+            String property = System.getProperty(INITIAL_TIMEOUT_SECONDS_PROPERTY);
+            return Integer.parseInt(property);
         }
 
         /**
