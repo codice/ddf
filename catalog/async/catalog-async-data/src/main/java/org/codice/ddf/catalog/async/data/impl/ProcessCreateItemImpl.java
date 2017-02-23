@@ -26,11 +26,24 @@ public class ProcessCreateItemImpl extends ProcessItemImpl implements ProcessCre
 
     private boolean isMetacardModified;
 
-    public ProcessCreateItemImpl(ProcessResource processResource, Metacard metacard) {
+    /**
+     * Creates a {@link ProcessCreateItem} with {@link #isMetacardModified} set to {@code true}.
+     *
+     * @param processResource {@link ProcessResource} of this {@code ProcessCreateItemImpl}, can be null
+     * @param metacard        non null {@link Metacard} of this {@code ProcessCreateItem}
+     */
+    public ProcessCreateItemImpl(@Nullable ProcessResource processResource, Metacard metacard) {
         this(processResource, metacard, true);
     }
 
-    public ProcessCreateItemImpl(ProcessResource processResource, Metacard metacard,
+    /**
+     * Creates a {@link ProcessCreateItem}.
+     *
+     * @param processResource    {@link ProcessResource} of this {@code ProcessCreateItemImpl}, can be null
+     * @param metacard           non null {@link Metacard} of this {@code ProcessCreateItem}
+     * @param isMetacardModified {@code true} if updates are required to be sent back to the Catalog {@code false} otherwise.
+     */
+    public ProcessCreateItemImpl(@Nullable ProcessResource processResource, Metacard metacard,
             boolean isMetacardModified) {
         super(metacard);
         this.processResource = processResource;

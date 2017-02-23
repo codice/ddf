@@ -15,6 +15,8 @@ package org.codice.ddf.catalog.async.data.impl;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import javax.annotation.Nullable;
+
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
 
@@ -28,12 +30,27 @@ public class ProcessUpdateItemImpl extends ProcessItemImpl implements ProcessUpd
 
     private boolean isMetacardModified;
 
-    public ProcessUpdateItemImpl(ProcessResource processResource, Metacard newMetacard,
+    /**
+     * Creates a {@link ProcessUpdateItem} with {@link #isMetacardModified} defaulted to {@code true}.
+     *
+     * @param processResource {@link ProcessResource} associated with this {@link ProcessUpdateItem}, can be null
+     * @param newMetacard     non null {@link Metacard} that represents the metacard after updates
+     * @param oldMetacard     non null {@link Metacard} that represents the original metacard before updates
+     */
+    public ProcessUpdateItemImpl(@Nullable ProcessResource processResource, Metacard newMetacard,
             Metacard oldMetacard) {
         this(processResource, newMetacard, oldMetacard, true);
     }
 
-    public ProcessUpdateItemImpl(ProcessResource processResource, Metacard newMetacard,
+    /**
+     * Creates a {@link ProcessUpdateItem} with {@link #isMetacardModified} defaulted to {@code true}.
+     *
+     * @param processResource    {@link ProcessResource} associated with this {@link ProcessUpdateItem}, can be null
+     * @param newMetacard        non null {@link Metacard} that represents the metacard after updates
+     * @param oldMetacard        non null {@link Metacard} that represents the original metacard before updates
+     * @param isMetacardModified {@code true} if updates are required to be sent back to the Catalog {@code false} otherwise.
+     */
+    public ProcessUpdateItemImpl(@Nullable ProcessResource processResource, Metacard newMetacard,
             Metacard oldMetacard, boolean isMetacardModified) {
         super(newMetacard);
 
@@ -50,6 +67,7 @@ public class ProcessUpdateItemImpl extends ProcessItemImpl implements ProcessUpd
     }
 
     @Override
+    @Nullable
     public ProcessResource getProcessResource() {
         return processResource;
     }

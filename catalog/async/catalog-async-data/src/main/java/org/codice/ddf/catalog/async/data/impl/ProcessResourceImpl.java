@@ -47,21 +47,64 @@ public class ProcessResourceImpl implements ProcessResource {
 
     private boolean isModified;
 
+    /**
+     * Creates a {@link ProcessResource} with {@link ProcessResource#isModified()} set to {@code true}
+     * and {@link ProcessResource#getQualifier()} set to empty string.
+     *
+     * @param metacardId  schema specific part of {@link URI}, throws {@link IllegalArgumentException} if empty or null
+     * @param inputStream {@link InputStream} of the {@link ProcessResource}, can be null
+     * @param mimeType    mime type of the {@link ProcessResource}, defaults to {@link #DEFAULT_MIME_TYPE}
+     * @param name        name of the {@link ProcessResource}, defaults to {@link #DEFAULT_NAME}
+     */
     public ProcessResourceImpl(String metacardId, InputStream inputStream,
             @Nullable String mimeType, @Nullable String name) {
         this(metacardId, inputStream, mimeType, name, UNKNOWN_SIZE, "", true);
     }
 
+    /**
+     * Creates a {@link ProcessResource} with {@link ProcessResource#isModified()} set to {@code true}
+     * and {@link ProcessResource#getQualifier()} set to empty string.
+     *
+     * @param metacardId  schema specific part of {@link URI}, throws {@link IllegalArgumentException} if empty or null
+     * @param inputStream {@link InputStream} of the {@link ProcessResource}, can be null
+     * @param mimeType    mime type of the {@link ProcessResource}, defaults to {@link #DEFAULT_MIME_TYPE}
+     * @param name        name of the {@link ProcessResource}, defaults to {@link #DEFAULT_NAME}
+     * @param size        size of the {@link ProcessResource}'s {@param inputStream}, throws {@link IllegalArgumentException}
+     *                    if less than -1
+     */
     public ProcessResourceImpl(String metacardId, InputStream inputStream,
             @Nullable String mimeType, @Nullable String name, long size) {
         this(metacardId, inputStream, mimeType, name, size, "", true);
     }
 
+    /**
+     * Creates a {@link ProcessResource} with {@link ProcessResource#getQualifier()} set to empty string.
+     *
+     * @param metacardId  schema specific part of {@link URI}, throws {@link IllegalArgumentException} if empty or null
+     * @param inputStream {@link InputStream} of the {@link ProcessResource}, can be null
+     * @param mimeType    mime type of the {@link ProcessResource}, defaults to {@link #DEFAULT_MIME_TYPE}
+     * @param name        name of the {@link ProcessResource}, defaults to {@link #DEFAULT_NAME}
+     * @param size        size of the {@link ProcessResource}'s {@param inputStream}, throws {@link IllegalArgumentException}
+     *                    if less than -1
+     * @param isModified  flags whether {@link ddf.catalog.content.operation.UpdateStorageRequest}s are sent back to the {@link ddf.catalog.CatalogFramework}
+     *                    for this {@link ProcessResource}
+     */
     public ProcessResourceImpl(String metacardId, InputStream inputStream,
             @Nullable String mimeType, @Nullable String name, long size, boolean isModified) {
         this(metacardId, inputStream, mimeType, name, size, "", isModified);
     }
 
+    /**
+     * Creates a {@link ProcessResource} with {@link ProcessResource#getQualifier()} set to empty string.
+     *
+     * @param metacardId  schema specific part of {@link URI}, throws {@link IllegalArgumentException} if empty or null
+     * @param inputStream {@link InputStream} of the {@link ProcessResource}, can be null
+     * @param mimeType    mime type of the {@link ProcessResource}, defaults to {@link #DEFAULT_MIME_TYPE}
+     * @param name        name of the {@link ProcessResource}, defaults to {@link #DEFAULT_NAME}
+     * @param size        size of the {@link ProcessResource}'s {@param inputStream}, throws {@link IllegalArgumentException}
+     *                    if less than -1
+     * @param qualifier   fragment of the {@link ProcessResource}'s {@link URI}, defaults to empty string
+     */
     public ProcessResourceImpl(String metacardId, InputStream inputStream,
             @Nullable String mimeType, @Nullable String name, long size,
             @Nullable String qualifier) {

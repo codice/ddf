@@ -19,6 +19,11 @@ import ddf.catalog.data.Metacard;
 
 public class ProcessDeleteItemImpl extends ProcessItemImpl implements ProcessDeleteItem {
 
+    /**
+     * Creates a new {@link ProcessDeleteItem}
+     *
+     * @param metacard a non null {@link Metacard} that is being deleted.
+     */
     public ProcessDeleteItemImpl(Metacard metacard) {
         super(metacard);
     }

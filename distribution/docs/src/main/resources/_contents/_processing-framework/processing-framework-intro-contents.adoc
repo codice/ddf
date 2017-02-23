@@ -5,13 +5,14 @@ This code is experimental. While this interface is functional and tested, it may
 
 The *Asynchronous Processing Framework* is a way to run plugins asynchronously. Generally, plugins that take a significant amount of processing time and whose
 results are not immediately required are good candidates for being asynchronously processed. A *Processing Framework* can either be run on the local or
-remote system. Once the *Processing Framework* finishes processing incoming requests, it submits its results back to the Catalog. The type of plugins that a *Processing Framework*
-runs are the *Post-Process Plugins*. These plugins are run after the *Post-Ingest Plugins* and after all metacards have been ingested into the Catalog. This feature is uninstalled by default.
+remote system. Once the *Processing Framework* finishes processing incoming requests, it submits its results back to the Catalog as an update. The type of plugins that a *Processing Framework*
+runs are the *Post-Process Plugins*. The *Post-Process Plugins* are triggered by the *Processing Post Ingest Plugin*, which is a *Post-Ingest Plugin*. *Post-Ingest Plugins* are run after the metacard
+has been ingested into the Catalog. This feature is uninstalled by default.
 
 [WARNING]
 ====
 The *Processing Framework* does not support partial updates to the Catalog. This means that if any changes are made to a metacard in the Catalog between the time
-asynchronous processing starts and ends, those changes will be overridden by the *ProcessingFramework* updates sent back to the Catalog. This feature should be used with caution.
+asynchronous processing starts and ends, those changes will be overwritten by the *ProcessingFramework* updates sent back to the Catalog. This feature should be used with caution.
 ====
 
 === The Asynchronous Processing Framework API Interfaces
@@ -28,18 +29,20 @@ asynchronous processing starts and ends, those changes will be overridden by the
 
 ==== ProcessingFramework
 
-The `ProcessingFramework` is responsible for processing incoming `ProcessRequests` that contains a `ProcessItem`. A `ProcessingFramework` should never block. It receives
-its `ProcessRequests` from a `PostIngestPlugin` on all CUD operations to the Catalog. In order to determine whether or not asynchronous processing
+The `ProcessingFramework` is responsible for processing incoming ``ProcessRequest``s that contain a `ProcessItem`. A `ProcessingFramework` should never block. It receives
+its ``ProcessRequest``s from a `PostIngestPlugin` on all CUD operations to the Catalog. In order to determine whether or not asynchronous processing
 is required by the `ProcessingFramework`, the `ProcessingFramework` should mark any request it has submitted back the Catalog, otherwise a processing loop may occur.
+For example, the default *In-Memory Processing Framework* adds a `POST_PROCESS_COMPLETE` flag to the Catalog CUD request after processing. This flag is checked by the
+`ProcessingPostIngestPlugin` before a `ProcessRequest` is sent to the `ProcessingFramework`. For an example of a `ProcessingFramework`, please refer to the `org.codice.ddf.catalog.async.processingframework.impl.InMemoryProcessingFramework`.
 
 ==== ProcessRequest
 
-Contains a list of `ProcessItems` for the `ProcessingFramework` to process. Once a `ProcessRequest` has been processed by a `ProcessingFramework`, the `ProcessingFramework`
+Contains a list of ``ProcessItem``s for the `ProcessingFramework` to process. Once a `ProcessRequest` has been processed by a `ProcessingFramework`, the `ProcessingFramework`
 should mark the `ProcessRequest` as already being processed, so that it does not process it again.
 
 ==== PostProcessPlugin
 
-The `PostProcessPlugin` is a plugin that will be run by the `ProcessingFramework`. It is capable of processing `ProcessCreateItem`, `ProcessUpdateItem`, and `ProcessDeleteItems`.
+The `PostProcessPlugin` is a plugin that will be run by the `ProcessingFramework`. It is capable of processing ``ProcessCreateItem``s, ``ProcessUpdateItem``s, and ``ProcessDeleteItem``s.
 
 ==== ProcessItem
 

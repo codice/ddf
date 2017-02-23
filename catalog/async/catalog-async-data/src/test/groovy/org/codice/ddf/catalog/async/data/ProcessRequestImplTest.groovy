@@ -35,7 +35,7 @@ class ProcessRequestImplTest extends Specification {
 
     def 'ProcessRequestImpl null ProcessItems throws IllegalArgumentException'() {
         when:
-        new ProcessRequestImpl<>(null, null)
+        new ProcessRequestImpl<>(null, [:])
 
         then:
         thrown(IllegalArgumentException)

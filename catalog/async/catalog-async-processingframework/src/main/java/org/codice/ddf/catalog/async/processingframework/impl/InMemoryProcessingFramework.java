@@ -19,16 +19,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
@@ -195,7 +194,7 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                                 .close();
                     } catch (IOException e) {
                         LOGGER.debug(
-                                "Failed to close stream of asynchronous request. There may be temporary files left in data/tmp.");
+                                "Failed to stream of process request. There may be temporary files left in data/tmp.");
                     }
                 });
     }
@@ -204,21 +203,26 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
             ProcessRequest<T> processRequest) {
         LOGGER.trace("Storing update request post processing change(s)");
 
-        Set<ContentItem> contentItemsToUpdate = new HashSet<>();
-        Set<Metacard> metacardsToUpdate = new HashSet<>();
+        Map<String, ContentItem> contentItemsToUpdate = new HashMap<>();
+        Map<String, Metacard> metacardsToUpdate = new HashMap<>();
 
         List<TemporaryFileBackedOutputStream> tfbosToCleanUp = new ArrayList<>();
         for (T item : processRequest.getProcessItems()) {
             if (item.getProcessResource() == null && item.isMetacardModified()) {
-                metacardsToUpdate.add(item.getMetacard());
+                metacardsToUpdate.put(item.getMetacard()
+                        .getId(), item.getMetacard());
             }
 
             final ProcessResource processResource = item.getProcessResource();
-            if (processResource != null && processResource.isModified()) {
+            TemporaryFileBackedOutputStream tfbos = null;
+            if (processResource != null && processResource.isModified()
+                    && !contentItemsToUpdate.containsKey(item.getMetacard()
+                    .getId() + processResource.getQualifier())) {
                 try {
-                    TemporaryFileBackedOutputStream tfbos = new TemporaryFileBackedOutputStream();
-                    long c = IOUtils.copyLarge(processResource.getInputStream(), tfbos);
-                    LOGGER.debug("Coppied {} bytes to TemporaryFileBackedOutputStream.", c);
+                    tfbos = new TemporaryFileBackedOutputStream();
+                    long numberOfBytes = IOUtils.copyLarge(processResource.getInputStream(), tfbos);
+                    LOGGER.debug("Copied {} bytes to TemporaryFileBackedOutputStream.",
+                            numberOfBytes);
                     ByteSource byteSource = tfbos.asByteSource();
 
                     ContentItem contentItem = new ContentItemImpl(item.getMetacard()
@@ -230,26 +234,29 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                             processResource.getSize(),
                             item.getMetacard());
 
-                    contentItemsToUpdate.add(contentItem);
+                    contentItemsToUpdate.put(contentItem.getId() + contentItem.getQualifier(),
+                            contentItem);
                     tfbosToCleanUp.add(tfbos);
                 } catch (IOException e) {
                     LOGGER.debug("Unable to store process request", e);
+                    close(tfbos);
                 }
             }
         }
 
         storeContentItemUpdates(contentItemsToUpdate, processRequest.getProperties());
         storeMetacardUpdates(metacardsToUpdate, processRequest.getProperties());
-        close(tfbosToCleanUp);
+        closeTfbos(tfbosToCleanUp);
     }
 
-    private void storeContentItemUpdates(Set<ContentItem> contentItemsToUpdate,
+    private void storeContentItemUpdates(Map<String, ContentItem> contentItemsToUpdate,
             Map<String, Serializable> properties) {
-        if (CollectionUtils.isNotEmpty(contentItemsToUpdate)) {
+        if (MapUtils.isNotEmpty(contentItemsToUpdate)) {
             LOGGER.trace("Storing content item updates(s)");
 
             UpdateStorageRequest updateStorageRequest =
-                    new UpdateStorageRequestImpl(new ArrayList<>(contentItemsToUpdate), properties);
+                    new UpdateStorageRequestImpl(new ArrayList<>(contentItemsToUpdate.values()),
+                            properties);
 
             Subject subject = (Subject) updateStorageRequest.getProperties()
                     .get(SecurityConstants.SECURITY_SUBJECT);
@@ -273,22 +280,25 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         }
     }
 
-    private void close(List<TemporaryFileBackedOutputStream> tfbosToCleanUp) {
-        tfbosToCleanUp.forEach(tfbos -> {
-            try {
-                tfbos.close();
-            } catch (IOException e) {
-                LOGGER.debug("Failed to cleanup temporary file.");
-            }
-        });
+    private void closeTfbos(List<TemporaryFileBackedOutputStream> tfbosToCleanUp) {
+        tfbosToCleanUp.forEach(this::close);
     }
 
-    private void storeMetacardUpdates(Set<Metacard> metacardsToUpdate,
+    private void close(TemporaryFileBackedOutputStream tfbos) {
+        try {
+            tfbos.close();
+        } catch (IOException e) {
+            LOGGER.debug("Failed to cleanup temporary file.");
+        }
+    }
+
+    private void storeMetacardUpdates(Map<String, Metacard> metacardsToUpdate,
             Map<String, Serializable> properties) {
-        if (CollectionUtils.isNotEmpty(metacardsToUpdate)) {
+        if (MapUtils.isNotEmpty(metacardsToUpdate)) {
             LOGGER.trace("Storing metacard updates");
 
-            List<Map.Entry<Serializable, Metacard>> updateList = metacardsToUpdate.stream()
+            List<Map.Entry<Serializable, Metacard>> updateList = metacardsToUpdate.values()
+                    .stream()
                     .map(metacard -> new AbstractMap.SimpleEntry<Serializable, Metacard>(metacard.getId(),
                             metacard))
                     .collect(Collectors.toList());

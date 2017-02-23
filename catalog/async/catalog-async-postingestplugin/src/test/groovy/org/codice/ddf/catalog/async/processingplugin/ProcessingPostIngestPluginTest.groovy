@@ -54,7 +54,6 @@ class ProcessingPostIngestPluginTest extends Specification {
         catalogFramework       | processingFramework
         null                   | Mock(ProcessingFramework)
         Mock(CatalogFramework) | null
-        null                   | null
     }
 
     /*
