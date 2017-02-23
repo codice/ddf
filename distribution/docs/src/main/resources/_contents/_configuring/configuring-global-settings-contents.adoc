@@ -224,6 +224,29 @@ TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 |org.apache.xerces.jaxp.DocumentBuilderFactoryImpl
 |Yes
 
+
+6+^h|Catalog Source Retry Interval
+
+|Initial Endpoint Contact Interval
+|org.codice.ddf.platform.util.http.initialRetryInterval
+|Integer
+|If a Catalog Source is unavailable, try to connect to it after the initial interval has elapsed.
+After every retry, the interval doubles, up to a given maximum interval.
+The interval is measured in seconds.
+|10
+|Yes
+
+|Maximum Endpoint Contact Interval
+|Maximum seconds between attempts to establish contact with unavailable Catalog Source.
+|Integer
+|Do not wait longer than the maximum interval to attempt to establish a connection with an
+unavailable Catalog Source. Smaller values result in more current information about the status
+ of Catalog Sources, but cause more network traffic.
+The interval is measured in seconds.
+|300
+|Yes
+
+
 6+^h|File Upload Settings
 
 |File extensions flagged as potentially dangerous to the host system or external clients
