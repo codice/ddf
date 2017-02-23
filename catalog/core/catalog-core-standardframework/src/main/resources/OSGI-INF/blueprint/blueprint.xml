@@ -64,6 +64,8 @@
     </bean>
     <bean id="resourceReaderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
     </bean>
+    <bean id="preAuthSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
     <bean id="policySortedList" class="ddf.catalog.util.impl.SortedServiceList">
     </bean>
     <bean id="accessSortedList" class="ddf.catalog.util.impl.SortedServiceList">
@@ -196,6 +198,12 @@
                     availability="optional">
         <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="resourceReaderSortedList"/>
+    </reference-list>
+
+    <reference-list id="preAuthPlugins" interface="ddf.catalog.plugin.PreAuthorizationPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="preAuthSortedList"/>
     </reference-list>
 
     <reference-list id="policyPlugins" interface="ddf.catalog.plugin.PolicyPlugin"
@@ -393,6 +401,7 @@
                 <property name="downloadsStatusEventPublisher" ref="retrieveStatusEventPublisher"/>
                 <property name="reliableResourceDownloadManager"
                           ref="reliableResourceDownloadManager"/>
+                <property name="preAuthPlugins" ref="preAuthSortedList"/>
                 <property name="policyPlugins" ref="policySortedList"/>
                 <property name="accessPlugins" ref="accessSortedList"/>
                 <property name="filterBuilder" ref="filterBuilder"/>

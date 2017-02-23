@@ -157,6 +157,7 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.PostResourcePlugin;
+import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
@@ -1035,6 +1036,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             Map<String, Serializable> unmodifiablePropertiesMap = Collections.unmodifiableMap(
                     createRequest.getProperties());
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+
+            for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthPlugins()) {
+                createRequest = plugin.processPreCreate(createRequest);
+            }
+
             for (Metacard metacard : createRequest.getMetacards()) {
                 HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
                 for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
@@ -1418,6 +1424,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 throw new IngestException("Could not find all metacards specified in request");
             }
 
+            for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthPlugins()) {
+                updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
+            }
+
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
             for (Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
                 HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
@@ -1632,6 +1642,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             deleteStorageRequest = new DeleteStorageRequestImpl(metacards,
                     deleteRequest.getProperties());
 
+            for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthPlugins()) {
+                deleteRequest = plugin.processPreDelete(deleteRequest);
+            }
+
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
             Map<String, Serializable> unmodifiableProperties = Collections.unmodifiableMap(
                     deleteRequest.getProperties());
@@ -1695,6 +1709,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     deleteResponse.getProcessingErrors()
                             .addAll(remoteDeleteResponse.getProcessingErrors());
                 }
+            }
+
+            for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthPlugins()) {
+                deleteResponse = plugin.processPostDelete(deleteResponse);
             }
 
             HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
@@ -1853,6 +1871,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         queryRequest.getProperties());
             }
 
+            for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthPlugins()) {
+                try {
+                    queryReq = plugin.processPreQuery(queryReq);
+                } catch (StopProcessingException e) {
+                    throw new RuntimeException(
+                            "Processing signaled to stop prior to query in a PreAuthorization Plugin");
+                }
+            }
+
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
             Map<String, Serializable> unmodifiableProperties =
                     Collections.unmodifiableMap(queryReq.getProperties());
@@ -1905,6 +1932,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             queryResponse = doQuery(queryReq, fedStrategy);
 
             queryResponse = validateFixQueryResponse(queryResponse, overrideFanoutRename);
+
+            for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthPlugins()) {
+                try {
+                    queryResponse = plugin.processPostQuery(queryResponse);
+                } catch (StopProcessingException e) {
+                    throw new RuntimeException(
+                            "Processing signaled to stop after the query in a PreAuthorization Plugin");
+                }
+            }
 
             HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
             unmodifiableProperties = Collections.unmodifiableMap(queryResponse.getProperties());
@@ -2483,6 +2519,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
 
         validateGetResourceRequest(resourceReq);
+
+        for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthPlugins()) {
+            try {
+                resourceReq = plugin.processPreResource(resourceReq);
+            } catch (StopProcessingException e) {
+                throw new RuntimeException(
+                        "Processing signaled to stop prior to resource in a PreAuthorization Plugin");
+            }
+        }
+
         try {
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
             for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
@@ -2585,6 +2631,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             resourceResponse = putPropertiesInResponse(resourceReq, resourceResponse);
 
             resourceResponse = validateFixGetResourceResponse(resourceResponse, resourceReq);
+
+            for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthPlugins()) {
+                try {
+                    resourceResponse = plugin.processPostResource(resourceResponse, metacard);
+                } catch (StopProcessingException e) {
+                    throw new RuntimeException(
+                            "Processing signaled to stop after the resource in a PreAuthorization Plugin");
+                }
+            }
 
             HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
             for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {

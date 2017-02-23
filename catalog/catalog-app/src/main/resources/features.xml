@@ -398,5 +398,12 @@
         <feature>catalog-core-api</feature>
         <feature>catalog-core</feature>
     </feature>
-    
+
+    <feature name="catalog-metacard-enrichment" install="auto" version="${project.version}"
+             description="Conditional, rule-based enhancement and modification to metacards">
+        <feature prerequisite="true">catalog-core-api</feature>
+        <feature prerequisite="true">clientinfo-filter</feature>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-clientinfo/${project.version}</bundle>
+    </feature>
+
 </features>

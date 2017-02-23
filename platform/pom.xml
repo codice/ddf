@@ -372,5 +372,6 @@
         <module>admin</module>
         <module>landing-page</module>
         <module>platform-app</module>
+        <module>platform-filter-clientinfo</module>
     </modules>
 </project>
