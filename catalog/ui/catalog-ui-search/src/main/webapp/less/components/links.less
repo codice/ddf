@@ -1,0 +1,16 @@
+a {
+    color: @links-color;
+
+    &:hover {
+        .is-bold();
+        color: shade(@links-color, 10%);
+        text-decoration: underline;
+    }
+
+    &:visited {
+        color: @links-visited-color;
+        &:hover {
+            color: shade(@links-visited-color, 10%);
+        }
+    }
+}
