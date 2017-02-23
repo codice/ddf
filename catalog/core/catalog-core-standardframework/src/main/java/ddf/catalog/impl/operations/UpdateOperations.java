@@ -49,6 +49,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.FrameworkProperties;
@@ -612,6 +613,8 @@ public class UpdateOperations {
 
         updateRequest = rewriteRequestToAvoidHistoryConflicts(updateRequest, query);
 
+        updateRequest = populateResourceUris(updateRequest, query);
+
         HashMap<String, Metacard> metacardMap = new HashMap<>(query.getResults()
                 .stream()
                 .map(Result::getMetacard)
@@ -732,5 +735,38 @@ public class UpdateOperations {
         OverrideAttributesSupport.overrideAttributes(updateStorageRequest.getContentItems(),
                 metacardMap);
         return updateStorageRequest;
+    }
+
+    private UpdateRequest populateResourceUris(UpdateRequest updateRequest, QueryResponse query) {
+        Set<Metacard> updateRequestMetacards = updateRequest.getUpdates()
+                .stream()
+                .map(Map.Entry::getValue)
+                .filter(metacard -> metacard.getResourceURI() == null)
+                .collect(Collectors.toSet());
+
+        Map<String, Metacard> queryResultMetacards = query.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .filter(Objects::nonNull)
+                .filter(metacard -> metacard.getResourceURI() != null)
+                .collect(Collectors.toMap(Metacard::getId, Function.identity()));
+
+        for (Metacard updateMetacard : updateRequestMetacards) {
+            Metacard queriedMetacard = queryResultMetacards.get(updateMetacard.getId());
+            if (queriedMetacard != null && queriedMetacard.getId()
+                    .equals(updateMetacard.getId())) {
+                LOGGER.info(
+                        "Found URI \"{}\" missing from updated Metacard with ID \"{}\". Setting Metacard field \"{}\" with the value.",
+                        queriedMetacard.getResourceURI()
+                                .toString(),
+                        updateMetacard.getId(),
+                        Core.RESOURCE_URI);
+                updateMetacard.setAttribute(new AttributeImpl(Core.RESOURCE_URI,
+                        queriedMetacard.getResourceURI()
+                                .toString()));
+            }
+        }
+
+        return updateRequest;
     }
 }
