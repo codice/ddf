@@ -28,10 +28,6 @@
         <property name="fallbackPowerpointMetacardType" ref="fallbackPowerpointMetacardType"/>
     </bean>
 
-    <reference id="commonMetacardType" interface="ddf.catalog.data.MetacardType"
-               filter="(name=common)"
-               availability="mandatory"/>
-
     <reference-list id="contentExtractors"
                     interface="ddf.catalog.content.operation.ContentMetadataExtractor"
                     availability="optional">
@@ -47,7 +43,7 @@
                 <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
-                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
             </list>
         </argument>
@@ -60,12 +56,11 @@
                 <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
-                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
             </list>
         </argument>
     </bean>
-
 
     <bean id="fallbackJpegMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
         <argument value="fallback.jpeg"/>
@@ -74,12 +69,11 @@
                 <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
-                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
             </list>
         </argument>
     </bean>
-
 
     <bean id="fallbackMp4MetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
         <argument value="fallback.mp4"/>
@@ -88,13 +82,12 @@
                 <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
-                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.transformer.common.tika.Mp4MetacardType"/>
             </list>
         </argument>
     </bean>
-
 
     <bean id="fallbackMpegMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
         <argument value="fallback.mpeg"/>
@@ -103,12 +96,11 @@
                 <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
-                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
             </list>
         </argument>
     </bean>
-
 
     <bean id="fallbackOfficeDocMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
         <argument value="fallback.doc"/>
@@ -117,12 +109,11 @@
                 <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
-                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
             </list>
         </argument>
     </bean>
-
 
     <bean id="fallbackPdfMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
         <argument value="fallback.pdf"/>
@@ -131,12 +122,11 @@
                 <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
-                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
             </list>
         </argument>
     </bean>
-
 
     <bean id="fallbackPowerpointMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
         <argument value="fallback.powerpoint"/>
@@ -145,12 +135,11 @@
                 <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
-                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
             </list>
         </argument>
     </bean>
-
 
     <service ref="commonTikaMetacardType" interface="ddf.catalog.data.MetacardType">
         <service-properties>
