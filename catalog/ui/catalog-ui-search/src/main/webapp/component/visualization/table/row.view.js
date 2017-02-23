@@ -60,25 +60,22 @@ module.exports = Marionette.ItemView.extend({
                 return availableAttributes.indexOf(property) !== -1;
             }).map(function(property) {
                 var value = result.metacard.properties[property];
-                var text = undefined;
-                var html = undefined;
+                if (value === undefined){
+                    value = '';
+                }
+                if (value.constructor !== Array){
+                    value = [value];
+                }
+                var html;
                 var className = 'is-text';
                 if (value && metacardDefinitions.metacardTypes[property]) {
                     switch (metacardDefinitions.metacardTypes[property].type) {
                         case 'DATE':
-                            if (value.constructor === Array) {
-                                value = value.map(function(val) {
-                                    return Common.getHumanReadableDate(val);
-                                });
-                            } else {
-                                value = Common.getHumanReadableDate(value);
-                            }
+                            value = value.map(function(val) {
+                                return val !== undefined && val !== '' ? Common.getHumanReadableDate(val) : '';
+                            });
                             break;
                         default:
-                            if (value.constructor === String && value.indexOf('http') === 0) {
-                                text = properties.attributeAliases[property] || property;
-                                html = '<a href="' + Common.escapeHTML(value) + '" target="_blank">' + text + '</a>';
-                            }
                             break;
                     }
                 }
@@ -87,7 +84,6 @@ module.exports = Marionette.ItemView.extend({
                     className = "is-thumbnail";
                 }
                 return {
-                    text: text || value,
                     property: property,
                     value: value,
                     html: html,

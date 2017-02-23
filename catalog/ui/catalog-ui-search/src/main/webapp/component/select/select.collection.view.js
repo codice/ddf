@@ -119,7 +119,7 @@ define([
             }
         },
         filter: function(child){
-            return child.get('label').toLowerCase().indexOf(this.filterValue) > -1;
+            return child.get('label').toString().toLowerCase().indexOf(this.filterValue) > -1;
         },
         updateValue: function(){
             var values = _.map(this.$el.children('.is-selected'), function(choice){

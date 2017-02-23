@@ -11,6 +11,17 @@
  *
  **/
  --}}
-<span class="choice-text">
-    {{label}}
-</span>
+<div class="choice-text" title="{{label}}">
+    {{#each label}}
+        <span>
+            {{this}}
+        </span>
+    {{else}}
+        <span>
+            {{label}}
+        </span>
+    {{/each}}
+</div>
+<div class="choice-hits" title="{{hits}} result(s) have this value" data-help="This number represents how many results have this value.">
+    ({{hits}})
+</div>
