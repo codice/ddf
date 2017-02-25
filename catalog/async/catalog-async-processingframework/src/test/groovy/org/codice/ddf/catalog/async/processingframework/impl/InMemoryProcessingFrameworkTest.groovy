@@ -165,7 +165,7 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * catalogFramework.update(_ as UpdateRequest)
 
         where:
-        exception << [new IngestException(), new SourceUnavailableException()]
+        exception << [new IngestException(), new SourceUnavailableException(), new RuntimeException()]
     }
 
     def 'test submitCreate catalogFramework.update(updateMetacardsRequest) exceptions'(Exception exception) {
@@ -185,7 +185,7 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * catalogFramework.update(_ as UpdateRequest) >> { throw exception }
 
         where:
-        exception << [new IngestException(), new SourceUnavailableException()]
+        exception << [new IngestException(), new SourceUnavailableException(), new RuntimeException()]
     }
 
     /*

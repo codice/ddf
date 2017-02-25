@@ -95,7 +95,8 @@ public class ProcessResourceImpl implements ProcessResource {
     }
 
     /**
-     * Creates a {@link ProcessResource} with {@link ProcessResource#getQualifier()} set to empty string.
+     * Creates a {@link ProcessResource} with {@link ProcessResource#isModified()} set to {@code true}
+     * and {@link ProcessResource#getQualifier()} set to empty string.
      *
      * @param metacardId  schema specific part of {@link URI}, throws {@link IllegalArgumentException} if empty or null
      * @param inputStream {@link InputStream} of the {@link ProcessResource}, can be null

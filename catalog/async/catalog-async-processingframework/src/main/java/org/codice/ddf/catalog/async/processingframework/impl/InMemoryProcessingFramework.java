@@ -205,8 +205,8 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
 
         Map<String, ContentItem> contentItemsToUpdate = new HashMap<>();
         Map<String, Metacard> metacardsToUpdate = new HashMap<>();
-
         List<TemporaryFileBackedOutputStream> tfbosToCleanUp = new ArrayList<>();
+
         for (T item : processRequest.getProcessItems()) {
             if (item.getProcessResource() == null && item.isMetacardModified()) {
                 metacardsToUpdate.put(item.getMetacard()
@@ -216,8 +216,8 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
             final ProcessResource processResource = item.getProcessResource();
             TemporaryFileBackedOutputStream tfbos = null;
             if (processResource != null && processResource.isModified()
-                    && !contentItemsToUpdate.containsKey(item.getMetacard()
-                    .getId() + processResource.getQualifier())) {
+                    && !contentItemsToUpdate.containsKey(getContentItemKey(item.getMetacard(),
+                    processResource))) {
                 try {
                     tfbos = new TemporaryFileBackedOutputStream();
                     long numberOfBytes = IOUtils.copyLarge(processResource.getInputStream(), tfbos);
@@ -234,12 +234,14 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                             processResource.getSize(),
                             item.getMetacard());
 
-                    contentItemsToUpdate.put(contentItem.getId() + contentItem.getQualifier(),
+                    contentItemsToUpdate.put(getContentItemKey(item.getMetacard(), processResource),
                             contentItem);
                     tfbosToCleanUp.add(tfbos);
-                } catch (IOException e) {
+                } catch (IOException | RuntimeException e) {
                     LOGGER.debug("Unable to store process request", e);
-                    close(tfbos);
+                    if (tfbos != null) {
+                        close(tfbos);
+                    }
                 }
             }
         }
@@ -268,8 +270,8 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                     try {
                         catalogFramework.update(updateStorageRequest);
                         LOGGER.debug("Successfully completed update storage request");
-                    } catch (IngestException | SourceUnavailableException e) {
-                        LOGGER.debug("Unable to complete update storage request", e);
+                    } catch (IngestException | SourceUnavailableException | RuntimeException e) {
+                        LOGGER.info("Unable to complete update storage request", e);
                     }
 
                     return null;
@@ -277,18 +279,6 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
             }
         } else {
             LOGGER.debug("No content items to update");
-        }
-    }
-
-    private void closeTfbos(List<TemporaryFileBackedOutputStream> tfbosToCleanUp) {
-        tfbosToCleanUp.forEach(this::close);
-    }
-
-    private void close(TemporaryFileBackedOutputStream tfbos) {
-        try {
-            tfbos.close();
-        } catch (IOException e) {
-            LOGGER.debug("Failed to cleanup temporary file.");
         }
     }
 
@@ -318,8 +308,8 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                     try {
                         catalogFramework.update(updateMetacardsRequest);
                         LOGGER.debug("Successfully completed update metacards request");
-                    } catch (IngestException | SourceUnavailableException e) {
-                        LOGGER.debug("Unable to complete update request", e);
+                    } catch (IngestException | SourceUnavailableException | RuntimeException e) {
+                        LOGGER.info("Unable to complete update request", e);
                     }
 
                     return null;
@@ -328,6 +318,22 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         } else {
             LOGGER.debug("No metacards to update");
         }
+    }
+
+    private void closeTfbos(List<TemporaryFileBackedOutputStream> tfbosToCleanUp) {
+        tfbosToCleanUp.forEach(this::close);
+    }
+
+    private void close(TemporaryFileBackedOutputStream tfbos) {
+        try {
+            tfbos.close();
+        } catch (IOException e) {
+            LOGGER.debug("Failed to cleanup temporary file.");
+        }
+    }
+
+    private String getContentItemKey(Metacard metacard, ProcessResource processResource) {
+        return metacard.getId() + processResource.getQualifier();
     }
 
     public void setPostProcessPlugins(List<PostProcessPlugin> postProcessPlugins) {
