@@ -38,6 +38,7 @@ import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.locationtech.spatial4j.exception.InvalidShapeException;
 import org.locationtech.spatial4j.io.ShapeReader;
 import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -656,21 +657,26 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
         Geometry geo = null;
         try {
-            geo = reader.read(sanitizeGeometry(wkt));
+            geo = reader.read(fixSelfIntersectingGeometry(wkt));
         } catch (ParseException e) {
             LOGGER.info("Failed to read WKT: {}", wkt, e);
         }
         return geo;
     }
 
-    private String sanitizeGeometry(String wkt) {
+    private String fixSelfIntersectingGeometry(String wkt) {
         try {
             Shape wktShape = WKT_READER.read(wkt);
+            //All polygons will be an instance of JtsGeometry. If it is not a polygon we don't need
+            //to do anything with it so just return the original wkt string.
+            if(!(wktShape instanceof JtsGeometry)){
+                return wkt;
+            }
             return SPATIAL_CONTEXT.getFormats()
                     .getWktWriter()
                     .toString(wktShape);
         } catch (IOException | java.text.ParseException | InvalidShapeException e) {
-            LOGGER.info("Failed to sanitize or read WKT: {}", wkt, e);
+            LOGGER.info("Failed to fix or read WKT: {}", wkt, e);
         }
         return wkt;
     }
@@ -949,7 +955,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             throw new UnsupportedOperationException("Wkt should not be null or empty.");
         }
 
-        String geoQuery = geoIndexName + ":\"" + operation + "(" + sanitizeGeometry(wkt) + ")\"";
+        String geoQuery = geoIndexName + ":\"" + operation + "(" + fixSelfIntersectingGeometry(wkt) + ")\"";
 
         Geometry pnt = getGeometry(wkt);
         if (pnt != null) {
