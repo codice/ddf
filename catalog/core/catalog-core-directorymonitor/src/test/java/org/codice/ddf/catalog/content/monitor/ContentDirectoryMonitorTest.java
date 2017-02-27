@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import ddf.catalog.Constants;
-
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
@@ -53,8 +51,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     private static final String DUMMY_DATA = "Dummy data in a text file. ";
 
-    private static final List<String> ATTRIBUTE_OVERRIDES = Arrays.asList("test1=someParameter1",
-            "test2=someParameter2");
+    private static final String[] ATTRIBUTE_OVERRIDES =
+            new String[] {"test1=someParameter1", "test1=someParameter0", "test2=(some,parameter,with,commas)"};
 
     private static final int MAX_SECONDS_FOR_FILE_COPY = 5;
 
@@ -184,9 +182,9 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
                 1000);
         RouteDefinition routeDefinition = camelContext.getRouteDefinitions()
                 .get(0);
-        assertThat(routeDefinition.toString(), containsString(
-                "SetHeader[" + Constants.ATTRIBUTE_OVERRIDES_KEY
-                        + ", simple{Simple: test1=someParameter1,test2=someParameter2}"));
+        assertThat(routeDefinition.toString(),
+                containsString("SetHeader[" + Constants.ATTRIBUTE_OVERRIDES_KEY
+                        + ", {{test2=[(some,parameter,with,commas)], test1=[someParameter1, someParameter0]}}"));
     }
 
     @Test
@@ -312,12 +310,12 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     }
 
     private void submitConfigOptions(ContentDirectoryMonitor monitor, String monitoredDirectory,
-            String processingMechanism, List<String> attributeOverrides, int numThreads,
+            String processingMechanism, String[] attributeOverrides, int numThreads,
             int readLockIntervalMilliseconds) throws Exception {
         Map<String, Object> properties = new HashMap<>();
         properties.put("monitoredDirectoryPath", monitoredDirectory);
         properties.put("processingMechanism", processingMechanism);
-        properties.put("attributeOverrides", attributeOverrides.toArray());
+        properties.put("attributeOverrides", attributeOverrides);
         properties.put("numThreads", numThreads);
         properties.put("readLockIntervalMilliseconds", readLockIntervalMilliseconds);
         monitor.updateCallback(properties);

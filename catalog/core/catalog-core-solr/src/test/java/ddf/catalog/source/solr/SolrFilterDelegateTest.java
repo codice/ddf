@@ -87,6 +87,28 @@ public class SolrFilterDelegateTest {
     }
 
     @Test
+    public void selfIntersectingPolygon() {
+        String wkt = "POLYGON((0 0, 10 0, 10 20, 5 -5, 0 20, 0 0))";
+        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false)).toReturn(
+                "testProperty_geohash_index");
+        SolrQuery query = toTest.contains("testProperty", wkt);
+        assertThat(query.getQuery(),
+                startsWith(
+                        "testProperty_geohash_index:\"Contains(POLYGON ((5 -5, 0 0, 0 20, 10 20, 10 0, 5 -5)))\""));
+    }
+
+    @Test
+    public void nonIntersectingPolygon() {
+        String wkt = "POLYGON((5 -5, 0 0, 0 20, 10 20, 10 0, 5 -5))";
+        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false)).toReturn(
+                "testProperty_geohash_index");
+        SolrQuery query = toTest.contains("testProperty", wkt);
+        assertThat(query.getQuery(),
+                startsWith(
+                        "testProperty_geohash_index:\"Contains(POLYGON ((5 -5, 0 0, 0 20, 10 20, 10 0, 5 -5)))\""));
+    }
+
+    @Test
     public void reservedSpecialCharactersIsEqual() {
         // given a text property
         stub(mockResolver.getField("testProperty", AttributeFormat.STRING, true)).toReturn(

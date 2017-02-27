@@ -14,29 +14,20 @@
 package ddf.catalog.cache.solr.impl;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 
-import com.google.common.collect.Lists;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.solr.DynamicSchemaResolver;
-import ddf.catalog.source.solr.SchemaFields;
-import ddf.catalog.source.solr.SolrFilterDelegate;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
 import ddf.catalog.source.solr.SolrMetacardClientImpl;
 
@@ -62,29 +53,6 @@ class CacheSolrMetacardClient extends SolrMetacardClientImpl {
 
     public UpdateResponse delete(String query) throws IOException, SolrServerException {
         return getClient().deleteByQuery(query);
-    }
-
-    @Override
-    protected SolrQuery postAdapt(QueryRequest request, SolrFilterDelegate filterDelegate,
-            SolrQuery query) throws UnsupportedQueryException {
-        if (request.getSourceIds() != null) {
-            List<SolrQuery> sourceQueries = new ArrayList<>();
-            for (String source : request.getSourceIds()) {
-                sourceQueries.add(filterDelegate.propertyIsEqualTo(StringUtils.removeEnd(SolrCache.METACARD_SOURCE_NAME,
-                        SchemaFields.TEXT_SUFFIX), source, true));
-            }
-            if (sourceQueries.size() > 0) {
-                SolrQuery allSourcesQuery;
-                if (sourceQueries.size() > 1) {
-                    allSourcesQuery = filterDelegate.or(sourceQueries);
-                } else {
-                    allSourcesQuery = sourceQueries.get(0);
-                }
-                query = filterDelegate.and(Lists.newArrayList(query, allSourcesQuery));
-            }
-        }
-
-        return super.postAdapt(request, filterDelegate, query);
     }
 
     @Override

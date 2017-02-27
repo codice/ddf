@@ -20,11 +20,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
 
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.Query;
@@ -35,6 +37,7 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
 import ddf.catalog.util.impl.Requests;
+import ddf.security.permission.Permissions;
 
 public class RegistryPolicyPlugin implements PolicyPlugin {
 
@@ -146,10 +149,22 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
 
     private PolicyResponse getWritePolicy(Metacard input, Map<String, Serializable> properties,
             Map<String, Set<String>> policy) {
-        HashMap<String, Set<String>> operationPolicy = new HashMap<>();
+
+        Map<String, Set<String>> operationPolicy = new HashMap<>();
+        Map<String, Set<String>> securityAttributes = new HashMap<>();
+
         if (Requests.isLocal(properties) && input != null && (
                 RegistryUtility.isInternalRegistryMetacard(input)
                         || RegistryUtility.isRegistryMetacard(input))) {
+
+            Attribute securityAttribute =
+                    input.getAttribute(RegistryObjectMetacardType.SECURITY_LEVEL);
+            if (securityAttribute != null) {
+                securityAttributes.putAll(Permissions.parsePermissionsFromString(securityAttribute.getValues()
+                        .stream()
+                        .map(Object::toString)
+                        .collect(Collectors.toList())));
+            }
             String registryBaseUrl = RegistryUtility.getStringAttribute(input,
                     RegistryObjectMetacardType.REGISTRY_BASE_URL,
                     null);
@@ -160,7 +175,11 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
                 operationPolicy.putAll(policy);
             }
         }
-        return new PolicyResponseImpl(operationPolicy, operationPolicy);
+        if (securityAttributes.isEmpty()) {
+            return new PolicyResponseImpl(operationPolicy, operationPolicy);
+        } else {
+            return new PolicyResponseImpl(operationPolicy, securityAttributes);
+        }
     }
 
     @Override

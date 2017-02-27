@@ -158,7 +158,7 @@ public class OpenSearchEndpoint implements OpenSearch {
                         new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources.split(","))));
 
                 // This code block is for backward compatibility to support src=local.
-                // Since local is a magic work, not in any specification, weneed to
+                // Since local is a magic word, not in any specification, we need to
                 // eventually remove support for it.
                 if (siteSet.remove(LOCAL)) {
                     LOGGER.debug("Found 'local' alias, replacing with {}.", SystemInfo.getSiteName());

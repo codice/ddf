@@ -357,6 +357,8 @@ include::{adoc-include}/_sources/federation-strategy-contents.adoc[]
 
 include::{adoc-include}/_sources/federated-sources-contents.adoc[]
 
+include::{adoc-include}/_sources/confluence-federated-source-contents.adoc[]
+
 include::{adoc-include}/_sources/csw-federated-source-contents.adoc[]
 
 include::{adoc-include}/_sources/csw-federation-profile-source-contents.adoc[]
