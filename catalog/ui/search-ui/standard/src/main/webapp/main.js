@@ -14,27 +14,27 @@
 require.config({
     paths: {
 
-        bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
-        bootstrapselect: 'lib/bootstrap-select/dist/js/bootstrap-select.min',
+        bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
+        bootstrapselect: 'bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
         cometd: 'lib/cometd/org/cometd',
         jquerycometd: 'lib/cometd/jquery/jquery.cometd',
-        moment: 'lib/moment/min/moment.min',
-        perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.min',
-        spin: 'lib/spin.js/spin',
-        q: 'lib/q/q',
-        spectrum: 'lib/spectrum/spectrum',
+        moment: 'moment/2.5.1/min/moment.min',
+        perfectscrollbar: 'perfect-scrollbar/0.5.7/min/perfect-scrollbar.min',
+        spin: 'spin.js/1.3.3/spin',
+        q: 'q/1.0.1/q',
+        spectrum: 'spectrum/1.6.0/spectrum',
 
         // backbone
-        backbone: 'lib/backbone/backbone',
-        backboneassociations: 'lib/backbone-associations/backbone-associations-min',
+        backbone: 'backbone/1.1.2/backbone',
+        backboneassociations: 'backbone-associations/0.6.2/backbone-associations-min',
         backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
-        backboneundo: 'lib/Backbone.Undo/Backbone.Undo',
-        poller: 'lib/backbone-poller/backbone.poller',
-        underscore: 'lib/lodash/lodash.min',
-        marionette: 'lib/marionette/lib/backbone.marionette.min',
-        'Backbone.ModelBinder': 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
-        collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
+        backboneundo: 'Backbone.Undo/0.2.5/Backbone.Undo',
+        poller: 'backbone-poller/1.1.3/backbone.poller',
+        underscore: 'lodash/3.7.0/lodash.min',
+        marionette: 'marionette/2.4.1/lib/backbone.marionette.min',
+        'Backbone.ModelBinder': 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
+        collectionbinder: 'backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
 
         // application
         application: 'js/application',
@@ -48,40 +48,40 @@ require.config({
         properties: 'properties',
 
         // jquery
-        jquery: 'lib/jquery/dist/jquery.min',
-        jsCookie: 'lib/js-cookie/src/js.cookie',
-        jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
-        datepicker: 'lib/jquery-ui/ui/minified/jquery.ui.datepicker.min',
-        progressbar: 'lib/jquery-ui/ui/minified/jquery.ui.progressbar.min',
-        slider: 'lib/jquery-ui/ui/minified/jquery.ui.slider.min',
-        mouse: 'lib/jquery-ui/ui/minified/jquery.ui.mouse.min',
+        jquery: 'jquery/1.12.4/dist/jquery.min',
+        jsCookie: 'js-cookie/2.1.1/src/js.cookie',
+        jqueryuiCore: 'jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
+        datepicker: 'jquery-ui/1.10.4/ui/minified/jquery.ui.datepicker.min',
+        progressbar: 'jquery-ui/1.10.4/ui/minified/jquery.ui.progressbar.min',
+        slider: 'jquery-ui/1.10.4/ui/minified/jquery.ui.slider.min',
+        mouse: 'jquery-ui/1.10.4/ui/minified/jquery.ui.mouse.min',
         datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
-        datepickerAddon: 'lib/jqueryui-timepicker-addon/src/jquery-ui-timepicker-addon',
-        purl: 'lib/purl/purl',
-        multiselect: 'lib/jquery-ui-multiselect-widget/src/jquery.multiselect',
-        multiselectfilter: 'lib/jquery-ui-multiselect-widget/src/jquery.multiselect.filter',
-        "jquery.ui.widget": 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
-        fileupload: 'lib/jquery-file-upload/js/jquery.fileupload',
-        jquerySortable: 'lib/jquery-ui/ui/minified/jquery.ui.sortable.min',
+        datepickerAddon: 'jqueryui-timepicker-addon/1.4.5/src/jquery-ui-timepicker-addon',
+        purl: 'purl/2.3.1/purl',
+        multiselect: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
+        multiselectfilter: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect.filter',
+        "jquery.ui.widget": 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
+        fileupload: 'jquery-file-upload/9.5.7/js/jquery.fileupload',
+        jquerySortable: 'jquery-ui/1.10.4/ui/minified/jquery.ui.sortable.min',
 
         // handlebars
-        handlebars: 'lib/handlebars/handlebars.min',
+        handlebars: 'handlebars/2.0.0/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
-        text: 'lib/requirejs-plugins/lib/text',
-        css: 'lib/require-css/css.min',
+        text: 'requirejs-plugins/1.0.2/lib/text',
+        css: 'require-css/0.1.5/css.min',
 
         // pnotify
-        pnotify: 'lib/pnotify/jquery.pnotify.min',
+        pnotify: 'pnotify/1.3.1/jquery.pnotify.min',
 
         // map
-        cesium: 'lib/cesiumjs/Cesium/Cesium',
+        cesium: 'cesiumjs/1.17.0/Cesium/Cesium',
         drawHelper: 'lib/cesium-drawhelper/DrawHelper',
-        openlayers: 'lib/openlayers3/build/ol',
-        usngs: 'lib/usng.js/usng',
+        openlayers: 'openlayers3/3.16.0/build/ol',
+        usngs: 'usng.js/0.2.2/usng',
 
-        wellknown: 'lib/wellknown/wellknown'
+        wellknown: 'wellknown/0.4.0/wellknown'
     },
 
     shim: {

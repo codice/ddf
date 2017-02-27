@@ -14,7 +14,6 @@
 module.exports = function (grunt) {
 
     require('load-grunt-tasks')(grunt);
-    grunt.loadTasks('src/main/grunt/tasks');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -27,9 +26,6 @@ module.exports = function (grunt) {
 
         clean: {
             build: ['target/webapp']
-        },
-        bower: {
-            install: {}
         },
         replace: {
             dist: {
@@ -187,10 +183,6 @@ module.exports = function (grunt) {
                 files: ['src/main/webapp/css/*.css'],
                 tasks: ['cssmin']
             },
-            bowerFile: {
-                files: ['src/main/webapp/bower.json'],
-                tasks: ['bower']
-            }
         }
     });
 
@@ -202,7 +194,7 @@ module.exports = function (grunt) {
     // grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
     // grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
 
-    grunt.registerTask('build', ['bower-offline-install', 'replace', 'less',
+    grunt.registerTask('build', ['replace', 'less',
         'cssmin', 'jshint']);
 
     grunt.registerTask('default', ['build', 'express:server', 'watch']);

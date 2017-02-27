@@ -14,38 +14,38 @@
 require.config({
     paths: {
 
-        bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
-        bootstrapselect: 'lib/bootstrap-select/dist/js/bootstrap-select.min',
+        bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
+        bootstrapselect: 'bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
-        perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.min',
+        perfectscrollbar: 'perfect-scrollbar/0.5.7/min/perfect-scrollbar.min',
 
         // backbone
-        backbone: 'lib/backbone/backbone',
-        backboneassociations: 'lib/backbone-associations/backbone-associations-min',
-        backboneundo: 'lib/Backbone.Undo/Backbone.Undo',
-        poller: 'lib/backbone-poller/backbone.poller',
-        underscore: 'lib/lodash/dist/lodash.underscore.min',
-        lodash: 'lib/lodash/dist/lodash.min',
-        marionette: 'lib/marionette/lib/backbone.marionette.min',
+        backbone: 'backbone/1.1.2/backbone',
+        backboneassociations: 'backbone-associations/0.6.2/backbone-associations-min',
+        backboneundo: 'Backbone.Undo/0.2.5/Backbone.Undo',
+        poller: 'backbone-poller/1.1.3/backbone.poller',
+        underscore: 'lodash/2.4.1/dist/lodash.underscore.min',
+        lodash: 'lodash/2.4.1/dist/lodash.min',
+        marionette: 'marionette/2.4.1/lib/backbone.marionette.min',
         // TODO test combining
-        modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
-        collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
+        modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
+        collectionbinder: 'backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
 
         // application
         application: 'js/application',
 
         // jquery
-        jquery: 'lib/jquery/dist/jquery.min',
-        jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
-        "jquery.ui.widget": 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
+        jquery: 'jquery/1.12.4/dist/jquery.min',
+        jqueryuiCore: 'jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
+        "jquery.ui.widget": 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
 
         // handlebars
-        handlebars: 'lib/handlebars/handlebars.min',
+        handlebars: 'handlebars/2.0.0/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
-        text: 'lib/requirejs-plugins/lib/text',
-        css: 'lib/require-css/css.min',
+        text: 'requirejs-plugins/1.0.2/lib/text',
+        css: 'require-css/0.1.5/css.min',
     },
 
     shim: {

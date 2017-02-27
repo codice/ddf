@@ -25,6 +25,21 @@ module.exports = {
             {
                 from: resolve('node_modules/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css'),
                 to: resolve('target/webapp/lib/eonasdan-bootstrap-datetimepicker/css/bootstrap-datetimepicker.css'),
+                force:true
+            },
+            {
+                from: resolve('node_modules/bootstrap'),
+                to: resolve('target/webapp/lib/bootstrap'),
+                force: true
+            },
+            {
+                from: resolve('node_modules/font-awesome'),
+                to: resolve('target/webapp/lib/font-awesome'),
+                force: true
+            },
+            {
+                from: resolve('target/META-INF/resources/webjars/jquery-ui-multiselect-widget/1.14'),
+                to: resolve('target/webapp/lib/jquery-ui-multiselect-widget'),
                 force: true
             }
         ])
@@ -72,8 +87,6 @@ module.exports = {
             bootstrap: 'bootstrap/dist/js/bootstrap.min',
             bootstrapselect: 'bootstrap-select/dist/js/bootstrap-select.min',
             bootstrapDatepicker: 'eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
-            spin: 'spin.js/spin',
-            q: 'q/q',
             strapdown: 'strapdown/v/0.2',
             // backbone
             backboneassociations: 'backbone-associations',
@@ -101,10 +114,9 @@ module.exports = {
             mouse: 'jquery-ui/mouse',
             datepickerOverride: 'jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
             purl: 'purl/purl',
-            multiselect$: 'jquery-ui-multiselect-widget/src/jquery.multiselect',
-            multiselectfilter: 'jquery-ui-multiselect-widget/src/jquery.multiselect.filter',
+            multiselect$: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
+            multiselectfilter: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect.filter',
             'jquery.ui.widget': 'jquery-ui/widget',
-            fileupload: 'jquery-file-upload/js/jquery.fileupload',
             jquerySortable: 'jquery-ui/sortable',
             // map
             //openlayers$: 'openlayers/dist/ol-debug.js',  // useful for debugging openlayers
@@ -121,6 +133,7 @@ module.exports = {
             './src/main/webapp/js',
             './src/main/webapp/lib/',
             './target/webapp/lib',
+            './target/META-INF/resources/webjars/',
         ].map(resolve)
     }
 };

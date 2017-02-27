@@ -14,7 +14,6 @@
 module.exports = function (grunt) {
 
     require('load-grunt-tasks')(grunt);
-    grunt.loadTasks('src/main/grunt/tasks');
 
     grunt.initConfig({
 
@@ -28,9 +27,6 @@ module.exports = function (grunt) {
 
         clean: {
             build: ['target/webapp']
-        },
-        bower: {
-            install: {}
         },
         cssmin: {
             compress: {
@@ -86,10 +82,6 @@ module.exports = function (grunt) {
                 files: ['src/main/webapp/css/*.css'],
                 tasks: ['cssmin']
             },
-            bowerFile: {
-                files: ['src/main/webapp/bower.json'],
-                tasks: ['bower']
-            }
         },
         simplemocha: {
             test: {
@@ -127,8 +119,8 @@ module.exports = function (grunt) {
                     {
                         expand: true,
                         flatten: true,
-                        src: 'target/webapp/lib/bootswatch/flatly/*',
-                        dest: 'target/webapp/lib/bootswatch/flatly'
+                        src: 'target/META-INF/resources/webjars/bootswatch/3.2.0/flatly/*',
+                        dest: 'target/META-INF/resources/webjars/bootswatch/3.2.0/flatly'
                     }
                 ]
             }
@@ -151,7 +143,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test', ['simplemocha:test']);
 
-    grunt.registerTask('build', ['bower-offline-install', 'replace', 'less',
+    grunt.registerTask('build', ['replace', 'less',
         'cssmin', 'jshint']);
 
     grunt.registerTask('default', ['build', 'express:server', 'watch']);

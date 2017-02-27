@@ -19,27 +19,27 @@
 
         paths: {
 
-            bootstrap: 'lib/bootstrap/dist/js/bootstrap.min',
-            q: 'lib/q/q',
+            bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
+            q: 'q/1.0.1/q',
 
             // backbone
-            backbone: 'lib/backbone/backbone',
-            underscore: 'lib/lodash/dist/lodash.underscore.min',
-            marionette: 'lib/marionette/lib/backbone.marionette.min',
+            backbone: 'backbone/1.1.2/backbone',
+            underscore: 'lodash/2.4.1/dist/lodash.underscore.min',
+            marionette: 'marionette/1.8.8/lib/backbone.marionette.min',
 
             // jquery
-            jquery: 'lib/jquery/dist/jquery.min',
-            jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
+            jquery: 'jquery/1.12.4/dist/jquery.min',
+            jqueryuiCore: 'jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
 
             // purl
-            purl: 'lib/purl/purl',
+            purl: 'purl/2.3.1/purl',
 
             // handlebars
-            handlebars: 'lib/handlebars/handlebars.min',
+            handlebars: 'handlebars/2.0.0/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: 'lib/requirejs-plugins/lib/text',
+            text: 'requirejs-plugins/1.0.2/lib/text',
 
             // default login ui
             app: 'js/application'
