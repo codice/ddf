@@ -98,6 +98,17 @@ public class SolrFilterDelegateTest {
     }
 
     @Test
+    public void squarePolygon() {
+        String wkt = "POLYGON ((0 10, 0 30, 20 30, 20 10, 0 10))";
+        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false)).toReturn(
+                "testProperty_geohash_index");
+        SolrQuery query = toTest.contains("testProperty", wkt);
+        assertThat(query.getQuery(),
+                startsWith(
+                        "testProperty_geohash_index:\"Contains(POLYGON ((0 10, 0 30, 20 30, 20 10, 0 10)))\""));
+    }
+
+    @Test
     public void nonIntersectingPolygon() {
         String wkt = "POLYGON((5 -5, 0 0, 0 20, 10 20, 10 0, 5 -5))";
         stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false)).toReturn(
@@ -106,6 +117,42 @@ public class SolrFilterDelegateTest {
         assertThat(query.getQuery(),
                 startsWith(
                         "testProperty_geohash_index:\"Contains(POLYGON ((5 -5, 0 0, 0 20, 10 20, 10 0, 5 -5)))\""));
+    }
+
+    @Test
+    public void polygonWithHoleAndSelfIntersecting() {
+        //in the case of a self-intersecting polygon with a hole the hole is lost in the conversion
+        String wkt =
+                "POLYGON ((0 0, 0 10, 13 3, 13 9, 0 0), (1 4, 1 7, 3 6, 3 4, 1 4))";
+        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false)).toReturn(
+                "testProperty_geohash_index");
+        SolrQuery query = toTest.contains("testProperty", wkt);
+        assertThat(query.getQuery(),
+                startsWith(
+                        "testProperty_geohash_index:\"Contains(POLYGON ((0 0, 0 10, 13 9, 13 3, 0 0)))\""));
+    }
+
+    @Test
+    public void multiPolygon() {
+        String wkt =
+                "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)), ((15 5, 40 10, 10 20, 5 10, 15 5)))";
+        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false)).toReturn(
+                "testProperty_geohash_index");
+        SolrQuery query = toTest.contains("testProperty", wkt);
+        assertThat(query.getQuery(),
+                startsWith(
+                        "testProperty_geohash_index:\"Contains(MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)), ((15 5, 40 10, 10 20, 5 10, 15 5))))\""));
+    }
+
+    @Test
+    public void polygonWithHole() {
+        String wkt = "POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30))";
+        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false)).toReturn(
+                "testProperty_geohash_index");
+        SolrQuery query = toTest.contains("testProperty", wkt);
+        assertThat(query.getQuery(),
+                startsWith(
+                        "testProperty_geohash_index:\"Contains(POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30)))\""));
     }
 
     @Test
