@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -30,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -70,6 +72,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -214,8 +218,16 @@ public class CswQueryFactoryTest {
 
         metacardTypeList = new ArrayList<>();
 
-        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter, getCswMetacardType(),
+        queryFactory = new CswQueryFactory(filterBuilder,
+                filterAdapter,
+                getCswMetacardType(),
                 metacardTypeList);
+
+        AttributeRegistry mockAttributeRegistry = mock(AttributeRegistry.class);
+        when(mockAttributeRegistry.lookup(TITLE_TEST_ATTRIBUTE)).thenReturn(Optional.of(mock(
+                AttributeDescriptor.class)));
+        queryFactory.setAttributeRegistry(mockAttributeRegistry);
+
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
@@ -342,7 +354,7 @@ public class CswQueryFactoryTest {
         SortByType incomingSort = new SortByType();
         SortPropertyType propType = new SortPropertyType();
         PropertyNameType propName = new PropertyNameType();
-        propName.setContent(Arrays.asList((Object) TITLE_TEST_ATTRIBUTE));
+        propName.setContent(Collections.singletonList(TITLE_TEST_ATTRIBUTE));
         propType.setPropertyName(propName);
         incomingSort.getSortProperty()
                 .add(propType);
@@ -772,25 +784,19 @@ public class CswQueryFactoryTest {
     private String createDistanceBufferQuery(String comparison) {
         String query =
                 "      <ogc:Filter xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:gml=\"http://www.opengis.net/gml\">"
-                        +
-                        "        <ogc:" + comparison + ">" +
-                        "          <ogc:PropertyName>" + SPATIAL_TEST_ATTRIBUTE
-                        + "</ogc:PropertyName>" +
-                        "          <gml:Polygon gml:id=\"Pl001\">" +
-                        "            <gml:exterior>" +
-                        "              <gml:LinearRing>" +
-                        "                <gml:pos>10 10</gml:pos>" +
-                        "                <gml:pos>10 25</gml:pos>" +
-                        "                <gml:pos>40 25</gml:pos>" +
-                        "                <gml:pos>40 10</gml:pos>" +
-                        "                <gml:pos>10 10</gml:pos>" +
-                        "              </gml:LinearRing>" +
-                        "            </gml:exterior>" +
-                        "          </gml:Polygon>" +
-                        "          <ogc:Distance units=\"" + REL_GEO_UNITS + "\">"
-                        + REL_GEO_DISTANCE + "</ogc:Distance>" +
-                        "        </ogc:" + comparison + ">" +
-                        "      </ogc:Filter>";
+                        + "        <ogc:" + comparison + ">" + "          <ogc:PropertyName>"
+                        + SPATIAL_TEST_ATTRIBUTE + "</ogc:PropertyName>"
+                        + "          <gml:Polygon gml:id=\"Pl001\">" + "            <gml:exterior>"
+                        + "              <gml:LinearRing>"
+                        + "                <gml:pos>10 10</gml:pos>"
+                        + "                <gml:pos>10 25</gml:pos>"
+                        + "                <gml:pos>40 25</gml:pos>"
+                        + "                <gml:pos>40 10</gml:pos>"
+                        + "                <gml:pos>10 10</gml:pos>"
+                        + "              </gml:LinearRing>" + "            </gml:exterior>"
+                        + "          </gml:Polygon>" + "          <ogc:Distance units=\""
+                        + REL_GEO_UNITS + "\">" + REL_GEO_DISTANCE + "</ogc:Distance>"
+                        + "        </ogc:" + comparison + ">" + "      </ogc:Filter>";
 
         return query;
     }
