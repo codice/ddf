@@ -61,7 +61,7 @@
         <project.report.output.directory>project-info</project.report.output.directory>
         <!-- Properties for the frontend-maven-plugin -->
         <node.version>v7.1.0</node.version>
-        <yarn.version>v0.19.1</yarn.version>
+        <yarn.version>v0.21.2</yarn.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-io.version>2.4</commons-io.version>
         <json-smart.version>2.2.1</json-smart.version>
@@ -545,7 +545,7 @@
                                 <goal>yarn</goal>
                             </goals>
                             <configuration>
-                                <arguments>install --mutex file:${java.io.tmpdir}/.yarnLock</arguments>
+                                <arguments>install --mutex network</arguments>
                             </configuration>
                         </execution>
                         <execution>
