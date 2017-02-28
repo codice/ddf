@@ -50,6 +50,8 @@ Set directory permissions to protect the ${branding} from unauthorized access.
 
 * Change ownership of `<${branding}_HOME>`
 ** `chown -R ${branding-lowercase}-user <${branding}_HOME>`
+* Create instance sub-directory if does not exist
+** `mkdir -p <${branding}_HOME>/instances`
 * Change group ownership on sub-directories
 ** `chgrp -R ${branding}_GROUP <${branding}_HOME>/etc <${branding}_HOME>/data <${branding}_HOME>/instances`
 * Change group permissions
