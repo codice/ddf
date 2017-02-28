@@ -21,7 +21,7 @@
             name="Directory Path" id="monitoredDirectoryPath" required="true"
             type="String" default=""/>
 
-        <AD description="Specifies the maximum number of concurrent files to be processed within a directory (maximum of 8).  If this number exceeds 8, 8 will be used in order to preserve system resources."
+        <AD description="Specifies the maximum number of concurrent files to be processed within a directory (maximum of 8).  If this number exceeds 8, 8 will be used in order to preserve system resources. Make sure that your system has enough memory to support the number of concurrent processing threads across all directory monitors."
             name="Maximum Concurrent Files" id="numThreads" required="true"
             type="Integer" default="1"/>
 

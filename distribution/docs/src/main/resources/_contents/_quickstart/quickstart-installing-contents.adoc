@@ -17,6 +17,11 @@ These steps will demonstrate:
 
 These are the basic requirements to set up the environment to run a ${branding}.
 
+==== Hardware Requirements (Quick Install)
+
+* At least 4096MB of memory for ${branding}.
+** This amount can be increased to support memory-intensive applications. See <<jvm-memory-configuration, Memory Considerations>>.
+
 ==== Java Requirements (Quick Install)
 
 Set up Java to run ${branding}.
