@@ -12,15 +12,29 @@
 |Directory Path
 |monitoredDirectoryPath
 |String
-|Specifies the directory to be monitored
+|Specifies the directory to be monitored.
 |false
 |true
 
-|Copy Files to Backup Directory
-|copyIngestedFiles
-|Boolean
-|Optional: Copy the ingested files into a backup directory under the monitored directory named /.ingested  -  NOTE: this will double the amount of disk space required for ingested files in this monitored directory if its Processing Directive includes storing the file in the DDF Content Repository.
-|
+|Maximum Concurrent Files
+|numThreads
+|Integer
+|Specifies the maximum number of concurrent files to be processed within a directory (maximum of 8).  If this number exceeds 8, 8 will be used in order to preserve system resources. Make sure that your system has enough memory to support the number of concurrent processing threads across all directory monitors.
+|1
+|true
+
+|ReadLock Time Interval
+|readLockIntervalMilliseconds
+|Integer
+|Specifies the time to wait (in milliseconds) before acquiring a lock on a file in the monitored directory.  This interval is used for sleeping between attempts to acquire the read lock on a file to be ingested.  The default value of 100 milliseconds is recommended.
+|100
+|true
+
+|Processing Mechanism
+|processingMechanism
+|String
+|Choose what happens to the content item after it is ingested. Delete will remove the original file after storing it in the content store. Move will store the item in the content store, and a copy under ./ingested, then remove the original file. (NOTE: this will double the amount of disk space used.) Monitor in place will index the file and serve it from its original location.
+|in_place
 |false
 
 |Attribute Overrides
