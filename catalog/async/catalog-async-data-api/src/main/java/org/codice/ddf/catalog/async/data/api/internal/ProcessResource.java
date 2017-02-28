@@ -29,6 +29,8 @@ import java.net.URI;
  */
 public interface ProcessResource {
 
+    int UNKNOWN_SIZE = -1;
+
     /**
      * Gets a URI that represents the resource in the catalog.
      *
@@ -71,7 +73,7 @@ public interface ProcessResource {
     /**
      * Return the total number of bytes in the {@link ProcessResource}'s input stream.
      *
-     * @return returns the total number of bytes that can be read from the input stream, or -1 if the
+     * @return returns the total number of bytes that can be read from the input stream, or {@link #UNKNOWN_SIZE} if the
      * total number of bytes is unknown or not applicable (e.g., in the case of a live stream)
      */
     long getSize();

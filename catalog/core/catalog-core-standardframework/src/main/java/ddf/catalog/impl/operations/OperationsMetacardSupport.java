@@ -140,6 +140,7 @@ public class OperationsMetacardSupport {
                 metacardMap.put(metacard.getId(), metacard);
 
                 ContentItem generatedContentItem = new ContentItemImpl(metacard.getId(),
+                        StringUtils.isNotEmpty(contentItem.getQualifier()) ? contentItem.getQualifier() : "",
                         com.google.common.io.Files.asByteSource(tmpPath.toFile()),
                         mimeTypeRaw,
                         fileName,
