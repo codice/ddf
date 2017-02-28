@@ -13,8 +13,16 @@
  --}}
     <div class="dropdown-text">
         {{#each this}}
-            <span class="text-src {{#if invalid}}is-invalid{{/if}}">
-                {{label}}
+            <span class="text-src {{#if invalid}}is-invalid{{/if}}" title="{{label}}">
+                {{#each label}}
+                    <span>
+                        {{this}}
+                    </span>
+                {{else}}
+                    <span>
+                        {{label}}
+                    </span>
+                {{/each}}
             </span>
         {{/each}}
         {{#unless this}}

@@ -24,12 +24,6 @@ table {
     display: inline-block;
 }
 
-table a:not(.btn), .table a:not(.btn),
-.nav-tabs a, .nav-pills a, .breadcrumb a, .pager a {
-    color: #2a9fd6;
-    text-decoration: none;
-}
-
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
     border-top: 1px solid #444;
 }

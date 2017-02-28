@@ -12,11 +12,34 @@
  **/
  --}}
 {{#each this.properties}}
-    <td data-property="{{this.property}}" class="{{this.class}} {{#if hidden}}is-hidden-column{{/if}}" data-value="{{this.value}}" data-text="{{this.text}}">
-        {{#if this.html}}
-            {{{this.html}}}
-        {{else}}
-            {{this.value}}
-        {{/if}}
-    </td>
+    {{#unless hidden}}
+        <td data-property="{{this.property}}" class="{{this.class}} {{#if hidden}}is-hidden-column{{/if}}" data-value="{{this.value}}">
+            {{#if this.html}}
+                {{{this.html}}}
+            {{else}}
+                <div>
+                {{#each this.value}}
+                    <span data-value="{{this}}" title="{{this}}">
+                        {{#ifUrl this}}
+                            <a href="{{this}}" target="_blank">{{this}}</a>
+                        {{else}}
+                            {{this}}
+                        {{/ifUrl}}
+                    </span>
+                {{/each}}
+                </div>
+                <div class="for-bold">
+                    {{#each this.value}}
+                        <span data-value="{{this}}">
+                            {{#ifUrl this}}
+                                <a href="{{this}}" target="_blank">{{this}}</a>
+                            {{else}}
+                                {{this}}
+                            {{/ifUrl}}
+                        </span>
+                    {{/each}}
+                </div>
+            {{/if}}
+        </td>
+    {{/unless}}
 {{/each}}

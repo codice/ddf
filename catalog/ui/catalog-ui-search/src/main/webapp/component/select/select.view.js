@@ -23,6 +23,12 @@ define([
 
     return Marionette.ItemView.extend({
         template: template,
-        tagName: CustomElements.register('select')
+        tagName: CustomElements.register('select'),
+        attributes: function(){
+            return {
+                'data-hits': this.model.get('hits'),
+                'data-help': this.model.get('help')
+            };
+        }
     });
 });

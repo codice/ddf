@@ -16,6 +16,10 @@
 </div>
 <div class="if-viewing">
     <label>
-        {{value}}
+        {{#ifUrl value}}
+            <a href="{{value}}" target="_blank">{{value}}</a>
+        {{else}}
+            {{value}}
+        {{/ifUrl}}
     </label>
 </div>

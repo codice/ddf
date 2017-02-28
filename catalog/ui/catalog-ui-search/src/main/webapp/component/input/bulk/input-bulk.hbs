@@ -17,14 +17,24 @@
     </div>
 </div>
 <div class="if-viewing">
-    <label class="value-list-header">
+    <label class="value-list-header" data-help="This indicates there are multiple values for this attribute among the results.">
         (Multiple Values)
     </label>
     <div class="value-list is-list">
         {{#each values}}
             <div class="list-value" data-ids="{{this.ids}}">
-                <span class="cell-value">{{this.value}}</span>
-                <span class="cell-hits">({{this.hits}})</span>
+                <div class="cell-value">
+                {{#each value}}
+                    <div class="value-subvalue" title="{{this}}">
+                        {{#ifUrl this}}
+                            <a href="{{this}}" target="_blank">{{this}}</a>
+                        {{else}}
+                            {{this}}
+                        {{/ifUrl}}
+                    </div>
+                {{/each}}
+                </div>
+                <span class="cell-hits" title="{{hits}} result(s) have this value" data-help="This number represents how many results have this value.">({{this.hits}})</span>
                 <span class="cell-validation fa fa-exclamation-triangle is-hidden"></span>
             </div>
         {{/each}}

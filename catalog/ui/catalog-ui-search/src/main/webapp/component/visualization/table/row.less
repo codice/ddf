@@ -5,36 +5,55 @@
     padding: @minimumSpacing @mediumSpacing;
     white-space: nowrap;
     cursor: pointer;
+    vertical-align: top; // for IE10
+  }
+
+  td + td {
+    border-left: 1px solid @lighten-inherited-background-color;
   }
 
   td.is-hidden-column {
     display: none;
   }
 
-  td:not(.is-thumbnail)::after {
-    display: block;
-    content: attr(data-text);
-    .is-bold();
-    height: 1px;
-    color: transparent;
-    overflow: hidden;
-    visibility: hidden;
-  }
-
-  a:hover {
-    .is-bold();
-    text-decoration: underline;
-  }
-
-  a:visited {
-    color:#d62a9f;
+  td > div:not(.for-bold) {
+    max-height: 200px;
+    overflow:auto;
   }
 
   img {
+    display: inline;
     min-width: 200px;
     max-width: 200px;
     max-height: 200px;
   }
 
-  border-bottom: 1px solid @lighten-inherited-background-color;
+  span {
+    display: block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  td:not(.is-thumbnail) .for-bold {
+    visibility: hidden;
+    height: 1px;
+    position: relative;
+    top: -1px;
+    .is-bold();
+  }
+  
+}
+
+// kept for future user preference setting
+@{customElementNamespace}result-row.is-inline {
+  span + span::before {
+    content: '| ';
+    opacity: @minimumOpacity;
+  }
+
+  span {
+    display: inline-block;
+    vertical-align: top;
+  }
 }

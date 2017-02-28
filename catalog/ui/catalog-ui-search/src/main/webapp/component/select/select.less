@@ -6,26 +6,25 @@
     padding: 10px;
     color: lighten(@warning-color, 20%);
   }
+}
 
-  .choice {
-    padding: 0px @minimumButtonSize 0px 20px;
-    height: @minimumButtonSize;
-    line-height: @minimumButtonSize;
-    cursor: pointer;
-    display: block;
-    position: relative;
-    overflow: hidden;
-  }
+@{customElementNamespace}select-collection > .choice, // todo: update workspace-sharing view to avoid this
+@{customElementNamespace}select {
 
-  .choice.is-active {
+  padding: 0px @minimumButtonSize 0px 20px;
+  height: @minimumButtonSize;
+  line-height: @minimumButtonSize;
+  cursor: pointer;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+
+  &.is-active {
     background: @lighten-inherited-background-color;
   }
 
-  .choice-text {
-    padding-right: 30px;
-  }
-
-  .choice.is-selected::after {
+  &.is-selected::after {
     display: inline-block;
     content: "\f00c";
     font-family: FontAwesome;
@@ -37,7 +36,38 @@
     text-align: center;
   }
 
-  .choice.is-selected .choice-text{
+  &.is-selected .choice-text{
     .is-bold();
+  }
+
+  .choice-text {
+    width: 100%;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  span + span::before {
+    content: '| ';
+    opacity: @minimumOpacity;
+  }
+
+  .choice-hits {
+    display: none;
+    max-width: @minimumButtonSize;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@{customElementNamespace}select[data-hits] {
+
+  .choice-text {
+    width: ~'calc(100% - @{minimumButtonSize})';
+  }
+
+  .choice-hits {
+    display: inline-block;
+    vertical-align: top;
   }
 }
