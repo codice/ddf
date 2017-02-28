@@ -181,6 +181,11 @@
         <bundle>mvn:ddf.security.filter/security-filter-web-sso/${project.version}</bundle>
     </feature>
 
+    <feature name="security-filter-response" install="manual" version="${project.version}"
+             description="Response Filter for outgoing HTTP messages.">
+        <bundle>mvn:ddf.security.filter/security-filter-response/${project.version}</bundle>
+    </feature>
+
     <feature name="security-policy-context" install="manual" version="${project.version}"
              description="Web Context policy manager">
         <bundle>mvn:ddf.security.policy/security-policy-api/${project.version}</bundle>
@@ -273,6 +278,7 @@
         <feature>security-guest</feature>
         <feature>security-certificate</feature>
         <feature>security-migratable</feature>
+        <feature>security-filter-response</feature>
     </feature>
 
     <feature name="security-web-sso-defaults" install="manual" version="${project.version}"
