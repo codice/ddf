@@ -170,7 +170,7 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
 
             Attribute attribute = metacard.getAttribute(attributeName);
 
-            if (attribute != null) {
+            if (attribute != null && attribute.getValue() != null) {
                 AttributeType.AttributeFormat format = attributeDescriptor.getType()
                         .getAttributeFormat();
                 writeAttributeToXml(writer, xmlPullParser, attribute, format);
