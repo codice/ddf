@@ -330,6 +330,13 @@ define([
             },
           json: function (obj) {
             return JSON.stringify(obj);
+          },
+          ifUrl: function(value, options){
+            if (value && value.toString().substring(0, 4) === 'http'){
+                return options.fn(this);
+            } else {
+                return options.inverse(this);
+            }
           }
         };
     // Export helpers

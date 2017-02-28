@@ -64,7 +64,13 @@ define([
             var enumValues = [
                 {
                     label: 'Multiple Values',
-                    value: 'bulkDefault'
+                    value: 'bulkDefault',
+                    help: 'This is the default.  Selecting it will cause no changes to the results, allowing them to keep their multiple values.'
+                },
+                {
+                    label: 'Custom',
+                    value: 'bulkCustom',
+                    help: 'Select this to enter a custom value.'
                 }
             ];
             _.forEach( this.model.get('values'), function(valueInfo){
@@ -83,14 +89,11 @@ define([
                         break;
                 }
                 enumValues.push({
-                    label: label + '    ('+valueInfo.hits+')',
-                    value: value
+                    label: label,
+                    value: value,
+                    hits: valueInfo.hits
                 });
             }.bind(this));
-            enumValues.push({
-                label: 'Other',
-                value: 'bulkCustom'
-            });
             this.enumRegion.show(DropdownView.createSimpleDropdown(
                 {
                     list: enumValues,

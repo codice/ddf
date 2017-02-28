@@ -30,13 +30,17 @@
   }
 
   .list-value {
-    height: @minimumButtonSize;
     line-height: @minimumButtonSize;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 0px 10px;
     position: relative;
+  }
+
+  .value-subvalue {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .cell-value,
@@ -54,13 +58,14 @@
   .cell-hits {
     position: absolute;
     right: 60px;
+    top: ~'calc(50% - .5*@{minimumButtonSize})';
   }
 
   .cell-validation {
     position: absolute;
     right: 20px;
     line-height: @minimumButtonSize;
-    height: @minimumButtonSize;
+    top: ~'calc(50% - .5*@{minimumButtonSize})';
   }
 
   .if-homogeneous,

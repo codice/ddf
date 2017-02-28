@@ -12,6 +12,10 @@
   > .if-viewing {
     display: block;
   }
+
+  > .if-viewing label {
+    cursor: text;
+  }
 }
 
 @{customElementNamespace}input.is-editing {
@@ -24,7 +28,20 @@
   > .if-viewing {
     display: block;
     opacity: 0;
+    transform: scale(0);
   }
+
+  > .if-viewing::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0);  // needed for IE10
+  }
+
 }
 
 @{customElementNamespace}input.is-text,
