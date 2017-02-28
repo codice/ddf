@@ -232,6 +232,27 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.7.4.201502262128</version>
+                    <executions>
+                        <execution>
+                            <id>default-prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.8.1</version>
+                    <configuration>
+                        <argLine>${argLine} -Djava.awt.headless=true -noverify</argLine>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
                     <version>3.2.0</version>
@@ -252,107 +273,6 @@
                         <maxmem>512M</maxmem>
                         <fork>${compiler.fork}</fork>
                         <encoding>${project.build.sourceEncoding}</encoding>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-pmd-plugin</artifactId>
-                    <version>3.4</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>ddf.support</groupId>
-                            <artifactId>support-pmd</artifactId>
-                            <version>${ddf.support.version}</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <rulesets>
-                            <ruleset>
-                                basic.xml
-                            </ruleset>
-                            <ruleset>
-                                empty.xml
-                            </ruleset>
-                            <ruleset>
-                                sunsecure.xml
-                            </ruleset>
-                            <ruleset>
-                                unnecessary.xml
-                            </ruleset>
-                        </rulesets>
-                        <failOnViolation>
-                            false
-                        </failOnViolation>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>
-                                    check
-                                </goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.17</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>ddf.support</groupId>
-                            <artifactId>support-checkstyle</artifactId>
-                            <version>${ddf.support.version}</version>
-                            <optional>true</optional>
-                        </dependency>
-                    </dependencies>
-                    <executions>
-                        <execution>
-                            <id>checkstyle-check</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                            <configuration>
-                                <!-- This configures the plugin for mvn install -->
-                                <configLocation>checkstyle-enforced.xml</configLocation>
-                                <headerLocation>lpgl-header-check.txt</headerLocation>
-                                <sourceDirectory>${basedir}</sourceDirectory>
-                                <includes>src/**/*.java</includes>
-                                <consoleOutput>true</consoleOutput>
-                                <failsOnError>true</failsOnError>
-                                <linkXRef>false</linkXRef>
-                                <aggregate>true</aggregate>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>checkstyle-check-xml</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                            <configuration>
-                                <!-- This configures the plugin for mvn install -->
-                                <configLocation>checkstyle-enforced-xml.xml</configLocation>
-                                <headerLocation>lpgl-header-check-xml.txt</headerLocation>
-                                <sourceDirectory>${basedir}</sourceDirectory>
-                                <includes>src/**/*.xml, pom.xml</includes>
-                                <consoleOutput>true</consoleOutput>
-                                <failsOnError>true</failsOnError>
-                                <linkXRef>false</linkXRef>
-                                <aggregate>true</aggregate>
-                            </configuration>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <!-- This configures the plugin for mvn checkstyle:checkstyle  -->
-                        <configLocation>checkstyle-enforced.xml</configLocation>
-                        <headerLocation>lpgl-header-check.txt</headerLocation>
-                        <sourceDirectory>${basedir}</sourceDirectory>
-                        <includes>src/**/*.java</includes>
-                        <consoleOutput>true</consoleOutput>
-                        <failsOnError>true</failsOnError>
-                        <linkXRef>false</linkXRef>
-                        <aggregate>true</aggregate>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -415,14 +335,6 @@
                     <version>2.3.1</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.8.1</version>
-                    <configuration>
-                        <argLine>${argLine} -Djava.awt.headless=true -noverify</argLine>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>cobertura-maven-plugin</artifactId>
                     <version>2.5.1</version>
@@ -465,67 +377,6 @@
                         </additionalparam>
                         <outputDirectory>${project.build.directory}</outputDirectory>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.7.4.201502262128</version>
-                    <executions>
-                        <execution>
-                            <id>default-prepare-agent</id>
-                            <goals>
-                                <goal>prepare-agent</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>default-report</id>
-                            <phase>prepare-package</phase>
-                            <configuration>
-                                <outputDirectory>
-                                    ${project.build.directory}/site/${project.report.output.directory}/jacoco/
-                                </outputDirectory>
-                            </configuration>
-                            <goals>
-                                <goal>report</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>default-check</id>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                            <configuration>
-                                <haltOnFailure>true</haltOnFailure>
-                                <rules>
-                                    <rule>
-                                        <element>BUNDLE</element>
-                                        <!--
-                                        When overriding the limits in child pom files make sure
-                                        to override all four limits. Limits that are excluded
-                                        will be set to 0 not 0.75
-                                        -->
-                                        <limits>
-                                            <limit>
-                                                <counter>INSTRUCTION</counter>
-                                                <value>COVEREDRATIO</value>
-                                                <minimum>0.75</minimum>
-                                            </limit>
-                                            <limit>
-                                                <counter>BRANCH</counter>
-                                                <value>COVEREDRATIO</value>
-                                                <minimum>0.75</minimum>
-                                            </limit>
-                                            <limit>
-                                                <counter>COMPLEXITY</counter>
-                                                <value>COVEREDRATIO</value>
-                                                <minimum>0.75</minimum>
-                                            </limit>
-                                        </limits>
-                                    </rule>
-                                </rules>
-                            </configuration>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>com.github.eirslett</groupId>
@@ -578,34 +429,10 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <!--  We don't want to inherit this *change* to the plugin configuration. -->
-                <!--  Sub modules will still inherit the plugin and the configuration from pluginManagment -->
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <!-- Match the execution defined in the pluginManagment and override it-->
-                        <!-- Prev check here. -->
-                        <id>checkstyle-check</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>checkstyle-check-xml</id>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -615,32 +442,234 @@
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs.version}</version>
-                <configuration>
-                    <effort>Max</effort>
-                    <threshold>High</threshold>
-                    <xmlOutput>true</xmlOutput>
-                    <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
-                </configuration>
-            </plugin>
         </plugins>
     </reporting>
     <profiles>
         <profile>
-            <id>pmd</id>
+            <id>staticAnalysis</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>skipStatic</name>
+                    <value>!true</value>
+                </property>
             </activation>
             <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-checkstyle-plugin</artifactId>
+                            <version>2.17</version>
+                            <dependencies>
+                                <dependency>
+                                    <groupId>ddf.support</groupId>
+                                    <artifactId>support-checkstyle</artifactId>
+                                    <version>${ddf.support.version}</version>
+                                    <optional>true</optional>
+                                </dependency>
+                            </dependencies>
+                            <executions>
+                                <execution>
+                                    <id>checkstyle-check</id>
+                                    <phase>verify</phase>
+                                    <goals>
+                                        <goal>check</goal>
+                                    </goals>
+                                    <configuration>
+                                        <!-- This configures the plugin for mvn install -->
+                                        <configLocation>checkstyle-enforced.xml</configLocation>
+                                        <headerLocation>lpgl-header-check.txt</headerLocation>
+                                        <sourceDirectory>${basedir}</sourceDirectory>
+                                        <includes>src/**/*.java</includes>
+                                        <consoleOutput>true</consoleOutput>
+                                        <failsOnError>true</failsOnError>
+                                        <linkXRef>false</linkXRef>
+                                        <aggregate>true</aggregate>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>checkstyle-check-xml</id>
+                                    <phase>verify</phase>
+                                    <goals>
+                                        <goal>check</goal>
+                                    </goals>
+                                    <configuration>
+                                        <!-- This configures the plugin for mvn install -->
+                                        <configLocation>checkstyle-enforced-xml.xml</configLocation>
+                                        <headerLocation>lpgl-header-check-xml.txt</headerLocation>
+                                        <sourceDirectory>${basedir}</sourceDirectory>
+                                        <includes>src/**/*.xml, pom.xml</includes>
+                                        <consoleOutput>true</consoleOutput>
+                                        <failsOnError>true</failsOnError>
+                                        <linkXRef>false</linkXRef>
+                                        <aggregate>true</aggregate>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                            <configuration>
+                                <!-- This configures the plugin for mvn checkstyle:checkstyle  -->
+                                <configLocation>checkstyle-enforced.xml</configLocation>
+                                <headerLocation>lpgl-header-check.txt</headerLocation>
+                                <sourceDirectory>${basedir}</sourceDirectory>
+                                <includes>src/**/*.java</includes>
+                                <consoleOutput>true</consoleOutput>
+                                <failsOnError>true</failsOnError>
+                                <linkXRef>false</linkXRef>
+                                <aggregate>true</aggregate>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.jacoco</groupId>
+                            <artifactId>jacoco-maven-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>default-prepare-agent</id>
+                                    <goals>
+                                        <goal>prepare-agent</goal>
+                                    </goals>
+                                </execution>
+                                <execution>
+                                    <id>default-report</id>
+                                    <phase>prepare-package</phase>
+                                    <configuration>
+                                        <outputDirectory>
+                                            ${project.build.directory}/site/${project.report.output.directory}/jacoco/
+                                        </outputDirectory>
+                                    </configuration>
+                                    <goals>
+                                        <goal>report</goal>
+                                    </goals>
+                                </execution>
+                                <execution>
+                                    <id>default-check</id>
+                                    <goals>
+                                        <goal>check</goal>
+                                    </goals>
+                                    <configuration>
+                                        <haltOnFailure>true</haltOnFailure>
+                                        <rules>
+                                            <rule>
+                                                <element>BUNDLE</element>
+                                                <!--
+                                                When overriding the limits in child pom files make sure
+                                                to override all four limits. Limits that are excluded
+                                                will be set to 0 not 0.75
+                                                -->
+                                                <limits>
+                                                    <limit>
+                                                        <counter>INSTRUCTION</counter>
+                                                        <value>COVEREDRATIO</value>
+                                                        <minimum>0.75</minimum>
+                                                    </limit>
+                                                    <limit>
+                                                        <counter>BRANCH</counter>
+                                                        <value>COVEREDRATIO</value>
+                                                        <minimum>0.75</minimum>
+                                                    </limit>
+                                                    <limit>
+                                                        <counter>COMPLEXITY</counter>
+                                                        <value>COVEREDRATIO</value>
+                                                        <minimum>0.75</minimum>
+                                                    </limit>
+                                                </limits>
+                                            </rule>
+                                        </rules>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-pmd-plugin</artifactId>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <!--  We don't want to inherit this *change* to the plugin configuration. -->
+                        <!--  Sub modules will still inherit the plugin and the configuration from pluginManagment -->
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <!-- Match the execution defined in the pluginManagment and override it-->
+                                <!-- Prev check here. -->
+                                <id>checkstyle-check</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>checkstyle-check-xml</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-findbugs</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>ddf.support</groupId>
+                                            <artifactId>support-findbugs</artifactId>
+                                            <version>${ddf.support.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>
+                                                ${project.build.directory}/target/classes/
+                                            </outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <excludes>META-INF</excludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <version>${findbugs.version}</version>
+                        <configuration>
+                            <excludeFilterFile>
+                                ${project.build.directory}/target/classes/findbugs-exclude.xml
+                            </excludeFilterFile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>generate-findbugs</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <version>2.17</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <version>${findbugs.version}</version>
+                        <configuration>
+                            <effort>Max</effort>
+                            <threshold>High</threshold>
+                            <xmlOutput>true</xmlOutput>
+                            <xmlOutputDirectory>${project.build.directory}/findbugs
+                            </xmlOutputDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </reporting>
         </profile>
         <profile>
             <id>release</id>
@@ -790,76 +819,6 @@
                 </plugins>
             </reporting>
         </profile>
-        <profile>
-            <id>findbugs</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>unpack-findbugs</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>ddf.support</groupId>
-                                            <artifactId>support-findbugs</artifactId>
-                                            <version>${ddf.support.version}</version>
-                                            <type>jar</type>
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>
-                                                ${project.build.directory}/target/classes/
-                                            </outputDirectory>
-                                        </artifactItem>
-                                    </artifactItems>
-                                    <excludes>META-INF</excludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>${findbugs.version}</version>
-                        <configuration>
-                            <excludeFilterFile>
-                                ${project.build.directory}/target/classes/findbugs-exclude.xml
-                            </excludeFilterFile>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>generate-findbugs</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.gmavenplus</groupId>
-                        <artifactId>gmavenplus-plugin</artifactId>
-                        <version>1.4</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>compile</goal>
-                                    <goal>testCompile</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
     <!--
       Dependencies listed here will always be used in all sub poms.
@@ -937,4 +896,3 @@
         <module>distribution</module>
     </modules>
 </project>
-
