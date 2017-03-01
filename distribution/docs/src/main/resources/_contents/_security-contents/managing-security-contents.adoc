@@ -53,4 +53,5 @@ include::{adoc-include}/_tables/conf-org.codice.ddf.security.response.filter.Res
 
 |===
 
-include::{adoc-include}/_tables/org.codice.ddf.security.policy.context.impl.PolicyManager.adoc[]
+include::{adoc-include}/_tables/org.codice.ddf.security.policy.context.impl.PolicyManager-table-contents.adoc[]
+include::{adoc-include}/_tables/org.codice.ddf.security.filter.login.Session-table-contents.adoc[]
