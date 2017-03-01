@@ -776,6 +776,12 @@
         <bundle>mvn:ddf.platform.country/platform-country-converter-local/${project.version}</bundle>
     </feature>
 
+    <feature name="platform-usng4j" install="manual" version="${project.version}"
+        description="Service to convert coordinates between various coordinate systems.">
+        <bundle>mvn:ddf.platform.usng4j/platform-usng4j-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.usng4j/platform-usng4j-impl/${project.version}</bundle>
+    </feature>
+
     <feature name="action-core-api" install="manual" version="${project.version}"
              description="DDF Action API">
         <bundle>mvn:ddf.action.core/action-core-api/${project.version}</bundle>
