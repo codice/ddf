@@ -1,0 +1,4 @@
+:type: documentation
+:status: published
+
+${branding} also provides a variety of services to enhance the function of the endpoints.

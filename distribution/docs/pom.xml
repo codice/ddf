@@ -137,6 +137,15 @@
                                                 <includes>
                                                     <include>**/*.adoc</include>
                                                 </includes>
+                                            </resource>                                            
+                                            <resource>
+                                                <directory>src/main/jdocs</directory>
+                                                <filtering>true</filtering>
+                                                <includes>
+                                                    <include>**/*.adoc</include>
+                                                    <include>**/*.ftl</include>
+                                                    <include>jbake.properties</include>
+                                                </includes>
                                             </resource>
                                             <resource>
                                                 <directory>src/main/resources</directory>
@@ -176,6 +185,39 @@
                                     </configuration>
                                 </execution>
                             </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>br.com.ingenieux</groupId>
+                            <artifactId>jbake-maven-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <phase>generate-sources</phase>
+                                    <goals>
+                                        <goal>generate</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                            <configuration>
+                                <inputDirectory>${project.build.directory}/doc-contents</inputDirectory>
+                                <outputDirectory>${project.build.directory}/doc-contents/jdoc-contents</outputDirectory>
+                            </configuration>
+                            <dependencies>
+                                <dependency>
+                                    <groupId>org.freemarker</groupId>
+                                    <artifactId>freemarker</artifactId>
+                                    <version>2.3.23</version>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.asciidoctor</groupId>
+                                    <artifactId>asciidoctor-maven-plugin</artifactId>
+                                    <version>${asciidoctor.maven.plugin.version}</version>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.pegdown</groupId>
+                                    <artifactId>pegdown</artifactId>
+                                    <version>1.4.2</version>
+                                </dependency>
+                            </dependencies>
                         </plugin>
                         <plugin>
                             <groupId>org.asciidoctor</groupId>
@@ -265,6 +307,17 @@
                                         <outputDirectory>${project.build.directory}/adoc-files</outputDirectory>
                                     </configuration>
                                     <id>include-adocs</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>single</goal>
+                                    </goals>
+                                </execution>
+                                <execution>
+                                    <configuration>
+                                        <descriptor>${project.basedir}/src/assembly/jdocs.xml</descriptor>
+                                        <outputDirectory>${project.build.directory}/jdoc-files</outputDirectory>
+                                    </configuration>
+                                    <id>include-jdocs</id>
                                     <phase>package</phase>
                                     <goals>
                                         <goal>single</goal>
