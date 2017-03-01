@@ -251,6 +251,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.filter</groupId>
+            <artifactId>security-filter-response</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.filter</groupId>
             <artifactId>security-filter-authorization</artifactId>
             <version>${project.version}</version>
         </dependency>
