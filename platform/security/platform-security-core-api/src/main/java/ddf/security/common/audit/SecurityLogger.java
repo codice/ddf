@@ -18,6 +18,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -40,6 +41,10 @@ public final class SecurityLogger {
     private static final Logger LOGGER = LogManager.getLogger(SecurityConstants.SECURITY_LOGGER);
 
     private static final String NO_USER = "UNKNOWN";
+    
+    private static final boolean REQUIRE_AUDIT_ENCODING = Boolean.valueOf(System.getProperty(
+            "org.codice.ddf.platform.requireAuditEncoding",
+            "false"));
 
     private SecurityLogger() {
 
@@ -104,6 +109,20 @@ public final class SecurityLogger {
     }
 
     /**
+     * Ensure that logs cannot be forged.
+     * @param message
+     * @return clean message
+     */
+    private static String cleanAndEncode(String message) {
+        String clean = message.replace('\n', '_')
+                .replace('\r', '_');
+        if (REQUIRE_AUDIT_ENCODING) {
+            clean = StringEscapeUtils.escapeHtml(clean);
+        }
+        return clean;
+    }
+
+    /**
      * Logs a message object with the {@link org.apache.logging.log4j.Level#INFO INFO} level.
      *
      * @param message the message string to log.
@@ -114,7 +133,7 @@ public final class SecurityLogger {
         requestIpAndPortAndUserMessage(subject,
                 PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
-        LOGGER.info(messageBuilder.append(message)
+        LOGGER.info(messageBuilder.append(cleanAndEncode(message))
                 .toString());
     }
 
@@ -126,7 +145,7 @@ public final class SecurityLogger {
     public static void audit(String message) {
         StringBuilder messageBuilder = new StringBuilder();
         requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
-        LOGGER.info(messageBuilder.append(message)
+        LOGGER.info(messageBuilder.append(cleanAndEncode(message))
                 .toString());
     }
 
@@ -142,7 +161,7 @@ public final class SecurityLogger {
         requestIpAndPortAndUserMessage(subject,
                 PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
-        LOGGER.info(messageBuilder.append(message)
+        LOGGER.info(messageBuilder.append(cleanAndEncode(message))
                 .toString(), params);
     }
 
@@ -155,7 +174,7 @@ public final class SecurityLogger {
     public static void audit(String message, Object... params) {
         StringBuilder messageBuilder = new StringBuilder();
         requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
-        LOGGER.info(messageBuilder.append(message)
+        LOGGER.info(messageBuilder.append(cleanAndEncode(message))
                 .toString(), params);
     }
 
@@ -172,7 +191,7 @@ public final class SecurityLogger {
         requestIpAndPortAndUserMessage(subject,
                 PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
-        LOGGER.info(messageBuilder.append(message)
+        LOGGER.info(messageBuilder.append(cleanAndEncode(message))
                 .toString(), paramSuppliers);
     }
 
@@ -186,7 +205,7 @@ public final class SecurityLogger {
     public static void audit(String message, Supplier... paramSuppliers) {
         StringBuilder messageBuilder = new StringBuilder();
         requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
-        LOGGER.info(messageBuilder.append(message)
+        LOGGER.info(messageBuilder.append(cleanAndEncode(message))
                 .toString(), paramSuppliers);
     }
 
@@ -203,7 +222,7 @@ public final class SecurityLogger {
         requestIpAndPortAndUserMessage(subject,
                 PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
-        LOGGER.info(messageBuilder.append(message)
+        LOGGER.info(messageBuilder.append(cleanAndEncode(message))
                 .toString(), t);
     }
 
@@ -217,7 +236,7 @@ public final class SecurityLogger {
     public static void audit(String message, Throwable t) {
         StringBuilder messageBuilder = new StringBuilder();
         requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
-        LOGGER.info(messageBuilder.append(message)
+        LOGGER.info(messageBuilder.append(cleanAndEncode(message))
                 .toString(), t);
     }
 
@@ -232,7 +251,7 @@ public final class SecurityLogger {
         requestIpAndPortAndUserMessage(subject,
                 PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
-        LOGGER.warn(messageBuilder.append(message)
+        LOGGER.warn(messageBuilder.append(cleanAndEncode(message))
                 .toString());
     }
 
@@ -244,7 +263,7 @@ public final class SecurityLogger {
     public static void auditWarn(String message) {
         StringBuilder messageBuilder = new StringBuilder();
         requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
-        LOGGER.warn(messageBuilder.append(message)
+        LOGGER.warn(messageBuilder.append(cleanAndEncode(message))
                 .toString());
     }
 
@@ -260,7 +279,7 @@ public final class SecurityLogger {
         requestIpAndPortAndUserMessage(subject,
                 PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
-        LOGGER.warn(messageBuilder.append(message)
+        LOGGER.warn(messageBuilder.append(cleanAndEncode(message))
                 .toString(), params);
     }
 
@@ -273,7 +292,7 @@ public final class SecurityLogger {
     public static void auditWarn(String message, Object... params) {
         StringBuilder messageBuilder = new StringBuilder();
         requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
-        LOGGER.warn(messageBuilder.append(message)
+        LOGGER.warn(messageBuilder.append(cleanAndEncode(message))
                 .toString(), params);
     }
 
@@ -290,7 +309,7 @@ public final class SecurityLogger {
         requestIpAndPortAndUserMessage(subject,
                 PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
-        LOGGER.warn(messageBuilder.append(message)
+        LOGGER.warn(messageBuilder.append(cleanAndEncode(message))
                 .toString(), paramSuppliers);
     }
 
@@ -304,7 +323,7 @@ public final class SecurityLogger {
     public static void auditWarn(String message, Supplier... paramSuppliers) {
         StringBuilder messageBuilder = new StringBuilder();
         requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
-        LOGGER.warn(messageBuilder.append(message)
+        LOGGER.warn(messageBuilder.append(cleanAndEncode(message))
                 .toString(), paramSuppliers);
     }
 
@@ -321,7 +340,7 @@ public final class SecurityLogger {
         requestIpAndPortAndUserMessage(subject,
                 PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
-        LOGGER.warn(messageBuilder.append(message)
+        LOGGER.warn(messageBuilder.append(cleanAndEncode(message))
                 .toString(), t);
     }
 
@@ -335,7 +354,7 @@ public final class SecurityLogger {
     public static void auditWarn(String message, Throwable t) {
         StringBuilder messageBuilder = new StringBuilder();
         requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
-        LOGGER.warn(messageBuilder.append(message)
+        LOGGER.warn(messageBuilder.append(cleanAndEncode(message))
                 .toString(), t);
     }
 
