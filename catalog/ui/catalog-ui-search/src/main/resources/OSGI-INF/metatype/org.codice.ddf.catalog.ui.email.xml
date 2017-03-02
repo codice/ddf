@@ -27,10 +27,6 @@
             name="Body" id="bodyTemplate" required="true" type="String"
             default="The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/search/catalog/#workspaces/%[attribute=id]."/>
 
-        <AD description="Set the hostname of the mail server."
-            name="Mail Server" id="mailHost" required="true" type="String"
-            default="localhost"/>
-
         <AD description="Set the 'from' email address."
             name="From Address" id="fromEmail" required="true" type="String"
             default="donotreply@example.com"/>

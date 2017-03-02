@@ -17,12 +17,10 @@ import static org.apache.commons.lang3.Validate.notBlank;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.Map;
-import java.util.Properties;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -31,6 +29,7 @@ import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.query.monitor.api.MetacardFormatter;
 import org.codice.ddf.catalog.ui.query.monitor.api.QueryUpdateSubscriber;
 import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
+import org.codice.ddf.platform.email.SmtpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +37,6 @@ import org.slf4j.LoggerFactory;
  * Sends an email for each workspace to the owner of the workspace.
  */
 public class EmailNotifier implements QueryUpdateSubscriber {
-
-    private static final String SMTP_HOST_PROPERTY = "mail.smtp.host";
-
-    private static final String SMTP_AUTH_PROPERTY = "mail.smtp.auth";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailNotifier.class);
 
@@ -53,48 +48,36 @@ public class EmailNotifier implements QueryUpdateSubscriber {
 
     private String fromEmail;
 
-    private String mailHost;
-
     private SubscriptionsPersistentStore subscriptionsPersistentStore;
+
+    private SmtpClient smtpClient;
 
     /**
      * The {@code bodyTemplate} and {@code subjectTemplate} may contain the tags supported by the
      * {@code metacardFormatter}.
      *
-     * @param bodyTemplate                 must be non-null
-     * @param subjectTemplate              must be non-null
-     * @param fromEmail                    must be non-null
-     * @param mailHost                     must be non-null
-     * @param metacardFormatter            must be non-null
-     * @param subscriptionsPersistentStore must be non-null
+     * @param bodyTemplate                 A string that represents the email body, will be passed to {@link MetacardFormatter}.
+     * @param subjectTemplate              A string that represents the subject line of the email, will be passed to {@link MetacardFormatter}.
+     * @param fromEmail                    The 'from' email address to be set in the email.
+     * @param metacardFormatter            Used to format the body and subject line.
+     * @param subscriptionsPersistentStore Used to find the email address associated with a workspace id.
+     * @param smtpClient                   The {@link SmtpClient} that will send the email.
      */
     public EmailNotifier(String bodyTemplate, String subjectTemplate, String fromEmail,
-            String mailHost, MetacardFormatter metacardFormatter,
-            SubscriptionsPersistentStore subscriptionsPersistentStore) {
+            MetacardFormatter metacardFormatter,
+            SubscriptionsPersistentStore subscriptionsPersistentStore, SmtpClient smtpClient) {
         notNull(bodyTemplate, "bodyTemplate must be non-null");
         notNull(subjectTemplate, "subjectTemplate must be non-null");
         notNull(fromEmail, "fromEmail must be non-null");
-        notNull(mailHost, "mailHost must be non-null");
         notNull(subscriptionsPersistentStore, "subscriptionsPersistentStore must be non-null");
+        notNull(smtpClient, "smtpClient must be non-null");
 
         this.bodyTemplate = bodyTemplate;
         this.subjectTemplate = subjectTemplate;
         this.fromEmail = fromEmail;
-        this.mailHost = mailHost;
         this.metacardFormatter = metacardFormatter;
         this.subscriptionsPersistentStore = subscriptionsPersistentStore;
-    }
-
-    /**
-     * The hostname of the mail server.
-     *
-     * @param mailHost must be non-blank
-     */
-    @SuppressWarnings("unused")
-    public void setMailHost(String mailHost) {
-        notBlank(mailHost, "mailHost must be non-blank");
-        LOGGER.debug("Setting mailHost : {}", mailHost);
-        this.mailHost = mailHost.trim();
+        this.smtpClient = smtpClient;
     }
 
     /**
@@ -152,9 +135,7 @@ public class EmailNotifier implements QueryUpdateSubscriber {
 
         String subject = metacardFormatter.format(subjectTemplate, workspaceMetacard, hitCount);
 
-        Properties properties = createSessionProperies();
-
-        Session session = Session.getDefaultInstance(properties);
+        Session session = smtpClient.createSession();
 
         try {
             MimeMessage mimeMessage = new MimeMessage(session);
@@ -167,9 +148,9 @@ public class EmailNotifier implements QueryUpdateSubscriber {
 
             mimeMessage.setText(emailBody);
 
-            LOGGER.debug("Attempting to send email to mailHost : {}", mailHost);
+            LOGGER.trace("Attempting to send email");
 
-            Transport.send(mimeMessage);
+            smtpClient.send(mimeMessage);
 
         } catch (MessagingException e) {
             LOGGER.warn("unable to send email to {}", email, e);
@@ -177,24 +158,11 @@ public class EmailNotifier implements QueryUpdateSubscriber {
 
     }
 
-    private Properties createSessionProperies() {
-        Properties properties = System.getProperties();
-
-        properties.setProperty(SMTP_HOST_PROPERTY, mailHost);
-        properties.setProperty(SMTP_AUTH_PROPERTY, "false");
-
-        return properties;
-    }
-
     @Override
     public String toString() {
-        return "EmailNotifier{" +
-                "metacardFormatter=" + metacardFormatter +
-                ", bodyTemplate='" + bodyTemplate + '\'' +
-                ", subjectTemplate='" + subjectTemplate + '\'' +
-                ", fromEmail='" + fromEmail + '\'' +
-                ", mailHost='" + mailHost + '\'' +
-                ", subscriptionsPersistentStore=" + subscriptionsPersistentStore +
-                '}';
+        return "EmailNotifier{" + "metacardFormatter=" + metacardFormatter + ", bodyTemplate='"
+                + bodyTemplate + '\'' + ", subjectTemplate='" + subjectTemplate + '\''
+                + ", fromEmail='" + fromEmail + '\'' + ", subscriptionsPersistentStore="
+                + subscriptionsPersistentStore + '}';
     }
 }
