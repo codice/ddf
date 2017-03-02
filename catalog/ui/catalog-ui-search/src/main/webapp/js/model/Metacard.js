@@ -277,7 +277,7 @@ define([
                 }
 
                 if (valuesToCheck.length === 0) {
-                    return false;
+                    return filter.value === "";  // aligns with how querying works on the server
                 }
 
                 valuesToCheck = flattenMultivalueProperties(valuesToCheck);
@@ -730,17 +730,8 @@ define([
             generateFilteredVersion: function(filter){
                 var filteredCollection = new this.constructor();
                 filteredCollection.set(this.updateFilteredVersion(filter));
-                filteredCollection.listenToOriginalCollection(this, filter);
                 filteredCollection.amountFiltered = this.amountFiltered;
                 return filteredCollection;
-            },
-            listenToOriginalCollection: function(originalCollection, filter){
-                var debouncedUpdate = _.debounce(function(){
-                    this.reset(originalCollection.updateFilteredVersion(filter));
-                }.bind(this), 200);
-                this.listenTo(originalCollection, 'add', debouncedUpdate);
-                this.listenTo(originalCollection, 'remove',debouncedUpdate);
-                this.listenTo(originalCollection, 'update', debouncedUpdate);
             },
             updateFilteredVersion: function(filter){
                 this.amountFiltered = 0;
