@@ -25,9 +25,11 @@ import java.nio.file.Paths;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.KarafConsole;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -49,6 +51,8 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
     private static final String BACKUP_ERROR_MESSAGE_FORMAT = "Error backing up Solr core: [%s]";
 
+    private static final String CATALOG_CORE_NAME = "catalog";
+
     private static KarafConsole console;
 
     @BeforeExam
@@ -65,6 +69,11 @@ public class TestSolrCommands extends AbstractIntegrationTest {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
         }
+    }
+
+    @After
+    public void tearDown() {
+        cleanUpBackups(CATALOG_CORE_NAME);
     }
 
     @Test
@@ -84,29 +93,33 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
     @Test
     public void testSolrBackupNumToKeep() throws InterruptedException {
-        int numToKeep = 3;
-        String coreName = "catalog";
+        int numToKeep = 2;
 
         String command = BACKUP_COMMAND + " --numToKeep " + numToKeep;
 
-        // Run this three times to make sure only 2 are kept
+        // Run this 3 times to make sure 2 backups are kept
+        // On run 1, backup A is created.
         console.runCommand(command);
-        Set<File> firstBackupFileSet = waitForBackupFilesToBeCreated(coreName, 1, 1);
+        Set<File> firstBackupDirSet = waitForBackupDirsToBeCreated(CATALOG_CORE_NAME, 1, 1);
 
+        // On run 2, backup B is created (2 backups now: A and B).
         console.runCommand(command);
-        Set<File> secondBackupFileSet = waitForBackupFilesToBeCreated(coreName, 2, 2);
-        assertTrue("Unexpected backup files found",
-                secondBackupFileSet.containsAll(firstBackupFileSet));
+        Set<File> secondBackupDirSet = waitForBackupDirsToBeCreated(CATALOG_CORE_NAME, 2, 2);
+        assertTrue("Unexpected backup directories found on pass 2.",
+                secondBackupDirSet.containsAll(firstBackupDirSet));
 
+        // On run 3, backup C is created (backup A is deleted and backups B and C remain).
         console.runCommand(command);
+        // Wait for the 3rd backup to replace the 1st backup
+        Set<File> thirdBackupDirSet = waitForFirstBackupDirToBeDeleted(CATALOG_CORE_NAME, firstBackupDirSet);
 
-        secondBackupFileSet.removeAll(firstBackupFileSet);
-        Set<File> thirdBackupFileSet = waitForFirstFileToBeDeleted(coreName, firstBackupFileSet);
+        assertThat("Wrong number of backup directories kept. Number of backups found in "
+                + getSolrDataPath(CATALOG_CORE_NAME).getAbsolutePath() + " is : [" + thirdBackupDirSet.size()
+                + "]; Expected: [2].", thirdBackupDirSet, hasSize(2));
 
-        assertThat("Wrong number of backup files created. Number of backups: ["
-                + thirdBackupFileSet.size() + "]; Expected: [3].", thirdBackupFileSet, hasSize(3));
-        assertTrue("Unexpected backup files found",
-                thirdBackupFileSet.containsAll(secondBackupFileSet));
+        secondBackupDirSet.removeAll(firstBackupDirSet);
+        assertTrue("Unexpected backup directories found on pass 3.",
+                thirdBackupDirSet.containsAll(secondBackupDirSet));
     }
 
     private Set<File> waitFor(String coreName, Predicate<Set<File>> predicate)
@@ -114,63 +127,75 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         final long timeout = TimeUnit.SECONDS.toMillis(10);
         int currentWaitTime = 0;
 
-        Set<File> backupFiles = getBackupFiles(coreName);
+        Set<File> backupDirs = getBackupDirectories(coreName);
 
-        while (predicate.apply(backupFiles) && (currentWaitTime < timeout)) {
+        while (predicate.apply(backupDirs) && (currentWaitTime < timeout)) {
             TimeUnit.MILLISECONDS.sleep(250);
             currentWaitTime += 250;
-            backupFiles = getBackupFiles(coreName);
+            backupDirs = getBackupDirectories(coreName);
         }
 
-        return backupFiles;
+        if(currentWaitTime >= timeout) {
+            fail("Timed out after " + timeout + " seconds waiting for correct number of backups in "
+                    + getSolrDataPath(CATALOG_CORE_NAME).getAbsolutePath());
+        }
+
+        return backupDirs;
     }
 
-    private Set<File> waitForFirstFileToBeDeleted(String coreName,
-            final Set<File> firstBackupFileSet) throws InterruptedException {
+    private Set<File> waitForFirstBackupDirToBeDeleted(String coreName,
+            final Set<File> firstBackupDirSet) throws InterruptedException {
         return waitFor(coreName, new Predicate<Set<File>>() {
             @Override
-            public boolean apply(Set<File> backupFiles) {
-                return backupFiles.containsAll(firstBackupFileSet) && (backupFiles.size() != 2);
+            public boolean apply(Set<File> backupDirs) {
+                return backupDirs.containsAll(firstBackupDirSet) && (backupDirs.size() != 2);
             }
         });
     }
 
-    private Set<File> waitForBackupFilesToBeCreated(String coreName, final int numberOfFiles, int pass)
+    private Set<File> waitForBackupDirsToBeCreated(String coreName, final int numberOfDirs, int pass)
             throws InterruptedException {
-        Set<File> backupFiles = waitFor(coreName, new Predicate<Set<File>>() {
+        Set<File> backupDirs = waitFor(coreName, new Predicate<Set<File>>() {
             @Override
-            public boolean apply(Set<File> backupFiles) {
-                return backupFiles.size() < numberOfFiles;
+            public boolean apply(Set<File> backupDirs) {
+                return backupDirs.size() < numberOfDirs;
             }
         });
 
-        assertThat("Wrong number of backup files created on pass: [" + pass + "].  Found: "
-                        + backupFiles + ". Expected: [" + numberOfFiles + "].",
-                backupFiles,
-                hasSize(numberOfFiles));
-        return backupFiles;
+        assertThat("Wrong number of backup directories created on pass: [" + pass + "].  Found: "
+                        + backupDirs + ". Expected: [" + numberOfDirs + "].",
+                backupDirs,
+                hasSize(numberOfDirs));
+        return backupDirs;
     }
 
-    private Set<File> getBackupFiles(String coreName) {
+    private Set<File> getBackupDirectories(String coreName) {
         File solrDir = getSolrDataPath(coreName);
 
-        File[] backupFiles;
+        File[] backupDirs;
 
-        backupFiles = solrDir.listFiles(new FilenameFilter() {
+        backupDirs = solrDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                // Only match on snapshot.<timestamp> files, filter out snapshot_metadata
+                // Only match on snapshot.<timestamp> directories, filter out snapshot_metadata
                 return name.startsWith("snapshot.");
             }
         });
 
-        return Sets.newHashSet(backupFiles);
+        return Sets.newHashSet(backupDirs);
     }
 
     private File getSolrDataPath(String coreName) {
         String home = System.getProperty(DDF_HOME_PROPERTY);
-        File file = Paths.get(home + "/data/solr/" + coreName + "/data")
+        File dir = Paths.get(home + "/data/solr/" + coreName + "/data")
                 .toFile();
-        return file;
+        return dir;
+    }
+
+    private void cleanUpBackups(String coreName) {
+        Set<File> backupDirs = getBackupDirectories(coreName);
+        for(File backupDir : backupDirs) {
+            FileUtils.deleteQuietly(backupDir);
+        }
     }
 }
