@@ -382,8 +382,8 @@ public class SolrProviderTest extends SolrProviderTestCase {
         assertEquals(MockMetacard.DEFAULT_TYPE, createdMetacard.getContentTypeName());
         assertEquals(MockMetacard.DEFAULT_VERSION, createdMetacard.getContentTypeVersion());
         assertNotNull(createdMetacard.getMetadata());
-        assertThat(createdMetacard.getMetadata(),
-                containsString("<title>Flagstaff Chamber of Commerce</title>"));
+        assertThat(createdMetacard.getMetadata(), containsString(
+                "<title>Flagstaff Chamber of Commerce</title>"));
         assertThat(createdMetacard.getMetadata()
                 .isEmpty(), is(not(true)));
         assertThat(createdMetacard.getCreatedDate(), is(oneDayAgo));
@@ -422,8 +422,8 @@ public class SolrProviderTest extends SolrProviderTestCase {
         assertEquals(MockMetacard.DEFAULT_TYPE, mResult.getContentTypeName());
         assertEquals(MockMetacard.DEFAULT_VERSION, mResult.getContentTypeVersion());
         assertNotNull(mResult.getMetadata());
-        assertThat(mResult.getMetadata(),
-                containsString("<title>Flagstaff Chamber of Commerce</title>"));
+        assertThat(mResult.getMetadata(), containsString(
+                "<title>Flagstaff Chamber of Commerce</title>"));
         assertThat(mResult.getMetadata()
                 .isEmpty(), is(not(true)));
         assertThat(mResult.getCreatedDate(), is(oneDayAgo));
@@ -3222,6 +3222,21 @@ public class SolrProviderTest extends SolrProviderTestCase {
                         .like()
                         .text("gary"));
 
+
+        /* EMPTY ATTRIBUTE */
+
+        queryAndVerifyCount(3,
+                filterBuilder.attribute(Metacard.DESCRIPTION)
+                        .is()
+                        .equalTo()
+                        .text(""));
+
+        queryAndVerifyCount(0,
+                filterBuilder.attribute(Metacard.TITLE)
+                        .is()
+                        .equalTo()
+                        .text(""));
+
     }
 
     @Test
@@ -3234,6 +3249,7 @@ public class SolrProviderTest extends SolrProviderTestCase {
 
         MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
         metacard1.setTitle("Mary");
+
         Date exactEffectiveDate = new DateTime().minusMinutes(1)
                 .toDate();
         metacard1.setEffectiveDate(exactEffectiveDate);
@@ -3289,6 +3305,20 @@ public class SolrProviderTest extends SolrProviderTestCase {
                         .is()
                         .equalTo()
                         .date(exactEffectiveDate));
+
+        /* EMPTY ATTRIBUTE */
+
+        queryAndVerifyCount(3,
+                filterBuilder.attribute(Metacard.DESCRIPTION)
+                        .is()
+                        .equalTo()
+                        .text(""));
+
+        queryAndVerifyCount(0,
+                filterBuilder.attribute(Metacard.TITLE)
+                        .is()
+                        .equalTo()
+                        .text(""));
 
     }
 
