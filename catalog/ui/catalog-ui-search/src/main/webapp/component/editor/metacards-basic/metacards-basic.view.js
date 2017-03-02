@@ -22,9 +22,10 @@ define([
     'component/property/property.collection.view',
     'component/loading-companion/loading-companion.view',
     'component/alert/alert',
-    'component/singletons/metacard-definitions'
+    'component/singletons/metacard-definitions',
+    'js/ResultUtils'
 ], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingCompanionView,
-             alertInstance, metacardDefinitions) {
+             alertInstance, metacardDefinitions, ResultUtils) {
 
     return EditorView.extend({
         className: 'is-metacards-basic',
@@ -96,25 +97,7 @@ define([
                                 return attrMap;
                             }, attributeMap);
                         }, {});
-                        self.model.forEach(function(metacard){
-                           metacard.get('metacard').get('properties').set(attributeMap);
-                        });
-                        store.get('workspaces').forEach(function(workspace){
-                            workspace.get('queries').forEach(function(query){
-                                if (query.get('result')) {
-                                    query.get('result').get('results').forEach(function(result){
-                                        if (payload[0].ids.indexOf(result.get('metacard').get('properties').get('id')) !== -1){
-                                            result.get('metacard').get('properties').set(attributeMap);
-                                        }
-                                    });
-                                }
-                            });
-                        });
-                        alertInstance.get('currentResult').get('results').forEach(function(result){
-                            if (payload[0].ids.indexOf(result.get('metacard').get('properties').get('id')) !== -1){
-                                result.get('metacard').get('properties').set(attributeMap);
-                            }
-                        });
+                        ResultUtils.updateResults(self.model, attributeMap);
                     }).always(function(){
                         setTimeout(function(){  //let solr flush
                             LoadingCompanionView.endLoading(self);

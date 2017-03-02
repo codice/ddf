@@ -30,7 +30,7 @@
         </div>
         {{#if metacard.properties.thumbnail}}
         <div class="detail-thumbnail details-property" data-help="thumbnail">
-                <img src="{{metacard.properties.thumbnail}}">
+                <img src="{{getImageSrc metacard.properties.thumbnail}}">
         </div>
         {{/if}}
         <div class="detail-lastModified details-property" data-help="modified">

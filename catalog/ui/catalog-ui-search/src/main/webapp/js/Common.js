@@ -64,6 +64,13 @@ define([
         getMomentDate: function(date){
            return moment(date).fromNow();
         },
+        getImageSrc: function(img){
+            if (img === "" || img.substring(0, 4) === 'http') {
+                return img;
+            } else {
+                return "data:image/png;base64," + img;
+            }
+        },
         cancelRepaintForTimeframe: function(requestDetails){
             if (requestDetails) {
                 window.cancelAnimationFrame(requestDetails.requestId);

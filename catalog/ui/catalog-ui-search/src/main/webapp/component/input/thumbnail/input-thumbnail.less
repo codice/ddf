@@ -2,11 +2,11 @@
   display: block;
   width: 100%;
   white-space: nowrap;
+  padding-right: 0px;
 
   position: relative;
   min-height: @minimumButtonSize;
   white-space: nowrap;
-  vertical-align: top;
   text-align: center;
   font-size: 0px;
 
@@ -21,19 +21,9 @@
     width: @minimumButtonSize;
     display: none;
     font-size: @largeFontSize;
-    vertical-align: top;
+    vertical-align: middle;
   }
   img {
-    width: 100%;
-    text-align: center;
-    line-height: @minimumButtonSize;
-    margin: 0px;
-    white-space: nowrap;
-    overflow: hidden;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-  }
-  canvas {
     margin: auto;
     display: inline-block;
     min-height: @minimumButtonSize;
@@ -48,7 +38,7 @@
 }
 
 @{customElementNamespace}input.is-thumbnail.is-empty {
-  canvas {
+  img {
     display: none;
   }
 }

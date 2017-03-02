@@ -80,7 +80,7 @@ module.exports = Marionette.ItemView.extend({
                     }
                 }
                 if (property === 'thumbnail') {
-                    html = '<img src="' +  Common.escapeHTML(value) + '">';
+                    html = '<img src="' +  Common.getImageSrc(Common.escapeHTML(value)) + '">';
                     className = "is-thumbnail";
                 }
                 return {

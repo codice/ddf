@@ -13,8 +13,9 @@
 define([
     'underscore',
     'moment',
-    'handlebars/runtime'
-], function (_, moment, Handlebars) {
+    'handlebars/runtime',
+    'js/Common'
+], function (_, moment, Handlebars, Common) {
     'use strict';
     // The module to be exported
     var helper, helpers = {
@@ -327,6 +328,9 @@ define([
                     return encodeURIComponent(str);
                 }
                 return str;
+            },
+            getImageSrc: function(img){
+                return Common.getImageSrc(img);
             },
           json: function (obj) {
             return JSON.stringify(obj);

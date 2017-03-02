@@ -19,8 +19,20 @@ define([
     'jquery',
     './input-thumbnail.hbs',
     '../input.view',
-    'js/CustomElements'
-], function (Marionette, _, $, template, InputView) {
+    'component/announcement',
+    'js/Common'
+], function (Marionette, _, $, template, InputView, announcement, Common) {
+
+    function handleError(){
+        announcement.announce({
+            title: 'Image Upload Failed',
+            message: 'There was an issue loading your image.  Please try again or recheck what you are attempting to upload.',
+            type: 'error'
+        });
+        this.hasUploaded = false;
+        this.$el.trigger('change');
+        this.render();
+    }
 
     return InputView.extend({
         template: template,
@@ -33,82 +45,39 @@ define([
         },
         handleUpload: function(e){
             var self = this;
-            var canvas = this.el.querySelector('canvas');
-            var button = this.$el.find('button');
-            var revert = this.$el.find('.input-revert');
-            var ctx = canvas.getContext('2d');
+            var img = this.$el.find('img')[0];
             var reader = new FileReader();
             reader.onload = function(event){
-                var img = new Image();
                 img.onload = function(){
-                    var width = img.width;
-                    var height = img.height;
-                    var scaleFactor = Math.max(img.width / (self.el.clientWidth - 64),
-                    img.height / 200);
-                    if (scaleFactor > 1){
-                        width = width / scaleFactor;
-                        height = height / scaleFactor;
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    button.css('height', height);
-                    revert.css('height', Math.max(height, 44));
-                    revert.css('line-height', Math.max(height,44) + 'px');
-                    ctx.drawImage(img,0,0, width, height);
                     self.hasUploaded = true;
                     self.$el.trigger('change');
                     self.handleEmpty();
+                    self.resizeButton();
                 }
+                img.onerror = handleError.bind(self);
                 img.src = event.target.result;
             }
+            reader.onerror = handleError.bind(self);
             reader.readAsDataURL(e.target.files[0]);
         },
         handleValue: function(){
             var self = this;
-            var canvas = this.el.querySelector('canvas');
-            var button = this.$el.find('button');
-            var revert = this.$el.find('.input-revert');
-            var ctx = canvas.getContext('2d');
-            var img = new Image();
+            var img = this.$el.find('img')[0];
             img.onload = function() {
-                var width = img.width;
-                var height = img.height;
-                var scaleFactor = Math.max(img.width / (self.el.clientWidth - 64),
-                    img.height / 200);
-                if (scaleFactor > 1){
-                    width = width / scaleFactor;
-                    height = height / scaleFactor;
-                }
-                canvas.width = width;
-                canvas.height = height;
-                button.css('height', height);
-                revert.css('height', height);
-                revert.css('line-height', height + 'px');
-                ctx.drawImage(img,0,0, width, height);
                 self.handleRevert();
+                self.resizeButton();
             };
-            //self.resizeButton();
             if (this.model.getValue() && this.model.getValue().constructor === String) {
-                if (this.model.getValue().substring(0, 4) === 'http') {
-                    img.src = this.model.get('value');
-                } else {
-                    img.src = "data:image/png;base64,"+this.model.getValue();
-                }
+                img.src = Common.getImageSrc(this.model.getValue());
             }
             this.handleEmpty();
         },
         resizeButton: function(){
-            var button = this.$el.find('button');
-            var canvas = this.el.querySelector('canvas');
-            button.css('height', canvas.height);
-        },
-        revert: function(){
-            this.hasUploaded = false;
-            this.model.revert();
+            this.$el.find('button').css('height', this.el.querySelector('img').height);
         },
         save: function(){
-            var canvas = this.el.querySelector('canvas');
-            this.model.save(canvas.toDataURL('image/png').split(',')[1]);
+            var img = this.el.querySelector('img');
+            this.model.save(img.src.split(',')[1]);
         },
         focus: function(){
             this.$el.find('input').select();
@@ -141,9 +110,24 @@ define([
             this.$el.find('input').click();
         },
         getCurrentValue: function(){
-            var canvas = this.el.querySelector('canvas');
-            return canvas.toDataURL('image/png').split(',')[1];
+            var img = this.el.querySelector('img');
+            return img.src.split(',')[1];
         },
-        hasUploaded: false
+        hasUploaded: false,
+        listenForResize: function(){
+            $(window).off('resize.' + this.cid).on('resize.' + this.cid, _.throttle(function(event){
+                this.resizeButton();
+            }.bind(this), 16));
+        },
+        stopListeningForResize: function(){
+            $(window).off('resize.' + this.cid);
+        },
+        onRender: function(){
+            InputView.prototype.onRender.call(this);
+            this.listenForResize();
+        },
+        onDestroy: function(){
+            this.stopListeningForResize();
+        }
     });
 });
