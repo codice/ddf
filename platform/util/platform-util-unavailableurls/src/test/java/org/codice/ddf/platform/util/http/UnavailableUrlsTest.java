@@ -53,8 +53,6 @@ public class UnavailableUrlsTest {
     @Before
     public void setUp() throws Exception {
         scheduler = Mockito.mock(ScheduledExecutorService.class);
-        //        System.setProperty(MAX_TIMEOUT_SECONDS_PROPERTY, MAX_TIMEOUT_SECONDS);
-        //        System.setProperty(INITIAL_TIMEOUT_SECONDS_PROPERTY, INITIAL_TIMEOUT_SECONDS);
     }
 
     private UnavailableUrls initSet(int pingResponse) {
@@ -206,7 +204,7 @@ public class UnavailableUrlsTest {
 
         public final TimeUnit unit;
 
-        public SchedulerCapture(Runnable r, Long to, TimeUnit tu) {
+        SchedulerCapture(Runnable r, Long to, TimeUnit tu) {
             this.runnable = r;
             this.timeout = to;
             this.unit = tu;

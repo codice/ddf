@@ -88,7 +88,7 @@ public class UnavailableUrls {
     /**
      * Does the set contain a specified URL.
      *
-     * @param url
+     * @param url of the endpoint to ping
      * @return the truth
      */
     public boolean contains(String url) {
@@ -138,12 +138,12 @@ public class UnavailableUrls {
         }
 
         private int getMaxRetryInterval() {
-            String property = System.getProperty(MAX_TIMEOUT_SECONDS_PROPERTY);
+            String property = System.getProperty(MAX_TIMEOUT_SECONDS_PROPERTY, "300");
             return Integer.parseInt(property);
         }
 
         private int getInitialRetryInterval() {
-            String property = System.getProperty(INITIAL_TIMEOUT_SECONDS_PROPERTY);
+            String property = System.getProperty(INITIAL_TIMEOUT_SECONDS_PROPERTY, "10");
             return Integer.parseInt(property);
         }
 
