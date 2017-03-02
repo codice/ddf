@@ -12,6 +12,7 @@
 /*global require, setTimeout*/
 var Backbone = require('backbone');
 var $ = require('jquery');
+require('js/jquery.whenAll');
 
 function fileMatches(file, model) {
     return file === model.get('file');
@@ -22,10 +23,20 @@ function checkValidation(model) {
         model.set('validating', true);
         //wait for solr
         setTimeout(function() {
-            $.get('/search/catalog/internal/metacard/' + model.get('id') + '/attribute/validation').then(function(response) {
+            $.whenAll.apply(this, [
+                $.get('/search/catalog/internal/metacard/' + model.get('id') + '/attribute/validation').then(function(response) {
+                    model.set({
+                        issues: model.get('issues') || response.length > 0
+                    });
+                }),
+                $.get('/search/catalog/internal/metacard/' + model.get('id') + '/validation').then(function(response) {
+                    model.set({
+                        issues: model.get('issues') || response.length > 0
+                    });
+                })
+            ]).always(function() {
                 model.set({
-                    validating: false,
-                    issues: response.length > 0
+                    validating: false
                 });
             });
         }, 2000);
