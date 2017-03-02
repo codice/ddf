@@ -198,7 +198,7 @@ public class TestGetRecordsResponseConverter {
         expectedValues.put(Media.FORMAT, "Shapefile");
         expectedValues.put(Metacard.CONTENT_TYPE, "dataset");
         expectedValues.put(Core.LOCATION,
-                "POLYGON((5.121 52.139, 4.468 52.139, 4.468 52.517, 5.121 52.517, 5.121 52.139))");
+                "POLYGON ((5.121 52.139, 4.468 52.139, 4.468 52.517, 5.121 52.517, 5.121 52.139))");
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -221,7 +221,7 @@ public class TestGetRecordsResponseConverter {
         expectedValues.put(Media.FORMAT, "Shapefile 2");
         expectedValues.put(Metacard.CONTENT_TYPE, "dataset 2");
         expectedValues.put(Core.LOCATION,
-                "POLYGON((6.121 53.139, 5.468 53.139, 5.468 53.517, 6.121 53.517, 6.121 53.139))");
+                "POLYGON ((6.121 53.139, 5.468 53.139, 5.468 53.517, 6.121 53.517, 6.121 53.139))");
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();

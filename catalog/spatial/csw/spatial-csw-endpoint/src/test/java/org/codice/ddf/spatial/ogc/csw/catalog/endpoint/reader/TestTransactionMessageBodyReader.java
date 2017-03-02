@@ -422,7 +422,7 @@ public class TestTransactionMessageBodyReader {
         assertThat(metacard.getModifiedDate(), is(date));
 
         assertThat(metacard.getLocation(), is(
-                "POLYGON((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
+                "POLYGON ((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
 
         assertThat(request.getService(), is(CswConstants.CSW));
         assertThat(request.getVersion(), is(CswConstants.VERSION_2_0_2));
@@ -472,7 +472,7 @@ public class TestTransactionMessageBodyReader {
 
         Serializable newLocationValue = recordProperties.get("location");
         assertThat(newLocationValue, notNullValue());
-        assertThat(newLocationValue, is("POLYGON((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
+        assertThat(newLocationValue, is("POLYGON ((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
 
         Serializable newFormatValue = recordProperties.get("media.format");
         // No <Value> was specified in the request.
@@ -524,7 +524,7 @@ public class TestTransactionMessageBodyReader {
         assertThat(metacard.getModifiedDate(), is(date));
 
         assertThat(metacard.getLocation(), is(
-                "POLYGON((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
+                "POLYGON ((1.0 2.0, 3.0 2.0, 3.0 4.0, 1.0 4.0, 1.0 2.0))"));
 
         assertThat(firstUpdateAction.getHandle(), is("handle1"));
         assertThat(firstUpdateAction.getTypeName(), is(CswConstants.CSW_RECORD));
