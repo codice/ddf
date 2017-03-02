@@ -33,6 +33,30 @@ replace with next unreleased version
 	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20VERSION_NUMBER%20AND%20fixVersion%20!%3D%20VERSION_NUMBER%20ORDER%20BY%20priority) affecting this version.
  -->
 
+## 2.11.0
+        Release Date: pending
+
+### NOTES
+
+-
+
+### NEW FEATURES
+- [DDF-2818](https://codice.atlassian.net/browse/DDF-2818) Upgrade Solr from version 6.0.0 to version 6.4.1 
+
+### API CHANGES
+
+- None in this version.
+
+### BUG FIXES
+
+- List bugs fixed here.
+        - [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.10.1%20ORDER%20BY%20resolutiondate)
+        in this version.
+
+### KNOWN ISSUES
+- List known issues / or workarounds here.
+        - [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20ddf-2.10.0%20AND%20fixVersion%20!%3D%20ddf-2.10.1%20ORDER%20BY%20priority) affecting this version.
+
 ## 2.10.1
 	Release Date: pending
 

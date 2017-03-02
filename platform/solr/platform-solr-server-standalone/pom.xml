@@ -219,6 +219,8 @@
                             org.apache.xerces.parsers,
                             org.apache.xerces.xni.parser,
                             org.slf4j,
+                            org.slf4j.spi,
+                            org.slf4j.helpers,
                             org.xml.sax,
                             org.w3c.dom,
                             org.xml.sax.ext,
