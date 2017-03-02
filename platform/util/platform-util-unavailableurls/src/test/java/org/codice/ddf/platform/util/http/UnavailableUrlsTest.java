@@ -193,6 +193,22 @@ public class UnavailableUrlsTest {
                 not(hasItemInArray(greaterThan(getMaxTimoutSeconds()))));
     }
 
+    @Test
+    public void testUnsetSysProperties() {
+        System.getProperties()
+                .remove(INITIAL_TIMEOUT_SECONDS_PROPERTY);
+        System.getProperties()
+                .remove(MAX_TIMEOUT_SECONDS_PROPERTY);
+        UnavailableUrls unavailableUrls = new UnavailableUrls();
+        assertThat("Failed to find a max retry interval",
+                unavailableUrls.getMaxRetryInterval(),
+                greaterThan(0));
+        assertThat("Failed to find a initial retry interval",
+                unavailableUrls.getInitialRetryInterval(),
+                greaterThan(0));
+
+    }
+
     private Long getMaxTimoutSeconds() {
         return Long.parseLong(MAX_TIMEOUT_SECONDS);
     }
