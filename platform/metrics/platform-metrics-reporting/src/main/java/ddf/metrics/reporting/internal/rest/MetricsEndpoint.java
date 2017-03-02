@@ -73,7 +73,7 @@ import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
  */
 @Path("/")
 public class MetricsEndpoint {
-    public static final String DEFAULT_METRICS_DIR = new AbsolutePathResolver("data/metrics/").getPath();
+    public static final String DEFAULT_METRICS_DIR = new AbsolutePathResolver("data" + File.separator + "metrics" + File.separator).getPath();
 
     static final Map<String, Long> TIME_RANGES = new HashMap<String, Long>();
 

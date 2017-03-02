@@ -48,7 +48,7 @@ import ddf.metrics.collector.MetricsUtil;
 
 public class RrdJmxCollector implements JmxCollector {
 
-    public static final String DEFAULT_METRICS_DIR = new AbsolutePathResolver("data/metrics/").getPath();
+    public static final String DEFAULT_METRICS_DIR = new AbsolutePathResolver("data" + File.separator + "metrics" + File.separator).getPath();
 
     public static final String RRD_FILENAME_SUFFIX = ".rrd";
 
