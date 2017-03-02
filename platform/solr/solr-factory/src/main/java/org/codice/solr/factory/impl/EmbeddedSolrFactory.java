@@ -200,7 +200,7 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
                     null,
                     null,
                     null);
-            container.register(coreName, core, false);
+            container.register(coreName, core, false, true);
 
             return new EmbeddedSolrServer(container, coreName);
         } catch (ParserConfigurationException | IOException | SAXException e) {

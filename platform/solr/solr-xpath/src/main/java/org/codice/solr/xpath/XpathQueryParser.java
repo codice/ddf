@@ -31,7 +31,7 @@ public class XpathQueryParser extends SolrQueryParser {
     }
 
     @Override
-    protected Query getFieldQuery(String field, String queryText, boolean quoted)
+    protected Query getFieldQuery(String field, String queryText, int slop)
             throws SyntaxError {
 
         if (field.equals("xpath")) {
@@ -42,7 +42,7 @@ public class XpathQueryParser extends SolrQueryParser {
             return getLuceneQuery(queryText);
         } else {
             // pass-through any non-XPath related fields
-            return super.getFieldQuery(field, queryText, quoted);
+            return super.getFieldQuery(field, queryText, slop);
         }
     }
 

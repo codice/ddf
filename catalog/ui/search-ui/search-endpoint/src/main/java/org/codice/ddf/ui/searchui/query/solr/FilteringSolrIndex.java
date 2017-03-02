@@ -130,7 +130,7 @@ public class FilteringSolrIndex {
                     null,
                     null);
 
-            container.register(coreName, core, false);
+            container.register(coreName, core, false, true);
 
             return new EmbeddedSolrServer(container, coreName);
         } catch (ParserConfigurationException | SAXException | IOException e) {
