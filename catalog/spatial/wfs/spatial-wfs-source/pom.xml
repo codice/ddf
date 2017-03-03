@@ -87,6 +87,11 @@
             <artifactId>security-core-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>geospatial</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -110,6 +115,7 @@
                             spatial-ogc-common,
                             spatial-wfs-converter;scope=compile|runtime,
                             catalog-core-api-impl,
+                            geospatial,
                             security-core-impl
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>

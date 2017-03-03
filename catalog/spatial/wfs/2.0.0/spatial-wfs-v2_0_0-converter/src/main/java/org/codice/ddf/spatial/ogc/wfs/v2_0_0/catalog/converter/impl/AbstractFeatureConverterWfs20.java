@@ -32,8 +32,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.AbstractFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
@@ -109,7 +109,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             geo = (Geometry) readGml(geometryXml);
 
             LOGGER.debug("coordinateOrder = {}", coordinateOrder);
-            if (WfsConstants.LAT_LON_ORDER.equals(coordinateOrder)) {
+            if (GeospatialUtil.LAT_LON_ORDER.equals(coordinateOrder)) {
                 swapCoordinates(geo);
             }
 

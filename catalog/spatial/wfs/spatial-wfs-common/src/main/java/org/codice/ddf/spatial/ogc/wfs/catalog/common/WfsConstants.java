@@ -22,7 +22,7 @@ public class WfsConstants {
     /* Service Names */
     public static final String WFS = "WFS";
 
-    /* XML Encoded Filter Constsants */
+    /* XML Encoded Filter Constants */
     public static final String ESCAPE = "!";
 
     public static final String SINGLE_CHAR = "#";
@@ -30,10 +30,6 @@ public class WfsConstants {
     public static final String WILD_CARD = "*";
 
     public static final String METERS = "METERS";
-
-    public static final String EPSG_4326 = "EPSG:4326";
-
-    public static final String EPSG_4326_URN = "urn:ogc:def:crs:EPSG::4326";
 
     /* Namespaces */
 
@@ -52,10 +48,6 @@ public class WfsConstants {
     public static final double RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS;
 
     public static final double EARTH_MEAN_RADIUS_METERS = 6371008.7714;
-
-    public static final String LAT_LON_ORDER = "LAT_LON";
-
-    public static final String LON_LAT_ORDER = "LON_LAT";
 
     public static final String B = "B";
 

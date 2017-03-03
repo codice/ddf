@@ -42,8 +42,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
@@ -76,6 +76,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
+
 import net.opengis.filter.v_2_0_0.ConformanceType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.SortByType;
@@ -154,7 +155,7 @@ public class TestWfsSource {
                 qName = new QName("http://example.com", SAMPLE_FEATURE_NAME + ii, "Prefix" + ii);
             }
             feature.setName(qName);
-            feature.setDefaultCRS(Wfs20Constants.EPSG_4326_URN);
+            feature.setDefaultCRS(GeospatialUtil.EPSG_4326_URN);
             mockCapabilites.getFeatureTypeList()
                     .getFeatureType()
                     .add(feature);
@@ -263,7 +264,7 @@ public class TestWfsSource {
                 qName = new QName("http://example.com", SAMPLE_FEATURE_NAME + ii);
             }
             feature.setName(qName);
-            feature.setDefaultCRS(Wfs20Constants.EPSG_4326_URN);
+            feature.setDefaultCRS(GeospatialUtil.EPSG_4326_URN);
             mockCapabilites.getFeatureTypeList()
                     .getFeatureType()
                     .add(feature);
@@ -304,7 +305,7 @@ public class TestWfsSource {
     public void testAvailability() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1);
         assertTrue(source.isAvailable());
     }
@@ -313,7 +314,7 @@ public class TestWfsSource {
     public void testParseCapabilities() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1);
 
         assertTrue(source.isAvailable());
@@ -327,7 +328,7 @@ public class TestWfsSource {
     public void testParseCapabilitiesNoFeatures() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource("",
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 0);
 
         assertTrue(source.isAvailable());
@@ -339,7 +340,7 @@ public class TestWfsSource {
             throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 null,
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1);
 
         assertTrue(source.isAvailable());
@@ -353,7 +354,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1);
 
         final String SAMPLE_FEATURE_NAME0 = SAMPLE_FEATURE_NAME + "0";
@@ -388,7 +389,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1,
                 true);
 
@@ -419,7 +420,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 3,
                 false,
                 true,
@@ -461,7 +462,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 3,
                 false,
                 false,
@@ -511,7 +512,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 10,
                 false);
         Filter filter = builder.attribute(Metacard.ANY_TEXT)
@@ -548,7 +549,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 10,
                 false);
         Filter filter = builder.attribute(Metacard.ANY_TEXT)
@@ -579,7 +580,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 10,
                 false);
         Filter filter = builder.attribute(Metacard.ANY_TEXT)
@@ -603,7 +604,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 3,
                 false,
                 true,
@@ -642,7 +643,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 3,
                 false,
                 true,
@@ -684,7 +685,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 3,
                 false,
                 true,
@@ -718,7 +719,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 3,
                 false,
                 true,
@@ -773,7 +774,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1,
                 false,
                 false,
@@ -839,7 +840,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 mockCapabilitiesSortingNotSupported,
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1,
                 false,
                 false,
@@ -894,7 +895,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1,
                 false,
                 false,
@@ -956,7 +957,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1,
                 false,
                 false,
@@ -1003,7 +1004,7 @@ public class TestWfsSource {
 
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1,
                 false,
                 false,
@@ -1029,7 +1030,7 @@ public class TestWfsSource {
     public void testTimeoutConfiguration() throws WfsException, SecurityServiceException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 1,
                 false,
                 false,
@@ -1052,7 +1053,7 @@ public class TestWfsSource {
         int pageSize = 10;
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 10,
                 false);
         Filter filter = builder.attribute(Metacard.CONTENT_TYPE)
@@ -1080,7 +1081,7 @@ public class TestWfsSource {
         int pageSize = 10;
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 10,
                 false);
         Filter filter0 = builder.attribute(Metacard.CONTENT_TYPE)
@@ -1116,10 +1117,10 @@ public class TestWfsSource {
         int pageSize = 10;
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 10,
                 false);
-        source.setSrsName(WfsConstants.EPSG_4326);
+        source.setSrsName(GeospatialUtil.EPSG_4326);
 
         Filter filter = builder.attribute(Metacard.CONTENT_TYPE)
                 .is()
@@ -1134,7 +1135,7 @@ public class TestWfsSource {
                 .get(0)
                 .getValue();
 
-        assertThat(queryType.getSrsName(), is(WfsConstants.EPSG_4326));
+        assertThat(queryType.getSrsName(), is(GeospatialUtil.EPSG_4326));
     }
 
 
@@ -1144,7 +1145,7 @@ public class TestWfsSource {
         int pageSize = 10;
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),
-                Wfs20Constants.EPSG_4326_URN,
+                GeospatialUtil.EPSG_4326_URN,
                 10,
                 false);
 

@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 
 import java.text.SimpleDateFormat;
@@ -31,6 +32,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryTest;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
+import org.geotools.referencing.CRS;
 import org.geotools.styling.UomOgcMapping;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -51,14 +53,19 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
 import org.opengis.filter.spatial.Beyond;
 import org.opengis.filter.spatial.DWithin;
+import org.opengis.filter.spatial.Intersects;
 import org.opengis.filter.spatial.Within;
 import org.opengis.filter.temporal.After;
 import org.opengis.filter.temporal.Before;
 import org.opengis.filter.temporal.BinaryTemporalOperator;
 import org.opengis.filter.temporal.During;
 import org.opengis.filter.temporal.TEquals;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 import ddf.catalog.data.Metacard;
@@ -199,6 +206,32 @@ public class TestCswRecordMapperFilterVisitor {
     }
 
     @Test
+    public void testIntersectsUtm() throws FactoryException, TransformException {
+        double lon = 33.45;
+        double lat = 25.22;
+        double easting = 545328.48;
+        double northing = 2789384.24;
+
+        CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:32636");
+        GeometryFactory geoFactory = new GeometryFactory();
+        Geometry utmPoint = geoFactory.createPoint(new Coordinate(easting, northing));
+        utmPoint.setUserData(sourceCRS);
+
+        Expression pt1 = factory.literal(geoFactory.createPoint(new Coordinate(1, 2)));
+        Expression pt2 = factory.literal(utmPoint);
+        Intersects filter = factory.intersects(pt1, pt2);
+
+        visitor.visit(filter, null);
+
+        assertThat(pt2, instanceOf(Literal.class));
+        Literal literalExpression = (Literal) pt2;
+        assertThat(literalExpression.getValue(), instanceOf(Geometry.class));
+        Geometry geometry = (Geometry) literalExpression.getValue();
+        assertThat(geometry.getCoordinates()[0].x, closeTo(lon, .00001));
+        assertThat(geometry.getCoordinates()[0].y, closeTo(lat, .00001));
+    }
+
+    @Test
     public void testVisitPropertyIsBetween() {
         Expression lower = factory.literal(4);
         Expression upper = factory.literal(7);
@@ -281,7 +314,6 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(duplicate.getExpression1(), is(attrExpr));
         assertThat(duplicate.getExpression2(), is(val));
     }
-
 
     @Test
     public void testVisitPropertyIsGreaterThanTemporal() {

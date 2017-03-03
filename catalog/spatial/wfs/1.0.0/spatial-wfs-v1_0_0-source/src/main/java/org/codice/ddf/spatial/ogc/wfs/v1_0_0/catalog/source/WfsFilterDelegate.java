@@ -27,6 +27,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
+import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
@@ -121,7 +122,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         this.featureMetacardType = featureMetacardType;
         this.supportedGeo = supportedGeo;
         this.srsName = srsName;
-        if (WfsConstants.EPSG_4326.equalsIgnoreCase(srsName)) {
+        if (GeospatialUtil.EPSG_4326.equalsIgnoreCase(srsName)) {
             isEpsg4326 = true;
         } else {
             LOGGER.debug(

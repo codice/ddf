@@ -1230,6 +1230,46 @@ It is possible to receive a response to a `GetRecords` query that conforms to th
 </csw:GetRecordsResponse>
 ----
 
+.`GetRecords` XML Request using UTM Coordinates
+UTM coordinates can be used when making a CSW GetRecords request using an `ogc:Filter`.
+UTM coordinates should use EPSG:326XX as the srsName where XX is the zone within the northern hemisphere.
+UTM coordinates should use EPSG:327XX as the srsName where XX is the zone within the southern hemisphere.
+
+Note: UTM coordinates are only supported with requests providing an `ogc:Filter`, but not with CQL
+as there isn't a way to specify the UTM srsName in CQL.
+
+.`GetRecords` XML Request - UTM Northern Hemisphere Zone 36
+[source,xml,linenums]
+----
+<GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
+        xmlns:ogc="http://www.opengis.net/ogc"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:gml="http://www.opengis.net/gml"
+        service="CSW"
+        version="2.0.2"
+        maxRecords="4"
+        startPosition="1"
+        resultType="results"
+        outputFormat="application/xml"
+        outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+        xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd">
+    <Query typeNames="Record">
+        <ElementSetName>summary</ElementSetName>
+        <Constraint version="1.1.0">
+            <ogc:Filter>
+                <ogc:Intersects>
+                    <ogc:PropertyName>ows:BoundingBox</ogc:PropertyName>
+                    <gml:Envelope srsName="EPSG:32636">
+                        <gml:lowerCorner>171070 1106907</gml:lowerCorner>
+                        <gml:upperCorner>225928 1106910</gml:upperCorner>
+                    </gml:Envelope>
+                </ogc:Intersects>
+            </ogc:Filter>
+        </Constraint>
+    </Query>
+</GetRecords>
+----
+
 .`GetRecordById` Operation
 The `GetRecordById` operation request retrieves the default representation of catalog records using their identifier.
 This operation presumes that a previous query has been performed in order to obtain the identifiers that may be used with this operation.

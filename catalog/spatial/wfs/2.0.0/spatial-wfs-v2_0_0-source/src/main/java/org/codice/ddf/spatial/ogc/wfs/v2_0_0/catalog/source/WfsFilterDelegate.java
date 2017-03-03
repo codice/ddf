@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
+import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
@@ -170,8 +171,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         this.featureMetacardType = featureMetacardType;
         this.metacardToFeatureMapper = metacardToFeatureMapper;
         this.srsName = srsName;
-        if (Wfs20Constants.EPSG_4326.equalsIgnoreCase(srsName)
-                || Wfs20Constants.EPSG_4326_URN.equalsIgnoreCase(srsName)) {
+        if (GeospatialUtil.EPSG_4326.equalsIgnoreCase(srsName)
+                || GeospatialUtil.EPSG_4326_URN.equalsIgnoreCase(srsName)) {
             isEpsg4326 = true;
         } else {
             LOGGER.debug(
@@ -1748,7 +1749,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     private JAXBElement<PolygonType> createPolygon(Geometry geometry) {
         PolygonType polygonType = gml320ObjectFactory.createPolygonType();
-        polygonType.setSrsName(Wfs20Constants.EPSG_4326_URN);
+        polygonType.setSrsName(GeospatialUtil.EPSG_4326_URN);
         LinearRingType ring = gml320ObjectFactory.createLinearRingType();
         ring.setCoordinates(createCoordinates(geometry));
         AbstractRingPropertyType abstractRing =
@@ -1761,7 +1762,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     private JAXBElement<EnvelopeType> createEnvelope(Geometry geometry) {
         EnvelopeType envelopeType = gml320ObjectFactory.createEnvelopeType();
-        envelopeType.setSrsName(Wfs20Constants.EPSG_4326_URN);
+        envelopeType.setSrsName(GeospatialUtil.EPSG_4326_URN);
         Envelope envelope = geometry.getEnvelopeInternal();
         DirectPositionType lowerCorner = gml320ObjectFactory.createDirectPositionType();
         lowerCorner.getValue()
@@ -1780,7 +1781,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     private JAXBElement<LineStringType> createLineString(Geometry geometry) {
         LineStringType lineStringType = gml320ObjectFactory.createLineStringType();
-        lineStringType.setSrsName(Wfs20Constants.EPSG_4326_URN);
+        lineStringType.setSrsName(GeospatialUtil.EPSG_4326_URN);
         lineStringType.setCoordinates(createCoordinates(geometry));
         return gml320ObjectFactory.createLineString(lineStringType);
     }
@@ -2004,7 +2005,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
      */
     private String convertWktToLatLonOrdering(String wktInLonLat) {
 
-        if (Wfs20Constants.LAT_LON_ORDER.equals(coordinateOrder)) {
+        if (GeospatialUtil.LAT_LON_ORDER.equals(coordinateOrder)) {
             LOGGER.debug(
                     "Converting WKT from LON/LAT coordinate ordering to LAT/LON coordinate ordering.");
 
