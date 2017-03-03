@@ -20,7 +20,8 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <bean id="propertiesFileSupport" class="org.codice.ddf.ui.admin.api.util.PropertiesFileReader"/>
+    <bean id="propertiesFileSupport"
+          class="org.codice.ddf.platform.util.properties.PropertiesFileReader"/>
 
     <bean id="guestClaimsHandlerExt" class="org.codice.ddf.ui.admin.api.GuestClaimsHandlerExt"
           init-method="init">

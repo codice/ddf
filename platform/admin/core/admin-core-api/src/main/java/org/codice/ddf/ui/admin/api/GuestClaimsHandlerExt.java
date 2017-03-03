@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.ui.admin.api.util.PropertiesFileReader;
+import org.codice.ddf.platform.util.properties.PropertiesFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

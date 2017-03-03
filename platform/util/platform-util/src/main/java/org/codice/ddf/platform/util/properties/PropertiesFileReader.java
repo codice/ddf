@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.ui.admin.api.util;
+package org.codice.ddf.platform.util.properties;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,8 +23,6 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ddf.security.PropertiesLoader;
 
 /**
  * Useful for scanning a directory for properties files and aggregating the data into maps and lists.
@@ -91,9 +89,9 @@ public class PropertiesFileReader {
     private Map<String, String> loadPropertiesFile(File propertiesFile) {
         Map<String, String> propertyMap = new HashMap<>();
         if (propertiesFile != null && propertiesFile.exists()) {
-            Properties properties =
-                    PropertiesLoader.loadProperties(propertiesFile.getAbsolutePath());
-            propertyMap = PropertiesLoader.toMap(properties);
+            PropertiesLoader loader = PropertiesLoader.getInstance();
+            Properties properties = loader.loadProperties(propertiesFile.getAbsolutePath());
+            propertyMap = loader.toMap(properties);
         }
         return propertyMap;
     }
