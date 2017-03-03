@@ -13,6 +13,7 @@
  */
 package ddf.catalog.security.plugin;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -21,6 +22,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +32,10 @@ import java.util.Set;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ThreadContext;
 import org.junit.Test;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -39,19 +45,19 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.SubjectUtils;
+import ddf.security.assertion.SecurityAssertion;
 
 public class SecurityPluginTest {
 
     public static final String TEST_USER = "test-user";
 
     @Test
-    public void testNominalCaseCreate() throws Exception {
-        Subject mockSubject = mock(Subject.class);
-        PrincipalCollection mockPrincipals = mock(PrincipalCollection.class);
-        when(mockPrincipals.getPrimaryPrincipal()).thenReturn(TEST_USER);
-        when(mockSubject.getPrincipals()).thenReturn(mockPrincipals);
+    public void testNominalCaseCreateWithEmailAndNoTags() throws Exception {
+        Subject mockSubject = setupMockSubject();
 
         ThreadContext.bind(mockSubject);
         CreateRequest request = new MockCreateRequest();
@@ -66,6 +72,74 @@ public class SecurityPluginTest {
         request.getMetacards()
                 .forEach(metacard -> assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
                         .getValue(), equalTo(TEST_USER)));
+    }
+
+    @Test
+    public void testNominalCaseCreateWithEmailAndResourceTag() throws Exception {
+        Subject mockSubject = setupMockSubject();
+        ThreadContext.bind(mockSubject);
+
+        MetacardImpl metacardWithTags = new MetacardImpl();
+        Set<String> setOfTags = new HashSet<String>();
+        setOfTags.add("resource");
+        metacardWithTags.setTags(setOfTags);
+
+        CreateRequest request = new CreateRequestImpl(metacardWithTags);
+        SecurityPlugin plugin = new SecurityPlugin();
+
+        request = plugin.processPreCreate(request);
+
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
+        assertThat(request.getMetacards()
+                .size(), is(1));
+        assertThat(request.getMetacards()
+                .get(0)
+                .getAttribute(Metacard.POINT_OF_CONTACT)
+                .getValue(), equalTo(TEST_USER));
+    }
+
+    @Test
+    public void testNominalCaseCreateWithoutEmail() throws Exception {
+        Subject mockSubject = mock(Subject.class);
+        ThreadContext.bind(mockSubject);
+
+        CreateRequest request = new MockCreateRequest();
+        SecurityPlugin plugin = new SecurityPlugin();
+
+        request = plugin.processPreCreate(request);
+
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
+        assertThat(request.getMetacards()
+                .size(), is(2));
+        request.getMetacards()
+                .forEach(metacard -> assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT),
+                        is(nullValue())));
+    }
+
+    @Test
+    public void testNominalCaseCreateWithNonResourceMetacard() throws Exception {
+        Subject mockSubject = setupMockSubject();
+        ThreadContext.bind(mockSubject);
+
+        MetacardImpl metacardWithTags = new MetacardImpl();
+        Set<String> setOfTags = new HashSet<String>();
+        setOfTags.add("workspace");
+        metacardWithTags.setTags(setOfTags);
+
+        CreateRequest request = new CreateRequestImpl(metacardWithTags);
+        SecurityPlugin plugin = new SecurityPlugin();
+
+        request = plugin.processPreCreate(request);
+
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT),
+                equalTo(mockSubject));
+        assertThat(request.getMetacards()
+                .size(), is(1));
+        assertThat(request.getMetacards()
+                .get(0)
+                .getAttribute(Metacard.POINT_OF_CONTACT), is(nullValue()));
     }
 
     @Test
@@ -147,6 +221,33 @@ public class SecurityPluginTest {
         SecurityPlugin plugin = new SecurityPlugin();
         request = plugin.processPreCreate(request);
         assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(null));
+    }
+
+    private Subject setupMockSubject() {
+        XSString mockAttributeValue = mock(XSString.class);
+        when(mockAttributeValue.getValue()).thenReturn(TEST_USER);
+
+        List<XMLObject> listOfAttributeValues = Arrays.asList(mockAttributeValue);
+
+        Attribute mockAttribute = mock(Attribute.class);
+        when(mockAttribute.getName()).thenReturn(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI);
+        when(mockAttribute.getAttributeValues()).thenReturn(listOfAttributeValues);
+
+        List<Attribute> listOfAttributes = Arrays.asList(mockAttribute);
+
+        AttributeStatement mockAttributeStatement = mock(AttributeStatement.class);
+        when(mockAttributeStatement.getAttributes()).thenReturn(listOfAttributes);
+
+        List<AttributeStatement> listOfAttributeStatements = Arrays.asList(mockAttributeStatement);
+
+        Subject mockSubject = mock(Subject.class);
+        PrincipalCollection mockPrincipals = mock(PrincipalCollection.class);
+        SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
+
+        when(mockSecurityAssertion.getAttributeStatements()).thenReturn(listOfAttributeStatements);
+        when(mockPrincipals.oneByType(SecurityAssertion.class)).thenReturn(mockSecurityAssertion);
+        when(mockSubject.getPrincipals()).thenReturn(mockPrincipals);
+        return mockSubject;
     }
 
     public static class MockCreateRequest implements CreateRequest {
