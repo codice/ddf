@@ -14,8 +14,9 @@ define([
     'underscore',
     'moment',
     'handlebars/runtime',
-    'js/Common'
-], function (_, moment, Handlebars, Common) {
+    'js/Common',
+    'component/singletons/metacard-definitions'
+], function (_, moment, Handlebars, Common, metacardDefinitions) {
     'use strict';
     // The module to be exported
     var helper, helpers = {
@@ -331,6 +332,14 @@ define([
             },
             getImageSrc: function(img){
                 return Common.getImageSrc(img);
+            },
+            getAlias: function(field){
+                var definition = metacardDefinitions.metacardTypes[field];
+                if (definition) {
+                    return definition.alias || definition.id;
+                } else {
+                    return field;
+                }
             },
           json: function (obj) {
             return JSON.stringify(obj);
