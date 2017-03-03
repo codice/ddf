@@ -25,6 +25,7 @@ define(['underscore',
         BM: ol.source.BingMaps,
         WMS: ol.source.TileWMS,
         MQ: ol.source.MapQuest,
+        AGM: ol.source.XYZ,
         SI: ol.source.ImageStatic
     };
 
@@ -112,7 +113,12 @@ define(['underscore',
                 if (initObj.parameters) {
                     _.extend(initObj, initObj.parameters);
                 }
+            } else if (typeStr === 'AGM'){
+                if (initObj.url && initObj.url.indexOf('/tile/{z}/{y}/{x}') === -1) {
+                    initObj.url = initObj.url + '/tile/{z}/{y}/{x}';
+                }
             }
+
             return new layerType({
                 visible: model.get('show'),
                 preload: Infinity,
