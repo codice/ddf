@@ -252,6 +252,13 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     @Override
     public SolrQuery propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
         verifyInputData(propertyName, pattern);
+        String mappedPropertyName = getMappedPropertyName(propertyName,
+                AttributeFormat.STRING,
+                false);
+
+        if (pattern.isEmpty()) {
+            return new SolrQuery("-" + mappedPropertyName + ":[\"\" TO *]");
+        }
 
         String searchPhrase = escapeSpecialCharacters(pattern);
         if (searchPhrase.contains(SOLR_WILDCARD_CHAR) || searchPhrase.contains(
@@ -267,10 +274,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
             return new SolrQuery(wildcardSolrQuery(searchPhrase, propertyName, isCaseSensitive));
         } else {
-
-            String mappedPropertyName = getMappedPropertyName(propertyName,
-                    AttributeFormat.STRING,
-                    false);
             if (isCaseSensitive) {
                 mappedPropertyName = resolver.getCaseSensitiveField(mappedPropertyName);
             }
@@ -287,6 +290,13 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                     "Case insensitive exact searches are not supported.");
         }
         verifyInputData(propertyName, literal);
+        String mappedPropertyName = getMappedPropertyName(propertyName,
+                AttributeFormat.STRING,
+                true);
+
+        if (literal.isEmpty()) {
+            return new SolrQuery("-" + mappedPropertyName + ":[\"\" TO *]");
+        }
 
         String searchPhrase = QUOTE + escapeSpecialCharacters(literal) + QUOTE;
 
@@ -294,9 +304,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                 SOLR_SINGLE_WILDCARD_CHAR) || Metacard.ANY_TEXT.equals(propertyName)) {
             return new SolrQuery(wildcardSolrQuery(searchPhrase, propertyName, true));
         } else {
-            String mappedPropertyName = getMappedPropertyName(propertyName,
-                    AttributeFormat.STRING,
-                    true);
             return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
         }
     }
@@ -937,7 +944,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         if (propertyName == null || propertyName.isEmpty()) {
             throw new UnsupportedOperationException("PropertyName is required for search.");
         }
-        if (pattern == null || pattern.isEmpty()) {
+        if (pattern == null) {
             throw new UnsupportedOperationException("Literal value is required for search.");
         }
     }
