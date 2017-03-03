@@ -53,8 +53,6 @@ public class UnavailableUrlsTest {
     @Before
     public void setUp() throws Exception {
         scheduler = Mockito.mock(ScheduledExecutorService.class);
-        //        System.setProperty(MAX_TIMEOUT_SECONDS_PROPERTY, MAX_TIMEOUT_SECONDS);
-        //        System.setProperty(INITIAL_TIMEOUT_SECONDS_PROPERTY, INITIAL_TIMEOUT_SECONDS);
     }
 
     private UnavailableUrls initSet(int pingResponse) {
@@ -195,6 +193,22 @@ public class UnavailableUrlsTest {
                 not(hasItemInArray(greaterThan(getMaxTimoutSeconds()))));
     }
 
+    @Test
+    public void testUnsetSysProperties() {
+        System.getProperties()
+                .remove(INITIAL_TIMEOUT_SECONDS_PROPERTY);
+        System.getProperties()
+                .remove(MAX_TIMEOUT_SECONDS_PROPERTY);
+        UnavailableUrls unavailableUrls = new UnavailableUrls();
+        assertThat("Failed to find a max retry interval",
+                unavailableUrls.getMaxRetryInterval(),
+                greaterThan(0));
+        assertThat("Failed to find a initial retry interval",
+                unavailableUrls.getInitialRetryInterval(),
+                greaterThan(0));
+
+    }
+
     private Long getMaxTimoutSeconds() {
         return Long.parseLong(MAX_TIMEOUT_SECONDS);
     }
@@ -206,7 +220,7 @@ public class UnavailableUrlsTest {
 
         public final TimeUnit unit;
 
-        public SchedulerCapture(Runnable r, Long to, TimeUnit tu) {
+        SchedulerCapture(Runnable r, Long to, TimeUnit tu) {
             this.runnable = r;
             this.timeout = to;
             this.unit = tu;

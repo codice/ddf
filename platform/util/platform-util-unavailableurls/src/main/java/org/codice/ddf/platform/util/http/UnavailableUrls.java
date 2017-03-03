@@ -76,6 +76,23 @@ public class UnavailableUrls {
     }
 
     /**
+     * @return The maximum number of seconds to wait before pinging an unavailable URL
+     */
+    public int getMaxRetryInterval() {
+        String property = System.getProperty(MAX_TIMEOUT_SECONDS_PROPERTY, "300");
+        return Integer.parseInt(property);
+    }
+
+    /**
+     * @return The number of seconds to between the first and seconds attempts to
+     * contact the unavailable URL.
+     */
+    public int getInitialRetryInterval() {
+        String property = System.getProperty(INITIAL_TIMEOUT_SECONDS_PROPERTY, "10");
+        return Integer.parseInt(property);
+    }
+
+    /**
      * Add a URL to the set of unavailable URL's.
      * NOTE: the URL will automatically be removed when it can be reached.
      *
@@ -88,7 +105,7 @@ public class UnavailableUrls {
     /**
      * Does the set contain a specified URL.
      *
-     * @param url
+     * @param url of the endpoint to ping
      * @return the truth
      */
     public boolean contains(String url) {
