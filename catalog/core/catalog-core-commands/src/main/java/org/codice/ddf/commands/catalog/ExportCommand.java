@@ -228,29 +228,6 @@ public class ExportCommand extends CqlCommands {
         return null;
     }
 
-    private StringBuilder getUserInputModifiable() throws IOException {
-        int in;
-        StringBuilder builder = new StringBuilder();
-        while ((in = session.getKeyboard()
-                .read()) != '\r') {
-            if (in == 127) {
-                if (builder.length() > 0) {
-                    builder.deleteCharAt(builder.length() - 1);
-                }
-                console.print((char) 8);
-                console.print(' ');
-                console.print((char) 8);
-
-            } else {
-                builder.append((char) in);
-                console.print((char) in);
-            }
-            console.flush();
-        }
-        console.println();
-        return builder;
-    }
-
     private File initOutputFile(String output) {
         String resolvedOutput;
         File initialOutputFile = new File(output);

@@ -112,4 +112,27 @@ public abstract class CatalogCommands extends SubjectCommands {
                 .filter(Objects::nonNull)
                 .findFirst();
     }
+
+    protected StringBuilder getUserInputModifiable() throws IOException {
+        int in;
+        StringBuilder builder = new StringBuilder();
+        while ((in = session.getKeyboard()
+                .read()) != '\r') {
+            if (in == 127) {
+                if (builder.length() > 0) {
+                    builder.deleteCharAt(builder.length() - 1);
+                }
+                console.print((char) 8);
+                console.print(' ');
+                console.print((char) 8);
+
+            } else {
+                builder.append((char) in);
+                console.print((char) in);
+            }
+            console.flush();
+        }
+        console.println();
+        return builder;
+    }
 }

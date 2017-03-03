@@ -74,6 +74,10 @@ public class ImportCommand extends CatalogCommands {
                     + "WARNING: This file will not be able to be verified on import for integrity and authenticity.")
     boolean unsafe = false;
 
+    @Option(name = "--force", required = false, aliases = {
+            "-f"}, multiValued = false, description = "Do not prompt")
+    boolean force = false;
+
     @Override
     protected Object executeWithSubject() throws Exception {
         int metacards = 0;
@@ -88,6 +92,14 @@ public class ImportCommand extends CatalogCommands {
                 "Could not get " + DEFAULT_TRANSFORMER_ID + " input transformer"));
 
         if (unsafe) {
+            if (!force) {
+                console.println("This will import data with no check to see if data is modified/corrupt. Do you wish to continue?");
+                String input = getUserInputModifiable().toString();
+                if (!input.matches("^[yY][eE]?[sS]?$")) {
+                    console.println("ABORTED IMPORT.");
+                    return null;
+                }
+            }
             SecurityLogger.audit("Skipping validation check of imported data. There are no "
                     + "guarantees of integrity or authenticity of the imported data."
                     + "File being imported: {}", importFile);
