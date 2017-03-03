@@ -358,21 +358,36 @@ define([
         }
 
         function matchesFilters(metacard, resultFilter, metacardTypes) {
+            var i;
             switch (resultFilter.type) {
                 case 'AND':
-                    for (var i = 0; i <= resultFilter.filters.length - 1; i++) {
+                    for (i = 0; i <= resultFilter.filters.length - 1; i++) {
                         if (!matchesFilter(metacard, resultFilter.filters[i], metacardTypes)) {
                             return false;
                         }
                     }
                     return true;
-                case 'OR':
-                    for (var j = 0; j <= resultFilter.filters.length - 1; j++) {
-                        if (matchesFilter(metacard, resultFilter.filters[j], metacardTypes)) {
+                case 'NOT AND':
+                    for (i = 0; i <= resultFilter.filters.length - 1; i++) {
+                        if (!matchesFilter(metacard, resultFilter.filters[i], metacardTypes)) {
                             return true;
                         }
                     }
-                    break;
+                    return false;
+                case 'OR':
+                    for (i = 0; i <= resultFilter.filters.length - 1; i++) {
+                        if (matchesFilter(metacard, resultFilter.filters[i], metacardTypes)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                case 'NOT OR':
+                    for (i = 0; i <= resultFilter.filters.length - 1; i++) {
+                        if (matchesFilter(metacard, resultFilter.filters[i], metacardTypes)) {
+                            return false;
+                        }
+                    }
+                    return true;
                 default:
                     return matchesFilter(metacard, resultFilter, metacardTypes);
             }
