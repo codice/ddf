@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
@@ -92,6 +93,8 @@ public class CswQueryFactory {
     private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
 
     private List<MetacardType> metacardTypes;
+
+    private AttributeRegistry attributeRegistry;
 
     public CswQueryFactory(FilterBuilder filterBuilder, FilterAdapter adapter,
             MetacardType metacardType, List<MetacardType> metacardTypes) {
@@ -158,7 +161,8 @@ public class CswQueryFactory {
 
     private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint)
             throws CswException {
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType, metacardTypes);
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
+                metacardTypes);
         Filter filter = null;
         if (constraint != null) {
             if (constraint.isSetCqlText()) {
@@ -241,7 +245,11 @@ public class CswQueryFactory {
             return null;
         }
 
-        if (!DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
+
+        if (!attributeRegistry.lookup(sortBy.getPropertyName()
+                .getPropertyName())
+                .isPresent()
+                && !DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
                         .getPropertyName(),
                 sortBy.getPropertyName()
                         .getNamespaceContext())) {
@@ -353,5 +361,9 @@ public class CswQueryFactory {
             schemaToTagsMapping.putAll(Permissions.parsePermissionsFromString(
                     schemaToTagsMappingStrings));
         }
+    }
+
+    public void setAttributeRegistry(AttributeRegistry attributeRegistry) {
+        this.attributeRegistry = attributeRegistry;
     }
 }
