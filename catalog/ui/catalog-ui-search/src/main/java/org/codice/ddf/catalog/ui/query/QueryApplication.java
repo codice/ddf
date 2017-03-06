@@ -18,8 +18,16 @@ import static spark.Spark.exception;
 import static spark.Spark.post;
 import static spark.route.RouteOverview.enableRouteOverview;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import javax.ws.rs.NotAcceptableException;
+
+import org.apache.commons.lang3.StringUtils;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
@@ -61,6 +69,10 @@ public class QueryApplication implements SparkApplication {
                     .includeNulls()
                     .includeDefaultValues());
 
+    private static Pattern commaSpace = Pattern.compile(",\\s?");
+
+    private static Pattern semicolon = Pattern.compile(";\\s?");
+
     @Override
     public void init() {
 
@@ -74,7 +86,23 @@ public class QueryApplication implements SparkApplication {
 
         after("/cql", (req, res) -> {
             res.type(APPLICATION_JSON);
-            res.header("Content-Encoding", "gzip");
+
+            Map<String, String> acceptEncodings =
+                    parseAcceptEncodings(req.headers("Accept-Encoding"));
+
+            if (acceptEncodingSupports(acceptEncodings, "gzip")) {
+                res.header("Content-Encoding", "gzip");
+            } else if (acceptEncodingSupports(acceptEncodings, "identity")) {
+                //do nothing, send as identity
+            } else {
+                throw new NotAcceptableException();
+            }
+        });
+
+        exception(NotAcceptableException.class, (e, request, response) -> {
+            response.status(406);
+            response.body("Unsupported encoding");
+            LOGGER.debug("Client asked for unsupported encoding", e);
         });
 
         exception(UnsupportedQueryException.class, (e, request, response) -> {
@@ -91,6 +119,62 @@ public class QueryApplication implements SparkApplication {
 
         enableRouteOverview();
 
+    }
+
+    /**
+     * returns a Map of the parsed Accept-Encoding header according to RFC-2616-14.2
+     * </br>
+     * https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+     *
+     * @param header Accept-Encoding header to parse
+     * @return Map of {Encoding, Q value}
+     */
+    private Map<String, String> parseAcceptEncodings(String header) {
+        if (StringUtils.isEmpty(header)) {
+            return Collections.emptyMap();
+        }
+        String[] encodings = commaSpace.split(header.trim());
+        return Arrays.stream(encodings)
+                .map(semicolon::split)
+                .collect(Collectors.toMap(v -> v[0],
+                        // strip off 'q=' to get q value, or default to 1
+                        v -> v.length > 1 ? v[1].substring(2) : "1"));
+    }
+
+    private boolean acceptEncodingSupports(Map<String, String> acceptEncodings, String encoding) {
+        // If encoding is present and has a nonzero Q value, accepted
+        if (!acceptEncodings.getOrDefault(encoding, "0")
+                .equals("0")) {
+            return true;
+        }
+
+        // If encoding is present and has a zero Q value, denied
+        if (acceptEncodings.containsKey(encoding) && acceptEncodings.get(encoding)
+                .equals("0")) {
+            return false;
+        }
+
+        // if '*' is present and has nonzero Q value, accepted
+        if (!acceptEncodings.getOrDefault("*", "0")
+                .equals("0")) {
+            return true;
+        }
+
+        if (encoding.equals("identity")) {
+            // explicitly denies identity with identity;q=0
+            if (acceptEncodings.containsKey("identity") && acceptEncodings.get("identity")
+                    .equals("0")) {
+                return false;
+            }
+            // '*' is denied and identity not explicitly included
+            if (acceptEncodings.containsKey("*") && acceptEncodings.get("*")
+                    .equals("0") && !acceptEncodings.containsKey("identity")) {
+                return false;
+            }
+            // otherwise identity is always allowed
+            return true;
+        }
+        return false;
     }
 
     private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
