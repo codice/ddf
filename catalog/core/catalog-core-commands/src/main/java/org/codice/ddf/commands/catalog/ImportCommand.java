@@ -50,6 +50,11 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.common.audit.SecurityLogger;
 
+/**
+ * Imports Metacards, History, and their content from a zip file into the catalog.
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ */
 @Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "import", description = "Imports Metacards and history into the current Catalog")
 public class ImportCommand extends CatalogCommands {
@@ -124,6 +129,11 @@ public class ImportCommand extends CatalogCommands {
                 }
 
                 String[] pathParts = filename.split("\\" + File.separator);
+                if (pathParts.length < 5) {
+                    console.println("Entry is not valid! " + filename);
+                    entry = zipInputStream.getNextEntry();
+                    continue;
+                }
                 String id = pathParts[ID];
                 String type = pathParts[TYPE];
 

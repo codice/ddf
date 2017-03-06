@@ -39,7 +39,7 @@ import ddf.catalog.source.UnsupportedQueryException;
  * Throws a {@link CatalogCommandRuntimeException} if anything goes wrong during iteration or
  * querying
  */
-public class QueryResulterable implements Iterable<Result> {
+public class QueryResultIterable implements Iterable<Result> {
     private final CatalogFramework catalog;
 
     private final Function<Integer, QueryRequest> filter;
@@ -53,7 +53,7 @@ public class QueryResulterable implements Iterable<Result> {
      * @param filter  A dynamic supplier of a filter that takes the current index such that
      *                the caller can control iteration based on their own logic
      */
-    public QueryResulterable(CatalogFramework catalog, Function<Integer, QueryRequest> filter) {
+    public QueryResultIterable(CatalogFramework catalog, Function<Integer, QueryRequest> filter) {
         this(catalog, filter, 64);
     }
 
@@ -65,7 +65,7 @@ public class QueryResulterable implements Iterable<Result> {
      *                 the caller can control iteration based on their own logic
      * @param pageSize How many results should each page hold
      */
-    public QueryResulterable(CatalogFramework catalog, Function<Integer, QueryRequest> filter,
+    public QueryResultIterable(CatalogFramework catalog, Function<Integer, QueryRequest> filter,
             int pageSize) {
         this.catalog = catalog;
         this.filter = filter;

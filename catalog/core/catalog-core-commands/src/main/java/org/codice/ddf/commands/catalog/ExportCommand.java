@@ -49,7 +49,7 @@ import org.codice.ddf.catalog.transformer.zip.JarSigner;
 import org.codice.ddf.commands.catalog.export.ExportItem;
 import org.codice.ddf.commands.catalog.export.IdAndUriMetacard;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
-import org.codice.ddf.commands.util.QueryResulterable;
+import org.codice.ddf.commands.util.QueryResultIterable;
 import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.Filter;
@@ -80,7 +80,9 @@ import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 
 /**
- * Experimental.
+ * Exports Metacards, History, and their content into a zip file.
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
  */
 @Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "export", description = "Exports Metacards and history from the current Catalog")
@@ -245,7 +247,7 @@ public class ExportCommand extends CqlCommands {
     private List<ExportItem> doMetacardExport(/*Mutable,IO*/ZipFile zipFile, Filter filter) {
         Set<String> seenIds = new HashSet<>(1024);
         List<ExportItem> exportedItems = new ArrayList<>();
-        for (Result result : new QueryResulterable(catalogFramework,
+        for (Result result : new QueryResultIterable(catalogFramework,
                 (i) -> getQuery(filter, i, PAGE_SIZE),
                 PAGE_SIZE)) {
             if (!seenIds.contains(result.getMetacard()
@@ -262,7 +264,7 @@ public class ExportCommand extends CqlCommands {
             }
 
             // Fetch and export all history for each exported item
-            for (Result revision : new QueryResulterable(catalogFramework,
+            for (Result revision : new QueryResultIterable(catalogFramework,
                     (i) -> getQuery(getHistoryFilter(result), i, PAGE_SIZE),
                     PAGE_SIZE)) {
                 if (seenIds.contains(revision.getMetacard()
