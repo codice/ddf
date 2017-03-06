@@ -353,8 +353,11 @@ public class MetacardApplication implements SparkApplication {
                                     .put("subscribed", isSubscribed)
                                     .build();
                         } catch (RuntimeException e) {
-                            LOGGER.warn(
-                                    "Could not transform metacard. WARNING: This indicates there is invalid data in the system. Metacard title [{}]", metacard.getTitle());
+                            LOGGER.debug(
+                                    "Could not transform metacard. WARNING: This indicates there is invalid data in the system. Metacard title: '{}', id:'{}'",
+                                    metacard.getTitle(),
+                                    metacard.getId(),
+                                    e);
                         }
                         return null;
                     })
