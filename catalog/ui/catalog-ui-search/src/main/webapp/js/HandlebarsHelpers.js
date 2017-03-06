@@ -15,8 +15,10 @@ define([
     'moment',
     'handlebars/runtime',
     'js/Common',
-    'component/singletons/metacard-definitions'
-], function (_, moment, Handlebars, Common, metacardDefinitions) {
+    'component/singletons/metacard-definitions',
+    'lodash.get',
+    'jquery'
+], function (_, moment, Handlebars, Common, metacardDefinitions, _get, $) {
     'use strict';
     // The module to be exported
     var helper, helpers = {
@@ -350,7 +352,43 @@ define([
             } else {
                 return options.inverse(this);
             }
-          }
+          },
+            bind: function(options) {
+                var callback = function() {
+                    var $target = this.$el.find(options.hash.selector);
+                    var value = _get(this.serializeData(), options.hash.key);
+                    $target.filter(':not(input)').html(value);
+                    $target.filter('input').each(function(){
+                        if ($(this).val() !== value){
+                            $(this).val(value);
+                        }
+                    });
+                    if (options.hash.updateTitle) {
+                        $target.attr('title', value);
+                    }
+                };
+                options.data.root._view.listenTo(options.data.root._view.model, options.hash.event || 'change', callback);
+                options.data.root._view.listenToOnce(options.data.root._view, 'before:render', function(){
+                    options.data.root._view.stopListening(options.data.root._view.model, options.hash.event || 'change', callback);
+                });
+                return _get(options.data.root, options.hash.key);
+            },
+            path: function() {
+                var outArray = [];
+                for (var arg = 0; arg < arguments.length; arg++) {
+                    if (typeof arguments[arg] === 'object') {
+                        break;
+                    }
+                    if (typeof arguments[arg] === 'number') {
+                        outArray[outArray.length - 1] = outArray[outArray.length - 1] +
+                            arguments[arg] + arguments[arg + 1];
+                        arg++;
+                    } else {
+                        outArray.push(arguments[arg]);
+                    }
+                }
+                return outArray;
+            }
         };
     // Export helpers
     for (helper in helpers) {

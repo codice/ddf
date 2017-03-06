@@ -87,6 +87,7 @@
     "jquery": "1.12.4",
     "jquery-ui": "1.10.4",
     "lodash": "2.4.1",
+    "lodash.get": "4.4.2",
     "moment": "2.13.0",
     "openlayers": "3.20.1",
     "plotly.js": "1.10.5",

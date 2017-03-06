@@ -23,8 +23,10 @@ define([
     'component/router/router',
     'component/navigation/workspaces/navigation.workspaces.view',
     'component/workspaces-templates/workspaces-templates.view',
-    'component/workspaces-items/workspaces-items.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, router, WorkspacesMenuView, WorkspacesTemplatesView, WorkspacesItemsView) {
+    'component/workspaces-items/workspaces-items.view',
+    'js/store'
+], function (wreqr, Marionette, _, $, template, CustomElements, router, WorkspacesMenuView, 
+    WorkspacesTemplatesView, WorkspacesItemsView, store) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -32,6 +34,7 @@ define([
         modelEvents: {
         },
         events: {
+            'click > .home-save': 'handleSave'
         },
         childEvents: {
             'homeTemplates:expand' : 'handleTemplatesExpand',
@@ -46,6 +49,8 @@ define([
         },
         initialize: function(){
             this.listenTo(router, 'change', this.handleRoute);
+            this.listenTo(store.get('workspaces'), 'change:saved update add remove', this.handleSaved);
+            this.handleSaved();
             this.handleRoute();
         },
         handleRoute: function(){
@@ -66,6 +71,16 @@ define([
         },
         handleTemplatesClose: function(){
             this.$el.removeClass('has-templates-expanded');
+        },
+        handleSaved: function(){
+            var hasUnsaved = store.get('workspaces').find(function(workspace){
+                return !workspace.isSaved();
+            });
+            this.$el.toggleClass('is-saved', !hasUnsaved);
+            this.$el.find('> .home-save').attr('tabindex', !hasUnsaved ? -1 : null);
+        },
+        handleSave: function(){
+            store.get('workspaces').saveAll();
         }
     });
 });
