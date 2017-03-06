@@ -51,7 +51,8 @@ define([
             useAjaxSync: true,
             defaults: {
                 queries: [],
-                metacards: []
+                metacards: [],
+                saved: true
             },
             relations: [
                 {
@@ -72,32 +73,57 @@ define([
                 this.get('queries').on('add',function(){
                     this.trigger('change');
                 });
-                this._toJSON = JSON.stringify(this.toJSON());
+                this.listenTo(this.get('queries'), 'update add remove', this.handleQueryChange);
+                this.listenTo(this, 'change', this.handleChange);
+                this.listenTo(this, 'error', this.handleError);
+            },
+            handleQueryChange: function(){
+                this.set('saved', false);
+            },
+            handleChange: function(model){
+                if (model !== undefined && 
+                    model.changedAttributes().result === undefined && 
+                    model.changedAttributes().saved === undefined &&
+                    model.changedAttributes()['metacard.modified'] === undefined &&
+                    model.changedAttributes().id === undefined &&
+                    model.changedAttributes().subscribed === undefined){
+                    this.set('saved', false);
+                }
+            },
+            saveLocal: function(options){
+                this.set('id', this.get('id') || Common.generateUUID());
+                var localWorkspaces = this.collection.getLocalWorkspaces();
+                localWorkspaces[this.get('id')] = this.toJSON();
+                window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces));
+                this.trigger('sync', this, options);
+            },
+            destroyLocal: function(options){
+                var localWorkspaces = this.collection.getLocalWorkspaces();
+                delete localWorkspaces[this.get('id')];
+                window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces));
+                this.collection.remove(this);
+                this.trigger('sync', this, options);
             },
             save: function (options) {
+                this.set('saved', true);
                 if (this.get('localStorage')) {
-                    this.set('id', this.get('id') || Common.generateUUID());
-                    this.collection.saveLocal();
-                    this.trigger('sync', this, options);
+                    this.saveLocal(options);
                 } else {
                     Backbone.AssociatedModel.prototype.save.apply(this, arguments);
                 }
-                this.once('sync', function(){
-                    this._toJSON = JSON.stringify(this.toJSON());
-                }.bind(this));
             },
-            dirty: function () {
-                return this._toJSON !== JSON.stringify(this.toJSON());
+            handleError: function(){
+                this.set('saved', false);
+            },
+            isSaved: function () {
+                return this.get('saved');
             },
             destroy: function (options) {
                 this.get('queries').forEach(function(query){
                     QueryPolling.handleRemovingQuery(query);
                 });
                 if (this.get('localStorage')) {
-                    var collection = this.collection;
-                    this.collection.remove(this);
-                    collection.saveLocal();
-                    this.trigger('sync', this, options);
+                    this.destroyLocal(options);
                 } else {
                     return Backbone.AssociatedModel.prototype.destroy.apply(this, arguments);
                 }
@@ -213,30 +239,49 @@ define([
             duplicateWorkspace: function(workspace){
                 this.create(_.omit(workspace.toJSON(), 'id', 'owner', 'metacard.sharing'));
             },
-            saveLocal: function () {
+            saveAll: function(){
+                this.forEach(function(workspace){
+                    if (!workspace.isSaved()){
+                        workspace.save();
+                    }
+                });
+            },
+            saveLocalWorkspaces: function () {
                 var localWorkspaces = this.chain()
                     .filter(function (workspace) {
                         return workspace.get('localStorage');
                     })
-                    .map(function (workspace) {
-                        return workspace.toJSON();
-                    })
+                    .reduce(function (blob, workspace) {
+                        blob[workspace.get('id')] = workspace.toJSON();
+                        return blob;
+                    }, {})
                     .value();
 
                 window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces));
             },
+            convert2_10Format: function(localWorkspaceJSON){
+                if (localWorkspaceJSON.constructor === Array){
+                    return localWorkspaceJSON.reduce(function(blob, workspace){
+                        blob[workspace.id] = workspace;
+                        return blob;
+                    }, {});
+                } else {
+                    return localWorkspaceJSON;
+                }
+            },
             getLocalWorkspaces: function () {
-                var localWorkspaces = window.localStorage.getItem('workspaces') || '[]';
+                var localWorkspaces = window.localStorage.getItem('workspaces') || '{}';
                 try {
-                    return JSON.parse(localWorkspaces);
+                    return this.convert2_10Format(JSON.parse(localWorkspaces));
                 } catch (e) {
                     console.error('Failed to parse local workspaces.', localWorkspaces);
                 }
-                return [];
+                return {};
             },
             // override parse to merge server response with local storage
             parse: function (resp) {
-                return resp.concat(this.getLocalWorkspaces());
+                var localWorkspaces = _.map(this.getLocalWorkspaces());
+                return resp.concat(localWorkspaces);
             }
         });
 

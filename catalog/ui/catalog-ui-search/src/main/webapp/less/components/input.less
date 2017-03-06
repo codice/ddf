@@ -21,3 +21,18 @@ input.form-control {
 input::-ms-clear {
   display:none;
 }
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+input:focus {
+  outline: none !important;
+  box-shadow: inset 0px 0px 0px 1px grey;
+}

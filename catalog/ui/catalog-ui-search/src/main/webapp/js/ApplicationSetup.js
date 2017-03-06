@@ -86,7 +86,8 @@ require([
         cloneRef._cloneOf = this.id || this.cid;
         return cloneRef;
     };
-    Marionette.Renderer.render = function(template, data) {
+    Marionette.Renderer.render = function(template, data, view) {
+        data._view = view;
         if (typeof template === 'function') {
             return template(data);
         } else {
