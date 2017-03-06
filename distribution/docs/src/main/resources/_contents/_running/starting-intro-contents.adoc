@@ -153,8 +153,9 @@ wrapper.java.additional.21=-XX:+UnlockDiagnosticVMOptions
 wrapper.java.additional.22=-XX:+UnsyncloadClass
 wrapper.java.additional.23=-Dderby.system.home=%KARAF_HOME%/data/derby
 
-#Update the following:
-wrapper.java.maxmemory=4096
+# Set the JVM max heap space as desired
+wrapper.java.additional.24=-Xmx4g
+
 ----
 +
 . Set the `<${branding}_HOME>` property.
