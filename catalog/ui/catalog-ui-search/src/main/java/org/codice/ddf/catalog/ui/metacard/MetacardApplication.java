@@ -347,12 +347,21 @@ public class MetacardApplication implements SparkApplication {
                     .map(Result::getMetacard)
                     .map(metacard -> {
                         boolean isSubscribed = ids.contains(metacard.getId());
-
-                        return ImmutableMap.builder()
-                                .putAll(transformer.transform(metacard))
-                                .put("subscribed", isSubscribed)
-                                .build();
+                        try {
+                            return ImmutableMap.builder()
+                                    .putAll(transformer.transform(metacard))
+                                    .put("subscribed", isSubscribed)
+                                    .build();
+                        } catch (RuntimeException e) {
+                            LOGGER.debug(
+                                    "Could not transform metacard. WARNING: This indicates there is invalid data in the system. Metacard title: '{}', id:'{}'",
+                                    metacard.getTitle(),
+                                    metacard.getId(),
+                                    e);
+                        }
+                        return null;
                     })
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         }, util::getJson);
 
