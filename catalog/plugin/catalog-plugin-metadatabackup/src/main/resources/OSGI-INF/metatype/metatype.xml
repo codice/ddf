@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Metadata Backup Plugin"
+         id="org.codice.ddf.catalog.plugin.metadata.backup.MetadataBackupPlugin">
+        <AD
+                description="Output directory to place metadata files for backup."
+                name="Output Directory" id="outputDirectory" required="true" type="String"
+                default="data/backup/metadata"/>
+        <AD
+                description="The Folder Depth (for use with extremely large catalogs).
+                             This is used to prevent the system from hitting the file limit
+                             in the output directory (range 0-4).  For example, FAT32 has a
+                             maximum of 65,534 files permissible in a single folder."
+                name="Folder Depth" id="folderDepth" required="true" type="Integer"
+                default="0"/>
+
+        <AD
+                description="Keep the Metadata backup file when Metacards are deleted from the framework."
+                name="Keep Deleted Metacards" id="keepDeletedMetacards" required="true" type="Boolean"
+                default="false"/>
+
+        <AD
+                description="Metacard Transformer ID to use to backup."
+                name="Metacard Transformer ID" id="metacardTransformerId" required="true" type="String"
+                default="metadata"/>
+    </OCD>
+
+    <Designate pid="org.codice.ddf.catalog.plugin.metadata.backup.MetadataBackupPlugin" factoryPid="org.codice.ddf.catalog.plugin.metadata.backup.MetadataBackupPlugin">
+        <Object ocdref="org.codice.ddf.catalog.plugin.metadata.backup.MetadataBackupPlugin"/>
+    </Designate>
+
+</metatype:MetaData>

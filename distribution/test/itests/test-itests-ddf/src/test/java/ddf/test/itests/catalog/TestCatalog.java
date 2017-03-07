@@ -114,6 +114,7 @@ import org.w3c.dom.Node;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
@@ -139,6 +140,10 @@ public class TestCatalog extends AbstractIntegrationTest {
     private static final String SAMPLE_IMAGE = "/9466484_b06f26d579_o.jpg";
 
     private static final String SAMPLE_MP4 = "/sample.mp4";
+
+    private static final String METADATA_BACKUP_DIRECTORY = "data/tmp/backup";
+
+    private static final String METADATA_BACKUP_PLUGIN_FEATURE = "catalog-metadata-backup";
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
 
@@ -462,6 +467,35 @@ public class TestCatalog extends AbstractIntegrationTest {
                         is("Aliquam fermentum purus quis arcu")),
                 hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
 
+        try {
+            CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
+        } catch (IOException | XPathExpressionException e) {
+            fail("Could not retrieve the ingested record's ID from the response.");
+        }
+    }
+
+    @Test
+    public void testCswIngestWithMetadataBackup() throws Exception {
+        getServiceManager().startFeature(true, METADATA_BACKUP_PLUGIN_FEATURE);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("metacardTransformerId", "metadata");
+        properties.put("outputDirectory", METADATA_BACKUP_DIRECTORY);
+        properties.put("folderDepth", 0);
+        properties.put("keepDeletedMetacards", false);
+        getServiceManager().createManagedService(
+                "org.codice.ddf.catalog.plugin.metadata.backup.MetadataBackupPlugin", properties);
+        Response response = ingestCswRecord();
+        ValidatableResponse validatableResponse = response.then();
+
+        validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
+                        is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
+                        is("Aliquam fermentum purus quis arcu")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
+        verifyMetadataBackup();
+        getServiceManager().stopFeature(true, METADATA_BACKUP_PLUGIN_FEATURE);
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
         } catch (IOException | XPathExpressionException e) {
@@ -3195,5 +3229,22 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     protected void configureEnforceValidityErrorsAndWarningsReset() throws IOException {
         configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
+    }
+
+    private void verifyMetadataBackup() throws Exception {
+        StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH.getUrl())
+                .append("?")
+                .append("format=")
+                .append("xml")
+                .append("&")
+                .append("q=*")
+                .append("&")
+                .append("count=100");
+
+        final Response response = when().get(buffer.toString());
+        String id = XmlPath.given(response.asString()).get("metacards.metacard[0].@gml:id");
+        String relativeFilePath = METADATA_BACKUP_DIRECTORY + File.separator + id;
+        File backedUpMetadata = new File(relativeFilePath);
+        assertThat(backedUpMetadata.exists(), is(true));
     }
 }

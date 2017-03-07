@@ -35,5 +35,6 @@
         <module>catalog-plugin-clientinfo</module>
         <module>catalog-plugin-metacardingest-network</module>
         <module>catalog-plugin-pointofcontactupdate</module>
+        <module>catalog-plugin-metadatabackup</module>
     </modules>
 </project>
