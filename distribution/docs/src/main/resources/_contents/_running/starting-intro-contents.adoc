@@ -113,13 +113,6 @@ to:
 RUN_AS_USER=<${branding-lowercase}-user>
 ----
 +
-. Set the `DDF_HOME` property.
-+
-.<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
-----
-set.default.DDF_HOME=%KARAF_HOME%
-----
-+
 . Set the memory in the wrapper config to match with ${branding} default memory setting.
 +
 .<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
