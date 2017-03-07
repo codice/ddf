@@ -13,6 +13,7 @@ replace with next unreleased version
 - List of features added
 
 	- [JIRA View of All New Features](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20VERSION_NUMBER%20ORDER%20BY%20priority)
+	- [Configurable retry intervals for unavailable Catalog Sources](https://codice.atlassian.net/browse/DDF-2831)
 
 ### API CHANGES
 
