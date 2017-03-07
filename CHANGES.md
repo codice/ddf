@@ -33,31 +33,128 @@ replace with next unreleased version
 	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20VERSION_NUMBER%20AND%20fixVersion%20!%3D%20VERSION_NUMBER%20ORDER%20BY%20priority) affecting this version.
  -->
 
-## 2.11.0
-    Release Date: pending
-
-### NOTES
-
-- Summary of changes requiring user action.
-
-### NEW FEATURES
-- [DDF-2818](https://codice.atlassian.net/browse/DDF-2818) Upgrade Solr from version 6.0.0 to version 6.4.1
-- [DDF-2815](https://codice.atlassian.net/browse/DDF-2815) Added UTM support for the CSW Endpoint
- 	- [JIRA View of All New Features](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20ddf-2.10.0%20ORDER%20BY%20priority) 
-
-### API CHANGES
-
-- None in this version.
-
-### BUG FIXES
-
-- List bugs fixed here.
-    - [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%202.11.0%20ORDER%20BY%20resolutiondate)
-        in this version.
-
-### KNOWN ISSUES
-- List known issues / or workarounds here.
-    - [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%202.10.1%20AND%20fixVersion%20!%3D%202.11.0%20ORDER%20BY%20priority) affecting this version.
+## Version 2.11.0
+	Release Date: pending
+_This is a preview of an unreleased version and subject to change._
+<h2>        Bug
+</h2>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-1802'>DDF-1802</a> -         Metacards with GeometryCollection cause a cometd listener exception when rendered on both 2D and 3D maps
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2192'>DDF-2192</a> -         Gazetteer service cannot handle large WKT
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2431'>DDF-2431</a> -         Update/Delete will not finish if a source does not respond in a timely manner
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2519'>DDF-2519</a> -         Fix NumberFormatException when a non-required metatype field is blank
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2563'>DDF-2563</a> -         Path lengths in the distribution cause it to unzip improperly using windows&#39; built-in archive tool, forcing administrators to use a third-party tool
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2643'>DDF-2643</a> -         TikaInputTransformer ingest fails on large files
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2650'>DDF-2650</a> -         An invalid character in the URI could cause a content action to fail
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2778'>DDF-2778</a> -         WMTS Imagery Providers do not project EPSG:4326 properly for Cesium
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2786'>DDF-2786</a> -         Depending on the zoom level, system header and footer are sometimes cut off in the Catalog UI
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2788'>DDF-2788</a> -         An improperly constructed GET request for a WSDL can cause an exception in the PEPAuthorizingInterceptor and keep it from logging the attempt
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2789'>DDF-2789</a> -         The source poller can stop working when a source is removed because of a race condition with blueprint which causes sources to stop updating with new status
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2790'>DDF-2790</a> -         Large Usernames in the Data Usage Admin App push table columns off the screen, causing erroneous behavior
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2797'>DDF-2797</a> -         HTTP Proxy destroy method causes an exception when stopping endpoints which causes the Camel context to not shut down correctly
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2809'>DDF-2809</a> -         URLs with extremely long paths can cause an exception in the web context policy manager
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2835'>DDF-2835</a> -         CSW queries using extended attributes return 0 results, forcing integrators to use a different endpoint for advanced searches
+</li>
+</ul>
+        
+<h2>        Story
+</h2>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-1765'>DDF-1765</a> -         As a user, I want to add a layer to the Search UI map from a KML file so that I can visualize my KML data
+</li>
+</ul>
+    
+<h2>        New Feature
+</h2>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2039'>DDF-2039</a> -         As an integrator, I want to make a single request to the catalog framework to get back both the metacard and the resource.
+</li>
+</ul>
+    
+<h2>        Task
+</h2>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2698'>DDF-2698</a> -         Create a catalog:export command
+</li>
+</ul>
+    
+<h2>        Improvement
+</h2>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-1882'>DDF-1882</a> -         Support XPath pre-filtering with Solr 5
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2241'>DDF-2241</a> -         Create a Historian user for all history actions
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2572'>DDF-2572</a> -         Create ProcessingFramework Default (In Memory) Implementation
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2573'>DDF-2573</a> -         Create ProcessingPostIngestPlugin
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2695'>DDF-2695</a> -         Add taxonomy attributes for better normalization
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2715'>DDF-2715</a> -         Make Point of Contact Read-only
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2783'>DDF-2783</a> -         Update thumbnails to allow animation in the summary view
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2791'>DDF-2791</a> -         Update the SolrFilterDelegate to support empty isEqualTo and isLike queries
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2811'>DDF-2811</a> -         Invalid data in workspace metacards causes workspaces page to fail
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2812'>DDF-2812</a> -         Bad workspace data can be manually inserted causing unreliable workspace view
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2815'>DDF-2815</a> -         As an integrator I would like to be able to specify a Geospatial query by Universal Transverse Mercator so that I can express Geospatial queries via Universal Transverse Locator through web services
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2817'>DDF-2817</a> -         HTTP responses from DDF should include a CSP header
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2827'>DDF-2827</a> -         Change the default authentication mechanism in DDF to the IdP
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2849'>DDF-2849</a> -         CQL endpoint does not respect Accept-Encoding header
+</li>
+</ul>
+        
+<h2>        Technical Debt
+</h2>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2436'>DDF-2436</a> -         Ignored Catalog Framework unit tests need to be updated 
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2451'>DDF-2451</a> -         Deprecate all the legacy attributes and add a compatibility plugin
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2673'>DDF-2673</a> -         Add iTests to test different query modes of CachingFederationStrategy
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2731'>DDF-2731</a> -         Move PropertiesFileReader where it can be re-used
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2798'>DDF-2798</a> -         There are several possible null pointers within the ECP handlers
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2821'>DDF-2821</a> -         Check audit messages for special characters and encode them before writing the audit
+</li>
+</ul>
+        
+<h2>        Spike
+</h2>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2655'>DDF-2655</a> -         Determine if splitting out DDF itests into separate modules provides better memory isolation and garbage cleanup
+</li>
+</ul>
+    
+<h2>        Dependency Upgrade
+</h2>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2818'>DDF-2818</a> -         Upgrade to Solr version 6.4.1
+</li>
+</ul>
 
 ## 2.10.2
 	Release Date: pending
@@ -85,33 +182,107 @@ replace with next unreleased version
 - List known issues / or workarounds here.
 	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%202.10.1%20AND%20fixVersion%20!%3D%202.10.2%20ORDER%20BY%20priority) affecting this version.
 
-## 2.10.1
+## Version 2.10.1
 	Release Date: 2017-03-08
+            
+<h3>        Bug
+</h3>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2775'>DDF-2775</a> -         In the Catalog UI and the Standard UI, actions that are not supported for a given metacard’s tag type are displayed.
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2790'>DDF-2790</a> -         Large Usernames in the Data Usage Admin App push table columns off the screen, causing erroneous behavior
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2792'>DDF-2792</a> -         Update client side sorting to handle null / blank values more consistently
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2795'>DDF-2795</a> -         The Content Directory Monitor &quot;Attribute Overrides&quot; fails when there is a comma in the attribute
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2797'>DDF-2797</a> -         HTTP Proxy destroy method causes an exception when stopping endpoints which causes the Camel context to not shut down correctly
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2806'>DDF-2806</a> -         Add Jetty dependency to Catalog UI Search pom.xml
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2809'>DDF-2809</a> -         URLs with extremely long paths can cause an exception in the web context policy manager
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2814'>DDF-2814</a> -         Catalog UI area searches fail when the area includes self-intersecting polygons
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2830'>DDF-2830</a> -         Hot deploying KAR files does not work on a production system
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2835'>DDF-2835</a> -         CSW queries using extended attributes return 0 results, forcing integrators to use a different endpoint for advanced searches
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2845'>DDF-2845</a> -         Catalog UI result list help-text doesn&#39;t reflect the attribute name alias
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2850'>DDF-2850</a> -         Catalog UI gazetteer searches fail in 3d view
+</li>
+</ul>
+                
+<h3>        Task
+</h3>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2822'>DDF-2822</a> -         Update name for Catalog UI
+</li>
+</ul>
+    
+<h3>        Improvement
+</h3>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2208'>DDF-2208</a> -         Remove DDF from app names
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2572'>DDF-2572</a> -         Create ProcessingFramework Default (In Memory) Implementation
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2573'>DDF-2573</a> -         Create ProcessingPostIngestPlugin
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2715'>DDF-2715</a> -         Make Point of Contact Read-only
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2791'>DDF-2791</a> -         Update the SolrFilterDelegate to support empty isEqualTo and isLike queries
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2794'>DDF-2794</a> -         Set registry metacard security markings based on system high/low and user input
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2807'>DDF-2807</a> -         Clean up maven profiles and add quickbuild profile
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2816'>DDF-2816</a> -         Update details view to allow links to be clickable
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2817'>DDF-2817</a> -         HTTP responses from DDF should include a CSP header
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2837'>DDF-2837</a> -         Metacards with attributes that have a null value are not properly marshaled which can result in failed actions and NPEs. 
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2849'>DDF-2849</a> -         CQL endpoint does not respect Accept-Encoding header
+</li>
+</ul>
+    
+<h3>        Documentation
+</h3>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2653'>DDF-2653</a> -         document OSGi Basics for contributing developers
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2804'>DDF-2804</a> -         Update hardening guide to recommend 10 minute timeout
+</li>
+</ul>
+    
+<h3>        Technical Debt
+</h3>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2785'>DDF-2785</a> -         Saving polygons in catalog UI creates duplicate point
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2798'>DDF-2798</a> -         There are several possible null pointers within the ECP handlers
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2810'>DDF-2810</a> -         Upgrade GeoWebCache from 1.5.0 to 1.9.1
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2821'>DDF-2821</a> -         Check audit messages for special characters and encode them before writing the audit
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2826'>DDF-2826</a> -         Increase default JVM memory to 4096MB
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2836'>DDF-2836</a> -         Upgrade Spark from 2.5 to 2.5.5
+</li>
+</ul>
+            
+<h3>        Dependency Upgrade
+</h3>
+<ul>
+<li><a href='https://codice.atlassian.net/browse/DDF-2818'>DDF-2818</a> -         Upgrade to Solr version 6.4.1
+</li>
+<li><a href='https://codice.atlassian.net/browse/DDF-2833'>DDF-2833</a> -         Upgrade to latest version of Yarn
+</li>
+</ul>
 
-### NOTES
-
-- Important news for this release.
-
-### NEW FEATURES
-- [DDF-2818](https://codice.atlassian.net/browse/DDF-2818) Upgrade Solr from version 6.0.0 to version 6.4.1
-- [DDF-2815](https://codice.atlassian.net/browse/DDF-2815) Added UTM support for the CSW Endpoint
-	- [JIRA View of All New Features](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20ddf-2.10.1%20ORDER%20BY%20priority) 
-
-### API CHANGES
-
-- None in this version.
-
-### BUG FIXES
-
-- [DDF-2795](https://codice.atlassian.net/browse/DDF-2795) The Content Directory Monitor "Attribute Overrides" fails when there is a comma in the attribute
-- [DDF-2850](https://codice.atlassian.net/browse/DDF-2850) Catalog UI gazetteer searches fail in 3d view
-- [DDF-2845](https://codice.atlassian.net/browse/DDF-2845) Catalog UI result list help-text doesn't reflect the attribute name alias
-    - [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%202.10.1%20ORDER%20BY%20resolutiondate)
-        in this version.
-
-### KNOWN ISSUES
-- List known issues / or workarounds here.
-    - [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%202.10.0%20AND%20fixVersion%20!%3D%202.10.1%20ORDER%20BY%20priority) affecting this version.
 
 ## 2.10.0
 	Release Date: 2017-02-08
