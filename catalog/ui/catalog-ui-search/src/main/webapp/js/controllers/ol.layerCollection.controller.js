@@ -13,20 +13,63 @@
 /*jshint newcap: false, bitwise: false */
 
 define(['underscore',
+    'jquery',
     'marionette',
     'openlayers',
     'properties',
     'js/controllers/common.layerCollection.controller'
-], function (_, Marionette, ol, properties, CommonLayerController) {
+], function (_, $, Marionette, ol, properties, CommonLayerController) {
     "use strict";
 
     var imageryProviderTypes = {
         OSM: ol.source.OSM,
         BM: ol.source.BingMaps,
         WMS: ol.source.TileWMS,
+        WMT: ol.source.WMTS,
         MQ: ol.source.MapQuest,
         AGM: ol.source.XYZ,
         SI: ol.source.ImageStatic
+    };
+
+    var mockTileGrid = {
+        getMinZoom: function(){
+            return 0;
+        },
+        getMatrixId: function(){
+            return 0;
+        },
+        getZForResolution: function(){
+            return 0;
+        },
+        getResolution: function(){
+            return 0;
+        },
+        getTileRangeForExtentAndResolution: function(){
+            return {
+                getWidth: function() {
+                    return 0;
+                },
+                getHeight: function(){
+                    return 0;
+                }
+            };
+        },
+        getTileRangeExtent: function(){
+            return 0;
+        },
+        getTileSize: function(){
+            return 0;
+        },
+        getTileRangeForExtentAndZ: function(){
+            return {
+                getWidth: function() {
+                    return 0;
+                },
+                getHeight: function(){
+                    return 0;
+                }
+            };
+        }
     };
 
     var Controller = CommonLayerController.extend({
@@ -117,6 +160,39 @@ define(['underscore',
                 if (initObj.url && initObj.url.indexOf('/tile/{z}/{y}/{x}') === -1) {
                     initObj.url = initObj.url + '/tile/{z}/{y}/{x}';
                 }
+            } else if (typeStr === 'WMT') {
+                /* If tileMatrixSetID is present (Cesium WMTS keyword) set matrixSet (OpenLayers WMTS keyword) */
+                if (initObj.tileMatrixSetID) {
+                    initObj.matrixSet = initObj.tileMatrixSetID;
+                }
+
+                /* We must mock the tileGrid in order to prevent errors in OpenLayers before the GetCapabilities request returns */
+                initObj.tileGrid = mockTileGrid;
+
+                $.ajax({
+                  url : initObj.url + '?request=GetCapabilities',
+                  success : function(data)  {
+                      var parser = new ol.format.WMTSCapabilities();
+                      var result = parser.read(data);
+                      var options = ol.source.WMTS.optionsFromCapabilities(result, {layer: initObj.layer, matrixSet: initObj.matrixSet});
+                      /* Replace URL with Proxy URL */
+                      options.urls = [initObj.url];
+                      initObj = options;
+                      var layer = new layerType({
+                            visible: model.get('show'),
+                            preload: Infinity,
+                            opacity: model.get('alpha'),
+                            source: new type(initObj)
+                        });
+                      var olMapLayers = this.map.getLayers();
+                      olMapLayers.forEach(function(existingLayer, index){
+                        if (existingLayer === this.layerForCid[model.id]){
+                            this.layerForCid[model.id] = layer;
+                            olMapLayers.setAt(index, this.layerForCid[model.id]);
+                        }
+                      }.bind(this));
+                  }.bind(this)
+                });
             }
 
             return new layerType({

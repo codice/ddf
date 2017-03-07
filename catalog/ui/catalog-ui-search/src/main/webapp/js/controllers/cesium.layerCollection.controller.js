@@ -47,9 +47,16 @@ define(['underscore',
                 var type = imageryProviderTypes[model.get('type')];
                 var initObj = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid');
 
-                /* Set the tiling scheme for WMTS imagery providers that are EPSG:4326 */
-                if(model.get('type') === "WMT" && properties.projection === "EPSG:4326") {
-                    initObj.tilingScheme = new Cesium.GeographicTilingScheme();
+                if (model.get('type') === "WMT") {
+
+                    /* If matrixSet is present (OpenLayers WMTS keyword) set tileMatrixSetID (Cesium WMTS keyword) */
+                    if (initObj.matrixSet) {
+                        initObj.tileMatrixSetID = initObj.matrixSet;
+                    }
+                    /* Set the tiling scheme for WMTS imagery providers that are EPSG:4326 */
+                    if (properties.projection === "EPSG:4326") {
+                        initObj.tilingScheme = new Cesium.GeographicTilingScheme();
+                    }
                 }
 
                 var provider = new type(initObj);
