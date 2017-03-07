@@ -22,7 +22,6 @@ replace with next unreleased version
 ### BUG FIXES
 (update {VERSION-NUMBER} in JIRA query
 
-
 - Important issues resolved
 	- [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20VERSION_NUMBER%20ORDER%20BY%20priority) in this version.
 
@@ -35,15 +34,16 @@ replace with next unreleased version
  -->
 
 ## 2.11.0
-        Release Date: pending
+    Release Date: pending
 
 ### NOTES
 
--
+- Summary of changes requiring user action.
 
 ### NEW FEATURES
-- [DDF-2818](https://codice.atlassian.net/browse/DDF-2818) Upgrade Solr from version 6.0.0 to version 6.4.1 
+- [DDF-2818](https://codice.atlassian.net/browse/DDF-2818) Upgrade Solr from version 6.0.0 to version 6.4.1
 - [DDF-2815](https://codice.atlassian.net/browse/DDF-2815) Added UTM support for the CSW Endpoint
+ 	- [JIRA View of All New Features](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20ddf-2.10.0%20ORDER%20BY%20priority) 
 
 ### API CHANGES
 
@@ -52,23 +52,49 @@ replace with next unreleased version
 ### BUG FIXES
 
 - List bugs fixed here.
-        - [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.10.1%20ORDER%20BY%20resolutiondate)
+    - [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%202.11.0%20ORDER%20BY%20resolutiondate)
         in this version.
 
 ### KNOWN ISSUES
 - List known issues / or workarounds here.
-        - [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20ddf-2.10.0%20AND%20fixVersion%20!%3D%20ddf-2.10.1%20ORDER%20BY%20priority) affecting this version.
+    - [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%202.10.1%20AND%20fixVersion%20!%3D%202.11.0%20ORDER%20BY%20priority) affecting this version.
 
-## 2.10.1
+## 2.10.2
 	Release Date: pending
 
 ### NOTES
 
--
+- Summary of changes requiring user action.
 
 ### NEW FEATURES
 
-- List added features here.
+- List of new features in this version.
+	- [JIRA View of All New Features](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20ddf-2.10.2%20ORDER%20BY%20priority) 
+
+### API CHANGES
+
+- None in this version.
+
+### BUG FIXES
+
+- List bugs fixed here.
+	- [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%202.10.2%20ORDER%20BY%20resolutiondate)
+        in this version.
+
+### KNOWN ISSUES
+- List known issues / or workarounds here.
+	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%202.10.1%20AND%20fixVersion%20!%3D%202.10.2%20ORDER%20BY%20priority) affecting this version.
+
+## 2.10.1
+	Release Date: 2017-03-08
+
+### NOTES
+
+- Important news for this release.
+
+### NEW FEATURES
+- [DDF-2818](https://codice.atlassian.net/browse/DDF-2818) Upgrade Solr from version 6.0.0 to version 6.4.1
+- [DDF-2815](https://codice.atlassian.net/browse/DDF-2815) Added UTM support for the CSW Endpoint
 	- [JIRA View of All New Features](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20ddf-2.10.1%20ORDER%20BY%20priority) 
 
 ### API CHANGES
@@ -77,13 +103,15 @@ replace with next unreleased version
 
 ### BUG FIXES
 
-- List bugs fixed here.
-	- [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20ddf-2.10.1%20ORDER%20BY%20resolutiondate)
-	in this version.
+- [DDF-2795](https://codice.atlassian.net/browse/DDF-2795) The Content Directory Monitor "Attribute Overrides" fails when there is a comma in the attribute
+- [DDF-2850](https://codice.atlassian.net/browse/DDF-2850) Catalog UI gazetteer searches fail in 3d view
+- [DDF-2845](https://codice.atlassian.net/browse/DDF-2845) Catalog UI result list help-text doesn't reflect the attribute name alias
+    - [JIRA View of All Issues Resolved](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20type%20%3D%20Bug%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%202.10.1%20ORDER%20BY%20resolutiondate)
+        in this version.
 
 ### KNOWN ISSUES
 - List known issues / or workarounds here.
-	- [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%20ddf-2.10.0%20AND%20fixVersion%20!%3D%20ddf-2.10.1%20ORDER%20BY%20priority) affecting this version.
+    - [JIRA View of Open Issues](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20%3D%20bug%20%20AND%20status%20%3D%20Open%20AND%20affectedVersion%20%3D%202.10.0%20AND%20fixVersion%20!%3D%202.10.1%20ORDER%20BY%20priority) affecting this version.
 
 ## 2.10.0
 	Release Date: 2017-02-08
@@ -111,7 +139,7 @@ replace with next unreleased version
 - [DDF-2508](https://codice.atlassian.net/browse/DDF-2508) Allowed for the ingest of a resource/metadata through the Catalog REST Endpoint.
 - [DDF-2188](https://codice.atlassian.net/browse/DDF-2188) Add service for metadata extraction from text documents
 - [DDF-2125](https://codice.atlassian.net/browse/DDF-2125) Add the ability to inject default values into metacards during ingest
-	- [](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%JIRA View of All New Features22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20ddf-2.10.0%20ORDER%20BY%20priority) 
+	- [JIRA View of All New Features](https://codice.atlassian.net/issues/?jql=project%3DDDF%20AND%20issuetype%20in%20%28%22new%20feature%22%2C%20improvement%2C%20story%2C%20task%29%20AND%20fixVersion%20%3D%20ddf-2.10.0%20ORDER%20BY%20priority) 
 
 ### API CHANGES
 
