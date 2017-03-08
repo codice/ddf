@@ -477,7 +477,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void testCswIngestWithMetadataBackup() throws Exception {
         getServiceManager().startFeature(true, METACARD_BACKUP_PLUGIN_FEATURE);
         Map<String, Object> properties = new HashMap<>();
-        properties.put("metacardTransformerId", "metacard");
+        properties.put("metacardTransformerId", "metadata");
         properties.put("outputDirectory", METACARD_BACKUP_DIRECTORY);
         properties.put("keepDeletedMetacards", false);
         getServiceManager().createManagedService(
