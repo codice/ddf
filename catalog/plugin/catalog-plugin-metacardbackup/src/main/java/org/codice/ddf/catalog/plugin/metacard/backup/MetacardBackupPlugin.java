@@ -11,15 +11,16 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.plugin.metadata.backup;
+package org.codice.ddf.catalog.plugin.metacard.backup;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -49,27 +50,20 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 
 /**
- * The MetadataBackupPlugin asynchronously backs up Metacard Metadata to the file system.  It implements
- * the PostProcessPlugin in order to maintain synchronization with the catalog (CRUD).
+ * The MetacardBackupPlugin asynchronously backs up a Metacard using a configured transformer to the file system.
+ * It implements the PostProcessPlugin in order to maintain synchronization with the catalog (CRUD).
  * <p>
- * The root backup directory and subdirectory levels can be configured in the
- * MetadataBackupPlugin section in the admin console.
+ * The root backup directory can be configured in the MetacardBackupPlugin section in the admin console.
  */
 
-public class MetadataBackupPlugin implements PostProcessPlugin {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataBackupPlugin.class);
+public class MetacardBackupPlugin implements PostProcessPlugin {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardBackupPlugin.class);
 
     private static final String OUTPUT_DIRECTORY_PROPERTY = "outputDirectory";
-
-    private static final String FOLDER_DEPTH_PROPERTY = "folderDepth";
 
     private static final String KEEP_DELETED_METACARDS_PROPERTY = "keepDeletedMetacards";
 
     private static final String METACARD_TRANSFORMER_ID_PROPERTY = "metacardTransformerId";
-
-    private static final Integer MAX_FOLDER_DEPTH = 4;
-
-    private static final Integer MIN_FOLDER_DEPTH = 0;
 
     private Boolean keepDeletedMetacards = false;
 
@@ -78,8 +72,6 @@ public class MetadataBackupPlugin implements PostProcessPlugin {
     private MetacardTransformer metacardTransformer;
 
     private String outputDirectory;
-
-    private Integer folderDepth = MIN_FOLDER_DEPTH;
 
     @Override
     public ProcessRequest<ProcessCreateItem> processCreate(
@@ -104,13 +96,13 @@ public class MetadataBackupPlugin implements PostProcessPlugin {
 
         if (StringUtils.isEmpty(outputDirectory)) {
             throw new PluginExecutionException(
-                    "Unable to delete backup ingested metadata; no output directory specified.");
+                    "Unable to delete backup ingested metacard; no output directory specified.");
         }
 
         List<ProcessDeleteItem> processUpdateItems = processRequest.getProcessItems();
         for (ProcessDeleteItem processUpdateItem : processUpdateItems) {
             Metacard metacard = processUpdateItem.getMetacard();
-            deleteMetadataIfPresent(metacard.getId());
+            deleteBackupIfPresent(metacard.getId());
         }
 
         return processRequest;
@@ -122,16 +114,6 @@ public class MetadataBackupPlugin implements PostProcessPlugin {
 
     public String getOutputDirectory() {
         return outputDirectory;
-    }
-
-    public void setFolderDepth(Integer folderDepth) {
-        folderDepth = Math.max(folderDepth, MIN_FOLDER_DEPTH);
-        folderDepth = Math.min(folderDepth, MAX_FOLDER_DEPTH);
-        this.folderDepth = folderDepth;
-    }
-
-    public Integer getFolderDepth() {
-        return folderDepth;
     }
 
     public void setKeepDeletedMetacards(Boolean keepDeletedMetacards) {
@@ -163,131 +145,124 @@ public class MetadataBackupPlugin implements PostProcessPlugin {
         }
 
         Object metacardTransformerProperty = properties.get(METACARD_TRANSFORMER_ID_PROPERTY);
-        if (metacardTransformerProperty instanceof String && StringUtils.isNotBlank((String) metacardTransformerProperty)) {
+        if (metacardTransformerProperty instanceof String
+                && StringUtils.isNotBlank((String) metacardTransformerProperty)) {
             setMetacardTransformerId((String) metacardTransformerProperty);
             LOGGER.debug("Updating {} with {}",
-                    METACARD_TRANSFORMER_ID_PROPERTY, metacardTransformerProperty);
+                    METACARD_TRANSFORMER_ID_PROPERTY,
+                    metacardTransformerProperty);
         }
 
         Object keepDeletedMetacards = properties.get(KEEP_DELETED_METACARDS_PROPERTY);
         if (keepDeletedMetacards instanceof Boolean) {
             this.keepDeletedMetacards = (Boolean) keepDeletedMetacards;
-            LOGGER.debug("Updating {} with {}", KEEP_DELETED_METACARDS_PROPERTY,
+            LOGGER.debug("Updating {} with {}",
+                    KEEP_DELETED_METACARDS_PROPERTY,
                     keepDeletedMetacards);
-        }
-
-        Object folderDepth = properties.get(FOLDER_DEPTH_PROPERTY);
-        if (folderDepth instanceof Integer) {
-            setFolderDepth((Integer) folderDepth);
-            LOGGER.debug("Updating {} with {}", FOLDER_DEPTH_PROPERTY, folderDepth);
         }
     }
 
     private void processRequest(ProcessRequest<? extends ProcessResourceItem> processRequest)
             throws PluginExecutionException {
-        LOGGER.trace("Backing up metadata");
+        LOGGER.trace("Backing up metacard");
         if (StringUtils.isEmpty(outputDirectory)) {
             throw new PluginExecutionException(
-                    "Unable to backup ingested metadata; no outputDirectory.");
+                    "Unable to backup ingested metacard; no outputDirectory.");
         }
 
         if (metacardTransformer == null) {
             throw new PluginExecutionException(
-                    "Unable to backup ingested metadata; no Metacard Transformer found.");
+                    "Unable to backup ingested metacard; no Metacard Transformer found.");
         }
 
         List<? extends ProcessResourceItem> processResourceItems = processRequest.getProcessItems();
-        processResourceItems.forEach(processResourceItem -> {
+        for (ProcessResourceItem processResourceItem : processResourceItems) {
             Metacard metacard = processResourceItem.getMetacard();
             try {
-                LOGGER.trace("Backing up metadata for metacard : {}", metacard.getId());
+                LOGGER.trace("Backing up metacard : {}", metacard.getId());
                 BinaryContent binaryContent = metacardTransformer.transform(metacard, null);
-                copyMetadataToOutputDirectory(binaryContent, metacard.getId());
+                copyBackupToOutputDirectory(binaryContent, metacard.getId());
             } catch (CatalogTransformerException e) {
                 LOGGER.debug("Unable to transform metacard with id {}.", metacard.getId(), e);
+                throw new PluginExecutionException(String.format(
+                        "Unable to transform metacard with id %s.",
+                        metacard.getId()));
             }
-        });
+        }
     }
 
-    private void copyMetadataToOutputDirectory(BinaryContent content, String metacardId) {
+    private void copyBackupToOutputDirectory(BinaryContent content, String metacardId)
+            throws PluginExecutionException {
         if (content == null || content.getInputStream() == null) {
             LOGGER.debug("No content for transformed metacard {}.", metacardId);
-            return;
+            throw new PluginExecutionException(String.format(
+                    "No content for transformed metacard %s",
+                    metacardId));
         }
 
-        File parent = getCompleteDirectory(getFolderDepth(), metacardId);
-        if (!parent.exists()) {
-            try {
-                FileUtils.forceMkdir(parent);
-            } catch (IOException e) {
-                LOGGER.debug("Unable to make directory {}", parent.getPath(), e);
+        Path metacardPath = getMetacardDirectory(metacardId);
+        if (metacardPath == null) {
+            throw new PluginExecutionException(String.format(
+                    "Unable to create metacard path directory for %s",
+                    metacardId));
+        }
+
+        try {
+            Path parent = metacardPath.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
             }
+            Files.createFile(metacardPath);
+        } catch (IOException e) {
+            LOGGER.debug("Unable to create backup file {}.  File may already exist.",
+                    metacardPath,
+                    e);
         }
 
-        validateDirectory(parent);
-        File file = new File(parent.getPath() + File.separator + metacardId);
-        LOGGER.trace("Writing metadata from {} to file {}", metacardId, file.getPath());
+        LOGGER.trace("Writing backup from {} to file {}", metacardId, metacardPath.toString());
 
-        try (OutputStream outputStream = new FileOutputStream(file)) {
+        try (OutputStream outputStream = new FileOutputStream(metacardPath.toFile())) {
             IOUtils.write(content.getByteArray(), outputStream);
         } catch (IOException e) {
             LOGGER.warn("Unable to backup {} to {}.  The directory may be full.",
                     metacardId,
-                    file.getAbsolutePath(),
+                    metacardPath.toString(),
                     e);
         }
     }
 
-    private void deleteMetadataIfPresent(String filename) {
-        File parent = getCompleteDirectory(getFolderDepth(), filename);
-        validateDirectory(parent);
-        File file = new File(parent.getPath() + File.separator + filename);
-        LOGGER.trace("Deleting metadata file {}", file.getPath());
+    private void deleteBackupIfPresent(String filename) throws PluginExecutionException {
+        Path metacardPath = getMetacardDirectory(filename);
+        if (metacardPath == null) {
+            throw new PluginExecutionException(String.format("Unable to delete backup for  %s",
+                    filename));
+        }
+
         try {
-            Files.deleteIfExists(file.toPath());
-        } catch (IOException e) {
-            LOGGER.debug("Unable to backup metadata {}. ", filename, e);
-        }
-        clearEmptyDirectories(parent);
-    }
-
-    private File getCompleteDirectory(int depth, String id) {
-        File parent = new File(getOutputDirectory());
-        for (int i = 0; i < depth && id.length() > (i * 2 + 2); i++) {
-            parent = new File(parent, id.substring(i * 2, i * 2 + 2));
-        }
-        return parent;
-    }
-
-    private void clearEmptyDirectories(File file) {
-        while (file != null && !file.getPath()
-                .equals(outputDirectory)) {
-            if (isDirectoryEmpty(file.toPath())) {
-                try {
-                    FileUtils.deleteDirectory(file);
-                } catch (IOException e) {
-                    LOGGER.debug("Unable to delete directory {}", file.toPath(), e);
+            Files.deleteIfExists(metacardPath);
+            while (metacardPath.getParent() != null && !metacardPath.getParent()
+                    .toString()
+                    .equals(outputDirectory)) {
+                metacardPath = metacardPath.getParent();
+                if (isDirectoryEmpty(metacardPath)) {
+                    FileUtils.deleteDirectory(metacardPath.toFile());
                 }
             }
-            file = file.getParentFile();
+        } catch (IOException e) {
+            LOGGER.debug("Unable to delete backup file {}", metacardPath, e);
+            throw new PluginExecutionException(String.format(
+                    "Unable to delete backup file for  %s",
+                    filename));
         }
     }
 
-    private boolean isDirectoryEmpty(Path dir) {
+    private boolean isDirectoryEmpty(Path dir) throws IOException {
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
             return !dirStream.iterator()
                     .hasNext();
         } catch (IOException e) {
             LOGGER.debug("Unable to open directory stream for {}", dir.toString(), e);
-        }
-        return false;
-    }
-
-    private void validateDirectory(File path) {
-        if (!(path.isDirectory() && path.canWrite())) {
-            LOGGER.debug("{} is not a valid directory", path.getPath());
-            throw new IllegalArgumentException("Directory " + path.getAbsolutePath()
-                    + " does not exist or is not writable");
+            throw e;
         }
     }
 
@@ -303,11 +278,24 @@ public class MetadataBackupPlugin implements PostProcessPlugin {
                         .next());
             } catch (InvalidSyntaxException | NoSuchElementException e) {
                 LOGGER.warn(
-                        "Unable to resolve MetacardTransformer {}.  Metadata backup will not be performed.",
+                        "Unable to resolve MetacardTransformer {}.  Backup will not be performed.",
                         metacardTransformerId,
                         e);
             }
         }
         return null;
+    }
+
+    Path getMetacardDirectory(String id) {
+        if (id.length() < 6) {
+            id = StringUtils.rightPad(id, 6, "0");
+        }
+
+        try {
+            return Paths.get(outputDirectory, id.substring(0, 3), id.substring(3, 6), id);
+        } catch (InvalidPathException e) {
+            LOGGER.debug("Unable to create path from id {}", outputDirectory, e);
+            return null;
+        }
     }
 }

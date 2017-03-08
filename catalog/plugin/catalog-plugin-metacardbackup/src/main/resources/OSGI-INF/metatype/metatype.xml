@@ -15,22 +15,15 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Metadata Backup Plugin"
-         id="org.codice.ddf.catalog.plugin.metadata.backup.MetadataBackupPlugin">
+    <OCD name="Metacard Backup Plugin"
+         id="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin">
         <AD
-                description="Output directory to place metadata files for backup."
+                description="Output directory to place backup files."
                 name="Output Directory" id="outputDirectory" required="true" type="String"
-                default="data/backup/metadata"/>
-        <AD
-                description="The Folder Depth (for use with extremely large catalogs).
-                             This is used to prevent the system from hitting the file limit
-                             in the output directory (range 0-4).  For example, FAT32 has a
-                             maximum of 65,534 files permissible in a single folder."
-                name="Folder Depth" id="folderDepth" required="true" type="Integer"
-                default="0"/>
+                default="data/backup/metacard"/>
 
         <AD
-                description="Keep the Metadata backup file when Metacards are deleted from the framework."
+                description="Keep the Metacard backup file when Metacards are deleted from the framework."
                 name="Keep Deleted Metacards" id="keepDeletedMetacards" required="true" type="Boolean"
                 default="false"/>
 
@@ -40,8 +33,8 @@
                 default="metadata"/>
     </OCD>
 
-    <Designate pid="org.codice.ddf.catalog.plugin.metadata.backup.MetadataBackupPlugin" factoryPid="org.codice.ddf.catalog.plugin.metadata.backup.MetadataBackupPlugin">
-        <Object ocdref="org.codice.ddf.catalog.plugin.metadata.backup.MetadataBackupPlugin"/>
+    <Designate pid="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin" factoryPid="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin">
+        <Object ocdref="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin"/>
     </Designate>
 
 </metatype:MetaData>

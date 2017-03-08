@@ -443,12 +443,12 @@
         </bundle>
     </feature>
 
-    <feature name="catalog-metadata-backup" install="manual" version="${project.version}"
-             description="Metadata backup of Metacards on Ingest">
+    <feature name="catalog-metacard-backup" install="manual" version="${project.version}"
+             description="Backup Metacards on Ingest">
         <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">catalog-async-inmemory</feature>
         <feature prerequisite="true">catalog-transformer-metadata</feature>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metadatabackup/${project.version}
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardbackup/${project.version}
         </bundle>
     </feature>
 

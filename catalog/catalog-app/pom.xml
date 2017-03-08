@@ -581,7 +581,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-metadatabackup</artifactId>
+            <artifactId>catalog-plugin-metacardbackup</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
