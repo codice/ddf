@@ -63,6 +63,11 @@
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -78,6 +83,7 @@
                             ant,
                             ant-launcher,
                             catalog-core-api-impl,
+                            catalog-transformer-common,
                             platform-util,
                             zip4j
                         </Embed-Dependency>
