@@ -85,7 +85,6 @@ define([
             },
 
             updatePrimitive: function(model) {
-
                 var modelProp = model.toJSON();
                 if (this.isModelReset(modelProp)) {
                     this.options.map.scene.primitives.remove(this.primitive);
@@ -101,14 +100,16 @@ define([
             },
             drawBorderedCircle: function(model) {
                 // if model has been reset
+
                 var modelProp = model.toJSON();
-                if (this.isModelReset(modelProp) || modelProp.lat === undefined || modelProp.lon === undefined) {
-                    return;
-                }
 
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
                     this.options.map.scene.primitives.remove(this.primitive);
+                }
+
+                if (this.isModelReset(modelProp) || modelProp.lat === undefined || modelProp.lon === undefined) {
+                    return;
                 }
 
                 var color = this.model.get('color');

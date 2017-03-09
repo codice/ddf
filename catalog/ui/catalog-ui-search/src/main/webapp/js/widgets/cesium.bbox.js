@@ -200,17 +200,29 @@ define([
                 }
             },
 
-            drawBorderedRectangle: function(rectangle) {
-
-                if (!rectangle) {
-                    // handles case where model changes to empty vars and we don't want to draw anymore
-                    return;
-                }
-
+            destroyOldPrimitive: function() {
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
                     this.options.map.scene.primitives.remove(this.primitive);
                 }
+            },
+
+            drawBorderedRectangle: function(rectangle) {
+
+                if (!rectangle) {
+                    // handles case where model changes to empty vars and we don't want to draw anymore
+
+                    return;
+                }
+
+                if (isNaN(rectangle.north) || isNaN(rectangle.south) || isNaN(rectangle.east) || isNaN(rectangle.west)) {
+                    // handles case where model is incomplete and we don't want to draw anymore
+                    this.destroyOldPrimitive();
+
+                    return;
+                }
+
+                this.destroyOldPrimitive();
 
                 var coordinates = [[
                     rectangle.east,
