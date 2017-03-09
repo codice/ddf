@@ -334,7 +334,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 // Set the readLockTimeout to continuously poll the directory so long as the directory monitor exists
                 // Set the readLockCheckInterval to check every readLockIntervalMilliseconds
                 String inbox = "file:" + monitoredDirectory
-                        + "?idempotent=true&readLockMinLength=0&recursive=true&moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval="
+                        + "?readLockMinLength=1&recursive=true&moveFailed=.errors&readLock=changed&readLockTimeout=" + (2 * readLockIntervalMilliseconds)  + "&readLockCheckInterval="
                         + readLockIntervalMilliseconds;
                 switch (processingMechanism) {
                 case DELETE:
