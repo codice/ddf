@@ -429,6 +429,8 @@ public class MetacardTypeImplTest {
         int expectedSize = DATE_TIME_ATTRIBUTES.getAttributeDescriptors()
                 .size() + CORE_ATTRIBUTES.getAttributeDescriptors()
                 .size() + SECURITY_ATTRIBUTES.getAttributeDescriptors()
+                .size() + LOCATION_ATTRIBUTES.getAttributeDescriptors()
+                .size() + ASSOCIATIONS_ATTRIBUTES.getAttributeDescriptors()
                 .size();
 
         assertThat(metacardType.getAttributeDescriptors()
