@@ -95,6 +95,9 @@ define([
             bbox: undefined,
             usngbb: undefined,
             usng: undefined,
+            utm: undefined,
+            utmUpperLeft: undefined,
+            utmLowerRight: undefined,
             color: undefined,
             line: undefined,
             lineWidth: 1,
@@ -120,6 +123,9 @@ define([
             this.listenTo(this, 'change:lat change:lon', this.setRadiusLatLon);
             this.listenTo(this, 'change:usngbb', this.setBboxUsng);
             this.listenTo(this, 'change:usng', this.setRadiusUsng);
+            this.listenTo(this, 'change:utm', this.setRadiusUtm);
+            this.listenTo(this, 'change:utmUpperLeft', this.setBboxUtm);
+            this.listenTo(this, 'change:utmLowerRight', this.setBboxUtm);
             this.listenTo(this, 'EndExtent', this.notDrawing);
             this.listenTo(this, 'BeginExtent', this.drawingOn);
             if (this.get('color') === undefined && store.get('content').get('query')){
@@ -138,6 +144,40 @@ define([
             store.get('content').turnOnDrawing();
         },
 
+        // TODO: review with Andrew!!
+        parseUtmString: function(utmString,parts) {
+            var utmRegexp = /(\d\d?)(-?[CDEFGHJKLMNPQRSTUVWX]?)(\W?-?\d{6})(\W?-?\d{7})/;
+
+            if (!utmRegexp.test(utmString)) {
+              // TODO: throw an exception?
+              // original java...
+              // String message = String.format(
+              //   "Supplied argument '%s' is not a valid UTM formatted String.",
+              //   utmString);
+              // throw new ParseException(message, 0);
+            }
+
+            var regexpResults = utmRegexp.exec(utmString);
+
+            var zoneNumber = parseInt(regexpResults[1], 10);
+            var latitudeBandString = regexpResults[2];
+            var easting = parseInt(regexpResults[3].trim());
+            var northing = parseInt(regexpResults[4].trim());
+
+            if(latitudeBandString.length > 0) {
+                parts.zoneNumber = zoneNumber;
+                parts.latitudeBandString = latitudeBandString.charAt(0);
+                parts.easting = easting;
+                parts.northing = northing;
+            } else {
+                parts.zoneNumber = zoneNumber;
+                parts.latitudeBandString = undefined;
+                parts.easting = easting;
+                parts.northing = northing;
+            }
+        },
+
+        // TODO: review with Andrew!!
         repositionLatLon: function () {
             if (this.get('usngbb') !== undefined) {
                 var result = converter.USNGtoLL(this.get('usngbb'));
@@ -149,8 +189,29 @@ define([
 
                 this.set(newResult);
             }
+            if (this.get('utmUpperLeft') !== undefined) {
+                var utmParts = {};
+                this.parseUtmString(this.get('utmUpperLeft'), utmParts);
+                var result = converter.UTMtoLL(utmParts.northing, utmParts.easting, utmParts.zoneNumber);
+                var newResult = {};
+                newResult.mapNorth = result.lat;
+                newResult.mapWest = result.lon;
+
+                this.set(newResult);
+            }
+            if (this.get('utmLowerRight') !== undefined) {
+                var utmParts = {};
+                this.parseUtmString(this.get('utmLowerRight'), utmParts);
+                var result = converter.UTMtoLL(utmParts.northing, utmParts.easting, utmParts.zoneNumber);
+                var newResult = {};
+                newResult.mapSouth = result.lat;
+                newResult.mapEast = result.lon;
+
+                this.set(newResult);
+            }
         },
 
+        // TODO: review with Andrew!!
         setLatLon: function () {
             if (this.get('locationType') === "latlon") {
                 var result = {};
@@ -160,6 +221,20 @@ define([
                 result.east = this.get('mapEast');
                 if (!(result.north !== undefined && result.south !== undefined && result.west !== undefined && result.east !== undefined) && this.get('usngbb')) {
                     result = converter.USNGtoLL(this.get('usngbb'));
+                }
+                if (!(result.north !== undefined && result.south !== undefined && result.west !== undefined && result.east !== undefined) && this.get('utmUpperLeft')) {
+                    var utmParts = {};
+                    this.parseUtmString(this.get('utmUpperLeft'), utmParts);
+                    var utmResult = converter.UTMtoLL(utmParts.northing, utmParts.easting, utmParts.zoneNumber);
+                    result.north = utmResult.lat;
+                    result.west = utmResult.lon;
+                }
+                if (!(result.north !== undefined && result.south !== undefined && result.west !== undefined && result.east !== undefined) && this.get('utmLowerRight')) {
+                    var utmParts = {};
+                    this.parseUtmString(this.get('utmLowerRight'), utmParts);
+                    var utmResult = converter.UTMtoLL(utmParts.northing, utmParts.easting, utmParts.zoneNumber);
+                    result.south = utmResult.lat;
+                    result.east = utmResult.lon;
                 }
                 this.set(result);
             }
@@ -174,6 +249,7 @@ define([
             model.set({mapNorth: north, mapSouth: south, mapEast: east, mapWest: west});
         },
 
+        // TODO: what needs to change with repositionLatLon?
         setBboxLatLon: function () {
             var north = this.get('north'),
                 south = this.get('south'),
@@ -187,10 +263,53 @@ define([
                     if (this.get('locationType') === 'usng' && this.drawing) {
                         this.repositionLatLon();
                     }
+
+                    var utmCoords = [];
+                    converter.LLtoUTM(north, west, utmCoords);
+                    if (!isNaN(utmCoords[0]) && !isNaN(utmCoords[1])) {
+                        var utmStr = this.formatUtm(utmCoords[2], converter.UTMLetterDesignator(north), utmCoords[0], utmCoords[1]);
+                        this.set('utmUpperLeft', utmStr, {silent: this.get('locationType') !== 'utm'});
+                    }
+
+                    var utmCoords = [];
+                    converter.LLtoUTM(south, east, utmCoords);
+                    if (!isNaN(utmCoords[0]) && !isNaN(utmCoords[1])) {
+                        var utmStr = this.formatUtm(utmCoords[2], converter.UTMLetterDesignator(north), utmCoords[0], utmCoords[1]);
+                        this.set('utmLowerRight', utmStr, {silent: this.get('locationType') !== 'utm'});
+                    }
+
                 } catch(err){
 
                 }
             }
+        },
+
+        padDigits: function (number, digits) {
+            return Array(Math.max(digits - String(number).length + 1, 0)).join(0) + number;
+        },
+
+        formatUtm: function(zoneNumber, zoneDesignator, easting, northing) {
+
+            var eastingSign = false;
+
+            if(easting < 0) {
+                eastingSign = true;
+                easting *= -1;
+            }
+
+            var northingSign = false;
+
+            if(northing < 0) {
+                northingSign = true;
+                northing *= -1;
+            }
+
+            var str = "" + zoneNumber + zoneDesignator + " " +
+                (eastingSign ? "-" : "") +  this.padDigits(Math.floor(easting), 6)  +
+                " " +
+                (northingSign ? "-" : "") + this.padDigits(Math.floor(northing), 7);
+
+            return str;
         },
 
         setRadiusLatLon: function () {
@@ -200,6 +319,12 @@ define([
                 try {
                     var usngsStr = converter.LLtoUSNG(lat, lon, 6);
                     this.set('usng', usngsStr, {silent: true});
+
+                    var utmCoords = [];
+                    converter.LLtoUTM(lat, lon, utmCoords);
+                    var utmStr = this.formatUtm(utmCoords[2], converter.UTMLetterDesignator(lat), utmCoords[0], utmCoords[1]);
+                    this.set('utm', utmStr, {silent: true});
+
                 } catch(err){
 
                 }
@@ -214,8 +339,20 @@ define([
             newResult.mapEast = result.east;
             newResult.mapWest = result.west;
             this.set(newResult);
+
+            var utmCoords = [];
+            converter.LLtoUTM(result.north, result.west, utmCoords);
+            var utmStr = this.formatUtm(utmCoords[2], converter.UTMLetterDesignator(lat), utmCoords[0], utmCoords[1]);
+            this.set('utmUpperLeft', utmStr, {silent: true});
+
+            var utmCoords = [];
+            converter.LLtoUTM(result.south, result.east, utmCoords);
+            var utmStr = this.formatUtm(utmCoords[2], converter.UTMLetterDesignator(lat), utmCoords[0], utmCoords[1]);
+            this.set('utmLowerRight', utmStr, {silent: true});
+
         },
 
+        // TODO: how should this change for UTM?
         setBBox: function () {
 
             //we need these to always be inferred
@@ -238,8 +375,59 @@ define([
             if (usng !== undefined){
                 var result = converter.USNGtoLL(usng, true);
                 this.set(result);
+
+                var utmCoords = [];
+                converter.LLtoUTM(result.lat, result.lon, utmCoords);
+                var utmStr = this.formatUrm(utmCoords[2], converter.UTMLetterDesignator(lat), utmCoords[0], utmCoords[1]);
+                this.set('utm', utmStr, {silent: true});
+
             }
         },
+
+        setRadiusUtm: function () {
+            var utm = this.get('utm');
+            if (utm !== undefined) {
+                var utmParts = {};
+                this.parseUtmString(utm, utmParts);
+                var utmResult = converter.UTMtoLL(utmParts.northing, utmParts.easting, utmParts.zoneNumber);
+                this.set(utmResult, {silent: true});
+
+                var usngsStr = converter.LLtoUSNG(utmResult.lat, utmResult.lon, 6);
+                this.set('usng', usngsStr, {silent: true});
+            }
+        },
+
+        setBboxUtm: function () {
+
+            var upperLeft = undefined;
+            var lowerRight = undefined;
+
+            if (this.get('utmUpperLeft') !== undefined) {
+
+                var utmParts = {};
+                this.parseUtmString(this.get('utmUpperLeft'), utmParts);
+                upperLeft = converter.UTMtoLL(utmParts.northing, utmParts.easting, utmParts.zoneNumber);
+
+                this.set({north: upperLeft.lat, west: upperLeft.lon });
+            }
+
+            if (this.get('utmLowerRight') !== undefined) {
+
+                var utmParts = {};
+                this.parseUtmString(this.get('utmLowerRight'), utmParts);
+                lowerRight = converter.UTMtoLL(utmParts.northing, utmParts.easting, utmParts.zoneNumber);
+
+                this.set({south: lowerRight.lat, east: lowerRight.lon });
+
+            }
+
+            if (upperLeft !== undefined && lowerRight !== undefined) {
+                var usngsStr = converter.LLBboxtoUSNG(upperLeft.lat, lowerRight.lat, lowerRight.lon, upperLeft.lon);
+                this.set('usngbb', usngsStr, {silent: this.get('locationType') !== 'usng'});
+            }
+
+        },
+
         handleLocationType: function(){
             if (this.get('locationType') === 'latlon') {
                 this.set({
