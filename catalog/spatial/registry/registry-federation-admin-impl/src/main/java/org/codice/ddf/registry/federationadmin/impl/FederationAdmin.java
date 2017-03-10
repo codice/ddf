@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -67,11 +68,14 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
+import ddf.action.MultiActionProvider;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -86,7 +90,19 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ValueListType;
 
-public class FederationAdmin implements FederationAdminMBean {
+public class FederationAdmin implements FederationAdminMBean, EventHandler {
+
+    public static final String SUMMARY_METACARD_ID = "metacardId";
+
+    public static final String SUMMARY_REGISTRY_ID = "registryId";
+
+    public static final String SUMMARY_NAME = "name";
+
+    public static final String SUMMARY_LOCAL_NODE = "localNode";
+
+    public static final String SUMMARY_IDENTITY_NODE = "identityNode";
+
+    public static final String SUMMARY_REPORT_ACTION = "reportAction";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FederationAdmin.class);
 
@@ -129,6 +145,12 @@ public class FederationAdmin implements FederationAdminMBean {
     private static final String DATE_TIME = CswConstants.XML_SCHEMA_NAMESPACE_PREFIX.concat(
             ":dateTime");
 
+    private static final String REPORT_ACTION_PROVIDER_ID = "catalog.data.metacard.registry";
+
+    private static final String METACARD_PROPERTY = "ddf.catalog.event.metacard";
+
+    private static final String DELETED_TOPIC = "ddf/catalog/event/DELETED";
+
     private final AdminHelper helper;
 
     private MBeanServer mbeanServer;
@@ -153,9 +175,30 @@ public class FederationAdmin implements FederationAdminMBean {
 
     private RegistrySourceConfiguration sourceConfigRefresh;
 
+    private MultiActionProvider registryActionProvider;
+
+    private Map<String, Map<String, Object>> summaryCache = new ConcurrentHashMap<>();
+
+    private boolean cacheInitialized = false;
+
     public FederationAdmin(AdminHelper helper) {
         configureMBean();
         this.helper = helper;
+    }
+
+    @Override
+    public void handleEvent(Event event) {
+        Metacard mcard = (Metacard) event.getProperty(METACARD_PROPERTY);
+        if (mcard == null || !RegistryUtility.isRegistryMetacard(mcard)) {
+            return;
+        }
+        String registryId = RegistryUtility.getRegistryId(mcard);
+        if (event.getTopic()
+                .equals(DELETED_TOPIC)) {
+            summaryCache.remove(registryId);
+        } else {
+            summaryCache.put(registryId, getSummaryMap(mcard));
+        }
     }
 
     @Override
@@ -415,12 +458,80 @@ public class FederationAdmin implements FederationAdminMBean {
     }
 
     @Override
+    public Map<String, Object> registryMetacard(String registryId) {
+        if (!RegistryUtility.validRegistryId(registryId)) {
+            throw new IllegalArgumentException("Passed in registryId is invalid. Must conform to "
+                    + RegistryUtility.REGISTRY_ID_REGEX);
+        }
+        Map<String, Object> nodes = new HashMap<>();
+        List<Map<String, Object>> registryMetacardInfo = new ArrayList<>();
+        try {
+            List<RegistryPackageType> registryMetacardObjects = Collections.singletonList(
+                    federationAdminService.getRegistryObjectByRegistryId(registryId));
+
+            List<Metacard> metacards = federationAdminService.getRegistryMetacardsByRegistryIds(
+                    Collections.singletonList(registryId));
+            Map<String, Metacard> metacardByRegistryIdMap = getRegistryIdMetacardMap(metacards);
+
+            registryMetacardInfo = getWebMapsFromRegistryPackages(registryMetacardObjects,
+                    metacardByRegistryIdMap);
+
+        } catch (FederationAdminException e) {
+            LOGGER.info("Couldn't get registry metacards ", e);
+        }
+
+        nodes.put(NODES_KEY, registryMetacardInfo);
+
+        return nodes;
+    }
+
+    @Override
+    public Map<String, Object> allRegistryMetacardsSummary() {
+        Map<String, Object> nodes = new HashMap<>();
+        if (!cacheInitialized) {
+            try {
+                federationAdminService.getRegistryMetacards()
+                        .stream()
+                        .forEach(metacard -> summaryCache.put(RegistryUtility.getRegistryId(metacard),
+                                getSummaryMap(metacard)));
+                cacheInitialized = true;
+            } catch (FederationAdminException e) {
+                LOGGER.info("Couldn't get remote registry metacards ", e);
+            }
+        }
+
+        if (customSlots != null) {
+            nodes.put(CUSTOM_SLOTS_KEY, customSlots);
+        }
+
+        Map<String, Object> autoPopulateMap = new HashMap<>();
+        autoPopulateMap.put(SERVICE_BINDINGS_KEY, endpointMap.values());
+        nodes.put(AUTO_POPULATE_VALUES_KEY, autoPopulateMap);
+
+        nodes.put(NODES_KEY, new ArrayList(summaryCache.values()));
+        return nodes;
+    }
+
+    private Map<String, Object> getSummaryMap(Metacard metacard) {
+        Map<String, Object> metacardSummary = new HashMap<>();
+        metacardSummary.put(SUMMARY_METACARD_ID, metacard.getId());
+        metacardSummary.put(SUMMARY_REGISTRY_ID, RegistryUtility.getRegistryId(metacard));
+        metacardSummary.put(SUMMARY_NAME, metacard.getTitle());
+        metacardSummary.put(Metacard.CREATED, metacard.getCreatedDate());
+        metacardSummary.put(Metacard.MODIFIED, metacard.getModifiedDate());
+        metacardSummary.put(SUMMARY_IDENTITY_NODE, RegistryUtility.isIdentityNode(metacard));
+        metacardSummary.put(SUMMARY_LOCAL_NODE, RegistryUtility.isLocalNode(metacard));
+        metacardSummary.put(SUMMARY_REPORT_ACTION, getReportAction(metacard));
+        return metacardSummary;
+    }
+
+    @Override
     public void regenerateRegistrySources(List<String> ids) {
         try {
-            for(String regId: ids) {
+            for (String regId : ids) {
                 sourceConfigRefresh.regenerateOneSource(regId);
             }
-        } catch (FederationAdminException e){
+        } catch (FederationAdminException e) {
             LOGGER.debug("Error regenerating registry sources.", e);
         }
     }
@@ -442,6 +553,21 @@ public class FederationAdmin implements FederationAdminMBean {
             }
         }
         return registryMaps;
+    }
+
+    private String getReportAction(Metacard metacard) {
+        String actionUrl = null;
+        if (registryActionProvider != null && registryActionProvider.canHandle(metacard)) {
+            actionUrl = registryActionProvider.getActions(metacard)
+                    .stream()
+                    .filter(e -> e.getId()
+                            .equals(REPORT_ACTION_PROVIDER_ID))
+                    .findFirst()
+                    .map(action -> action.getUrl()
+                            .toString())
+                    .orElse(null);
+        }
+        return actionUrl;
     }
 
     private Metacard getRegistryMetacardFromRegistryPackage(RegistryPackageType registryPackage)
@@ -573,7 +699,8 @@ public class FederationAdmin implements FederationAdminMBean {
         try {
             objectName = new ObjectName(FederationAdminMBean.OBJECT_NAME);
         } catch (MalformedObjectNameException e) {
-            LOGGER.info("Exception while creating object name: {}", FederationAdminMBean.OBJECT_NAME,
+            LOGGER.info("Exception while creating object name: {}",
+                    FederationAdminMBean.OBJECT_NAME,
                     e);
         }
 
@@ -676,5 +803,9 @@ public class FederationAdmin implements FederationAdminMBean {
 
     public void setSourceConfigRefresh(RegistrySourceConfiguration sourceConfigRefresh) {
         this.sourceConfigRefresh = sourceConfigRefresh;
+    }
+
+    public void setRegistryActionProvider(MultiActionProvider provider) {
+        this.registryActionProvider = provider;
     }
 }

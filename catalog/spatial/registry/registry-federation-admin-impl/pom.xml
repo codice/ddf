@@ -74,6 +74,10 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

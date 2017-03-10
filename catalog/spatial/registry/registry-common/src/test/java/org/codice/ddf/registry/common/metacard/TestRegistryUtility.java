@@ -33,6 +33,8 @@ import ddf.catalog.data.impl.MetacardImpl;
 
 public class TestRegistryUtility {
 
+    private static final String VALID_REGISTRY_ID = "urn:uuid:922145e890bb458696526a7550e3c0b0";
+
     private Metacard metacard;
 
     private ArrayList<String> tags = new ArrayList<>();
@@ -43,7 +45,7 @@ public class TestRegistryUtility {
             new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "");
 
     private Attribute registryIdAttribute =
-            new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "validRegistryId");
+            new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, VALID_REGISTRY_ID);
 
     private Attribute identityAttribute =
             new AttributeImpl(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE, true);
@@ -58,6 +60,15 @@ public class TestRegistryUtility {
         tagsAttribute = new AttributeImpl(Metacard.TAGS, tags);
 
         metacard.setAttribute(tagsAttribute);
+    }
+
+    @Test
+    public void testValidRegistryId() {
+        assertThat(RegistryUtility.validRegistryId(VALID_REGISTRY_ID), is(true));
+        assertThat(RegistryUtility.validRegistryId("aaaaaaaaa922145e890bb458696526a7550e3c0b0"), is(false));
+        assertThat(RegistryUtility.validRegistryId("urn:uuid:922145e890bb458696526a7550e3c0b"), is(false));
+        assertThat(RegistryUtility.validRegistryId("urn:uuid:922145e890bb458696526a7550e3c0b000"), is(false));
+        assertThat(RegistryUtility.validRegistryId("urn:uuid:922145e890bb45869652:$%550e3c0b0"), is(false));
     }
 
     @Test
@@ -118,7 +129,7 @@ public class TestRegistryUtility {
     @Test
     public void testGetRegistryId() {
         metacard.setAttribute(registryIdAttribute);
-        assertThat(RegistryUtility.getRegistryId(metacard), is("validRegistryId"));
+        assertThat(RegistryUtility.getRegistryId(metacard), is(VALID_REGISTRY_ID));
     }
 
     @Test
@@ -154,7 +165,7 @@ public class TestRegistryUtility {
         metacard.setAttribute(registryIdAttribute);
         assertThat(RegistryUtility.getStringAttribute(metacard,
                 RegistryObjectMetacardType.REGISTRY_ID,
-                null), is("validRegistryId"));
+                null), is(VALID_REGISTRY_ID));
     }
 
     @Test

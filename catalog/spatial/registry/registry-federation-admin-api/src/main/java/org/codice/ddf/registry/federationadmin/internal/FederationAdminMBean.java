@@ -99,6 +99,24 @@ public interface FederationAdminMBean {
      */
     Map<String, Object> allRegistryMetacards();
 
+
+    /**
+     * Returns a Map of {@code RegistryPackageType} object as converted using {@code RegistryPackageWebConverter}
+     * A map of the registry node identified by the given registry id.
+     * Additional information about the node is also included in the map.
+     * @param registryId The registry id of the node to retrieve.
+     * @return Map<String, Object>
+     */
+    Map<String, Object> registryMetacard(String registryId);
+
+    /**
+     * Returns a Map of node maps representing all registry entries which can be found in the returned map using
+     * the key 'nodes'. Additional information about the nodes/registry is also included in the map.
+     *
+     * @return Map<String, Object>
+     */
+    Map<String, Object> allRegistryMetacardsSummary();
+
     /**
      * Regenerates registry sources for the given registry-ids
      *
