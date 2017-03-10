@@ -14,16 +14,26 @@
 <div id="registry-modal"></div>
 <div id="nodeTables">
     <div id="node-operations">
+        <button class="btn btn-default refresh-button">Refresh Nodes</button>
         <button class="btn btn-default regenerate-sources">Regenerate Sources</button>
     </div>
     <div>
-        <h4 class="node-table-label">Local Identity Node</h4>
+        <label class="node-table-label">Local Identity Node</label>
+        {{#if waitingForData}}
+            <i class="fa fa-lg fa-spinner fa-spin loading" title="Loading..."></i>
+        {{/if}}
         <div id="localIdentityNodeRegion"></div>
 
-        <h4 class="node-table-label">Additional Local Nodes</h4>
+        <label class="node-table-label">Additional Local Nodes</label>
+        {{#if waitingForData}}
+            <i class="fa fa-lg fa-spinner fa-spin loading" title="Loading..."></i>
+        {{/if}}
         <div id="localAdditionalNodeRegion"></div>
 
-        <h4 class="node-table-label">Remote Nodes</h4>
+        <label class="node-table-label">Remote Nodes</label>
+        {{#if waitingForData}}
+            <i class="fa fa-lg fa-spinner fa-spin loading" title="Loading..."></i>
+        {{/if}}
         <div id="remoteNodeRegion"></div>
     </div>
 </div>
