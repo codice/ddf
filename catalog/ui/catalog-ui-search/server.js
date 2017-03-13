@@ -59,6 +59,8 @@ proxy.on('error', function (error) {
 });
 
 proxy.on('proxyRes', function (proxyRes, req, res) {
+    // remove so we can still login in through http
+    delete proxyRes.headers['x-xss-protection']
     var cookie = proxyRes.headers['set-cookie'];
     if (cookie !== undefined) {
         // force the cookie to be insecure since the proxy is over http
