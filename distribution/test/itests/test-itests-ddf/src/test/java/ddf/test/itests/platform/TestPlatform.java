@@ -54,6 +54,9 @@ public class TestPlatform extends AbstractIntegrationTest {
             // Start the services needed for testing.
             // We need to start the Search UI to test that it redirects properly
             getServiceManager().startFeature(true, "banana");
+
+            configureRestForGuest();
+            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());

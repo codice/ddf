@@ -636,4 +636,20 @@ public abstract class AbstractIntegrationTest {
     public static String getFileContent(String filePath, ImmutableMap<String, String> params) {
         return getFileContent(filePath, params, AbstractIntegrationTest.class);
     }
+
+    public void configureRestForGuest() throws Exception {
+        getSecurityPolicy().configureRestForGuest();
+    }
+
+    public void configureRestForBasic() throws Exception {
+        getSecurityPolicy().configureRestForBasic();
+    }
+
+    public void configureRestForGuest(String whitelist) throws Exception {
+        getSecurityPolicy().configureRestForGuest(whitelist);
+    }
+
+    public void configureRestForBasic(String whitelist) throws Exception {
+        getSecurityPolicy().configureRestForBasic(whitelist);
+    }
 }

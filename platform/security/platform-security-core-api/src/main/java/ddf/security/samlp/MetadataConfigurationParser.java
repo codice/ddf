@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
@@ -124,9 +125,10 @@ public class MetadataConfigurationParser {
                 LOGGER.warn(
                         "Retrieving metadata via HTTP instead of HTTPS. The metadata configuration is unsafe!!!");
             }
+            PropertyResolver propertyResolver = new PropertyResolver(entityDescription);
             HttpTransport httpTransport = new ApacheHttpTransport();
             HttpRequest httpRequest = httpTransport.createRequestFactory()
-                    .buildGetRequest(new GenericUrl(entityDescription));
+                    .buildGetRequest(new GenericUrl(propertyResolver.getResolvedString()));
             httpRequest.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(
                     new ExponentialBackOff()).setBackOffRequired(
                     HttpBackOffUnsuccessfulResponseHandler.BackOffRequired.ALWAYS));

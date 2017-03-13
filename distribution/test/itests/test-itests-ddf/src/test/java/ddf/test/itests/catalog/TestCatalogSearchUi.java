@@ -78,6 +78,9 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
             getServiceManager().startFeature(true, "ddf-itest-dependencies");
             getServiceManager().startFeature(true, "catalog-ui");
             getServiceManager().waitForHttpEndpoint(API_PATH.getUrl());
+
+            configureRestForGuest();
+            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());

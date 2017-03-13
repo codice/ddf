@@ -129,6 +129,11 @@
             <groupId>org.apache.karaf.jaas</groupId>
             <artifactId>org.apache.karaf.jaas.boot</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -171,7 +176,8 @@
                             httpclient;scope=!test,
                             httpcore,
                             google-http-client,
-                            opensaml-soap-impl
+                            opensaml-soap-impl,
+                            common-system
                         </Embed-Dependency>
                         <Export-Package>
                             ddf.security*;version=${project.version}

@@ -14,7 +14,6 @@
 package ddf.test.itests.platform;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
@@ -351,19 +350,11 @@ public class TestSecurity extends AbstractIntegrationTest {
     public void configurePDP() throws Exception {
     }
 
-    private void configureRestForGuest() throws Exception {
-        getSecurityPolicy().configureRestForGuest(SDK_SOAP_CONTEXT);
-    }
-
-    private void configureRestForBasic() throws Exception {
-        getSecurityPolicy().configureRestForBasic(SDK_SOAP_CONTEXT);
-    }
-
     @Test
     public void testGuestRestAccess() throws Exception {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-        configureRestForGuest();
+        configureRestForGuest(SDK_SOAP_CONTEXT);
 
         waitForSecurityHandlers(url);
 
@@ -404,12 +395,12 @@ public class TestSecurity extends AbstractIntegrationTest {
     public void testBasicRestAccess() throws Exception {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-        configureRestForBasic();
+        configureRestForBasic(SDK_SOAP_CONTEXT);
 
         waitForSecurityHandlers(url);
 
         //test that we get a 401 if no credentials are specified
-        waitForBasicAuthReady(url);
+        getSecurityPolicy().waitForBasicAuthReady(url);
         when().get(url)
                 .then()
                 .log()
@@ -466,8 +457,10 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testSamlFederatedAuth() throws Exception {
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
         String recordId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
-        configureRestForBasic();
+        configureRestForBasic(SDK_SOAP_CONTEXT);
 
         // Creating a new OpenSearch source with no username/password.
         // When an OpenSearch source attempts to authenticate without a username/password it will
@@ -482,7 +475,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         String openSearchQuery =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
         waitForSecurityHandlers(openSearchQuery);
-        waitForBasicAuthReady(openSearchQuery);
+        getSecurityPolicy().waitForBasicAuthReady(openSearchQuery);
         given().auth()
                 .basic("admin", "admin")
                 .when()
@@ -496,19 +489,19 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .body(hasXPath("//metacard/string[@name='" + Metacard.TITLE
                         + "']/value[text()='myTitle']"));
 
-        configureRestForGuest();
-        waitForGuestAuthReady(openSearchQuery);
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(openSearchQuery);
         deleteMetacard(recordId);
     }
 
     @Test
     public void testBasicFederatedAuth() throws Exception {
-        configureRestForGuest();
+        configureRestForGuest(SDK_SOAP_CONTEXT);
 
-        waitForGuestAuthReady(SERVICE_ROOT.getUrl());
+        getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
 
         String recordId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
-        configureRestForBasic();
+        configureRestForBasic(SDK_SOAP_CONTEXT);
 
         //Positive tests
         Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
@@ -529,7 +522,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         String openSearchQuery =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
         waitForSecurityHandlers(openSearchQuery);
-        waitForBasicAuthReady(openSearchQuery);
+        getSecurityPolicy().waitForBasicAuthReady(openSearchQuery);
         given().auth()
                 .basic("admin", "admin")
                 .when()
@@ -603,8 +596,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                         + "']/value[text()='myTitle']")));
                         */
 
-        configureRestForGuest();
-        waitForGuestAuthReady(openSearchQuery);
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(openSearchQuery);
         deleteMetacard(recordId);
     }
 
@@ -1109,7 +1102,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testSymmetricSoapPolicy() {
+    public void testSymmetricSoapPolicy() throws Exception {
         //verify that symmetric policy is observed indirectly by verifying that a security header with a signature was added to the response
         given().log()
                 .all()
@@ -1278,24 +1271,6 @@ public class TestSecurity extends AbstractIntegrationTest {
                 fail("Failed waiting for security handlers to become available.");
             }
         }
-    }
-
-    private void waitForBasicAuthReady(String url) {
-        expect("Waiting for basic auth").within(120, TimeUnit.SECONDS)
-                .checkEvery(1, TimeUnit.SECONDS)
-                .until(() -> when().get(url)
-                        .then()
-                        .extract()
-                        .statusCode() == 401);
-    }
-
-    private void waitForGuestAuthReady(String url) {
-        expect("Waiting for basic auth").within(120, TimeUnit.SECONDS)
-                .checkEvery(1, TimeUnit.SECONDS)
-                .until(() -> when().get(url)
-                        .then()
-                        .extract()
-                        .statusCode() == 200);
     }
 
     public String sendPermittedRequest(String jolokiaEndpoint) {
