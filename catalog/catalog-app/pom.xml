@@ -579,5 +579,10 @@
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>tika-bundle</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-metacardbackup</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
