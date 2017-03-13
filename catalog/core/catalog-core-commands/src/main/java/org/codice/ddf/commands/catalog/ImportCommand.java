@@ -197,12 +197,7 @@ public class ImportCommand extends CatalogCommands {
                 entry = zipInputStream.getNextEntry();
             }
         }
-        console.println("File imported successfully. Imported in: " + Duration.between(start,
-                Instant.now())
-                .toString()
-                .substring(2)
-                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
-                .toLowerCase());
+        console.println("File imported successfully. Imported in: " + getFormattedDuration(start));
         console.println("Number of metacards imported: " + metacards);
         console.println("Number of content imported: " + content);
         console.println("Number of derived content imported: " + derivedContent);

@@ -15,6 +15,8 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -134,5 +136,16 @@ public abstract class CatalogCommands extends SubjectCommands {
         }
         console.println();
         return builder;
+    }
+
+    protected String getFormattedDuration(Instant start) {
+        return getFormattedDuration(Duration.between(start, Instant.now()));
+    }
+
+    protected String getFormattedDuration(Duration duration) {
+        return duration.toString()
+                .substring(2)
+                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
+                .toLowerCase();
     }
 }

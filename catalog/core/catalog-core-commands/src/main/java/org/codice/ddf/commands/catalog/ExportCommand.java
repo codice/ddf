@@ -177,11 +177,8 @@ public class ExportCommand extends CqlCommands {
         console.println("Starting metacard export...");
         Instant start = Instant.now();
         List<ExportItem> exportedItems = doMetacardExport(zipFile, filter);
-        console.println("Metacards exported in: " + Duration.between(start, Instant.now())
-                .toString()
-                .substring(2)
-                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
-                .toLowerCase());
+        console.println("Metacards exported in: " + getFormattedDuration(start));
+
         console.println("Number of metacards exported: " + exportedItems.size());
         console.println();
 
@@ -194,11 +191,7 @@ public class ExportCommand extends CqlCommands {
         console.println("Starting content export...");
         start = Instant.now();
         List<ExportItem> exportedContentItems = doContentExport(zipFile, exportedItems);
-        console.println("Content exported in: " + Duration.between(start, Instant.now())
-                .toString()
-                .substring(2)
-                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
-                .toLowerCase());
+        console.println("Content exported in: " + getFormattedDuration(start));
         console.println("Number of content exported: " + exportedContentItems.size());
 
         console.println();
@@ -218,11 +211,7 @@ public class ExportCommand extends CqlCommands {
                     System.getProperty("javax.net.ssl.keyStorePassword"),
                     System.getProperty("javax.net.ssl.keyStore"),
                     System.getProperty("javax.net.ssl.keyStorePassword"));
-            console.println("zip file signed in: " + Duration.between(start, Instant.now())
-                    .toString()
-                    .substring(2)
-                    .replaceAll("(\\d[HMS])(?!$)", "$1 ")
-                    .toLowerCase());
+            console.println("zip file signed in: " + getFormattedDuration(start));
         }
         console.println("Export complete.");
         console.println("Exported to: " + zipFile.getFile()
@@ -335,7 +324,8 @@ public class ExportCommand extends CqlCommands {
             }
             writeToZip(zipFile, contentItem, resource);
             exportedContentItems.add(contentItem);
-            if (!contentItem.getMetacardTag().equals("revision")) {
+            if (!contentItem.getMetacardTag()
+                    .equals("revision")) {
                 for (String derivedUri : contentItem.getDerivedUris()) {
                     URI uri;
                     try {
@@ -349,8 +339,9 @@ public class ExportCommand extends CqlCommands {
 
                     ResourceResponse derivedResource;
                     try {
-                        derivedResource = catalogFramework.getLocalResource(new ResourceRequestByProductUri(
-                                uri));
+                        derivedResource =
+                                catalogFramework.getLocalResource(new ResourceRequestByProductUri(
+                                        uri));
                     } catch (IOException e) {
                         throw new CatalogCommandRuntimeException(
                                 "Unable to retrieve resource for " + contentItem.getId(), e);
@@ -400,8 +391,7 @@ public class ExportCommand extends CqlCommands {
             }
         }
 
-        console.println(
-                "Metacards and Content deleted in: " + Duration.between(start, Instant.now()));
+        console.println("Metacards and Content deleted in: " + getFormattedDuration(start));
         console.println("Number of metacards deleted: " + exportedItems.size());
         console.println("Number of content deleted: " + exportedContentItems.size());
     }
