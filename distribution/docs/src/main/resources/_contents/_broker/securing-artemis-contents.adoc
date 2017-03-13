@@ -1,0 +1,124 @@
+==== Introduction
+
+This section describes how to configure ${branding} and Artemis to perform authentication and
+authorization against an LDAP server.
+
+Artemis provides the ability to apply role-based security to queues based on addresses
+(see https://activemq.apache.org/artemis/docs/${artemis.version}/security.html[the Artemis documentation]
+for details). It can be configured to use an LDAP server to perform authentication and authorization
+for users who connect to it.
+
+IMPORTANT: If you are setting up multiple ${branding} instances in a cluster for high availability,
+then you will need to perform these steps on each instance.
+
+The ${ddf-security} STS LDAP Login and ${ddf-security} STS LDAP Claims Handler bundles are responsible
+for authenticating and authorizing users with your LDAP server. To configure them for your LDAP server,
+follow the instructions in <<${ddf-security} STS LDAP Login,${ddf-security} STS LDAP Login>> and
+<<${ddf-security} STS LDAP Claims Handler,${ddf-security} STS LDAP Claims Handler>>.
+
+include::${project.build.directory}/doc-contents/_ddf/docs-${ddf.version}/_security-framework/security-sts-ldap-login-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_ddf/docs-${ddf.version}/_security-framework/security-sts-ldap-claims-handler-contents.adoc[]
+
+==== Configuring Artemis
+
+After the above steps have been completed, `<${branding}_HOME>/etc/org.apache.activemq.artemis.cfg`
+needs to be updated to use the `ldap` realm (just change `domain=karaf` to `domain=ldap`):
+
+.<${branding}_HOME>/etc/org.apachc.activemq.artemis.cfg
+----
+domain=ldap
+----
+
+${branding} uses two roles in the security settings for Artemis: `manager` and `broker-client`.
+
+.<${branding}_HOME>/etc/artemis.xml
+[source,xml]
+----
+<security-setting match="#">
+    <permission type="createNonDurableQueue" roles="manager,broker-client"/>
+    <permission type="deleteNonDurableQueue" roles="manager,broker-client"/>
+    <permission type="createDurableQueue" roles="manager"/>
+    <permission type="deleteDurableQueue" roles="manager"/>
+    <permission type="consume" roles="manager,broker-client"/>
+    <permission type="browse" roles="manager,broker-client"/>
+    <permission type="send" roles="manager,broker-client"/>
+    <permission type="manage" roles="manager"/>
+</security-setting>
+----
+
+Users with the role `manager` have full permissions, but users with the role `broker-client` cannot
+create or delete durable queues or invoke management operations.
+
+Your LDAP should have groups that correspond to these roles so that members of those groups will have
+the correct permissions when connecting to Artemis to send or consume messages. Alternatively, you
+can choose roles other than `manager` and `broker-client`, which may be useful if your LDAP already
+has groups that you would like to use as Artemis roles. If you wish to use different roles, just
+replace `manager` and/or `broker-client` in the `<security-setting>` in `artemis.xml` with the roles
+you would like to use.
+
+==== Configuring ${branding}
+
+At this point, an `ldap` realm has been added and Artemis is using it for authentication and authorization,
+but ${branding} is still using the default security settings. The Web Context Policy Manager can be
+configured to use the same `ldap` realm to secure ${branding}.
+
+To get to the Web Context Policy Manager, open the ${admin-console} (${secure_url}/admin), select the
+*${ddf-security}* application, and click *Web Context Policy Manager* on the *Configuration* tab.
+
+include::${project.build.directory}/doc-contents/_ddf/docs-${ddf.version}/_securing/configuring-web-context-policy-manager-contents.adoc[leveloffset=+1]
+
+include::${project.build.directory}/doc-contents/_ddf/docs-${ddf.version}/_tables/org.codice.ddf.security.policy.context.impl.PolicyManager.adoc[]
+
+====== Additional Context Realm Details
+
+The default setting is `/=karaf`. The `karaf` realm refers to the `user.properties` user store file
+located in the `<${branding}_HOME>/etc` directory. This can be changed to `/=ldap`, if it is desired
+that the entire container be protected under ldap. If the `/admin` context is changed to something
+other than the default (`karaf`), it will be required that you refresh the page in order to log in
+again, or your changes may not be saved. This includes changing the root context to something other
+than `karaf`, without specifically setting `/admin` to a realm. The policies for all contexts will
+roll up, for example: the `/admin` context policy will roll up to the `karaf` realm with the default
+configuration because `/` is higher in the context hierarchy than `/admin` and no realm is
+specifically set for `/admin`.
+
+===== LDAP Admin Role Configuration
+
+${branding}'s admin role will default to `system-admin`. This can be configured to work with an external LDAP
+with a few minor changes.
+
+====== Update the Admin Role in `<${branding}_HOME>/etc/users.properties`
+
+Change `system-admin` to the new admin role for any users needing the new role. For example, if you
+already have a group in your LDAP that corresponds to an admin role, you can use that.
+
+.Example `user.properties` entries:
+[source]
+----
+admin=admin,group,admin,manager,viewer,system-admin,systembundles
+localhost=localhost,group,admin,manager,viewer,system-admin,system-history,systembundles
+----
+
+[NOTE]
+====
+A system restart is required for the changes to `users.properties` to take effect.
+====
+
+====== Update the Web Context Policy to Point to the New Admin Role
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* Application.
+. Select the *Configuration* tab.
+. Select the *Web Context Policy Manager*.
+. Update the entries under 'Required Attributes' to use the new admin role.
+
+===== Artemis Broker Connection Configuration
+
+The `Artemis Broker Connection Configuration` manages the parameters for ${branding}'s connection to
+Artemis. The username and password in the `Artemis Broker Connection Configuration` need to be updated
+so that they correspond to a user in your LDAP. If possible, this user should have the `manager` role
+(or the role that is being used in place of `manager` if the default Artemis role has been changed).
+
+To update the username and password, open the *${admin-console}* and select the *Sensor App* application.
+Click *Artemis Broker Connection Configuration* on the *Configuration* tab. Enter the username and
+password and click *Save changes*.

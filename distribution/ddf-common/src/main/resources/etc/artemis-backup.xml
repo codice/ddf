@@ -27,11 +27,10 @@
 
         <!-- this could be ASYNCIO or NIO -->
         <journal-type>ASYNCIO</journal-type>
-        <paging-directory>${ddf.home:.}/data/artemis/paging</paging-directory>
-        <bindings-directory>${ddf.home:.}/data/artemis/bindings</bindings-directory>
-        <journal-directory>${ddf.home:.}/data/artemis/journal</journal-directory>
-        <large-messages-directory>${ddf.home:.}/data/artemis/large-messages
-        </large-messages-directory>
+        <paging-directory>./data/artemis/paging</paging-directory>
+        <bindings-directory>./data/artemis/bindings</bindings-directory>
+        <journal-directory>./data/artemis/journal</journal-directory>
+        <large-messages-directory>./data/artemis/large-messages</large-messages-directory>
 
         <journal-datasync>true</journal-datasync>
 
@@ -89,18 +88,15 @@
 
         <ha-policy>
             <replication>
-                <master>
-                    <!--we need this for auto failback-->
-                    <check-for-live-server>true</check-for-live-server>
-                </master>
+                <slave/>
             </replication>
         </ha-policy>
 
         <!-- @formatter:off-->
         <!-- Connectors -->
         <connectors>
-            <connector name="netty-connector">tcp://${artemis.live.host}:${artemis.multiprotocol.port}</connector>
-            <connector name="netty-backup-connector">tcp://${artemis.backup.host}:${artemis.multiprotocol.port}</connector>
+            <connector name="netty-live-connector">tcp://${artemis.live.host}:${artemis.multiprotocol.port}</connector>
+            <connector name="netty-connector">tcp://${artemis.backup.host}:${artemis.multiprotocol.port}</connector>
             <connector name="vm-connector">vm://0</connector>
         </connectors>
 
@@ -123,7 +119,7 @@
                 <address>jms</address>
                 <connector-ref>netty-connector</connector-ref>
                 <static-connectors>
-                    <connector-ref>netty-backup-connector</connector-ref>
+                    <connector-ref>netty-live-connector</connector-ref>
                 </static-connectors>
             </cluster-connection>
         </cluster-connections>

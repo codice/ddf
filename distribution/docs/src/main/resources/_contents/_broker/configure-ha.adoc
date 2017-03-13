@@ -1,0 +1,78 @@
+The following sections describe how to configure two ${branding} broker installations to create a highly available cluster.
+
+==== Configuration Prerequisites
+
+Prior to making these configuration changes, follow the instructions in <<Installing ${branding},Installing ${branding}>> to install ${branding} on two physically separate hosts.
+
+==== Configuring ${branding} Broker to run in a Highly Available cluster
+The following sections will configure each of the ${branding} installations to point to each other in a live/backup server configuration. One server will have an additional step to be designated as the backup.
+
+===== Modify system.properties
+The `<${branding}_HOME>/etc/system.properties` in each of the installations needs to be updated so that the servers know about each other. The following properties need to have the values on the right side of the `=` updated.
+
+```
+artemis.live.host=<Hostname.or.ip.here>
+artemis.backup.host=<Hostname.or.ip.here>
+artemis.network.iplist=<Comma,separated,IPs>
+artemis.cluster.password=<Common password across all nodes>
+```
+
+IMPORTANT: `artemis.network.iplist` should contain a list of non-local IPs or host names that are not hosted on the same physical machine as either the live or backup machines. These IP addresses are pinged in the event of a network outage. If the backup cannot reach the live server but can successfully ping one of these hosts it will then take over as the live server. If the host list is incorrectly configured with a local IP it could break the cluster by causing both servers to go live. It is also recommended that the live server have the backups server's IP in its list and the backup server have the live server's IP in its list.
+
+==== Configuring a Backup Broker
+The installation that is going to be used as the backup needs to have an additional configuration change made so that it knows it's the backup. The `<${branding}_HOME>/etc/org.apache.activemq.artemis.cfg` should be modified to point to the provided `artemis-backup.xml` instead of `artemis.xml`. Once updated, the `config` value should look like this:
+
+```
+config=file:etc/artemis-backup.xml
+
+```
+
+==== Restart Servers
+If the ${branding} instances are currently running, stop and restart the backup and then the live server. Making sure the backup starts first ensures that the live server doesn't have any issues establishing the backup due to the backup being busy initializing. See <<Starting ${branding},Starting ${branding}>> for detailed steps.
+
+==== Verify Cluster Replication
+Once both servers are up and running the following command can be run in curl or a https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:type=Broker,brokerName=%22localhost%22,module=Core,serviceType=Server/ReplicaSync[browser] to verify that the servers have successfully synced.
+
+```sh
+curl https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:type=Broker,brokerName=%22localhost%22,module=Core,serviceType=Server/ReplicaSync --user admin:admin --insecure
+```
+.Example ReplicaSync json response
+[source,json]
+----
+{
+	"request": {
+		"mbean": "org.apache.activemq.artemis:brokerName=\"localhost\",module=Core,serviceType=Server,type=Broker",
+		"attribute": "ReplicaSync",
+		"type": "read"
+	},
+	"value": true,
+	"timestamp": 1485967446,
+	"status": 200
+}
+----
+IMPORTANT: If LDAP has been configured then the admin user and password for the above command will need to be changed.
+
+IMPORTANT: Note the `"value":true` field: if it is false, then the replication is still in progress or the logs should be consulted to see if there was an issue establishing a connection between the live and backup servers.
+
+Additionally, for more details about the health of the cluster the following command can be run in curl or a https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:type=Broker,brokerName=%22localhost%22,module=Core,serviceType=ClusterConnection,name=%22my-cluster%22/Topology[browser].
+
+```sh
+curl https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:type=Broker,brokerName=%22localhost%22,module=Core,serviceType=ClusterConnection,name=%22my-cluster%22/Topology --user admin:admin --insecure
+```
+This endpoint returns diagnostic info about the cluster that can be used for troubleshooting. Values of interest in the response are the `node=2` value which is a count of the nodes in the cluster and the port/host values for each node.
+
+.Example Topology json response for a cluster of 2
+[source,json]
+----
+{
+	"request": {
+		"mbean": "org.apache.activemq.artemis:brokerName=\"localhost\",module=Core,name=\"my-cluster\",serviceType=ClusterConnection,type=Broker",
+		"attribute": "Topology",
+		"type": "read"
+	},
+	"value": "topology on Topology@750c2a56[owner=ClusterConnectionImpl@228651110[nodeUUID=17b48db9-e7ee-11e6-9d56-38c986025a6f, connector=TransportConfiguration(name=netty-connector, factory=org-apache-activemq-artemis-core-remoting-impl-netty-NettyConnectorFactory) ?port=5672&host=10-101-3-185, address=jms, server=ActiveMQServerImpl::serverUUID=17b48db9-e7ee-11e6-9d56-38c986025a6f]]:\n\t17b48db9-e7ee-11e6-9d56-38c986025a6f => TopologyMember[id = 17b48db9-e7ee-11e6-9d56-38c986025a6f, connector=Pair[a=TransportConfiguration(name=netty-connector, factory=org-apache-activemq-artemis-core-remoting-impl-netty-NettyConnectorFactory) ?port=5672&host=10-101-3-185, b=TransportConfiguration(name=netty-connector, factory=org-apache-activemq-artemis-core-remoting-impl-netty-NettyConnectorFactory) ?port=5672&host=10-101-2-97], backupGroupName=null, scaleDownGroupName=null]\n\tnodes=2\tmembers=1",
+	"timestamp": 1485971158,
+	"status": 200
+}
+----
+

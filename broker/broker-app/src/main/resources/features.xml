@@ -1,0 +1,159 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+
+<!--
+     NOTE: This features XML file uses the Karaf "install" attribute to specify whether a feature
+     is automatically installed when an app's KAR file is hot deployed.
+
+     Description of the install attribute from the Karaf features XSD:
+
+     "Installation mode. Can be either manual or auto. Specifies whether the feature should be
+     automatically installed when dropped inside the deploy folder. Note: This attribute doesn't
+     affect feature descriptors that are installed from the command line or as part of the
+     org.apache.karaf.features.cfg."
+-->
+<features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <feature name='camel-sjms2' install="auto" version="${project.version}">
+        <feature prerequisite="true">camel-sjms</feature>
+        <bundle>mvn:org.apache.camel/camel-sjms2/${project.version}</bundle>
+    </feature>
+
+    <feature name="broker-undelivered-messages-ui" install="auto" version="${project.version">
+        <bundle>mvn:org.codice.ddf.broker.ui/broker-undelivered-messages-ui/${project.version}
+        </bundle>
+    </feature>
+
+    <feature name="broker-routemanager" install="manual" version="${project.version">
+        <bundle>mvn:org.codice.ddf.broker.routemanager/broker-routemanager/${project.version}
+        </bundle>
+    </feature>
+
+
+    <feature name="netty-core" install="manual" version="${netty.version}"
+             description="Netty libraries">
+        <bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-resolver/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-transport/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-buffer/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-codec/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-handler/${netty.version}</bundle>
+    </feature>
+
+    <feature name="artemis" install="manual" version="${artemis.version}"
+             description="Full ActiveMQ Artemis broker with default configuration">
+        <feature prerequisite="true">broker-adapter</feature>
+        <feature>artemis-core</feature>
+        <feature>artemis-openwire</feature>
+        <feature>artemis-amqp</feature>
+    </feature>
+
+    <feature name="artemis-core" install="manual" version="${artemis.version}"
+             description="ActiveMQ Artemis broker libraries">
+        <feature>transaction</feature>
+        <feature>netty-core</feature>
+        <feature>scr</feature>
+        <configfile finalname="etc/org.apache.activemq.artemis.cfg">
+            mvn:org.apache.activemq/artemis-features/${artemis.version}/cfg
+        </configfile>
+        <configfile finalname="etc/artemis.xml">
+            mvn:org.apache.activemq/artemis-features/${artemis.version}/xml/artemis
+        </configfile>
+
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms_2_spec.version}
+        </bundle>
+        <bundle>mvn:com.google.guava/guava/19.0</bundle>
+        <bundle>mvn:io.netty/netty-codec-http/${netty.version}</bundle>
+        <bundle>mvn:commons-beanutils/commons-beanutils/${commons-beanutils.version}</bundle>
+        <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+
+        <bundle>mvn:org.jboss.logging/jboss-logging/${jboss-logging.version}</bundle>
+        <bundle>mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
+
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-json_1.0_spec/${geronimo-json-spec.version}
+        </bundle>
+        <bundle>mvn:org.apache.johnzon/johnzon-core/${johnzon.version}</bundle>
+
+        <bundle>mvn:org.apache.activemq/artemis-native/${artemis.version}</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-server-osgi/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="artemis-amqp" install="manual" version="${artemis.version}"
+             description="ActiveMQ Artemis AMQP protocol libraries">
+        <feature prerequisite="true">wrap</feature>
+        <feature prerequisite="true">artemis-core</feature>
+        <bundle>wrap:mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
+        <bundle>wrap:mvn:org.apache.qpid/qpid-jms-client/${qpid-jms.version}</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-amqp-protocol/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="artemis-stomp" install="manual" version="${artemis.version}"
+             description="ActiveMQ Artemis Stomp protocol libraries">
+        <feature prerequisite="true">artemis-core</feature>
+        <bundle>mvn:org.apache.activemq/artemis-stomp-protocol/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="artemis-mqtt" install="manual" version="${artemis.version}"
+             description="ActiveMQ Artemis MQTT protocol libraries">
+        <feature prerequisite="true">artemis-core</feature>
+        <bundle>mvn:io.netty/netty-codec-mqtt/${netty.version}</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-mqtt-protocol/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="artemis-hornetq" install="manual" version="${artemis.version}"
+             description="ActiveMQ Artemis HornetQ protocol libraries">
+        <feature prerequisite="true">artemis-core</feature>
+        <bundle>mvn:org.apache.activemq/artemis-hqclient-protocol/${artemis.version}</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-hornetq-protocol/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="artemis-openwire" install="manual" version="${artemis.version}"
+             description="ActiveMQ Artemis HornetQ protocol libraries">
+        <feature prerequisite="true">artemis-core</feature>
+        <bundle>mvn:org.fusesource.hawtbuf/hawtbuf/1.11</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1</bundle>
+        <bundle>mvn:org.apache.activemq/artemis-openwire-protocol/${artemis.version}</bundle>
+    </feature>
+
+    <feature name="broker-adapter" install="manual" version="${project.version}"
+             description="Fragment used to integrate artemis with ddf">
+        <bundle>mvn:org.codice.ddf.broker/broker-adapter/${project.version}</bundle>
+    </feature>
+
+    <feature name="broker-connection-factory" install="manual" version="${project.version}"
+             description="Common jms connection factory configuration">
+        <feature prerequisite="true">artemis</feature>
+        <bundle>mvn:org.codice.ddf.broker.config/broker-connection-factory/${project.version}
+        </bundle>
+        <!-- workaround for everything after , in url being removed -->
+        <configfile finalname="etc/ActiveMQJMSClientFactoryWrapper.config">
+            mvn:ddf.broker/broker-app/${project.version}/config/activemqjmsclientfactorywrapper
+        </configfile>
+    </feature>
+
+    <feature name="broker-topic-logger" install="auto" version="${project.version}"
+             description="Common topic sample and throughput logger">
+        <feature prerequisite="true">broker-connection-factory</feature>
+        <feature prerequisite="true">camel-sjms</feature>
+        <bundle>mvn:org.codice.ddf.broker.logger/broker-topic-logger/${project.version}</bundle>
+    </feature>
+
+    <feature name="broker-app" install="auto" version="${project.version}" description="broker-app">
+        <feature prerequisite="true">broker-connection-factory</feature>
+    </feature>
+
+</features>

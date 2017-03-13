@@ -87,6 +87,8 @@ include::{adoc-include}/_installing/system-configuration-settings-contents.adoc[
 
 include::{adoc-include}/_installing/finish-page-contents.adoc[]
 
+include::{adoc-include}/_installing/firewall-config-contents.adoc[]
+
 == Configuring
 
 include::{adoc-include}/_configuring/configuring-intro-contents.adoc[]

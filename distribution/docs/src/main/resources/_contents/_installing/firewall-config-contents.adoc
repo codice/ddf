@@ -1,0 +1,23 @@
+=== Firewall configuration
+Below is a table listing all of the ports that ${branding} uses and a description of what they are used for. Firewalls will need to be configured to open these ports in order for external systems to communicate with ${branding}.
+
+.Port list
+[cols="1a,7a" options="header"]
+|===
+
+|Port
+|Usage description
+
+|8993
+|https access to ${branding} admin and search web pages.
+
+|8101
+|For administering ${branding} instances gives ssh access to the administration console.
+
+|61616
+|${branding} broker port for JMS messaging over the OpenWire protocol.
+
+|5672
+|${branding} broker port for JMS messaging over multiple protocols: Artemis CORE, AMQP and OpenWire by default .
+
+|===
