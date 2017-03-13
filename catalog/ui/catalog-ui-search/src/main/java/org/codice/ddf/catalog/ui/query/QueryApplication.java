@@ -87,6 +87,8 @@ public class QueryApplication implements SparkApplication {
         after("/cql", (req, res) -> {
             res.type(APPLICATION_JSON);
 
+            // Must manually check and set header for gzip because of spark issue
+            // https://github.com/perwendel/spark/issues/691
             Map<String, String> acceptEncodings =
                     parseAcceptEncodings(req.headers("Accept-Encoding"));
 
