@@ -97,11 +97,12 @@ public class UndeliveredMessagesTest {
     public void testGetMessagesWithNullChars()
             throws MalformedObjectNameException, OpenDataException, MBeanException,
             InstanceNotFoundException, ReflectionException {
+        byte[] bytes = new byte[] {
+                49, 50, 51, 52, 53, 50, 0, 51, 0, 52, 0, 53};
         when(mockMBeanServer.invoke(objectName,
                 BROWSE,
                 new Object[] {""},
-                new String[] {String.class.getName()})).thenReturn(createCompositeData(new byte[] {
-                49, 50, 51, 52, 53, 50, 0, 51, 0, 52, 0, 53}));
+                new String[] {String.class.getName()})).thenReturn(createCompositeData(bytes));
         List<CompositeData> undeliveredMessages = undeliveredMessagesService.getMessages(ADDRESS,
                 MODULE);
 
