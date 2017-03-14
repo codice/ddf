@@ -15,9 +15,13 @@ package ddf.security;
 
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -32,6 +36,8 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -220,5 +226,41 @@ public final class SubjectUtils {
                 .map(o -> (XSString) o)
                 .map(XSString::getValue)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves the security attributes for the given subject.
+     *
+     * @param subject the Subject to check
+     * @return Map of attributes with the collected values for each
+     */
+    public static Map<String, SortedSet<String>> getSubjectAttributes(Subject subject) {
+        if (subject == null) {
+            return Collections.emptyMap();
+        }
+
+        return subject.getPrincipals()
+                .byType(SecurityAssertion.class)
+                .stream()
+                .map(SecurityAssertion::getAttributeStatements)
+                .flatMap(Collection::stream)
+                .map(AttributeStatement::getAttributes)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(Attribute::getName,
+                        SubjectUtils::getAttributeValues,
+                        (acc, val) -> {
+                            acc.addAll(val);
+                            return acc;
+                        }));
+    }
+
+    private static SortedSet<String> getAttributeValues(
+            org.opensaml.saml.saml2.core.Attribute attribute) {
+        return attribute.getAttributeValues()
+                .stream()
+                .filter(XSString.class::isInstance)
+                .map(XSString.class::cast)
+                .map(XSString::getValue)
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 }

@@ -163,11 +163,11 @@ They are denoted with a *star* icon. (image:bookmarked-icon.png[]
 )
 
 .Bookmarked Result Options
-* *Add to Bookmarks*: Adds the result to your bookmarks.
-** Changes to *Remove from Bookmarks* for bookmarked items: Removes the result from your bookmarks.
+* *Add to Bookmarks*: Adds the result to bookmarks.
+** Changes to *Remove from Bookmarks* for bookmarked items: Removes the result from bookmarks.
 * *Hide from Future Searches*: Adds to a list of results that will be hidden from future searches.
 * *Expand Metacard View*: Navigates to a view that only focuses on this particular result.
-* *Download*: Downloads the result's associated product directly to your machine.
+* *Download*: Downloads the result's associated product directly to local machine.
 
 === Viewing Search Results
 
