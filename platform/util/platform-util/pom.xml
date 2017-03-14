@@ -68,7 +68,6 @@
                 <configuration>
                     <artifactSet>
                         <includes>
-                            <include>org.bouncycastle:bcprov-jdk15on</include>
                             <include>ddf.platform.util:platform-util</include>
                             <include>net.jodah:failsafe</include>
                         </includes>
