@@ -13,6 +13,8 @@
  */
 package ddf.security;
 
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -32,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -43,12 +46,14 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
@@ -194,6 +199,8 @@ public class SubjectUtilsTest {
                 .getPrincipals();
         doReturn(assertion).when(pc)
                 .oneByType(SecurityAssertion.class);
+        doReturn(ImmutableList.of(assertion)).when(pc)
+                .byType(SecurityAssertion.class);
         doReturn(Collections.singletonList(as)).when(assertion)
                 .getAttributeStatements();
         doReturn(attrs).when(as)
@@ -241,7 +248,7 @@ public class SubjectUtilsTest {
     public void testGetEmail() {
         final String email = "guest@localhost";
         Map<String, List<String>> attrs = ImmutableMap.of(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI,
-                Arrays.asList(email));
+                Collections.singletonList(email));
         Subject subject = getSubjectWithAttributes(attrs);
         assertThat(SubjectUtils.getEmailAddress(subject), is(email));
     }
@@ -250,5 +257,28 @@ public class SubjectUtilsTest {
     public void testGetEmailNull() {
         Subject subject = getSubjectWithAttributes(Collections.emptyMap());
         assertNull(SubjectUtils.getEmailAddress(subject));
+    }
+
+    @Test
+    public void testRetrieveAttributesNoSubject() throws Exception {
+        Map<String, SortedSet<String>> subjectAttributes = SubjectUtils.getSubjectAttributes(null);
+        assertThat(subjectAttributes.entrySet(), is(empty()));
+    }
+
+    @Test
+    public void testRetrieveAttributes() throws Exception {
+        final String key1 = "attr1";
+        final List<String> values1 = Arrays.asList("one", "two", "three");
+        final String key2 = "attr2";
+        final List<String> values2 = Arrays.asList("four", "five");
+        Map<String, List<String>> attrs = ImmutableMap.of(key1, values1, key2, values2);
+
+        Subject subject = getSubjectWithAttributes(attrs);
+
+        Map<String, SortedSet<String>> subjectAttributes =
+                SubjectUtils.getSubjectAttributes(subject);
+        assertThat(subjectAttributes.keySet(), hasItems("attr1", "attr2"));
+        assertThat(subjectAttributes.get("attr1"), CoreMatchers.hasItems("one", "two", "three"));
+        assertThat(subjectAttributes.get("attr2"), CoreMatchers.hasItems("four", "five"));
     }
 }
