@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,6 +35,9 @@ import javax.annotation.Nullable;
 
 import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,6 +97,22 @@ public class Historian {
     private List<MetacardType> metacardTypes;
 
     private FilterBuilder filterBuilder;
+
+    static {
+        Bundle bundle = FrameworkUtil.getBundle(Historian.class);
+        BundleContext context = bundle == null ? null : bundle.getBundleContext();
+        if (bundle == null || context == null) {
+            LOGGER.error("Could not get bundle to register history metacard types!");
+        } else {
+            context.registerService(MetacardType.class,
+                    MetacardVersionImpl.getMetacardVersionType(),
+                    new Hashtable<>());
+            context.registerService(MetacardType.class,
+                    DeletedMetacardImpl.getDeletedMetacardType(),
+                    new Hashtable<>());
+        }
+
+    }
 
     /**
      * Versions metacards being updated based off of the {@link Update#getOldMetacard} method on

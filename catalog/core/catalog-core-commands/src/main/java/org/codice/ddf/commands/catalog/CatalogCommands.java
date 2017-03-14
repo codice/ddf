@@ -15,6 +15,9 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.management.InstanceNotFoundException;
@@ -107,7 +110,42 @@ public abstract class CatalogCommands extends SubjectCommands {
             throws InvalidSyntaxException {
         return bundleContext.getServiceReferences(clazz, filter)
                 .stream()
-                .findFirst()
-                .map(ref -> bundleContext.getService(ref));
+                .map(ref -> bundleContext.getService(ref))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    protected StringBuilder getUserInputModifiable() throws IOException {
+        int in;
+        StringBuilder builder = new StringBuilder();
+        while ((in = session.getKeyboard()
+                .read()) != '\r') {
+            if (in == 127) {
+                if (builder.length() > 0) {
+                    builder.deleteCharAt(builder.length() - 1);
+                }
+                console.print((char) 8);
+                console.print(' ');
+                console.print((char) 8);
+
+            } else {
+                builder.append((char) in);
+                console.print((char) in);
+            }
+            console.flush();
+        }
+        console.println();
+        return builder;
+    }
+
+    protected String getFormattedDuration(Instant start) {
+        return getFormattedDuration(Duration.between(start, Instant.now()));
+    }
+
+    protected String getFormattedDuration(Duration duration) {
+        return duration.toString()
+                .substring(2)
+                .replaceAll("(\\d[HMS])(?!$)", "$1 ")
+                .toLowerCase();
     }
 }
