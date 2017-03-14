@@ -373,17 +373,17 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             public void configure() throws Exception {
                 StringBuilder stringBuilder = new StringBuilder();
                 // Configure the camel route to ignore changing files (larger files that are in the process of being copied)
-                // Set the readLockTimeout to continuously poll the directory so long as the directory monitor exists
+                // Set the readLockTimeout to 2 * readLockIntervalMilliseconds
                 // Set the readLockCheckInterval to check every readLockIntervalMilliseconds
+
                 stringBuilder.append("file:" + monitoredDirectory);
-                stringBuilder.append("?idempotent=true");
-                stringBuilder.append("&recursive=true");
+                stringBuilder.append("?recursive=true");
                 stringBuilder.append("&moveFailed=.errors");
 
                 /* ReadLock Configuration */
-                stringBuilder.append("&readLockMinLength=0");
+                stringBuilder.append("&readLockMinLength=1");
                 stringBuilder.append("&readLock=changed");
-                stringBuilder.append("&readLockTimeout=0");
+                stringBuilder.append("&readLockTimeout=" + (2 * readLockIntervalMilliseconds));
                 stringBuilder.append("&readLockCheckInterval=" + readLockIntervalMilliseconds);
 
                 /* File Exclusions */
