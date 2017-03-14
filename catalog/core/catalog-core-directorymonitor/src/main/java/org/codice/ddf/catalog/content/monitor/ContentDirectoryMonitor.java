@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -33,6 +34,7 @@ import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.FromDefinition;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
@@ -40,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.security.common.util.Security;
+
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
@@ -48,26 +51,22 @@ import net.jodah.failsafe.RetryPolicy;
  * automatically ingested when dropped into the specified monitored directory.
  */
 public class ContentDirectoryMonitor implements DirectoryMonitor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
-
-    private static final Logger INGEST_LOGGER =
-            LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
-
-    private String monitoredDirectory = null;
-
-    private String processingMechanism = DELETE;
-
     public static final String DELETE = "delete";
 
     public static final String MOVE = "move";
 
     public static final String IN_PLACE = "in_place";
 
-    private final CamelContext camelContext;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
 
-    private List<RouteDefinition> routeCollection;
+    private static final Logger INGEST_LOGGER =
+            LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
-    private Map<String, Serializable> attributeOverrides;
+    private static final int MAX_THREAD_SIZE = 8;
+
+    private static final int MIN_THREAD_SIZE = 1;
+
+    private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
 
     private final int maxRetries;
 
@@ -75,11 +74,19 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
     private final Executor configurationExecutor;
 
-    private static final int MAX_THREAD_SIZE = 8;
+    private final CamelContext camelContext;
 
-    private static final int MIN_THREAD_SIZE = 1;
+    private String monitoredDirectory = null;
 
-    private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
+    private String processingMechanism = DELETE;
+
+    private List<RouteDefinition> routeCollection;
+
+    private List<String> badFiles;
+
+    private List<String> badFileExtensions;
+
+    private Map<String, Serializable> attributeOverrides;
 
     private Integer numThreads;
 
@@ -117,6 +124,17 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         this.maxRetries = maxRetries;
         this.delayBetweenRetries = delayBetweenRetries;
         this.configurationExecutor = configurationExecutor;
+        setBlacklist();
+    }
+
+    private void setBlacklist() {
+        String badFileProperty = System.getProperty("bad.files");
+        String badFileExtensionProperty = System.getProperty("bad.file.extensions");
+        badFiles = StringUtils.isNotEmpty(badFileProperty) ?
+                Arrays.asList(badFileProperty.split("\\s*,\\s*")) :
+                null;
+        badFileExtensions = StringUtils.isNotEmpty(badFileExtensionProperty) ? Arrays.asList(
+                badFileExtensionProperty.split(",")) : null;
     }
 
     /**
@@ -223,10 +241,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             setProcessingMechanism((String) properties.get("processingMechanism"));
             setNumThreads((Integer) properties.get("numThreads"));
             setReadLockIntervalMilliseconds((Integer) properties.get("readLockIntervalMilliseconds"));
+
             String[] parameterArray = (String[]) properties.get(Constants.ATTRIBUTE_OVERRIDES_KEY);
             if (parameterArray != null) {
                 setAttributeOverrides(Arrays.asList(parameterArray));
             }
+
             init();
         }
     }
@@ -266,6 +286,27 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             valueList.add(keyValue[1]);
         }
         this.attributeOverrides = attributeOverrideMap;
+    }
+
+    private String getBlackListAsRegex() {
+        List<String> patterns = new ArrayList<>();
+
+        if (CollectionUtils.isNotEmpty(badFileExtensions)) {
+            patterns.addAll(badFileExtensions.stream()
+                    .map(s -> (".*" + s))
+                    .collect(Collectors.toList()));
+        }
+
+        if (CollectionUtils.isNotEmpty(badFiles)) {
+            patterns.addAll(badFiles.stream()
+                    .collect(Collectors.toList()));
+        }
+
+        if (CollectionUtils.isEmpty(patterns)) {
+            return null;
+        }
+
+        return String.join("|", patterns);
     }
 
     public List<RouteDefinition> getRouteDefinitions() {
@@ -330,35 +371,49 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
+                StringBuilder stringBuilder = new StringBuilder();
                 // Configure the camel route to ignore changing files (larger files that are in the process of being copied)
                 // Set the readLockTimeout to continuously poll the directory so long as the directory monitor exists
                 // Set the readLockCheckInterval to check every readLockIntervalMilliseconds
-                String inbox = "file:" + monitoredDirectory
-                        + "?idempotent=true&readLockMinLength=0&recursive=true&moveFailed=.errors&readLock=changed&readLockTimeout=0&readLockCheckInterval="
-                        + readLockIntervalMilliseconds;
+                stringBuilder.append("file:" + monitoredDirectory);
+                stringBuilder.append("?idempotent=true");
+                stringBuilder.append("&recursive=true");
+                stringBuilder.append("&moveFailed=.errors");
+
+                /* ReadLock Configuration */
+                stringBuilder.append("&readLockMinLength=0");
+                stringBuilder.append("&readLock=changed");
+                stringBuilder.append("&readLockTimeout=0");
+                stringBuilder.append("&readLockCheckInterval=" + readLockIntervalMilliseconds);
+
+                /* File Exclusions */
+                String exclusions = getBlackListAsRegex();
+                if (StringUtils.isNotBlank(exclusions)) {
+                    stringBuilder.append("&exclude=" + exclusions);
+                }
+
                 switch (processingMechanism) {
                 case DELETE:
-                    inbox += "&delete=true";
+                    stringBuilder.append("&delete=true");
                     break;
                 case MOVE:
-                    inbox += "&move=.ingested";
+                    stringBuilder.append("&move=.ingested");
                     break;
                 case IN_PLACE:
-                    inbox = "durable:" + monitoredDirectory;
+                    stringBuilder = new StringBuilder("durable:" + monitoredDirectory);
                     break;
                 }
-                LOGGER.trace("inbox = {}", inbox);
+                LOGGER.trace("inbox = {}", stringBuilder.toString());
 
-                RouteDefinition routeDefinition = from(inbox);
+                RouteDefinition routeDefinition = from(stringBuilder.toString());
 
                 if (attributeOverrides != null) {
                     routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY)
                             .constant(attributeOverrides);
                 }
                 if (IN_PLACE.equals(processingMechanism)) {
-                    routeDefinition.setHeader(Constants.STORE_REFERENCE_KEY,
-                            simple(String.valueOf(IN_PLACE.equals(processingMechanism)),
-                                    Boolean.class));
+                    routeDefinition.setHeader(Constants.STORE_REFERENCE_KEY, simple(String.valueOf(
+                            IN_PLACE.equals(processingMechanism)), Boolean.class));
                 }
 
                 LOGGER.trace("About to process scheme content:framework");

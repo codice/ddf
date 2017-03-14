@@ -72,6 +72,12 @@ To set multi-valued attributes, use a separate override for each value. For exam
 `*topic.keyword=PPI*` +
 `*topic.keyword=radiology*`
 
+.Blacklist
+The CDM blacklist uses the "bad.files" and "bad.file.extensions" properties from the system.properties file in "etc/" in order to prevent
+malicious or unwanted data from being ingested into DDF.  While the CDM automatically omits hidden files, this is particularly useful when
+an operating system automatically generates files that should not be ingested.  One such example of this is "thumbs.db" in Windows.
+This file type and any temporary files are included in the blacklist.
+
 .Errors
 If the CDM fails to read the file, an error will be logged in the ingest log. If the directory monitor is
 configured to *Delete* or *Move*, the original file is also moved to the `\.errors` directory.
