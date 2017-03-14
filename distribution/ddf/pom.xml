@@ -111,59 +111,46 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-docs</id>
+                        <!--
+                        The unpack needs to run in an earlier phase than the copy,
+                        due to a recurring bug in maven that causes plugins in the
+                        same lifecycle phase to run in orders other than that which
+                        they were declared in.
+
+                        See https://issues.apache.org/jira/browse/MNG-5799 as well
+                        as the related tickets for more details.
+                        -->
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ddf</groupId>
+                                    <artifactId>docs</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${setup.folder}/docs
+                                    </outputDirectory>
+                                    <overWrite>true</overWrite>
+                                    <classifier>docs-export</classifier>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
-        <profile>
-            <id>documentation</id>
-            <activation>
-                <property>
-                    <name>skipDocs</name>
-                    <value>!true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>copy-docs</id>
-                                <!--
-                                The unpack needs to run in an earlier phase than the copy,
-                                due to a recurring bug in maven that causes plugins in the
-                                same lifecycle phase to run in orders other than that which
-                                they were declared in.
-
-                                See https://issues.apache.org/jira/browse/MNG-5799 as well
-                                as the related tickets for more details.
-                                -->
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>ddf</groupId>
-                                            <artifactId>docs</artifactId>
-                                            <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs
-                                            </outputDirectory>
-                                            <overWrite>true</overWrite>
-                                            <classifier>docs-export</classifier>
-                                            <type>zip</type>
-                                        </artifactItem>
-                                    </artifactItems>
-                                    <overWriteSnapshots>true</overWriteSnapshots>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>release</id>
             <dependencies>
