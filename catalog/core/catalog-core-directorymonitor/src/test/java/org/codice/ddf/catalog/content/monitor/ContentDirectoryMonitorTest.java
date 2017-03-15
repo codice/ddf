@@ -338,7 +338,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
                 .getUri();
 
         String expectedUri = "file:" + monitoredDirectory
-                + "?idempotent=true&recursive=true&moveFailed=.errors&readLockMinLength=0&readLock=changed&readLockTimeout=0&readLockCheckInterval=1000";
+                + "?recursive=true&moveFailed=.errors&readLockMinLength=1&readLock=changed&readLockTimeout=2000&readLockCheckInterval=1000";
         if (ContentDirectoryMonitor.DELETE.equals(processingMechanism)) {
             expectedUri += "&delete=true";
         } else if (ContentDirectoryMonitor.MOVE.equals(processingMechanism)) {
