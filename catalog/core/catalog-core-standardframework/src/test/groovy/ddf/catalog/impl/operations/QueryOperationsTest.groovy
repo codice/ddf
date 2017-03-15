@@ -395,7 +395,13 @@ class QueryOperationsTest extends Specification {
         setup:
         def results = ['res1', 'res2', 'res3'].collect { mockResult(it, 'old_source') }
         def response = Mock(QueryResponse)
-        response.getRequest() >> { Mock(QueryRequest) }
+        def request = Mock(QueryRequest)
+        def query = Mock(Query)
+
+        query.getTimeoutMillis() >> { 100 }
+        request.getQuery() >> { query }
+
+        response.getRequest() >> { request }
         response.getProperties() >> { [:] }
         response.getResults() >> { results }
 
@@ -637,27 +643,39 @@ class QueryOperationsTest extends Specification {
     def 'test query with null fed strategy, one in framework properties, non empty sources'() {
         setup:
         def request = Mock(QueryRequest)
-        request.getProperties() >> [:]
-        request.query >> Mock(Query)
-        request.getSourceIds() >> { ['fed1', 'fed2'] }
-        frameworkProperties.federationStrategy = Mock(FederationStrategy)
+        def query = Mock(Query)
         def response = Mock(QueryResponse)
+
+        query.getTimeoutMillis() >> { 100 }
+        request.query >> { query }
+        request.getQuery() >> { query }
+        request.getProperties() >> [:]
+        request.getSourceIds() >> { ['fed1', 'fed2'] }
+        response.getRequest() >> { request }
         response.getResults() >> []
+        frameworkProperties.federationStrategy = Mock(FederationStrategy)
 
         when:
         queryOperations.query(request, null, false, false)
 
         then:
-        frameworkProperties.federationStrategy.federate(_, request) >> response
+        frameworkProperties.federationStrategy.federate(_, _) >> response
         notThrown(FederationException)
     }
 
     def 'ensure query request policy map populated'() {
         setup:
         def request = Mock(QueryRequest)
+        def query = Mock(Query)
+        def response = Mock(QueryResponse)
+
+        query.getTimeoutMillis() >> { 100 }
+        request.query >> { query }
+        request.getQuery() >> { query }
         request.getProperties() >> [:]
-        request.query >> Mock(Query)
         request.getSourceIds() >> { ['fed1', 'fed2'] }
+        response.getRequest() >> { request }
+        response.getResults() >> []
         frameworkProperties.federationStrategy = Mock(FederationStrategy)
 
         def policyResponse = Mock(PolicyResponse)
@@ -665,8 +683,6 @@ class QueryOperationsTest extends Specification {
 
         def policyPlugins = [Mock(PolicyPlugin), Mock(PolicyPlugin)]
         frameworkProperties.policyPlugins = policyPlugins
-        def response = Mock(QueryResponse)
-        response.getResults() >> []
 
         when:
         queryOperations.query(request, null, false, false)
@@ -676,9 +692,98 @@ class QueryOperationsTest extends Specification {
             1 * it.processPreQuery(request.query, _ as Map) >> policyResponse
             1 * opsSecurity.buildPolicyMap(_, _)
         }
-        frameworkProperties.federationStrategy.federate(_, request) >> response
+        frameworkProperties.federationStrategy.federate(_, _) >> response
     }
 
+    def 'ensure default timeout is used if negative set in query'() {
+        setup:
+        def request = Mock(QueryRequest)
+        def query = Mock(Query)
+        def response = Mock(QueryResponse)
+        def capturedQuery
+        frameworkProperties.federationStrategy = Mock(FederationStrategy)
+
+        queryOperations.setQueryTimeoutMillis(500)
+
+        query.getTimeoutMillis() >> { -100 }
+        request.query >> { query }
+        request.getQuery() >> { query }
+        request.getProperties() >> [:]
+        request.getSourceIds() >> { ['fed1', 'fed2'] }
+        response.getRequest() >> { request }
+        response.getResults() >> []
+        frameworkProperties.federationStrategy.federate(_, _) >> { sources, queryParam ->
+            capturedQuery = queryParam
+            response
+        }
+
+        when:
+        queryOperations.query(request, null, false, false)
+
+        then:
+        capturedQuery instanceof QueryRequest
+        capturedQuery.getQuery().getTimeoutMillis() == 500
+    }
+
+    def 'ensure default timeout is used if zero set in query'() {
+        setup:
+        def request = Mock(QueryRequest)
+        def query = Mock(Query)
+        def response = Mock(QueryResponse)
+        def capturedQuery
+        frameworkProperties.federationStrategy = Mock(FederationStrategy)
+
+        queryOperations.setQueryTimeoutMillis(500)
+
+        query.getTimeoutMillis() >> { 0 }
+        request.query >> { query }
+        request.getQuery() >> { query }
+        request.getProperties() >> [:]
+        request.getSourceIds() >> { ['fed1', 'fed2'] }
+        response.getRequest() >> { request }
+        response.getResults() >> []
+        frameworkProperties.federationStrategy.federate(_, _) >> { sources, queryParam ->
+            capturedQuery = queryParam
+            response
+        }
+
+        when:
+        queryOperations.query(request, null, false, false)
+
+        then:
+        capturedQuery instanceof QueryRequest
+        capturedQuery.getQuery().getTimeoutMillis() == 500
+    }
+
+    def 'ensure specified timeout is used from query'() {
+        setup:
+        def request = Mock(QueryRequest)
+        def query = Mock(Query)
+        def response = Mock(QueryResponse)
+        def capturedQuery
+        frameworkProperties.federationStrategy = Mock(FederationStrategy)
+
+        queryOperations.setQueryTimeoutMillis(500)
+
+        query.getTimeoutMillis() >> { 800 }
+        request.query >> { query }
+        request.getQuery() >> { query }
+        request.getProperties() >> [:]
+        request.getSourceIds() >> { ['fed1', 'fed2'] }
+        response.getRequest() >> { request }
+        response.getResults() >> []
+        frameworkProperties.federationStrategy.federate(_, _) >> { sources, queryParam ->
+            capturedQuery = queryParam
+            response
+        }
+
+        when:
+        queryOperations.query(request, null, false, false)
+
+        then:
+        capturedQuery instanceof QueryRequest
+        capturedQuery.getQuery().getTimeoutMillis() == 800
+    }
 
     private def mockCatalogProvider(def id) {
         def catProv = Mock(CatalogProvider)

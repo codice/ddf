@@ -52,6 +52,8 @@ public class CacheQueryFactory {
                     .getStartIndex());
             sourceQuery.setSortBy(input.getQuery()
                     .getSortBy());
+            sourceQuery.setTimeoutMillis(input.getQuery()
+                    .getTimeoutMillis());
             queryWithSources = new QueryRequestImpl(sourceQuery,
                     input.isEnterprise(),
                     input.getSourceIds(),

@@ -50,6 +50,8 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
     List<Result> resultList = null;
 
+    private long timeoutMillis = 30000;
+
     /**
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest)
      *
@@ -114,6 +116,11 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
         resultList = new ArrayList<Result>();
         if (closeResultQueue) {
             closeResultQueue();
+        }
+
+        if (request != null && request.getQuery() != null) {
+            timeoutMillis = request.getQuery()
+                    .getTimeoutMillis();
         }
     }
 
@@ -285,7 +292,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
     private Result handleTake() {
         Result result = null;
         try {
-            result = queue.take();
+            result = queue.poll(timeoutMillis, TimeUnit.MILLISECONDS);
             if (POISON_PILL_RESULT.equals(result)) {
                 result = null;
             }

@@ -56,7 +56,7 @@ A developer should consult a Source's documentation for the limitations, capabil
 |Determines whether the total number of results should be returned.
 
 |`TimeoutMillis`
-|The amount of time in milliseconds before the query is to be abandoned.
+|The amount of time in milliseconds before the query is to be abandoned. If a zero or negative timeout is set, the catalog framework will default to a value configurable via the Admin UI under Catalog -> Configuration -> Query Operations.
 
 |===
 
