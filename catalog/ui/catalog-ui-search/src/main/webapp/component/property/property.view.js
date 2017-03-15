@@ -84,6 +84,7 @@ define([
         revert: function(){
             this.onBeforeShow();
             this.$el.trigger('change');
+            this.$el.trigger('revert');
         },
         save: function(){
             var value = this.$el.find('input').val();

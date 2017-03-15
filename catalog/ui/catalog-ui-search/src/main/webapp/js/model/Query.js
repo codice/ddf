@@ -26,10 +26,11 @@ define([
         'js/CacheSourceSelector',
         'component/announcement',
         'js/CQLUtils',
-        'backboneassociations'
+        'component/singletons/user-instance',
+        'backboneassociations',
     ],
     function (Backbone, _, properties, moment, cql, wellknown, Metacard, Sources, usngs, wreqr, Common, CacheSourceSelector, announcement,
-            CQLUtils) {
+            CQLUtils, user) {
         "use strict";
         var Query = {};
 
@@ -292,6 +293,8 @@ define([
                         // already in correct format
                         break;
                 }
+                
+                data.count = user.get('user').get('preferences').get('resultCount');
 
                 data.sort = this.get('sortField') + ':' + this.get('sortOrder');
 
