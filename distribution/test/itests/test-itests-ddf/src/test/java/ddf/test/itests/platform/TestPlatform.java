@@ -17,11 +17,11 @@ package ddf.test.itests.platform;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -30,19 +30,18 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 
 import com.jayway.restassured.response.Response;
 
-
-
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestPlatform extends AbstractIntegrationTest {
 
-    private static final DynamicUrl BANANA_URL = new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT,
+    private static final DynamicUrl BANANA_URL = new DynamicUrl(DynamicUrl.SECURE_ROOT,
+            HTTPS_PORT,
             "/solr/banana");
 
-    private static final DynamicUrl LOGGING_SERVICE_JOLOKIA_URL = new DynamicUrl(
-            DynamicUrl.SECURE_ROOT,
-            HTTPS_PORT,
-            "/admin/jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents");
+    private static final DynamicUrl LOGGING_SERVICE_JOLOKIA_URL =
+            new DynamicUrl(DynamicUrl.SECURE_ROOT,
+                    HTTPS_PORT,
+                    "/admin/jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents");
 
     @BeforeExam
     public void beforeTest() throws Exception {
@@ -55,8 +54,7 @@ public class TestPlatform extends AbstractIntegrationTest {
             // We need to start the Search UI to test that it redirects properly
             getServiceManager().startFeature(true, "banana");
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
     }
 
@@ -82,7 +80,8 @@ public class TestPlatform extends AbstractIntegrationTest {
                 .statusCode(200)
                 .when()
                 .get(LOGGING_SERVICE_JOLOKIA_URL.getUrl());
-        
-        assertThat(response.getBody().asString(), not(isEmptyString()));
+
+        assertThat(response.getBody()
+                .asString(), not(isEmptyString()));
     }
 }

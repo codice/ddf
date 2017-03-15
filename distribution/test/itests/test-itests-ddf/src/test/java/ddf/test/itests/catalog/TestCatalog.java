@@ -92,6 +92,7 @@ import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -171,8 +172,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     features,
                     sessionFactory);
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
     }
 
@@ -1859,6 +1859,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         cdmProperties.putAll(getServiceManager().getMetatypeDefaults("content-core-directorymonitor",
                 "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
         cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
+        cdmProperties.put("processingMechanism", "delete");
         Configuration managedService = getServiceManager().createManagedService(
                 "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor",
                 cdmProperties);

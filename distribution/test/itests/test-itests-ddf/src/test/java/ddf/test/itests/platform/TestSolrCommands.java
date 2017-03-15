@@ -29,6 +29,7 @@ import org.apache.commons.io.FileUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.KarafConsole;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,10 +65,11 @@ public class TestSolrCommands extends AbstractIntegrationTest {
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-            console = new KarafConsole(getServiceManager().getBundleContext(), features, sessionFactory);
+            console = new KarafConsole(getServiceManager().getBundleContext(),
+                    features,
+                    sessionFactory);
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
     }
 
@@ -111,11 +113,12 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         // On run 3, backup C is created (backup A is deleted and backups B and C remain).
         console.runCommand(command);
         // Wait for the 3rd backup to replace the 1st backup
-        Set<File> thirdBackupDirSet = waitForFirstBackupDirToBeDeleted(CATALOG_CORE_NAME, firstBackupDirSet);
+        Set<File> thirdBackupDirSet = waitForFirstBackupDirToBeDeleted(CATALOG_CORE_NAME,
+                firstBackupDirSet);
 
         assertThat("Wrong number of backup directories kept. Number of backups found in "
-                + getSolrDataPath(CATALOG_CORE_NAME).getAbsolutePath() + " is : [" + thirdBackupDirSet.size()
-                + "]; Expected: [2].", thirdBackupDirSet, hasSize(2));
+                + getSolrDataPath(CATALOG_CORE_NAME).getAbsolutePath() + " is : ["
+                + thirdBackupDirSet.size() + "]; Expected: [2].", thirdBackupDirSet, hasSize(2));
 
         secondBackupDirSet.removeAll(firstBackupDirSet);
         assertTrue("Unexpected backup directories found on pass 3.",
@@ -135,7 +138,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
             backupDirs = getBackupDirectories(coreName);
         }
 
-        if(currentWaitTime >= timeout) {
+        if (currentWaitTime >= timeout) {
             fail("Timed out after " + timeout + " seconds waiting for correct number of backups in "
                     + getSolrDataPath(CATALOG_CORE_NAME).getAbsolutePath());
         }
@@ -153,8 +156,8 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         });
     }
 
-    private Set<File> waitForBackupDirsToBeCreated(String coreName, final int numberOfDirs, int pass)
-            throws InterruptedException {
+    private Set<File> waitForBackupDirsToBeCreated(String coreName, final int numberOfDirs,
+            int pass) throws InterruptedException {
         Set<File> backupDirs = waitFor(coreName, new Predicate<Set<File>>() {
             @Override
             public boolean apply(Set<File> backupDirs) {
@@ -194,7 +197,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
     private void cleanUpBackups(String coreName) {
         Set<File> backupDirs = getBackupDirectories(coreName);
-        for(File backupDir : backupDirs) {
+        for (File backupDir : backupDirs) {
             FileUtils.deleteQuietly(backupDir);
         }
     }

@@ -14,38 +14,31 @@
 
 package org.codice.ddf.configuration.admin;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang.Validate.notNull;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.nio.file.Paths;
 
-import javax.validation.constraints.NotNull;
-
+import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.io.monitor.FileAlterationListener;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Class that monitors changes to files with a specific extension in a directory.
  */
-public class ConfigurationFilesPoller implements Runnable {
+public class ConfigurationFilesPoller implements FileAlterationListener {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFilesPoller.class);
 
-    private final WatchService watchService;
+    public static final long POLLING_INTERVAL = 2000L;
 
-    private final ExecutorService executorService;
+    private FileAlterationMonitor watchService;
+
+    private FileAlterationObserver fileAlterationObserver;
 
     private final Path configurationDirectoryPath;
 
@@ -58,145 +51,100 @@ public class ConfigurationFilesPoller implements Runnable {
      *
      * @param configurationDirectoryPath directory to watch for changes
      * @param fileExtension              extension of of the files to watch
-     * @param watchService               watch service to use
-     * @param executorService            executor service used to create the watch thread
      */
-    public ConfigurationFilesPoller(@NotNull Path configurationDirectoryPath,
-            @NotNull String fileExtension, @NotNull WatchService watchService,
-            @NotNull ExecutorService executorService) {
+    public ConfigurationFilesPoller(Path configurationDirectoryPath, String fileExtension) {
         notNull(configurationDirectoryPath, "configurationDirectoryPath cannot be null");
         notNull(fileExtension, "fileExtension cannot be null");
-        notNull(watchService, "watchService cannot be null");
-        notNull(executorService, "executorService cannot be null");
 
         this.configurationDirectoryPath = configurationDirectoryPath;
-        this.watchService = watchService;
-        this.executorService = executorService;
         this.fileExtension = fileExtension;
     }
 
-    public void init() throws IOException {
-        LOGGER.debug("Starting {}...",
-                this.getClass()
-                        .getName());
-
-        try {
-            LOGGER.debug("Registering path [{}] with Watch Service.",
-                    configurationDirectoryPath.toString());
-            configurationDirectoryPath.register(watchService, ENTRY_CREATE);
-        } catch (IOException e) {
-            LOGGER.error("Unable to register path [{}] with Watch Service",
-                    configurationDirectoryPath.toString(),
-                    e);
-            throw e;
-        }
-
-        executorService.execute(this);
-    }
-
-    public void register(@NotNull ChangeListener listener) {
+    public void register(ChangeListener listener) {
         notNull(listener, "ChangeListener cannot be null");
         changeListener = listener;
-        processExistingConfigurationFiles();
+        fileAlterationObserver =
+                new FileAlterationObserver(configurationDirectoryPath.toAbsolutePath()
+                        .toString(), new SuffixFileFilter(fileExtension));
+        fileAlterationObserver.addListener(this);
+        watchService = new FileAlterationMonitor(POLLING_INTERVAL, fileAlterationObserver);
+        try {
+            watchService.start();
+        } catch (Exception e) {
+            logStackAndMessageSeparately(e,
+                    "Failed to start, 'Platform :: Migration' must be restarted: ");
+        }
+    }
+
+    protected void logStackAndMessageSeparately(Exception e, String s) {
+        LOGGER.debug(s, e);
+        LOGGER.warn(s + e.getMessage());
     }
 
     @Override
-    public void run() {
+    public void onStart(FileAlterationObserver fileAlterationObserver) {
+    }
+
+    @Override
+    public void onDirectoryCreate(File file) {
+    }
+
+    @Override
+    public void onDirectoryChange(File file) {
+    }
+
+    @Override
+    public void onDirectoryDelete(File file) {
+    }
+
+    @Override
+    public void onFileCreate(File file) {
         try {
-            WatchKey key;
+            String filename = file.getName();
+            LOGGER.debug("Watcher has been notified. Handling event for [{}].", filename);
 
-            while (!Thread.currentThread()
-                    .isInterrupted()) {
-                key = watchService.take(); // blocking
-                LOGGER.debug("Key has been signalled.  Looping over events.");
-
-                for (WatchEvent<?> genericEvent : key.pollEvents()) {
-                    WatchEvent.Kind<?> kind = genericEvent.kind();
-
-                    if (kind == OVERFLOW || kind == ENTRY_MODIFY || kind == ENTRY_DELETE) {
-                        LOGGER.debug("Skipping event [{}]", kind);
-                        continue;
-                    }
-
-                    Path filename = (Path) genericEvent.context();
-
-                    if (!filename.toString()
-                            .endsWith(fileExtension)) {
-                        LOGGER.debug(
-                                "Skipping event for [{}] due to unsupported file extension of [{}].",
-                                filename,
-                                fileExtension);
-                        continue; // just skip to the next event
-                    }
-
-                    if (changeListener != null) {
-                        // Sleeping before notifying the listener to make sure file is
-                        // done writing, otherwise the listener may read the file too soon.
-                        TimeUnit.SECONDS.sleep(1);
-                        LOGGER.debug("Notifying [{}] of event [{}] for file [{}].",
-                                changeListener.getClass()
-                                        .getName(),
-                                kind,
-                                configurationDirectoryPath.resolve(filename));
-                        changeListener.notify(configurationDirectoryPath.resolve(filename));
-                    }
-                }
-
-                // Reset key, shutdown watcher if directory not able to be observed
-                // (possibly deleted)
-                if (!key.reset()) {
-                    LOGGER.warn("Configurations in [{}] are no longer able to be observed.",
-                            configurationDirectoryPath.toString());
-                    break;
-                }
-            }
-        } catch (InterruptedException | RuntimeException e) {
-            LOGGER.debug("The [{}] was interrupted.",
-                    this.getClass()
+            waitForFileToBeCompletelyWritten(file);
+            LOGGER.debug("Notifying [{}] of creation for file [{}].",
+                    changeListener.getClass()
                             .getName(),
-                    e);
-            Thread.currentThread()
-                    .interrupt();
+                    file.getPath());
+            changeListener.notify(Paths.get(file.toURI()));
+        } catch (InterruptedException | RuntimeException e) {
+            logStackAndMessageSeparately(e, "Error parsing " + file.getName() + " : ");
         }
     }
 
-    public void destroy() {
-        try {
-            watchService.close();
-            executorService.shutdown();
-
-            if (!executorService.awaitTermination(10, SECONDS)) {
-                executorService.shutdownNow();
-
-                if (!executorService.awaitTermination(10, SECONDS)) {
-                    LOGGER.info("[{}] did not terminate correctly.", getClass().getName());
-                }
+    // for unit testing
+    void waitForFileToBeCompletelyWritten(File file) throws InterruptedException {
+        long fileSizeBefore = 0L;
+        long fileSizeAfter = 0L;
+        do {
+            fileSizeBefore = file.length();
+            doSleep();
+            fileSizeAfter = file.length();
+            // just in case it's a buffered write, since most default to flushing in powers of 2
+            if ((fileSizeAfter & -fileSizeAfter) == fileSizeAfter) {
+                doSleep();
+                fileSizeAfter = file.length();
             }
-        } catch (IOException | InterruptedException e) {
-            executorService.shutdownNow();
-            Thread.currentThread()
-                    .interrupt();
-        }
+            LOGGER.debug("comparing file size " + fileSizeBefore + " with " + fileSizeAfter);
+        } while (fileSizeBefore != fileSizeAfter);
     }
 
-    private void processExistingConfigurationFiles() {
-        Predicate<Path> configurationFiles = ((Predicate<Path>) path -> !path.toFile()
-                .isDirectory()).and(path -> path.getFileName()
-                .endsWith(fileExtension));
-
-        try {
-            getExistingFiles().filter(configurationFiles)
-                    .forEach(p -> changeListener.notify(configurationDirectoryPath.resolve(p)));
-        } catch (IOException e) {
-            LOGGER.warn("Error initializing directory contents in {} with extension {}",
-                    configurationDirectoryPath,
-                    fileExtension,
-                    e);
-        }
+    // for unit testing
+    void doSleep() throws InterruptedException {
+        Thread.sleep(POLLING_INTERVAL);
     }
 
-    // For unit testing purposes
-    Stream<Path> getExistingFiles() throws IOException {
-        return Files.walk(configurationDirectoryPath);
+    @Override
+    public void onFileChange(File file) {
+    }
+
+    @Override
+    public void onFileDelete(File file) {
+    }
+
+    @Override
+    public void onStop(FileAlterationObserver fileAlterationObserver) {
     }
 }
