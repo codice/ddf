@@ -111,27 +111,27 @@
         <!-- Javadoc -->
         <fileSet>
             <directory>${setup.folder}/catalog_api_javadoc</directory>
-            <outputDirectory>/docs/sdk/catalog_api_javadoc</outputDirectory>
+            <outputDirectory>/documentation/javadoc/catalog_api_javadoc</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${setup.folder}/mime_api_javadoc</directory>
-            <outputDirectory>/docs/sdk/mime_api_javadoc</outputDirectory>
+            <outputDirectory>/documentation/javadoc/mime_api_javadoc</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${setup.folder}/content_api_javadoc</directory>
-            <outputDirectory>/docs/sdk/content_api_javadoc</outputDirectory>
+            <outputDirectory>/documentation/javadoc/content_api_javadoc</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${setup.folder}/action_api_javadoc</directory>
-            <outputDirectory>/docs/sdk/action_api_javadoc</outputDirectory>
+            <outputDirectory>/documentation/javadoc/action_api_javadoc</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${setup.folder}/security_api_javadoc</directory>
-            <outputDirectory>/docs/sdk/security_api_javadoc</outputDirectory>
+            <outputDirectory>/documentation/javadoc/security_api_javadoc</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${setup.folder}/encryption_api_javadoc</directory>
-            <outputDirectory>/docs/sdk/encryption_api_javadoc</outputDirectory>
+            <outputDirectory>/documentation/javadoc/encryption_api_javadoc</outputDirectory>
         </fileSet>
 
         <!-- Console Branding -->
