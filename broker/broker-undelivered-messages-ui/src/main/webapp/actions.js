@@ -9,24 +9,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import store from './store'
-
 export const checkMessage = (id) => ({type: 'CHECK_MESSAGE', id})
-
 export const checkAllMessages = (checked) => ({type: 'CHECK_ALL_MESSAGES', checked})
-
 export const addMessage = (message) => ({type: 'ADD_MESSAGE', message})
-
 export const removeMessages = (ids) => ({type: 'REMOVE_MESSAGES', ids})
-
-export const clearMessages = () => ({type: 'CLEAR_MESSAGES'})
-
 export const togglePolling = (id) => ({type: 'TOGGLE_POLLING', id})
-
 export const expandMessage = (id) => ({type: 'EXPAND_MESSAGE', id})
-
 export const expandAllMessages = (expanded) => ({type: 'EXPAND_ALL_MESSAGES', expanded})
-
 export const updateDeleted = (num) => ({type: 'UPDATE_DELETED', num})
-
-export default (action) => store.dispatch(action)

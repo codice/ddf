@@ -9,26 +9,24 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from "react"
+import React from 'react'
 import RowView from './row.view'
-import CheckBox from './checkbox.view'
-import dispatch, {checkAllMessages} from './actions'
+import store from './store'
+import {checkAllMessages} from './actions'
 
-export default ({data, checked}) => {
-    return (
-        <table>
-            <thead>
-            <tr>
-                <th><CheckBox checked={checked}
-                              onChange={() => dispatch(checkAllMessages(!checked))}/>
-                </th>
-                <th>Time Stamp</th>
-                <th>Message</th>
-            </tr>
-            </thead>
-            <tbody>
-            {data.map((n, i) => <RowView {...n} key={i}/>)}
-            </tbody>
-        </table>
-    )
-}
+export default ({data, checked}) => (
+  <table>
+    <thead>
+      <tr>
+        <th>
+          <input type='checkbox' checked={checked} onChange={() => store.dispatch(checkAllMessages(!checked))} />
+        </th>
+        <th>Time Stamp</th>
+        <th>Message</th>
+      </tr>
+    </thead>
+    <tbody>
+      {data.map((n, i) => <RowView {...n} key={i} />)}
+    </tbody>
+  </table>
+)

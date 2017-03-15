@@ -119,6 +119,6 @@ Artemis. The username and password in the `Artemis Broker Connection Configurati
 so that they correspond to a user in your LDAP. If possible, this user should have the `manager` role
 (or the role that is being used in place of `manager` if the default Artemis role has been changed).
 
-To update the username and password, open the *${admin-console}* and select the *Sensor App* application.
+To update the username and password, open the *${admin-console}* and select the *Broker App* application.
 Click *Artemis Broker Connection Configuration* on the *Configuration* tab. Enter the username and
 password and click *Save changes*.

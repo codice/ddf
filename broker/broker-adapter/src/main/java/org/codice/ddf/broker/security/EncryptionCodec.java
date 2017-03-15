@@ -28,24 +28,18 @@ public class EncryptionCodec implements SensitiveDataCodec<String> {
     EncryptionService encryptionService;
 
     @Override
-    public String decode(Object o) throws Exception {
-        if (getEncryptionService() == null) {
-            return o.toString();
-        }
+    public String decode(Object o) {
         return getEncryptionService().decryptValue(o.toString());
     }
 
     @Override
-    public String encode(Object o) throws Exception {
-        if (getEncryptionService() == null) {
-            return o.toString();
-        }
+    public String encode(Object o) {
         return getEncryptionService().encrypt(o.toString());
     }
 
     @Override
-    public void init(Map<String, String> map) throws Exception {
-        encryptionService = getEncryptionService();
+    public void init(Map<String, String> map) {
+        getEncryptionService();
     }
 
     private EncryptionService getEncryptionService() {
@@ -56,7 +50,11 @@ public class EncryptionCodec implements SensitiveDataCodec<String> {
         BundleContext context = getBundleContext();
         ServiceReference<EncryptionService> securityManagerRef = context.getServiceReference(
                 EncryptionService.class);
-        return context.getService(securityManagerRef);
+        encryptionService = context.getService(securityManagerRef);
+        if (encryptionService == null) {
+            throw new NullPointerException("Encryption service reference cannot be null.");
+        }
+        return encryptionService;
     }
 
     private BundleContext getBundleContext() {

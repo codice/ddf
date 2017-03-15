@@ -24,7 +24,7 @@
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <!--
-     This is a common connection factory if a service needs specific options, its best not to
+     This is a common connection factory if a service needs specific options, it's best not to
      modify this and instead create its own instance of the factory. Its also good to note that this
      is NOT a pooled connection factory which could cause starvation issues if a consumer and producer
      were sharing the same pool.

@@ -27,10 +27,11 @@
 
         <!-- this could be ASYNCIO or NIO -->
         <journal-type>ASYNCIO</journal-type>
-        <paging-directory>./data/artemis/paging</paging-directory>
-        <bindings-directory>./data/artemis/bindings</bindings-directory>
-        <journal-directory>./data/artemis/journal</journal-directory>
-        <large-messages-directory>./data/artemis/large-messages</large-messages-directory>
+        <paging-directory>${ddf.home:.}/data/artemis/paging</paging-directory>
+        <bindings-directory>${ddf.home:.}/data/artemis/bindings</bindings-directory>
+        <journal-directory>${ddf.home:.}/data/artemis/journal</journal-directory>
+        <large-messages-directory>${ddf.home:.}/data/artemis/large-messages
+        </large-messages-directory>
 
         <journal-datasync>true</journal-datasync>
 
@@ -59,9 +60,11 @@
         <network-check-list>${artemis.network.iplist}</network-check-list>
 
         <!-- use this to customize the ping used for ipv4 addresses -->
+        <!-- this will need to be updated to `ping -n %d %s`  on windows -->
         <!-- <network-check-ping-command>ping -c 1 -t %d %s</network-check-ping-command> -->
 
         <!-- use this to customize the ping used for ipv6 addresses -->
+        <!-- this will need to be updated to `ping -n %d %s`  on windows -->
         <!-- <network-check-ping6-command>ping6 -c 1 %2$s</network-check-ping6-command> -->
 
 
@@ -108,7 +111,7 @@
 
             <acceptor name="openwire">tcp://0.0.0.0:${artemis.openwire.port}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};protocols=OPENWIRE</acceptor>
             <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
-            <acceptor name="amqp">tcp://0.0.0.0:${artemis.amqp.port}??sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};protocols=AMQP</acceptor>
+            <acceptor name="amqp">tcp://0.0.0.0:${artemis.amqp.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};protocols=AMQP</acceptor>
 
             <acceptor name="vm">vm://0</acceptor>
         </acceptors>

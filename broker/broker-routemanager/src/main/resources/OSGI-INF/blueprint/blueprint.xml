@@ -48,7 +48,7 @@
           init-method="init"
           destroy-method="destroy">
         <argument ref="routedeployer-context"/>
-        <argument value="$[karaf.home]/etc/routes"/>
     </bean>
+    <service ref="dynamicRouteDeployer" interface="org.apache.felix.fileinstall.ArtifactInstaller"/>
 
 </blueprint>

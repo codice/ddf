@@ -23,11 +23,11 @@ import ddf.security.encryption.EncryptionService;
 
 public class ActiveMQJMSClientFactoryWrapper {
 
-    EncryptionService encryptionService;
+    private final EncryptionService encryptionService;
 
     private String url;
 
-    private String name = "common-broker-config";
+    private String name = "broker-connection-factory";
 
     private String username;
 

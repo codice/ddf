@@ -107,6 +107,9 @@
                                 <descriptor>
                                     mvn:org.apache.karaf.features/enterprise/${karaf.version}/xml/features
                                 </descriptor>
+                                <descriptor>
+                                    mvn:org.codice.ddf.broker/broker-app/${project.version}/xml/features
+                                </descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
                         </configuration>
@@ -344,7 +347,7 @@
             <type>xml</type>
         </dependency>
         <dependency>
-            <groupId>ddf.broker</groupId>
+            <groupId>org.codice.ddf.broker</groupId>
             <artifactId>broker-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>

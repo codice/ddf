@@ -1,3 +1,4 @@
+<!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,10 +10,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from "react"
-
-export default ({checked, onChange}) => (
-    <input type="checkbox" checked={ checked }
-           onChange={ onChange }/>
-
-)
+-->
+<routes xmlns="http://camel.apache.org/schema/spring">
+    <route id="sdk-example-router">
+        <from uri="sjms:jms.queue.sdk.example"/>
+        <to uri="sjms:topic:jms.topic.sdk.example"/>
+    </route>
+</routes>

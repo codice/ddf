@@ -9,31 +9,29 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from "react"
+import React from 'react'
 import moment from 'moment'
-import CheckBox from './checkbox.view'
-import dispatch, {expandMessage, checkMessage} from './actions'
+import store from './store'
+import {expandMessage, checkMessage} from './actions'
 
-export default ({checked, id, timestamp, message, expanded}) => {
-    return (
-        <tr
-            className={checked ? "highlighted" : "not-highlighted"}
-            onClick={() => dispatch(checkMessage(id))}>
-            <td><CheckBox checked={checked}/></td>
-            <td>{moment(timestamp).format("hh:mm:ss, DD MMM YYYY")}</td>
-            <td>
-                <div>Current Address: {message.address}</div>
-                <div>Original Address: {message.origin}</div>
-                <div>Id : {id}</div>
-                <p/>
-                <div className={(expanded ? "expanded" : "not-expanded")}
-                     onClick={(event) => {
-                         event.stopPropagation()
-                         dispatch(expandMessage(id))
-                     }}> {(expanded ? String.fromCharCode('9660') : String.fromCharCode('9654'))}
-                    &nbsp;&nbsp;Message
-                    Body: {JSON.parse(JSON.stringify(message.messageBody, null, 2))}</div>
-            </td>
-        </tr>
-    )
-}
+export default ({checked, id, timestamp, message, expanded}) => (
+  <tr className={checked ? 'highlighted' : 'not-highlighted'}
+    onClick={() => store.dispatch(checkMessage(id))}>
+    <td><input type='checkbox' checked={checked} /></td>
+    <td>{moment(timestamp).format('hh:mm:ss, DD MMM YYYY')}</td>
+    <td>
+      <div>Current Address: {message.address}</div>
+      <div>Original Address: {message.origin}</div>
+      <div>Id : {id}</div>
+      <div className={(expanded ? 'expanded' : 'not-expanded')}
+        onClick={(event) => {
+          event.stopPropagation()
+          store.dispatch(expandMessage(id))
+        }}>
+        {(expanded ? String.fromCharCode('9660') : String.fromCharCode('9654'))}
+        Message
+        Body: {JSON.parse(JSON.stringify(message.messageBody, null, 2))}
+      </div>
+    </td>
+  </tr>
+)

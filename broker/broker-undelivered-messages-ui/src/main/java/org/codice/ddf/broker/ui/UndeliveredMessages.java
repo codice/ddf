@@ -35,7 +35,6 @@ import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +67,7 @@ public class UndeliveredMessages implements UndeliveredMessagesMBean {
                 GET_MESSAGES_OPERATION,
                 new Object[] {""},
                 new String[] {String.class.getName()});
-        if (compositeDatas == null || !(compositeDatas instanceof CompositeData[])) {
+        if (!(compositeDatas instanceof CompositeData[])) {
             return undeliveredMessages;
         }
         CompositeData[] messages = (CompositeData[]) compositeDatas;
@@ -157,15 +156,7 @@ public class UndeliveredMessages implements UndeliveredMessagesMBean {
     }
 
     private String removeNullCharacters(String message) {
-        List<Byte> byteList = new ArrayList<>();
-        byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
-        for (byte b : bytes) {
-            if (b != 0) {
-                byteList.add(b);
-            }
-        }
-        return new String(ArrayUtils.toPrimitive(byteList.toArray(new Byte[byteList.size()])),
-                StandardCharsets.UTF_8);
+        return message.replace("\0", "");
     }
 
     private Object invokeMbean(ObjectName objectName, String operationName, Object[] argumentValues,

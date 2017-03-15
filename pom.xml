@@ -158,6 +158,7 @@
         <ddf-catalog>Catalog</ddf-catalog>
         <ddf-geowebcache>GeoWebCache</ddf-geowebcache>
         <ddf-platform>Platform</ddf-platform>
+        <ddf-broker>Broker</ddf-broker>
         <ddf-registry>Registry</ddf-registry>
         <ddf-resource-management>Resource Management</ddf-resource-management>
         <ddf-security>Security</ddf-security>
