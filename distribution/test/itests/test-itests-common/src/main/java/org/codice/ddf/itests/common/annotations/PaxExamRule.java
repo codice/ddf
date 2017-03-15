@@ -17,6 +17,7 @@ import static org.junit.Assert.fail;
 
 import java.lang.annotation.Annotation;
 
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -41,10 +42,10 @@ public class PaxExamRule implements TestRule {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaxExamRule.class);
 
-    public static final String BEFORE_EXAM_FAILURE_MESSAGE = "Failed to setup exam for %s: %s";
+    public static final String BEFORE_EXAM_FAILURE_MESSAGE = "Failed to setup exam for %s: ";
 
     public static final String AFTER_EXAM_FAILURE_MESSAGE =
-            "Failed to run AfterExam annotation(s) for %s: %s";
+            "Failed to run AfterExam annotation(s) for %s: ";
 
     public static final String EXAM_SETUP_FAILED_MESSAGE = "Exam setup failed";
 
@@ -90,7 +91,7 @@ public class PaxExamRule implements TestRule {
             runAnnotations(PostTestConstruct.class, testClass);
         } catch (Throwable throwable) {
             setupFailed = true;
-            fail(String.format(BEFORE_EXAM_FAILURE_MESSAGE, testClassName, throwable.getMessage()));
+            failRule(testClassName, throwable, BEFORE_EXAM_FAILURE_MESSAGE);
         }
 
         if (firstRun) {
@@ -103,13 +104,16 @@ public class PaxExamRule implements TestRule {
             } catch (Throwable throwable) {
                 setupFailed = true;
                 LOGGER.error("Failed to setup " + testClassName, throwable);
-                fail(String.format(BEFORE_EXAM_FAILURE_MESSAGE,
-                        testClassName,
-                        throwable.getMessage()));
+                failRule(testClassName, throwable, BEFORE_EXAM_FAILURE_MESSAGE);
             }
         }
 
         LOGGER.info("Starting {} ({}/{})", description.getMethodName(), testsExecuted, testCount);
+    }
+
+    private void failRule(String testClassName, Throwable throwable, String failureMessage) {
+        LoggingUtils.failWithThrowableStacktrace(throwable,
+                String.format(failureMessage, testClassName));
     }
 
     private void finished(Description description) {
@@ -123,9 +127,7 @@ public class PaxExamRule implements TestRule {
             try {
                 runAnnotations(AfterExam.class, new TestClass(description.getTestClass()));
             } catch (Throwable throwable) {
-                fail(String.format(AFTER_EXAM_FAILURE_MESSAGE,
-                        testClassName,
-                        throwable.getMessage()));
+                failRule(testClassName, throwable, AFTER_EXAM_FAILURE_MESSAGE);
             }
             LOGGER.info("Finished test(s) for {}", testClassName);
         }

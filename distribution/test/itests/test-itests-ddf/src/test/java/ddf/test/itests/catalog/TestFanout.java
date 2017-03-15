@@ -34,6 +34,7 @@ import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,8 +72,7 @@ public class TestFanout extends AbstractIntegrationTest {
             configureRestForGuest();
             getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
     }
 
@@ -85,8 +85,7 @@ public class TestFanout extends AbstractIntegrationTest {
         try {
             getCatalogBundle().waitForCatalogProvider();
         } catch (Exception e) {
-            LOGGER.error("Failed in @Before ", e);
-            fail("Failed in @Before: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @Before: ");
         }
     }
 

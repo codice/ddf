@@ -92,6 +92,7 @@ import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -179,8 +180,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             configureRestForGuest();
             getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
     }
 
@@ -198,8 +198,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testCreateStorage() throws IOException {
         String fileName = testName.getMethodName() + ".jpg";
-        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream(getFileContent(
-                SAMPLE_IMAGE)));
+        File tmpFile = createTemporaryFile(fileName,
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
         String id = given().multiPart(tmpFile)
                 .expect()
                 .log()
@@ -215,8 +215,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testReadStorage() throws IOException {
         String fileName = testName.getMethodName() + ".jpg";
-        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream(getFileContent(
-                SAMPLE_IMAGE)));
+        File tmpFile = createTemporaryFile(fileName,
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
         String id = given().multiPart(tmpFile)
                 .expect()
                 .log()
@@ -442,16 +442,16 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .replaceAll("-", "");
 
         return given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                .body(getCswInsertRequest("csw:Record", getFileContent(
-                                CSW_RECORD_RESOURCE_PATH + "/CswRecord", ImmutableMap.of("id",
-                                uuid))))
+                .body(getCswInsertRequest("csw:Record",
+                        getFileContent(CSW_RECORD_RESOURCE_PATH + "/CswRecord",
+                                ImmutableMap.of("id", uuid))))
                 .post(CSW_PATH.getUrl());
     }
 
     private Response ingestXmlViaCsw() {
         return given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                .body(getCswInsertRequest("xml", getFileContent(
-                                XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard",
+                .body(getCswInsertRequest("xml",
+                        getFileContent(XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard",
                                 ImmutableMap.of("uri", "http://example.com"))))
                 .post(CSW_PATH.getUrl());
     }
@@ -462,11 +462,12 @@ public class TestCatalog extends AbstractIntegrationTest {
         ValidatableResponse validatableResponse = response.then();
 
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("1")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("0")), hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
-                        is("Aliquam fermentum purus quis arcu")), hasXPath(
-                        "//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
+                is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
+                        is("Aliquam fermentum purus quis arcu")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
 
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -489,11 +490,12 @@ public class TestCatalog extends AbstractIntegrationTest {
         ValidatableResponse validatableResponse = response.then();
 
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("1")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("0")), hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
-                        is("Aliquam fermentum purus quis arcu")), hasXPath(
-                        "//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
+                is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
+                        is("Aliquam fermentum purus quis arcu")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
         verifyMetadataBackup();
         getServiceManager().stopFeature(true, METACARD_BACKUP_PLUGIN_FEATURE);
         try {
@@ -509,11 +511,11 @@ public class TestCatalog extends AbstractIntegrationTest {
         ValidatableResponse validatableResponse = response.then();
 
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("1")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("0")), hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
-                        is("myXmlTitle")), hasXPath(
-                        "//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
+                is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/title", is("myXmlTitle")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
 
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -534,8 +536,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .then()
                 .assertThat()
                 .statusCode(equalTo(200))
-                .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"), not(
-                        "0"));
+                .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"),
+                        not("0"));
 
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -584,9 +586,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("0")));
+                is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
 
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -607,9 +609,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(CSW_PATH.getUrl());
         ValidatableResponse validatableResponse = response.then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("1")), hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("1")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("0")));
+                is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
 
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -656,9 +658,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("1")));
+                is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("1")));
 
         String url = REST_PATH.getUrl() + id;
         when().get(url)
@@ -666,19 +668,24 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .log()
                 .all()
                 .assertThat()
-                .body(hasXPath("//metacard/dateTime[@name='modified']/value", startsWith(
-                                "2015-08-10")), hasXPath("//metacard/string[@name='title']/value",
-                                is("Updated Title")), hasXPath(
-                                "//metacard/string[@name='topic.category']/value",
-                                is("Updated Subject")), hasXPath(
+                .body(hasXPath("//metacard/dateTime[@name='modified']/value",
+                        startsWith("2015-08-10")),
+                        hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
+                        hasXPath("//metacard/string[@name='topic.category']/value",
+                                is("Updated Subject")),
+                        hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[1]",
-                                is("1.0 2.0")), hasXPath(
+                                is("1.0 2.0")),
+                        hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[2]",
-                                is("3.0 2.0")), hasXPath(
+                                is("3.0 2.0")),
+                        hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[3]",
-                                is("3.0 4.0")), hasXPath(
+                                is("3.0 4.0")),
+                        hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[4]",
-                                is("1.0 4.0")), hasXPath(
+                                is("1.0 4.0")),
+                        hasXPath(
                                 "(//metacard/geometry[@name='location']/value/Polygon/exterior/LinearRing/pos)[5]",
                                 is("1.0 2.0")));
 
@@ -724,9 +731,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("2")));
+                is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("2")));
 
         String firstId;
         String secondId;
@@ -743,31 +750,31 @@ public class TestCatalog extends AbstractIntegrationTest {
         when().get(firstUrl)
                 .then()
                 .log()
-                .all().assertThat()
+                .all()
+                .assertThat()
                 // Check that the updated attributes were changed.
-                .body(hasXPath("//metacard/dateTime[@name='modified']/value", startsWith(
-                                "2015-08-25")), hasXPath("//metacard/string[@name='title']/value",
-                                is("Updated Title")), hasXPath(
-                                "//metacard/string[@name='media.format']/value",
-                                is("")),
+                .body(hasXPath("//metacard/dateTime[@name='modified']/value",
+                        startsWith("2015-08-25")),
+                        hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
+                        hasXPath("//metacard/string[@name='media.format']/value", is("")),
                         // Check that an attribute that was not updated was not changed.
-                        hasXPath("//metacard/string[@name='topic.category']/value", is(
-                                "Hydrography--Dictionaries")));
+                        hasXPath("//metacard/string[@name='topic.category']/value",
+                                is("Hydrography--Dictionaries")));
 
         String secondUrl = REST_PATH.getUrl() + secondId;
         when().get(secondUrl)
                 .then()
                 .log()
-                .all().assertThat()
+                .all()
+                .assertThat()
                 // Check that the updated attributes were changed.
-                .body(hasXPath("//metacard/dateTime[@name='modified']/value", startsWith(
-                                "2015-08-25")), hasXPath("//metacard/string[@name='title']/value",
-                                is("Updated Title")), hasXPath(
-                                "//metacard/string[@name='media.format']/value",
-                                is("")),
+                .body(hasXPath("//metacard/dateTime[@name='modified']/value",
+                        startsWith("2015-08-25")),
+                        hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
+                        hasXPath("//metacard/string[@name='media.format']/value", is("")),
                         // Check that an attribute that was not updated was not changed.
-                        hasXPath("//metacard/string[@name='topic.category']/value", is(
-                                "Hydrography--Dictionaries")));
+                        hasXPath("//metacard/string[@name='topic.category']/value",
+                                is("Hydrography--Dictionaries")));
 
         deleteMetacard(firstId);
         deleteMetacard(secondId);
@@ -803,9 +810,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("0")));
+                is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
 
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -876,11 +883,12 @@ public class TestCatalog extends AbstractIntegrationTest {
         when().get(url)
                 .then()
                 .log()
-                .all().assertThat()
+                .all()
+                .assertThat()
                 // Check that the attributes about to be removed in the update are present.
-                .body(hasXPath("//metacard/dateTime[@name='modified']"), hasXPath(
-                        "//metacard/string[@name='title']"), hasXPath(
-                        "//metacard/geometry[@name='location']"));
+                .body(hasXPath("//metacard/dateTime[@name='modified']"),
+                        hasXPath("//metacard/string[@name='title']"),
+                        hasXPath("//metacard/geometry[@name='location']"));
 
         ValidatableResponse validatableResponse = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
@@ -889,20 +897,21 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("1")));
+                is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("1")));
 
         when().get(url)
                 .then()
                 .log()
-                .all().assertThat()
+                .all()
+                .assertThat()
                 // Check that the updated attributes were removed.
-                .body(not(hasXPath("//metacard/string[@name='title']")), not(hasXPath(
-                                "//metacard/geometry[@name='location']")),
+                .body(not(hasXPath("//metacard/string[@name='title']")),
+                        not(hasXPath("//metacard/geometry[@name='location']")),
                         // Check that an attribute that was not updated was not changed.
-                        hasXPath("//metacard/dateTime[@name='modified']"), hasXPath(
-                                "//metacard/string[@name='topic.category']/value",
+                        hasXPath("//metacard/dateTime[@name='modified']"),
+                        hasXPath("//metacard/string[@name='topic.category']/value",
                                 is("Hydrography--Dictionaries")));
 
         deleteMetacard(id);
@@ -1042,8 +1051,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         console.runCommand(CLEAR_CACHE);
 
         String fileName = "testCachedContentLengthHeader" + ".jpg";
-        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream(getFileContent(
-                SAMPLE_IMAGE)));
+        File tmpFile = createTemporaryFile(fileName,
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
 
         String id = given().multiPart(tmpFile)
                 .expect()
@@ -1480,7 +1489,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         try {
             // Configure the PDP
             PdpProperties pdpProperties = new PdpProperties();
-            pdpProperties.put("matchAllMappings", Arrays.asList(
+            pdpProperties.put("matchAllMappings",
+                    Arrays.asList(
                             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=point-of-contact"));
             Configuration config = configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm",
                     null);
@@ -1907,6 +1917,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         cdmProperties.putAll(getServiceManager().getMetatypeDefaults("content-core-directorymonitor",
                 "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
         cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
+        cdmProperties.put("processingMechanism", "delete");
         Configuration managedService = getServiceManager().createManagedService(
                 "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor",
                 cdmProperties);
@@ -2397,7 +2408,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         // Configure the PDP
         PdpProperties pdpProperties = new PdpProperties();
-        pdpProperties.put("matchOneMappings", Arrays.asList(
+        pdpProperties.put("matchOneMappings",
+                Arrays.asList(
                         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=invalid-state"));
         Configuration config = configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm",
                 null);
@@ -2713,20 +2725,22 @@ public class TestCatalog extends AbstractIntegrationTest {
             final String metacard2XPath = format(METACARD_X_PATH, id2);
 
             executeOpenSearch("xml", "q=*").log()
-                    .all().assertThat()
+                    .all()
+                    .assertThat()
                     // The metacard had a title, so it should not have been set to the default
                     .body(hasXPath(metacard1XPath + "/string[@name='title']/value",
                             is("Metacard-1")))
-                    .body(hasXPath(metacard1XPath + "/string[@name='description']/value", is(
-                            defaultDescription))).body(hasXPath(
-                    metacard1XPath + "/dateTime[@name='expiration']/value", is(defaultExpiration)))
+                    .body(hasXPath(metacard1XPath + "/string[@name='description']/value",
+                            is(defaultDescription)))
+                    .body(hasXPath(metacard1XPath + "/dateTime[@name='expiration']/value",
+                            is(defaultExpiration)))
                     // The metacard had a title, so it should not have been set to the default
                     .body(hasXPath(metacard2XPath + "/string[@name='title']/value",
                             is("Metacard-2")))
-                    .body(hasXPath(metacard2XPath + "/string[@name='description']/value", is(
-                            defaultCustomMetacardDescription)))
-                    .body(hasXPath(metacard2XPath + "/dateTime[@name='expiration']/value", is(
-                            defaultExpiration)));
+                    .body(hasXPath(metacard2XPath + "/string[@name='description']/value",
+                            is(defaultCustomMetacardDescription)))
+                    .body(hasXPath(metacard2XPath + "/dateTime[@name='expiration']/value",
+                            is(defaultExpiration)));
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
@@ -2790,16 +2804,16 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .assertThat()
                     .body(hasXPath(metacard1XPath + "/string[@name='title']/value",
                             is(updatedTitle1)))
-                    .body(hasXPath(metacard1XPath + "/string[@name='description']/value", is(
-                            defaultDescription)))
-                    .body(hasXPath(metacard1XPath + "/dateTime[@name='expiration']/value", is(
-                            defaultExpiration)))
+                    .body(hasXPath(metacard1XPath + "/string[@name='description']/value",
+                            is(defaultDescription)))
+                    .body(hasXPath(metacard1XPath + "/dateTime[@name='expiration']/value",
+                            is(defaultExpiration)))
                     .body(hasXPath(metacard2XPath + "/string[@name='title']/value",
                             is(updatedTitle2)))
-                    .body(hasXPath(metacard2XPath + "/string[@name='description']/value", is(
-                            defaultCustomMetacardDescription)))
-                    .body(hasXPath(metacard2XPath + "/dateTime[@name='expiration']/value", is(
-                            defaultExpiration)));
+                    .body(hasXPath(metacard2XPath + "/string[@name='description']/value",
+                            is(defaultCustomMetacardDescription)))
+                    .body(hasXPath(metacard2XPath + "/dateTime[@name='expiration']/value",
+                            is(defaultExpiration)));
         } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
@@ -2848,8 +2862,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .body(not(hasXPath(basicMetacardXpath + "/double[@name='temperature']")))
                     .body(hasXPath(otherMetacardXpath + "/type", is(otherMetacardTypeName)))
                     .body(hasXPath(otherMetacardXpath + "/int[@name='page-count']/value", is("55")))
-                    .body(hasXPath(otherMetacardXpath + "/double[@name='temperature']/value", is(
-                            "-12.541")));
+                    .body(hasXPath(otherMetacardXpath + "/double[@name='temperature']/value",
+                            is("-12.541")));
         } finally {
             deleteMetacard(id);
             deleteMetacard(id2);
@@ -2899,8 +2913,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .body(not(hasXPath(basicMetacardXpath + "/string[@name='point-of-contact']")))
                     .body(hasXPath(otherMetacardXpath + "/type", is(otherMetacardTypeName)))
                     .body(hasXPath(otherMetacardXpath + "/int[@name='page-count']/value", is("55")))
-                    .body(hasXPath(otherMetacardXpath + "/double[@name='temperature']/value", is(
-                            "-12.541")))
+                    .body(hasXPath(otherMetacardXpath + "/double[@name='temperature']/value",
+                            is("-12.541")))
                     .body(not(hasXPath(basicMetacardXpath + "/string[@name='point-of-contact']")));
 
         } finally {
@@ -3033,8 +3047,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         String overrideResourceUri = "content:abc123";
         String overrideTitle = "overrideTitle";
 
-        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream(getFileContent(
-                SAMPLE_IMAGE)));
+        File tmpFile = createTemporaryFile(fileName,
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
 
         String id = given().multiPart("parse.resource", tmpFile)
                 .multiPart(Core.TITLE, overrideTitle)
@@ -3057,8 +3071,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                         is(not(overrideResourceUri))));
 
         response.assertThat()
-                .body(hasXPath(metacardPath + "/string[@name=\"" + Core.TITLE + "\"]/value", is(
-                        overrideTitle)));
+                .body(hasXPath(metacardPath + "/string[@name=\"" + Core.TITLE + "\"]/value",
+                        is(overrideTitle)));
 
         deleteMetacard(id);
     }
@@ -3069,8 +3083,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         String overrideResourceUri = "content:abc123";
         String overrideTitle = "overrideTitle";
 
-        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream(getFileContent(
-                SAMPLE_IMAGE)));
+        File tmpFile = createTemporaryFile(fileName,
+                IOUtils.toInputStream(getFileContent(SAMPLE_IMAGE)));
 
         String id = given().multiPart("parse.resource", tmpFile)
                 .multiPart(Core.TITLE, overrideTitle)

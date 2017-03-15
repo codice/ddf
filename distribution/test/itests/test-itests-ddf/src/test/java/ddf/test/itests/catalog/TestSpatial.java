@@ -17,7 +17,6 @@ import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMeta
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 
 import java.io.ByteArrayInputStream;
@@ -38,6 +37,7 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,41 +76,41 @@ public class TestSpatial extends AbstractIntegrationTest {
     private static Map<String, String> metacardIds = new HashMap<>();
 
     private final ImmutableMap<String, ExpectedResultPair[]> cswExpectedResults =
-            ImmutableMap.<String, ExpectedResultPair[]>builder()
-                    .put("CswAfterDateQuery", new ExpectedResultPair[] {new ExpectedResultPair(
-                                    ResultType.TITLE,
-                                    GEOJSON_NEAR_METACARD)})
-                    .put("CswBeforeDateQuery", new ExpectedResultPair[] {new ExpectedResultPair(
-                            ResultType.TITLE,
-                            PLAINXML_FAR_METACARD)})
-                    .put("CswContainingWktLineStringQuery",
+            ImmutableMap.<String, ExpectedResultPair[]>builder().put("CswAfterDateQuery",
+                    new ExpectedResultPair[] {
+                            new ExpectedResultPair(ResultType.TITLE, GEOJSON_NEAR_METACARD)})
+                    .put("CswBeforeDateQuery",
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
-                                    GEOJSON_FAR_METACARD)})
+                                    PLAINXML_FAR_METACARD)})
+                    .put("CswContainingWktLineStringQuery",
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, GEOJSON_FAR_METACARD)})
                     .put("CswContainingWktPolygonQuery",
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_FAR_METACARD)})
-                    .put("CswDuringDatesQuery", new ExpectedResultPair[] {new ExpectedResultPair(
-                                    ResultType.TITLE,
-                                    GEOJSON_FAR_METACARD)})
-                    .put("CswEqualToTextQuery", new ExpectedResultPair[] {new ExpectedResultPair(
-                                    ResultType.TITLE,
-                                    CSW_METACARD)})
+                    .put("CswDuringDatesQuery",
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, GEOJSON_FAR_METACARD)})
+                    .put("CswEqualToTextQuery",
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
                     .put("CswIntersectingWktLineStringQuery",
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_NEAR_METACARD)})
                     .put("CswIntersectingWktPolygonQuery",
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     GEOJSON_NEAR_METACARD)})
-                    .put("CswLikeTextQuery", new ExpectedResultPair[] {new ExpectedResultPair(
-                                    ResultType.TITLE,
+                    .put("CswLikeTextQuery",
+                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     GEOJSON_NEAR_METACARD)})
                     .put("CswNearestToWktLineStringQuery",
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_NEAR_METACARD)})
                     .put("CswNearestToWktPolygonQuery",
-                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
-                                    GEOJSON_NEAR_METACARD), new ExpectedResultPair(ResultType.TITLE,
-                                    PLAINXML_NEAR_METACARD)})
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, GEOJSON_NEAR_METACARD),
+                                    new ExpectedResultPair(ResultType.TITLE,
+                                            PLAINXML_NEAR_METACARD)})
                     .put("CswOverLappingDatesQuery",
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     GEOJSON_NEAR_METACARD)})
@@ -133,8 +133,8 @@ public class TestSpatial extends AbstractIntegrationTest {
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_FAR_METACARD)})
                     .put("CswCompoundNotBeforeDateAndLikeText",
-                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
-                                    CSW_METACARD)})
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
                     .put("CswLogicalOperatorContextualNotQuery",
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_NEAR_METACARD)})
@@ -146,14 +146,14 @@ public class TestSpatial extends AbstractIntegrationTest {
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_FAR_METACARD)})
                     .put("CswXPathExpressionQuery",
-                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
-                                    CSW_METACARD)})
-                    .put("CswFuzzyTextQuery", new ExpectedResultPair[] {new ExpectedResultPair(
-                                    ResultType.TITLE,
-                                    CSW_METACARD)})
-                    .put("CswCompoundNot", new ExpectedResultPair[] {new ExpectedResultPair(
-                                    ResultType.COUNT,
-                                    "0")})
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
+                    .put("CswFuzzyTextQuery",
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
+                    .put("CswCompoundNot",
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.COUNT, "0")})
                     .build();
 
     @BeforeExam
@@ -172,8 +172,7 @@ public class TestSpatial extends AbstractIntegrationTest {
             configureRestForGuest();
             getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
-            LOGGER.error("Failed to start required apps:", e);
-            fail("Failed to start required apps: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed to start required apps: ");
         }
     }
 
@@ -443,9 +442,8 @@ public class TestSpatial extends AbstractIntegrationTest {
     private void hasExpectedResults(String queryResult, ExpectedResultPair[] expectedValues)
             throws XPathException, ParserConfigurationException, SAXException, IOException {
         if (expectedValues[0].type == ResultType.COUNT) {
-            assertTrue("The responses contained a different count", hasExpectedResultCount(
-                    queryResult,
-                    expectedValues[0]));
+            assertTrue("The responses contained a different count",
+                    hasExpectedResultCount(queryResult, expectedValues[0]));
         } else if (expectedValues[0].type == ResultType.TITLE) {
             //assertion done within the method
             hasExpectedMetacardsReturned(queryResult, expectedValues);

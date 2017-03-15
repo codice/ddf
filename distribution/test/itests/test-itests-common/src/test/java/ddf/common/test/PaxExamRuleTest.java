@@ -38,14 +38,15 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
-
 public class PaxExamRuleTest {
 
     public static final String FAILING_TEST_MESSAGE = "test failed";
 
-    public static final String BEFORE_EXAM_EXCEPTION_MESSAGE = "BeforeExam exception";
+    public static final String BEFORE_EXAM_EXCEPTION_MESSAGE =
+            "java.lang.RuntimeException: BeforeExam exception";
 
-    public static final String AFTER_EXAM_EXCEPTION_MESSAGE = "AfterExam exception";
+    public static final String AFTER_EXAM_EXCEPTION_MESSAGE =
+            "java.lang.RuntimeException: AfterExam exception";
 
     public static final String EXPECTED_BEFORE_EXAM_ERROR_MESSAGE =
             String.format(PaxExamRule.BEFORE_EXAM_FAILURE_MESSAGE,
@@ -175,10 +176,16 @@ public class PaxExamRuleTest {
         JUnitCore core = new JUnitCore();
         Result result = core.run(FailingBeforeExamTest.class);
 
-        assertThat(result.getFailures()).extracting("message")
-                .containsOnly(EXPECTED_BEFORE_EXAM_ERROR_MESSAGE,
-                        PaxExamRule.EXAM_SETUP_FAILED_MESSAGE);
+        boolean examFail = result.getFailures()
+                .stream()
+                .anyMatch(failure -> failure.getMessage()
+                        .equals(PaxExamRule.EXAM_SETUP_FAILED_MESSAGE));
+        boolean beforeExamFail = result.getFailures()
+                .stream()
+                .anyMatch(failure -> failure.getMessage()
+                        .contains(EXPECTED_BEFORE_EXAM_ERROR_MESSAGE));
 
+        assertThat(examFail && beforeExamFail);
         assertResultCounts(result, 4);
     }
 
@@ -187,9 +194,16 @@ public class PaxExamRuleTest {
         JUnitCore core = new JUnitCore();
         Result result = core.run(FailingAfterExamTest.class);
 
-        assertThat(result.getFailures()).extracting("message")
-                .contains(EXPECTED_AFTER_EXAM_ERROR_MESSAGE, FAILING_TEST_MESSAGE);
+        boolean examFail = result.getFailures()
+                .stream()
+                .anyMatch(failure -> failure.getMessage()
+                        .equals(PaxExamRule.EXAM_SETUP_FAILED_MESSAGE));
+        boolean afterExamFail = result.getFailures()
+                .stream()
+                .anyMatch(failure -> failure.getMessage()
+                        .contains(EXPECTED_AFTER_EXAM_ERROR_MESSAGE));
 
+        assertThat(examFail && afterExamFail);
         assertResultCounts(result, 2);
     }
 
