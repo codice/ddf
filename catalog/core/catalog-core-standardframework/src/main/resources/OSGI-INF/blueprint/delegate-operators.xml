@@ -62,6 +62,7 @@
                 <value>registry-remote</value>
             </list>
         </property>
+        <property name="queryTimeoutMillis" value="300000"/>
     </bean>
 
     <bean id="cfResourceOps" class="ddf.catalog.impl.operations.ResourceOperations">
