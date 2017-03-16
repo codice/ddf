@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.KarafConsole;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
@@ -54,8 +53,6 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
     private static final String CATALOG_CORE_NAME = "catalog";
 
-    private static KarafConsole console;
-
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
@@ -63,6 +60,15 @@ public class TestSolrCommands extends AbstractIntegrationTest {
             console = new KarafConsole(getServiceManager().getBundleContext(),
                     features,
                     sessionFactory);
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
+            getServiceManager().waitForAllBundles();
+            getCatalogBundle().waitForCatalogProvider();
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+
+            configureRestForGuest();
+            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }

@@ -183,8 +183,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
-    private static KarafConsole console;
-
     private static Path symbolicLink;
 
     private static ManagedServiceConfigFile managedServiceStartupConfig =
@@ -220,9 +218,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
     public void beforeExam() throws Exception {
         try {
             waitForSystemReady();
-            console = new KarafConsole(getServiceManager().getBundleContext(),
-                    features,
-                    sessionFactory);
             symbolicLink = Paths.get(ddfHome)
                     .resolve("link");
         } catch (Exception e) {

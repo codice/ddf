@@ -35,6 +35,7 @@ import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.AfterExam;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
+import org.junit.After;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,6 +89,11 @@ public class TestFanout extends AbstractIntegrationTest {
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @Before: ");
         }
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        clearCatalog();
     }
 
     private void startCswSource() throws Exception {

@@ -101,9 +101,6 @@ public class TestApplicationService extends AbstractIntegrationTest {
             waitForSystemReady();
             systemSubject =
                     org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
-            console = new KarafConsole(getServiceManager().getBundleContext(),
-                    features,
-                    sessionFactory);
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
