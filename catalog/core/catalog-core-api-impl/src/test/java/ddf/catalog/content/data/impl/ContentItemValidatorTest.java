@@ -14,6 +14,7 @@
 package ddf.catalog.content.data.impl;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -49,6 +50,24 @@ public class ContentItemValidatorTest {
         String id = "634e8505-bd4b-436e-97e8-2045d1b0d265".replace("-", "");
         String qualifier = "zoom-and-enhanced-overview";
         ContentItem item = new ContentItemImpl(id, qualifier, null, "", null);
+        assertThat(ContentItemValidator.validate(item), is(true));
+    }
+
+    @Test
+    public void testValidItemWithEmptyQualifier() throws Exception {
+        String id = "634e8505-bd4b-436e-97e8-2045d1b0d265".replace("-", "");
+        String qualifier = "";
+        ContentItem item = new ContentItemImpl(id, qualifier, null, "", null);
+        assertThat(item.getQualifier(), nullValue());
+        assertThat(ContentItemValidator.validate(item), is(true));
+    }
+
+    @Test
+    public void testValidItemWithBlankNotEmptyQualifier() throws Exception {
+        String id = "634e8505-bd4b-436e-97e8-2045d1b0d265".replace("-", "");
+        String qualifier = "              ";
+        ContentItem item = new ContentItemImpl(id, qualifier, null, "", null);
+        assertThat(item.getQualifier(), nullValue());
         assertThat(ContentItemValidator.validate(item), is(true));
     }
 

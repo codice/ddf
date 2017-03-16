@@ -199,7 +199,7 @@ public class FileSystemStorageProvider implements StorageProvider {
 
         for (ContentItem contentItem : updatedItems) {
             if (contentItem.getMetacard()
-                    .getResourceURI() == null) {
+                    .getResourceURI() == null && StringUtils.isBlank(contentItem.getQualifier())) {
                 contentItem.getMetacard()
                         .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
                                 contentItem.getUri()));
