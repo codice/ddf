@@ -70,6 +70,22 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     private static final String DISTANCE_SORT_FIELD = "_distance_";
 
+    private static final String SOLR_QUERY_ROWS_PROPERTY = "solr.query.rows";
+
+    /**
+     * Because {@link SolrQuery#setRows(Integer)} will increment the given integer and use it as an
+     * array index in Solr Cloud mode, we cannot use {@link Integer#MAX_VALUE} by default and should
+     * pick a lower, sensible ceiling for our row count. In practice, correct paging techniques should
+     * be implemented; if this is not the case, the default row count of 2 billion can be overridden
+     * in system properties to prevent a browser crash or any fatal client-side error at the expense
+     * of missing query results.
+     *
+     * (See DDF-2872)
+     */
+    private static final Integer SOLR_QUERY_DEFAULT_ROWS = 2000000000;
+
+    private static final Integer SOLR_QUERY_ROWS = getSolrQueryRowsProperty();
+
     private static final String GEOMETRY_SORT_FIELD =
             Metacard.GEOGRAPHY + SchemaFields.GEO_SUFFIX + SchemaFields.SORT_KEY_SUFFIX;
 
@@ -279,8 +295,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
         if (request.getQuery()
                 .getPageSize() < 1) {
-            //TODO: Needs to pass in something else.
-            query.setRows(Integer.MAX_VALUE);
+            query.setRows(SOLR_QUERY_ROWS);
         } else {
             query.setRows(request.getQuery()
                     .getPageSize());
@@ -391,6 +406,19 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         return new Distance(DistanceUtils.degrees2Dist(distance,
                 DistanceUtils.EARTH_MEAN_RADIUS_KM),
                 Distance.LinearUnit.KILOMETER).getAs(Distance.LinearUnit.METER);
+    }
+
+    private static Integer getSolrQueryRowsProperty() {
+        try {
+            Integer rows = Integer.valueOf(System.getProperty(SOLR_QUERY_ROWS_PROPERTY,
+                    SOLR_QUERY_DEFAULT_ROWS.toString()));
+            if (rows < 1 || rows > SOLR_QUERY_DEFAULT_ROWS) {
+                return SOLR_QUERY_DEFAULT_ROWS;
+            }
+            return rows;
+        } catch (NumberFormatException e) {
+            return SOLR_QUERY_DEFAULT_ROWS;
+        }
     }
 
     public MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
