@@ -33,7 +33,7 @@
                               init-method="init" destroy-method="destroy">
             <argument ref="camelContext"/>
             <property name="numThreads" value="1"/>
-            <property name="readLockIntervalMilliseconds" value="1000"/>
+            <property name="readLockIntervalMilliseconds" value="500"/>
             <property name="monitoredDirectoryPath" value=""/>
             <property name="attributeOverrides">
                 <list/>
