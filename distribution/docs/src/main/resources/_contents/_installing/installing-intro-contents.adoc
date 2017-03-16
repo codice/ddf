@@ -18,9 +18,51 @@ Adding other components does not have any security/hardening implications.
 
 These are the system/environment requirements to configure _prior_ to an installation.
 
-.Hardware Requirements
-* At least 4096MB of memory for ${branding}.
-** This amount can be increased to support memory-intensive applications. See <<jvm-memory-configuration, Memory Considerations>>.
+======
+
+.Using the Standard installation of the ${branding} application:
+[cols="2,3,3" options="header"]
+|===
+
+|
+2+^|Minimum and Recommended Requirements for ${branding} Systems in Production Mode*
+
+
+
+|*Criteria*
+|*Minimum*
+|*Recommended*
+
+|Operating System
+|Windows Server 2012, Linux CentOS 5, Mac OS X 10.9 Mavericks
+|Windows 10, Linux CentOS 7.3. macOS Sierra 10.12
+
+|Additional Software
+|JDK 8, IE 10
+|JDK 8, Edge/FireFox/Chrome
+
+|CPU
+|Dual Core 1.6 GHz
+|Quad Core 2.6 GHz
+
+|RAM
+|4 GB**
+|32 GB
+
+|Disk Space
+|2 GB
+|4 GB
+
+|Video Card
+|WebGL capable GPU
+|
+
+|===
+*These requirements assume the use of a remote catalog. Extra resources will need to be allocated if the system will also be hosting a local catalog.
+
+**The amount of RAM can be increased to support memory-intensive applications. See <<jvm-memory-configuration, Memory Considerations>>
+
+======
 
 .Java Requirements
 * Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.
