@@ -142,7 +142,8 @@ define([
                 columnHide: [],
                 columnOrder: ['title', 'created', 'modified', 'thumbnail'],
                 uploads: [],
-                fontSize: '16'
+                fontSize: '16',
+                resultCount: properties.resultCount
             };
         },
         relations: [
@@ -175,6 +176,7 @@ define([
         ],
         initialize: function(){
             this.handleAlertPersistance();
+            this.handleResultCount();
             this.listenTo(wreqr.vent, 'alerts:add', this.addAlert);
             this.listenTo(wreqr.vent, 'uploads:add', this.addUpload);
             this.listenTo(wreqr.vent, 'preferences:save', this.savePreferences);
@@ -213,6 +215,9 @@ define([
         },
         resetBlacklist: function(){
             this.set('resultBlacklist', []);
+        },
+        handleResultCount: function(){
+            this.set('resultCount', Math.min(properties.resultCount, this.get('resultCount')));
         },
         handleAlertPersistance: function(){
             if (!this.get('alertPersistance')) {
@@ -287,6 +292,7 @@ define([
         handleSync: function(){
             this.fetched = true;
             this.get('user').get('preferences').handleAlertPersistance();
+            this.get('user').get('preferences').handleResultCount();
         },
         getGuestPreferences: function () {
             try {

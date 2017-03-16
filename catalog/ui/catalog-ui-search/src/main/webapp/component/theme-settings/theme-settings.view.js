@@ -18,6 +18,8 @@ var template = require('./theme-settings.hbs');
 var CustomElements = require('js/CustomElements');
 var user = require('component/singletons/user-instance');
 var $ = require('jquery');
+var PropertyView = require('component/property/property.view');
+var Property = require('component/property/property');
 
 function getPreferences(user){
     return user.get('user').get('preferences');
@@ -32,38 +34,53 @@ function calculatePercentZoom(user){
     return Math.floor(100*(fontSize/16));
 }
 
+function calculateFontSize(percentage){
+    return (percentage * 16) / 100;
+}
+
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('theme-settings'),
-    modelEvents: {},
-    events: {
-        'click .size-decrease': 'decreaseFontSize',
-        'click .size-increase': 'increaseFontSize'
+    regions: {
+        fontSize: '.theme-font-size'
     },
-    regions: {},
-    ui: {},
-    onBeforeShow: function() {},
-    decreaseFontSize: function() {
+    onBeforeShow: function() {
+        this.fontSize.show(new PropertyView({
+            model: new Property({
+                label: 'Zoom Percentage',
+                value: [calculatePercentZoom(user)],
+                min: 62,
+                max: 200,
+                units: '%',
+                type: 'RANGE'
+            })
+        }));
+        this.fontSize.currentView.turnOnLimitedWidth();
+        this.fontSize.currentView.turnOnEditing();
+        this.$el.on('change keyup mouseup revert', this.handleEvent.bind(this));
+    },
+    handleEvent: function(e){
+        switch(e.target.type){
+            case 'range':
+                if (e.type === 'mouseup' || e.type === 'keyup') {
+                    this.saveChanges();
+                }
+            break;
+            case 'number':
+                if (e.type === 'change'){
+                    this.saveChanges();
+                }
+            break;
+            default:
+                if (e.type === 'revert'){
+                    this.saveChanges();
+                }
+            break;
+        }
+    },
+    saveChanges: function(){
         var preferences = getPreferences(user);
-        var currentSize = preferences.get('fontSize');
-        preferences.set('fontSize', currentSize - 1);
-    },
-    increaseFontSize: function() {
-        var preferences = getPreferences(user);
-        var currentSize = preferences.get('fontSize');
-        preferences.set('fontSize', currentSize + 1);
-    },
-    onRender: function(){
-        this.$el.find('.zoom-percent').html(calculatePercentZoom(user));
-        this.$el.find('input').val(getFontSize(user));
-        this.listenToFontSize();
-    },
-    listenToFontSize: function(){
-        this.$el.find('input').on('change input', function(e){
-            var preferences = getPreferences(user);
-            var newFontSize = $(e.currentTarget).val();
-            preferences.set('fontSize', newFontSize);
-            this.$el.find('.zoom-percent').html(calculatePercentZoom(user));
-        }.bind(this));
+        var newFontSize = this.fontSize.currentView.getCurrentValue()[0];
+        preferences.set('fontSize', calculateFontSize(newFontSize));
     }
 });

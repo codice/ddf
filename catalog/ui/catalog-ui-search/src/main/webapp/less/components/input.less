@@ -8,7 +8,7 @@ input[type="checkbox"], input[type="radio"] {
 
 input,
 input.form-control {
-  padding: 6px 10px 5px 10px;
+  padding: 5px 8px 5px 8px;
   .is-input;
   height: @minimumButtonSize;
   line-height: normal;  //needed for IE10 on Windows 7 -> padding + lineheight makes inputs go wonky http://stackoverflow.com/questions/23936236/input-text-at-the-bottom-on-ie10
@@ -20,4 +20,14 @@ input.form-control {
 
 input::-ms-clear {
   display:none;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
 }
