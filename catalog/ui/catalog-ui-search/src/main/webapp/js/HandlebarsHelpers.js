@@ -13,8 +13,9 @@
 define([
     'underscore',
     'moment',
-    'handlebars/runtime'
-], function (_, moment, Handlebars) {
+    'handlebars/runtime',
+    'component/singletons/metacard-definitions'
+], function (_, moment, Handlebars, metacardDefinitions) {
     'use strict';
     // The module to be exported
     var helper, helpers = {
@@ -327,6 +328,14 @@ define([
                     return encodeURIComponent(str);
                 }
                 return str;
+            },
+            getAlias: function(field){
+                var definition = metacardDefinitions.metacardTypes[field];
+                if (definition) {
+                    return definition.alias || definition.id;
+                } else {
+                    return field;
+                }
             },
           json: function (obj) {
             return JSON.stringify(obj);
