@@ -23,22 +23,22 @@
         <span class="fa fa-trash"></span>
     </div>
     <div class="result-details">
-        <div class="detail-title details-property is-bold" data-help="title">
+        <div class="detail-title details-property is-bold" data-help="{{getAlias 'title'}}">
             <span>
                 {{metacard.properties.title}}
             </span>
         </div>
         {{#if metacard.properties.thumbnail}}
-        <div class="detail-thumbnail details-property" data-help="thumbnail">
+        <div class="detail-thumbnail details-property" data-help="{{getAlias 'thumbnail'}}">
                 <img src="{{getImageSrc metacard.properties.thumbnail}}">
         </div>
         {{/if}}
-        <div class="detail-lastModified details-property" data-help="modified">
+        <div class="detail-lastModified details-property" data-help="{{getAlias 'modified'}}">
             <span>
                 {{niceDiff}}
             </span>
         </div>
-        <div class="detail-source details-property" data-help="source">
+        <div class="detail-source details-property" data-help="{{getAlias 'source'}}">
             {{#if local}}
                 <span class="fa fa-home">
                 </span>
@@ -52,7 +52,7 @@
             {{/if}}
         </div>
         {{#each customDetail}}
-            <div class="detail-custom details-property" data-help="{{this.label}}">
+            <div class="detail-custom details-property" data-help="{{getAlias this.label}}">
                 <span>
                 {{this.value}}
                 </span>
