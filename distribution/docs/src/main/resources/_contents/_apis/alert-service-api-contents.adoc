@@ -1,0 +1,53 @@
+
+[NOTE]
+====
+This code is experimental. While this interface is functional and tested, it may change or be removed in a future version of the library.
+
+This API will be modified and built upon as the need for ${admin-console} notifications evolves. See https://codice.atlassian.net/wiki/display/DDF/Design+Admin+UI+Notifications[Design ${admin-console} Notifications].
+====
+
+The *Alert Service* has two interfaces which are exposed on top of the OSGi runtime for other applications to use.
+For more information on these interfaces, see <<_alert_service_interfaces,Alert Service Interfaces>>.
+
+=== JMX Managed Bean
+
+Some of the *Alert Service* API is exposed via JMX.
+It can either be accessed using the JMX API or from a REST-based interface created by http://jolokia.org[Jolokia] that comes with ${branding}.
+Here are the methods that are exposed in the Managed Bean:
+
+`addAlert(Alert alert)`:: Adds an `Alert` to the current ``Alert``s
+`getAlerts()`:: Returns the current `Alert`
+`dismissAlert(String keyToDismiss)`:: Dismisses an `Alert` with the given key
+
+=== Alert Service Data Classes
+
+==== `Alert` Class
+
+An `Alert` holds the content for a System Administrator alert.
+An `Alert` consists of a type (e.g. info, warning), a title, an optional list of details, and an optional key.
+
+==== `AlertDetail` Class
+
+An `AlertDetail` contains a single secondary message of an Alert.
+An `Alert` may contain a list of ``AlertDetail``s.
+An `AlertDetail` consists of a message and a level (e.g. warning, error).
+
+=== Alert Service Interfaces
+
+The interfaces used by that *Alert Service* subsystem are `AlertService` and `AlertSupplier`.
+The purpose of these interfaces and their public methods are explained below.
+
+==== `AlertService` Interface
+
+The `AlertService` interface is the main interface that is used to get, add, and dismiss ``Alert``s.
+
+`addAlert(Alert alert)`:: Adds an `Alert` to the current ``Alert``s
+`getAlerts()`:: Returns the current `Alert`
+`dismissAlert(String keyToDismiss)`:: Dismisses the first `Alert` with the given key from the current `Alert`
+
+==== `AlertSupplier` Interface
+
+While some ``Alert``s will be pushed to the `AlertService`, other ``Alert``s will be polled each time the current ``Alert``s is retrieved.
+An `AlertsSupplier` will return a list of ``Alert``s every time that the `getAlerts` method is called.
+
+`getAlerts()`:: Generates and returns a list of ``Alert``s

@@ -1,6 +1,4 @@
 
-=== Migration API
-
 [NOTE]
 ====
 This code is experimental. While this interface is functional and tested, it may change or be removed in a future version of the library.
@@ -18,15 +16,13 @@ An export operation can be performed through the ${command-console} or through t
 The services that implement one of the migratable interfaces will be called one at a time, in any order, and do not need to be thread safe.
 A bundle or a feature can have as many services implementing the interfaces as needed.
 
-==== The Migratable API Interfaces
+=== The Migratable API Interfaces
 
 . `org.codice.ddf.migration.Migratable`
-. `org.codice.ddf.migration.AbstractMigratable`
-. `org.codice.ddf.migration.MigrationException`
-. `org.codice.ddf.migration.MigrationMetadata`
-. `org.codice.ddf.migration.MigrationWarning`
+. `org.codice.ddf.migration.ConfigurationMigratable`
+. `org.codice.ddf.migration.DataMigratable`
 
-===== `Migratable`
+==== `Migratable` Interface
 
 The contract for a `migratable` is stored here. It is used by both sub-interfaces `ConfigurationMigratable` and `DataMigratable`.
 
@@ -54,7 +50,7 @@ The description and optional flag are for display purposes in the ${admin-consol
 In order to create a `Migratable` for a module of the system, the `org.codice.ddf.migration.Migratable` interface must be implemented and the implementation must be registered under the `org.codice.ddf.migration.Migratable` interface as an OSGI service in the OSGI service registry.
 Creating an OSGI service allows for the `org.codice.ddf.configuration.migration.ConfigurationMigrationManager` to lookup all implementations of `org.codice.ddf.migration.Migratable` and command them to export.
 
-====== `ConfigurationMigratable`
+==== `ConfigurationMigratable` Interface
 
 This is the base interface that must be implemented by all bundles or features that need to export and/or import system related settings
 (e.g., bundle specific Java properties, XML or JSON configuration files) during system migration.
@@ -65,7 +61,7 @@ Only bundle- or feature-specific settings need be handled. All configurations st
 Also, any other data not related to the system's configuration and settings (for example, data stored in Solr) should be handled by a different
 service that implements the `DataMigratable` interface, not by implementors of this class.
 
-====== `DataMigratable`
+==== `DataMigratable` Interface
 
 This is the interface that must be implemented by all bundles or features that need to export and/or import data during system migration.
 The data is not mandatory for the system to come up (e.g., data stored in Solr) and doesn't affect the system's configuration,
@@ -74,20 +70,22 @@ i.e., without this data, the new system will still have the same configuration a
 Any system related configuration and settings should be handled by a different service that implements the
 `ConfigurationMigratable` interface, not by implementors of this class.
 
-===== `AbstractMigratable`
+=== The Migratable API Classes
 
-The abstract base class `org.codice.ddf.migration.AbstractMigratable` in the `platform-migratable-api` implements common boilerplate code required when implementing `org.codice.ddf.migration.Migratable` and should be extended when creating an `org.codice.ddf.migration.Migratable`.
+. `org.codice.ddf.migration.MigrationException`
+. `org.codice.ddf.migration.MigrationMetadata`
+. `org.codice.ddf.migration.MigrationWarning`
 
-===== `MigrationException`
+==== `MigrationException` Class
 
 An `org.codice.ddf.migration.MigrationException` should be thrown when an unrecoverable exception occurs that prevents required data from exporting.
 The exception message is displayed to the administrator.
 
-===== `MigrationMetadata`
+==== `MigrationMetadata` Class
 
 The `org.codice.ddf.migration.MigrationMetadata` provides metadata with details of the exported `org.codice.ddf.migration.Migratable`.
 
-===== `MigrationWarning`
+==== `MigrationWarning` Class
 
 An `org.codice.ddf.migration.MigrationWarning` should be used when a `Migratable` wants to warn an admin that certain aspects of the export may cause problems upon import.
 For example, if an absolute path is encountered, that path may not exist on the target system and cause the installation to fail.

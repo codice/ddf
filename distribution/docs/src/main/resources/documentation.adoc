@@ -800,6 +800,10 @@ include::{adoc-include}/_apis/migration-api-contents.adoc[]
 
 include::{adoc-include}/_apis/application-service-api-contents.adoc[]
 
+== Alert Service API
+
+include::{adoc-include}/_apis/alert-service-api-contents.adoc[]
+
 == General Development Guidelines
 
 include::{adoc-include}/_developing/contributing-intro-contents.adoc[]
