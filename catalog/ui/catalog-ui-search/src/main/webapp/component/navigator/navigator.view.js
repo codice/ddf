@@ -21,19 +21,31 @@ var properties = require('properties');
 var store = require('js/store');
 var router = require('component/router/router');
 var metacard = require('component/metacard/metacard');
+var SaveView = require('component/save/workspaces/workspaces-save.view');
+var UnsavedIndicatorView = require('component/unsaved-indicator/workspaces/workspaces-unsaved-indicator.view');
 
-module.exports = Marionette.ItemView.extend({
+module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('navigator'),
+    regions: {
+        workspacesIndicator: '.workspaces-indicator',
+        workspacesSave: '.workspaces-save'
+    },
     events: {
         'click .choice-product': 'handleWorkspaces',
         'click .choice-workspaces': 'handleWorkspaces',
         'click .choice-previous-workspace': 'handlePreviousWorkspace',
         'click .choice-previous-metacard': 'handlePreviousMetacard',
         'click .choice-upload': 'handleUpload',
-        'click': 'closeSlideout'
+        'click .navigation-choice': 'closeSlideout',
     },
     initialize: function(){
+        this.listenTo(store.get('workspaces'), 'change:saved update add remove', this.handleSaved);
+        this.handleSaved();
+    },
+    onBeforeShow: function(){
+        this.workspacesSave.show(new SaveView());
+        this.workspacesIndicator.show(new UnsavedIndicatorView());
     },
     handleWorkspaces: function(){
         wreqr.vent.trigger('router:navigate', {
@@ -66,6 +78,12 @@ module.exports = Marionette.ItemView.extend({
                 trigger: true
             }
         });
+    },
+    handleSaved: function(){
+        var hasUnsaved = store.get('workspaces').find(function(workspace){
+            return !workspace.isSaved();
+        });
+        this.$el.toggleClass('is-saved', !hasUnsaved);
     },
     closeSlideout: function() {
         this.$el.trigger('closeSlideout.' + CustomElements.getNamespace());

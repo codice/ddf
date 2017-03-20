@@ -19,12 +19,16 @@ define([
     'jquery',
     './content-title.hbs',
     'js/CustomElements',
-    'js/store'
-], function (Marionette, _, $, template, CustomElements, store) {
+    'js/store',
+    'component/unsaved-indicator/workspace/workspace-unsaved-indicator.view'
+], function (Marionette, _, $, template, CustomElements, store, UnsavedIndicatorView) {
 
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
         setDefaultModel: function(){
             this.model = store.get('content');
+        },
+        regions: {
+            unsavedIndicator: '.title-saved'
         },
         events: {
             'change input': 'updateWorkspaceName',
@@ -37,22 +41,25 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            this.listenTo(this.model, 'change:currentWorkspace', this.updateInput);
+            this.listenTo(this.model, 'change:currentWorkspace', this.updateIndicator);
+            this.listenTo(this.model, 'change:currentWorkspace', this.handleSaved);
         },
-        updateInput: function(){
-            if (this.model.get('currentWorkspace')) {
-                var span = this.$el.find('.title-display');
-                var input = this.$el.find('input');
-                var currentTitle = this.model.get('currentWorkspace').get('title');
-                if (input.val() !== currentTitle){
-                    input.val(currentTitle);
-                }
-                span.html(currentTitle);
+        onBeforeShow: function(){
+            this.updateIndicator();
+        },
+        handleSaved: function(){
+            var currentWorkspace = this.model.get('currentWorkspace');
+            this.$el.toggleClass('is-saved', currentWorkspace ? currentWorkspace.isSaved() : false);
+        },
+        updateIndicator: function(workspace){
+            if (workspace && workspace.changed.currentWorkspace){
+                 this.unsavedIndicator.show(new UnsavedIndicatorView({
+                    model: this.model.get('currentWorkspace')
+                }));
             }
         },
         updateWorkspaceName: function(e){
             this.model.get('currentWorkspace').set('title', e.currentTarget.value);
-            this.updateInput();
         }
     });
 });

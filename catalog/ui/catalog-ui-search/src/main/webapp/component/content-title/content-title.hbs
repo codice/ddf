@@ -11,5 +11,7 @@
  *
  **/
  --}}
-<input placeholder="Workspace Title" value="{{currentWorkspace.title}}">
-<div class="title-display">{{currentWorkspace.title}}</div>
+<input placeholder="Workspace Title" value="{{bind selector="> input" event="change:currentWorkspace" key=(path 'currentWorkspace' 'title')}}" data-help="This is the title of the workspace you are currently in.
+If you have permission, you can click here to start editing the title.">
+<pre class="title-display">{{bind selector="> .title-display" event="change:currentWorkspace" key=(path 'currentWorkspace' 'title')}}</pre>
+<div class="title-saved"></div>

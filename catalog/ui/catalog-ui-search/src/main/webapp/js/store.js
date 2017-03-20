@@ -28,7 +28,7 @@ define([
             window.onbeforeunload = function () {
                 var unsaved = this.get('workspaces').chain()
                     .map(function (workspace) {
-                        if (workspace.dirty()) {
+                        if (!workspace.isSaved()) {
                             return workspace.get('title');
                         }
                     })

@@ -20,47 +20,43 @@ define([
     'jquery',
     './workspace-item.hbs',
     'js/CustomElements',
-    'js/store',
-    'moment',
     'component/dropdown/dropdown',
     'component/dropdown/workspace-interactions/dropdown.workspace-interactions.view',
+    'component/workspace-details/workspace-details.view',
+    'component/save/workspace/workspace-save.view',
     'behaviors/button.behavior'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, moment, DropdownModel, WorkspaceInteractionsDropdownView) {
+], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, 
+    WorkspaceInteractionsDropdownView, WorkspaceDetailsView, SaveView) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('workspace-item'),
         regions: {
-            gridWorkspaceActions: '.as-grid .choice-actions',
-            listWorkspaceActions: '.as-list .choice-actions'
+            workspaceDetails: '.choice-details',
+            workspaceSave: '.choice-save',
+            workspaceActions: '.choice-actions'
         },
         behaviors: {
             button: {}
         },
-        modelEvents: {
-        },
         events: {
-            'click': 'handleChoice'
+            'click > .choice-details': 'handleChoice',
         },
-        ui: {
+        initialize: function(){
+            this.listenTo(this.model, 'change:saved', this.handleSaved);
         },
-        initialize: function(options){
-            this.listenTo(this.model, 'all', _.throttle(function(){
-                if (!this.isDestroyed){
-                    this.render();
-                }
-            }.bind(this), 200));
-        },
-        firstRender: true,
-        onRender: function(){
-            this.gridWorkspaceActions.show(new WorkspaceInteractionsDropdownView({
+        onBeforeShow: function(){
+            this.workspaceDetails.show(new WorkspaceDetailsView({
+                model: this.model
+            }));    
+            this.workspaceSave.show(new SaveView({
+                model: this.model
+            }));
+            this.workspaceActions.show(new WorkspaceInteractionsDropdownView({
                 model: new DropdownModel(),
                 modelForComponent: this.model
             }));
-            this.listWorkspaceActions.show(new WorkspaceInteractionsDropdownView({
-                model: new DropdownModel(),
-                modelForComponent: this.model
-            }));
+            this.handleSaved();
         },
         handleChoice: function(event){
             var workspaceId = $(event.currentTarget).attr('data-workspaceId');
@@ -71,10 +67,8 @@ define([
                 }
             });
         },
-        serializeData: function() {
-            var workspacesJSON = this.model.toJSON();
-            workspacesJSON.niceDate = moment(workspacesJSON.modified).fromNow();
-            return workspacesJSON;
+        handleSaved: function(){
+            this.$el.toggleClass('is-saved', this.model.isSaved());
         },
         activateGridDisplay: function(){
             this.displayType = 'Grid';

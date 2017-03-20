@@ -26,15 +26,20 @@ define([
              DropdownHintView, Hint) {
 
     var zeroScale = "matrix(0, 0, 0, 0, 0, 0)";
+    var zeroOpacity = "0";
 
-    // specifically to account for IE Edge Bug, see http://codepen.io/andrewkfiedler/pen/apBbxq
-    function isZeroScale(element){
+    // zeroScale to specifically to account for IE Edge Bug, see http://codepen.io/andrewkfiedler/pen/apBbxq
+    // zeroOpacity to account for how browsers work
+    function isEffectivelyHidden(element){
         if (element === document){
             return false;
-        } else if (window.getComputedStyle(element).transform === zeroScale){
-            return true;
         } else {
-            return isZeroScale(element.parentNode);
+            var computedStyle = window.getComputedStyle(element);
+            if (computedStyle.transform === zeroScale || computedStyle.opacity === zeroOpacity){
+                return true;
+            } else {
+                return isEffectivelyHidden(element.parentNode);
+            }
         }
     }
 
@@ -188,7 +193,7 @@ define([
             this.$el.addClass('is-shown');
             var $elementsWithHints = $('[data-help]');
             _.each($elementsWithHints, function (element) {
-                if (isZeroScale(element)){
+                if (isEffectivelyHidden(element)){
                     return;
                 }
                 var boundingRect = element.getBoundingClientRect();

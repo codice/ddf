@@ -23,8 +23,9 @@ define([
     'component/dropdown/dropdown',
     'component/dropdown/workspace-interactions/dropdown.workspace-interactions.view',
     'js/store',
+    'component/save/workspace/workspace-save.view'
 ], function (Marionette, _, $, template, CustomElements, TitleView, DropdownModel, 
-    WorkspaceInteractionsView, store) {
+    WorkspaceInteractionsView, store, SaveView) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -34,6 +35,7 @@ define([
         tagName: CustomElements.register('workspace-menu'),
         regions: {
             title: '.content-title',
+            workspaceSave: '.content-save',
             workspaceInteractions: '.content-interactions'
         },
         initialize: function (options) {
@@ -41,11 +43,21 @@ define([
                 this.setDefaultModel();
             }
             this.listenTo(this.model, 'change:currentWorkspace', this.updateWorkspaceInteractions);
-            this.listenTo(this.model, 'change:currentWorkspace', this.handleWorkspaceChange);
+            this.listenTo(this.model, 'change:currentWorkspace', this.updateWorkspaceSave);
+            this.listenTo(this.model, 'change:currentWorkspace', this.handleSaved);
         },
         onBeforeShow: function(){
             this.title.show(new TitleView());
+            this.updateWorkspaceSave();
             this.updateWorkspaceInteractions();
+            this.handleSaved();
+        },
+        updateWorkspaceSave: function(workspace){
+             if (workspace && workspace.changed.currentWorkspace) {
+                this.workspaceSave.show(new SaveView({
+                    model: this.model.get('currentWorkspace')
+                }));
+            }
         },
         updateWorkspaceInteractions: function(workspace) {
             if (workspace && workspace.changed.currentWorkspace) {
@@ -54,6 +66,10 @@ define([
                     modelForComponent: this.model.get('currentWorkspace')
                 }));
             }
+        },
+        handleSaved: function(){
+            var currentWorkspace = this.model.get('currentWorkspace');
+            this.$el.toggleClass('is-saved', currentWorkspace ? currentWorkspace.isSaved() : false);
         }
     });
 });

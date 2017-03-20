@@ -30,20 +30,20 @@
   display: block;
 }
 
-.inlineBlockDisplay(@thingToInline) {
+.inlineBlockDisplay(@thingToInline; @fontSize: @minimumFontSize) {
 
   > @{thingToInline} {
     display: inline-block;
     vertical-align: middle;
   }
 
-  .inlineFix;
+  .inlineFix(@fontSize);
 }
 
-.inlineFix {
+.inlineFix(@fontSize: @minimumFontSize) {
   font-size: 0px;
   > * > * {
-    font-size: @minimumFontSize;
+    font-size: @fontSize;
   }
 }
 
