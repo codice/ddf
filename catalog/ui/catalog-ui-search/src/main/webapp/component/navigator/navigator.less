@@ -11,11 +11,44 @@
         word-wrap: normal;
         overflow: hidden;
         text-overflow: ellipsis;
+        position: relative;
     }
 
     .navigation-links {
-        .fa {
+        position: relative;
+        .navigation-choice .fa {
             padding-right: @minimumSpacing;
         }
     }
+
+    .choice-workspaces .workspaces-indicator {
+        padding-left: @minimumSpacing;
+        display: inline-block;
+    }
+
+    .workspaces-save {
+        position: absolute;
+        right:0px;
+        top: 0px;
+        height: auto;
+        overflow: hidden;
+        max-width: 100%;
+        .is-large-font();
+        line-height: @minimumButtonSize;
+    }
+
+    .workspaces-save > @{customElementNamespace}save {
+        padding: @largeSpacing;
+    }
+}
+
+@{customElementNamespace}navigator.is-saved {
+
+    .workspaces-save {
+        opacity: 1;
+        transition: max-width 0s linear 10*@coreTransitionTime;
+        overflow: hidden;
+        max-width: 0%;
+    }
+
 }

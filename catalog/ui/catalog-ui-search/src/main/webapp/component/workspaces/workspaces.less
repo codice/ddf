@@ -3,20 +3,52 @@
   background: @card-background-color;
 
   .home-content {
-    height: ~'calc(100% - 2*@{minimumLineSize})';
+    display: inline-block;
+    width: 100%;
+    max-height: ~'calc(100% - 2*@{minimumLineSize} - 10px)';
     overflow: auto;
   }
 
   .home-items {
-    padding-bottom: 20px;
+    transition: padding @coreTransitionTime ease-out @coreTransitionTime;
+    padding-bottom: @minimumButtonSize;
   }
 
+  .home-save {
+    width: 100%;
+    opacity: 1;
+    transform: scale(1) translateY(-100%);
+    opacity: 1;
+    position: relative;
+    top: 0%;
+    left: 0%;
+    transition: transform @coreTransitionTime ease-out, 
+        opacity @coreTransitionTime ease-out,
+        left 0s ease-out @coreTransitionTime;
+  }
+
+}
+
+@{customElementNamespace}workspaces.is-saved {
+  .home-items  {
+    padding-bottom: 0px;
+  }
+
+  .home-save {
+    transform: scale(2) translateY(-100%);
+    left: -200%;
+    opacity: 0;
+  }
 }
 
 @{customElementNamespace}workspaces.has-templates-expanded {
 
   .home-content {
     overflow: hidden;
+  }
+
+  .home-save {
+    transform: translateY(100%);
   }
 
 }

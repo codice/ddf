@@ -1,141 +1,86 @@
-@{customElementNamespace}workspace-item.as-grid {
+@{customElementNamespace}workspace-item {
   .customElement;
+  overflow: hidden;
   display: inline-block;
-  width: auto;
+  width: 18rem;
+  height: 2*@minimumLineSize;
   color: @text-color;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07);
+  cursor: pointer;
+  .inlineBlockDisplay(div);
   margin-bottom: 10px;
   margin-right: 20px;
-
-  .choice.as-grid {
-    display: inline-block;
-    vertical-align: middle;
-  }
-  .choice.as-list {
-    display: none;
-  }
-
-  .choice {
-    position: relative;
-    display: inline-block;
-    width: 19rem;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.07);
-    cursor: pointer;
-  }
-
-  .choice-preview {
-    line-height: 15.5625rem;
-    height: 16.8125rem;
-    text-align: center;
-    width: 100%;
-    background: @lighten-inherited-background-color;
-    font-size: @largeFontSize;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .choice-preview > img {
-    width: 100%;
-  }
-
-  .choice-preview-icon {
-    line-height: 16.8125rem;
-  }
-
-  .choice-footer {
-    white-space: nowrap;
-    text-align: center;
-    height: 2*@minimumLineSize;
-  }
-
-  .choice-details,
-  .choice-actions {
-    display: inline-block;
-    height: 100%;
-    vertical-align: top;
-  }
+  position: relative;
 
   .choice-details {
-    width: ~'calc(100% - @{minimumButtonSize})';
-    text-align: left;
+    width: 100%;
+    padding-right: 2*@minimumButtonSize;
   }
 
-  .choice-details > div:not(:first-of-type) {
+  @{customElementNamespace}workspace-details > .choice-date {
     opacity: @minimumOpacity;
   }
 
-  .choice-actions {
+  .choice-details,
+  .choice-actions,
+  .choice-save {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    height: 100%;
+    .is-small-font();
+  }
+
+  .choice-actions,
+  .choice-save {
     width: @minimumButtonSize;
     text-align: center;
+    height: 100%;
     line-height: 2*@minimumLineSize;
-  }
-
-  .choice-title,
-  .choice-date {
-    line-height: @minimumLineSize;
     overflow: hidden;
-    text-overflow: ellipsis;
-    padding-left: 10px;
   }
 
-  .choice-title {
-    .is-bold();
+  .choice-actions {
+    position: absolute;
+    right: 0px;
+  }
+
+  .choice-save {
+    position: absolute;
+    right: @minimumButtonSize;
+    transition: transform @coreTransitionTime linear;
+    transform: scale(1);
+    max-width: 100%;
   }
 }
 
 @{customElementNamespace}workspace-item.as-list {
   display: block;
-  margin-bottom: 10px;
+  width: 100%;
+  text-align: left;
+  height: @minimumButtonSize;
+  line-height: @minimumButtonSize;
+  white-space: nowrap;
 
-  .choice.as-grid {
-    display: none;
-  }
-
-  .choice.as-list {
-    display: block;
-    width: 100%;
-    text-align: left;
-  }
-
-  .choice {
-    height: @minimumButtonSize;
+  .choice-actions,
+  .choice-save {
     line-height: @minimumButtonSize;
-    white-space: nowrap;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.07);
-    cursor: pointer;
   }
+}
 
-  .choice-details,
-  .choice-actions {
-    display: inline-block;
+
+@{customElementNamespace}workspace-item.is-saved {
+
+  .choice-save {
+      opacity: 1;
+      transition: max-width 0s ease-out 10*@coreTransitionTime;
+      overflow: hidden;
+      max-width: 0%;
   }
 
   .choice-details {
-    width: ~'calc(100% - @{minimumButtonSize})';
-    white-space: nowrap;
-    vertical-align: top;
-    height: @minimumButtonSize;
+    transition: padding @coreTransitionTime ease-out 10*@coreTransitionTime;
+    padding-right: @minimumButtonSize;  //IE Edge doesn't support calc transitions
   }
 
-  .choice-actions {
-    width: @minimumButtonSize;
-    cursor: pointer;
-    text-align: center;
-  }
-
-  .choice-title,
-  .choice-date {
-    padding: 0px 20px;
-    display: inline-block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .choice-title {
-    width: 50%;
-  }
-
-  .choice-date {
-    width: 50%;
-    text-align: center;
-  }
 }
