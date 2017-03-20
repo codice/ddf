@@ -195,6 +195,7 @@ net.opengis.cat.wrs.v_1_0_2
 net.opengis.filter.v_2_0_0
 net.opengis.gml.v_3_1_1
 net.opengis.ogc
+net.opengis.ows.v_1_0_0
 net.opengis.ows.v_1_1_0
 net.opengis.wfs.v_2_0_0
 oasis.names.tc.ebxml_regrep.xsd.rim._3
@@ -428,6 +429,7 @@ org.codice.ddf.security.migratable.impl
 org.codice.ddf.security.policy.context
 org.codice.ddf.security.policy.context.attributes
 org.codice.ddf.security.policy.context.impl
+org.codice.ddf.security.response.filter
 org.codice.ddf.security.servlet.logout
 org.codice.ddf.security.session
 org.codice.ddf.security.sts.claims.property
