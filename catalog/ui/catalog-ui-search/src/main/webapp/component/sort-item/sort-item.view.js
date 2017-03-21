@@ -21,8 +21,10 @@ define([
     'js/CustomElements',
     'component/singletons/metacard-definitions',
     'component/dropdown/dropdown.view',
+    'component/property/property.view',
+    'component/property/property',
     'properties'
-], function(Marionette, _, $, template, CustomElements, metacardDefinitions, DropdownView, properties) {
+], function (Marionette, _, $, template, CustomElements, metacardDefinitions, DropdownView, PropertyView, Property, properties) {
 
     var blacklist = ['anyText', 'anyGeo'];
 
@@ -36,45 +38,137 @@ define([
         events: {
             'click .sort-remove': 'removeModel'
         },
-        initialize: function(options) {},
-        removeModel: function() {
+        initialize: function (options) {},
+        removeModel: function () {
             this.model.destroy();
         },
-        onBeforeShow: function() {
-            var sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function(type){
+        onBeforeShow: function () {
+            var sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function (type) {
                 return !properties.isHidden(type.id);
-            }).filter(function(type){
+            }).filter(function (type) {
                 return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id);
-            }).filter(function(type) {
+            }).filter(function (type) {
                 return blacklist.indexOf(type.id) === -1;
-            }).map(function(metacardType) {
+            }).map(function (metacardType) {
                 return {
                     label: metacardType.alias || metacardType.id,
                     value: metacardType.id
                 };
             });
 
-            this.sortAttribute.show(DropdownView.createSimpleDropdown({
-                hasFiltering: true,
-                list: sortAttributes,
-                defaultSelection: [this.model.get('attribute')]
+            sortAttributes.unshift({
+                label: 'Best Text Match',
+                value: 'RELEVANCE'
+            });
+
+            this.sortAttribute.show(new PropertyView({
+                model: new Property({
+                    enum: sortAttributes,
+
+                    value: [this.model.get('attribute')],
+                    id: 'Sort Attribute',
+                    enumFiltering: true
+                })
             }));
-            this.sortDirection.show(DropdownView.createSimpleDropdown({
-                list: [{
-                    label: 'Ascending',
-                    value: 'ascending'
-                }, {
-                    label: 'Descending',
-                    value: 'descending'
-                }],
-                defaultSelection: [this.model.get('direction')]
+            this.handleAttribute()
+
+            this.sortAttribute.currentView.$el.on('change', function (event) {
+                this.handleAttribute();
+            }.bind(this));
+        },
+        turnOffEditing: function () {
+            this.sortAttribute.currentView.turnOffEditing();
+            this.sortDirection.currentView.turnOffEditing();
+        },
+        turnOnEditing: function () {
+            this.sortAttribute.currentView.turnOnEditing();
+            if (!this.$el.hasClass('is-non-directional-sort')) {
+                this.sortDirection.currentView.turnOnEditing();
+            }
+        },
+        turnOnLimitedWidth: function () {
+            this.sortAttribute.currentView.turnOnLimitedWidth();
+            this.sortDirection.currentView.turnOnLimitedWidth();
+        },
+        handleAttribute: function () {
+            var attribute = this.sortAttribute.currentView.getCurrentValue()[0]; //this.model.get('attribute');
+            var ascendingLabel, descendingLabel;
+            if (metacardDefinitions.metacardTypes[attribute] === undefined) {
+                ascendingLabel = descendingLabel = '';
+                this.$el.toggleClass('is-non-directional-sort', true);
+            } else {
+                switch (metacardDefinitions.metacardTypes[attribute].type) {
+                    case 'DATE':
+                        ascendingLabel = 'Earliest';
+                        descendingLabel = 'Latest';
+                        break;
+                    case 'LOCATION':
+                        ascendingLabel = 'Closest';
+                        descendingLabel = 'Furthest';
+                        break;
+                    case 'BOOLEAN':
+                        ascendingLabel = 'True First'; //Truthiest
+                        descendingLabel = 'False First'; //Falsiest
+                        break;
+                    case 'LONG':
+                    case 'DOUBLE':
+                    case 'FLOAT':
+                    case 'INTEGER':
+                    case 'SHORT':
+                        ascendingLabel = 'Smallest';
+                        descendingLabel = 'Largest';
+                        break;
+                    case 'STRING':
+                        ascendingLabel = 'A->Z';
+                        descendingLabel = 'Z->A';
+                        break;
+                    case 'GEOMETRY':
+                    case 'XML':
+                    case 'BINARY':
+                    default:
+                        ascendingLabel = 'Ascending';
+                        descendingLabel = 'Descending';
+                        break;
+                }
+
+                this.$el.toggleClass('is-non-directional-sort', false);
+            }
+
+            if (this.sortDirection.currentView !== undefined) {
+                this.model.set('direction', this.sortDirection.currentView.getCurrentValue()[0]);
+            }
+
+            this.sortDirection.show(new PropertyView({
+                model: new Property({
+                    enum: [{
+                        label: ascendingLabel,
+                        value: 'ascending'
+                    }, {
+                        label: descendingLabel,
+                        value: 'descending'
+                    }],
+
+                    value: [this.model.get('direction')],
+                    id: 'Sort Direction'
+                })
             }));
-            this.listenTo(this.sortAttribute.currentView.model, 'change:value', function(model, attribute) {
-                this.model.set('attribute', attribute[0]);
-            })
-            this.listenTo(this.sortDirection.currentView.model, 'change:value', function(model, direction) {
-                this.model.set('direction', direction[0]);
-            })
+
+            if (metacardDefinitions.metacardTypes[attribute] === undefined) {
+                this.sortDirection.currentView.turnOffEditing();
+            } else {
+                this.sortDirection.currentView.turnOnEditing();
+            }
+
+            this.turnOnLimitedWidth();
+            this.sortDirection.currentView.$el.on('change', function (event) {
+                this.handleAttribute();
+            }.bind(this));
+        },
+        getValue: function () {
+            return {
+                sortField: this.sortAttribute.currentView.getCurrentValue()[0],
+                sortOrder: this.sortDirection.currentView.getCurrentValue()[0]
+            }
         }
     });
 });
