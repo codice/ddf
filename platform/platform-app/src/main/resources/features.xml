@@ -982,6 +982,11 @@
         <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
+    <feature name="platform-filter-response" install="manual" version="${project.version}"
+             description="Response Filter for outgoing HTTP messages.">
+        <bundle>mvn:ddf.platform/platform-filter-response/${project.version}</bundle>
+    </feature>
+
     <!-- This can be removed when we have upgraded to Karaf 4.1.0
     https://codice.atlassian.net/browse/DDF-2132 -->
     <feature name="log4j2-temporary" install="manual" version="${project.version}" hidden="true">
@@ -1011,6 +1016,7 @@
         <feature>error</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
+        <feature>platform-filter-response</feature>
     </feature>
 
     <feature name="clientinfo-filter" install="auto" version="${project.version}"
