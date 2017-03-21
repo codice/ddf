@@ -375,6 +375,7 @@
         <module>admin</module>
         <module>landing-page</module>
         <module>country-converter</module>
+        <module>usng4j</module>
         <module>platform-app</module>
         <module>platform-filter-clientinfo</module>
     </modules>

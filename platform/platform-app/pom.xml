@@ -288,6 +288,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.usng4j</groupId>
+            <artifactId>platform-usng4j-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.usng4j</groupId>
+            <artifactId>platform-usng4j-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>net.jodah</groupId>
             <artifactId>failsafe</artifactId>
             <version>${jodah-failsafe.version}</version>
