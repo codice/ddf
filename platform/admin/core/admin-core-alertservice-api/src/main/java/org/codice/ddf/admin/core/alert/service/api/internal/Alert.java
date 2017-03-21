@@ -30,10 +30,6 @@ import net.shibboleth.utilities.java.support.annotation.constraint.NotEmpty;
  * removed in a future version of the library.</b>
  * </p>
  * <p>
- * <b> This API will be modified and built upon as the need for Admin UI notifications evolves.
- * See <a href="https://codice.atlassian.net/wiki/display/DDF/Design+Admin+UI+Notifications">Design Admin UI Notifications</a>.</b>
- * </p>
- * <p>
  * An {@link Alert} holds the content for a system administrator alert.
  */
 public class Alert {
@@ -80,6 +76,6 @@ public class Alert {
     }
 
     public enum Type {
-        INFO, WARNING, DANGER
+        INFO, WARN, ERROR
     }
 }

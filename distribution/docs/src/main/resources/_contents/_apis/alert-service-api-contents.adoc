@@ -15,8 +15,8 @@ Some of the *Alert Service* API is exposed via JMX.
 It can either be accessed using the JMX API or from a REST-based interface created by http://jolokia.org[Jolokia] that comes with ${branding}.
 Here are the methods that are exposed in the Managed Bean:
 
-`addAlert(Alert alert)`:: Adds an `Alert` to the current ``Alert``s
-`getAlerts()`:: Returns the current `Alert`
+`addAlert(Alert alert)`:: Adds an `Alert`
+`getAlerts()`:: Returns the current `Alert`s
 `dismissAlert(String keyToDismiss)`:: Dismisses an `Alert` with the given key
 
 === Alert Service Data Classes
@@ -34,20 +34,20 @@ An `AlertDetail` consists of a message and a level (e.g. warning, error).
 
 === Alert Service Interfaces
 
-The interfaces used by that *Alert Service* subsystem are `AlertService` and `AlertSupplier`.
+The interfaces used by the *Alert Service* subsystem are `AlertService` and `AlertsSupplier`.
 The purpose of these interfaces and their public methods are explained below.
 
 ==== `AlertService` Interface
 
 The `AlertService` interface is the main interface that is used to get, add, and dismiss ``Alert``s.
 
-`addAlert(Alert alert)`:: Adds an `Alert` to the current ``Alert``s
-`getAlerts()`:: Returns the current `Alert`
-`dismissAlert(String keyToDismiss)`:: Dismisses the first `Alert` with the given key from the current `Alert`
+`addAlert(Alert alert)`:: Adds an `Alert`
+`getAlerts()`:: Returns the current `Alert`s
+`dismissAlert(String keyToDismiss)`:: Dismisses the first `Alert` with the given key from the current collection of `Alert`s
 
-==== `AlertSupplier` Interface
+==== `AlertsSupplier` Interface
 
-While some ``Alert``s will be pushed to the `AlertService`, other ``Alert``s will be polled each time the current ``Alert``s is retrieved.
-An `AlertsSupplier` will return a list of ``Alert``s every time that the `getAlerts` method is called.
+While some ``Alert``s will be pushed to the `AlertService`, other ``Alert``s are pulled from ``AlertsSupplier``s by the `AlertService`. 
+The `getAlerts()` method returns the ``AlertsSupplier``'s list of ``Alert``s.
 
-`getAlerts()`:: Generates and returns a list of ``Alert``s
+`getAlerts()`:: Returns a list of ``Alert``s specific to the `AlertsSupplier`

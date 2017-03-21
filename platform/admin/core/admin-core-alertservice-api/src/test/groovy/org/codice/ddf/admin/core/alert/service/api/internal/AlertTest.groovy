@@ -43,7 +43,7 @@ class AlertTest extends Specification {
     def 'test construct Alert with #details'(details) {
         given:
             final title = _ as String
-            final type = Alert.Type.DANGER
+            final type = Alert.Type.ERROR
             final key = _ as String
 
         when:
@@ -63,7 +63,7 @@ class AlertTest extends Specification {
     def 'test construct Alert with null key'() {
         given:
             final title = _ as String
-            final type = Alert.Type.DANGER
+            final type = Alert.Type.ERROR
             final List<AlertDetail> details = []
 
         when:
@@ -84,11 +84,11 @@ class AlertTest extends Specification {
             thrown(IllegalArgumentException)
 
         where:
-            type              | title       | details | key
-            null              | _ as String | _       | _ as String
-            Alert.Type.DANGER | null        | _       | _ as String
-            Alert.Type.DANGER | ""          | _       | _ as String
-            Alert.Type.DANGER | _ as String | null    | _ as String
-            Alert.Type.DANGER | _ as String | _       | ""
+            type             | title       | details | key
+            null             | _ as String | _       | _ as String
+            Alert.Type.ERROR | null        | _       | _ as String
+            Alert.Type.ERROR | ""          | _       | _ as String
+            Alert.Type.ERROR | _ as String | null    | _ as String
+            Alert.Type.ERROR | _ as String | _       | ""
     }
 }

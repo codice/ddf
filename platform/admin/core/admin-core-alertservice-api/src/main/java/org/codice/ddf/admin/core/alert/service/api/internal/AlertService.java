@@ -23,16 +23,12 @@ import javax.annotation.Nonnull;
  * removed in a future version of the library.</b>
  * </p>
  * <p>
- * <b> This API will be modified and built upon as the need for Admin UI notifications evolves.
- * See <a href="https://codice.atlassian.net/wiki/display/DDF/Design+Admin+UI+Notifications">Design Admin UI Notifications</a>.</b>
- * </p>
- * <p>
  * The {@link AlertService} is used to get, add, and dismiss {@link Alert}s.
  */
 public interface AlertService {
 
     /**
-     * Adds an {@link Alert} to the current {@link Alert}s
+     * Adds an {@link Alert}
      *
      * @param alert
      */
@@ -48,7 +44,7 @@ public interface AlertService {
      * Dismisses the first {@link Alert} with the specified key from the current {@link Alert}s
      *
      * @param keyToDismiss the {@param keyToDismiss} of the {@link Alert} to be dismissed
-     * @return {@code true} if an {@link Alert} with the specified {@param keyToDismiss} was successfully removed from the current {@link Alert}s
+     * @return {@code true} if an {@link Alert} with the specified {@param keyToDismiss} was successfully removed from the current collection of {@link Alert}s
      */
     Boolean dismissAlert(@Nonnull String keyToDismiss);
 }

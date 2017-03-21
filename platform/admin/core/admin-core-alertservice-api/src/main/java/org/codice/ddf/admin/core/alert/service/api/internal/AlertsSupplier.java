@@ -23,13 +23,9 @@ import javax.annotation.Nonnull;
  * removed in a future version of the library.</b>
  * </p>
  * <p>
- * <b> This API will be modified and built upon as the need for Admin UI notifications evolves.
- * See <a href="https://codice.atlassian.net/wiki/display/DDF/Design+Admin+UI+Notifications">Design Admin UI Notifications</a>.</b>
- * </p>
- * <p>
- * While some {@link Alert}s will be pushed to the {@link AlertService}, other {@link Alert}s should
- * be polled each time the current {@link Alert}s is retrieved. An {@link AlertsSupplier} will
- * return a list of {@link Alert}s every time that the {@link #getAlerts} method is called.
+ * While some {@link Alert}s will be pushed to the {@link AlertService}, other {@link Alert}s are
+ * pulled from {@link AlertsSupplier}s by the {@link AlertService}. The {@link #getAlerts()} method
+ * returns the {@link AlertsSupplier}'s list of {@link Alert}s.
  */
 public interface AlertsSupplier {
 

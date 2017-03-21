@@ -26,10 +26,6 @@ import net.shibboleth.utilities.java.support.annotation.constraint.NotEmpty;
  * removed in a future version of the library.</b>
  * </p>
  * <p>
- * <b> This API will be modified and built upon as the need for Admin UI notifications evolves.
- * See <a href="https://codice.atlassian.net/wiki/display/DDF/Design+Admin+UI+Notifications">Design Admin UI Notifications</a>.</b>
- * </p>
- * <p>
  * An {@link AlertDetail} contains a single secondary message of an {@link Alert}. An {@link Alert} may contain
  * a list of {@link AlertDetail}s.
  */
@@ -57,6 +53,6 @@ public class AlertDetail {
     }
 
     public enum Level {
-        WARNING, ERROR
+        INFO, WARN, ERROR
     }
 }
