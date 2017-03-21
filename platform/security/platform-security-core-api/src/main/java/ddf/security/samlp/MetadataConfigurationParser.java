@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpBackOffIOExceptionHandler;
 import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
@@ -103,8 +104,7 @@ public class MetadataConfigurationParser {
                                 readEntityDescriptor(new InputStreamReader(fileInputStream,
                                         "UTF-8"));
 
-                        LOGGER.info("entityId = {}",
-                                entityDescriptor.getEntityID());
+                        LOGGER.info("entityId = {}", entityDescriptor.getEntityID());
                         entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
                         if (updateCallback != null) {
                             updateCallback.accept(entityDescriptor);
@@ -132,6 +132,7 @@ public class MetadataConfigurationParser {
             httpRequest.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(
                     new ExponentialBackOff()).setBackOffRequired(
                     HttpBackOffUnsuccessfulResponseHandler.BackOffRequired.ALWAYS));
+            httpRequest.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(new ExponentialBackOff()));
             ListeningExecutorService service =
                     MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
             ListenableFuture<HttpResponse> httpResponseFuture =
