@@ -20,12 +20,9 @@ define([
 ], function (Backbone, Node) {
 
     return Backbone.Collection.extend({
-        model: Node.Model,
+        model: Node.Summary,
         comparator: function(model){
-            var fedNode = model.getObjectOfType('urn:registry:federation:node');
-            if (fedNode !== null && fedNode.length > 0) {
-                return fedNode[0].Name.toLowerCase();
-            }
+            return model.get('name').toLowerCase();
         }
     });
 });

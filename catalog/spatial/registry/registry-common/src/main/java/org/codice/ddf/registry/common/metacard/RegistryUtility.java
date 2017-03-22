@@ -25,6 +25,18 @@ import ddf.catalog.data.Metacard;
 
 public class RegistryUtility {
 
+
+    public static final String REGISTRY_ID_REGEX = "urn:uuid:[a-z,A-Z,0-9]{32}";
+
+    /**
+     * Checks if the given registryId is of a valid format.
+     * @param registryId registryId to be checked
+     * @return true if registryId matches the expected format, false otherwise.
+     */
+    public static boolean validRegistryId(String registryId) {
+        return registryId.matches(REGISTRY_ID_REGEX);
+    }
+
     /**
      * Checks that the metacard passed in has the Registry metacard tag and a valid RegistryId.
      *

@@ -56,7 +56,13 @@ define([
             initialize: function (options) {
                 this.mode = options.mode;
                 this.readOnly = options.readOnly;
-                this.model.refreshData();
+                this.hasData = options.modelEmpty;
+                if (this.hasData) {
+                    this.refreshData();
+                }
+            },
+            refreshData: function() {
+                this.model.initializeData();
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.generalInfo.get('segmentId'), this.updateGeneralTabError);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.organizationInfo.get('segmentId'), this.updateOrgTabError);
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.contactInfo.get('segmentId'), this.updateContactTabError);
@@ -97,7 +103,7 @@ define([
                     showHeader: true,
                     readOnly: this.readOnly
                 });
-
+                this.hasData = true;
             },
             serializeData: function () {
                 var data = {};
@@ -114,8 +120,13 @@ define([
                 data.validationErrors = this.model.validationError;
                 data.mode = this.mode;
                 data.readOnly = this.readOnly;
+                data.hasData = this.hasData;
 
                 data.name = this.getNodeName();
+
+                if(this.model.summary.attributes) {
+                    data.registryId = this.model.summary.get('registryId');
+                }
 
                 return data;
             },
@@ -126,17 +137,22 @@ define([
                         extName = extObj.Name;
                     }
                 });
+                if(!extName && this.model.summary.attributes){
+                    extName = this.model.summary.get('name');
+                }
                 return extName;
             },
             onRender: function () {
                 this.$el.attr('role', "dialog");
                 this.$el.attr('aria-hidden', "true");
-
-                this.generalInfo.show(this.generalInfoView);
-                this.organizationInfo.show(this.organizationInfoView);
-                this.contactInfo.show(this.contactInfoView);
-                this.serviceInfo.show(this.serviceInfoView);
-                this.contentInfo.show(this.contentInfoView);
+                if(this.hasData) {
+                    this.generalInfo.show(this.generalInfoView);
+                    this.organizationInfo.show(this.organizationInfoView);
+                    this.contactInfo.show(this.contactInfoView);
+                    this.serviceInfo.show(this.serviceInfoView);
+                    this.contentInfo.show(this.contentInfoView);
+                    wreqr.vent.trigger('modalSizeChanged', this.el.firstChild.clientHeight);
+                }
             },
             updateGeneralTabError: function () {
                this.updateTabError("#generalTabLink", this.model.generalInfo);

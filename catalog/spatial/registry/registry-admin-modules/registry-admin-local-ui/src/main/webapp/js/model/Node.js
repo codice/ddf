@@ -30,11 +30,22 @@ define([
     var Node = {};
 
     Node.Model = Backbone.Model.extend({
+        url: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/registryMetacard',
         createUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/createLocalEntry',
         updateUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/updateLocalEntry',
+        parse: function (raw) {
+            if(raw.value.nodes.length === 1) {
+                return raw.value.nodes[0];
+            }
+            return raw;
+        },
 
-        initialize: function () {
+        initialize: function (options) {
+            this.summary = options.summary;
             this.descriptors = FieldDescriptors.retrieveFieldDescriptors();
+            this.initializeData();
+        },
+        initializeData: function () {
             var model = this;
             if (!model.get('id')) {
                 model.set('id', 'temp-id'); //this id will be replaced on the server with a real uuid
@@ -65,7 +76,6 @@ define([
                 model.get('RegistryObjectList').Service = [];
             }
 
-
             if (!model.get('RegistryObjectList').Organization) {
                 model.get('RegistryObjectList').Organization = [];
             }
@@ -78,9 +88,7 @@ define([
                 model.get('RegistryObjectList').Association = [];
             }
 
-
             this.refreshData();
-
         },
         refreshData: function () {
             this.associationModel = new Association.AssociationModel({
@@ -150,6 +158,9 @@ define([
                 model.get('RegistryObjectList').ExtrinsicObject.push(content);
             });
             this.associationModel.saveData();
+            if(this.summary.attributes){
+                this.summary.set('name', this.getObjectOfType('urn:registry:federation:node')[0].Name);
+            }
         },
         validate: function(){
             var errors = [];
@@ -171,36 +182,51 @@ define([
               });
           }
         },
-        sync: function () {
-
-            var model = this;
-            var mbean = 'org.codice.ddf.registry:type=FederationAdminMBean';
-            var operation = 'updateLocalEntry(java.util.Map)';
-            var url = this.updateUrl;
-            var curId = model.get('id');
-            var addOperation = false;
-            if (curId === 'temp-id') {
-                addOperation = true;
-                operation = 'createLocalEntry(java.util.Map)';
-                url = this.createUrl;
-                model.unset("id", {silent: true});
+        sync: function (operationType, object, options) {
+            if(operationType === 'read'){
+                return this.readNode(options);
             }
 
+            if('temp-id' === this.get('id')){
+                return this.createNode(options);
+            }
+
+            return this.updateNode(options);
+        },
+        readNode: function (options) {
+            return this.syncNode(this.url, this.summary.get('registryId'), 'registryMetacard(java.lang.String)', options);
+        },
+        createNode: function (options) {
+            this.unset("id");
+            var response = this.syncNode(this.createUrl, this, 'createLocalEntry(java.util.Map)', options);
+            response.addOperation = true;
+            return response;
+        },
+        updateNode: function (options) {
+            return this.syncNode(this.updateUrl, this, 'updateLocalEntry(java.util.Map)', options);
+        },
+        syncNode: function (url, arguments, operation, options) {
             var data = {
                 type: 'EXEC',
-                mbean: mbean,
+                mbean: 'org.codice.ddf.registry:type=FederationAdminMBean',
                 operation: operation
             };
-
-            data.arguments = [model];
+            data.arguments = [arguments];
             data = JSON.stringify(data);
             var response = $.ajax({
                 type: 'POST',
                 contentType: 'application/json',
                 data: data,
                 url: url
+            }).done(function (result) {
+                if (options.success && operation === 'registryMetacard(java.lang.String)') {
+                    options.success(JSON.parse(result));
+                }
+            }).fail(function (error) {
+                if (options.error) {
+                    options.error(error);
+                }
             });
-            response.addOperation = addOperation;
             return response;
         },
         getObjectOfType: function (type) {
@@ -221,36 +247,50 @@ define([
         }
     });
 
+    Node.Summary = Backbone.Model.extend({
+        defaults: function () {
+            return {
+                metacardId: "",
+                registryId: "",
+                name: "",
+                created: undefined,
+                modified: undefined,
+                identityNode: false,
+                localNode: false,
+                reportAction: ""
+            };
+        }
+    });
+
     Node.Models = Backbone.Collection.extend({
-        model: Node.Model,
-        url: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/allRegistryMetacards',
+        model: Node.Summary,
+        url: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/allRegistryMetacardsSummary',
         deleteUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/deleteLocalEntry',
+        hasData: false,
 
         parse: function (raw) {
             FieldDescriptors.customFields = raw.value.customSlots;
             FieldDescriptors.autoPopulateValues = raw.value.autoPopulateValues;
+            this.hasData = true;
             return raw.value.nodes;
         },
         getSecondaryNodes: function() {
             return this.models.filter(function(model){
-                var transValues = model.get('TransientValues');
-                return transValues && !transValues['registry.local.registry-identity-node'] && transValues['registry.local.registry-local-node'];
+                return model.get('localNode') && !model.get('identityNode');
             });
         },
         getIdentityNode: function(){
             var array = this.models.filter(function(model){
-                return model.get('TransientValues') && model.get('TransientValues')['registry.local.registry-identity-node'];
+                return model.get('identityNode');
             });
             if(array.length === 1){
-                array[0].set('identityNode',true);
                 return array[0];
             }
             return undefined;
         },
         getRemoteNodes: function(){
             return this.models.filter(function(model){
-                var transValues = model.get('TransientValues');
-                return !transValues || !transValues['registry.local.registry-local-node'];
+                return !model.get('localNode');
             });
         },
         deleteNodes: function (nodes) {
