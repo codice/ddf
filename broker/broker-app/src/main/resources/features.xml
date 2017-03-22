@@ -38,8 +38,8 @@
         </bundle>
     </feature>
 
-    <feature name="broker-routemanager" install="auto" version="${project.version">
-        <bundle>mvn:org.codice.ddf.broker/broker-routemanager/${project.version}
+    <feature name="broker-route-manager" install="auto" version="${project.version">
+        <bundle>mvn:org.codice.ddf.broker/broker-route-manager/${project.version}
         </bundle>
     </feature>
 

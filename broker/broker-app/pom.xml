@@ -29,7 +29,7 @@
     <dependencies>
         <dependency>
             <groupId>org.codice.ddf.broker</groupId>
-            <artifactId>broker-routemanager</artifactId>
+            <artifactId>broker-route-manager</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

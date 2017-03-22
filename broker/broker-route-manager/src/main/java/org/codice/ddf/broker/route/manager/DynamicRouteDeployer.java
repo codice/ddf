@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.broker.routemanager;
+package org.codice.ddf.broker.route.manager;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -35,14 +35,14 @@
 
     <bean id="shutdown" class="org.apache.camel.impl.DefaultShutdownStrategy">
         <cm:managed-properties
-                persistent-id="org.codice.ddf.broker.routemanager.DynamicRouteDeployer"
+                persistent-id="org.codice.ddf.broker.route.manager.DynamicRouteDeployer"
                 update-strategy="container-managed"/>
         <property name="timeout" value="10"/>
     </bean>
 
 
     <bean id="dynamicRouteDeployer"
-          class="org.codice.ddf.broker.routemanager.DynamicRouteDeployer"
+          class="org.codice.ddf.broker.route.manager.DynamicRouteDeployer"
           init-method="init"
           destroy-method="destroy">
         <argument ref="routedeployer-context"/>

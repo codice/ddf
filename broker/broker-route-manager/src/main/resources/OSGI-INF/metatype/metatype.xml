@@ -16,7 +16,7 @@
 
     <OCD description="Configures the Dynamic Route Deployer Bundle"
          name="Route Manager Configuration"
-         id="org.codice.ddf.broker.routemanager.DynamicRouteDeployer">
+         id="org.codice.ddf.broker.route.manager.DynamicRouteDeployer">
 
         <AD name="Camel Route Shutdown Timeout" id="timeout" required="true"
             type="Long"
@@ -25,8 +25,8 @@
         </AD>
     </OCD>
 
-    <Designate pid="org.codice.ddf.broker.routemanager.DynamicRouteDeployer">
-        <Object ocdref="org.codice.ddf.broker.routemanager.DynamicRouteDeployer"/>
+    <Designate pid="org.codice.ddf.broker.route.manager.DynamicRouteDeployer">
+        <Object ocdref="org.codice.ddf.broker.route.manager.DynamicRouteDeployer"/>
     </Designate>
 
 </metatype:MetaData>
