@@ -26,7 +26,7 @@ public class TopicLogger extends RouteBuilder {
 
     private String name = "example.topic";
 
-    private long samplePeriod = 3600L;
+    private long samplePeriod = 60L;
 
     private boolean showHeaders;
 

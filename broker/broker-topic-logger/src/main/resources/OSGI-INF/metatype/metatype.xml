@@ -23,7 +23,7 @@
         <AD
                 description="Topic sample time period (seconds)"
                 name="Sample Period" id="samplePeriod" required="true"
-                type="Long" default="3600"/>
+                type="Long" default="60"/>
         <AD
                 description="Log headers with sample message"
                 name="Show Headers" id="showHeaders" required="true"

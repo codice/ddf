@@ -10,12 +10,12 @@ The Route Manager is installed as a part of the Broker App.
 
 ===== Configuring
 
-Currently there are no configurations for the Route Manager.
+The route shutdown timeout can be configured.
 
 ===== Using the Route Manager
 
-The Route Manager gives an administrator the ability to configure and deploy routes, queues, and topics dynamically. If a need arises for a new route, an administrator can easily develop a new route and deploy it to satisfy the requirement, rather than spending the time to develop, compile, and test new code.
+The Route Manager gives an administrator the ability to configure and deploy Camel routes, queues, and topics dynamically. The `sjms` component is available by default. If a need arises for a new route, an administrator can easily develop a new route and deploy it to satisfy the requirement, rather than spending the time to develop, compile, and test new code.
 
-To deploy a new route, simply place a route `.XML` file in the `<KARAF_HOME>/routes` directory of ${branding}. To remove a route (or set of routes), delete the `.XML` file.
+To deploy a new route, simply place a route `.XML` file in the `<${branding}_HOME>/etc/routes` directory of ${branding}. To remove a route (or set of routes), delete the `.XML` file.
 
 There are example routes in the `<KARAF_HOME>/routes` directory by default.

@@ -6,7 +6,7 @@ Below is a table listing all of the ports that ${branding} uses and a descriptio
 |Port
 |Usage description
 
-|443 (8993 by default)
+|8993 
 |https access to ${branding} admin and search web pages.
 
 |8101
