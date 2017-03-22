@@ -247,7 +247,8 @@ public interface Metacard extends Serializable {
     /**
      * Sets {@link Attribute} with new attribute.
      *
-     * @param attribute new {@link Attribute} to set
+     * @param attribute new {@link Attribute} to set. If the getValue() call on the passed in
+     * attribute returns <code>null</code>, the attribute will be removed from this {@link Metacard}.
      */
     void setAttribute(Attribute attribute);
 
