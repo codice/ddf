@@ -1,0 +1,33 @@
+==== Undelivered Messages UI
+
+===== Prerequisites for Undelivered Messages UI
+
+None
+
+===== Installing and Uninstalling
+
+The Undelivered Messages UI is installed as a part of the <<_installing_and_uninstalling_message_broker_app, Message Broker App installation>>.
+
+===== Configuring
+
+Currently there are no configurations for the Undelivered Messages UI
+
+===== Using the Undeliverable Messages UI
+The Undeliverable Messages tab gives an administrator the ability to view undeliverable messages and then decide whether to resend or delete those messages.
+
+To view undelivered messages, an administrator can use the "retrieve" button, which makes an immediate call to the backend and displays all the messages. Alternatively, the "start polling" button makes calls to the backend every 5 seconds and updates the display accordingly.
+
+An administrator can select messages by clicking anywhere in the row of the message. Multiple messages can be selected simply by clicking multiple messages or by clicking the "Select all" option at the head of the table. Deselecting is done by clicking a message again or clicking the "Deselect all" option, next to the "Select all" option.
+
+To attempt to resend messages, select the messages, and then click the "resend" button. Currently, there is no way to identify if a message was successfully redelivered.
+
+To delete messages, select the messages, and then click the "delete" button.
+
+[NOTE]
+====
+Only 200 messages can be viewed at a time, even though there may be more than 200 undelivered messages
+====
+
+Known issues:
+
+- If attempting to resend a message, but the listener is no longer available, the message will be "successfully" resent and removed from the UI and the Artemis DLQ but will not be successfully redelivered.

@@ -20,8 +20,6 @@
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="routedeployer-context"/>
 
-    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
-
     <reference id="jmsConnectionFactory" interface="javax.jms.ConnectionFactory"/>
 
     <bean id="jmsConsumerConnectionResource"

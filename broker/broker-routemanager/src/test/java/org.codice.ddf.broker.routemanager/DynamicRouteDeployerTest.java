@@ -61,15 +61,14 @@ public class DynamicRouteDeployerTest {
 
     @Test
     public void testUpdate() throws Exception {
-        CamelContext context = new DefaultCamelContext();
-
         DynamicRouteDeployer dynamicRouteDeployer = mock(DynamicRouteDeployer.class);
         doCallRealMethod().when(dynamicRouteDeployer)
                 .update(any(File.class));
-        dynamicRouteDeployer.update(new File(this.getClass()
+        File testFile = new File(this.getClass()
                 .getResource("/test-route.xml")
-                .toURI()));
-        verify(dynamicRouteDeployer, times(1)).install(any(File.class));
-        verify(dynamicRouteDeployer, times(1)).uninstall(any(File.class));
+                .toURI());
+        dynamicRouteDeployer.update(testFile);
+        verify(dynamicRouteDeployer, times(1)).install(testFile);
+        verify(dynamicRouteDeployer, times(1)).uninstall(testFile);
     }
 }

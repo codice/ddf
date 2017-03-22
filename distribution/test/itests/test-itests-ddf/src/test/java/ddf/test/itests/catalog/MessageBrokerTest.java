@@ -153,10 +153,6 @@ public class MessageBrokerTest extends AbstractIntegrationTest {
                 .toFile());
     }
 
-    @Before
-    public void before() throws Exception {
-    }
-
     @Test
     public void testDynamicRouting() throws Exception {
         MockEndpoint endpoint = camelContext.getEndpoint(MOCK_EXAMPLE_TEST_ROUTE,
@@ -214,9 +210,9 @@ public class MessageBrokerTest extends AbstractIntegrationTest {
                 .checkEvery(pollingInterval, TimeUnit.SECONDS)
                 .until(() -> {
                     // Get undelivered messages from the DLQ
-                    List<Object> responseMap = getMessagesFromDlq();
-                    if (!responseMap.isEmpty()) {
-                        messageId = (String) ((Map) responseMap.get(0)).get("messageID");
+                    List<Object> responseList = getMessagesFromDlq();
+                    if (!responseList.isEmpty()) {
+                        messageId = (String) ((Map) responseList.get(0)).get("messageID");
                         return true;
                     }
                     return false;
@@ -233,8 +229,8 @@ public class MessageBrokerTest extends AbstractIntegrationTest {
                 .checkEvery(pollingInterval, TimeUnit.SECONDS)
                 .until(() -> {
                     // Retrieve Jolokia response from the UndeliveredMessages MBean
-                    List<Object> responseMap = getMessagesFromDlq();
-                    return responseMap.isEmpty();
+                    List<Object> responseList = getMessagesFromDlq();
+                    return responseList.isEmpty();
                 });
         return waitCondition.lastResult();
     }

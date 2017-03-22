@@ -840,9 +840,15 @@ include::{adoc-include}/_admin-contents/managing-admin-contents.adoc[]
 
 ===  ${ddf-broker}  Reference
 
-include::{adoc-include}/_contents/_broker/configure-ha.adoc
+include::{adoc-include}/_broker/messaging-broker-app-contents.adoc[]
 
-include::{adoc-include}/_contents/_broker/securing-artemis-contents.adoc
+include::{adoc-include}/_broker/message-ui-contents.adoc[]
+
+include::{adoc-include}/_broker/route-manager-contents.adoc[]
+
+include::{adoc-include}/_broker/configure-ha.adoc[]
+
+include::{adoc-include}/_broker/securing-artemis-contents.adoc[]
 
 <<<
 

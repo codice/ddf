@@ -16,10 +16,6 @@ for authenticating and authorizing users with your LDAP server. To configure the
 follow the instructions in <<${ddf-security} STS LDAP Login,${ddf-security} STS LDAP Login>> and
 <<${ddf-security} STS LDAP Claims Handler,${ddf-security} STS LDAP Claims Handler>>.
 
-include::${project.build.directory}/doc-contents/_ddf/docs-${ddf.version}/_security-framework/security-sts-ldap-login-contents.adoc[]
-
-include::${project.build.directory}/doc-contents/_ddf/docs-${ddf.version}/_security-framework/security-sts-ldap-claims-handler-contents.adoc[]
-
 ==== Configuring Artemis
 
 After the above steps have been completed, `<${branding}_HOME>/etc/org.apache.activemq.artemis.cfg`
@@ -66,9 +62,7 @@ configured to use the same `ldap` realm to secure ${branding}.
 To get to the Web Context Policy Manager, open the ${admin-console} (${secure_url}/admin), select the
 *${ddf-security}* application, and click *Web Context Policy Manager* on the *Configuration* tab.
 
-include::${project.build.directory}/doc-contents/_ddf/docs-${ddf.version}/_securing/configuring-web-context-policy-manager-contents.adoc[leveloffset=+1]
-
-include::${project.build.directory}/doc-contents/_ddf/docs-${ddf.version}/_tables/org.codice.ddf.security.policy.context.impl.PolicyManager.adoc[]
+See <<Configuring the Web Context Policy Manager, Configuring the Web Context Policy Manager>>
 
 ====== Additional Context Realm Details
 
