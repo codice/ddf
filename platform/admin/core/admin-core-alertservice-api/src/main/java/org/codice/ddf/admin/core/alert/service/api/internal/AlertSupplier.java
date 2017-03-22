@@ -24,13 +24,13 @@ import javax.annotation.Nonnull;
  * </p>
  * <p>
  * While some {@link Alert}s will be pushed to the {@link AlertService}, other {@link Alert}s are
- * pulled from {@link AlertsSupplier}s by the {@link AlertService}. The {@link #getAlerts()} method
- * returns the {@link AlertsSupplier}'s list of {@link Alert}s.
+ * pulled from {@link AlertSupplier}s by the {@link AlertService}. The {@link #getAlerts()} method
+ * returns the {@link AlertSupplier}'s list of {@link Alert}s.
  */
-public interface AlertsSupplier {
+public interface AlertSupplier {
 
     /**
-     * Returns a list of {@link Alert}s specific to the {@link AlertsSupplier}
+     * Returns a list of {@link Alert}s specific to the {@link AlertSupplier}
      *
      * @return list of {@link Alert}s
      */

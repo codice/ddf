@@ -35,6 +35,8 @@ public interface AlertService {
     void addAlert(@Nonnull Alert alert);
 
     /**
+     * The current {@link Alert}s include the added {@link Alert}s from the {@link #addAlert(Alert)} method and the {@link Alert}s gathered from the {@link AlertSupplier}s.
+     *
      * @return the current {@link Alert}s
      */
     @Nonnull

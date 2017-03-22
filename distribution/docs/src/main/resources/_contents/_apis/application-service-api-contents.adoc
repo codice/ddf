@@ -1,5 +1,5 @@
 
-The Application service has multiple interfaces which are exposed on top of the OSGi runtime for other applications to use.
+The Application service has multiple interfaces that are available as OSGi services.
 For more information on these interfaces, see <<_application_service_interfaces,Application Service Interfaces>>.
 
 === JMX Managed Bean
