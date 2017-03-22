@@ -51,10 +51,6 @@
             <entry key="name" value="jmsConnectionFactory"/>
             <entry key="protocol" value="Core"/>
             <entry key="jmsVersion" value="2.0"/>
-            <entry key="host" value="localhost"/>
-            <entry key="port" value="$[artemis.amqp.port]"/>
-            <entry key="sslEnabled" value="false"/>
-            <entry key="user" value="admin"/>
         </service-properties>
     </service>
 
