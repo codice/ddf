@@ -118,7 +118,7 @@
         <!-- @formatter:on  -->
 
         <cluster-connections>
-            <cluster-connection name="my-cluster">
+            <cluster-connection name="backup-cluster">
                 <address>jms</address>
                 <connector-ref>netty-connector</connector-ref>
                 <static-connectors>
@@ -127,7 +127,7 @@
             </cluster-connection>
         </cluster-connections>
 
-        <grouping-handler name="my-grouping-handler">
+        <grouping-handler name="backup-grouping-handler">
             <type>LOCAL</type>
             <address>jms</address>
             <timeout>5000</timeout>
