@@ -24,13 +24,13 @@ Here are the methods that are exposed in the Managed Bean:
 ==== `Alert` Class
 
 An `Alert` holds the content for a System Administrator alert.
-An `Alert` consists of a type (e.g. info, warning), a title, an optional list of details, and an optional key.
+An `Alert` consists of a level ("INFO", "WARN", or "ERROR"), a title, an optional list of details, and an optional key.
 
 ==== `AlertDetail` Class
 
 An `AlertDetail` contains a single secondary message of an Alert.
 An `Alert` may contain a list of ``AlertDetail``s.
-An `AlertDetail` consists of a message and a level (e.g. warning, error).
+An `AlertDetail` consists of a message String.
 
 === Alert Service Interfaces
 

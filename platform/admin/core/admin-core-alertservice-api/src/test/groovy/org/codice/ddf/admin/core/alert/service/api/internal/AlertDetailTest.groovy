@@ -22,27 +22,20 @@ class AlertDetailTest extends Specification {
             final message = _ as String
 
         when:
-            def alertDetail = new AlertDetail(level, message)
+            def alertDetail = new AlertDetail(message)
 
         then:
-            alertDetail.getLevel() == level
             alertDetail.getMessage() == message
-
-        where:
-            level << AlertDetail.Level.values()
     }
 
-    def 'test construct AlertDetail with an invalid parameter'() {
+    def 'test construct AlertDetail with an invalid message'() {
         when:
-            new AlertDetail(level, message)
+            new AlertDetail(message)
 
         then:
             thrown(IllegalArgumentException)
 
         where:
-            level                   | message
-            null                    | _ as String
-            AlertDetail.Level.ERROR | null
-            AlertDetail.Level.ERROR | ""
+            message << [null, ""]
     }
 }

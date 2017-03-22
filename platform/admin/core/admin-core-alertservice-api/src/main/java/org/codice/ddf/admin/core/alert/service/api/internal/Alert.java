@@ -34,7 +34,7 @@ import net.shibboleth.utilities.java.support.annotation.constraint.NotEmpty;
  */
 public class Alert {
 
-    private Type type;
+    private Level level;
 
     private String title;
 
@@ -42,22 +42,22 @@ public class Alert {
 
     private Optional<String> key;
 
-    public Alert(@Nonnull Type type, @Nonnull @NotEmpty String title, @Nonnull List<AlertDetail> details, @Nullable String key) {
-        notNull(type, "type may not be null");
+    public Alert(@Nonnull Level level, @Nonnull @NotEmpty String title, @Nonnull List<AlertDetail> details, @Nullable String key) {
+        notNull(level, "level may not be null");
         notEmpty(title, "title may not be empty");
         notNull(details, "details may not be null");
         if (key != null && key.equals("")) {
             throw new IllegalArgumentException("alert key may not be an empty string");
         }
-        this.type = type;
+        this.level = level;
         this.title = title;
         this.details = details;
         this.key = Optional.ofNullable(key);
     }
 
     @Nonnull
-    public Type getType() {
-        return type;
+    public Level getLevel() {
+        return level;
     }
 
     @Nonnull
@@ -75,7 +75,7 @@ public class Alert {
         return key;
     }
 
-    public enum Type {
+    public enum Level {
         INFO, WARN, ERROR
     }
 }

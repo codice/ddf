@@ -14,7 +14,6 @@
 package org.codice.ddf.admin.core.alert.service.api.internal;
 
 import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
 
 import javax.annotation.Nonnull;
 
@@ -33,26 +32,13 @@ public class AlertDetail {
 
     private String message;
 
-    private Level level;
-
-    public AlertDetail(@Nonnull Level level, @Nonnull @NotEmpty String message) {
-        notNull(level, "level may not be null");
+    public AlertDetail(@Nonnull @NotEmpty String message) {
         notEmpty(message, "message may not be empty");
-        this.level = level;
         this.message = message;
-    }
-
-    @Nonnull
-    public Level getLevel() {
-        return level;
     }
 
     @Nonnull
     public String getMessage() {
         return message;
-    }
-
-    public enum Level {
-        INFO, WARN, ERROR
     }
 }

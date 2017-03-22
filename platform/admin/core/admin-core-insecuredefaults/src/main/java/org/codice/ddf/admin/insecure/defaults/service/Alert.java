@@ -41,6 +41,10 @@ public class Alert {
         this.level = level;
     }
 
+    /**
+     * @deprecated TODO DDF-2897 Remove Level enum because it is not necessary
+     */
+    @Deprecated
     public enum Level {
         WARN,
         ERROR
