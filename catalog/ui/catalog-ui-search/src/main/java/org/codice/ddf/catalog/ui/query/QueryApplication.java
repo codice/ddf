@@ -20,8 +20,11 @@ import static spark.route.RouteOverview.enableRouteOverview;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -38,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableMap;
 
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
@@ -48,6 +52,8 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import spark.Request;
+import spark.Response;
 import spark.servlet.SparkApplication;
 
 public class QueryApplication implements SparkApplication {
@@ -73,6 +79,13 @@ public class QueryApplication implements SparkApplication {
 
     private static Pattern semicolon = Pattern.compile(";\\s?");
 
+    // @formatter:off
+    private static Map<String, Consumer<Response>> acceptedEncodings = ImmutableMap.of(
+            "identity", (res) -> {},
+            "gzip", (res) -> res.header("Content-Encoding", "gzip")
+    );
+    // @formatter:on
+
     @Override
     public void init() {
 
@@ -84,7 +97,7 @@ public class QueryApplication implements SparkApplication {
             return mapper.toJson(cqlQueryResponse);
         });
 
-        after("/cql", (req, res) -> {
+        after("/cql", (Request req, Response res) -> {
             res.type(APPLICATION_JSON);
 
             // Must manually check and set header for gzip because of spark issue
@@ -92,13 +105,18 @@ public class QueryApplication implements SparkApplication {
             Map<String, String> acceptEncodings =
                     parseAcceptEncodings(req.headers("Accept-Encoding"));
 
-            if (acceptEncodingSupports(acceptEncodings, "gzip")) {
-                res.header("Content-Encoding", "gzip");
-            } else if (acceptEncodingSupports(acceptEncodings, "identity")) {
-                //do nothing, send as identity
-            } else {
-                throw new NotAcceptableException();
-            }
+            acceptEncodings.entrySet()
+                    .stream()
+                    .sorted(Comparator.comparingDouble((Map.Entry<String, String> a) -> Double.parseDouble(
+                            a.getValue()))
+                            .reversed())
+                    .filter((entry) -> acceptedEncodings.containsKey(entry.getKey()))
+                    .filter((entry) -> acceptEncodingSupports(acceptEncodings, entry.getKey()))
+                    .map((entry) -> acceptedEncodings.get(entry.getKey()))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElseThrow(NotAcceptableException::new)
+                    .accept(res);
         });
 
         exception(NotAcceptableException.class, (e, request, response) -> {
