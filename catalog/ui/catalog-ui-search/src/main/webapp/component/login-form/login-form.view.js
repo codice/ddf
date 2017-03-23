@@ -44,7 +44,7 @@ define([
                 username: '1',
                 password: '1'
             }).then(function () {
-                window.location = '/logout/';
+                window.location = '/logout?prevurl=' + encodeURI(window.location.pathname);
             });
         },
         login: function (e) {

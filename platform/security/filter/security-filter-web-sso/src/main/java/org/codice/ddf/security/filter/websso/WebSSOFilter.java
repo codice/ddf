@@ -95,7 +95,9 @@ public class WebSSOFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
-        final String path = httpRequest.getRequestURI();
+        final String path = httpRequest.getParameter("prevurl") == null ?
+                    httpRequest.getRequestURI() :
+                    httpRequest.getParameter("prevurl");
 
         LOGGER.debug("Handling request for path {}", path);
 
