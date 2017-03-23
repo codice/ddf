@@ -17,7 +17,6 @@ import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SE
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
@@ -32,6 +31,7 @@ import java.util.Map;
 import org.boon.json.JsonFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,8 +79,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
             getServiceManager().startFeature(true, "catalog-ui");
             getServiceManager().waitForHttpEndpoint(API_PATH.getUrl());
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
     }
 
@@ -95,8 +94,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
                             .artifactId("boon")
                             .version("0.33")));
         } catch (IOException e) {
-            LOGGER.error("Failed to deploy configuration files: ", e);
-            fail("Failed to deploy configuration files: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
         }
         return null;
     }

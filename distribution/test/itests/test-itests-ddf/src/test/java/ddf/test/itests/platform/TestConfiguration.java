@@ -24,7 +24,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static com.jayway.restassured.RestAssured.when;
 
@@ -50,6 +49,7 @@ import org.codice.ddf.itests.common.KarafConsole;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.callables.GetConfigurationProperties;
 import org.codice.ddf.itests.common.matchers.ConfigurationPropertiesEqualTo;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -231,8 +231,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
             symbolicLink = Paths.get(ddfHome)
                     .resolve("link");
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
     }
 
@@ -732,8 +731,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         console.runCommand(String.format("%s \"%s\"",
                 CATALOG_INGEST_COMMAND,
-                getDefaultExportDirectory().resolve("ddf.metacards")),
-                new RolePrincipal("admin"));
+                getDefaultExportDirectory().resolve("ddf.metacards")), new RolePrincipal("admin"));
 
         assertMetacardsIngested(metacardIds.size());
     }
@@ -761,9 +759,11 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private List<String> ingestMetacardsForExport() {
         List<String> metacardIds = new ArrayList<>(2);
-        String metacardId1 = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
+        String metacardId1 = ingest(getFileContent(
+                JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
         metacardIds.add(metacardId1);
-        String metacardId2 = ingest(getFileContent(XML_RECORD_RESOURCE_PATH + "/SimpleXmlMetacard"), "text/xml");
+        String metacardId2 = ingest(getFileContent(XML_RECORD_RESOURCE_PATH + "/SimpleXmlMetacard"),
+                "text/xml");
         metacardIds.add(metacardId2);
 
         return metacardIds;
@@ -805,11 +805,11 @@ public class TestConfiguration extends AbstractIntegrationTest {
         FileUtils.forceMkdir(Paths.get(ddfHome)
                 .resolve(destinationDir)
                 .toFile());
-        FileUtils.copyInputStreamToFile(getFileContentAsStream(CRL_PEM), Paths.get(
-                ddfHome)
-                .resolve(destinationDir)
-                .resolve(CRL_PEM)
-                .toFile());
+        FileUtils.copyInputStreamToFile(getFileContentAsStream(CRL_PEM),
+                Paths.get(ddfHome)
+                        .resolve(destinationDir)
+                        .resolve(CRL_PEM)
+                        .toFile());
     }
 
     private void disableCrls() throws IOException {

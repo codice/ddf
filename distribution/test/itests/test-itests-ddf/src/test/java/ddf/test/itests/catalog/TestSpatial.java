@@ -17,7 +17,6 @@ import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMeta
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 
 import java.io.ByteArrayInputStream;
@@ -38,6 +37,7 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -134,6 +134,9 @@ public class TestSpatial extends AbstractIntegrationTest {
                     .put("CswCompoundBeforeDateAndLikeText",
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_FAR_METACARD)})
+                    .put("CswCompoundNotBeforeDateAndLikeText",
+                            new ExpectedResultPair[] {
+                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
                     .put("CswLogicalOperatorContextualNotQuery",
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_NEAR_METACARD)})
@@ -145,11 +148,12 @@ public class TestSpatial extends AbstractIntegrationTest {
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_FAR_METACARD)})
                     .put("CswXPathExpressionQuery",
-                            new ExpectedResultPair[] {
-                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
-                    .put("CswFuzzyTextQuery",
-                            new ExpectedResultPair[] {
-                                    new ExpectedResultPair(ResultType.TITLE, CSW_METACARD)})
+                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
+                                    CSW_METACARD)})
+                    .put("CswFuzzyTextQuery", new ExpectedResultPair[] {new ExpectedResultPair(
+                                    ResultType.TITLE,
+                                    CSW_METACARD)})
+
                     .build();
 
     @BeforeExam
@@ -165,8 +169,7 @@ public class TestSpatial extends AbstractIntegrationTest {
 
             loadResourceQueries(CSW_QUERY_RESOURCES, savedCswQueries);
         } catch (Exception e) {
-            LOGGER.error("Failed to start required apps:", e);
-            fail("Failed to start required apps: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed to start required apps: ");
         }
     }
 

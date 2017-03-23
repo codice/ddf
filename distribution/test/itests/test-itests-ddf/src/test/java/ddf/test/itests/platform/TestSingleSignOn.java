@@ -56,6 +56,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -165,8 +166,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
             getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
     }
 
@@ -194,7 +194,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             try {
                 validator.validate(streamSource);
             } catch (SAXException e) {
-                fail("Failed to validate SAML " + e.getMessage());
+                LoggingUtils.failWithThrowableStacktrace(e, "Failed to validate SAML: ");
             }
         }
     }
