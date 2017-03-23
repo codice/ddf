@@ -125,7 +125,7 @@ public class ConfigurationStore {
 
     private Integer resultCount = 250;
 
-    private String projection = "EPSG:3857";
+    private String projection = "EPSG:4326";
 
     private String bingKey = "";
 
