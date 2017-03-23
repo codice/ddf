@@ -27,13 +27,6 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <bean id="watchThread" class="java.util.concurrent.Executors"
-          factory-method="newSingleThreadExecutor"/>
-
-    <bean id="defaultFileSystem" class="java.nio.file.FileSystems" factory-method="getDefault"/>
-
-    <bean id="watchService" factory-ref="defaultFileSystem" factory-method="newWatchService"/>
-
     <bean id="persistenceStrategy"
           class="org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy"/>
 
@@ -73,12 +66,9 @@
     </bean>
 
     <bean id="configurationFilesPoller"
-          class="org.codice.ddf.configuration.admin.ConfigurationFilesPoller"
-          init-method="init" destroy-method="destroy">
+          class="org.codice.ddf.configuration.admin.ConfigurationFilesPoller">
         <argument ref="configDirectoryPath"/>
         <argument value="${configFileExtension}"/>
-        <argument ref="watchService"/>
-        <argument ref="watchThread"/>
     </bean>
 
     <bean id="configDirectoryStream" class="java.nio.file.Files"

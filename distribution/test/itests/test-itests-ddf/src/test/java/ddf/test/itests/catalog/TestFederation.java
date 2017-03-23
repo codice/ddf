@@ -93,6 +93,7 @@ import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
 import org.codice.ddf.itests.common.restito.ChunkedContent;
 import org.codice.ddf.itests.common.restito.HeaderCapture;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -328,8 +329,7 @@ public class TestFederation extends AbstractIntegrationTest {
                     sessionFactory);
 
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
     }
 
@@ -1555,7 +1555,7 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testEnterpriseSearch() throws Exception {
 
-        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q="+RECORD_TITLE_1+"&format=xml";
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + RECORD_TITLE_1 + "&format=xml";
         given().auth()
                 .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
                 .get(queryUrl)
@@ -1566,8 +1566,8 @@ public class TestFederation extends AbstractIntegrationTest {
                 .assertThat()
                 .body(hasXPath("/metacards/metacard/source[text()='ddf.distribution']"),
                         hasXPath("/metacards/metacard/source[text()='" + OPENSEARCH_SOURCE_ID
-                                + "']"), hasXPath("/metacards/metacard/source[text()='" + CSW_SOURCE_ID
-                                + "']"));
+                                + "']"),
+                        hasXPath("/metacards/metacard/source[text()='" + CSW_SOURCE_ID + "']"));
     }
 
     /**

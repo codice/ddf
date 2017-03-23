@@ -55,6 +55,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.hamcrest.xml.HasXPath;
 import org.junit.Test;
@@ -94,7 +95,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                     "security-all");
 
     protected static final String ADD_SDK_APP_JOLOKIA_REQ =
-            "{\"type\":\"EXEC\",\"mbean\":\"org.codice.ddf.admin.application.service.ApplicationService:service=application-service\",\"operation\":\"addApplications\",\"arguments\":[[{\"value\":\"mvn:ddf.distribution/sdk-app/"+System.getProperty("ddf.version")+"/xml/features\"}]]}";
+            "{\"type\":\"EXEC\",\"mbean\":\"org.codice.ddf.admin.application.service.ApplicationService:service=application-service\",\"operation\":\"addApplications\",\"arguments\":[[{\"value\":\"mvn:ddf.distribution/sdk-app/"
+                    + System.getProperty("ddf.version") + "/xml/features\"}]]}";
 
     protected static final String SOAP_ENV =
             "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
@@ -317,7 +319,8 @@ public class TestSecurity extends AbstractIntegrationTest {
             configurePDP();
             Configuration config = getAdminConfig().getConfiguration(
                     "org.codice.ddf.admin.config.policy.AdminConfigPolicy");
-            config.setBundleLocation("mvn:ddf.admin.core/admin-core-configpolicy/" + System.getProperty("ddf.version"));
+            config.setBundleLocation("mvn:ddf.admin.core/admin-core-configpolicy/"
+                    + System.getProperty("ddf.version"));
             Dictionary properties = new Hashtable<>();
 
             List<String> featurePolicies = new ArrayList<>();
@@ -342,8 +345,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
             getCatalogBundle().waitForCatalogProvider();
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
     }
 
@@ -459,16 +461,18 @@ public class TestSecurity extends AbstractIntegrationTest {
     public void testSamlFederatedAuth() throws Exception {
         configureRestForGuest(SDK_SOAP_CONTEXT);
         getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
-        String recordId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
+        String recordId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
+                "application/json");
         configureRestForBasic(SDK_SOAP_CONTEXT);
 
         // Creating a new OpenSearch source with no username/password.
         // When an OpenSearch source attempts to authenticate without a username/password it will
         // use the subject in the request to create a SAML authentication token
         Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
-                OPENSEARCH_SAML_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
-        getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID,
-                openSearchProperties);
+                OPENSEARCH_SAML_SOURCE_ID,
+                OPENSEARCH_PATH.getUrl(),
+                getServiceManager());
+        getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
 
         getCatalogBundle().waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
 
@@ -500,18 +504,22 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
 
-        String recordId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
+        String recordId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
+                "application/json");
         configureRestForBasic(SDK_SOAP_CONTEXT);
 
         //Positive tests
         Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
-                OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
+                OPENSEARCH_SOURCE_ID,
+                OPENSEARCH_PATH.getUrl(),
+                getServiceManager());
         openSearchProperties.put("username", "admin");
         openSearchProperties.put("password", "admin");
-        getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID,
-                openSearchProperties);
+        getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
 
-        Map<String, Object> cswProperties = getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
+        Map<String, Object> cswProperties = getCswSourceProperties(CSW_SOURCE_ID,
+                CSW_PATH.getUrl(),
+                getServiceManager());
         cswProperties.put("username", "admin");
         cswProperties.put("password", "admin");
         getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties);
@@ -552,7 +560,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //Negative tests
         String unavailableCswSourceId = "Unavailable Csw";
-        cswProperties = getCswSourceProperties(unavailableCswSourceId, CSW_PATH.getUrl(), getServiceManager());
+        cswProperties = getCswSourceProperties(unavailableCswSourceId,
+                CSW_PATH.getUrl(),
+                getServiceManager());
         cswProperties.put("username", "bad");
         cswProperties.put("password", "auth");
         getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties);

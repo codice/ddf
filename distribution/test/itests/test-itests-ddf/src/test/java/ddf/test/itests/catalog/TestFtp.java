@@ -47,6 +47,7 @@ import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.AfterExam;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,8 +123,7 @@ public class TestFtp extends AbstractIntegrationTest {
             getServiceManager().stopFeature(true, FTP_ENDPOINT_FEATURE);
 
         } catch (Exception e) {
-            LOGGER.error("Failed in @AfterExam: ", e);
-            fail("Failed in @AfterExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @AfterExam: ");
         }
     }
 

@@ -45,6 +45,7 @@ import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.security.common.Security;
@@ -198,8 +199,7 @@ public class TestRegistry extends AbstractIntegrationTest {
                     CSW_REGISTRY_TYPE);
             getCatalogBundle().waitForCatalogStore(storeId);
         } catch (Exception e) {
-            LOGGER.error("Failed in @BeforeExam: ", e);
-            fail("Failed in @BeforeExam: " + e.getMessage());
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
 
     }
