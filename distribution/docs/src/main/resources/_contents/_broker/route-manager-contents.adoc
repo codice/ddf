@@ -18,4 +18,4 @@ The Route Manager gives an administrator the ability to configure and deploy Cam
 
 To deploy a new route, simply place a route `.XML` file in the `<${branding}_HOME>/etc/routes` directory of ${branding}. To remove a route (or set of routes), delete the `.XML` file.
 
-There are example routes in the `<KARAF_HOME>/routes` directory by default.
+There are example routes in the `<${branding}_HOME>/etc/routes` directory by default.
