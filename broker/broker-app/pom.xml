@@ -83,24 +83,6 @@
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>attach-configs</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>
-                                        src/main/resources/ActiveMQJMSClientFactoryWrapper.config
-                                    </file>
-                                    <type>config</type>
-                                    <classifier>activemqjmsclientfactorywrapper</classifier>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>attach-artifacts</id>
                         <phase>package</phase>
                         <inherited>false</inherited>

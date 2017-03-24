@@ -19,7 +19,7 @@
                 description="The URL to the Artemis broker acceptor. NOTE: Change requires restart to take effect"
                 name="Broker URL" id="url" required="true"
                 type="String"
-                default="(vm://0,tcp://${artemis.live.host}:${artemis.multiprotocol.port},tcp://${artemis.backup.host}:${artemis.multiprotocol.port})?ha=true;sslEnabled=false;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols}"/>
+                default="(tcp://${artemis.live.host}:${artemis.multiprotocol.port}\,tcp://${artemis.backup.host}:${artemis.multiprotocol.port})?ha=true;sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols}"/>
         <AD
                 description="The username for the Artemis broker. NOTE: Change requires restart to take effect"
                 name="Username" id="username" required="true"

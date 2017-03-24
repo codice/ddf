@@ -1,5 +1,4 @@
-<!--
-/**
+<!-- /**
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
@@ -9,9 +8,7 @@
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
- **/
- -->
-
+ **/ -->
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xmlns="urn:activemq"
                xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
@@ -30,7 +27,7 @@
         <paging-directory>${ddf.home:.}/data/artemis/paging</paging-directory>
         <bindings-directory>${ddf.home:.}/data/artemis/bindings</bindings-directory>
         <journal-directory>${ddf.home:.}/data/artemis/journal</journal-directory>
-        <large-messages-directory>${ddf.home:.}/data/artemis/large-messages
+        <large-messages-directory>${ddf.home}:./data/artemis/large-messages
         </large-messages-directory>
 
         <journal-datasync>true</journal-datasync>
@@ -101,20 +98,21 @@
         <!-- @formatter:off-->
         <!-- Connectors -->
         <connectors>
-            <connector name="netty-connector">tcp://${artemis.live.host}:${artemis.multiprotocol.port}</connector>
-            <connector name="netty-backup-connector">tcp://${artemis.backup.host}:${artemis.multiprotocol.port}</connector>
+            <connector name="netty-connector">tcp://${artemis.live.host}:${artemis.multiprotocol.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols}</connector>
+            <connector name="netty-backup-connector">tcp://${artemis.backup.host}:${artemis.multiprotocol.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols}</connector>
             <connector name="vm-connector">vm://0</connector>
         </connectors>
 
         <!-- Acceptors -->
         <acceptors>
-            <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP. -->
-            <!-- performance tests have shown that openWire performs best with these buffer sizes -->
-            <acceptor name="artemis">tcp://0.0.0.0:${artemis.multiprotocol.port}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols}</acceptor>
+            <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Supports Core, and AMQP. -->
+            <acceptor name="artemis">tcp://0.0.0.0:${artemis.multiprotocol.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols}</acceptor>
 
-            <acceptor name="openwire">tcp://0.0.0.0:${artemis.openwire.port}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};protocols=OPENWIRE</acceptor>
             <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
             <acceptor name="amqp">tcp://0.0.0.0:${artemis.amqp.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};protocols=AMQP</acceptor>
+
+             <!-- performance tests have shown that openWire performs best with these buffer sizes -->
+            <acceptor name="openwire">tcp://0.0.0.0:${artemis.openwire.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=OPENWIRE</acceptor>
 
             <acceptor name="vm">vm://0</acceptor>
         </acceptors>
@@ -141,8 +139,8 @@
         <!-- Other config -->
         <security-invalidation-interval>600000</security-invalidation-interval>
 
-        <password-codec>org.codice.ddf.broker.security.EncryptionCodec</password-codec>
-        <mask-password>true</mask-password>
+        <!--<password-codec>org.codice.ddf.broker.security.EncryptionCodec</password-codec>-->
+        <!--<mask-password>true</mask-password>-->
         <cluster-user>${artemis.cluster.user:ACTIVEMQ.CLUSTER.ADMIN.USER}</cluster-user>
         <cluster-password>${artemis.cluster.password:CHANGE ME!!}</cluster-password>
 

@@ -139,10 +139,6 @@
         <feature prerequisite="true">artemis</feature>
         <bundle>mvn:org.codice.ddf.broker/broker-connection-factory/${project.version}
         </bundle>
-        <!-- workaround for everything after , in url being removed -->
-        <configfile finalname="etc/ActiveMQJMSClientFactoryWrapper.config">
-            mvn:org.codice.ddf.broker/broker-app/${project.version}/config/activemqjmsclientfactorywrapper
-        </configfile>
     </feature>
 
     <feature name="broker-topic-logger" install="auto" version="${project.version}"
@@ -152,7 +148,9 @@
         <bundle>mvn:org.codice.ddf.broker/broker-topic-logger/${project.version}</bundle>
     </feature>
 
-    <feature name="broker-app" install="auto" version="${project.version}" description="broker-app">
+    <feature name="broker-app" install="auto" version="${project.version}"
+             description="The Broker Application provides broker services for reliable message delivery in the DDF.">
+        <feature prerequisite="true">artemis</feature>
         <feature prerequisite="true">broker-connection-factory</feature>
     </feature>
 

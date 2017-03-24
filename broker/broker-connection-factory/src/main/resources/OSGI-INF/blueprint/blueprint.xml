@@ -37,7 +37,7 @@
                 update-strategy="component-managed" update-method="update"/>
         <argument ref="encryptionService"/>
         <property name="url"
-                  value="(vm://0,tcp://$[artemis.live.host]:$[artemis.multiprotocol.port],tcp://$[artemis.backup.host]:$[artemis.multiprotocol.port])?ha=true;sslEnabled=false;keyStorePath=$[javax.net.ssl.keyStore];keyStorePassword=$[javax.net.ssl.keyStorePassword];enabledCipherSuites=$[https.cipherSuites];enabledProtocols=$[https.protocols]"/>
+                  value="(tcp://$[artemis.live.host]:$[artemis.multiprotocol.port],tcp://$[artemis.backup.host]:$[artemis.multiprotocol.port])?ha=true;sslEnabled=true;keyStorePath=$[javax.net.ssl.keyStore];keyStorePassword=$[javax.net.ssl.keyStorePassword];enabledCipherSuites=$[https.cipherSuites];enabledProtocols=$[https.protocols]"/>
         <property name="username" value="admin"/>
         <property name="password" value="admin"/>
     </bean>
