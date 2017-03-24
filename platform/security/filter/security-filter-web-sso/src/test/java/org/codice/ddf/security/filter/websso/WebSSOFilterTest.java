@@ -197,6 +197,62 @@ public class WebSSOFilterTest {
     }
 
     @Test
+    public void testPrevUrlRealm() throws ServletException, IOException {
+        String loginRealm = "loginRealm";
+        String prevurlRealm = "prevurlRealm";
+
+        String loginPath = "/login";
+        String prevurlPath = "/redirected";
+
+        ContextPolicy loginPolicy = mock(ContextPolicy.class);
+        when(loginPolicy.getRealm()).thenReturn(loginRealm);
+        ContextPolicy prevUrlPolicy = mock(ContextPolicy.class);
+        when(prevUrlPolicy.getRealm()).thenReturn(prevurlRealm);
+
+        ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
+        when(policyManager.getContextPolicy(loginPath)).thenReturn(loginPolicy);
+        when(policyManager.getContextPolicy(prevurlPath)).thenReturn(prevUrlPolicy);
+        when(policyManager.isWhiteListed(anyString())).thenReturn(true);
+
+        WebSSOFilter filter = new WebSSOFilter();
+        // set handlers
+        AuthenticationHandler handler1 = mock(AuthenticationHandler.class);
+        HandlerResult noActionResult = mock(HandlerResult.class);
+        when(noActionResult.getStatus()).thenReturn(Status.NO_ACTION);
+        HandlerResult completedResult = mock(HandlerResult.class);
+        when(completedResult.getStatus()).thenReturn(Status.COMPLETED);
+        when(completedResult.getToken()).thenReturn(null);
+        when(handler1.getNormalizedToken(any(ServletRequest.class),
+                any(ServletResponse.class),
+                any(FilterChain.class),
+                eq(true))).thenReturn(completedResult);
+        when(handler1.getNormalizedToken(any(ServletRequest.class),
+                any(ServletResponse.class),
+                any(FilterChain.class),
+                eq(false))).thenReturn(noActionResult);
+
+        filter.setHandlerList(Collections.singletonList(handler1));
+        filter.setContextPolicyManager(policyManager);
+
+        FilterChain filterChain = mock(FilterChain.class);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getContextPath()).thenReturn(loginPath);
+        when(request.getParameter("prevurl")).thenReturn(prevurlPath);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(request, times(0)).setAttribute(ContextPolicy.ACTIVE_REALM, loginRealm);
+        verify(request, times(1)).setAttribute(ContextPolicy.ACTIVE_REALM, prevurlRealm);
+        verify(request, times(1)).setAttribute(ContextPolicy.NO_AUTH_POLICY, true);
+        verify(filterChain).doFilter(request, response);
+        verify(handler1, never()).getNormalizedToken(any(HttpServletRequest.class),
+                any(HttpServletResponse.class),
+                any(FilterChain.class),
+                anyBoolean());
+    }
+
+    @Test
     public void testDoFilterReturnsStatusCode503WhenNoHandlersRegistered()
             throws IOException, ServletException {
         WebSSOFilter filter = new WebSSOFilter();
