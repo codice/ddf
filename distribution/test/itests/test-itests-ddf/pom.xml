@@ -205,6 +205,9 @@
                     <argLine>${argLine} -Djava.awt.headless=true -noverify
                         -Dddf.version=${project.version}
                     </argLine>
+                    <includes>
+                        <include>**/*Suite.java</include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>

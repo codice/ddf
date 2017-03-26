@@ -56,6 +56,7 @@ import org.codice.ddf.itests.common.annotations.PostTestConstruct;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.security.SecurityPolicyConfigurator;
+import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.Rule;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
@@ -140,6 +141,8 @@ public abstract class AbstractIntegrationTest {
     private CatalogBundle catalogBundle;
 
     private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
+
+    private KarafConsole console;
 
     protected static final String[] DEFAULT_REQUIRED_APPS =
             {"catalog-app", "solr-app", "spatial-app", "sdk-app"};
@@ -268,9 +271,7 @@ public abstract class AbstractIntegrationTest {
             HTTP_PORT,
             "/services");
 
-    public static final DynamicUrl SEARCH_ROOT = new DynamicUrl(SECURE_ROOT,
-            HTTPS_PORT,
-            "/search");
+    public static final DynamicUrl SEARCH_ROOT = new DynamicUrl(SECURE_ROOT, HTTPS_PORT, "/search");
 
     public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
 
@@ -321,6 +322,43 @@ public abstract class AbstractIntegrationTest {
         catalogBundle = new CatalogBundle(serviceManager, adminConfig);
         securityPolicy = new SecurityPolicyConfigurator(serviceManager, configAdmin);
         urlResourceReaderConfigurator = new UrlResourceReaderConfigurator(configAdmin);
+        console = new KarafConsole(getServiceManager().getBundleContext(),
+                features,
+                sessionFactory);
+    }
+
+    public void waitForBaseSystemFeatures() {
+        try {
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
+            getServiceManager().waitForAllBundles();
+            getCatalogBundle().waitForCatalogProvider();
+
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
+
+            //currently none of the test use this feature but
+            //it generates a lot of error/warnings so turning it off
+            getServiceManager().stopFeature(false, "catalog-core-backupplugin");
+
+            configureRestForGuest();
+            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
+
+            getServiceManager().startFeature(true, "search-ui", "search-ui-app", "catalog-ui");
+            getServiceManager().waitForAllBundles();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to start up required features.", e);
+        }
+    }
+
+    public void waitForSystemReady() throws Exception {
+        SystemStateManager manager = SystemStateManager.getManager(serviceManager,
+                features,
+                adminConfig,
+                console);
+        manager.setSystemBaseState(() -> waitForBaseSystemFeatures(), false);
+        manager.waitForSystemBaseState();
     }
 
     /**
@@ -386,7 +424,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configurePaxExam() {
-        return options(logLevel(LogLevelOption.LogLevel.WARN), useOwnExamBundlesStartLevel(100),
+        return options(logLevel(LogLevelOption.LogLevel.WARN),
+                useOwnExamBundlesStartLevel(100),
                 // increase timeout for CI environment
                 systemTimeout(TimeUnit.MINUTES.toMillis(10)),
                 when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()),
@@ -459,8 +498,7 @@ public abstract class AbstractIntegrationTest {
                                         "ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
                         "/etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
                 installStartupFile(getClass().getClassLoader()
-                                .getResourceAsStream(
-                                        "ddf.catalog.solr.provider.SolrCatalogProvider.config"),
+                                .getResourceAsStream("ddf.catalog.solr.provider.SolrCatalogProvider.config"),
                         "/etc/ddf.catalog.solr.provider.SolrCatalogProvider.config"));
     }
 
@@ -511,8 +549,7 @@ public abstract class AbstractIntegrationTest {
     protected Option[] configureVmOptions() {
         return options(vmOption("-Xmx2048M"),
                 // avoid integration tests stealing focus on OS X
-                vmOption("-Djava.awt.headless=true"),
-                vmOption("-Dfile.encoding=UTF8"));
+                vmOption("-Djava.awt.headless=true"), vmOption("-Dfile.encoding=UTF8"));
     }
 
     protected Option[] configureStartScript() {
@@ -531,8 +568,28 @@ public abstract class AbstractIntegrationTest {
 
     /**
      * Allows extending classes to add any custom options to the configuration.
+     * This is only valid for tests run with the PerClass strategy
      */
     protected Option[] configureCustom() {
+        try {
+            return options(// extra config options for catalog-ui
+                    installStartupFile(getClass().getResourceAsStream("/catalog-ui/users.properties"),
+                            "/etc/users.properties"),
+                    installStartupFile(getClass().getResourceAsStream("/catalog-ui/users.attributes"),
+                            "/etc/users.attributes"),
+                    // extra config options for TestConfiguration
+                    installStartupFile(getClass().getResourceAsStream(
+                            "/ddf.test.itests.platform.TestPlatform.startup.config"),
+                            "/etc/ddf.test.itests.platform.TestPlatform.startup.config"),
+                    installStartupFile(getClass().getResourceAsStream(
+                            "/ddf.test.itests.platform.TestPlatform.msf.1.config"),
+                            "/etc/ddf.test.itests.platform.TestPlatform.msf.1.config"),
+                    installStartupFile(getClass().getResourceAsStream(
+                            "/ddf.test.itests.platform.TestPlatform.startup.invalid.config"),
+                            "/etc/ddf.test.itests.platform.TestPlatform.startup.invalid.config"));
+        } catch (IOException e) {
+            LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
+        }
         return null;
     }
 
@@ -554,8 +611,12 @@ public abstract class AbstractIntegrationTest {
         return replaceConfigurationFile(destination, tempFile);
     }
 
-    protected static String[] getDefaultRequiredApps() {
+    protected String[] getDefaultRequiredApps() {
         return Arrays.copyOf(DEFAULT_REQUIRED_APPS, DEFAULT_REQUIRED_APPS.length);
+    }
+
+    protected KarafConsole getConsole() {
+        return console;
     }
 
     protected AdminConfig getAdminConfig() {

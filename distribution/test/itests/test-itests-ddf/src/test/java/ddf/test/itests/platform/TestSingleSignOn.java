@@ -62,7 +62,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.service.cm.Configuration;
 import org.xml.sax.SAXException;
 
@@ -72,7 +72,7 @@ import ddf.catalog.data.Metacard;
 import ddf.security.samlp.SamlProtocol;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 public class TestSingleSignOn extends AbstractIntegrationTest {
 
     private static final String IDP_AUTH_TYPES =
@@ -121,16 +121,11 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeTest() throws Exception {
         try {
-            basePort = getBasePort();
-            getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
+            waitForSystemReady();
             // Start the services needed for testing.
             // We need to start the Search UI to test that it redirects properly
-            getServiceManager().startFeature(true, "security-idp", "search-ui", "catalog-ui");
+            getServiceManager().startFeature(true, "security-idp");
             getServiceManager().waitForAllBundles();
-
-            configureRestForGuest();
-            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
 
             // Get all of the metadata
             String metadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();
@@ -146,8 +141,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             setConfig("org.codice.ddf.security.idp.server.IdpEndpoint",
                     "spMetadata",
                     new String[] {ddfSpMetadata});
-
-            getCatalogBundle().waitForCatalogProvider();
 
             metacardId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
                     "application/json");

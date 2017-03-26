@@ -26,12 +26,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 
 import com.jayway.restassured.response.Response;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 public class TestPlatform extends AbstractIntegrationTest {
 
     private static final DynamicUrl BANANA_URL = new DynamicUrl(DynamicUrl.SECURE_ROOT,
@@ -46,16 +46,10 @@ public class TestPlatform extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeTest() throws Exception {
         try {
-            basePort = getBasePort();
-            getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
-            getServiceManager().waitForAllBundles();
+            waitForSystemReady();
             // Start the services needed for testing.
             // We need to start the Search UI to test that it redirects properly
             getServiceManager().startFeature(true, "banana");
-
-            configureRestForGuest();
-            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }

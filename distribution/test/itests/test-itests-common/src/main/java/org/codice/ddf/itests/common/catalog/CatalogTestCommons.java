@@ -61,8 +61,6 @@ public class CatalogTestCommons {
         return given().body(data)
                 .header(HttpHeaders.CONTENT_TYPE, mimeType)
                 .expect()
-                .log()
-                .all()
                 .statusCode(HttpStatus.SC_CREATED)
                 .when()
                 .post(REST_PATH.getUrl())
@@ -139,15 +137,12 @@ public class CatalogTestCommons {
 
         String transactionRequest = getCswInsertRequest("csw:Record", cswRecord);
 
-        ValidatableResponse response = given().log()
-                .all()
+        ValidatableResponse response = given()
                 .body(transactionRequest)
                 .header("Content-Type", MediaType.APPLICATION_XML)
                 .when()
                 .post(CSW_PATH.getUrl())
                 .then()
-                .log()
-                .all()
                 .assertThat()
                 .statusCode(equalTo(HttpStatus.SC_OK));
 
@@ -168,8 +163,6 @@ public class CatalogTestCommons {
         given().header(HttpHeaders.CONTENT_TYPE, mimeType)
                 .body(data)
                 .expect()
-                .log()
-                .all()
                 .statusCode(HttpStatus.SC_OK)
                 .when()
                 .put(new AbstractIntegrationTest.DynamicUrl(REST_PATH, id).getUrl());
@@ -209,13 +202,9 @@ public class CatalogTestCommons {
         if (checkResponse) {
             delete(REST_PATH.getUrl() + id).then()
                     .assertThat()
-                    .statusCode(HttpStatus.SC_OK)
-                    .log()
-                    .all();
+                    .statusCode(HttpStatus.SC_OK);
         } else {
-            delete(REST_PATH.getUrl() + id).then()
-                    .log()
-                    .all();
+            delete(REST_PATH.getUrl() + id);
         }
     }
 

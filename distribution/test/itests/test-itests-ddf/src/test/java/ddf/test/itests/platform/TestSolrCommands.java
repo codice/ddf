@@ -35,13 +35,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 public class TestSolrCommands extends AbstractIntegrationTest {
 
     private static final String BACKUP_COMMAND = "solr:backup";
@@ -59,18 +59,10 @@ public class TestSolrCommands extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
-            basePort = getBasePort();
-            getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
-            getServiceManager().waitForAllBundles();
-            getCatalogBundle().waitForCatalogProvider();
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+            waitForSystemReady();
             console = new KarafConsole(getServiceManager().getBundleContext(),
                     features,
                     sessionFactory);
-
-            configureRestForGuest();
-            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }

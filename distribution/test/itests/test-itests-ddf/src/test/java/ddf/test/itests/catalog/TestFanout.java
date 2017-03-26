@@ -32,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.annotations.AfterExam;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
@@ -40,14 +41,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 
 import com.jayway.restassured.path.json.JsonPath;
 
 import ddf.catalog.source.FederatedSource;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 public class TestFanout extends AbstractIntegrationTest {
 
     private static final String LOCAL_SOURCE_ID = "ddf.distribution";
@@ -58,22 +59,22 @@ public class TestFanout extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
-            basePort = getBasePort();
-            getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
-            getServiceManager().waitForAllBundles();
-            getCatalogBundle().setFanout(true);
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT.getUrl() + "/catalog/query?_wadl");
+            waitForSystemReady();
 
+            getCatalogBundle().setFanout(true);
+            getCatalogBundle().waitForCatalogProvider();
             LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body()
                     .prettyPrint());
-            getCatalogBundle().waitForCatalogProvider();
-
-            configureRestForGuest();
-            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
+    }
+
+    @AfterExam
+    public void afterExam() throws Exception{
+        getCatalogBundle().setFanout(false);
+        getCatalogBundle().setFanoutTagBlacklist(TAG_BLACKLIST);
+        getCatalogBundle().waitForCatalogProvider();
     }
 
     @Before

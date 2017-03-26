@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -189,8 +190,7 @@ public class ServiceManagerImpl implements ServiceManager {
                 Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL_MILLIS);
                 millis += CONFIG_UPDATE_WAIT_INTERVAL_MILLIS;
             } catch (InterruptedException e) {
-                LOGGER.info("Interrupted exception while trying to sleep for bundle context",
-                        e);
+                LOGGER.info("Interrupted exception while trying to sleep for bundle context", e);
             }
             LOGGER.info("Waiting for bundle context...{}ms", millis);
             bundleContext = getBundleContext();
@@ -252,17 +252,33 @@ public class ServiceManagerImpl implements ServiceManager {
 
     @Override
     public void stopFeature(boolean wait, String... featureNames) throws Exception {
+        List<String> waitFeatures = new ArrayList<>();
         for (String featureName : featureNames) {
-            getFeaturesService().uninstallFeature(featureName, EnumSet.of(NoAutoRefreshBundles));
+            if (isFeatureInstalled(featureName)) {
+                getFeaturesService().uninstallFeature(featureName,
+                        EnumSet.of(NoAutoRefreshBundles));
+                waitFeatures.add(featureName);
+            }
         }
 
         if (wait) {
-            for (String featureName : featureNames) {
+            for (String featureName : waitFeatures) {
                 waitForFeature(featureName, state -> state == FeatureState.Uninstalled);
             }
 
             waitForAllBundles();
         }
+    }
+
+    private boolean isFeatureInstalled(String featureName) throws Exception {
+        Feature[] features = getFeaturesService().listInstalledFeatures();
+        for (Feature feature : features) {
+            if (feature.getName()
+                    .equals(featureName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // TODO - we should really make this a bundle and inject this.

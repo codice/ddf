@@ -57,7 +57,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.xml.sax.InputSource;
 
 import com.google.common.collect.ImmutableMap;
@@ -65,7 +65,7 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 public class TestRegistry extends AbstractIntegrationTest {
 
     public static final String FACTORY_PID = "Csw_Registry_Store";
@@ -167,17 +167,11 @@ public class TestRegistry extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
-            basePort = getBasePort();
-            getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
-            getCatalogBundle().waitForCatalogProvider();
-            configureRestForGuest();
-            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
+            waitForSystemReady();
             getServiceManager().startFeature(true, CATALOG_REGISTRY);
             getServiceManager().waitForAllBundles();
             getServiceManager().startFeature(true, CATALOG_REGISTRY_CORE);
             getServiceManager().waitForAllBundles();
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
 
             cswServer = new FederatedCswMockServer("MockCswServer",
                     "http://localhost:",
