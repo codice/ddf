@@ -65,7 +65,9 @@ define([
                 model: new Backbone.Model({
                     attribute: this.model.get('sortField'),
                     direction: this.model.get('sortOrder')
-                })
+                }),
+                showBestTextOption: true
+                
             }));
             this.settingsSortField.currentView.turnOffEditing();
             this.settingsSortField.currentView.turnOnLimitedWidth();

@@ -56,10 +56,12 @@ define([
                 };
             });
 
-            sortAttributes.unshift({
-                label: 'Best Text Match',
-                value: 'RELEVANCE'
-            });
+            if (this.options.showBestTextOption) {
+                sortAttributes.unshift({
+                    label: 'Best Text Match',
+                    value: 'RELEVANCE'
+                });
+            }
 
             this.sortAttribute.show(new PropertyView({
                 model: new Property({
@@ -70,7 +72,9 @@ define([
                     enumFiltering: true
                 })
             }));
-            this.handleAttribute()
+            this.handleAttribute();
+            this.turnOnEditing();
+            this.turnOnLimitedWidth();
 
             this.sortAttribute.currentView.$el.on('change', function (event) {
                 this.handleAttribute();
