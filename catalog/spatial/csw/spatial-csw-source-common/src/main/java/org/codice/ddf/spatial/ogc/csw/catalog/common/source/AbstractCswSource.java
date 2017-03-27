@@ -112,7 +112,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.common.util.Security;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
@@ -1344,7 +1343,8 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     protected CapabilitiesType getCapabilities() {
         CapabilitiesType caps = null;
-        Csw csw = factory.getClient();
+        Subject subject = getSystemSubject();
+        Csw csw = factory.getClientForSubject(subject);
 
         try {
             LOGGER.debug("Doing getCapabilities() call for CSW");
@@ -1364,6 +1364,12 @@ public abstract class AbstractCswSource extends MaskableImpl
             handleClientException(ce);
         }
         return caps;
+    }
+
+    protected Subject getSystemSubject() {
+        org.codice.ddf.security.common.Security security =
+                org.codice.ddf.security.common.Security.getInstance();
+        return org.codice.ddf.security.common.Security.runAsAdmin(security::getSystemSubject);
     }
 
     public void configureCswSource() {
@@ -1797,10 +1803,6 @@ public abstract class AbstractCswSource extends MaskableImpl
                     + this.getId());
         }
 
-    }
-
-    protected Subject getSystemSubject() {
-        return org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
     }
 
     private GetRecordsType createSubscriptionGetRecordsRequest() {
