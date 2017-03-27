@@ -23,7 +23,7 @@ module.exports = function (grunt) {
             }
         },
         webpack: {
-            build: require('./webpack/config/prod')
+            build: require(grunt.option("webpackConfig"))
         },
         cssmin: {
             compress: {
@@ -38,7 +38,7 @@ module.exports = function (grunt) {
                     cleancss: true
                 },
                 files: {
-                    "src/main/webapp/css/styles.css":"src/main/webapp/less/styles.less"
+                    "src/main/webapp/css/styles.css": "src/main/webapp/less/styles.less"
                 }
             }
         },
@@ -96,9 +96,9 @@ module.exports = function (grunt) {
                 files: ['<%= jshint.all.src %>'],
                 tasks: ['jshint']
             },
-            livereload : {
-                options : {livereload :true},
-                files : ['target/webapp/css/index.css']
+            livereload: {
+                options: {livereload: true},
+                files: ['target/webapp/css/index.css']
             },
             lessFiles: {
                 files: [
@@ -107,9 +107,9 @@ module.exports = function (grunt) {
                 ],
                 tasks: ['less']
             },
-            cssFiles : {
-                files :['src/main/webapp/css/*.css'],
-                tasks : ['cssmin']
+            cssFiles: {
+                files: ['src/main/webapp/css/*.css'],
+                tasks: ['cssmin']
             }
         }
     });
