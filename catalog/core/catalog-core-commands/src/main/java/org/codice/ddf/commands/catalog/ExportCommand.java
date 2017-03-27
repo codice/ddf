@@ -115,8 +115,8 @@ public class ExportCommand extends CqlCommands {
     String output = Paths.get(System.getProperty("ddf.home"), FILE_NAMER.get())
             .toString();
 
-    @Option(name = "--delete", required = true, aliases = {"-d",
-            "delete"}, multiValued = false, description = "Flag to delete Metacards and content after export")
+    @Option(name = "--delete", required = true, aliases = {
+            "-d"}, multiValued = false, description = "Delete Metacards and content after export. EG: --delete=true or --delete=false")
     boolean delete = false;
 
     @Option(name = "--archived", required = false, aliases = {"-a",
