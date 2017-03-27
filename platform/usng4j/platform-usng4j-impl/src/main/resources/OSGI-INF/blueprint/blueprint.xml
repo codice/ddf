@@ -28,7 +28,7 @@
     </bean>
 
     <service id="CoordinateSystemTranslatorNad83Datum"
-             interface="org.codice.usng4j.api.CoordinateSystemTranslator"
+             interface="org.codice.usng4j.CoordinateSystemTranslator"
              ref="coordinateSystemTranslatorNad83Datum"
              ranking="100">
         <service-properties>
@@ -37,7 +37,7 @@
     </service>
 
     <service id="CoordinateSystemTranslatorNad27Datum"
-             interface="org.codice.usng4j.api.CoordinateSystemTranslator"
+             interface="org.codice.usng4j.CoordinateSystemTranslator"
              ref="coordinateSystemTranslatorNad27Datum"
              ranking="99">
         <service-properties>
