@@ -25,6 +25,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,7 +96,8 @@ public class FileSystemPersistenceProvider
      * @return
      */
     String getMapStorePath() {
-        return getPersistencePath() + mapName + File.separator;
+        return Paths.get(getPersistencePath(), mapName)
+                .toString() + File.separator;
     }
 
     @Override

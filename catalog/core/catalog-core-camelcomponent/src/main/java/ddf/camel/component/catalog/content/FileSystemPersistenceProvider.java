@@ -15,6 +15,7 @@ package ddf.camel.component.catalog.content;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class FileSystemPersistenceProvider
      * @return the path to root directory where serialized objects will be persisted
      */
     String getPersistencePath() {
-        return new AbsolutePathResolver("data" + File.separator).getPath();
+        return new AbsolutePathResolver("data").getPath();
     }
 
     /**
@@ -77,7 +78,8 @@ public class FileSystemPersistenceProvider
      * @return
      */
     String getMapStorePath() {
-        return getPersistencePath() + mapName + File.separator;
+        return Paths.get(getPersistencePath(), mapName)
+                .toString() + File.separator;
     }
 
     @Override
