@@ -24,6 +24,9 @@
     <artifactId>catalog-ui-search</artifactId>
     <name>DDF :: Catalog :: UI :: Catalog UI Search</name>
     <packaging>bundle</packaging>
+    <properties>
+        <webpackConfig>./webpack/config/prod</webpackConfig>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.karaf.webconsole</groupId>
@@ -262,6 +265,15 @@
                             <arguments>test</arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>grunt build</id>
+                        <goals>
+                            <goal>grunt</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>build --webpackConfig=${webpackConfig}</arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -366,4 +378,19 @@
         </plugins>
 
     </build>
+
+    <profiles>
+        <profile>
+            <id>webpack dev</id>
+            <activation>
+                <property>
+                    <name>skipStatic</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <properties>
+                <webpackConfig>./webpack/config/dev</webpackConfig>
+            </properties>
+        </profile>
+    </profiles>
 </project>
