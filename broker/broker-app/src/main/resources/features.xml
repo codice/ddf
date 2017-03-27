@@ -149,7 +149,7 @@
     </feature>
 
     <feature name="broker-app" install="auto" version="${project.version}"
-             description="The Broker Application provides broker services for reliable message delivery in the DDF.">
+             description="The Broker Application provides broker services for reliable message delivery in the DDF. ::Broker">
         <feature prerequisite="true">artemis</feature>
         <feature prerequisite="true">broker-connection-factory</feature>
     </feature>

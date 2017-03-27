@@ -27,7 +27,7 @@
         <paging-directory>${ddf.home:.}/data/artemis/paging</paging-directory>
         <bindings-directory>${ddf.home:.}/data/artemis/bindings</bindings-directory>
         <journal-directory>${ddf.home:.}/data/artemis/journal</journal-directory>
-        <large-messages-directory>${ddf.home}:./data/artemis/large-messages
+        <large-messages-directory>${ddf.home:.}/data/artemis/large-messages
         </large-messages-directory>
 
         <journal-datasync>true</journal-datasync>
