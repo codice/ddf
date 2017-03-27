@@ -55,6 +55,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.opensearch.OpenSearchSourceProperties;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.hamcrest.xml.HasXPath;
@@ -573,10 +574,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .assertThat()
                 .statusCode(equalTo(500));
 
-        /* TODO - opensearch source is throwing an exception that gets swallowed an causes this test to hang forever
         String unavailableOpenSourceId = "Unavailable OpenSearchSource";
 
-        OpenSearchSourceProperties openSearchUnavailProp = new OpenSearchSourceProperties(
+        OpenSearchSourceProperties openSearchUnavailProp = new OpenSearchSourceProperties(this,
                 unavailableOpenSourceId);
         openSearchUnavailProp.put("username", "bad");
         openSearchUnavailProp.put("password", "auth");
@@ -598,7 +598,6 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .assertThat()
                 .body(not(hasXPath("//metacard/string[@name='" + Metacard.TITLE
                         + "']/value[text()='myTitle']")));
-                        */
 
         configureRestForGuest(SDK_SOAP_CONTEXT);
         getSecurityPolicy().waitForGuestAuthReady(openSearchQuery);

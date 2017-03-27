@@ -620,7 +620,7 @@ public abstract class AbstractIntegrationTest {
         return adminConfig;
     }
 
-    protected ServiceManager getServiceManager() {
+    public ServiceManager getServiceManager() {
         return serviceManager;
     }
 
