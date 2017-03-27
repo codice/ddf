@@ -40,6 +40,8 @@ For more information about OSGi, see the http://www.osgi.org[OSGi Alliance websi
 +-----------------------------------------------------------------------------------------------------------------------+
 ----
 
+=== OSGi Basics
+
 ${branding} runs on top of an OSGi framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure.
 The items within the dotted line represent the standard ${branding} components.
 
@@ -51,16 +53,14 @@ The ${branding} framework hosts ${branding} applications, which are extensible b
 The best example of this is the ${branding} Catalog (API), which offers extensibility via several types of Catalog Components.
 The ${branding} Catalog API serves as the foundation for several applications and resides in the applications tier.
 
-The Catalog Components consist of <<_Endpoints,Endpoints>>, <<_Plugins,Plugins>>, <<_catalog_frameworks,Catalog Frameworks>>, <<_sources,Sources>>, and <<_catalog_providers,Catalog Providers>>.
+The Catalog Components consist of <<_endpoints,Endpoints>>, <<_plugins,Plugins>>, <<_catalog_frameworks,Catalog Frameworks>>, <<_sources,Sources>>, and <<_catalog_providers,Catalog Providers>>.
 Customized components can be added to ${branding}.
 
-==== Nomenclature
-
 Capability:: A general term used to refer to an ability of the system.
-Application:: One or more features that together form a cohesive collection of capabilities.
 Component:: Represents a portion of an Application that can be extended.
 Bundle:: Java Archives (JARs) with special OSGi manifest entries.
 Feature:: One or more bundles that form an installable unit; defined by Apache Karaf but portable to other OSGi containers.
+Application:: One or more features that together form a cohesive collection of capabilities.
 
 ==== Packaging Capabilities as Bundles
 
@@ -111,9 +111,9 @@ Below is a code snippet from a Maven `pom.xml` for creating an OSGi Bundle using
     <artifactId>maven-bundle-plugin</artifactId>
     <configuration>
       <instructions>
-        <Bundle-Name>${project.name}</Bundle-Name>
+        <Bundle-Name>${variable-prefix}project.name}</Bundle-Name>
         <Export-Package />
-        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+        <Bundle-SymbolicName>${variable-prefix}project.groupId}.${variable-prefix}project.artifactId}</Bundle-SymbolicName>
         <Import-Package>
           ${ddf-branding-lowercase}.catalog,
           ${ddf-branding-lowercase}.catalog.*
@@ -170,87 +170,34 @@ ${ddf-branding-lowercase}${at-symbol}local>list | grep -i example
 
 The state is `Active`, indicating that the bundle is ready for program execution.
 
-==== Working with Features
+==== Working with Features Files
 
 Features XML files group other features and/or bundle(s) for ease of installation/uninstallation.
 
-.`features.xml` File Example
-[source,xml,linenums]
-----
-<feature name="catalog-app" install="auto" version="${ddf.version}"
-    description="The ${ddf-catalog} provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::${ddf-catalog}">
-    <feature>platform-app</feature>
-    <feature>catalog-core</feature>
-    <feature>catalog-core-metricsplugin</feature>
-    <feature>catalog-core-sourcemetricsplugin</feature>
-    <feature>catalog-transformer-thumbnail</feature>
-    <feature>catalog-transformer-metadata</feature>
-    <feature>catalog-transformer-xsltengine</feature>
-    <feature>catalog-transformer-resource</feature>
-    <feature>catalog-rest-endpoint</feature>
-    <feature>catalog-opensearch-endpoint</feature>
-    <feature>catalog-opensearch-source</feature>
-    <feature>catalog-transformer-json</feature>
-    <feature>catalog-transformer-atom</feature>
-    <feature>catalog-transformer-geoformatter</feature>
-    <feature>catalog-transformer-xml</feature>
-    <feature>catalog-transformer-tika</feature>
-    <feature>catalog-security-plugin</feature>
-    <feature>catalog-admin-module-sources</feature>
-    <feature>catalog-core-backupplugin</feature>
-    <feature>catalog-plugin-jpeg2000</feature>
-</feature>
-
-<feature name="catalog-core" install="manual" version="${ddf.version}"
-    description="Catalog Core feature containing the API, third party bundles necessary to run ${ddf-branding-lowercase}-core.">
-    <feature>catalog-core-api</feature>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-commons/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-camelcomponent/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.measure/measure-api/${ddf.version}</bundle>
-    <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
-    <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle> <!-- for GeoTools -->
-    <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
-    <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-federationstrategy/${ddf.version}</bundle>
-    <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/${ddf-branding-lowercase}-pubsub/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-eventcommands/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/${ddf-branding-lowercase}-pubsub-tracker/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-urlresourcereader/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/filter-proxy/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-commands/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-metacardgroomerplugin/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/metacard-type-registry/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-standardframework/${ddf.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-resourcesizeplugin/${ddf.version}</bundle>
-
-    <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/xml/solrconfig</configfile>
-    <configfile finalname="/data/solr/metacard_cache/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/xml/schema</configfile>
-    <configfile finalname="/data/solr/metacard_cache/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/txt/protwords</configfile>
-    <configfile finalname="/data/solr/metacard_cache/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/txt/stopwords_en</configfile>
-    <configfile finalname="/data/solr/metacard_cache/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/txt/stopwords</configfile>
-    <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/txt/synonyms</configfile>
-</feature>
-----
-
-==== Making Sure a Features File Will Display Properly in the Installer
-
 In order to ensure that the installer can correctly interpret and display application details, there are several guidelines that should be followed when creating the features file for the application.
 
-* Be sure that only one feature in the `features.xml` has the `auto-install` tag.
+* Ensure only one feature in the `features.xml` has the same name as the project itself. (e.g. If the project name is `spatial-app`, there should be one feature named `spatial-app`)
+This is the feature that the installer displays to the user (name, description, version, etc.) and  provides the description of what the application contains.
+This feature should only declare the `prerequisite` features of the app and any bundles or features that are required by all of the features within the app.
+* Be sure all features that should be installed by default include the `auto-install` flag.
 +
 [source]
 ----
 install='auto'
 ----
 +
-This is the feature that the installer displays to the user (name, description, version, etc.). It is typically named after the application itself and the description provides a complete application description.
-* Be sure that the one feature specified to `auto-install` has a complete list of all of its dependencies in order to ensure the dependency tree can be constructed correctly.
+* Each feature should declare its `prerequisite` features. These are the features that are required to be installed prior to this feature starting up. At a minimum this should include the application feature, so that the application prerequisites and required dependencies are satisified before this feature starts.
++
+[source]
+----
+<feature prerequisite="true">feature1</feature>
+----
 
 ===== Auto-starting an Application Feature
 
-Within the `features.xml` file for an application, one feature will have the install attribute set to `auto`.
-Within this feature, refer to any dependencies of the application as well as any features that should start automatically.
+Within the `features.xml` file for an application, the feature that is named the same as the project will have the install attribute set to `auto`.
+Within this feature, refer to any prerequisites of the application as well as any features or bundles within the application that are required by all features.
+Features that should start automatically should have install set to `auto`.
 Other features should have install set to `manual`.
 
 The following example demonstrates configuring features to be auto-started. The naming convention for this feature is typically "`application name`" + "`-app`," as shown.
@@ -258,12 +205,17 @@ The following example demonstrates configuring features to be auto-started. The 
 .Auto-start Features
 [source,xml,linenums]
 ----
-<feature name="catalog-app" install="auto">
-    <feature>platform-app</feature>
-    <feature>catalog-core</feature>
-    <feature>catalog-core-metricsplugin</feature>
-    <feature>catalog-core-sourcemetricsplugin</feature>
-    <feature>catalog-transformer-thumbnail</feature>
+<feature name="example-app" install="auto">
+    <feature prerequisite="true">prereq-feature</feature>
+    <bundle>mvn:com.example/example.dependency/1.3</bundle>
+</feature>
+<feature name="auto-start-feature" install="auto">
+    <feature prerequisite="true">example-app</feature>
+    <bundle>mvn:com.example/example.auto/1.3</bundle>
+</feature>
+<feature name="manual-start-feature" install="manual">
+    <feature prerequisite="true">example-app</feature>
+    <bundle>mvn:com.example/example.manual/1.3</bundle>
 </feature>
 ----
 
@@ -330,16 +282,16 @@ All bundles are then packaged into the KAR archive.
 	            same feature twice.
 	            Refer to Karaf forum posting at http://karaf.922171.n3.nabble.com/Duplicate-feature-repository-entry-using-archive-kar-to-build-deployable-applications-td3650850.html
 	            -->
-	            <resourcesDir>${project.build.directory}/doesNotExist</resourcesDir>
+	            <resourcesDir>${variable-prefix}project.build.directory}/doesNotExist</resourcesDir>
 
 	            <!--
-	            Location of the features.xml file. If it references properties that need to be filtered, e.g., ${project.version}, it will need to be
+	            Location of the features.xml file. If it references properties that need to be filtered, e.g., ${variable-prefix}project.version}, it will need to be
 	            filtered by the maven-resources-plugin.
 	            -->
-	            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
+	            <featuresFile>${variable-prefix}basedir}/target/classes/features.xml</featuresFile>
 
-	            <!-- Name of the kar file (.kar extension added by default). If not specified, defaults to ${project.build.finalName} -->
-	            <finalName>${ddf-branding-lowercase}-ifis-${project.version}</finalName>
+	            <!-- Name of the kar file (.kar extension added by default). If not specified, defaults to ${variable-prefix}project.build.finalName} -->
+	            <finalName>${ddf-branding-lowercase}-ifis-${variable-prefix}project.version}</finalName>
 	        </configuration>
 	    </execution>
     </executions>
