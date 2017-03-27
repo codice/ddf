@@ -346,9 +346,6 @@ public abstract class AbstractIntegrationTest {
             //it generates a lot of error/warnings so turning it off
             getServiceManager().stopFeature(false, "catalog-core-backupplugin");
 
-            configureRestForGuest();
-            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
-
             getServiceManager().startFeature(true, "search-ui", "search-ui-app", "catalog-ui");
             getServiceManager().waitForAllBundles();
         } catch (Exception e) {

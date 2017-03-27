@@ -76,7 +76,7 @@ import ddf.security.samlp.SamlProtocol;
 public class TestSingleSignOn extends AbstractIntegrationTest {
 
     private static final String IDP_AUTH_TYPES =
-            "/=SAML|GUEST,/search=IDP,/solr=SAML|PKI|basic,/services=IDP";
+            "/=IDP|GUEST,/solr=SAML|PKI|basic";
 
     private static final String KEY_STORE_PATH = System.getProperty("javax.net.ssl.keyStore");
 
@@ -97,6 +97,9 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             "/logout/actions");
 
     private static final String RECORD_TITLE_1 = "myTitle";
+
+    public static final String BROWSER_USER_AGENT =
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
 
     private static String metacardId;
 
@@ -219,6 +222,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         // @formatter:off
         Response searchResponse =
                 given().
+                        header("User-Agent", BROWSER_USER_AGENT).
                         redirects().follow(false).
                 expect().
                         statusCode(302).
@@ -234,6 +238,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         // @formatter:off
         Response redirectResponse =
                 given().
+                        header("User-Agent", BROWSER_USER_AGENT).
                         params(searchHelper.params).
                 expect().
                         statusCode(200).
@@ -364,6 +369,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 auth().
                 certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings()
                         .sslSocketFactory(SSLSocketFactory.getSystemSocketFactory())).
+                header("User-Agent", BROWSER_USER_AGENT).
                 param("AuthMethod", "pki").
                 params(searchHelper.params).
         expect().
@@ -381,6 +387,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         given().
                 param("AuthMethod", "guest").
                 params(searchHelper.params).
+                header("User-Agent", BROWSER_USER_AGENT).
         expect().
                 statusCode(200).
         when().

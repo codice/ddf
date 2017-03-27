@@ -23,7 +23,7 @@
 
         <property name="authenticationTypes">
             <array value-type="java.lang.String">
-                <value>/=IDP</value>
+                <value>/=IDP|GUEST</value>
                 <value>/solr=SAML|PKI|BASIC</value>
             </array>
         </property>
