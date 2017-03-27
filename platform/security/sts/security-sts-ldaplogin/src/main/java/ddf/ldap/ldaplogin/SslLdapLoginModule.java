@@ -135,10 +135,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     private ServiceReference serviceReference;
 
-    public SslLdapLoginModule() {
-        initialize();
-    }
-
     protected boolean doLogin() throws LoginException {
 
         //--------- EXTRACT USERNAME AND PASSWORD FOR LDAP LOOKUP -------------
@@ -410,6 +406,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     public void initialize(Subject subject, CallbackHandler callbackHandler,
             Map<String, ?> sharedState, Map<String, ?> options) {
         super.initialize(subject, callbackHandler, options);
+        installEncryptionService();
         connectionURL = (String) options.get(CONNECTION_URL);
         connectionUsername = (String) options.get(CONNECTION_USERNAME);
         connectionPassword = getDecryptedPassword((String) options.get(CONNECTION_PASSWORD));
@@ -521,7 +518,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         return ImmutableSet.copyOf(principals);
     }
 
-    private void initialize() {
+    private void installEncryptionService() {
 
         BundleContext bundleContext = getContext();
         if (null != bundleContext) {
