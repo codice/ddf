@@ -123,8 +123,8 @@ define([
                         descendingLabel = 'Largest';
                         break;
                     case 'STRING':
-                        ascendingLabel = 'A->Z';
-                        descendingLabel = 'Z->A';
+                        ascendingLabel = 'A to Z';
+                        descendingLabel = 'Z to A';
                         break;
                     case 'GEOMETRY':
                     case 'XML':
