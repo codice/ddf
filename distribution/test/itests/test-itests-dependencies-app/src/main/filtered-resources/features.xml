@@ -36,6 +36,7 @@
 
     <feature name="third-party-dependencies">
         <bundle>mvn:commons-io/commons-io/2.5</bundle>
+        <bundle>mvn:io.fastjson/boon/0.33</bundle>
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec.servicemix.version}
         </bundle>

@@ -43,7 +43,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.framework.FrameworkUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -52,7 +52,7 @@ import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.specification.RequestSpecification;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 public class TestSpatial extends AbstractIntegrationTest {
 
     private static final String CSW_RESOURCE_ROOT = "/TestSpatial/";
@@ -159,18 +159,8 @@ public class TestSpatial extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
-            basePort = getBasePort();
-
-            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
-            getServiceManager().waitForAllBundles();
-            getCatalogBundle().waitForCatalogProvider();
-
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-
+            waitForSystemReady();
             loadResourceQueries(CSW_QUERY_RESOURCES, savedCswQueries);
-
-            configureRestForGuest();
-            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed to start required apps: ");
         }

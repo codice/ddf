@@ -62,7 +62,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.service.cm.Configuration;
 
 import com.jayway.restassured.http.ContentType;
@@ -73,7 +73,7 @@ import ddf.catalog.data.Metacard;
 import ddf.security.SecurityConstants;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 public class TestSecurity extends AbstractIntegrationTest {
 
     protected static final String TRUST_STORE_PATH = System.getProperty("javax.net.ssl.trustStore");
@@ -311,11 +311,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeTest() throws Exception {
         try {
-            basePort = getBasePort();
-            getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
-
-            getServiceManager().waitForAllBundles();
+            waitForSystemReady();
             configurePDP();
             Configuration config = getAdminConfig().getConfiguration(
                     "org.codice.ddf.admin.config.policy.AdminConfigPolicy");
@@ -342,8 +338,6 @@ public class TestSecurity extends AbstractIntegrationTest {
                             .toArray(String[]::new));
             config.update(properties);
 
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-            getCatalogBundle().waitForCatalogProvider();
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }

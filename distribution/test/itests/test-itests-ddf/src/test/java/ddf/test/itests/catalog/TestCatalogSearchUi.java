@@ -17,12 +17,8 @@ import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SE
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 import static com.jayway.restassured.RestAssured.given;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,10 +31,9 @@ import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -50,7 +45,7 @@ import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
     private static final String QUERY_CQL = "cql";
@@ -70,36 +65,13 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
-            basePort = getBasePort();
-            getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps("catalog-app", "solr-app");
-            getServiceManager().waitForAllBundles();
-            getCatalogBundle().waitForCatalogProvider();
-            getServiceManager().startFeature(true, "ddf-itest-dependencies");
-            getServiceManager().startFeature(true, "catalog-ui");
+            waitForSystemReady();
             getServiceManager().waitForHttpEndpoint(API_PATH.getUrl());
+            getServiceManager().waitForAllBundles();
 
-            configureRestForGuest();
-            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
-    }
-
-    protected Option[] configureCustom() {
-        try {
-            return options(// extra config options
-                    installStartupFile(getClass().getResourceAsStream("/catalog-ui/users.properties"),
-                            "/etc/users.properties"),
-                    installStartupFile(getClass().getResourceAsStream("/catalog-ui/users.attributes"),
-                            "/etc/users.attributes"),
-                    wrappedBundle(maven().groupId("io.fastjson")
-                            .artifactId("boon")
-                            .version("0.33")));
-        } catch (IOException e) {
-            LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
-        }
-        return null;
     }
 
     @After

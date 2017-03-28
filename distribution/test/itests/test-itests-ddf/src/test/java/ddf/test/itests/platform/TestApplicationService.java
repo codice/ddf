@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,7 @@ import ddf.security.common.util.Security;
  * use the @FixMethodOrder(MethodSorters.NAME_ASCENDING) annotation.
  */
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestApplicationService extends AbstractIntegrationTest {
 
@@ -81,7 +81,8 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     private static final String CATALOG_APP = "catalog-app";
 
-    private static final String SOLR_APP = "solr-app";
+    //This app just needs to be one that is not started by default
+    private static final String REGISTRY_APP = "registry-app";
 
     private static final String SDK_APP = "sdk-app";
 
@@ -97,9 +98,7 @@ public class TestApplicationService extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
-            basePort = getBasePort();
-            getAdminConfig().setLogLevels();
-            getServiceManager().waitForAllBundles();
+            waitForSystemReady();
             systemSubject =
                     org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
             console = new KarafConsole(getServiceManager().getBundleContext(),
@@ -143,24 +142,26 @@ public class TestApplicationService extends AbstractIntegrationTest {
                     status.getState(),
                     is(ACTIVE));
 
-            List<Application> solrList = apps.stream()
-                    .filter(a -> SOLR_APP.equals(a.getName()))
+            List<Application> registryList = apps.stream()
+                    .filter(a -> REGISTRY_APP.equals(a.getName()))
                     .collect(Collectors.toList());
             if (catalogList.size() != 1) {
-                fail("Expected to find 1 " + SOLR_APP + " in Application list.");
+                fail("Expected to find 1 " + REGISTRY_APP + " in Application list.");
             }
-            Application solr = solrList.get(0);
-            assertNotNull("Application [" + SOLR_APP + "] must not be null", solr);
-            status = applicationService.getApplicationStatus(solr);
-            assertThat("Application [" + SOLR_APP + "] should be INACTIVE",
+            Application registry = registryList.get(0);
+            assertNotNull("Application [" + REGISTRY_APP + "] must not be null", registry);
+            status = applicationService.getApplicationStatus(registry);
+            assertThat("Application [" + REGISTRY_APP + "] should be INACTIVE",
                     status.getState(),
                     is(INACTIVE));
 
             // Test Commands
             String response = console.runCommand(STATUS_COMMAND + CATALOG_APP);
             assertThat(CATALOG_APP + " should be ACTIVE", response, containsString(ACTIVE_APP));
-            response = console.runCommand(STATUS_COMMAND + SOLR_APP);
-            assertThat(SOLR_APP + " should be INACTIVE", response, containsString(INACTIVE_APP));
+            response = console.runCommand(STATUS_COMMAND + REGISTRY_APP);
+            assertThat(REGISTRY_APP + " should be INACTIVE",
+                    response,
+                    containsString(INACTIVE_APP));
         });
     }
 
@@ -171,50 +172,50 @@ public class TestApplicationService extends AbstractIntegrationTest {
             // Test AppService
             ApplicationService applicationService = getServiceManager().getService(
                     ApplicationService.class);
-            Application solr = applicationService.getApplication(SOLR_APP);
-            assertNotNull("Application [" + SOLR_APP + "] must not be null", solr);
-            ApplicationStatus status = applicationService.getApplicationStatus(solr);
-            assertThat(SOLR_APP + " should be INACTIVE", status.getState(), is(INACTIVE));
+            Application registry = applicationService.getApplication(REGISTRY_APP);
+            assertNotNull("Application [" + REGISTRY_APP + "] must not be null", registry);
+            ApplicationStatus status = applicationService.getApplicationStatus(registry);
+            assertThat(REGISTRY_APP + " should be INACTIVE", status.getState(), is(INACTIVE));
 
             try {
-                applicationService.startApplication(solr);
+                applicationService.startApplication(registry);
             } catch (ApplicationServiceException e) {
-                LOGGER.error("Failed to start the {}: {}", SOLR_APP, e.getMessage());
+                LOGGER.error("Failed to start the {}: {}", REGISTRY_APP, e.getMessage());
                 fail();
             }
-            status = applicationService.getApplicationStatus(solr);
-            assertThat(
-                    SOLR_APP + " should be ACTIVE after start, but was [" + status.getState() + "]",
-                    status.getState(),
-                    is(ACTIVE));
+            status = applicationService.getApplicationStatus(registry);
+            assertThat(REGISTRY_APP + " should be ACTIVE after start, but was [" + status.getState()
+                    + "]", status.getState(), is(ACTIVE));
             try {
-                applicationService.stopApplication(solr);
+                applicationService.stopApplication(registry);
             } catch (ApplicationServiceException e) {
-                LOGGER.error("Failed to stop the {}: {}", SOLR_APP, e.getMessage());
+                LOGGER.error("Failed to stop the {}: {}", REGISTRY_APP, e.getMessage());
                 fail();
             }
-            status = applicationService.getApplicationStatus(solr);
-            assertThat(SOLR_APP + " should be INACTIVE after stop",
+            status = applicationService.getApplicationStatus(registry);
+            assertThat(REGISTRY_APP + " should be INACTIVE after stop",
                     status.getState(),
                     is(INACTIVE));
 
             // Test Commands
-            String response = console.runCommand(STATUS_COMMAND + SOLR_APP);
-            assertThat(SOLR_APP + " should be INACTIVE", response, containsString(INACTIVE_APP));
-            response = console.runCommand(START_COMMAND + SOLR_APP);
-            assertThat(SOLR_APP + " should be empty response after " + START_COMMAND,
+            String response = console.runCommand(STATUS_COMMAND + REGISTRY_APP);
+            assertThat(REGISTRY_APP + " should be INACTIVE",
+                    response,
+                    containsString(INACTIVE_APP));
+            response = console.runCommand(START_COMMAND + REGISTRY_APP);
+            assertThat(REGISTRY_APP + " should be empty response after " + START_COMMAND,
                     response,
                     isEmptyString());
-            response = console.runCommand(STATUS_COMMAND + SOLR_APP);
-            assertThat(SOLR_APP + " should be ACTIVE after " + START_COMMAND,
+            response = console.runCommand(STATUS_COMMAND + REGISTRY_APP);
+            assertThat(REGISTRY_APP + " should be ACTIVE after " + START_COMMAND,
                     response,
                     containsString(ACTIVE_APP));
-            response = console.runCommand(STOP_COMMAND + SOLR_APP);
-            assertThat(SOLR_APP + " should be empty response after " + START_COMMAND,
+            response = console.runCommand(STOP_COMMAND + REGISTRY_APP);
+            assertThat(REGISTRY_APP + " should be empty response after " + START_COMMAND,
                     response,
                     isEmptyString());
-            response = console.runCommand(STATUS_COMMAND + SOLR_APP);
-            assertThat(SOLR_APP + " should be INACTIVE after " + STOP_COMMAND,
+            response = console.runCommand(STATUS_COMMAND + REGISTRY_APP);
+            assertThat(REGISTRY_APP + " should be INACTIVE after " + STOP_COMMAND,
                     response,
                     containsString(INACTIVE_APP));
         });
@@ -273,6 +274,12 @@ public class TestApplicationService extends AbstractIntegrationTest {
             assertThat(SDK_APP + " should be INACTIVE after " + STATUS_COMMAND,
                     response,
                     containsString(INACTIVE_APP));
+            try {
+                applicationService.startApplication(SDK_APP);
+            } catch (ApplicationServiceException e) {
+                LOGGER.error("Failed to restart {}: {}", sdkUri, e.getMessage());
+                fail();
+            }
         });
     }
 }

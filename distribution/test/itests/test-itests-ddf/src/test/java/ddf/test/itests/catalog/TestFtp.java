@@ -54,7 +54,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.service.cm.Configuration;
 
 import com.jayway.restassured.path.xml.XmlPath;
@@ -64,7 +64,7 @@ import com.jayway.restassured.response.Response;
  * Integration Tests for the FTP/S Endpoint supporting ingest.
  */
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 public class TestFtp extends AbstractIntegrationTest {
 
     private static final String FTP_SERVER = "localhost";
@@ -98,18 +98,11 @@ public class TestFtp extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
-            basePort = getBasePort();
-
-            getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
-            getServiceManager().waitForAllBundles();
-            getCatalogBundle().waitForCatalogProvider();
+            waitForSystemReady();
 
             System.setProperty(FTP_PORT_PROPERTY, FTP_PORT.getPort());
             getServiceManager().startFeature(true, FTP_ENDPOINT_FEATURE);
 
-            configureRestForGuest();
-            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());

@@ -24,7 +24,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.ops4j.pax.exam.CoreOptions.options;
 import static com.jayway.restassured.RestAssured.when;
 
 import java.io.File;
@@ -46,6 +45,7 @@ import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.KarafConsole;
+import org.codice.ddf.itests.common.annotations.AfterExam;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.callables.GetConfigurationProperties;
 import org.codice.ddf.itests.common.matchers.ConfigurationPropertiesEqualTo;
@@ -56,10 +56,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -74,7 +73,7 @@ import com.jayway.restassured.response.Response;
  * use the @FixMethodOrder(MethodSorters.NAME_ASCENDING) annotation.
  */
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+@ExamReactorStrategy(PerSuite.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestConfiguration extends AbstractIntegrationTest {
 
@@ -220,22 +219,20 @@ public class TestConfiguration extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
-            basePort = getBasePort();
-            getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
-            getServiceManager().waitForAllBundles();
-            getCatalogBundle().waitForCatalogProvider();
+            waitForSystemReady();
             console = new KarafConsole(getServiceManager().getBundleContext(),
                     features,
                     sessionFactory);
             symbolicLink = Paths.get(ddfHome)
                     .resolve("link");
-
-            configureRestForGuest();
-            getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
+    }
+
+    @AfterExam
+    public void afterExam() throws Exception {
+        getServiceManager().startBundle(FELIX_FILE_INSTALLER);
     }
 
     public void resetInitialState() throws Exception {
@@ -257,33 +254,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         disableCrls();
         console.runCommand(CATALOG_REMOVE_ALL_COMMAND, new RolePrincipal("admin"));
-    }
-
-    /**
-     * Installs the configuration files needed at startup.
-     */
-    @Override
-    protected Option[] configureCustom() {
-        String managedServiceConfigPath = managedServiceStartupConfig.getResourcePath();
-        String managedServiceFactoryConfigPath =
-                managedServiceFactoryStartupConfig.getResourcePath();
-        String invalidConfigPath = invalidStartupConfigFile.getResourcePath();
-
-        try {
-            return options(installStartupFile(getClass().getResourceAsStream(
-                    managedServiceConfigPath), "/etc" + managedServiceConfigPath),
-                    installStartupFile(getClass().getResourceAsStream(
-                            managedServiceFactoryConfigPath),
-                            "/etc" + managedServiceFactoryConfigPath),
-                    installStartupFile(getClass().getResourceAsStream(invalidConfigPath),
-                            "/etc" + invalidConfigPath));
-        } catch (Exception e) {
-            LOGGER.error("Could not copy config files {}, {} and {} to /etc directory",
-                    managedServiceConfigPath,
-                    managedServiceFactoryConfigPath,
-                    invalidConfigPath);
-            return null;
-        }
     }
 
     @Test
