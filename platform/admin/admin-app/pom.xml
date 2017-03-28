@@ -112,7 +112,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.admin.core</groupId>
-            <artifactId>admin-core-insecuredefaults</artifactId>
+            <artifactId>admin-core-alertservice</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

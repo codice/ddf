@@ -16,20 +16,23 @@
 define([
         'marionette',
         'text!templates/alerts.handlebars',
-        'icanhaz'
+        'icanhaz',
+        'jquery'
     ],
-    function (Marionette, alertsTemplate, ich) {
+    function (Marionette, alertsTemplate, ich, $) {
 
         ich.addTemplate('alertsTemplate', alertsTemplate);
 
         var AlertsView = {};
 
+        var dismissUrl = '/admin/jolokia/exec/org.codice.ddf.admin.core.alert.service.internal.AlertServiceBean:service=alert-service/dismissAlert/';
+
         AlertsView.View = Marionette.ItemView.extend({
             template: 'alertsTemplate',
-            tagName: 'table',
             events: {
                 'shown.bs.collapse': 'toggleDetailsMsg',
-                'hidden.bs.collapse': 'toggleDetailsMsg'
+                'hidden.bs.collapse': 'toggleDetailsMsg',
+                'click .dismiss': 'dismissAlert'
             },
             modelEvents: {
                 'change': 'render'
@@ -37,15 +40,30 @@ define([
             /*jshint -W030 */
             toggleDetailsMsg: function () {
                 var model = this.model;
-                model.get('button') === 'Show' ? model.set('button', 'Hide') : model.set('button', 'Show');
+                model.get('details-button-action') === 'Show' ? model.set('details-button-action', 'Hide') : model.set('details-button-action', 'Show');
                 model.get('collapse') === 'out' ? model.set('collapse', 'in') : model.set('collapse', 'out');
             },
             serializeData: function () {
                 var json = this.model.toJSON();
                 json.collapseId = 'alertCollapse_' + parseInt((Math.random() * Math.pow(2, 32)), 10);
                 return json;
+            },
+            // Performs the actual AJAX call to dismiss the alert
+            dismissAlert: function() {
+                var model = this.model;
+
+                $.ajax({
+                    type: 'GET',
+                    url: dismissUrl + model.get('key') + '/',
+                    dataType: 'JSON'
+                }).success(function(response) {
+                    if (response.value === true) {
+                        model.destroy();
+                    }
+                });
             }
         });
 
         return AlertsView;
-    });
+    }
+);

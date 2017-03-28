@@ -12,26 +12,33 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>admin-core</artifactId>
         <groupId>ddf.admin.core</groupId>
         <version>2.10.2-SNAPSHOT</version>
     </parent>
-    <artifactId>admin-core-insecuredefaults</artifactId>
-    <name>DDF :: Admin :: Core :: Insecure Defaults</name>
-    <description>Verifies insecure default configurations have been changed.</description>
+    <artifactId>admin-core-alertservice-data</artifactId>
+    <name>DDF :: Admin :: Core :: Alert Service Data</name>
     <dependencies>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs</artifactId>
+            <version>${findbugs.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.lib</groupId>
-            <artifactId>common-system</artifactId>
+            <artifactId>spock-shaded</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -54,17 +61,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.86</minimum>
+                                            <minimum>0.93</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.78</minimum>
+                                            <minimum>0.97</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.79</minimum>
+                                            <minimum>0.92</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
