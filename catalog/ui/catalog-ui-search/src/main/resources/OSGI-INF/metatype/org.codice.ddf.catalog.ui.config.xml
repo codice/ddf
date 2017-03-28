@@ -40,7 +40,7 @@
             name="Map Projection"
             description="Projection of imagery providers"
             type="String"
-            default="EPSG:3857"
+            default="EPSG:4326"
             required="false"/>
 
         <AD id="bingKey"

@@ -34,7 +34,7 @@
 |projection
 |String
 |Projection of imagery providers
-|EPSG:3857
+|EPSG:4326
 |false
 
 |Bing Maps Key
