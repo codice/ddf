@@ -54,7 +54,7 @@ public class FileSystemPersistenceProvider
     private static final String SER = ".ser";
 
     private static final String SER_REGEX = "\\.ser";
-    
+
     private String mapName = "default";
 
     FileSystemPersistenceProvider(String mapName) {
