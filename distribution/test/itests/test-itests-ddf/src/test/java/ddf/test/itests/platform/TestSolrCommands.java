@@ -57,9 +57,6 @@ public class TestSolrCommands extends AbstractIntegrationTest {
     public void beforeExam() throws Exception {
         try {
             waitForSystemReady();
-            console = new KarafConsole(getServiceManager().getBundleContext(),
-                    features,
-                    sessionFactory);
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());

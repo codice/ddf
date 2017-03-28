@@ -44,7 +44,6 @@ import org.apache.commons.net.util.KeyManagerUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.AfterExam;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
-import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
 import org.junit.Test;

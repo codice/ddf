@@ -44,7 +44,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.KarafConsole;
 import org.codice.ddf.itests.common.annotations.AfterExam;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.callables.GetConfigurationProperties;

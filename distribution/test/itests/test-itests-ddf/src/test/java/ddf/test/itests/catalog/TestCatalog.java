@@ -138,8 +138,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
 
-    private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
-
     public static final String ADMIN = "admin";
 
     public static final String ADMIN_EMAIL = "admin@localhost.local";
@@ -1025,8 +1023,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testCachedContentLengthHeader() throws IOException {
-
-        console.runCommand(CLEAR_CACHE);
 
         String fileName = "testCachedContentLengthHeader" + ".jpg";
         File tmpFile = createTemporaryFile(fileName,

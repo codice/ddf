@@ -196,9 +196,7 @@ public class TestFederation extends AbstractIntegrationTest {
     private static final String LOCALHOST_USERNAME = "localhost";
 
     private static final String LOCALHOST_PASSWORD = "localhost";
-
-    private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
-
+    
     private static final int CSW_SOURCE_POLL_INTERVAL = 10;
 
     private static final int MAX_DOWNLOAD_RETRY_ATTEMPTS = 3;
@@ -391,13 +389,16 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testFederatedQueryByWildCardSearchPhrase() throws Exception {
         String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=xml&src=" + OPENSEARCH_SOURCE_ID;
 
-        // @formatter:off
-        when().get(queryUrl).then().assertThat().body(hasXPath(
-                "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
-                        + RECORD_TITLE_1 + "']"), hasXPath("/metacards/metacard/geometry/value"),
-                hasXPath("/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
-                        + RECORD_TITLE_2 + "']"), hasXPath("/metacards/metacard/stringxml"));
-        // @formatter:on
+        when().get(queryUrl)
+                .then()
+                .assertThat()
+                .body(hasXPath(
+                        "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
+                                + RECORD_TITLE_1 + "']"),
+                        hasXPath("/metacards/metacard/geometry/value"),
+                        hasXPath("/metacards/metacard/string[@name='" + Metacard.TITLE
+                                + "']/value[text()='" + RECORD_TITLE_2 + "']"),
+                        hasXPath("/metacards/metacard/stringxml"));
     }
 
     /**
@@ -410,8 +411,9 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testAtomFederatedQueryByWildCardSearchPhrase() throws Exception {
         String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=atom&src=" + OPENSEARCH_SOURCE_ID;
 
-        // @formatter:off
-        when().get(queryUrl).then().assertThat()
+        when().get(queryUrl)
+                .then()
+                .assertThat()
                 .body(hasXPath("/feed/entry/title[text()='" + RECORD_TITLE_1 + "']"),
                         hasXPath("/feed/entry/title[text()='" + RECORD_TITLE_2 + "']"),
                         hasXPath("/feed/entry/content/metacard/geometry/value"));
@@ -428,13 +430,14 @@ public class TestFederation extends AbstractIntegrationTest {
         String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
                 + OPENSEARCH_SOURCE_ID;
 
-        // @formatter:off
-        when().get(queryUrl).then().assertThat().body(hasXPath(
-                "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
-                        + RECORD_TITLE_1 + "']"), hasXPath(
-                "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
-                        + RECORD_TITLE_2 + "']"));
-        // @formatter:on
+        when().get(queryUrl)
+                .then()
+                .assertThat()
+                .body(hasXPath(
+                        "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
+                                + RECORD_TITLE_1 + "']"),
+                        hasXPath("/metacards/metacard/string[@name='" + Metacard.TITLE
+                                + "']/value[text()='" + RECORD_TITLE_2 + "']"));
     }
 
     /**
@@ -448,13 +451,14 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?lat=10.0&lon=30.0&radius=250000&spatialType=POINT_RADIUS" + "&format=xml&src="
                 + OPENSEARCH_SOURCE_ID;
 
-        // @formatter:off
-        when().get(queryUrl).then().assertThat().body(hasXPath(
-                "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
-                        + RECORD_TITLE_1 + "']"), hasXPath(
-                "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
-                        + RECORD_TITLE_2 + "']"));
-        // @formatter:on
+        when().get(queryUrl)
+                .then()
+                .assertThat()
+                .body(hasXPath(
+                        "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
+                                + RECORD_TITLE_1 + "']"),
+                        hasXPath("/metacards/metacard/string[@name='" + Metacard.TITLE
+                                + "']/value[text()='" + RECORD_TITLE_2 + "']"));
     }
 
     /**
@@ -468,8 +472,9 @@ public class TestFederation extends AbstractIntegrationTest {
                 OPENSEARCH_PATH.getUrl() + "?lat=-10.0&lon=-30.0&radius=1&spatialType=POINT_RADIUS"
                         + "&format=xml&src=" + OPENSEARCH_SOURCE_ID;
 
-        // @formatter:off
-        when().get(queryUrl).then().assertThat()
+        when().get(queryUrl)
+                .then()
+                .assertThat()
                 .body(not(containsString(RECORD_TITLE_1)), not(containsString(RECORD_TITLE_2)));
     }
 
@@ -485,8 +490,9 @@ public class TestFederation extends AbstractIntegrationTest {
                 OPENSEARCH_PATH.getUrl() + "?q=" + negativeSearchPhrase + "&format=xml&src="
                         + OPENSEARCH_SOURCE_ID;
 
-        // @formatter:off
-        when().get(queryUrl).then().assertThat()
+        when().get(queryUrl)
+                .then()
+                .assertThat()
                 .body(not(containsString(RECORD_TITLE_1)), not(containsString(RECORD_TITLE_2)));
     }
 
@@ -500,11 +506,11 @@ public class TestFederation extends AbstractIntegrationTest {
         String restUrl = REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/"
                 + metacardIds[GEOJSON_RECORD_INDEX];
 
-        // @formatter:off
-        when().get(restUrl).then().assertThat().body(hasXPath(
-                "/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='" + RECORD_TITLE_1
-                        + "']"), not(containsString(RECORD_TITLE_2)));
-        // @formatter:on
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .body(hasXPath("/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
+                        + RECORD_TITLE_1 + "']"), not(containsString(RECORD_TITLE_2)));
     }
 
     /**
@@ -533,11 +539,11 @@ public class TestFederation extends AbstractIntegrationTest {
             String restUrl = REST_PATH.getUrl() + "sources/" + newOpenSearchSourceId + "/"
                     + metacardIds[GEOJSON_RECORD_INDEX];
 
-            // @formatter:off
-            when().get(restUrl).then().assertThat().body(hasXPath(
-                    "/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='" + RECORD_TITLE_1
-                            + "']"), not(containsString(RECORD_TITLE_2)));
-            // @formatter:on
+            when().get(restUrl)
+                    .then()
+                    .assertThat()
+                    .body(hasXPath("/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
+                            + RECORD_TITLE_1 + "']"), not(containsString(RECORD_TITLE_2)));
         } finally {
             //reset the opensearch source id
             Map<String, Object> openSearchProperties = getOpenSearchSourceProperties(
@@ -575,9 +581,10 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?transform=resource";
 
         // Perform Test and Verify
-        // @formatter:off
-        when().get(restUrl).then().assertThat().body(is(SAMPLE_DATA));
-        // @formatter:on
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .body(is(SAMPLE_DATA));
     }
 
     /**
@@ -610,9 +617,11 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?transform=resource";
 
         // Perform Test and Verify
-        // @formatter:off
-        given().header(CswConstants.RANGE_HEADER, String.format("bytes=%s-", offset)).get(restUrl)
-                .then().assertThat().contentType("text/plain")
+        given().header(CswConstants.RANGE_HEADER, String.format("bytes=%s-", offset))
+                .get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is(partialSampleData));
     }
 
@@ -634,10 +643,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?transform=resource";
 
         // Perform Test and Verify
-        // @formatter:off
-        when().get(restUrl).then().assertThat().contentType("text/html")
-                .statusCode(equalTo(500)).body(containsString("Unable to transform Metacard."));
-        // @formatter:on
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/html")
+                .statusCode(equalTo(500))
+                .body(containsString("Unable to transform Metacard."));
     }
 
     /**
@@ -680,10 +691,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?transform=resource";
 
         // Perform Test and Verify
-        // @formatter:off
-        when().get(restUrl).then().assertThat().contentType("text/html")
-                .statusCode(equalTo(500)).body(containsString("Unable to transform Metacard."));
-        // @formatter:on
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/html")
+                .statusCode(equalTo(500))
+                .body(containsString("Unable to transform Metacard."));
     }
 
     @Test
@@ -697,8 +710,10 @@ public class TestFederation extends AbstractIntegrationTest {
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_SOURCE_ID + "/"
                 + metacardIds[XML_RECORD_INDEX] + "?transform=resource";
 
-        // @formatter:off
-        when().get(restUrl).then().assertThat().contentType("text/plain")
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is(SAMPLE_DATA));
     }
 
@@ -716,9 +731,10 @@ public class TestFederation extends AbstractIntegrationTest {
                 + metacardIds[GEOJSON_RECORD_INDEX] + "?transform=resource";
 
         // Perform Test and Verify
-        // @formatter:off
-        when().get(restUrl).then().assertThat().statusCode(equalTo(500));
-        // @formatter:on
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .statusCode(equalTo(500));
     }
 
     @Test
@@ -729,9 +745,10 @@ public class TestFederation extends AbstractIntegrationTest {
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_SOURCE_ID + "/"
                 + metacardIds[GEOJSON_RECORD_INDEX] + "?transform=resource";
 
-        // @formatter:off
-        when().get(restUrl).then().assertThat().statusCode(equalTo(500));
-        // @formatter:on
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .statusCode(equalTo(500));
     }
 
     @Test
@@ -741,13 +758,16 @@ public class TestFederation extends AbstractIntegrationTest {
                 "application/xml",
                 "http://www.opengis.net/cat/csw/2.0.2");
 
-        // @formatter:off
-        given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_PATH.getUrl())
-                .then().assertThat()
-                .body(hasXPath("/GetRecordsResponse/SearchResults/Record/identifier[text()='" +
-                                metacardIds[GEOJSON_RECORD_INDEX] + "']"),
-                        hasXPath("/GetRecordsResponse/SearchResults/Record/identifier[text()='" +
-                                metacardIds[XML_RECORD_INDEX] + "']"),
+        given().contentType(ContentType.XML)
+                .body(wildcardQuery)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                .body(hasXPath("/GetRecordsResponse/SearchResults/Record/identifier[text()='"
+                                + metacardIds[GEOJSON_RECORD_INDEX] + "']"),
+                        hasXPath("/GetRecordsResponse/SearchResults/Record/identifier[text()='"
+                                + metacardIds[XML_RECORD_INDEX] + "']"),
                         hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
                                 is("2")),
                         hasXPath("/GetRecordsResponse/SearchResults/Record/relation",
@@ -774,14 +794,22 @@ public class TestFederation extends AbstractIntegrationTest {
                 containsString("/services/catalog/sources/"))};
 
         // Run a normal federated query to the CSW source and assert response
-        // @formatter:off
-        given().contentType(ContentType.XML).body(query).when().post(CSW_PATH.getUrl()).then().assertThat().body(assertion[0], assertion);
-        // @formatter:on
+        given().contentType(ContentType.XML)
+                .body(query)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                .body(assertion[0], assertion);
 
         // Assert that response is the same as without the plugin
-        // @formatter:off
-        given().contentType(ContentType.XML).body(query).when().post(CSW_PATH.getUrl()).then().assertThat().body(assertion[0], assertion);
-        // @formatter:on
+        given().contentType(ContentType.XML)
+                .body(query)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                .body(assertion[0], assertion);
     }
 
     @Test
@@ -791,8 +819,11 @@ public class TestFederation extends AbstractIntegrationTest {
                 "application/xml",
                 "http://www.opengis.net/cat/csw/2.0.2");
 
-        // @formatter:off
-        given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH.getUrl()).then()
+        given().contentType(ContentType.XML)
+                .body(titleQuery)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
                 .assertThat()
                 .body(hasXPath("/GetRecordsResponse/SearchResults/Record/identifier",
                         is(metacardIds[GEOJSON_RECORD_INDEX])),
@@ -807,8 +838,11 @@ public class TestFederation extends AbstractIntegrationTest {
                 "application/xml",
                 "urn:catalog:metacard");
 
-        // @formatter:off
-        given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH.getUrl()).then()
+        given().contentType(ContentType.XML)
+                .body(titleQuery)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
                 .assertThat()
                 .body(hasXPath("/GetRecordsResponse/SearchResults/metacard/@id",
                         is(metacardIds[GEOJSON_RECORD_INDEX])),
@@ -823,7 +857,11 @@ public class TestFederation extends AbstractIntegrationTest {
         String titleQuery = getCswQuery("title", "myTitle", "application/json", null);
 
         given().headers("Accept", "application/json", "Content-Type", "application/xml")
-                .body(titleQuery).when().post(CSW_PATH.getUrl()).then().assertThat()
+                .body(titleQuery)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
                 .contentType(ContentType.JSON)
                 .body("results[0].metacard.properties.title", equalTo(RECORD_TITLE_1));
     }
@@ -834,13 +872,14 @@ public class TestFederation extends AbstractIntegrationTest {
         String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
                 + CSW_SOURCE_ID;
 
-        // @formatter:off
-        when().get(queryUrl).then().assertThat()
-                .body(containsString(RECORD_TITLE_1), containsString(RECORD_TITLE_2), hasXPath(
-                        "/metacards/metacard/string[@name='" + Metacard.RESOURCE_DOWNLOAD_URL
-                                + "']",
-                        containsString("/services/catalog/sources/" + CSW_SOURCE_ID)));
-        // @formatter:on
+        when().get(queryUrl)
+                .then()
+                .assertThat()
+                .body(containsString(RECORD_TITLE_1),
+                        containsString(RECORD_TITLE_2),
+                        hasXPath("/metacards/metacard/string[@name='"
+                                        + Metacard.RESOURCE_DOWNLOAD_URL + "']",
+                                containsString("/services/catalog/sources/" + CSW_SOURCE_ID)));
     }
 
     @Test
@@ -849,13 +888,14 @@ public class TestFederation extends AbstractIntegrationTest {
         String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
                 + CSW_SOURCE_WITH_METACARD_XML_ID;
 
-        // @formatter:off
-        when().get(queryUrl).then().assertThat()
-                .body(containsString(RECORD_TITLE_1), containsString(RECORD_TITLE_2), hasXPath(
-                        "/metacards/metacard/string[@name='" + Metacard.RESOURCE_DOWNLOAD_URL
-                                + "']",
-                        containsString("/services/catalog/sources/" + CSW_SOURCE_ID)));
-        // @formatter:on
+        when().get(queryUrl)
+                .then()
+                .assertThat()
+                .body(containsString(RECORD_TITLE_1),
+                        containsString(RECORD_TITLE_2),
+                        hasXPath("/metacards/metacard/string[@name='"
+                                        + Metacard.RESOURCE_DOWNLOAD_URL + "']",
+                                containsString("/services/catalog/sources/" + CSW_SOURCE_ID)));
     }
 
     @Test
@@ -885,10 +925,14 @@ public class TestFederation extends AbstractIntegrationTest {
         }
         */
 
-        // @formatter:off
-        given().auth().basic(ADMIN_USERNAME, ADMIN_PASSWORD).when().get(ADMIN_ALL_SOURCES_PATH.getUrl()).then()
-                .assertThat().body(containsString("\"fpid\":\"OpenSearchSource\""),
-                containsString("\"fpid\":\"Csw_Federated_Source\"")/*,
+        given().auth()
+                .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .when()
+                .get(ADMIN_ALL_SOURCES_PATH.getUrl())
+                .then()
+                .assertThat()
+                .body(containsString("\"fpid\":\"OpenSearchSource\""),
+                        containsString("\"fpid\":\"Csw_Federated_Source\"")/*,
                 containsString("\"fpid\":\"Csw_Connected_Source\"")*/);
     }
 
@@ -907,9 +951,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 .get("configurations"))).get(0)
                 .get("id");
 
-        // @formatter:off
-        given().auth().basic(ADMIN_USERNAME, ADMIN_PASSWORD).when()
-                .get(ADMIN_STATUS_PATH.getUrl() + openSearchPid).then().assertThat()
+        given().auth()
+                .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .when()
+                .get(ADMIN_STATUS_PATH.getUrl() + openSearchPid)
+                .then()
+                .assertThat()
                 .body(containsString("\"value\":true"));
     }
 
@@ -936,11 +983,13 @@ public class TestFederation extends AbstractIntegrationTest {
                 .get("id");
 
         // Test CSW Connected Source status
-        // @formatter:off
-        given().auth().basic(ADMIN_USERNAME, ADMIN_PASSWORD).when()
-                .get(ADMIN_STATUS_PATH.getUrl() + connectedSourcePid).then()
-                .assertThat().body(containsString("\"value\":true"));
-        // @formatter:on
+        given().auth()
+                .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .when()
+                .get(ADMIN_STATUS_PATH.getUrl() + connectedSourcePid)
+                .then()
+                .assertThat()
+                .body(containsString("\"value\":true"));
     }
 
     @Test
@@ -971,9 +1020,12 @@ public class TestFederation extends AbstractIntegrationTest {
 
         String wildcardQuery = getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
 
-        // @formatter:off
-        String subscriptionId = given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_SUBSCRIPTION_PATH.getUrl())
-                .then().assertThat()
+        String subscriptionId = given().contentType(ContentType.XML)
+                .body(wildcardQuery)
+                .when()
+                .post(CSW_SUBSCRIPTION_PATH.getUrl())
+                .then()
+                .assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
                 .body()
@@ -981,8 +1033,11 @@ public class TestFederation extends AbstractIntegrationTest {
                 .get("Acknowledgement.RequestId")
                 .toString();
 
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-                .then().assertThat()
+        given().contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
                 .body()
@@ -999,9 +1054,11 @@ public class TestFederation extends AbstractIntegrationTest {
                 new HashSet(0),
                 new HashSet(Arrays.asList(subscrptionIds)));
 
-        // @formatter:off
-        given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-                .then().assertThat()
+        given().contentType(ContentType.XML)
+                .when()
+                .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
                 .body()
@@ -1009,9 +1066,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 .get("Acknowledgement.RequestId")
                 .toString();
 
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-                .then().assertThat().statusCode(404);
-        // @formatter:on
+        given().contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .statusCode(404);
 
     }
 
@@ -1029,9 +1089,12 @@ public class TestFederation extends AbstractIntegrationTest {
         String wildcardQuery = getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
 
         //CswSubscribe
-        // @formatter:off
-        String subscriptionId = given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_SUBSCRIPTION_PATH.getUrl())
-                .then().assertThat()
+        String subscriptionId = given().contentType(ContentType.XML)
+                .body(wildcardQuery)
+                .when()
+                .post(CSW_SUBSCRIPTION_PATH.getUrl())
+                .then()
+                .assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
                 .body()
@@ -1051,9 +1114,11 @@ public class TestFederation extends AbstractIntegrationTest {
         }
         getServiceManager().waitForHttpEndpoint(CSW_SUBSCRIPTION_PATH + "?_wadl");
         //get subscription
-        // @formatter:off
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-                .then().assertThat()
+        given().contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
                 .body()
@@ -1070,9 +1135,11 @@ public class TestFederation extends AbstractIntegrationTest {
                 new HashSet(0),
                 new HashSet(Arrays.asList(subscrptionIds)));
 
-        // @formatter:off
-        given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-                .then().assertThat()
+        given().contentType(ContentType.XML)
+                .when()
+                .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
                 .body()
@@ -1080,9 +1147,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 .get("Acknowledgement.RequestId")
                 .toString();
 
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-                .then().assertThat().statusCode(404);
-        // @formatter:on
+        given().contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .statusCode(404);
 
     }
 
@@ -1102,9 +1172,12 @@ public class TestFederation extends AbstractIntegrationTest {
         String metacardId = "5b1688fa85fd46268e4ab7402a1750e0";
         String event = getFileContent("get-records-response.xml");
 
-        // @formatter:off
-        String subscriptionId = given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_SUBSCRIPTION_PATH.getUrl())
-                .then().assertThat()
+        String subscriptionId = given().contentType(ContentType.XML)
+                .body(wildcardQuery)
+                .when()
+                .post(CSW_SUBSCRIPTION_PATH.getUrl())
+                .then()
+                .assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
                 .body()
@@ -1112,8 +1185,11 @@ public class TestFederation extends AbstractIntegrationTest {
                 .get("Acknowledgement.RequestId")
                 .toString();
 
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-                .then().assertThat()
+        given().contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
                 .body()
@@ -1138,7 +1214,8 @@ public class TestFederation extends AbstractIntegrationTest {
         given().contentType(ContentType.XML)
                 .when()
                 .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-                .then().assertThat()
+                .then()
+                .assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
                 .body()
@@ -1146,9 +1223,12 @@ public class TestFederation extends AbstractIntegrationTest {
                 .get("Acknowledgement.RequestId")
                 .toString();
 
-        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
-                .then().assertThat().statusCode(404);
-        // @formatter:on
+        given().contentType(ContentType.XML)
+                .when()
+                .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
+                .then()
+                .assertThat()
+                .statusCode(404);
 
     }
 
@@ -1185,7 +1265,10 @@ public class TestFederation extends AbstractIntegrationTest {
 
         // Verify that the testData from the csw stub server is returned.
 
-        when().get(restUrl).then().assertThat().contentType("text/plain")
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is(resourceData));
 
         expect("Waiting for notifications").within(10, SECONDS)
@@ -1257,11 +1340,14 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?transform=resource";
 
         // Verify that the testData from the csw stub server is returned.
-        // @formatter:off
-        given().auth().preemptive().basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
-                .get(restUrl).then()
-                .assertThat().contentType("text/plain").body(is(resourceData));
-        // @formatter:on
+        given().auth()
+                .preemptive()
+                .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
+                .get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
+                .body(is(resourceData));
 
         cswServer.verifyHttp()
                 .times(3,
@@ -1379,8 +1465,10 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Verify that the testData from the csw stub server is returned.
-        // @formatter:off
-        when().get(restUrl).then().assertThat().contentType("text/plain")
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is(resourceData));
 
         cswServer.verifyHttp()
@@ -1428,8 +1516,11 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Verify that product retrieval fails from the csw stub server.
-        // @formatter:off
-        when().get(restUrl).then().assertThat().statusCode(500).contentType("text/plain")
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .statusCode(500)
+                .contentType("text/plain")
                 .body(containsString("cannot retrieve product"));
 
         expect("Waiting for notifications").within(10, SECONDS)
@@ -1498,7 +1589,7 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testMetacardCache() throws Exception {
 
         //Start with a clean cache
-        console.runCommand(CLEAR_CACHE);
+        clearCache();
         String cqlUrl = SEARCH_ROOT + "/catalog/internal/cql";
 
         String srcRequest = "{\"src\":\"" + OPENSEARCH_SOURCE_ID
@@ -1574,11 +1665,16 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Download product twice, should only call the stub server to download once
-        // @formatter:off
-        when().get(restUrl).then().assertThat().contentType("text/plain")
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is(resourceData));
 
-        when().get(restUrl).then().assertThat().contentType("text/plain")
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is(resourceData));
 
         cswServer.verifyHttp()
@@ -1646,8 +1742,10 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?transform=resource";
 
         // Download product twice, and change metacard on stub server between calls.
-        // @formatter:off
-        when().get(restUrl).then().assertThat().contentType("text/plain")
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is(resourceData));
         cswServer.whenHttp()
                 .match(post("/services/csw"),
@@ -1655,8 +1753,12 @@ public class TestFederation extends AbstractIntegrationTest {
                         withPostBodyContaining(metacardId))
                 .then(ok(),
                         contentType("text/xml"),
-                        bytesContent(getCswQueryResponse(metacardId, OffsetDateTime.now()).getBytes()));
-        when().get(restUrl).then().assertThat().contentType("text/plain")
+                        bytesContent(getCswQueryResponse(metacardId,
+                                OffsetDateTime.now()).getBytes()));
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is(resourceData));
 
         cswServer.verifyHttp()
@@ -1705,11 +1807,16 @@ public class TestFederation extends AbstractIntegrationTest {
                 + "?transform=resource" + "&session=" + cometDClient.getClientId();
 
         // Verify that the testData from the csw stub server is returned.
-        // @formatter:off
-        when().get(restUrl).then().assertThat().contentType("text/plain")
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is(resourceData));
 
-        when().get(restUrl).then().assertThat().contentType("text/plain")
+        when().get(restUrl)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is(resourceData));
 
         cswServer.verifyHttp()
@@ -1856,9 +1963,14 @@ public class TestFederation extends AbstractIntegrationTest {
                 RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + CSW_SOURCE_ID + "/" + metacardId;
 
         // Perform Test and Verify
-        // @formatter:off
-        when().get(resourceDownloadEndpoint).then().assertThat().contentType("text/plain")
-                .body(is(String.format("The product associated with metacard [%s] from source [%s] is being downloaded to the product cache.", metacardId, CSW_SOURCE_ID)));
+        when().get(resourceDownloadEndpoint)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
+                .body(is(String.format(
+                        "The product associated with metacard [%s] from source [%s] is being downloaded to the product cache.",
+                        metacardId,
+                        CSW_SOURCE_ID)));
         // TODO - Need to update assertion when test is re-enabled
 
         assertThat(Files.exists(Paths.get(ddfHome)
@@ -1889,8 +2001,10 @@ public class TestFederation extends AbstractIntegrationTest {
                 RESOURCE_DOWNLOAD_ENDPOINT_ROOT.getUrl() + CSW_SOURCE_ID + "/" + metacardId;
 
         // Perform Test and Verify
-        // @formatter:off
-        when().get(resourceDownloadEndpoint).then().assertThat().contentType("text/plain")
+        when().get(resourceDownloadEndpoint)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
                 .body(is("Caching of products is not enabled."));
 
         assertThat(Files.exists(Paths.get(ddfHome)
@@ -1962,14 +2076,23 @@ public class TestFederation extends AbstractIntegrationTest {
                         CSW_STUB_SOURCE_ID,
                         metacardId2);
 
-        // @formatter:off
-        given().auth().preemptive().basic(ADMIN_USERNAME, ADMIN_PASSWORD).when()
-                .get(resourceDownloadUrlAdminUser).then()
-                .assertThat().contentType("text/plain").body(is(resourceData1));
-        given().auth().preemptive().basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
-                .get(resourceDownloadUrlLocalhostUser).then()
-                .assertThat().contentType("text/plain").body(is(resourceData2));
-        // @formatter:on
+        given().auth()
+                .preemptive()
+                .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .when()
+                .get(resourceDownloadUrlAdminUser)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
+                .body(is(resourceData1));
+        given().auth()
+                .preemptive()
+                .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
+                .get(resourceDownloadUrlLocalhostUser)
+                .then()
+                .assertThat()
+                .contentType("text/plain")
+                .body(is(resourceData2));
 
         cswServer.verifyHttp()
                 .times(1,
