@@ -100,6 +100,9 @@
                 deps: ['handlebars', 'jquery'],
                 exports: 'ich'
             },
+            iframeresizer: {
+                deps: ['jquery']
+            },
 
             perfectscrollbar: ['jquery'],
 

@@ -63,7 +63,11 @@ define([
                     tagName: 'div',
                     className: 'tab-pane',
                     onShow: function () {
-                        this.$el.find('iframe').iFrameResize();
+                        setTimeout(function(){
+                             this.$('iframe').ready(function() {
+                                this.$('iframe').iFrameResize();
+                            }.bind(this));
+                        }.bind(this), 0);
                     },
                     onRender: function() {
                         var view = this;
