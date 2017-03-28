@@ -58,7 +58,7 @@ public class FileSystemPersistenceProviderTest {
         fileSystemPersistenceProvider.fileSystemDataAccessObject = mockFileSystemDao;
         assertThat(fileSystemPersistenceProvider.getMapStorePath(),
                 is(Paths.get(fileSystemPersistenceProvider.getPersistencePath(), "test")
-                        .toString()));
+                        .toString() + File.separator));
     }
 
     @Test
