@@ -1,4 +1,6 @@
+
 ==== Undelivered Messages UI
+The Undeliverable Messages tab gives an administrator the ability to view undeliverable messages and then decide whether to resend or delete those messages.
 
 ===== Prerequisites for Undelivered Messages UI
 
@@ -13,7 +15,6 @@ The Undelivered Messages UI is installed as a part of the <<_installing_and_unin
 Currently there are no configurations for the Undelivered Messages UI
 
 ===== Using the Undeliverable Messages UI
-The Undeliverable Messages tab gives an administrator the ability to view undeliverable messages and then decide whether to resend or delete those messages.
 
 To view undelivered messages, an administrator can use the "retrieve" button, which makes an immediate call to the backend and displays all the messages. Alternatively, the "start polling" button makes calls to the backend every 5 seconds and updates the display accordingly.
 

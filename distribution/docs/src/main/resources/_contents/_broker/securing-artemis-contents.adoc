@@ -1,4 +1,5 @@
-==== Introduction
+
+==== Securing ${broker-app}
 
 This section describes how to configure ${branding} and Artemis to perform authentication and
 authorization against an LDAP server.
@@ -16,7 +17,7 @@ for authenticating and authorizing users with your LDAP server. To configure the
 follow the instructions in <<${ddf-security} STS LDAP Login,${ddf-security} STS LDAP Login>> and
 <<${ddf-security} STS LDAP Claims Handler,${ddf-security} STS LDAP Claims Handler>>.
 
-==== Configuring Artemis
+===== Configuring Secure ${broker-app}
 
 After the above steps have been completed, `<${branding}_HOME>/etc/org.apache.activemq.artemis.cfg`
 needs to be updated to use the `ldap` realm (just change `domain=karaf` to `domain=ldap`):
@@ -53,7 +54,7 @@ has groups that you would like to use as Artemis roles. If you wish to use diffe
 replace `manager` and/or `broker-client` in the `<security-setting>` in `artemis.xml` with the roles
 you would like to use.
 
-==== Configuring ${branding}
+===== Configuring Secure ${branding}
 
 At this point, an `ldap` realm has been added and Artemis is using it for authentication and authorization,
 but ${branding} is still using the default security settings. The Web Context Policy Manager can be
@@ -62,7 +63,7 @@ configured to use the same `ldap` realm to secure ${branding}.
 To get to the Web Context Policy Manager, open the ${admin-console} (${secure_url}/admin), select the
 *${ddf-security}* application, and click *Web Context Policy Manager* on the *Configuration* tab.
 
-See <<Configuring the Web Context Policy Manager, Configuring the Web Context Policy Manager>>
+See <<Configuring the Web Context Policy Manager, Configuring the Web Context Policy Manager>>.
 
 ====== Additional Context Realm Details
 
