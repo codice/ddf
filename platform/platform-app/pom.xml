@@ -302,6 +302,11 @@
             <artifactId>failsafe</artifactId>
             <version>${jodah-failsafe.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-filter-response</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <!-- CXF Properties used in used in platform-app's features.xml
@@ -495,22 +500,30 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>src/main/resources/DDF_Custom_Mime_Type_Resolver.csw.config</file>
+                                    <file>
+                                        src/main/resources/DDF_Custom_Mime_Type_Resolver.csw.config
+                                    </file>
                                     <type>config</type>
                                     <classifier>csw</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>src/main/resources/DDF_Custom_Mime_Type_Resolver.geojson.config</file>
+                                    <file>
+                                        src/main/resources/DDF_Custom_Mime_Type_Resolver.geojson.config
+                                    </file>
                                     <type>config</type>
                                     <classifier>geojson</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>src/main/resources/DDF_Custom_Mime_Type_Resolver.nitf.config</file>
+                                    <file>
+                                        src/main/resources/DDF_Custom_Mime_Type_Resolver.nitf.config
+                                    </file>
                                     <type>config</type>
                                     <classifier>nitf</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>src/main/resources/DDF_Custom_Mime_Type_Resolver.xml.config</file>
+                                    <file>
+                                        src/main/resources/DDF_Custom_Mime_Type_Resolver.xml.config
+                                    </file>
                                     <type>config</type>
                                     <classifier>xml</classifier>
                                 </artifact>

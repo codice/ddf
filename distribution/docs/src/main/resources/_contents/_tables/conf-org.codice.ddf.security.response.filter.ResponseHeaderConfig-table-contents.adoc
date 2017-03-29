@@ -1,3 +1,0 @@
-|HTTP Response Security
-|org.codice.ddf.security.response.filter.ResponseHeaderConfig
-|Instructions for the client browser detailing which location and/or which type of resources may be loaded.
