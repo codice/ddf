@@ -85,58 +85,6 @@ public class AuthorizationFilterTest {
     }
 
     @Test
-    public void testPrevurl() {
-        String loginRealm = "loginRealm";
-        String prevurlRealm = "prevurlRealm";
-
-        String loginPath = "/login";
-        String prevurlPath = "/redirected";
-
-        CollectionPermission prevurlPermissions = new CollectionPermission(prevurlPath,
-                new KeyValuePermission(prevurlPath, Collections.singleton("prevurlPermission")));
-
-        CollectionPermission loginPermission = new CollectionPermission(loginPath,
-                new KeyValuePermission(loginPath, Collections.singleton("loginPermission")));
-
-        ContextPolicy loginPolicy = mock(ContextPolicy.class);
-        when(loginPolicy.getRealm()).thenReturn(loginRealm);
-        when(loginPolicy.getAllowedAttributePermissions()).thenReturn(loginPermission);
-
-        ContextPolicy prevUrlPolicy = mock(ContextPolicy.class);
-        when(prevUrlPolicy.getRealm()).thenReturn(prevurlRealm);
-        when(prevUrlPolicy.getAllowedAttributePermissions()).thenReturn(prevurlPermissions);
-
-        ContextPolicyManager policyManager = mock(ContextPolicyManager.class);
-        when(policyManager.getContextPolicy(loginPath)).thenReturn(loginPolicy);
-        when(policyManager.getContextPolicy(prevurlPath)).thenReturn(prevUrlPolicy);
-        when(policyManager.isWhiteListed(anyString())).thenReturn(true);
-
-        AuthorizationFilter loginFilter = new AuthorizationFilter(policyManager);
-
-        Subject subject = mock(Subject.class);
-        when(subject.isPermitted(prevurlPermissions)).thenReturn(true);
-        when(subject.isPermitted(loginPermission)).thenReturn(false);
-        ThreadContext.bind(subject);
-
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getContextPath()).thenReturn(loginPath);
-        when(request.getParameter("prevurl")).thenReturn(prevurlPath);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-
-        FilterChain filterChain = (request1, response1) -> sucess = true;
-
-        try {
-            loginFilter.doFilter(request, response, filterChain);
-            if (!sucess) {
-                fail("Should have called doFilter with a valid Subject");
-            }
-        } catch (IOException | ServletException e) {
-            fail(e.getMessage());
-        }
-        ThreadContext.unbindSubject();
-    }
-
-    @Test
     public void testUnAuthorizedSubject() {
         FilterConfig filterConfig = mock(FilterConfig.class);
         ContextPolicyManager contextPolicyManager = new TestPolicyManager();

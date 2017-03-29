@@ -54,6 +54,7 @@
                 <value>/idp</value>
                 <value>${org.codice.ddf.system.rootContext}/platform/config/ui</value>
                 <value>/login</value>
+                <value>${org.codice.ddf.system.rootContext}/login</value>
             </array>
         </property>
         <property name="traversalDepth">

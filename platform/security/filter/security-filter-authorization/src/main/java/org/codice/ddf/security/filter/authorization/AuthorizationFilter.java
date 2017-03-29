@@ -80,9 +80,7 @@ public class AuthorizationFilter implements Filter {
 
             boolean permitted = true;
 
-            final String path = httpRequest.getParameter("prevurl") == null ?
-                    httpRequest.getRequestURI() :
-                    httpRequest.getParameter("prevurl");
+            final String path = httpRequest.getRequestURI();
 
             ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
 

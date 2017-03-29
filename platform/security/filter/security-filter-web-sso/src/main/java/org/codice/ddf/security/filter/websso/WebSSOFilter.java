@@ -95,9 +95,7 @@ public class WebSSOFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
-        final String path = httpRequest.getParameter("prevurl") == null ?
-                    httpRequest.getRequestURI() :
-                    httpRequest.getParameter("prevurl");
+        final String path = httpRequest.getRequestURI();
 
         LOGGER.debug("Handling request for path {}", path);
 
@@ -138,7 +136,8 @@ public class WebSSOFilter implements Filter {
             throws IOException, ServletException {
 
         if (handlers.size() == 0) {
-            LOGGER.warn("Handlers not ready. Returning status code 503, Service Unavailable. Check system configuration and bundle state.");
+            LOGGER.warn(
+                    "Handlers not ready. Returning status code 503, Service Unavailable. Check system configuration and bundle state.");
             returnSimpleResponse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, httpResponse);
             return;
         }
