@@ -1,6 +1,6 @@
 # DDF Documentation
 
-Documentation is made available in a single document, or individual sections can be accessed based on audience need.
+Documentation is made available in a single document.
 
 ## Managing DDF
 How to install and configure DDF, targeted for system administrators.
