@@ -132,7 +132,7 @@ define([
             var success = $(this.$('#' + id + '-success')[0]);
             var spinner = $(this.$('#' + id + '-spinner')[0]);
             link.addClass('inactive-link');
-            spinner.css('display','inline-block');
+            spinner.css('display', 'inline-block');
             failed.hide();
             success.hide();
 
@@ -146,35 +146,36 @@ define([
                 link.removeClass('inactive-link');
             });
         },
+        getCurrentConfiguration: function () {
+            var selectedSource = this.$(".selected-source option:selected").text().trim();
+            return this.model.getAllConfigsWithServices().filter(function (config) {
+                return config.get("name") === selectedSource;
+            })[0];
+        },
         /**
          * Submit to the backend. This is called when 'Add' or 'Save' are clicked in the Modal.
          */
         submitData: function () {
             wreqr.vent.trigger('beforesave');
             var view = this;
-            var configs = view.model.getAllConfigsWithServices();
-            configs.forEach(function (config) {
-                var service = config;
-                if (service) {
-                    if (_.isUndefined(service.get('properties').id)) {
-                        var name = view.$(".sourceName").find('input').val().trim();
-                        view.setConfigName(service, name);
-                    }
+            var service = view.getCurrentConfiguration();
+            if (_.isUndefined(service.get('properties').id)) {
+                var name = view.$(".sourceName").find('input').val().trim();
+                view.setConfigName(service, name);
+            }
 
-                    service.save().then(function () {
-                            // Since saving was successful, make publish call
-                            // This avoids publishing if any error occurs in service.save()
+            service.save().then(function () {
+                    // Since saving was successful, make publish call
+                    // This avoids publishing if any error occurs in service.save()
 
-                            wreqr.vent.trigger('refreshSources');
-                            view.closeAndUnbind();
-                        },
+                    wreqr.vent.trigger('refreshSources');
+                    view.closeAndUnbind();
+                },
 
-                        function () {
-                            wreqr.vent.trigger('refreshSources');
-                        }).always(function () {
-                        view.closeAndUnbind();
-                    });
-                }
+                function () {
+                    wreqr.vent.trigger('refreshSources');
+                }).always(function () {
+                view.closeAndUnbind();
             });
         },
         sourceNameChanged: function (evt) {
@@ -282,6 +283,7 @@ define([
             return properties.get('shortname') || properties.get('id');
         },
         closeAndUnbind: function () {
+            wreqr.vent.trigger('refreshSources');
             this.modelBinder.unbind();
             this.$el.modal("hide");
         },
@@ -289,6 +291,7 @@ define([
          * Unbind the model and dom during close.
          */
         onClose: function () {
+            wreqr.vent.trigger('refreshSources');
             this.modelBinder.unbind();
             this.$el.off('hidden.bs.modal');
             this.$el.off('shown.bs.modal');
