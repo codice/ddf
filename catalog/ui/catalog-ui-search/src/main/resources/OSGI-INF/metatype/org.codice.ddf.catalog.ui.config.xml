@@ -38,9 +38,9 @@
 
         <AD id="projection"
             name="Map Projection"
-            description="Projection of imagery providers"
+            description="Projection of imagery providers (e.g. EPSG:3857, EPSG:4326)"
             type="String"
-            default="EPSG:3857"
+            default="EPSG:4326"
             required="false"/>
 
         <AD id="bingKey"
