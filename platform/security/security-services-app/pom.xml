@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.platform.security</groupId>
@@ -60,7 +62,9 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>src/main/resources/ddf.security.pdp.realm.AuthzRealm.config</file>
+                                    <file>
+                                        src/main/resources/ddf.security.pdp.realm.AuthzRealm.config
+                                    </file>
                                     <type>config</type>
                                     <classifier>pdp</classifier>
                                 </artifact>
@@ -82,14 +86,20 @@
                                     <classifier>features</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>target/classes/etc/ddf.ldap.ldaplogin.LdapLoginConfig.config</file>
+                                    <file>
+                                        target/classes/etc/ddf.ldap.ldaplogin.LdapLoginConfig.config
+                                    </file>
                                     <type>config</type>
                                     <classifier>ddf.ldap.ldaplogin.LdapLoginConfig</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>target/classes/etc/ddf.security.sts.claimsHandler.ClaimsHandlerManager.config</file>
+                                    <file>
+                                        target/classes/etc/ddf.security.sts.claimsHandler.ClaimsHandlerManager.config
+                                    </file>
                                     <type>config</type>
-                                    <classifier>ddf.security.sts.claimsHandler.ClaimsHandlerManager</classifier>
+                                    <classifier>
+                                        ddf.security.sts.claimsHandler.ClaimsHandlerManager
+                                    </classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>
@@ -245,11 +255,6 @@
         <dependency>
             <groupId>ddf.security.filter</groupId>
             <artifactId>security-filter-login</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.filter</groupId>
-            <artifactId>security-filter-response</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
