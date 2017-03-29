@@ -16,8 +16,10 @@ package ddf.ldap.ldaplogin;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.Principal;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +57,8 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSet;
 
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
@@ -105,7 +109,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     private String connectionUsername;
 
-    private String connectionPassword;
+    private char[] connectionPassword;
 
     private String userBaseDN;
 
@@ -114,6 +118,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     private boolean userSearchSubtree = true;
 
     private String roleBaseDN;
+
+    private EncryptionService encryptionService;
 
     private String roleFilter;
 
@@ -127,7 +133,11 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     private LDAPConnectionFactory ldapConnectionFactory;
 
+    private ServiceReference serviceReference;
+
     protected boolean doLogin() throws LoginException {
+
+        //--------- EXTRACT USERNAME AND PASSWORD FOR LDAP LOOKUP -------------
         Callback[] callbacks = new Callback[2];
         callbacks[0] = new NameCallback("Username: ");
         callbacks[1] = new PasswordCallback("Password: ", false);
@@ -135,8 +145,10 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         try {
             callbackHandler.handle(callbacks);
         } catch (IOException ioException) {
+            boolean result;
             throw new LoginException(ioException.getMessage());
         } catch (UnsupportedCallbackException unsupportedCallbackException) {
+            boolean result;
             throw new LoginException(unsupportedCallbackException.getMessage()
                     + " not available to obtain information from user.");
         }
@@ -164,10 +176,15 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         if (tmpPassword == null) {
             tmpPassword = new char[0];
         }
-        principals = new HashSet<>();
 
-        Connection connection = null;
-        String userDn = null;
+        //---------------------------------------------------------------------
+        // RESET OBJECT STATE AND DECLARE LOCAL VARS
+        principals = new HashSet<>();
+        Connection connection;
+        String userDn;
+        //---------------------------------------------------------------------
+
+        //------------- CREATE CONNECTION #1 ----------------------------------
         try {
             connection = ldapConnectionFactory.getConnection();
         } catch (LdapException e) {
@@ -176,38 +193,44 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         }
         if (connection != null) {
             try {
+
+                //------------- BIND #1 (CONNECTION USERNAME & PASSWORD) --------------
                 try {
                     BindRequest request;
                     switch (bindMethod) {
                     case "Simple":
                         request = Requests.newSimpleBindRequest(connectionUsername,
-                                connectionPassword.toCharArray());
+                                connectionPassword);
                         break;
                     case "SASL":
                         request = Requests.newPlainSASLBindRequest(connectionUsername,
-                                connectionPassword.toCharArray());
+                                connectionPassword);
                         break;
                     case "GSSAPI SASL":
                         request = Requests.newGSSAPISASLBindRequest(connectionUsername,
-                                connectionPassword.toCharArray());
+                                connectionPassword);
                         ((GSSAPISASLBindRequest) request).setRealm(realm);
                         ((GSSAPISASLBindRequest) request).setKDCAddress(kdcAddress);
                         break;
                     case "Digest MD5 SASL":
                         request = Requests.newDigestMD5SASLBindRequest(connectionUsername,
-                                connectionPassword.toCharArray());
+                                connectionPassword);
                         ((DigestMD5SASLBindRequest) request).setCipher(DigestMD5SASLBindRequest.CIPHER_HIGH);
-                        ((DigestMD5SASLBindRequest) request).getQOPs().clear();
-                        ((DigestMD5SASLBindRequest) request).getQOPs().add(DigestMD5SASLBindRequest.QOP_AUTH_CONF);
-                        ((DigestMD5SASLBindRequest) request).getQOPs().add(DigestMD5SASLBindRequest.QOP_AUTH_INT);
-                        ((DigestMD5SASLBindRequest) request).getQOPs().add(DigestMD5SASLBindRequest.QOP_AUTH);
+                        ((DigestMD5SASLBindRequest) request).getQOPs()
+                                .clear();
+                        ((DigestMD5SASLBindRequest) request).getQOPs()
+                                .add(DigestMD5SASLBindRequest.QOP_AUTH_CONF);
+                        ((DigestMD5SASLBindRequest) request).getQOPs()
+                                .add(DigestMD5SASLBindRequest.QOP_AUTH_INT);
+                        ((DigestMD5SASLBindRequest) request).getQOPs()
+                                .add(DigestMD5SASLBindRequest.QOP_AUTH);
                         if (StringUtils.isNotEmpty(realm)) {
                             ((DigestMD5SASLBindRequest) request).setRealm(realm);
                         }
                         break;
                     default:
                         request = Requests.newSimpleBindRequest(connectionUsername,
-                                connectionPassword.toCharArray());
+                                connectionPassword);
                         break;
                     }
                     BindResult bindResult = connection.bind(request);
@@ -220,6 +243,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                     LOGGER.debug("Unable to bind to LDAP server.", e);
                     return false;
                 }
+
+                //--------- SEARCH #1, FIND USER DISTINGUISHED NAME -----------
                 SearchScope scope;
                 if (userSearchSubtree) {
                     scope = SearchScope.WHOLE_SUBTREE;
@@ -246,12 +271,15 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                     return false;
                 }
             } finally {
+
+                //------------ CLOSE CONNECTION -------------------------------
                 connection.close();
             }
         } else {
             return false;
         }
 
+        //------------- CREATE CONNECTION #2 ----------------------------------
         try {
             connection = ldapConnectionFactory.getConnection();
         } catch (LdapException e) {
@@ -260,6 +288,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         }
 
         if (connection != null) {
+            //----- BIND #2 (USER DISTINGUISHED NAME AND PASSWORD) ------------
+            // Validate user's credentials.
             try {
                 BindResult bindResult = connection.bind(userDn, tmpPassword);
 
@@ -271,25 +301,30 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 LOGGER.info("Unable to bind user to LDAP server.", e);
                 return false;
             } finally {
+
+                //------------ CLOSE CONNECTION -------------------------------
                 connection.close();
             }
+
+            //---------- ADD USER AS PRINCIPAL --------------------------------
             principals.add(new UserPrincipal(user));
         } else {
             return false;
         }
 
+        //-------------- CREATE CONNECTION #3 ---------------------------------
         try {
             connection = ldapConnectionFactory.getConnection();
         } catch (LdapException e) {
             LOGGER.info("Unable to get LDAP Connection from factory.", e);
             return false;
         }
-
         if (connection != null) {
             try {
+
+                //----- BIND #3 (CONNECTION USERNAME & PASSWORD) --------------
                 try {
-                    BindResult bindResult = connection.bind(connectionUsername,
-                            connectionPassword.toCharArray());
+                    BindResult bindResult = connection.bind(connectionUsername, connectionPassword);
 
                     if (!bindResult.isSuccess()) {
                         LOGGER.info("Bind failed");
@@ -299,6 +334,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                     LOGGER.info("Unable to bind to LDAP server.", e);
                     return false;
                 }
+
+                //--------- SEARCH #3, GET ROLES ------------------------------
                 SearchScope scope;
                 if (roleSearchSubtree) {
                     scope = SearchScope.WHOLE_SUBTREE;
@@ -315,6 +352,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 ConnectionEntryReader entryReader = connection.search(roleBaseDN, scope, roleFilter,
                         roleNameAttribute);
                 SearchResultEntry entry;
+
+                //------------- ADD ROLES AS NEW PRINCIPALS -------------------
                 try {
                     while (entryReader.hasNext()) {
                         entry = entryReader.readEntry();
@@ -324,10 +363,13 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                         }
                     }
                 } catch (Exception e) {
+                    boolean result;
                     throw new LoginException(
                             "Can't get user " + user + " roles: " + e.getMessage());
                 }
             } finally {
+
+                //------------ CLOSE CONNECTION -------------------------------
                 connection.close();
             }
         } else {
@@ -335,28 +377,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         }
 
         return true;
-    }
-
-    void validateUsername(String username) throws LoginException {
-        boolean hasBadCharacters = false;
-        for (int i = 0; i < username.length(); i++) {
-            char curChar = username.charAt(i);
-            switch (curChar) {
-            case '\\':
-            case ',':
-            case '+':
-            case '"':
-            case '<':
-            case '>':
-            case ';':
-            case '#':
-                hasBadCharacters = true;
-                break;
-            }
-            if (hasBadCharacters) {
-                throw new LoginException("Bad characters present in user name.");
-            }
-        }
     }
 
     @Override
@@ -386,60 +406,54 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     public void initialize(Subject subject, CallbackHandler callbackHandler,
             Map<String, ?> sharedState, Map<String, ?> options) {
         super.initialize(subject, callbackHandler, options);
-        BundleContext bundleContext = getContext();
-        if (null != bundleContext) {
-            ServiceReference ref = null;
-            try {
-                Map<String, String> option = (Map<String, String>) options;
+        installEncryptionService();
+        connectionURL = (String) options.get(CONNECTION_URL);
+        connectionUsername = (String) options.get(CONNECTION_USERNAME);
+        connectionPassword = getDecryptedPassword((String) options.get(CONNECTION_PASSWORD));
+        userBaseDN = (String) options.get(USER_BASE_DN);
+        userFilter = (String) options.get(USER_FILTER);
+        userSearchSubtree = Boolean.parseBoolean((String) options.get(USER_SEARCH_SUBTREE));
+        roleBaseDN = (String) options.get(ROLE_BASE_DN);
+        roleFilter = (String) options.get(ROLE_FILTER);
+        roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE);
+        roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE));
+        startTls = Boolean.parseBoolean(String.valueOf(options.get(SSL_STARTTLS)));
+        bindMethod = (String) options.get(BIND_METHOD);
+        realm = (String) options.get(REALM);
+        kdcAddress = (String) options.get(KDC_ADDRESS);
 
-                ref = bundleContext.getServiceReference(EncryptionService.class.getName());
-                EncryptionService encryptionService = (EncryptionService) bundleContext.getService(
-                        ref);
+        if (ldapConnectionFactory != null) {
+            ldapConnectionFactory.close();
+        }
 
-                if (encryptionService != null) {
-                    String decryptedPassword = encryptionService.decryptValue(
-                            option.get(CONNECTION_PASSWORD));
-                    option.put(CONNECTION_PASSWORD, decryptedPassword);
-                } else {
-                    LOGGER.info("Encryption service reference for ldap was null.");
-                }
+        try {
+            ldapConnectionFactory = createLdapConnectionFactory(connectionURL, startTls);
+        } catch (LdapException e) {
+            LOGGER.info(
+                    "Unable to create LDAP Connection Factory. LDAP log in will not be possible.",
+                    e);
+        }
+    }
 
-            } catch (SecurityException | IllegalStateException e) {
-                LOGGER.info(
-                        "Error decrypting connection password passed into ldap configuration: ", e);
-            } finally {
-                if (ref != null) {
-                    bundleContext.ungetService(ref);
-                }
+    @Override
+    public boolean login() throws LoginException {
+        boolean isLoggedIn;
+        String message = "";
+        try {
+            isLoggedIn = doLogin();
+
+            message = "Username [" + user
+                    + "] could not log in successfuly using LDAP authentication due to an exception";
+
+            if (!isLoggedIn) {
+                SecurityLogger.audit("Username [" + user + "] failed LDAP authentication.");
             }
-            connectionURL = (String) options.get(CONNECTION_URL);
-            connectionUsername = (String) options.get(CONNECTION_USERNAME);
-            connectionPassword = (String) options.get(CONNECTION_PASSWORD);
-            userBaseDN = (String) options.get(USER_BASE_DN);
-            userFilter = (String) options.get(USER_FILTER);
-            userSearchSubtree = Boolean.parseBoolean((String) options.get(USER_SEARCH_SUBTREE));
-            roleBaseDN = (String) options.get(ROLE_BASE_DN);
-            roleFilter = (String) options.get(ROLE_FILTER);
-            roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE);
-            roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE));
-            startTls = Boolean.parseBoolean(String.valueOf(options.get(SSL_STARTTLS)));
-            bindMethod = (String) options.get(BIND_METHOD);
-            realm = (String) options.get(REALM);
-            kdcAddress = (String) options.get(KDC_ADDRESS);
-
-            if (ldapConnectionFactory != null) {
-                ldapConnectionFactory.close();
-            }
-
-            try {
-                ldapConnectionFactory = createLdapConnectionFactory(connectionURL, startTls);
-            } catch (LdapException e) {
-                LOGGER.info(
-                        "Unable to create LDAP Connection Factory. LDAP log in will not be possible.",
-                        e);
-            }
-        } else {
-            LOGGER.info("Unable to retrieve Bundle Context!");
+            return isLoggedIn;
+        } catch (InvalidCharactersException e) {
+            SecurityLogger.audit(e.getMessage());
+            throw new LoginException(message);
+        } catch (LoginException e) {
+            throw new LoginException(message);
         }
     }
 
@@ -456,8 +470,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 lo.setSSLContext(sslContext);
             }
         } catch (GeneralSecurityException e) {
-            LOGGER.info("Error encountered while configuring SSL. Secure connection will fail.",
-                    e);
+            LOGGER.info("Error encountered while configuring SSL. Secure connection will fail.", e);
         }
 
         lo.setUseStartTLS(useTls);
@@ -477,22 +490,74 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         return new LDAPConnectionFactory(host, port, lo);
     }
 
-    /**
-     * Added additional logging to the security LOGGER.
-     */
-    @Override
-    public boolean login() throws LoginException {
-        try {
-            boolean isLoggedIn = doLogin();
-
-            if (!isLoggedIn) {
-                SecurityLogger.audit("Username [" + user + "] failed LDAP authentication.");
+    void validateUsername(String username) throws InvalidCharactersException {
+        boolean hasBadCharacters = false;
+        for (int i = 0; i < username.length(); i++) {
+            char curChar = username.charAt(i);
+            switch (curChar) {
+            case '\\':
+            case ',':
+            case '+':
+            case '"':
+            case '<':
+            case '>':
+            case ';':
+            case '#':
+                hasBadCharacters = true;
+                break;
             }
-            return isLoggedIn;
+            if (hasBadCharacters) {
+                throw new InvalidCharactersException(String.format(
+                        "Username [%s] contains invalid LDAP characters",
+                        username));
+            }
+        }
+    }
 
-        } catch (Exception le) {
-            throw new LoginException("Username [" + user
-                    + "] could not log in successfuly using LDAP authentication due to an exception");
+    Set<Principal> getPrincipals() {
+        return ImmutableSet.copyOf(principals);
+    }
+
+    private void installEncryptionService() {
+
+        BundleContext bundleContext = getContext();
+        if (null != bundleContext) {
+            serviceReference = bundleContext.getServiceReference(EncryptionService.class.getName());
+            setEncryptionService((EncryptionService) bundleContext.getService(serviceReference));
+            bundleContext.ungetService(serviceReference);
+        }
+    }
+
+    protected char[] getDecryptedPassword(String encryptedPassword) {
+
+        char[] decryptedPassword = null;
+        if (getEncryptionService() != null) {
+            try {
+                decryptedPassword = getEncryptionService().decryptValue(encryptedPassword)
+                        .toCharArray();
+            } catch (SecurityException | IllegalStateException e) {
+                LOGGER.info("Error decrypting connection password passed into LDAP configuration: ",
+                        e);
+            }
+        } else {
+            LOGGER.info("Encryption service is not available.");
+        }
+
+        return decryptedPassword;
+    }
+
+    public EncryptionService getEncryptionService() {
+        return encryptionService;
+    }
+
+    public void setEncryptionService(EncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
+    }
+
+    private static class InvalidCharactersException extends LoginException {
+
+        public InvalidCharactersException(String message) {
+            super(message);
         }
     }
 }
