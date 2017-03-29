@@ -67,7 +67,7 @@ public class AuthenticationEndpoint {
 
         // Make sure we're using HTTPS
         if (!request.isSecure()) {
-            throw new IllegalArgumentException("Authentication request must use TSL.");
+            throw new IllegalArgumentException("Authentication request must use TLS.");
         }
 
         // Get the realm from the previous url
