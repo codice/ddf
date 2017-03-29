@@ -63,28 +63,29 @@ public interface ContentItem {
     String getUri();
 
     /**
-     * An optional field to provide additional information about a {@link ContentItem}
+     * Return the optional field to describe the {@link ContentItem} as an additional product for a {@link Metacard}.
+     * {@link ContentItem}s added to a {@link Metacard} as an additional product must have a non-blank qualifier.
      *
-     * @return the qualifier of the {@link ContentItem}
+     * @return the qualifier of the {@link ContentItem}. A null qualifier designates this as the main {@link ContentItem} of the associated {@link Metacard}.
      */
     String getQualifier();
 
     /**
-     * The filename of the {@link ContentItem}. If not set it will default to {@link #DEFAULT_FILE_NAME}
+     * Return the filename of the {@link ContentItem}. If not set it will default to {@link #DEFAULT_FILE_NAME}.
      *
      * @return the filename of the {@link ContentItem}
      */
     String getFilename();
 
     /**
-     * Return the mime type for the content item, e.g., image/nitf or application/pdf
+     * Return the mime type for the content item, e.g., image/nitf or application/pdf.
      *
      * @return the mime type for the content item
      */
     MimeType getMimeType();
 
     /**
-     * Return the mime type raw data for the content item, e.g., image/nitf or application/json;id=geojson
+     * Return the mime type raw data for the content item, e.g., image/nitf or application/json;id=geojson.
      *
      * @return the mime type raw data for the content item
      */
@@ -108,7 +109,7 @@ public interface ContentItem {
     long getSize() throws IOException;
 
     /**
-     * Returns the metacard associated with this product.
+     * Return the metacard associated with this product.
      *
      * @return Metacard
      */

@@ -23,7 +23,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -31,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,6 +56,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +79,7 @@ import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
 import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolver;
@@ -83,9 +90,9 @@ public class FileSystemStorageProviderTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
-    public String baseDir;
+    private String baseDir;
 
-    public String baseTmpDir;
+    private String baseTmpDir;
 
     private static final String NITF_MIME_TYPE = "image/nitf";
 
@@ -152,11 +159,11 @@ public class FileSystemStorageProviderTest {
         CreateStorageResponse createResponse = assertContentItem(TEST_INPUT_CONTENTS,
                 NITF_MIME_TYPE,
                 TEST_INPUT_FILENAME);
-        URI uri = new URI(createResponse.getCreatedContentItems()
+        String uriString = createResponse.getCreatedContentItems()
                 .get(0)
-                .getUri());
+                .getUri();
 
-        assertReadRequest(uri, NITF_MIME_TYPE);
+        assertReadRequest(uriString, NITF_MIME_TYPE);
     }
 
     @Test(expected = StorageException.class)
@@ -177,7 +184,7 @@ public class FileSystemStorageProviderTest {
                 provider.read(new ReadStorageRequestImpl(new URI(createResponse.getCreatedContentItems()
                         .get(0)
                         .getUri()), Collections.emptyMap()));
-        assertThat(read.getContentItem(), is(notNullValue()));
+        assertThat(read.getContentItem(), notNullValue());
         Files.delete(tempFile);
         provider.read(new ReadStorageRequestImpl(new URI(createResponse.getCreatedContentItems()
                 .get(0)
@@ -203,10 +210,7 @@ public class FileSystemStorageProviderTest {
                 byteSource,
                 NITF_MIME_TYPE,
                 mock(Metacard.class));
-        UpdateStorageRequest updateRequest = new UpdateStorageRequestImpl(Collections.singletonList(
-                updateItem), null);
-
-        assertUpdateRequest(updateRequest);
+        submitAndVerifySuccessfulUpdateStorageRequest(updateItem);
     }
 
     @Test
@@ -326,11 +330,11 @@ public class FileSystemStorageProviderTest {
                 TEST_INPUT_FILENAME,
                 "",
                 QUALIFIER);
-        URI uri = new URI(createResponse.getCreatedContentItems()
+        String uriString = createResponse.getCreatedContentItems()
                 .get(0)
-                .getUri());
+                .getUri();
 
-        assertReadRequest(uri, NITF_MIME_TYPE);
+        assertReadRequest(uriString, NITF_MIME_TYPE);
     }
 
     @Test
@@ -354,10 +358,7 @@ public class FileSystemStorageProviderTest {
                 byteSource,
                 NITF_MIME_TYPE,
                 mock(Metacard.class));
-        UpdateStorageRequest updateRequest = new UpdateStorageRequestImpl(Collections.singletonList(
-                updateItem), null);
-
-        assertUpdateRequest(updateRequest);
+        submitAndVerifySuccessfulUpdateStorageRequest(updateItem);
     }
 
     @Test
@@ -409,9 +410,9 @@ public class FileSystemStorageProviderTest {
         CreateStorageResponse createResponse = assertContentItem(TEST_INPUT_CONTENTS,
                 NITF_MIME_TYPE,
                 TEST_INPUT_FILENAME);
-        URI unqualifiedUri = new URI(createResponse.getCreatedContentItems()
+        String unqualifiedUriString = createResponse.getCreatedContentItems()
                 .get(0)
-                .getUri());
+                .getUri();
         createResponse = assertContentItemWithQualifier(TEST_INPUT_CONTENTS,
                 NITF_MIME_TYPE,
                 TEST_INPUT_FILENAME,
@@ -419,13 +420,13 @@ public class FileSystemStorageProviderTest {
                         .get(0)
                         .getId(),
                 QUALIFIER);
-        URI qualifiedUri = new URI(createResponse.getCreatedContentItems()
+        String qualifiedUriString = createResponse.getCreatedContentItems()
                 .get(0)
-                .getUri());
+                .getUri();
 
-        assertReadRequest(unqualifiedUri, NITF_MIME_TYPE);
+        assertReadRequest(unqualifiedUriString, NITF_MIME_TYPE);
 
-        assertReadRequest(qualifiedUri, NITF_MIME_TYPE);
+        assertReadRequest(qualifiedUriString, NITF_MIME_TYPE);
     }
 
     @Test
@@ -462,20 +463,58 @@ public class FileSystemStorageProviderTest {
                 byteSource,
                 NITF_MIME_TYPE,
                 mock(Metacard.class));
-        UpdateStorageRequest updateRequest = new UpdateStorageRequestImpl(Collections.singletonList(
-                updateItem), null);
-
-        assertUpdateRequest(updateRequest);
+        submitAndVerifySuccessfulUpdateStorageRequest(updateItem);
 
         updateItem = new ContentItemImpl(id,
                 qualifiedUri.getFragment(),
                 byteSource,
                 NITF_MIME_TYPE,
                 mock(Metacard.class));
+        submitAndVerifySuccessfulUpdateStorageRequest(updateItem);
 
-        updateRequest = new UpdateStorageRequestImpl(Collections.singletonList(updateItem), null);
+    }
 
-        assertUpdateRequest(updateRequest);
+    @Test
+    public void testUpdateMultipleQualifiedItemsInTheSameRequest() throws Exception {
+        // store unqualified content item
+        final CreateStorageResponse createResponse = assertContentItem(TEST_INPUT_CONTENTS,
+                NITF_MIME_TYPE,
+                TEST_INPUT_FILENAME);
+        final ContentItem createdContentItem = createResponse.getCreatedContentItems()
+                .get(0);
+        final String id = createdContentItem.getId();
+        final Metacard metacard = createdContentItem.getMetacard();
+
+        // add 2 new qualified content items with the same id
+        final ByteSource q1ByteSource = new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+                return IOUtils.toInputStream("q1 content");
+            }
+        };
+        final ContentItem q1ContentItem = new ContentItemImpl(id,
+                "q1",
+                q1ByteSource,
+                "image/png",
+                "q1.png",
+                q1ByteSource.size(),
+                metacard);
+
+        final ByteSource q2ByteSource = new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+                return IOUtils.toInputStream("q2 content");
+            }
+        };
+        final ContentItem q2ContentItem = new ContentItemImpl(id,
+                "q2",
+                q2ByteSource,
+                "image/png",
+                "q2.png",
+                q2ByteSource.size(),
+                metacard);
+
+        submitAndVerifySuccessfulUpdateStorageRequest(q1ContentItem, q2ContentItem);
     }
 
     @Test
@@ -592,9 +631,9 @@ public class FileSystemStorageProviderTest {
         provider.commit(deleteRequest);
 
         try {
-            assertReadRequest(new URI(createResponse.getCreatedContentItems()
+            assertReadRequest(createResponse.getCreatedContentItems()
                     .get(0)
-                    .getUri()), NITF_MIME_TYPE);
+                    .getUri(), NITF_MIME_TYPE);
         } catch (StorageException e) {
             // The item was deleted so it shouldn't have found it
             hadError = true;
@@ -602,7 +641,6 @@ public class FileSystemStorageProviderTest {
             if (!hadError) {
                 fail("read succeeded when it should not have! ");
             }
-            hadError = false;
         }
     }
 
@@ -655,11 +693,11 @@ public class FileSystemStorageProviderTest {
                 TEST_INPUT_FILENAME,
                 properties);
 
-        URI uri = new URI(createResponse.getCreatedContentItems()
+        String uriString = createResponse.getCreatedContentItems()
                 .get(0)
-                .getUri());
+                .getUri();
 
-        assertReadRequest(uri, NITF_MIME_TYPE, true);
+        assertReadRequest(uriString, NITF_MIME_TYPE, true);
     }
 
     /**
@@ -738,23 +776,30 @@ public class FileSystemStorageProviderTest {
         return createResponse;
     }
 
-    private void assertReadRequest(URI uri, String mimeType) throws StorageException, IOException {
-        assertReadRequest(uri, mimeType, false);
+    private void assertReadRequest(String uriString, String mimeType)
+            throws StorageException, IOException, URISyntaxException {
+        assertReadRequest(uriString, mimeType, false);
     }
 
-    private void assertReadRequest(URI uri, String mimeType, boolean extension)
-            throws StorageException, IOException {
-        ReadStorageRequest readRequest = new ReadStorageRequestImpl(uri, null);
+    private void assertReadRequest(String uriString, String mimeType, boolean extension)
+            throws StorageException, IOException, URISyntaxException {
+        final URI uri = new URI(uriString);
+
+        ReadStorageRequest readRequest = new ReadStorageRequestImpl(uri, Collections.emptyMap());
 
         ReadStorageResponse readResponse = provider.read(readRequest);
         ContentItem item = readResponse.getContentItem();
 
         LOGGER.debug("Item retrieved: {}", item);
+        assertThat(item, notNullValue());
         assertThat(item.getId(), is(uri.getSchemeSpecificPart()));
         if (uri.getFragment() != null) {
             assertThat(item.getQualifier(), is(uri.getFragment()));
         }
-        assertThat(item.getMimeTypeRawData(), is(mimeType));
+
+        if (mimeType.equals(NITF_MIME_TYPE)) {
+            assertThat(item.getMimeTypeRawData(), is(NITF_MIME_TYPE));
+        }
 
         List<String> parts = provider.getContentFilePathParts(uri.getSchemeSpecificPart(),
                 uri.getFragment());
@@ -773,42 +818,60 @@ public class FileSystemStorageProviderTest {
         assertTrue(item.getSize() > 0);
     }
 
-    private void assertUpdateRequest(UpdateStorageRequest updateRequest) throws Exception {
-        UpdateStorageResponse updateResponse = provider.update(updateRequest);
+    private void submitAndVerifySuccessfulUpdateStorageRequest(ContentItem... requestContentItems)
+            throws Exception {
+        final UpdateStorageRequest updateStorageRequest =
+                new UpdateStorageRequestImpl(Arrays.asList(requestContentItems), null);
+        final UpdateStorageResponse updateStorageResponse = provider.update(updateStorageRequest);
+        final List<ContentItem> responseContentItems =
+                updateStorageResponse.getUpdatedContentItems();
 
-        List<ContentItem> items = updateResponse.getUpdatedContentItems();
-        ContentItem item = items.get(0);
-        String id = item.getId();
+        assertThat("Expect number of ContentItems in UpdateStorageResponse",
+                responseContentItems,
+                hasSize(requestContentItems.length));
+        for (final ContentItem responseContentItem : responseContentItems) {
+            // assert file exists
+            final URI uri = new URI(responseContentItem.getUri());
+            final List<String> parts = provider.getContentFilePathParts(uri.getSchemeSpecificPart(),
+                    uri.getFragment());
+            final String expectedFilePath =
+                    baseDir + File.separator + FileSystemStorageProvider.DEFAULT_CONTENT_REPOSITORY
+                            + File.separator + FileSystemStorageProvider.DEFAULT_CONTENT_STORE
+                            + File.separator + FileSystemStorageProvider.DEFAULT_TMP
+                            + File.separator + updateStorageRequest.getId() + File.separator
+                            + parts.get(0) + File.separator + parts.get(1) + File.separator
+                            + parts.get(2)
+                            + (StringUtils.isNotBlank(responseContentItem.getQualifier()) ?
+                            File.separator + responseContentItem.getQualifier() :
+                            "") + File.separator + responseContentItem.getFilename();
+            assertThat("Expect file exists at " + expectedFilePath,
+                    Files.exists(Paths.get(expectedFilePath)));
 
-        LOGGER.debug("Item retrieved: {}", item);
-        assertEquals(id, item.getId());
-        assertEquals(NITF_MIME_TYPE, item.getMimeTypeRawData());
-        URI uri = new URI(item.getUri());
+            // assert metacard attributes set
+            final ArgumentCaptor<Attribute> captor = ArgumentCaptor.forClass(Attribute.class);
+            final Metacard metacard = responseContentItem.getMetacard();
 
-        List<String> parts = provider.getContentFilePathParts(uri.getSchemeSpecificPart(),
-                uri.getFragment());
-
-        String expectedFilePath =
-                baseDir + File.separator + FileSystemStorageProvider.DEFAULT_CONTENT_REPOSITORY
-                        + File.separator + FileSystemStorageProvider.DEFAULT_CONTENT_STORE
-                        + File.separator + FileSystemStorageProvider.DEFAULT_TMP + File.separator
-                        + updateRequest.getId() + File.separator + parts.get(0) + File.separator
-                        + parts.get(1) + File.separator + parts.get(2) + (StringUtils.isNotBlank(
-                        item.getQualifier()) ? File.separator + item.getQualifier() : "")
-                        + File.separator + item.getFilename();
-
-        assertThat(Files.exists(Paths.get(expectedFilePath)), is(true));
-        assertTrue(item.getSize() > 0);
-
-        String updatedFileContents = null;
-        try (InputStream is = item.getInputStream()) {
-            updatedFileContents = IOUtils.toString(is);
+            if (StringUtils.isBlank(responseContentItem.getQualifier())) {
+                verify(metacard, times(2)).setAttribute(captor.capture());
+                Attribute resourceUriAttribute = captor.getAllValues()
+                        .get(0);
+                assertThat(resourceUriAttribute.getName(), is(Metacard.RESOURCE_URI));
+                assertThat(resourceUriAttribute.getValue(), is(uri.toString()));
+                Attribute resourceSizeAttribute = captor.getAllValues()
+                        .get(1);
+                assertThat(resourceSizeAttribute.getName(), is(Metacard.RESOURCE_SIZE));
+                assertThat(resourceSizeAttribute.getValue(), is(responseContentItem.getSize()));
+            } else {
+                verify(metacard, never()).setAttribute(any());
+            }
         }
 
-        assertEquals("Updated NITF", updatedFileContents);
-        provider.commit(updateRequest);
-        assertReadRequest(new URI(updateRequest.getContentItems()
-                .get(0)
-                .getUri()), NITF_MIME_TYPE);
+        provider.commit(updateStorageRequest);
+
+        for (ContentItem responseContentItem : responseContentItems) {
+            assertReadRequest(responseContentItem.getUri(),
+                    responseContentItem.getMimeType()
+                            .toString());
+        }
     }
 }

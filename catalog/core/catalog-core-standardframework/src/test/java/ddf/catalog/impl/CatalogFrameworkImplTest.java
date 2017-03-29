@@ -16,7 +16,9 @@ package ddf.catalog.impl;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertArrayEquals;
@@ -964,19 +966,19 @@ public class CatalogFrameworkImplTest {
     public void testUpdateStorage() throws Exception {
         List<ContentItem> contentItems = new ArrayList<>();
 
-        MetacardImpl newCard = new MetacardImpl();
-        newCard.setId(null);
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setId(null);
         ByteSource byteSource = new ByteSource() {
             @Override
             public InputStream openStream() throws IOException {
                 return new ByteArrayInputStream("blah".getBytes());
             }
         };
-        ContentItemImpl newItem = new ContentItemImpl(byteSource,
+        ContentItemImpl contentItem = new ContentItemImpl(byteSource,
                 "application/octet-stream",
                 "blah",
-                newCard);
-        contentItems.add(newItem);
+                metacard);
+        contentItems.add(contentItem);
 
         CreateResponse response = framework.create(new CreateStorageRequestImpl(contentItems,
                 null));
@@ -1004,16 +1006,102 @@ public class CatalogFrameworkImplTest {
         // send update to framework
         List<Update> returnedCards = framework.update(request)
                 .getUpdatedMetacards();
-        for (Update curCard : returnedCards) {
-            assertNotNull(curCard.getNewMetacard()
-                    .getId());
-        }
+        assertThat(returnedCards, hasSize(1));
+        final Metacard newMetacard = returnedCards.get(0)
+                .getNewMetacard();
+        assertThat(newMetacard.getId(), notNullValue());
+        assertThat(newMetacard.getResourceURI()
+                .toString(), is(contentItem.getUri()));
+        assertThat(newMetacard.getResourceSize(), is(Long.toString(byteSource.size())));
 
-        assertEquals(response.getCreatedMetacards()
-                .size(), storageProvider.size());
+        assertThat(response.getCreatedMetacards(), hasSize(storageProvider.size()));
 
         // make sure that the event was posted correctly
-        assertTrue(eventAdmin.wasEventPosted());
+        assertThat(eventAdmin.wasEventPosted(), is(true));
+
+    }
+
+    /**
+     * Tests that the framework properly passes an update request to the local provider when the
+     * content item has a qualifier.
+     */
+    @Test
+    public void testUpdateItemWithQualifier() throws Exception {
+        // store one item
+        MetacardImpl metacard = new MetacardImpl();
+        ByteSource byteSource = new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+                return new ByteArrayInputStream("blah".getBytes());
+            }
+        };
+        ContentItemImpl contentItem = new ContentItemImpl(byteSource,
+                "application/octet-stream",
+                "blah",
+                metacard);
+        CreateResponse response =
+                framework.create(new CreateStorageRequestImpl(Collections.singletonList(contentItem),
+                        null));
+        Metacard createResponseMetacard = response.getCreatedMetacards()
+                .get(0);
+
+        // update with 2 more content items that have a qualifier and the same id and metacard as the already-created item
+        List<ContentItem> updateRequestContentItems = new ArrayList<>();
+
+        ByteSource q1ByteSource = new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+                return new ByteArrayInputStream("q1 data".getBytes());
+            }
+        };
+        ContentItem q1ContentItem = new ContentItemImpl(createResponseMetacard.getId(),
+                "q1",
+                q1ByteSource,
+                "application/octet-stream",
+                createResponseMetacard);
+        updateRequestContentItems.add(q1ContentItem);
+        ByteSource q2ByteSource = new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+                return new ByteArrayInputStream("q2 data".getBytes());
+            }
+        };
+        ContentItem q2ContentItem = new ContentItemImpl(createResponseMetacard.getId(),
+                "q2",
+                q2ByteSource,
+                "application/octet-stream",
+                createResponseMetacard);
+        updateRequestContentItems.add(q2ContentItem);
+
+        UpdateStorageRequest request = new UpdateStorageRequestImpl(updateRequestContentItems,
+                null);
+        List<Result> mockFederationResults = Stream.of(createResponseMetacard)
+                .map(m -> {
+                    Result mockResult = mock(Result.class);
+                    when(mockResult.getMetacard()).thenReturn(m);
+                    return mockResult;
+                })
+                .collect(Collectors.toList());
+
+        when(mockFederationStrategy.federate(anyList(),
+                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+                mockFederationResults,
+                1));
+        // send update to framework
+        List<Update> returnedCards = framework.update(request)
+                .getUpdatedMetacards();
+        assertThat(returnedCards, hasSize(1));
+        final Metacard updateResponseMetacard = returnedCards.get(0)
+                .getNewMetacard();
+        assertThat(updateResponseMetacard.getId(), notNullValue());
+        assertThat(updateResponseMetacard.getResourceURI()
+                .toString(), is(contentItem.getUri()));
+        assertThat(updateResponseMetacard.getResourceSize(), is(Long.toString(byteSource.size())));
+
+        assertThat(response.getCreatedMetacards(), hasSize(storageProvider.size()));
+
+        // make sure that the event was posted correctly
+        assertThat(eventAdmin.wasEventPosted(), is(true));
 
     }
 

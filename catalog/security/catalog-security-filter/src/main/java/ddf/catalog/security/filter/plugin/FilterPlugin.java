@@ -109,7 +109,7 @@ public class FilterPlugin implements AccessPlugin {
         }
         if (!userNotPermittedTitles.isEmpty()) {
             throw new StopProcessingException(
-                    "Metacard creation not permitted for" + SubjectUtils.getName(subject) + ": [ "
+                    "Metacard creation not permitted for " + SubjectUtils.getName(subject) + ": [ "
                             + listToString(userNotPermittedTitles) + " ]");
         }
         if (!systemNotPermittedTitles.isEmpty()) {

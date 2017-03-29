@@ -31,6 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -196,19 +197,22 @@ public class UpdateOperations {
                 updateStorageResponse = processPostUpdateStoragePlugins(updateStorageResponse);
 
                 for (ContentItem contentItem : updateStorageResponse.getUpdatedContentItems()) {
-                    Metacard metacard = metacardMap.get(contentItem.getId());
+                    if (StringUtils.isBlank(contentItem.getQualifier())) {
+                        Metacard metacard = metacardMap.get(contentItem.getId());
 
-                    Metacard overrideMetacard = contentItem.getMetacard();
+                        Metacard overrideMetacard = contentItem.getMetacard();
 
-                    Metacard updatedMetacard = OverrideAttributesSupport.overrideMetacard(metacard,
-                            overrideMetacard,
-                            true,
-                            true);
+                        Metacard updatedMetacard = OverrideAttributesSupport.overrideMetacard(
+                                metacard,
+                                overrideMetacard,
+                                true,
+                                true);
 
-                    updatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
-                            String.valueOf(contentItem.getSize())));
+                        updatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                String.valueOf(contentItem.getSize())));
 
-                    metacardMap.put(contentItem.getId(), updatedMetacard);
+                        metacardMap.put(contentItem.getId(), updatedMetacard);
+                    }
                 }
             }
 
