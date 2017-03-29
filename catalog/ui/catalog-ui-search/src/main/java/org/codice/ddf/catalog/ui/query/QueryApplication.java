@@ -14,10 +14,12 @@
 package org.codice.ddf.catalog.ui.query;
 
 import static spark.Spark.after;
+import static spark.Spark.before;
 import static spark.Spark.exception;
 import static spark.Spark.post;
 import static spark.route.RouteOverview.enableRouteOverview;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.ws.rs.NotAcceptableException;
 
@@ -97,21 +100,46 @@ public class QueryApplication implements SparkApplication {
             return mapper.toJson(cqlQueryResponse);
         });
 
-        after("/cql", (Request req, Response res) -> {
+        before("/cql", (req, res) -> {
             res.type(APPLICATION_JSON);
 
             // Must manually check and set header for gzip because of spark issue
             // https://github.com/perwendel/spark/issues/691
-            Map<String, String> acceptEncodings =
-                    parseAcceptEncodings(req.headers("Accept-Encoding"));
+            final Map<String, String> REQ_ACCEPT_ENCODINGS = parseAcceptEncodings(req.headers(
+                    "Accept-Encoding"));
 
-            acceptEncodings.entrySet()
+            /*
+             * An example of this stream in action.
+             * Accept-Encoding: gzip;q=1,identity;q=0.5,notsupportedencoding;q=0.8
+             * take each entry in REQ_ACCEPT_ENCODINGS and sort it according to the q value:
+             *   (gzip, 1), (notsupportedencoding, 0.8), (identity, 0.5)
+             * filter out any encodings we dont support (by checking acceptEncodings):
+             *   (gzip, 1), (identity, 0.5)
+             * make sure the client actually requested this header (acceptEncodingSupports method):
+             *   gzip -> true, identity -> true.
+             * get the encoding function from the acceptedEncodings map
+             * find the first one (which should be ordered by highest priority first)
+             * and finally apply the consumer to the result.
+             */
+
+            // Sort Values by descending Q value
+            Stream<Map.Entry<String, String>> values = REQ_ACCEPT_ENCODINGS.entrySet()
                     .stream()
                     .sorted(Comparator.comparingDouble((Map.Entry<String, String> a) -> Double.parseDouble(
                             a.getValue()))
-                            .reversed())
-                    .filter((entry) -> acceptedEncodings.containsKey(entry.getKey()))
-                    .filter((entry) -> acceptEncodingSupports(acceptEncodings, entry.getKey()))
+                            .reversed());
+
+            // Add on identity as a fallback at the very end of the list if identity isn't already
+            // defined and "*" is not explicitly restricted.
+            if (!REQ_ACCEPT_ENCODINGS.containsKey("identity")
+                    && !"0".equals(REQ_ACCEPT_ENCODINGS.get("*"))) {
+                values = Stream.concat(values,
+                        Stream.of(new AbstractMap.SimpleEntry<String, String>("identity", "1")));
+            }
+
+            values.filter((entry) -> acceptedEncodings.containsKey(entry.getKey()) || "*".equals(
+                    entry.getKey()))
+                    .filter((entry) -> acceptEncodingSupports(REQ_ACCEPT_ENCODINGS, entry.getKey()))
                     .map((entry) -> acceptedEncodings.get(entry.getKey()))
                     .filter(Objects::nonNull)
                     .findFirst()
@@ -119,7 +147,17 @@ public class QueryApplication implements SparkApplication {
                     .accept(res);
         });
 
+        after("/cql", (Request req, Response res) -> {
+            // post route logic
+        });
+
         exception(NotAcceptableException.class, (e, request, response) -> {
+            response.status(406);
+            response.body("Unsupported encoding");
+            LOGGER.debug("Client asked for unsupported encoding", e);
+        });
+
+        exception(NumberFormatException.class, (e, request, response) -> {
             response.status(406);
             response.body("Unsupported encoding");
             LOGGER.debug("Client asked for unsupported encoding", e);
@@ -142,15 +180,15 @@ public class QueryApplication implements SparkApplication {
     }
 
     /**
-     * returns a Map of the parsed Accept-Encoding header according to RFC-2616-14.2
+     * returns a Map of the parsed Accept-Encoding header according to RFC-7231#5.3.2
      * </br>
-     * https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+     * https://tools.ietf.org/html/rfc7231#section-5.3.2
      *
      * @param header Accept-Encoding header to parse
      * @return Map of {Encoding, Q value}
      */
     private Map<String, String> parseAcceptEncodings(String header) {
-        if (StringUtils.isEmpty(header)) {
+        if (StringUtils.isBlank(header)) {
             return Collections.emptyMap();
         }
         String[] encodings = commaSpace.split(header.trim());
