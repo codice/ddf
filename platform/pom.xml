@@ -378,5 +378,6 @@
         <module>usng4j</module>
         <module>platform-app</module>
         <module>platform-filter-clientinfo</module>
+        <module>platform-filter-response</module>
     </modules>
 </project>
