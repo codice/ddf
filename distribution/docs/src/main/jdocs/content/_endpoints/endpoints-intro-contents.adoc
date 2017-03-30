@@ -1,5 +1,6 @@
-:type: documentation
+:type: endpointIntro
 :status: published
+:title: Endpoints Intro
 
 .Endpoints
 [ditaa, catalog_architecture_endpoints, png, ${image-width}]
