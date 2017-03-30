@@ -23,6 +23,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -59,6 +60,27 @@ public class ResponseFilter implements Filter {
             X_CONTENT_SECURITY_POLICY + "=" + DEFAULT_CONTENT_SECURITY_POLICY,
             CACHE_CONTROL + "=" + DEFAULT_CACHE_CONTROL_VALUE);
 
+    // Index paths (such as /search/catalog/ or /admin/) should never be cached
+    private void disableCachingForHTML(HttpServletRequest request, HttpServletResponse response) {
+        String requestURI = request.getRequestURI();
+        if (requestURI.endsWith("/") || requestURI.endsWith(".html")) {
+            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+            response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+            response.setHeader("Expires", "0"); // Proxies.
+        }
+    }
+
+    private void addCommonHeaders(HttpServletResponse response) {
+        for (String header : headers) {
+            String[] keyVal = header.split("=", 2);
+            if (keyVal.length != 2) {
+                LOGGER.debug("Skipping bad header " + header);
+                continue;
+            }
+            response.setHeader(keyVal[0], keyVal[1]);
+        }
+    }
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         LOGGER.debug("Initializing Response Security Filter.");
@@ -69,14 +91,9 @@ public class ResponseFilter implements Filter {
             FilterChain filterChain) throws IOException, ServletException {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        for (String header : headers) {
-            String[] keyVal = header.split("=", 2);
-            if (keyVal.length != 2) {
-                LOGGER.debug("Skipping bad header " + header);
-                continue;
-            }
-            response.setHeader(keyVal[0], keyVal[1]);
-        }
+        addCommonHeaders(response);
+
+        disableCachingForHTML((HttpServletRequest) servletRequest, response);
 
         filterChain.doFilter(servletRequest, response);
     }
