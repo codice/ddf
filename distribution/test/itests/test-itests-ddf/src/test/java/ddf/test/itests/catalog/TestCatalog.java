@@ -77,7 +77,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.KarafConsole;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
@@ -139,10 +138,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
 
-    private static KarafConsole console;
-
-    private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
-
     public static final String ADMIN = "admin";
 
     public static final String ADMIN_EMAIL = "admin@localhost.local";
@@ -159,7 +154,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void beforeExam() throws Exception {
         try {
             waitForSystemReady();
-            console = getConsole();
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
@@ -174,6 +168,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void tearDown() throws IOException {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
+        clearCatalog();
     }
 
     @Test
@@ -1028,8 +1023,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testCachedContentLengthHeader() throws IOException {
-
-        console.runCommand(CLEAR_CACHE);
 
         String fileName = "testCachedContentLengthHeader" + ".jpg";
         File tmpFile = createTemporaryFile(fileName,

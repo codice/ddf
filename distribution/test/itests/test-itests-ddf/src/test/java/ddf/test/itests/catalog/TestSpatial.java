@@ -13,7 +13,6 @@
  */
 package ddf.test.itests.catalog;
 
-import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertTrue;
@@ -168,12 +167,7 @@ public class TestSpatial extends AbstractIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
-        if (metacardIds != null) {
-            for (String metacardId : metacardIds.values()) {
-                deleteMetacard(metacardId);
-            }
-            metacardIds.clear();
-        }
+        clearCatalog();
     }
 
     @Test

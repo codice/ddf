@@ -28,9 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.Dictionary;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
@@ -46,10 +44,8 @@ import org.apache.commons.net.util.KeyManagerUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.AfterExam;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
-import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -93,8 +89,6 @@ public class TestFtp extends AbstractIntegrationTest {
 
     private FTPClient client;
 
-    private Set<String> metacardsToDelete;
-
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
@@ -120,16 +114,10 @@ public class TestFtp extends AbstractIntegrationTest {
         }
     }
 
-    @Before
-    public void setup() {
-        metacardsToDelete = new HashSet<>();
-    }
-
     @After
     public void tearDown() {
         disconnectClient(client);
-        metacardsToDelete.forEach(CatalogTestCommons::deleteMetacard);
-        metacardsToDelete.clear();
+        clearCatalog();
     }
 
     /**
@@ -557,10 +545,6 @@ public class TestFtp extends AbstractIntegrationTest {
 
                     boolean success =
                             numOfResults == expectedResults && title.equals(expectedTitle);
-
-                    if (success) {
-                        metacardsToDelete.add(getMetacardIdFromResponse(response));
-                    }
 
                     return success;
                 });

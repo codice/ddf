@@ -35,7 +35,6 @@ import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.KarafConsole;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.FixMethodOrder;
@@ -88,8 +87,6 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     private static final String INACTIVE_SDK = "[INACTIVE] " + SDK_APP;
 
-    private static KarafConsole console;
-
     private static final String APP_LIST_PROPERTIES_FILE =
             "/org.codice.ddf.admin.applicationlist.properties";
 
@@ -101,9 +98,6 @@ public class TestApplicationService extends AbstractIntegrationTest {
             waitForSystemReady();
             systemSubject =
                     org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
-            console = new KarafConsole(getServiceManager().getBundleContext(),
-                    features,
-                    sessionFactory);
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }

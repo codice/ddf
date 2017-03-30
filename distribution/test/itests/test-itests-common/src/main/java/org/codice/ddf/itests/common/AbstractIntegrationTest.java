@@ -101,6 +101,10 @@ public abstract class AbstractIntegrationTest {
 
     public static final String RESOURCE_VARIABLE_DELIMETER = "$";
 
+    public static final String REMOVE_ALL = "catalog:removeall -f -p";
+
+    private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
+
     protected static ServerSocket placeHolderSocket;
 
     protected static Integer basePort;
@@ -142,10 +146,10 @@ public abstract class AbstractIntegrationTest {
 
     private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
 
-    private KarafConsole console;
-
     protected static final String[] DEFAULT_REQUIRED_APPS =
             {"catalog-app", "solr-app", "spatial-app", "sdk-app"};
+
+    public KarafConsole console;
 
     /**
      * An enum that returns a port number based on the class variable {@link #basePort}. Used to allow parallel itests
@@ -615,10 +619,6 @@ public abstract class AbstractIntegrationTest {
         return Arrays.copyOf(DEFAULT_REQUIRED_APPS, DEFAULT_REQUIRED_APPS.length);
     }
 
-    protected KarafConsole getConsole() {
-        return console;
-    }
-
     protected AdminConfig getAdminConfig() {
         return adminConfig;
     }
@@ -712,5 +712,13 @@ public abstract class AbstractIntegrationTest {
 
     public void configureRestForBasic(String whitelist) throws Exception {
         getSecurityPolicy().configureRestForBasic(whitelist);
+    }
+
+    public void clearCatalog() {
+        console.runCommand(REMOVE_ALL);
+    }
+
+    public void clearCache() {
+        console.runCommand(CLEAR_CACHE);
     }
 }

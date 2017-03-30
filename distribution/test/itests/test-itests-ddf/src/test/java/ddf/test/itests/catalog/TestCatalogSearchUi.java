@@ -19,7 +19,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static com.jayway.restassured.RestAssured.given;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +59,6 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
     public static final DynamicUrl API_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT, PATH);
 
-    private List<String> ids = new ArrayList<>();
-
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
@@ -76,9 +73,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
     @After
     public void cleanUp() {
-        ids.stream()
-                .forEach(TestCatalogSearchUi::delete);
-        ids.clear();
+        clearCatalog();
     }
 
     private static String api() {
@@ -160,7 +155,6 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         String id = (String) body.get("id");
         assertNotNull(id);
 
-        ids.add(id);
     }
 
     @Test
@@ -172,7 +166,6 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         String id = (String) body.get("id");
         assertNotNull(id);
 
-        ids.add(id); // for cleanUp
     }
 
     @Test
@@ -186,7 +179,6 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
         expect(asGuest(), 404).get(api() + "/" + id);
 
-        ids.add(id); // for cleanUp
     }
 
     @Test
@@ -202,7 +194,6 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
         expect(asGuest(), 200).get(api() + "/" + id);
 
-        ids.add(id); // for cleanUp
     }
 
     @Test
@@ -219,7 +210,6 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         expect(asGuest(), 404).get(api() + "/" + id);
         expect(asUser("random", "password"), 200).get(api() + "/" + id);
 
-        ids.add(id); // for cleanUp
     }
 
     @Test
@@ -237,7 +227,6 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         expect(asUser("random", "password").body(stringify(ImmutableMap.of(Core.METACARD_OWNER,
                 "random@localhost.local"))), 200).put(api() + "/" + id);
 
-        ids.add(id); // for cleanUp
     }
 
     @Test
@@ -252,7 +241,6 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         assertNotNull(id);
         assertThat(body.get(WORKSPACE_METACARDS), is(metacards));
 
-        ids.add(id); // for cleanUp
     }
 
     @Test
@@ -272,7 +260,6 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         assertNotNull(id);
         assertThat(body.get(WORKSPACE_QUERIES), is(queries));
 
-        ids.add(id); // for cleanUp
     }
 
     @Test
@@ -292,6 +279,5 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         assertNotNull(id);
         assertThat(body.get(WORKSPACE_QUERIES), is(queries));
 
-        ids.add(id); // for cleanUp
     }
 }

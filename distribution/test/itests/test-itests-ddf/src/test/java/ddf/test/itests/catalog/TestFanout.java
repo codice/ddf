@@ -36,6 +36,7 @@ import org.codice.ddf.itests.common.annotations.AfterExam;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,7 +72,7 @@ public class TestFanout extends AbstractIntegrationTest {
     }
 
     @AfterExam
-    public void afterExam() throws Exception{
+    public void afterExam() throws Exception {
         getCatalogBundle().setFanout(false);
         getCatalogBundle().setFanoutTagBlacklist(TAG_BLACKLIST);
         getCatalogBundle().waitForCatalogProvider();
@@ -88,6 +89,11 @@ public class TestFanout extends AbstractIntegrationTest {
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @Before: ");
         }
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        clearCatalog();
     }
 
     private void startCswSource() throws Exception {

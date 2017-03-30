@@ -74,6 +74,7 @@ public class TestEmbeddedSolr extends AbstractIntegrationTest {
 
             configureRestForGuest();
             getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
+
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
@@ -88,6 +89,7 @@ public class TestEmbeddedSolr extends AbstractIntegrationTest {
     public void tearDown() throws IOException {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
+        clearCatalog();
     }
 
     @Test

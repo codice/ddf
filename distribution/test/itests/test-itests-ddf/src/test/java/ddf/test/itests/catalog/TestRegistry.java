@@ -192,6 +192,7 @@ public class TestRegistry extends AbstractIntegrationTest {
                     CSW_STUB_SERVER_PORT.getPort(),
                     CSW_REGISTRY_TYPE);
             getCatalogBundle().waitForCatalogStore(storeId);
+
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }
@@ -216,6 +217,7 @@ public class TestRegistry extends AbstractIntegrationTest {
     @After
     public void tearDown() throws Exception {
         cswServer.stop();
+        clearCatalog();
     }
 
     @Test
