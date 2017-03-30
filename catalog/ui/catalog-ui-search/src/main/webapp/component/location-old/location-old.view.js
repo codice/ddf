@@ -23,8 +23,7 @@ define([
     'js/store',
     'js/CustomElements',
     './location-old',
-    'js/CQLUtils',
-    'bootstrapselect'
+    'js/CQLUtils'
 ], function ($, Backbone, Marionette, _, properties, MetaCard, wreqr, template, maptype,
              store, CustomElements, LocationOldModel, CQLUtils) {
 

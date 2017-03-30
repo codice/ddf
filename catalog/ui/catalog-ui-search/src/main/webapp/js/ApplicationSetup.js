@@ -11,10 +11,15 @@
  **/
 /*global require, window */
 /*jslint nomen:false, -W064 */
+require('less/styles.less');
+var $ = require('jquery')
+$.ajaxSetup({
+    cache: false
+});
+
 window.CESIUM_BASE_URL = './cesium/';
 require([
     'underscore',
-    'jquery',
     'backbone',
     'marionette',
     'handlebars/dist/handlebars',
@@ -23,12 +28,8 @@ require([
     'js/requestAnimationFramePolyfill',
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
-    'cesium.css',
     'js/Autocomplete',
-], function(_, $, Backbone, Marionette, hbs, announcement) {
-    $.ajaxSetup({
-        cache: false
-    });
+], function(_, Backbone, Marionette, hbs, announcement) {
 
     $(window.document).ajaxError(function(event, jqxhr, settings, throwError) {
         var message;

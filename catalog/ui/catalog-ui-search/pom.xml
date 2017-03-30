@@ -215,11 +215,6 @@
             <artifactId>jetty-servlets</artifactId>
             <version>${jetty.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.codice.webjars</groupId>
-            <artifactId>jquery-ui-multiselect-widget</artifactId>
-            <version>1.14</version>
-        </dependency>
     </dependencies>
 
     <build>
