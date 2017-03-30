@@ -917,3 +917,8 @@ include::{adoc-include}/_formats/complete-list-file-types-contents.adoc[]
 == ${branding} Dependency List
 
 include::{adoc-include}/_dependency-list/ddf-dependency-list.adoc[]
+
+// Include iframeResizer to fix scolling issue when displayed in admin-ui.
+++++
+<script type="text/javascript" src="/admin/iframe-resizer/2.6.2/js/iframeResizer.contentWindow.min.js"></script>
+++++
