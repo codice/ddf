@@ -31,11 +31,13 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -74,7 +76,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.event.Event;
 
+import ddf.action.Action;
+import ddf.action.MultiActionProvider;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -119,6 +124,9 @@ public class FederationAdminTest {
 
     @Mock
     private RegistrySourceConfiguration sourceConfiguration;
+
+    @Mock
+    private MultiActionProvider multiActionProvider;
 
     private Parser parser;
 
@@ -798,6 +806,168 @@ public class FederationAdminTest {
     public void testRegenerateSources() throws Exception {
         federationAdmin.regenerateRegistrySources(Collections.singletonList("regId"));
         verify(sourceConfiguration).regenerateOneSource("regId");
+    }
+
+    @Test
+    public void testHandleEventCreate() throws Exception {
+        performCreateEvent();
+    }
+
+    @Test
+    public void testHandleEventUpdate() throws Exception {
+        performCreateEvent();
+        Dictionary<String, Object> eventProperties = new Hashtable<>();
+        mcard.setTitle("UpdatedTitle");
+        eventProperties.put("ddf.catalog.event.metacard", mcard);
+        Event event = new Event("ddf/catalog/event/UPDATED", eventProperties);
+        federationAdmin.handleEvent(event);
+        List<Map<String, Object>> result = (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
+                .get("nodes");
+        assertThat(result.size(), is(1));
+        Map<String, Object> mcardMap = result.get(0);
+        assertThat(mcardMap.get(FederationAdmin.SUMMARY_NAME), is("UpdatedTitle"));
+    }
+
+    @Test
+    public void testHandleEventDelete() throws Exception {
+        performCreateEvent();
+        Dictionary<String, Object> eventProperties = new Hashtable<>();
+        eventProperties.put("ddf.catalog.event.metacard", mcard);
+        Event event = new Event("ddf/catalog/event/DELETED", eventProperties);
+        federationAdmin.handleEvent(event);
+        List<Map<String, Object>> result = (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
+                .get("nodes");
+        assertThat(result.size(), is(0));
+    }
+
+    @Test
+    public void testAllRegistryMetacardsSummary() throws Exception {
+        Date timestamp = setupSummary();
+        List<Map<String, Object>> result =
+                (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
+                        .get("nodes");
+        assertThat(result.size(), is(1));
+        Map<String, Object> mcardMap = result.get(0);
+        assertSummary(mcardMap, timestamp);
+    }
+
+    @Test
+    public void testAllRegistryMetacardsSummaryWithActionProvider() throws Exception {
+        Action action = mock(Action.class);
+        when(action.getId()).thenReturn("catalog.data.metacard.registry");
+        when(action.getUrl()).thenReturn(new URL("https://host/path"));
+        when(multiActionProvider.canHandle(any())).thenReturn(true);
+        when(multiActionProvider.getActions(any())).thenReturn(Collections.singletonList(action));
+        federationAdmin.setRegistryActionProvider(multiActionProvider);
+        Date timestamp = setupSummary();
+        List<Map<String, Object>> result =
+                (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
+                        .get("nodes");
+        assertThat(result.size(), is(1));
+        Map<String, Object> mcardMap = result.get(0);
+        assertSummary(mcardMap, timestamp);
+        assertThat(mcardMap.get("reportAction"), is("https://host/path"));
+    }
+
+    @Test
+    public void testAllRegistryMetacardsSummaryWithActionProviderNoAction() throws Exception {
+        when(multiActionProvider.canHandle(any())).thenReturn(true);
+        when(multiActionProvider.getActions(any())).thenReturn(Collections.emptyList());
+        federationAdmin.setRegistryActionProvider(multiActionProvider);
+        Date timestamp = setupSummary();
+        List<Map<String, Object>> result =
+                (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
+                        .get("nodes");
+        assertThat(result.size(), is(1));
+        Map<String, Object> mcardMap = result.get(0);
+        assertSummary(mcardMap, timestamp);
+    }
+
+    @Test
+    public void testRegistryMetacard() throws Exception {
+        when(federationAdminService.getRegistryObjectByRegistryId(any())).thenReturn(
+                getRegistryObjectFromResource("/csw-full-registry-package.xml"));
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add(RegistryConstants.REGISTRY_TAG);
+        mcard.setAttribute(Metacard.TAGS, tags);
+        mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID,
+                "urn:uuid:2014ca7f59ac46f495e32b4a67a51276");
+
+        when(federationAdminService.getRegistryMetacardsByRegistryIds(any())).thenReturn(Collections.singletonList(
+                mcard));
+        List<Map<String, Object>> result =
+                (List<Map<String, Object>>) federationAdmin.registryMetacard(
+                        "urn:uuid:2014ca7f59ac46f495e32b4a67a51276")
+                        .get("nodes");
+        assertThat(result.size(), is(1));
+        Map<String, Object> mcardMap = result.get(0);
+        assertThat(mcardMap.get("id"), is("urn:uuid:2014ca7f59ac46f495e32b4a67a51276"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRegistryMetacardInvalidRegistryId() throws Exception {
+        federationAdmin.registryMetacard("invalidRegId");
+    }
+
+    @Test
+    public void testRegistryMetacardRegistryIdNotFound() throws Exception {
+        when(federationAdminService.getRegistryObjectByRegistryId(any())).thenThrow(new FederationAdminException(
+                "Not found"));
+
+        when(federationAdminService.getRegistryMetacardsByRegistryIds(any())).thenReturn(Collections.emptyList());
+        List<Map<String, Object>> result =
+                (List<Map<String, Object>>) federationAdmin.registryMetacard(
+                        "urn:uuid:2014ca7f59ac46f495e32b4a67a51276")
+                        .get("nodes");
+        assertThat(result.size(), is(0));
+    }
+
+    private void performCreateEvent() throws Exception {
+        List<Map<String, Object>> result =
+                (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
+                        .get("nodes");
+        assertThat(result.size(), is(0));
+        Date timestamp = setupSummary(false);
+        Dictionary<String, Object> eventProperties = new Hashtable<>();
+        eventProperties.put("ddf.catalog.event.metacard", mcard);
+        Event event = new Event("ddf/catalog/event/CREATED", eventProperties);
+        federationAdmin.handleEvent(event);
+        result = (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
+                .get("nodes");
+        assertThat(result.size(), is(1));
+        Map<String, Object> mcardMap = result.get(0);
+        assertSummary(mcardMap, timestamp);
+    }
+
+    private Date setupSummary() throws Exception {
+        return setupSummary(true);
+    }
+
+    private Date setupSummary(boolean setupAdminService) throws Exception {
+        Date now = new Date();
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add(RegistryConstants.REGISTRY_TAG);
+        mcard.setAttribute(Metacard.TAGS, tags);
+        mcard.setTitle("TestTitle");
+        mcard.setCreatedDate(now);
+        mcard.setModifiedDate(now);
+        mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE, true);
+        mcard.setAttribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE, true);
+        if (setupAdminService) {
+            when(federationAdminService.getRegistryMetacards()).thenReturn(Collections.singletonList(
+                    mcard));
+        }
+        return now;
+    }
+
+    private void assertSummary(Map<String, Object> mcardMap, Date timestamp) {
+        assertThat(mcardMap.get(FederationAdmin.SUMMARY_METACARD_ID), is("someUUID"));
+        assertThat(mcardMap.get(FederationAdmin.SUMMARY_REGISTRY_ID), is("myId"));
+        assertThat(mcardMap.get(FederationAdmin.SUMMARY_NAME), is("TestTitle"));
+        assertThat(mcardMap.get(Metacard.CREATED), is(timestamp));
+        assertThat(mcardMap.get(Metacard.MODIFIED), is(timestamp));
+        assertThat(mcardMap.get(FederationAdmin.SUMMARY_IDENTITY_NODE), is(true));
+        assertThat(mcardMap.get(FederationAdmin.SUMMARY_LOCAL_NODE), is(true));
     }
 
     private void copyJsonFileToKarafDir() throws Exception {

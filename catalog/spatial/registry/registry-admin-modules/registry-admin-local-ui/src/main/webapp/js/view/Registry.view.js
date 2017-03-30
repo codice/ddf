@@ -79,40 +79,40 @@ define([
                 }
             },
             showEditNode: function (node) {
-                wreqr.vent.trigger("showModal",
-                    new NodeModal.View({
-                        model: node,
-                        mode: 'edit'
-                    })
-                );
+                this.showNode(node,'edit', false);
             },
             showAddNode: function () {
-                if (this.model) {
-                    wreqr.vent.trigger("showModal",
-                        new NodeModal.View({
-                            model: new Node.Model(),
-                            mode: 'add'
-                        })
-                    );
-                }
+                this.showNode({},'add', false);
             },
             showReadOnlyNode: function (node) {
+                this.showNode(node,'readOnly', true);
+            },
+            showNode: function(node, mode, readOnly) {
                 if (this.model) {
-                    wreqr.vent.trigger("showModal",
-                        new NodeModal.View({
-                            model: node,
-                            mode: 'readOnly',
-                            readOnly: true
-                        })
-                    );
+                    var nodeModel = new Node.Model({summary: node});
+                    var modal = new NodeModal.View({
+                        model: nodeModel,
+                        mode: mode,
+                        readOnly: readOnly,
+                        modelEmpty: mode === 'add'
+                    });
+                    if(mode !== 'add') {
+                        nodeModel.fetch({
+                            success: function () {
+                                modal.refreshData();
+                                modal.render();
+                            }
+                        });
+                    }
+                    wreqr.vent.trigger("showModal", modal);
                 }
             },
             addDeleteNode: function () {
                 var view = this;
-                var button = view.$('.refresh-button');
-                if (!button.hasClass('fa-spin')) {
-                    button.addClass('fa-spin');
-                }
+                this.model.hasData = false;
+                this.render();
+                $('.refresh-button').prop("disabled",true);
+
                 this.model.fetch({
                     reset: true,
                     success: function () {
@@ -121,8 +121,7 @@ define([
                 });
             },
             fetchComplete: function (view) {
-                var button = view.$('.refresh-button');
-                button.removeClass('fa-spin');
+                $('.refresh-button').prop("disabled",false);
                 view.render();
             },
             deleteNodes: function(model) {
@@ -138,13 +137,23 @@ define([
                     wreqr.vent.trigger("showModal",
                         new RegistryView.RegenerateSourcesModal({nodes: this.model.models})
                     );
+            },
+            serializeData: function () {
+                var data = {};
 
+                if (this.model) {
+                    data = this.model.toJSON();
+                    data.waitingForData = !this.model.hasData;
+                }
+
+                return data;
             }
         });
         RegistryView.ModalController = Marionette.Controller.extend({
             initialize: function (options) {
                 this.application = options.application;
                 this.listenTo(wreqr.vent, "showModal", this.showModal);
+                this.listenTo(wreqr.vent, "modalSizeChanged", this.adjustHeightForModal);
             },
             showModal: function (modalView) {
 
@@ -165,6 +174,13 @@ define([
                     backdrop: 'static',
                     keyboard: false
                 });
+            },
+            adjustHeightForModal: function(modalHeight){
+                var iFrameModalDOM = $('#IframeModalDOM');
+                var extraHeight = modalHeight - $('#nodeTables').height();
+                if (extraHeight > 0) {
+                    iFrameModalDOM.height(extraHeight);
+                }
             }
         });
 
@@ -175,7 +191,8 @@ define([
             className: "highlight-on-hover",
             events: {
                 'click td': 'editNode',
-                'click .remove-node-link': 'removeNode'
+                'click .remove-node-link': 'removeNode',
+                'click .report-node-link': 'reportLink'
             },
             editNode: function (evt) {
                 evt.stopPropagation();
@@ -185,6 +202,9 @@ define([
                 } else {
                     wreqr.vent.trigger('editNode', node);
                 }
+            },
+            reportLink: function(evt) {
+                evt.stopPropagation();
             },
             removeNode: function (evt) {
                 evt.stopPropagation();
@@ -196,22 +216,9 @@ define([
                 if (this.model) {
                     data = this.model.toJSON();
                 }
+                data.lastUpdated = moment.parseZone(this.model.get('modified')).utc().format('MMM DD, YYYY HH:mm') + 'Z';
+                data.liveDate = moment.parseZone(this.model.get('created')).utc().format('MMM DD, YYYY HH:mm') + 'Z';
 
-                var extrinsicData = this.model.getObjectOfType('urn:registry:federation:node');
-                if (extrinsicData.length === 1) {
-                    data.name = extrinsicData[0].Name;
-                    data.slots = extrinsicData[0].Slot;
-                    data.slots.forEach(function (slotValue) {
-                        if (slotValue.slotType === "xs:dateTime") {
-                            var date = moment.parseZone(slotValue.value[0]).utc().format('MMM DD, YYYY HH:mm') + 'Z';
-                            if (slotValue.name === "lastUpdated") {
-                                data.lastUpdated = date;
-                            } else if (slotValue.name === "liveDate") {
-                                data.liveDate = date;
-                            }
-                        }
-                    });
-                }
                 return data;
             }
         });
@@ -228,7 +235,6 @@ define([
                 }
                 data.multiValued = this.options.multiValued;
                 data.readOnly = this.options.readOnly;
-
                 return data;
             },
             buildItemView: function (item, ItemViewType, itemViewOptions) {
@@ -249,7 +255,7 @@ define([
                 'click .close': 'cancel'
             },
             deleteNode: function() {
-                 this.model.collection.deleteNodes([this.model.get('id')]);
+                 this.model.collection.deleteNodes([this.model.get('registryId')]);
                  this.close();
             },
             cancel: function() {
@@ -269,7 +275,7 @@ define([
                 return data;
            },
            getNodeName: function() {
-               return this.model.getObjectOfType('urn:registry:federation:node')[0].Name;
+               return this.model.get('name');
            }
         });
 
@@ -336,8 +342,8 @@ define([
                         return;
                     }
                     nodes.push({
-                        name: node.getObjectOfType('urn:registry:federation:node')[0].Name,
-                        id: node.get('id')
+                        name: node.get('name'),
+                        id: node.get('registryId')
                     });
                 });
                 nodes = _.sortBy(nodes, function(o){

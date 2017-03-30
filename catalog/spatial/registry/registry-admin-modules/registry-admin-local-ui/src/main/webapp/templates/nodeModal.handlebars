@@ -28,6 +28,7 @@
                     {{name}} (Read Only)
                 {{/unless}}
             </h4>
+            <h6>Registry ID: {{registryId}}</h6>
         </div>
         <div class="modal-body">
             <ul class="nav nav-tabs">
@@ -45,25 +46,31 @@
                        id="collectionTabLink" data-toggle="tab" href="#collections">Collections</a>
                 </li>
             </ul>
-            <form class="form-horizontal add-federated-source container-fluid">
-                <div class="tab-content">
-                    <div id="general" class="tab-pane fade in active">
-                        <div id="generalInfo"></div>
+            {{#if hasData}}
+                <form class="form-horizontal add-federated-source container-fluid">
+                    <div class="tab-content">
+                        <div id="general" class="tab-pane fade in active">
+                            <div id="generalInfo"></div>
+                        </div>
+                        <div id="service" class="tab-pane fade">
+                            <div id="serviceInfo"></div>
+                        </div>
+                        <div id="organizations" class="tab-pane fade">
+                            <div id="organizationInfo"></div>
+                        </div>
+                        <div id="contacts" class="tab-pane fade">
+                            <div id="contactInfo"></div>
+                        </div>
+                        <div id="collections" class="tab-pane fade">
+                            <div id="contentInfo"></div>
+                        </div>
                     </div>
-                    <div id="service" class="tab-pane fade">
-                        <div id="serviceInfo"></div>
-                    </div>
-                    <div id="organizations" class="tab-pane fade">
-                        <div id="organizationInfo"></div>
-                    </div>
-                    <div id="contacts" class="tab-pane fade">
-                        <div id="contactInfo"></div>
-                    </div>
-                    <div id="collections" class="tab-pane fade">
-                        <div id="contentInfo"></div>
-                    </div>
+                </form>
+            {{else}}
+                <div id="general" class="tab-pane fade in active loading-entry">
+                    <i class="fa fa-4x fa-spinner fa-spin fa-stack-1x loading" title="Loading..."></i>
                 </div>
-            </form>
+            {{/if}}
         </div>
 
         <div class="modal-footer">
