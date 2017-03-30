@@ -13,7 +13,8 @@
 define([
         'marionette',
         'jquery',
-        'js/application'
+        'js/application',
+        'iframeresizer'
     ],function(Marionette, $, Application) {
 
 //    $(window).resize(function() {
@@ -61,6 +62,13 @@ define([
                 itemView: Marionette.ItemView.extend({
                     tagName: 'div',
                     className: 'tab-pane',
+                    onShow: function () {
+                        setTimeout(function(){
+                             this.$('iframe').ready(function() {
+                                this.$('iframe').iFrameResize();
+                            }.bind(this));
+                        }.bind(this), 0);
+                    },
                     onRender: function() {
                         var view = this;
                         this.$el.attr('id', this.model.get('id'));
