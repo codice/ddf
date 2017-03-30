@@ -46,6 +46,7 @@ define([
                     },
                     setHeader: function() {
                         $('#pageHeader').html(this.model.get('name'));
+                        this.model.set('active', true);
                     },
                     onRender: function() {
                         if(this.model.get('active')) {
@@ -62,19 +63,22 @@ define([
                 itemView: Marionette.ItemView.extend({
                     tagName: 'div',
                     className: 'tab-pane',
-                    onShow: function () {
+                    initialize: function(){
+                        this.listenTo(this.model, 'change:active', this.render);
+                    },
+                    attachIframeResizer: function () {
                         setTimeout(function(){
                              this.$('iframe').ready(function() {
                                 this.$('iframe').iFrameResize();
                             }.bind(this));
                         }.bind(this), 0);
                     },
-                    onRender: function() {
-                        var view = this;
-                        this.$el.attr('id', this.model.get('id'));
-                        if(this.model.get('active')) {
-                            this.$el.addClass('active');
+                    loadContent: function(){
+                        if (this.model.get('loaded')){
+                            return;
                         }
+                        this.model.set('loaded', true);
+                        var view = this;
                         //this dynamically requires in our modules based on wherever the model says they could be found
                         //check if we already have the module
                         if(this.model.get('iframeLocation') && this.model.get('iframeLocation') !== "") {
@@ -109,6 +113,14 @@ define([
                                     });
                                 }
                             }
+                        }
+                        this.attachIframeResizer();
+                    },
+                    onRender: function() {
+                        this.$el.attr('id', this.model.get('id'));
+                        if(this.model.get('active')) {
+                            this.$el.addClass('active');
+                            this.loadContent();
                         }
                     },
                     onClose: function() {
