@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,14 +55,12 @@ public class FileSystemPersistenceProvider
 
     private static final String SER_REGEX = "\\.ser";
 
-    private static final String PERSISTENCE_PATH = new AbsolutePathResolver("data/").getPath();
-
     private String mapName = "default";
 
     FileSystemPersistenceProvider(String mapName) {
         LOGGER.trace("INSIDE: FileSystemPersistenceProvider constructor,  mapName = {}", mapName);
         this.mapName = mapName;
-        File dir = new File(PERSISTENCE_PATH);
+        File dir = new File(getPersistencePath());
         if (!dir.exists()) {
             boolean success = dir.mkdir();
             if (!success) {
@@ -71,12 +70,23 @@ public class FileSystemPersistenceProvider
     }
 
     /**
+     * Retrieve root directory of all persisted Hazelcast objects for this cache. The path is
+     * relative to containing bundle, i.e., DDF install directory.
+     *
+     * @return the path to root directory where serialized objects will be persisted
+     */
+    String getPersistencePath() {
+        return new AbsolutePathResolver("data").getPath();
+    }
+
+    /**
      * Path to where persisted Hazelcast objects will be stored to disk.
      *
      * @return
      */
     String getMapStorePath() {
-        return PERSISTENCE_PATH + mapName + "/";
+        return Paths.get(getPersistencePath(), mapName)
+                .toString() + File.separator;
     }
 
     @Override

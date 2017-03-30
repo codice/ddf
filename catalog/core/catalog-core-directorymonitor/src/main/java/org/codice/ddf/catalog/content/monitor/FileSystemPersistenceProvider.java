@@ -25,6 +25,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,13 +82,7 @@ public class FileSystemPersistenceProvider
      * @return the path to root directory where serialized objects will be persisted
      */
     String getPersistencePath() {
-        File file = new File("data" + File.separator);
-        try {
-            return file.getCanonicalPath();
-        } catch (IOException e) {
-            LOGGER.warn("Could not canonicalize {}. Verify the location is accessible.", file);
-            return file.getAbsolutePath();
-        }
+        return new AbsolutePathResolver("data").getPath();
     }
 
     /**
@@ -95,7 +91,8 @@ public class FileSystemPersistenceProvider
      * @return
      */
     String getMapStorePath() {
-        return getPersistencePath() + mapName + File.separator;
+        return Paths.get(getPersistencePath(), mapName)
+                .toString() + File.separator;
     }
 
     @Override

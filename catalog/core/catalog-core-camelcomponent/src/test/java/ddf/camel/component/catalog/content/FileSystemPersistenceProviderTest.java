@@ -23,6 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,7 +57,8 @@ public class FileSystemPersistenceProviderTest {
         fileSystemPersistenceProvider = new FileSystemPersistenceProvider("test");
         fileSystemPersistenceProvider.fileSystemDataAccessObject = mockFileSystemDao;
         assertThat(fileSystemPersistenceProvider.getMapStorePath(),
-                is(fileSystemPersistenceProvider.getPersistencePath() + "test" + File.separator));
+                is(Paths.get(fileSystemPersistenceProvider.getPersistencePath(), "test")
+                        .toString() + File.separator));
     }
 
     @Test
