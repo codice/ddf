@@ -80,10 +80,6 @@ public class ActiveMQJMSClientFactoryWrapper {
         this.username = username;
     }
 
-    public String getPassword() {
-        return new String(password);
-    }
-
     public void setPassword(String password) {
         this.password = password.toCharArray();
     }
