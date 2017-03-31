@@ -28,6 +28,51 @@ define([
 
     var blacklist = ['anyText', 'anyGeo'];
 
+    function getSortLabel(attribute) {
+        var ascendingLabel, descendingLabel;
+        if (metacardDefinitions.metacardTypes[attribute] === undefined) {
+            ascendingLabel = descendingLabel = '';
+        } else {
+            switch (metacardDefinitions.metacardTypes[attribute].type) {
+                case 'DATE':
+                    ascendingLabel = 'Earliest';
+                    descendingLabel = 'Latest';
+                    break;
+                case 'BOOLEAN':
+                    ascendingLabel = 'True First'; //Truthiest
+                    descendingLabel = 'False First'; //Falsiest
+                    break;
+                case 'LONG':
+                case 'DOUBLE':
+                case 'FLOAT':
+                case 'INTEGER':
+                case 'SHORT':
+                    ascendingLabel = 'Smallest';
+                    descendingLabel = 'Largest';
+                    break;
+                case 'STRING':
+                    ascendingLabel = 'A to Z';
+                    descendingLabel = 'Z to A';
+                    break;
+                case 'GEOMETRY':
+                    ascendingLabel = 'Closest';
+                    descendingLabel = 'Furthest';
+                    break;
+                case 'XML':
+                case 'BINARY':
+                default:
+                    ascendingLabel = 'Ascending';
+                    descendingLabel = 'Descending';
+                    break;
+            }
+        }
+        return {
+            ascending: ascendingLabel,
+            descending: descendingLabel
+        };
+
+    };
+
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('sort-item'),
@@ -76,9 +121,10 @@ define([
             this.turnOnEditing();
             this.turnOnLimitedWidth();
 
-            this.sortAttribute.currentView.$el.on('change', function (event) {
+            this.listenTo(this.sortAttribute.currentView.model, 'change:value', (model, attribute) => {
+                this.model.set('attribute', attribute[0]);
                 this.handleAttribute();
-            }.bind(this));
+            });
         },
         turnOffEditing: function () {
             this.sortAttribute.currentView.turnOffEditing();
@@ -95,60 +141,20 @@ define([
             this.sortDirection.currentView.turnOnLimitedWidth();
         },
         handleAttribute: function () {
-            var attribute = this.sortAttribute.currentView.getCurrentValue()[0]; //this.model.get('attribute');
-            var ascendingLabel, descendingLabel;
-            if (metacardDefinitions.metacardTypes[attribute] === undefined) {
-                ascendingLabel = descendingLabel = '';
-                this.$el.toggleClass('is-non-directional-sort', true);
-            } else {
-                switch (metacardDefinitions.metacardTypes[attribute].type) {
-                    case 'DATE':
-                        ascendingLabel = 'Earliest';
-                        descendingLabel = 'Latest';
-                        break;
-                    case 'LOCATION':
-                        ascendingLabel = 'Closest';
-                        descendingLabel = 'Furthest';
-                        break;
-                    case 'BOOLEAN':
-                        ascendingLabel = 'True First'; //Truthiest
-                        descendingLabel = 'False First'; //Falsiest
-                        break;
-                    case 'LONG':
-                    case 'DOUBLE':
-                    case 'FLOAT':
-                    case 'INTEGER':
-                    case 'SHORT':
-                        ascendingLabel = 'Smallest';
-                        descendingLabel = 'Largest';
-                        break;
-                    case 'STRING':
-                        ascendingLabel = 'A to Z';
-                        descendingLabel = 'Z to A';
-                        break;
-                    case 'GEOMETRY':
-                    case 'XML':
-                    case 'BINARY':
-                    default:
-                        ascendingLabel = 'Ascending';
-                        descendingLabel = 'Descending';
-                        break;
-                }
-
-                this.$el.toggleClass('is-non-directional-sort', false);
-            }
+            var attribute = this.sortAttribute.currentView.model.getValue()[0];
+            var labels = getSortLabel(attribute);
 
             if (this.sortDirection.currentView !== undefined) {
-                this.model.set('direction', this.sortDirection.currentView.getCurrentValue()[0]);
+                this.model.set('direction', this.sortDirection.currentView.model.getValue()[0]);
             }
 
             this.sortDirection.show(new PropertyView({
                 model: new Property({
                     enum: [{
-                        label: ascendingLabel,
+                        label: labels.ascending,
                         value: 'ascending'
                     }, {
-                        label: descendingLabel,
+                        label: labels.descending,
                         value: 'descending'
                     }],
 
@@ -159,19 +165,22 @@ define([
 
             if (metacardDefinitions.metacardTypes[attribute] === undefined) {
                 this.sortDirection.currentView.turnOffEditing();
+                this.$el.toggleClass('is-non-directional-sort', true);
             } else {
                 this.sortDirection.currentView.turnOnEditing();
+                this.$el.toggleClass('is-non-directional-sort', false);
             }
 
             this.turnOnLimitedWidth();
-            this.sortDirection.currentView.$el.on('change', function (event) {
-                this.handleAttribute();
-            }.bind(this));
+            this.listenTo(this.sortDirection.currentView.model, 'change:value', (model, direction) => {
+                this.model.set('direction', direction[0])
+            });
+
         },
         getValue: function () {
             return {
-                sortField: this.sortAttribute.currentView.getCurrentValue()[0],
-                sortOrder: this.sortDirection.currentView.getCurrentValue()[0]
+                sortField: this.sortAttribute.currentView.model.getValue()[0],
+                sortOrder: this.sortDirection.currentView.model.getValue()[0]
             }
         }
     });

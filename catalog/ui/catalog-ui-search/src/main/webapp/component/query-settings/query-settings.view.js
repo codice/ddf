@@ -48,7 +48,6 @@ define([
         ui: {
         },
         focus: function(){
-            // this.regionManager.first().currentView.focus();
         },
         onBeforeShow: function(){
             this.setupSortFieldDropdown();
@@ -135,7 +134,7 @@ define([
             this.model.set({
                 federation: federation
             });
-            this.model.set(this.settingsSort.currentView.model.getValue()[0]);
+            this.model.set(this.settingsSortField.currentView.getValue());
         },
         save: function(){
             this.$el.removeClass('is-editing');
