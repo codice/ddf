@@ -33,7 +33,7 @@
         <param-name>org.eclipse.jetty.servlet.SessionPath</param-name>
         <param-value>/</param-value>
     </context-param>
-	
+
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Login Page</web-resource-name>
@@ -43,5 +43,5 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
-	
+
 </web-app>
