@@ -920,5 +920,5 @@ include::{adoc-include}/_dependency-list/ddf-dependency-list.adoc[]
 
 // Include iframeResizer to fix scolling issue when displayed in admin-ui.
 ++++
-<script type="text/javascript" src="/admin/iframe-resizer/2.6.2/js/iframeResizer.contentWindow.min.js"></script>
+<script type="text/javascript" src="/admin/lib/iframe-resizer/js/iframeResizer.contentWindow.min.js"></script>
 ++++
