@@ -1,5 +1,3 @@
-package org.codice.ddf.security.interceptor;
-
 /**
  * Copyright (c) Codice Foundation
  * <p/>
@@ -13,11 +11,11 @@ package org.codice.ddf.security.interceptor;
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+package org.codice.ddf.security.interceptor;
 
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.soap.SOAPElement;
@@ -44,6 +42,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.util.Security;
@@ -59,7 +60,13 @@ public class GuestInterceptorSansPolicy extends AbstractWSS4JInterceptor {
 
     private SecurityManager securityManager;
 
-    private Map<String, Subject> cachedGuestSubjectMap = new HashMap<>();
+    private static final int DEFAULT_EXPIRATION_MINUTES = 30;
+
+    private Cache<String, Subject> cachedGuestSubjectMap = CacheBuilder.newBuilder()
+            .expireAfterWrite(DEFAULT_EXPIRATION_MINUTES, TimeUnit.MINUTES)
+            .build();
+
+    //    private Map<String, Subject> cachedGuestSubjectMap = new HashMap<>();
 
     public GuestInterceptorSansPolicy(SecurityManager securityManager) {
         super();
@@ -76,45 +83,46 @@ public class GuestInterceptorSansPolicy extends AbstractWSS4JInterceptor {
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
 
-        if (message != null) {
-
-            HttpServletRequest request =
-                    (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
-            LOGGER.debug("Getting new Guest user token");
-            //synchronize the step of requesting the assertion, it is not thread safe
-            Principal principal = null;
-
-            Subject subject = getSubject(request.getRemoteAddr());
-            PrincipalCollection principals = subject.getPrincipals();
-            SecurityAssertion securityAssertion = principals.oneByType(SecurityAssertion.class);
-            if (securityAssertion != null) {
-                SecurityToken securityToken = securityAssertion.getSecurityToken();
-                Element samlElement = securityToken.getToken();
-                SOAPElement samlAssertion = null;
-
-                try {
-                    SOAPFactory soapFactory = SOAPFactory.newInstance();
-
-                    samlAssertion = soapFactory.createElement(samlElement);
-                    principal = new SAMLTokenPrincipalImpl(new SamlAssertionWrapper(samlAssertion));
-                } catch (WSSecurityException e) {
-                    LOGGER.debug("Unable to create SAMLTokenPrincipal", e);
-                } catch (SOAPException e) {
-                    LOGGER.debug("Unable to convert SecurityToken to SOAPElement.", e);
-                }
-            } else {
-                LOGGER.debug("Subject did not contain a security assertion");
-            }
-
-            message.put(SecurityContext.class, new DefaultSecurityContext(principal, null));
-
-        } else {
+        if (message == null) {
             LOGGER.debug("Incoming SOAP message is null - guest interceptor makes no sense.");
+            return;
         }
+
+        HttpServletRequest request =
+                (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
+        LOGGER.debug("Getting new Guest user token");
+        //synchronize the step of requesting the assertion, it is not thread safe
+        Principal principal = null;
+
+        Subject subject = getSubject(request.getRemoteAddr());
+        PrincipalCollection principals = subject.getPrincipals();
+        SecurityAssertion securityAssertion = principals.oneByType(SecurityAssertion.class);
+        if (securityAssertion != null) {
+            SecurityToken securityToken = securityAssertion.getSecurityToken();
+            Element samlElement = securityToken.getToken();
+            SOAPElement samlAssertion = null;
+
+            try {
+                SOAPFactory soapFactory = SOAPFactory.newInstance();
+
+                samlAssertion = soapFactory.createElement(samlElement);
+                principal = new SAMLTokenPrincipalImpl(new SamlAssertionWrapper(samlAssertion));
+            } catch (WSSecurityException e) {
+                LOGGER.debug("Unable to create SAMLTokenPrincipal", e);
+            } catch (SOAPException e) {
+                LOGGER.debug("Unable to convert SecurityToken to SOAPElement.", e);
+            }
+        } else {
+            LOGGER.debug("Subject did not contain a security assertion");
+        }
+
+        message.put(SecurityContext.class, new DefaultSecurityContext(principal, null));
+
     }
 
     private synchronized Subject getSubject(String ipAddress) {
-        Subject subject = cachedGuestSubjectMap.get(ipAddress);
+        Subject subject = cachedGuestSubjectMap.asMap()
+                .get(ipAddress);
         if (Security.tokenAboutToExpire(subject)) {
             GuestAuthenticationToken token =
                     new GuestAuthenticationToken(BaseAuthenticationToken.DEFAULT_REALM, ipAddress);
