@@ -33,7 +33,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.ui.admin.api.util.PropertiesFileReader;
+import org.codice.ddf.platform.util.properties.PropertiesFileReader;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;

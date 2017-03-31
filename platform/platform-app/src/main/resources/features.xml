@@ -748,6 +748,7 @@
 
     <feature name="platform-scheduler" install="manual" version="${project.version}"
              description="Schedules tasks">
+        <feature prerequisite="true">commons</feature>
         <feature prerequisite="true">security-core-api</feature>
         <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
     </feature>
@@ -948,7 +949,9 @@
     </feature>
 
     <feature name="platform-filter-delegate" install="manual" version="${project.version}">
+        <feature prerequisite="true">commons</feature>
         <feature prerequisite="true" version="${project.version}">kernel</feature>
+        <feature prerequisite="true" version="${spring.version}_1">spring</feature>
         <feature prerequisite="true">pax-http-jetty</feature>
         <feature prerequisite="true">pax-jetty</feature>
         <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
@@ -972,11 +975,9 @@
         <feature prerequisite="true">branding-api</feature>
         <feature prerequisite="true">wrap</feature>
         <feature prerequisite="true">camel-http</feature>
+        <feature prerequisite="true">commons</feature>
         <bundle dependency="true">mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>
         <bundle dependency="true">mvn:org.slf4j/slf4j-ext/${org.slf4j.version}</bundle>
-        <bundle dependency="true">mvn:commons-io/commons-io/${commons-io.version}</bundle>
-        <bundle dependency="true">mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
-        <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
         <bundle dependency="true">mvn:org.ops4j.base/ops4j-base-lang/${org.ops4j-base-lang}</bundle>
         <bundle dependency="true">mvn:org.ops4j.pax.swissbox/pax-swissbox-lifecycle/${org.ops4j.pax.swissbox.version}</bundle>
         <bundle dependency="true">mvn:org.ops4j.pax.swissbox/pax-swissbox-optional-jcl/${org.ops4j.pax.swissbox.version}</bundle>
@@ -986,6 +987,12 @@
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/${javax.inject.bundle.version}</bundle>
         <bundle dependency="true">mvn:javax.validation/validation-api/${validation.version}</bundle>
         <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
+    </feature>
+
+    <feature name="commons" version="${project.version}" install="manual" hidden="true">
+        <bundle dependency="true">mvn:commons-io/commons-io/${commons-io.version}</bundle>
+        <bundle dependency="true">mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
+        <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
     </feature>
 
     <feature name="platform-filter-response" install="manual" version="${project.version}"
@@ -1033,6 +1040,8 @@
 
     <feature name="platform-paxweb-jettyconfig" install="manual" version="${project.version}"
              description="Custom Session Manager">
+        <feature prerequisite="true" version="${spring.version}_1">spring</feature>
+        <feature prerequisite="true">commons</feature>
         <feature>pax-jetty</feature>
         <bundle dependency="true">wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <bundle>mvn:ddf.platform/platform-paxweb-jettyconfig/${project.version}</bundle>
