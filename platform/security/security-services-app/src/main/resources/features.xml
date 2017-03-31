@@ -20,10 +20,6 @@
 
     <feature name="security-rest-authentication" install="manual" version="${project.version"
              description="Authentication endpoint for handling multiple realms">
-        <feature prerequisite="true">security-core-api</feature>
-        <feature prerequisite="true">security-handler-api</feature>
-        <feature prerequisite="true">cxf-core</feature>
-        <feature prerequisite="true">cxf-ws-security</feature>
         <bundle>mvn:ddf.platform.security/security-rest-authentication/${project.version}</bundle>
     </feature>
 
