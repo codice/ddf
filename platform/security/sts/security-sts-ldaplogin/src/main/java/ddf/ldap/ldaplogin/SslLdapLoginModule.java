@@ -16,6 +16,7 @@ package ddf.ldap.ldaplogin;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,7 +33,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
@@ -93,8 +94,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     public static final String KDC_ADDRESS = "kdcAddress";
 
-    public static final String PROTOCOL = "TLS";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SslLdapLoginModule.class);
 
     private static final String DEFAULT_AUTHENTICATION = "simple";
@@ -103,7 +102,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     private String kdcAddress;
 
-    private String bindMethod;
+    private String bindMethod = DEFAULT_AUTHENTICATION;
 
     private String connectionURL;
 
@@ -127,13 +126,13 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     private boolean roleSearchSubtree = true;
 
-    private String authentication = DEFAULT_AUTHENTICATION;
-
     private boolean startTls = false;
 
     private LDAPConnectionFactory ldapConnectionFactory;
 
     private ServiceReference serviceReference;
+
+    private SSLContext sslContext;
 
     protected boolean doLogin() throws LoginException {
 
@@ -145,7 +144,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         try {
             callbackHandler.handle(callbacks);
         } catch (IOException ioException) {
-            boolean result;
             throw new LoginException(ioException.getMessage());
         } catch (UnsupportedCallbackException unsupportedCallbackException) {
             boolean result;
@@ -166,11 +164,13 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         // This is to prevent someone from logging into Karaf as any user without providing a
         // valid password (because if authentication = none, the password could be any
         // value - it is ignored).
-        if ("none".equals(authentication) && (tmpPassword != null)) {
+        // Username is not checked in this conditional because a null username immediately exits
+        // this method.
+        if ("none".equalsIgnoreCase(getBindMethod()) && (tmpPassword != null)) {
             LOGGER.debug(
                     "Changing from authentication = none to simple since user or password was specified.");
             // default to simple so that the provided user/password will get checked
-            authentication = "simple";
+            setBindMethod(DEFAULT_AUTHENTICATION);
         }
 
         if (tmpPassword == null) {
@@ -197,7 +197,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 //------------- BIND #1 (CONNECTION USERNAME & PASSWORD) --------------
                 try {
                     BindRequest request;
-                    switch (bindMethod) {
+                    switch (getBindMethod()) {
                     case "Simple":
                         request = Requests.newSimpleBindRequest(connectionUsername,
                                 connectionPassword);
@@ -418,7 +418,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE);
         roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE));
         startTls = Boolean.parseBoolean(String.valueOf(options.get(SSL_STARTTLS)));
-        bindMethod = (String) options.get(BIND_METHOD);
+        setBindMethod((String) options.get(BIND_METHOD));
         realm = (String) options.get(REALM);
         kdcAddress = (String) options.get(KDC_ADDRESS);
 
@@ -441,10 +441,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         String message = "";
         try {
             isLoggedIn = doLogin();
-
             message = "Username [" + user
                     + "] could not log in successfuly using LDAP authentication due to an exception";
-
             if (!isLoggedIn) {
                 SecurityLogger.audit("Username [" + user + "] failed LDAP authentication.");
             }
@@ -466,8 +464,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
         try {
             if (useSsl || useTls) {
-                SSLContext sslContext = SSLContext.getDefault();
-                lo.setSSLContext(sslContext);
+                initializeSslContext();
+                lo.setSSLContext(getSslContext());
             }
         } catch (GeneralSecurityException e) {
             LOGGER.info("Error encountered while configuring SSL. Secure connection will fail.", e);
@@ -488,6 +486,13 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         }
 
         return new LDAPConnectionFactory(host, port, lo);
+    }
+
+    private void initializeSslContext() throws NoSuchAlgorithmException {
+        // Only set if null so tests can inject a context.
+        if (getEncryptionService() == null) {
+            setSslContext(SSLContext.getDefault());
+        }
     }
 
     void validateUsername(String username) throws InvalidCharactersException {
@@ -552,6 +557,22 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     public void setEncryptionService(EncryptionService encryptionService) {
         this.encryptionService = encryptionService;
+    }
+
+    public SSLContext getSslContext() {
+        return sslContext;
+    }
+
+    public void setSslContext(SSLContext sslContext) {
+        this.sslContext = sslContext;
+    }
+
+    String getBindMethod() {
+        return bindMethod;
+    }
+
+    void setBindMethod(String bindMethod) {
+        this.bindMethod = bindMethod;
     }
 
     private static class InvalidCharactersException extends LoginException {

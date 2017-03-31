@@ -1,0 +1,38 @@
+dn: dc=example,dc=com
+changetype: add
+objectClass: top
+objectClass: domain
+dc: example
+
+dn: ou=groups,dc=example,dc=com
+changetype: add
+objectClass: organizationalUnit
+objectClass: top
+ou: groups
+
+dn: cn=avengers,ou=groups,dc=example,dc=com
+changetype: add
+objectClass: groupOfNames
+objectClass: top
+member: uid=tstark,ou=users,dc=example,dc=com
+cn: avengers
+
+dn: ou=users,dc=example,dc=com
+changetype: add
+objectClass: organizationalUnit
+objectClass: top
+ou: organizationalUnit
+ou: users
+
+dn: uid=tstark,ou=users,dc=example,dc=com
+changetype: add
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+cn: Tony Stark
+sn: tstark
+employeeType: ironman
+userPassword: password1
+uid: tstark
+
