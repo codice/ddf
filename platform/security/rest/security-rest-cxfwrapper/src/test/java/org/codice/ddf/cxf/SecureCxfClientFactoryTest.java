@@ -213,6 +213,23 @@ public class SecureCxfClientFactoryTest {
         assertThat(result, notNullValue());
     }
 
+    @Test
+    public void testWebClient() {
+        PropertyResolver mockPropertyResolver = mock(PropertyResolver.class);
+        when(mockPropertyResolver.getResolvedString()).thenReturn(SECURE_ENDPOINT);
+        // positive case
+        SecureCxfClientFactory<WebClient> secureCxfClientFactory = new SecureCxfClientFactory<>(
+                SECURE_ENDPOINT,
+                WebClient.class,
+                null,
+                null,
+                false,
+                false,
+                mockPropertyResolver);
+        WebClient client = secureCxfClientFactory.getWebClient();
+        assertThat(client, notNullValue());
+    }
+
     private DummySubject getSubject() {
         return new DummySubject(new DefaultSecurityManager(), new SimplePrincipalCollection());
     }
