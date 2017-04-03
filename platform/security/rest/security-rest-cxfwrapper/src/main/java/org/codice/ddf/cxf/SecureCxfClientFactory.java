@@ -13,7 +13,21 @@
  */
 package org.codice.ddf.cxf;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +47,7 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.shiro.subject.Subject;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.PropertyResolver;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.cxf.paos.PaosInInterceptor;
 import org.codice.ddf.cxf.paos.PaosOutInterceptor;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
@@ -41,6 +56,7 @@ import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.RequestBuilder;
@@ -291,15 +307,6 @@ public class SecureCxfClientFactory<T> {
             return;
         }
 
-        if (disableCnCheck) {
-            TLSClientParameters tlsParams = httpConduit.getTlsClientParameters();
-            if (tlsParams == null) {
-                tlsParams = new TLSClientParameters();
-            }
-            tlsParams.setDisableCNCheck(true);
-            httpConduit.setTlsClientParameters(tlsParams);
-        }
-
         if (allowRedirects) {
             HTTPClientPolicy clientPolicy = httpConduit.getClient();
             if (clientPolicy != null) {
@@ -311,6 +318,85 @@ public class SecureCxfClientFactory<T> {
                 }
             }
         }
+
+        TLSClientParameters tlsParams = httpConduit.getTlsClientParameters();
+        if (tlsParams == null) {
+            tlsParams = new TLSClientParameters();
+        }
+
+        tlsParams.setDisableCNCheck(disableCnCheck);
+
+        tlsParams.setUseHttpsURLConnectionDefaultHostnameVerifier(true);
+        tlsParams.setUseHttpsURLConnectionDefaultSslSocketFactory(true);
+        String cipherSuites = System.getProperty("https.cipherSuites");
+        if (cipherSuites != null) {
+            tlsParams.setCipherSuites(Arrays.asList(cipherSuites.split(",")));
+        }
+
+        KeyStore keyStore = null;
+        KeyStore trustStore = null;
+        try {
+            keyStore = SecurityConstants.newKeystore();
+            trustStore = SecurityConstants.newTruststore();
+        } catch (KeyStoreException e) {
+            LOGGER.debug("Unable to create keystore instance of type {}",
+                    System.getProperty(SecurityConstants.KEYSTORE_TYPE),
+                    e);
+        }
+        Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
+        Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
+        String ddfHome = System.getProperty("ddf.home");
+        if (ddfHome != null) {
+            Path ddfHomePath = Paths.get(ddfHome);
+            if (!keyStoreFile.isAbsolute()) {
+                keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
+            }
+            if (!trustStoreFile.isAbsolute()) {
+                trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
+            }
+        }
+        String keyStorePassword = SecurityConstants.getKeystorePassword();
+        String trustStorePassword = SecurityConstants.getTruststorePassword();
+        if (!Files.isReadable(keyStoreFile) || !Files.isReadable(trustStoreFile)) {
+            LOGGER.debug("Unable to read system key/trust store files: [ {} ] [ {} ]",
+                    keyStoreFile,
+                    trustStoreFile);
+            return;
+        }
+        try (InputStream kfis = Files.newInputStream(keyStoreFile)) {
+            if (keyStore != null) {
+                keyStore.load(kfis, keyStorePassword.toCharArray());
+            }
+        } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
+            LOGGER.debug("Unable to load system key file.", e);
+        }
+        try (InputStream tfis = Files.newInputStream(trustStoreFile)) {
+            if (trustStore != null) {
+                trustStore.load(tfis, trustStorePassword.toCharArray());
+            }
+        } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
+            LOGGER.debug("Unable to load system trust file.", e);
+        }
+
+        try {
+            KeyManagerFactory keyManagerFactory =
+                    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            keyManagerFactory.init(keyStore, keyStorePassword.toCharArray());
+            tlsParams.setKeyManagers(keyManagerFactory.getKeyManagers());
+        } catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException e) {
+            LOGGER.debug("Unable to initialize KeyManagerFactory.", e);
+        }
+        try {
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
+                    TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(trustStore);
+            tlsParams.setTrustManagers(trustManagerFactory.getTrustManagers());
+        } catch (NoSuchAlgorithmException | KeyStoreException e) {
+            LOGGER.debug("Unable to initialize TrustManagerFactory.", e);
+        }
+        tlsParams.setCertAlias(SystemBaseUrl.getHost());
+
+        httpConduit.setTlsClientParameters(tlsParams);
     }
 
     /**

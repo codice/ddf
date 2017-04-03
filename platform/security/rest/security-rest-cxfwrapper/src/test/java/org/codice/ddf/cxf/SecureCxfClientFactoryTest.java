@@ -21,11 +21,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -35,8 +40,12 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
 import org.codice.ddf.configuration.PropertyResolver;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.service.SecurityServiceException;
 
@@ -49,6 +58,38 @@ public class SecureCxfClientFactoryTest {
     private static final String USERNAME = "username";
 
     private static final String PASSWORD = "password";
+
+    File systemKeystoreFile = null;
+
+    File systemTruststoreFile = null;
+
+    String password = "changeit";
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Before
+    public void setup() throws IOException {
+        systemKeystoreFile = temporaryFolder.newFile("serverKeystore.jks");
+        FileOutputStream systemKeyOutStream = new FileOutputStream(systemKeystoreFile);
+        InputStream systemKeyStream =
+                SecureCxfClientFactoryTest.class.getResourceAsStream("/serverKeystore.jks");
+        IOUtils.copy(systemKeyStream, systemKeyOutStream);
+
+        systemTruststoreFile = temporaryFolder.newFile("serverTruststore.jks");
+        FileOutputStream systemTrustOutStream = new FileOutputStream(systemTruststoreFile);
+        InputStream systemTrustStream = SecureCxfClientFactoryTest.class.getResourceAsStream(
+                "/serverTruststore.jks");
+        IOUtils.copy(systemTrustStream, systemTrustOutStream);
+
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
+        System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "jks");
+        System.setProperty("ddf.home", "");
+        System.setProperty(SecurityConstants.KEYSTORE_PATH, systemKeystoreFile.getAbsolutePath());
+        System.setProperty(SecurityConstants.TRUSTSTORE_PATH, systemTruststoreFile.getAbsolutePath());
+        System.setProperty(SecurityConstants.KEYSTORE_PASSWORD, password);
+        System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, password);
+    }
 
     @Test
     public void testConstructor() throws SecurityServiceException {
