@@ -22,7 +22,7 @@ define([
     'templates/header.layout.handlebars',
     'templates/footer.layout.handlebars',
     // Load non attached libs and plugins
-    'bootstrap',
+    'bootstrap/dist/js/bootstrap.min',
     'backboneassociations',
     'modelbinder',
     'collectionbinder',

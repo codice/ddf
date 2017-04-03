@@ -462,10 +462,6 @@ table.metacard-table {
     cursor: default;
 }
 
-.bootstrap-select.btn-group .dropdown-menu li.disabled a span.text {
-    color: #adafae;
-}
-
 .disabled:hover {
     color: #adafae;
 }
@@ -1348,53 +1344,8 @@ a.pause:hover, a.pause:focus {
     top: 20% !important;
 }
 
-.bootstrap-select > .btn {
-    padding-right: 20px;
-    height: 28px;
-    padding-left: 5px;
-}
-
-.bootstrap-select.btn-group .dropdown-menu.inner {
-    background-color: #555;
-}
-
-.bootstrap-select.btn-group .dropdown-menu li a span.text {
-    color: white;
-    font-size: 12px;
-}
-
-.bootstrap-select:not([class*="col-"]):not([class*="form-control"]):not(.input-group-btn) {
-    width: 80px;
-
-}
-
-.bootstrap-select.btn-group .btn .caret {
-    right: 8px;
-}
-
-.bootstrap-select.btn-group .btn .filter-option {
-    font-size: 12px;
-}
-
-#typeTab .bootstrap-select > .btn {
-    width: 220px;
-}
-
-#sources .bootstrap-select > .btn {
-    width: 220px;
-}
-
-.bootstrap-select.btn-group .no-results {
-    background: rgb(85, 85, 85);
-    margin: none;
-}
-
 .btn-default:hover, .open > .dropdown-toggle.btn-default {
     background-color: #777;
-}
-
-.bootstrap-select .dropdown-menu {
-    background: rgb(85, 85, 85);
 }
 
 /* begin style for preference modal map layer */

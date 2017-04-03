@@ -12,35 +12,17 @@
 /*global module,require*/
 module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
-    grunt.loadTasks('src/main/grunt/tasks');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         open: {
             chrome: {
-                path: 'http://127.0.0.1:8282/search/catalog/?map=2d',
+                path: 'http://'+require("os").hostname()+':8282/search/catalog/',
                 app: 'Google Chrome'
             }
         },
         webpack: {
             build: require(grunt.option("webpackConfig"))
-        },
-        cssmin: {
-            compress: {
-                files: {
-                    "target/webapp/css/index.css": ["src/main/webapp/css/*.css"]
-                }
-            }
-        },
-        less: {
-            css: {
-                options: {
-                    cleancss: true
-                },
-                files: {
-                    "src/main/webapp/css/styles.css": "src/main/webapp/less/styles.less"
-                }
-            }
         },
         jshint: {
             all: {
@@ -117,8 +99,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-express-server');
 
     grunt.registerTask('build:part', [
-        'less',
-        'cssmin',
         'jshint'
     ]);
 
@@ -130,8 +110,12 @@ module.exports = function (grunt) {
     grunt.registerTask('start', [
         'build:part',
         'express:server',
-        'open:chrome',
         'watch'
+    ]);
+
+    grunt.registerTask('startplus', [
+        'open:chrome',
+        'start'
     ]);
 
     grunt.registerTask('default', [
