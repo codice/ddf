@@ -11,31 +11,37 @@
  *
  **/
  --}}
-{{#notEmpty items}}
-    <div class="panel panel-{{type}} accordion">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <i class="fa fa-exclamation-triangle"></i>
-                {{{banner}}}
-                <button type="button" class="btn btn-link details" data-toggle="collapse"
-                        data-parent=".accordion" data-target="#{{collapseId}}">{{button}} details
+<div class="panel panel-{{level}} accordion">
+    <div class="panel-heading">
+        <h4 class="panel-title clearfix">
+            <i class="fa fa-exclamation-triangle"></i>
+            {{{title}}}
+            {{#notEmpty details}}
+                <button type="button" class="btn btn-link details" data-toggle="collapse" data-parent=".accordion" data-target="#{{collapseId}}">
+                    {{details-button-action}} details
                 </button>
-
-            </h4>
-        </div>
-        <div class="panel-collapse collapse {{collapse}} collapseAlerts" id="{{collapseId}}">
-            <table class="alerts-table">
-                {{#each items}}
-                    <tr>
-                        <td><i class="fa fa-chevron-circle-right"></i></td>
-                        <td>{{#if this.message}}
-                            {{{this.message}}}
-                        {{else}}
-                            {{this}}
-                        {{/if}}</td>
-                    </tr>
-                {{/each}}
-            </table>
-        </div>
+            {{/notEmpty}}
+            {{#if key}}
+                <button type="button" class="btn btn-link dismiss">
+                    Dismiss
+                </button>
+            {{/if}}
+        </h4>
     </div>
-{{/notEmpty}}
+    <div class="panel-collapse collapse {{collapse}} collapseAlerts" id="{{collapseId}}">
+        <table class="alert-details-table">
+            {{#if key}}
+            <tr>
+                <td><i class="fa fa-exclamation-triangle"></i></td>
+                <td><i>Dismiss this alert at your own risk. This alert may be repopulated if the issue persists.</i></td>
+            </tr>
+            {{/if}}
+            {{#each details}}
+                <tr>
+                    <td><i class="fa fa-chevron-circle-right"></i></td>
+                    <td>{{{this}}}</td>
+                </tr>
+            {{/each}}
+        </table>
+    </div>
+</div>

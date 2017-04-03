@@ -127,6 +127,20 @@
             <groupId>org.apache.karaf.jaas</groupId>
             <artifactId>org.apache.karaf.jaas.boot</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-alertservice-data</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -169,7 +183,8 @@
                             httpclient;scope=!test,
                             httpcore,
                             google-http-client,
-                            opensaml-soap-impl
+                            opensaml-soap-impl,
+                            admin-core-alertservice-data
                         </Embed-Dependency>
                         <Export-Package>
                             ddf.security*;version=${project.version}

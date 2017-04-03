@@ -36,6 +36,11 @@ A useful way to debug and detect issues is to change the log level:
 
 `log4j.rootLogger=DEBUG, out, osgi:VmLogAppender`
 
+[NOTE]
+====
+`osgi:VmLogAppender` is the Appender for the Karaf Console logs.
+====
+
 ===== Controlling the size of the log file
 
 Set the maximum size of the log file before it is rolled over by editing the value of this setting:

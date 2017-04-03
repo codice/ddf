@@ -32,5 +32,7 @@
         <module>admin-core-migration-commands</module>
         <module>admin-core-logviewer</module>
         <module>admin-core-configpolicy</module>
+        <module>admin-core-alertservice-data</module>
+        <module>admin-core-alertservice</module>
     </modules>
 </project>

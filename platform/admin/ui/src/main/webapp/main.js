@@ -57,14 +57,14 @@
             // default admin ui
             app: 'js/application',
 
-            //moment
+            // moment
             moment: 'lib/moment/moment',
 
 
-            //iframe-resizer
+            // iframe-resizer
             iframeresizer: 'lib/iframe-resizer/js/iframeResizer.min',
 
-            //backbone assocations
+            // backbone assocations
             backboneassociations: 'lib/backbone-associations/backbone-associations-min'
         },
 
@@ -141,8 +141,8 @@
 
         var app = Application.App;
 
-        //setup the area that the modules will load into and asynchronously require in each module
-        //so that it can render itself into the area that was just constructed for it
+        // setup the area that the modules will load into and asynchronously require in each module
+        // so that it can render itself into the area that was just constructed for it
         app.addInitializer(function () {
             Application.App.mainRegion.show(new ModuleView({model: Application.ModuleModel}));
         });
@@ -159,33 +159,35 @@
             }));
         });
 
-        var alerts = new AlertsModel.InsecureAlerts();
+        // setup alert banners
+        app.addInitializer(function () {
+            var alerts = new Backbone.Collection([]);
 
-        alerts.fetch({
-            success: function () {
-                app.addInitializer(function () {
-                    Application.App.alertsRegion.show(new AlertsView.View({
-                        model: alerts
-                    }));
-                });
-            }
+            var backendAlerts = new AlertsModel.BackendAlerts();
+            backendAlerts.fetch();
+            alerts = backendAlerts;
+
+            $(document).ajaxError(function (_, jqxhr) {
+                if (jqxhr.status === 401 || jqxhr.status === 403) {
+                    var sessionTimeoutAlert = AlertsModel.Jolokia({'stacktrace': 'Forbidden'});
+                    // do not show any other alerts if session timeout
+                    alerts = new Backbone.Collection([sessionTimeoutAlert]);
+                }
+            });
+
+            var AlertsCollectionView = Marionette.CollectionView.extend({
+                itemView: AlertsView.View
+            });
+
+            Application.App.alertsRegion.show(new AlertsCollectionView({
+                collection: alerts
+            }));
         });
 
-        //refresh the session if keypress  or mouse click events occur
+        // refresh the session if keypress  or mouse click events occur
         SessionRefresherUtil(60000);
 
-        //redirect upon session timeout
-        $(document).ajaxError(function (_, jqxhr) {
-                if (jqxhr.status === 401 || jqxhr.status === 403) {
-                    app.addInitializer(function () {
-                        Application.App.alertsRegion.show(new AlertsView.View({'model': AlertsModel.Jolokia({'stacktrace': 'Forbidden'})}));
-                    });
-                }
-
-            }
-        );
-
-        //setup the footer
+        // setup the footer
         app.addInitializer(function () {
             if (Properties.ui.footer && Properties.ui.footer !== '') {
                 $('html').addClass('has-footer');
@@ -202,8 +204,8 @@
             app.router = new Application.Router();
         });
 
-        // Once the application has been initialized (i.e. all initializers have completed), start up
-        // Backbone.history.
+        // once the application has been initialized (i.e. all initializers have completed), start up
+        // Backbone.history
         app.on('initialize:after', function () {
             Backbone.history.start();
             //bootstrap call for tabs
@@ -222,7 +224,7 @@
             }
         }
 
-        // Actually start up the application.
+        // actually start up the application
         app.start();
     });
 }());

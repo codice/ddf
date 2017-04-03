@@ -10,13 +10,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="insecureDefaultsServiceMBean"
-          class="org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean"
+    <bean id="alertServiceMBean"
+          class="org.codice.ddf.admin.core.alert.service.internal.AlertServiceBean"
           init-method="init"
           destroy-method="destroy">
+        <argument ref="mBeanServer"/>
     </bean>
+
+    <bean id="mBeanServer" class="java.lang.management.ManagementFactory"
+          factory-method="getPlatformMBeanServer"/>
 
 </blueprint>
