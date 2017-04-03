@@ -41,10 +41,12 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.ProcessingDetails;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.Request;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
+import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.plugin.AccessPlugin;
@@ -91,6 +93,8 @@ public class QueryOperations extends DescribableImpl {
 
     private List<String> fanoutProxyTagBlacklist = new ArrayList<>();
 
+    private long queryTimeoutMillis = 30000;
+
     public QueryOperations(FrameworkProperties frameworkProperties,
             SourceOperations sourceOperations, OperationsSecuritySupport opsSecuritySupport,
             OperationsMetacardSupport opsMetacardSupport) {
@@ -106,6 +110,10 @@ public class QueryOperations extends DescribableImpl {
 
     public void setFilterAdapter(FilterAdapter filterAdapter) {
         this.filterAdapter = filterAdapter;
+    }
+
+    public void setQueryTimeoutMillis(long queryTimeoutMillis) {
+        this.queryTimeoutMillis = queryTimeoutMillis;
     }
 
     //
@@ -203,6 +211,23 @@ public class QueryOperations extends DescribableImpl {
         }
 
         LOGGER.debug("Calling strategy.federate()");
+
+        Query originalQuery = queryRequest.getQuery();
+
+        if (originalQuery != null && originalQuery.getTimeoutMillis() <= 0) {
+
+            Query modifiedQuery = new QueryImpl(originalQuery,
+                    originalQuery.getStartIndex(),
+                    originalQuery.getPageSize(),
+                    originalQuery.getSortBy(),
+                    originalQuery.requestsTotalResultsCount(),
+                    queryTimeoutMillis);
+
+            queryRequest = new QueryRequestImpl(modifiedQuery,
+                    queryRequest.isEnterprise(),
+                    queryRequest.getSourceIds(),
+                    queryRequest.getProperties());
+        }
 
         QueryResponse response = strategy.federate(querySources.sourcesToQuery, queryRequest);
         frameworkProperties.getQueryResponsePostProcessor()
