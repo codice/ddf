@@ -12,7 +12,7 @@ Additionally, any of the types can be combined to create a compound search.
 ==== Text Search
 
 A text search is used when searching for textual information.
-It searches all textual metadata fields by default, although it is possible to refine searches to a text search on a single attribute.
+It searches all textual data in the catalog, although it is possible to refine searches to a text search on a single metadata attribute.
 It is similar to a Google search over the metadata contained in the Catalog.
 Text searches may use wildcards, logical operators, and approximate matches.
 
