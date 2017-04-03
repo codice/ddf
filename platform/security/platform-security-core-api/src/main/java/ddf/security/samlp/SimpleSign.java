@@ -52,6 +52,7 @@ import org.opensaml.xmlsec.signature.KeyInfo;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
+import org.opensaml.xmlsec.signature.support.provider.ApacheSantuarioSignatureValidationProviderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -296,10 +297,21 @@ public class SimpleSign {
             throw new SignatureException(
                     "Can't get X509Certificate or PublicKey to verify signature.");
         }
+
+        ClassLoader threadLoader = null;
         try {
+            threadLoader = Thread.currentThread()
+                    .getContextClassLoader();
+            Thread.currentThread()
+                    .setContextClassLoader(ApacheSantuarioSignatureValidationProviderImpl.class.getClassLoader());
             SignatureValidator.validate(signature, credential);
         } catch (org.opensaml.xmlsec.signature.support.SignatureException e) {
             throw new SignatureException("Error validating the XML signature", e);
+        } finally {
+            if (threadLoader != null) {
+                Thread.currentThread()
+                        .setContextClassLoader(threadLoader);
+            }
         }
     }
 

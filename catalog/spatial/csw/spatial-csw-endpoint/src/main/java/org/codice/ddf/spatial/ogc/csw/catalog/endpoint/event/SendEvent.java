@@ -175,6 +175,56 @@ public class SendEvent implements DeliveryMethod, Pingable {
         ping();
     }
 
+    public SendEvent(TransformerManager transformerManager, GetRecordsType request,
+            QueryRequest query, SecureCxfClientFactory<CswSubscribe> cxfClientFactory) throws CswException {
+
+        URL deliveryMethodUrl;
+        if (request.getResponseHandler() != null && !request.getResponseHandler()
+                .isEmpty()) {
+
+            try {
+                deliveryMethodUrl = new URL(request.getResponseHandler()
+                        .get(0));
+
+            } catch (MalformedURLException e) {
+                throw new CswException("Invalid ResponseHandler URL", e);
+            }
+            if (!"https".equals(deliveryMethodUrl.getProtocol())) {
+                throw new CswException(
+                        "Invalid protocol for response handler expected https but was "
+                                + deliveryMethodUrl.getProtocol());
+            }
+        } else {
+            String msg = "Subscriptions require a ResponseHandler URL to be specified";
+            LOGGER.debug(msg);
+            throw new CswException(msg);
+        }
+        this.transformerManager = transformerManager;
+        this.query = query;
+        this.callbackUrl = deliveryMethodUrl;
+        this.request = request;
+        this.outputSchema = request.getOutputSchema();
+        this.mimeType = request.getOutputFormat();
+        QueryType queryType = (QueryType) request.getAbstractQuery()
+                .getValue();
+        this.elementName = queryType.getElementName();
+        this.elementSetType = (queryType.getElementSetName() != null) ?
+                queryType.getElementSetName()
+                        .getValue() :
+                null;
+        this.resultType =
+                request.getResultType() == null ? ResultType.HITS : request.getResultType();
+
+        this.cxfClientFactory = cxfClientFactory;
+        try {
+            InetAddress address = InetAddress.getByName(callbackUrl.getHost());
+            ip = address.getHostAddress();
+        } catch (UnknownHostException e) {
+            LOGGER.debug("Unable to resolve callback address", e);
+        }
+        ping();
+    }
+
     private void sendEvent(String operation, Metacard... metacards) {
         if (subject == null) {
             return;

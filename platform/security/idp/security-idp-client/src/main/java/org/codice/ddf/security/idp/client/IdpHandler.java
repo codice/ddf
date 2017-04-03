@@ -329,7 +329,7 @@ public class IdpHandler implements AuthenticationHandler {
             }
             authnRequest = createAndSignAuthnRequest(true,
                     wantSigned && idpssoDescriptor.getWantAuthnRequestsSigned());
-            paosRequest = createPaosRequest();
+            paosRequest = createPaosRequest((HttpServletRequest) request);
             ecpRequest = createEcpRequest();
             ecpRelayState = createEcpRelayState((HttpServletRequest) request);
         } catch (ServletException | WSSecurityException e) {
@@ -362,12 +362,13 @@ public class IdpHandler implements AuthenticationHandler {
         return handlerResult;
     }
 
-    private String createPaosRequest() throws WSSecurityException {
+    private String createPaosRequest(HttpServletRequest request) throws WSSecurityException {
         String spIssuerId = getSpIssuerId();
         String spAssertionConsumerServiceUrl = getSpAssertionConsumerServiceUrl(spIssuerId);
         RequestBuilder requestBuilder = new RequestBuilder();
         Request paosRequest = requestBuilder.buildObject();
         paosRequest.setResponseConsumerURL(spAssertionConsumerServiceUrl);
+        paosRequest.setMessageID(createRelayState(request));
         paosRequest.setService(Request.ECP_SERVICE);
         paosRequest.setSOAP11MustUnderstand(true);
         paosRequest.setSOAP11Actor(HTTP_SCHEMAS_XMLSOAP_ORG_SOAP_ACTOR_NEXT);
