@@ -119,7 +119,6 @@
         <module>broker-adapter</module>
         <module>broker-topic-logger</module>
         <module>broker-connection-factory</module>
-        <module>camel-sjms2</module>
         <module>broker-undelivered-messages-ui</module>
         <module>broker-route-manager</module>
         <module>broker-app</module>
