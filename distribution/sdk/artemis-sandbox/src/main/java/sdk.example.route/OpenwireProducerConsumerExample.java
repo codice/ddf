@@ -13,7 +13,10 @@
  **/
 package sdk.example.route;
 
+import javax.jms.ConnectionFactory;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ActiveMQSslConnectionFactory;
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -63,23 +66,7 @@ public class OpenwireProducerConsumerExample extends RouteBuilder {
     private void createCamelContext() throws Exception {
 
         CamelContext camelContext = getContext();
-        ActiveMQConnectionFactory jmsConnectFactory = new ActiveMQConnectionFactory();
-        jmsConnectFactory.setUserName("admin");
-        jmsConnectFactory.setPassword("admin");
-        jmsConnectFactory.setBrokerURL("failover://(tcp://localhost:61616,tcp://localhost:61617)");
-
-        //        ActiveMQSslConnectionFactory jmsConnectFactory = new ActiveMQSslConnectionFactory();
-        //        jmsConnectFactory.setKeyStore(OpenwireRoute.class.getResource("/serverKeystore.jks")
-        //                .toURI()
-        //                .getPath());
-        //        jmsConnectFactory.setKeyStoreKeyPassword("changeit");
-        //        jmsConnectFactory.setKeyStorePassword("changeit");
-        //        jmsConnectFactory.setTrustStore(OpenwireRoute.class.getResource("/serverTruststore.jks")
-        //                .toURI()
-        //                .getPath());
-        //        jmsConnectFactory.setTrustStorePassword("changeit");
-        //        jmsConnectFactory.setBrokerURL("failover://(ssl://localhost:61616,ssl://localhost:61617)");
-        jmsConnectFactory.setWatchTopicAdvisories(false);
+        ConnectionFactory jmsConnectFactory = createConnectionFactory();
 
         PooledConnectionFactory jmsPooledConnectionFactory = new PooledConnectionFactory();
         jmsPooledConnectionFactory.setConnectionFactory(jmsConnectFactory);
@@ -98,6 +85,33 @@ public class OpenwireProducerConsumerExample extends RouteBuilder {
         jms.setConfiguration(jmsConfiguration);
         camelContext.addComponent("jms", jms);
 
+    }
+
+    private ConnectionFactory createConnectionFactory() {
+        ActiveMQConnectionFactory jmsConnectFactory = new ActiveMQConnectionFactory();
+        jmsConnectFactory.setUserName("admin");
+        jmsConnectFactory.setPassword("admin");
+        jmsConnectFactory.setBrokerURL("failover://(tcp://localhost:61616,tcp://localhost:61617)");
+        jmsConnectFactory.setWatchTopicAdvisories(false);
+        return jmsConnectFactory;
+    }
+
+    private ConnectionFactory createSslConnectionFactory() throws Exception {
+        ActiveMQSslConnectionFactory jmsConnectFactory = new ActiveMQSslConnectionFactory();
+        jmsConnectFactory.setKeyStore(OpenwireProducerConsumerExample.class.getResource(
+                "/serverKeystore.jks")
+                .toURI()
+                .getPath());
+        jmsConnectFactory.setKeyStoreKeyPassword("changeit");
+        jmsConnectFactory.setKeyStorePassword("changeit");
+        jmsConnectFactory.setTrustStore(OpenwireProducerConsumerExample.class.getResource(
+                "/serverTruststore.jks")
+                .toURI()
+                .getPath());
+        jmsConnectFactory.setTrustStorePassword("changeit");
+        jmsConnectFactory.setBrokerURL("failover://(ssl://localhost:61616,ssl://localhost:61617)");
+        jmsConnectFactory.setWatchTopicAdvisories(false);
+        return jmsConnectFactory;
     }
 
     public static class MessageProducerProcessor implements Processor {
