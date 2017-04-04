@@ -40,4 +40,6 @@ include::{adoc-include}/_tables/conf-ddf.platform.ui.config-table-contents.adoc[
 
 include::{adoc-include}/_tables/conf-org.codice.ddf.platform.response.filter.ResponseHeaderConfig-table-contents.adoc[]
 
+include::{adoc-include}/_tables/conf-org.codice.ddf.platform.email.impl.SmtpClientImpl-table-contents.adoc[]
+
 |===

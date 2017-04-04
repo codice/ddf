@@ -52,6 +52,14 @@
             <!--mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/2.2.6_1-->
         <!--</bundle>-->
     <!--</feature>-->
+
+    <feature name='platform-email' install="automatic" version='${project.version}' start-level='50'>
+        <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
+        <bundle dependency="true">mvn:com.sun.mail/javax.mail/1.5.5</bundle>
+        <bundle>mvn:ddf.platform.email/platform-email-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.email/platform-email-impl/${project.version}</bundle>
+    </feature>
+
     <feature name='camel' install="manual" version='${camel.version}' start-level='50'>
         <!-- Added cxf as prereq to keep things ordered -->
         <feature prerequisite="true">cxf</feature>
@@ -1030,6 +1038,7 @@
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
         <feature>platform-filter-response</feature>
+        <feature>platform-email</feature>
     </feature>
 
     <feature name="clientinfo-filter" install="auto" version="${project.version}"
