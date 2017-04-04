@@ -30,6 +30,8 @@ public class ConfigureTestCommons {
 
     public static final String CACHING_FEDERATION_STRATEGY_PID = "ddf.catalog.federation.impl.CachingFederationStrategy";
 
+    public static final String QUERY_OPERATIONS_PID = "ddf.catalog.impl.operations.QueryOperations";
+
 
     public static void configureMetacardValidityFilterPlugin(List<String> securityAttributeMappings, AdminConfig configAdmin)
             throws IOException {
@@ -87,6 +89,17 @@ public class ConfigureTestCommons {
 
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("enforcedMetacardValidators", enforcedValidators);
+        config.update(properties);
+    }
+
+    public static void configureQueryTimeoutMillis(long timeoutMillis, AdminConfig configAdmin)
+            throws IOException {
+        Configuration config = configAdmin.getConfiguration(
+                QUERY_OPERATIONS_PID,
+                null);
+
+        Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put("queryTimeoutMillis", timeoutMillis);
         config.update(properties);
     }
 }

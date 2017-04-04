@@ -88,6 +88,7 @@ import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.Conditiona
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.cometd.CometDClient;
 import org.codice.ddf.itests.common.cometd.CometDMessageValidator;
+import org.codice.ddf.itests.common.config.ConfigureTestCommons;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
@@ -1519,34 +1520,39 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testMetacardCache() throws Exception {
+        ConfigureTestCommons.configureQueryTimeoutMillis(1000000, getAdminConfig());
 
-        //Start with a clean cache
-        console.runCommand(CLEAR_CACHE);
-        String cqlUrl = SEARCH_ROOT + "/catalog/internal/cql";
+        try {
+            //Start with a clean cache
+            console.runCommand(CLEAR_CACHE);
+            String cqlUrl = SEARCH_ROOT + "/catalog/internal/cql";
 
-        String srcRequest = "{\"src\":\"" + OPENSEARCH_SOURCE_ID
-                + "\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sort\":\"modified:desc\"}";
+            String srcRequest = "{\"src\":\"" + OPENSEARCH_SOURCE_ID
+                    + "\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sort\":\"modified:desc\"}";
 
-        expect("Waiting for metacard cache to clear").checkEvery(1, TimeUnit.SECONDS)
-                .within(20, TimeUnit.SECONDS)
-                .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) == 0);
+            expect("Waiting for metacard cache to clear").checkEvery(1, TimeUnit.SECONDS)
+                    .within(50, TimeUnit.SECONDS)
+                    .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) == 0);
 
-        //This query will put the ingested metacards from the BeforeExam method into the cache
-        given().contentType("application/json")
-                .auth()
-                .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
-                .body(srcRequest)
-                .when()
-                .post(cqlUrl)
-                .then()
-                .log()
-                .all()
-                .statusCode(200);
+            //This query will put the ingested metacards from the BeforeExam method into the cache
+            given().contentType("application/json")
+                    .auth()
+                    .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
+                    .body(srcRequest)
+                    .when()
+                    .post(cqlUrl)
+                    .then()
+                    .log()
+                    .all()
+                    .statusCode(200);
 
-        //CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
-        expect("Waiting for metacards to be written to cache").checkEvery(1, TimeUnit.SECONDS)
-                .within(20, TimeUnit.SECONDS)
-                .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) > 0);
+            //CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
+            expect("Waiting for metacards to be written to cache").checkEvery(1, TimeUnit.SECONDS)
+                    .within(50, TimeUnit.SECONDS)
+                    .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) > 0);
+        } finally {
+            ConfigureTestCommons.configureQueryTimeoutMillis(300000, getAdminConfig());
+        }
     }
 
     @Test
