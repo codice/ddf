@@ -22,8 +22,10 @@ define([
     'js/CustomElements',
     'js/store',
     'decorator/menu-navigation.decorator',
-    'decorator/Decorators'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, MenuNavigationDecorator, Decorators) {
+    'decorator/Decorators',
+    'component/lightbox/lightbox.view.instance',
+    'component/query-feedback/query-feedback.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, MenuNavigationDecorator, Decorators, lightboxInstance, QueryFeedbackView) {
 
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
@@ -37,13 +39,24 @@ define([
             'click .interaction-duplicate': 'handleDuplicate',
             'click .interaction-deleted': 'handleDeleted',
             'click .interaction-historic': 'handleHistoric',
+            'click .interaction-feedback': 'handleFeedback',
             'click': 'handleClick'
         },
         ui: {
         },
         initialize: function(){
+            if (!this.model.get('result')) {
+                this.startListeningToSearch();
+            }
+            this.handleResult();
         },
         onRender: function(){
+        },
+        startListeningToSearch: function(){
+            this.listenToOnce(this.model, 'change:result', this.startListeningForResult);
+        },
+        startListeningForResult: function(){
+            this.listenToOnce(this.model.get('result'), 'sync error', this.handleResult);
         },
         handleRun: function(){
             this.model.startSearch();
@@ -72,6 +85,16 @@ define([
             this.model.startSearch({
                 limitToHistoric: true
             });
+        },
+        handleFeedback: function(){
+            lightboxInstance.model.updateTitle('Search Quality Feedback');
+            lightboxInstance.model.open();
+            lightboxInstance.lightboxContent.show(new QueryFeedbackView({
+                model: this.model
+            }));
+        },  
+        handleResult: function(){
+            this.$el.toggleClass('has-results', this.model.get('result') !== undefined);
         },
         handleClick: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());

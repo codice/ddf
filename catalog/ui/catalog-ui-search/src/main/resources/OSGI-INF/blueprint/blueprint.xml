@@ -17,7 +17,8 @@
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="workspaceMetacardType" class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardType" />
+    <bean id="workspaceMetacardType"
+          class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardType"/>
 
     <service ref="workspaceMetacardType" interface="ddf.catalog.data.MetacardType">
         <service-properties>
@@ -197,6 +198,16 @@
         <property name="actionRegistry" ref="metacardActionRegistry"/>
     </bean>
 
+    <bean id="feedbackApplication" class="org.codice.ddf.catalog.ui.query.FeedbackApplication">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.config"
+                update-strategy="component-managed"
+                update-method="refresh"/>
+
+        <property name="configurationApplication" ref="configurationApplication"/>
+        <property name="smtpClient" ref="smtpClient"/>
+    </bean>
+
     <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>
 
     <bean id="userApplication" class="org.codice.ddf.catalog.ui.security.UserApplication">
@@ -212,6 +223,7 @@
                 <ref component-id="metacardApplication"/>
                 <ref component-id="userApplication"/>
                 <ref component-id="configurationApplication"/>
+                <ref component-id="feedbackApplication"/>
             </list>
         </property>
         <property name="requestSupplier" ref="rootReqSupplier"/>

@@ -27,9 +27,10 @@ define([
     'component/input/radio/input-radio.view',
     'component/input/number/input-number.view',
     'component/input/boolean/input-boolean.view',
-    'component/input/range/input-range.view'
+    'component/input/range/input-range.view',
+    'component/input/textarea/input-textarea.view'
 ], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView,
-             InputLocationView, InputEnumView, InputRadioView, InputNumberView, InputBooleanView, InputRangeView) {
+             InputLocationView, InputEnumView, InputRadioView, InputNumberView, InputBooleanView, InputRangeView, InputTextareaView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -83,8 +84,13 @@ define([
                             model: this.model
                         }));
                         break;
-                    case 'range': 
+                    case 'range':
                         this.input.show(new InputRangeView({
+                            model: this.model
+                        }));
+                        break;
+                    case 'textarea':
+                        this.input.show(new InputTextareaView({
                             model: this.model
                         }));
                         break;

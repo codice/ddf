@@ -81,36 +81,42 @@ define([
             this.set('_initialValue', this.getValue());
         },
         _setCalculatedType: function() {
+            var calculatedType;
+
             switch (this.get('type')) {
                 case 'DATE':
-                    this.set('calculatedType', 'date');
+                    calculatedType = 'date';
                     break;
                 case 'BINARY':
-                    this.set('calculatedType', 'thumbnail');
+                    calculatedType = 'thumbnail';
                     break;
                 case 'LOCATION':
-                    this.set('calculatedType', 'location');
+                    calculatedType = 'location';
+                    break;
+                case 'TEXTAREA':
+                    calculatedType = 'textarea';
                     break;
                 case 'BOOLEAN':
-                    this.set('calculatedType', 'boolean');
+                    calculatedType = 'boolean'
                     break;
                 case 'LONG':
                 case 'DOUBLE':
                 case 'FLOAT':
                 case 'INTEGER':
                 case 'SHORT':
-                    this.set('calculatedType', 'number');
+                    calculatedType = 'number';
                     break;
                 case 'RANGE':
-                    this.set('calculatedType', 'range');
+                    calculatedType = 'range';
                     break;
                 case 'STRING':
                 case 'GEOMETRY':
                 case 'XML':
                 default:
-                    this.set('calculatedType', 'text');
+                    calculatedType = 'text';
                     break;
             }
+            this.set('calculatedType', calculatedType);
         },
         getCalculatedType: function(){
             return this.get('calculatedType');

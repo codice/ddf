@@ -148,10 +148,6 @@
             <version>0.6</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>versioning-common</artifactId>
             <version>${project.version}</version>
@@ -164,11 +160,6 @@
         <dependency>
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.persistence.core</groupId>
-            <artifactId>persistence-core-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
@@ -222,6 +213,26 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.email</groupId>
+            <artifactId>platform-email-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.abego.treelayout</groupId>
+                    <artifactId>org.abego.treelayout.core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -305,7 +316,10 @@
                             quartz,
                             quartz-jobs,
                             c3p0,
-                            ddf-security-common
+                            ddf-security-common,
+                            handlebars,
+                            platform-email-impl,
+                            antlr4-runtime
                         </Embed-Dependency>
                         <Web-ContextPath>/search/catalog</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
@@ -330,6 +344,7 @@
                             !org.apache.commons.cli.*,
                             !org.hibernate.*,
                             !weblogic.jdbc.*,
+                            !org.abego.treelayout.*,
                             *
                         </Import-Package>
                         <Export-Package/>

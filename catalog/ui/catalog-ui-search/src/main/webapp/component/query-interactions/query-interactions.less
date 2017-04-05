@@ -29,39 +29,20 @@
     background: @lighten-inherited-background-color;
   }
 
-  .interaction-save,
-  .interaction-hide,
-  .interaction-unsave {
+  .interaction-feedback {
     display: none;
   }
 
 }
 
-@{customElementNamespace}query-interactions.in-workspace {
-  .interaction-save,
-  .interaction-hide {
-    display: block;
+@{customElementNamespace}query-interactions.has-results {
+  .interaction-feedback {
+    display: block; 
   }
 }
 
-@{customElementNamespace}query-interactions.is-saved {
-  .interaction-unsave {
-    display: block;
-  }
-  .interaction-save {
-    display: none;
-  }
-}
-
-@{customElementNamespace}query-interactions.is-multiple {
-  .interaction-expand,
-  .interaction-share {
-    display: none;
-  }
-}
-
-@{customElementNamespace}query-interactions.is-routed {
-  .interaction-expand {
-    display: none;
+.is-feedback-restricted @{customElementNamespace}query-interactions {
+  .interaction-feedback {
+    display: none !important;
   }
 }
