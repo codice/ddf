@@ -400,6 +400,8 @@
                             <configuration>
                                 <nodeVersion>${node.version}</nodeVersion>
                                 <yarnVersion>${yarn.version}</yarnVersion>
+                                <nodeDownloadRoot>${node.download.root}</nodeDownloadRoot>
+                                <yarnDownloadRoot>${yarn.download.root}</yarnDownloadRoot>
                             </configuration>
                         </execution>
                         <execution>
