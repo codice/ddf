@@ -24,6 +24,7 @@
             mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-config
         </configfile>
 
+        <bundle dependency="true">mvn:ddf.catalog.transformer/catalog-transformer-propertyjson-metacard/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
     </feature>
 

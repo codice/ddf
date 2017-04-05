@@ -59,7 +59,8 @@ public class QueryApplication implements SparkApplication {
     private ObjectMapper mapper = new ObjectMapperImpl(new JsonParserFactory().usePropertyOnly(),
             new JsonSerializerFactory().includeEmpty()
                     .includeNulls()
-                    .includeDefaultValues());
+                    .includeDefaultValues()
+                    .setJsonFormatForDates(false));
 
     @Override
     public void init() {

@@ -55,7 +55,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
+import ddf.catalog.transformer.metacard.propertyjson.PropertyJsonMetacardTransformer;
 
 public class CqlResult {
 
@@ -229,7 +229,7 @@ public class CqlResult {
                 }
             }
 
-            geoJson = GeoJsonMetacardTransformer.convertToJSON(resultMetacard);
+            geoJson = PropertyJsonMetacardTransformer.convertToJSON(resultMetacard);
             addCachedDate(resultMetacard, geoJson);
         } catch (CatalogTransformerException e) {
             LOGGER.debug("Unable to convert metacard to GeoJSON", e);
