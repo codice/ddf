@@ -141,7 +141,7 @@ public class TestVideoThumbnailPlugin {
         HashMap<String, Path> contentItemPaths = new HashMap<>();
         Path tmpPath = Paths.get(getClass().getResource(resource)
                 .toURI());
-        contentItemPaths.put("", tmpPath);
+        contentItemPaths.put(null, tmpPath);
 
         HashMap<String, Map> tmpContentPaths = new HashMap<>();
         tmpContentPaths.put(ID, contentItemPaths);

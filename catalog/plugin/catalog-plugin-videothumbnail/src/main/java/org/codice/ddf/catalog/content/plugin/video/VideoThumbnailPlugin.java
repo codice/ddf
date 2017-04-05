@@ -191,7 +191,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
                 }
 
                 // create a thumbnail for the unqualified content item
-                Path tmpPath = contentPaths.get("");
+                Path tmpPath = contentPaths.get(null);
                 if (tmpPath != null) {
                     createThumbnail(contentItem, tmpPath);
                 }
