@@ -474,11 +474,11 @@ public class TestCatalog extends AbstractIntegrationTest {
         ValidatableResponse validatableResponse = response.then();
 
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                is("1")),
-                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
-                hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
-                hasXPath("//TransactionResponse/InsertResult/BriefRecord/title", is("myXmlTitle")),
-                hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
+                        is("1")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
+                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
+                        is("0")), hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
+                        is("myXmlTitle")), hasXPath(
+                        "//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
 
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -600,9 +600,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                is("0")),
-                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
-                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("1")));
+                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
+                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
+                        is("1")));
 
         String url = REST_PATH.getUrl() + id;
         when().get(url)
@@ -720,6 +720,25 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         deleteMetacard(firstId);
         deleteMetacard(secondId);
+    }
+
+    @Test
+    public void testCswUpdateAllRecordsByFilterConstraint() {
+        int numRecords = 25;
+        for (int i=0; i<numRecords; i++) {
+            ingestCswRecord();
+        }
+
+        ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
+                MediaType.APPLICATION_XML)
+                .body(getFileContent(
+                        CSW_REQUEST_RESOURCE_PATH + "/CswUpdateAllByFilterRequest"))
+                .post(CSW_PATH.getUrl())
+                .then();
+
+        response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("25")));
     }
 
     @Test

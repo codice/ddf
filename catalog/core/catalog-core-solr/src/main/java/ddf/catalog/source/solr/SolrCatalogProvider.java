@@ -317,7 +317,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         // if we have nothing to update, send the empty list
         if (updates == null || updates.size() == 0) {
-            return new UpdateResponseImpl(updateRequest, null, new ArrayList<Update>());
+            return new UpdateResponseImpl(updateRequest, null, new ArrayList<>());
         }
 
         /* 1. QUERY */
@@ -332,6 +332,12 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         String attributeQuery = getQuery(attributeName, identifiers);
 
         SolrQuery query = new SolrQuery(attributeQuery);
+        // Set number of rows to the result size + 1.  The default row size in Solr is 10, so this
+        // needs to be set in situations where the number of metacards to update is > 10.  Since there
+        // could be more results in the query response than the number of metacards in the update request,
+        // 1 is added to the row size, so we can still determine whether we found more metacards than
+        // updated metacards provided
+        query.setRows(updates.size() + 1);
 
         QueryResponse idResults = null;
 
@@ -354,8 +360,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                             .size());
 
             // CHECK updates size assertion
-            if (idResults.getResults()
-                    .size() > updates.size()) {
+            if (idResults.getResults().size() > updates.size()) {
                 throw new IngestException(
                         "Found more metacards than updated metacards provided. Please ensure your attribute values match unique records.");
             }
@@ -390,7 +395,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             LOGGER.debug("No results found for given attribute values.");
 
             // return an empty list
-            return new UpdateResponseImpl(updateRequest, null, new ArrayList<Update>());
+            return new UpdateResponseImpl(updateRequest, null, new ArrayList<>());
 
         }
 
@@ -458,8 +463,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         if (identifiers.size() <= MAX_BOOLEAN_CLAUSES) {
             deleteListOfMetacards(deletedMetacards, identifiers, attributeName);
         } else {
-            List<? extends Serializable> identifierPaged = null;
-            int currPagingSize = 0;
+            List<? extends Serializable> identifierPaged;
+            int currPagingSize;
 
             for (
                     currPagingSize = MAX_BOOLEAN_CLAUSES;

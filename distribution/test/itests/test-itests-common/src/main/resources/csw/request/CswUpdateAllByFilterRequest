@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Transaction service="CSW" version="2.0.2" verboseResponse="true" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ogc="http://www.opengis.net/ogc">
+    <csw:Update>
+      <csw:RecordProperty>
+        <csw:Name>title</csw:Name>
+        <csw:Value>Updated Title</csw:Value>
+      </csw:RecordProperty>
+      <csw:Constraint version="2.0.0">
+            <ogc:Filter>
+                <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
+                    <ogc:PropertyName>id</ogc:PropertyName>
+                    <ogc:Literal>%</ogc:Literal>
+                </ogc:PropertyIsLike>
+            </ogc:Filter>
+      </csw:Constraint>
+    </csw:Update>
+</csw:Transaction>
