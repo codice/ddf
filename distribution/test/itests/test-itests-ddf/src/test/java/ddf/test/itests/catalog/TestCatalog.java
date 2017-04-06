@@ -738,7 +738,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
-                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("25")));
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is(Integer.toString(numRecords))));
     }
 
     @Test
