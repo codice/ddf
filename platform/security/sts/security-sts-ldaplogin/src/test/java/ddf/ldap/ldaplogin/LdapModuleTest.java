@@ -14,10 +14,17 @@
 
 package ddf.ldap.ldaplogin;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.Assert.fail;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.BIND_METHOD;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_PASSWORD;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_URL;
@@ -33,11 +40,17 @@ import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_BASE_DN;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_SEARCH_SUBTREE;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.net.ssl.SSLContext;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
@@ -46,130 +59,133 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
+import org.forgerock.opendj.ldap.SSLContextBuilder;
+import org.forgerock.opendj.ldap.TrustManagers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ProvideSystemProperty;
 
-import com.github.trevershick.test.ldap.LdapServerResource;
-import com.github.trevershick.test.ldap.annotations.LdapAttribute;
-import com.github.trevershick.test.ldap.annotations.LdapConfiguration;
-import com.github.trevershick.test.ldap.annotations.LdapEntry;
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.ldap.listener.InMemoryListenerConfig;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldif.LDIFChangeRecord;
+import com.unboundid.ldif.LDIFException;
+import com.unboundid.ldif.LDIFReader;
+import com.unboundid.util.ssl.KeyStoreKeyManager;
+import com.unboundid.util.ssl.SSLUtil;
+import com.unboundid.util.ssl.TrustStoreTrustManager;
 
-import ddf.security.encryption.impl.EncryptionServiceImpl;
-
-//Create and populate LDAP server
-@LdapConfiguration(useRandomPortAsFallback = true, bindDn = "cn=admin", password = "secret", base = @LdapEntry(dn = "dc=example,dc=com", objectclass = {
-        "top", "domain"}), entries = {
-        @LdapEntry(dn = "ou=groups,dc=example,dc=com", objectclass = {"organizationalUnit", "top"}),
-        @LdapEntry(dn = "cn=avengers,ou=groups,dc=example,dc=com", objectclass = {"groupOfNames",
-                "top"}, attributes = {
-                @LdapAttribute(name = "member", value = "uid=tstark,ou=users,dc=example,dc=com")}),
-        @LdapEntry(dn = "ou=users,dc=example,dc=com", objectclass = {"organizationalUnit",
-                "top"}, attributes = {@LdapAttribute(name = "ou", value = "organizationalUnit")}),
-        @LdapEntry(dn = "uid=tstark,ou=users,dc=example,dc=com", objectclass = {"person",
-                "inetOrgPerson", "top"}, attributes = {
-                @LdapAttribute(name = "cn", value = "Tony Stark"),
-                @LdapAttribute(name = "sn", value = "tstark"),
-                @LdapAttribute(name = "employeeType", value = "avenger"),
-                @LdapAttribute(name = "userPassword", value = "password1")})})
+import ddf.security.encryption.EncryptionService;
 
 public class LdapModuleTest {
 
-    @Rule
-    public final ProvideSystemProperty httpsCipherSuites = new ProvideSystemProperty(
-            "https.cipherSuites",
-            "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,"
-                    + "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,"
-                    + "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
+    public static final String USER_CN = "tstark";
+
+    public static final String EXPECTED_GROUP_CN = "avengers";
+
+    // Password needs to match the user's password in the LDIF file used
+    // to populate the LDAP server's Directory Information Tree.
+    public static final String USER_PASSWORD = "password1";
 
     @Rule
-    public final ProvideSystemProperty httpsProtocols = new ProvideSystemProperty("https.protocols",
-            "TLSv1.1,TLSv1.2");
+    public final ProvideSystemProperty testProperties = ProvideSystemProperty.fromResource(
+            "/test.properties");
 
-    @Rule
-    public final ProvideSystemProperty ddfHome = new ProvideSystemProperty("ddf.home", "");
+    private TestServer server;
 
-    private LdapServerResource server;
+    private TestModule module;
 
-    private Map<String, String> options;
+    public LdapModuleTest() throws IOException {
+    }
 
     @Before
     public void startup() {
-        try {
-            server = new LdapServerResource(this).start();
-        } catch (Exception e) {
-            fail("Could not start LDAP test server");
-        }
 
-        options = new HashMap<>();
-        options.put(CONNECTION_URL, getUrl("ldap"));
-        options.put(CONNECTION_USERNAME, "cn=admin");
-        options.put(USER_BASE_DN, "ou=users,dc=example,dc=com");
-        options.put(USER_FILTER, "(uid=tstark)");
-        options.put(USER_SEARCH_SUBTREE, "true");
-        options.put(ROLE_FILTER, "(member=uid=%u,ou=users,dc=example,dc=com)");
-        options.put(ROLE_BASE_DN, "ou=groups,dc=example,dc=com");
-        options.put(ROLE_NAME_ATTRIBUTE, "cn");
-        options.put(ROLE_SEARCH_SUBTREE, "true");
-        options.put(SSL_STARTTLS, "false");
-        options.put(BIND_METHOD, "Simple");
-        options.put(REALM, "");
-        options.put(KDC_ADDRESS, "");
-
-        // If the class-under-test cannot get the encryption service,
-        // assume the password is already decrypted.
-        options.put(CONNECTION_PASSWORD, "secret");
+        server = TestServer.getInstance();
+        module = TestModule.getInstance(TestServer.getClientOptions());
     }
 
     @After
     public void shutdown() {
-        if (server != null) {
-            server.stop();
-        }
+        server.shutdown();
+        server = null;
+        module = null;
     }
 
     @Test
-    public void testSuccessfulLdapLogin() throws InterruptedException, LoginException {
+    public void testLdapLoginAndLogout() throws InterruptedException, LoginException {
 
-        CallbackHandler mockHandler = getNamePasswordHandler("tstark", "password1");
-        SslLdapLoginModule module = getTestModule();
-        module.initialize(new Subject(), mockHandler, new HashMap<String, String>(), options);
-        module.login();
+        server.useSimpleAuth()
+                .startListening();
+        module.setUsernameAndPassword(USER_CN, USER_PASSWORD)
+                .login()
+                .assertThatPrincipals(server.expectedPrincipals());
+        module.logout()
+                .assertThatPrincipals(server.emptyPrincipals());
+    }
 
-        Set<Principal> principals;
-        principals = module.getPrincipals();
-        assertThat(principals,
-                containsInAnyOrder(new UserPrincipal("tstark"), new RolePrincipal("avengers")));
+    @Test
+    public void testNoAuth() throws InterruptedException, LoginException {
+
+        server.startListening();
+        module.putOption(BIND_METHOD, "none")
+                .putOption(CONNECTION_USERNAME, "")
+                .putOption(CONNECTION_PASSWORD, "")
+                .setUsernameAndPassword(USER_CN, USER_PASSWORD)
+                .login()
+                .assertThatPrincipals(server.expectedPrincipals());
+    }
+
+    @Test
+    public void testLdapSecureLogin() throws LoginException {
+
+        server.useSimpleAuth()
+                .startListening();
+        module.putOption(CONNECTION_URL, TestServer.getUrl("ldaps"))
+                .setUsernameAndPassword(USER_CN, USER_PASSWORD)
+                .login()
+                .assertThatPrincipals(server.expectedPrincipals());
+    }
+
+    // Unable to get the LDAP server to accept startTLS. Have tried with
+    // Apache Directory Studio, an OpenDJ client, and ;an UnboundedID client.
+    @Ignore
+    @Test
+    public void testStartTlsWithLdap() throws LoginException {
+        server.useSimpleAuth();
+        module.setUsernameAndPassword(USER_CN, USER_PASSWORD)
+                .putOption(SSL_STARTTLS, "true")
+                .login()
+                .assertThatPrincipals(server.expectedPrincipals());
     }
 
     @Test
     public void testIncorrectPassword() throws LoginException {
-        CallbackHandler mockHandler = getNamePasswordHandler("tstark",
-                "Ce n'est pas un mot de passe");
-        SslLdapLoginModule module = getTestModule();
-        module.initialize(new Subject(), mockHandler, new HashMap<String, String>(), options);
-        module.login();
-        assertThat("Expected no principals assigned to user", module.getPrincipals(), empty());
+        server.startListening();
+        module.setUsernameAndPassword(USER_CN, "Ce n'est pas un mot de passe")
+                .login()
+                .assertThatPrincipals(server.emptyPrincipals());
     }
 
     @Test(expected = LoginException.class)
     public void testInvalidPassword() throws LoginException {
-        CallbackHandler mockHandler = getNamePasswordHandler("<>", "");
-        SslLdapLoginModule module = getTestModule();
-        module.initialize(new Subject(), mockHandler, new HashMap<String, String>(), options);
-        module.login();
+        server.startListening();
+        module.setUsernameAndPassword("<>", "")
+                .login();
     }
 
     @Test
-    public void testLdapsLogin() {
-        // TODO: DDF-2876 - Enhance LDAP tests to use SSL/TLS
-    }
+    public void testUserSwitchNoAuthToSimpleAuth() throws LoginException {
 
-    @Test
-    public void testStartTls() {
-        // TODO: DDF-2876 - Enhance LDAP tests to use SSL/TLS
+        server.startListening();
+        module.setUsernameAndPassword(USER_CN, USER_PASSWORD)
+                .putOption(BIND_METHOD, "none")
+                .login();
+        assertThat(module.getBindMethod(), equalToIgnoringCase("simple"));
     }
 
     @Test
@@ -189,20 +205,240 @@ public class LdapModuleTest {
 
     }
 
-    private SslLdapLoginModule getTestModule() {
-        SslLdapLoginModule module = new SslLdapLoginModule();
-        module.setEncryptionService(new EncryptionServiceImpl());
-        return module;
-    }
+    private static class TestModule {
+        SslLdapLoginModule realModule;
 
-    private CallbackHandler getNamePasswordHandler(String user, String password) {
-        return callbacks -> {
-            ((NameCallback) callbacks[0]).setName(user);
-            ((PasswordCallback) callbacks[1]).setPassword(password.toCharArray());
-        };
-    }
+        private Map<String, String> options;
 
-    private String getUrl(String protocol) {
-        return String.format("%s://localhost:%s", protocol, server.port());
-    }
+        private CallbackHandler callbackHandler;
+
+        private TestModule() {
+        }
+
+        public static TestModule getInstance(Map<String, String> options) {
+            TestModule object = new TestModule();
+            object.options = new HashMap<>(options);
+            object.realModule = new SslLdapLoginModule();
+            EncryptionService mockEncryptionService = mock(EncryptionService.class);
+            when(mockEncryptionService.decryptValue(anyString())).then(returnsFirstArg());
+            object.realModule.setEncryptionService(mockEncryptionService);
+            object.realModule.setSslContext(getClientSSLContext());
+            return object;
+        }
+
+        public static SSLContext getClientSSLContext() {
+
+            try {
+                return new SSLContextBuilder().setTrustManager(TrustManagers.trustAll())
+                        .getSSLContext();
+            } catch (GeneralSecurityException e) {
+                fail(e.getMessage());
+                return null;
+            }
+        }
+
+        public TestModule login() throws LoginException {
+            realModule.initialize(new Subject(),
+                    callbackHandler,
+                    new HashMap<String, String>(),
+                    options);
+            realModule.login();
+            return this;
+        }
+
+        public TestModule logout() throws LoginException {
+            realModule.logout();
+            return this;
+        }
+
+        public TestModule setUsernameAndPassword(String username, String password) {
+            callbackHandler = callbacks -> {
+                ((NameCallback) callbacks[0]).setName(username);
+                ((PasswordCallback) callbacks[1]).setPassword(
+                        password == null ? null : password.toCharArray());
+            };
+            return this;
+        }
+
+        public String getBindMethod() {
+            return realModule.getBindMethod();
+        }
+
+        public void assertThatPrincipals(Collection<Principal> expectedPrincipals) {
+            Set<Principal> actualPrincipals = realModule.getPrincipals();
+            assertThat(actualPrincipals, hasSize(expectedPrincipals.size()));
+            for (Principal each : expectedPrincipals) {
+                assertThat(actualPrincipals, hasItem(each));
+            }
+        }
+
+        public TestModule putOption(String key, String value) {
+            options.put(key, value);
+            return this;
+        }
+
+    }//end inner class
+
+    private static class TestServer {
+
+        private InMemoryDirectoryServer realServer;
+
+        private InMemoryDirectoryServerConfig serverConfig;
+
+        public static String getBaseDistinguishedName() {
+            return "dc=example,dc=com";
+        }
+
+        public static TestServer getInstance() {
+            TestServer object = new TestServer();
+            try {
+                InMemoryListenerConfig ldapConfig = InMemoryListenerConfig.createLDAPConfig(
+                        getBaseDistinguishedName(),
+                        getLdapPort());
+                InMemoryListenerConfig ldapsConfig = InMemoryListenerConfig.createLDAPSConfig(
+                        "ldaps",
+                        getLdapSecurePort(),
+                        object.getServerSSLContext()
+                                .getServerSocketFactory());
+                object.serverConfig = new InMemoryDirectoryServerConfig(getBaseDistinguishedName());
+                object.serverConfig.setListenerConfigs(ldapConfig, ldapsConfig);
+
+            } catch (LDAPException e) {
+                fail(e.getMessage());
+            }
+            return object;
+        }
+
+        public static String getBasicAuthPassword() {
+            return "secret";
+        }
+
+        public static String getBasicAuthDn() {
+            return "cn=admin";
+        }
+
+        public static Map<String, String> getClientOptions() {
+
+            HashMap<String, String> options = new HashMap<>();
+            options.put(CONNECTION_URL, getUrl("ldap"));
+            options.put(CONNECTION_USERNAME, getBasicAuthDn());
+            options.put(CONNECTION_PASSWORD, getBasicAuthPassword());
+            options.put(USER_BASE_DN, getBaseDistinguishedName());
+            options.put(USER_FILTER, String.format("(%s)", "uid=tstark"));
+            options.put(USER_SEARCH_SUBTREE, "true");
+            options.put(ROLE_FILTER,
+                    String.format("(member=uid=%%u,ou=users,%s)", getBaseDistinguishedName()));
+            options.put(ROLE_BASE_DN, String.format("ou=groups,%s", getBaseDistinguishedName()));
+            options.put(ROLE_NAME_ATTRIBUTE, "cn");
+            options.put(ROLE_SEARCH_SUBTREE, "true");
+            options.put(SSL_STARTTLS, "false");
+            options.put(BIND_METHOD, "Simple");
+            options.put(REALM, "");
+            options.put(KDC_ADDRESS, "");
+            return options;
+        }
+
+        public static int getLdapPort() {
+            // return server.getListenPort("ldap");
+            return 1389;
+
+        }
+
+        public static int getLdapSecurePort() {
+            // return server.getListenPort("ldaps");
+            return 1636;
+        }
+
+        public static String getUrl(String protocol) {
+            String url = null;
+            switch (protocol) {
+            case "ldap":
+                url = String.format("ldap://localhost:%s", getLdapPort());
+                break;
+            case "ldaps":
+                url = String.format("ldaps://localhost:%s", getLdapSecurePort());
+                break;
+            default:
+                fail("Unknown LDAP bind protocol");
+            }
+            return url;
+        }
+
+        SSLContext getServerSSLContext() {
+            try {
+                char[] keyStorePassword = "changeit".toCharArray();
+                String keystore = getClass().getResource("/serverKeystore.jks")
+                        .getFile();
+                KeyStoreKeyManager keyManager = new KeyStoreKeyManager(keystore,
+                        keyStorePassword,
+                        "JKS",
+                        "localhost");
+                String truststore = getClass().getResource("/serverTruststore.jks")
+                        .getFile();
+                TrustStoreTrustManager trustManager = new TrustStoreTrustManager(truststore,
+                        keyStorePassword,
+                        null,
+                        false);
+                return new SSLUtil(keyManager, trustManager).createSSLContext();
+            } catch (GeneralSecurityException e) {
+                fail(e.getMessage());
+            }
+            return null;
+        }
+
+        public TestServer useSimpleAuth() {
+
+            try {
+                serverConfig.addAdditionalBindCredentials(getBasicAuthDn(), getBasicAuthPassword());
+            } catch (LDAPException e) {
+                fail(e.getMessage());
+            }
+            return this;
+        }
+
+        public TestServer startListening() {
+            try {
+                realServer = new InMemoryDirectoryServer(serverConfig);
+                realServer.startListening();
+            } catch (LDAPException e) {
+                fail(e.getMessage());
+            }
+            loadLdifFile();
+            return this;
+        }
+
+        public void shutdown() {
+            if (realServer != null) {
+                realServer.shutDown(true);
+            }
+            realServer = null;
+        }
+
+        // The actual values are controlled by the contents of the LDIF file. In this case,
+        // we expect two roles, one for identify and one for the user's sole group.
+        public Set<Principal> expectedPrincipals() {
+            Set<Principal> set = new HashSet<>();
+            set.add(new UserPrincipal(USER_CN));
+            set.add(new RolePrincipal(EXPECTED_GROUP_CN));
+            return set;
+        }
+
+        public Set<Principal> emptyPrincipals() {
+            return new HashSet<>();
+        }
+
+        void loadLdifFile() {
+            try (InputStream ldifStream = getClass().getResourceAsStream("/test-ldap.ldif")) {
+                assertThat("Cannot find LDIF test resource file", ldifStream, is(notNullValue()));
+                LDIFReader reader = new LDIFReader(ldifStream);
+                LDIFChangeRecord readEntry;
+                while ((readEntry = reader.readChangeRecord()) != null) {
+                    readEntry.processChange(realServer);
+                }
+            } catch (IOException | LDIFException | LDAPException e) {
+                fail(e.getMessage());
+            }
+        }
+
+    }//end inner class
 }

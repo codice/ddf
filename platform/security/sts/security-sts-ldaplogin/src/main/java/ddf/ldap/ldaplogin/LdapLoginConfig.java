@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.karaf.jaas.config.impl.Module;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
