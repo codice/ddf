@@ -105,6 +105,96 @@ _This is a preview of a pending release and subject to change._
 </ul>
 
 
+## 2.10.2
+	Release Date: 2017-04-07
+
+    
+<h3>Bug</h3>
+<ul>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2845'>DDF-2845</a> - Catalog UI result list help-text doesn&#39;t reflect the attribute name alias
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2859'>DDF-2859</a> - Dependency order incorrect causing missing dependency after release
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2862'>DDF-2862</a> - Concurrent updates can cause a resource shortage making the system less responsive
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2865'>DDF-2865</a> - The Content Directory Monitor fails to ingest files during slower copies to the monitored directory
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2869'>DDF-2869</a> - The ConfigurationFilePoller may fail to detect configurations in certain storage configurations
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2893'>DDF-2893</a> - Missing headers prevent some resources from caching in browsers
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2895'>DDF-2895</a> - IdP and SP HTTP metadata requests only perform exponential backoff for unsuccessful attempts and not for IOExceptions which can leave the IdP and SP unusable until a restart
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2901'>DDF-2901</a> - Viewing the source configuration for a source created from a registry results in unsupported sources appearing as selectable for that node
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2902'>DDF-2902</a> - Users may get 401/403 authentication errors when redirected to login page due to use of the wrong realm
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2903'>DDF-2903</a> - CSW source only works against endpoints that are secured with a GUEST, BASIC, or PKI authentication policy
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2922'>DDF-2922</a> - Outgoing requests fail when using PKI authentication to any CXF REST source
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2923'>DDF-2923</a> - When restoring a metacard without content the metacard shows as being deleted and restored
+    </li>
+</ul>
+
+<h3>Story</h3>
+<ul>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2854'>DDF-2854</a> - As an administrator, I would like to be able to view the security attributes of any user in the Admin UI
+    </li>
+</ul>
+    
+<h3>New Feature</h3>
+<ul>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2494'>DDF-2494</a> - Create email session configuration and API
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2921'>DDF-2921</a> - VideoThumbnail plugin does not recognize unqualified content
+    </li>
+</ul>
+    
+<h3>Task</h3>
+<ul>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2912'>DDF-2912</a> - Implement System Administrator Alerts in 2.10.2
+    </li>
+</ul>
+    
+<h3>Improvement</h3>
+<ul>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2847'>DDF-2847</a> - Add indication of unsaved changes to workspaces
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2852'>DDF-2852</a> - Add functionality for retrieving a logged-in user&#39;s security claims
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2853'>DDF-2853</a> - Add endpoint to retrieve subject attributes for a user
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2855'>DDF-2855</a> - Reduce amount of data returned in Node Information tab to improve performance
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2858'>DDF-2858</a> - Remove bouncy castle packages from platform-util
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2870'>DDF-2870</a> - Cache Node Information tabs table information on the backend for quick retrieval
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2905'>DDF-2905</a> - When using default layers with the 2D Map, geometries appear incorrectly positioned
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2915'>DDF-2915</a> - Update the Admin UI loading scheme to reduce the initial network cost
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2917'>DDF-2917</a> - Update caching to exclude base app pages and html
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2919'>DDF-2919</a> - Create generic WebClients with SecureCxfClientFactory
+    </li>
+</ul>
+    
+<h3>Documentation</h3>
+<ul>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2856'>DDF-2856</a> - Update Installation Prerequisites to include Hardware Guidelines. 
+    </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2652'>DDF-2652</a> - document OSGi Basics for contributing developers
+    </li>
+</ul>
+    
+<h3>Technical Debt</h3>
+<ul>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2873'>DDF-2873</a> - Address bad feature dependencies between Search and Catalog UIs and rename UI app
+    </li>
+</ul>
+    
 ## 2.10.1
 	Release Date: 2017-03-08
 <h3>Bug</h3>
