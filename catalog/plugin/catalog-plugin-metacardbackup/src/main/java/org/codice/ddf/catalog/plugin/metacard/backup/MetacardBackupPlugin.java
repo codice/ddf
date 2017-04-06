@@ -22,9 +22,11 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -180,7 +182,8 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
             Metacard metacard = processResourceItem.getMetacard();
             try {
                 LOGGER.trace("Backing up metacard : {}", metacard.getId());
-                BinaryContent binaryContent = metacardTransformer.transform(metacard, null);
+                BinaryContent binaryContent = metacardTransformer.transform(metacard,
+                        Collections.emptyMap());
                 copyBackupToOutputDirectory(binaryContent, metacard.getId());
             } catch (CatalogTransformerException e) {
                 LOGGER.debug("Unable to transform metacard with id {}.", metacard.getId(), e);
@@ -193,12 +196,7 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
 
     private void copyBackupToOutputDirectory(BinaryContent content, String metacardId)
             throws PluginExecutionException {
-        if (content == null || content.getInputStream() == null) {
-            LOGGER.debug("No content for transformed metacard {}.", metacardId);
-            throw new PluginExecutionException(String.format(
-                    "No content for transformed metacard %s",
-                    metacardId));
-        }
+        byte[] contentBytes = getContentBytes(content, metacardId);
 
         Path metacardPath = getMetacardDirectory(metacardId);
         if (metacardPath == null) {
@@ -222,13 +220,31 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
         LOGGER.trace("Writing backup from {} to file {}", metacardId, metacardPath.toString());
 
         try (OutputStream outputStream = new FileOutputStream(metacardPath.toFile())) {
-            IOUtils.write(content.getByteArray(), outputStream);
+            IOUtils.write(contentBytes, outputStream);
         } catch (IOException e) {
             LOGGER.warn("Unable to backup {} to {}.  The directory may be full.",
                     metacardId,
                     metacardPath.toString(),
                     e);
         }
+    }
+
+    byte[] getContentBytes(BinaryContent content, String metacardId)
+            throws PluginExecutionException {
+        return Optional.ofNullable(content)
+                .map(c -> {
+                    try {
+                        return c.getByteArray();
+                    } catch (IOException e) {
+                        return null;
+                    }
+                })
+                .orElseThrow(() -> {
+                    LOGGER.debug("No content for transformed metacard {}", metacardId);
+                    return new PluginExecutionException(String.format(
+                            "No content for transformed metacard %s",
+                            metacardId));
+                });
     }
 
     private void deleteBackupIfPresent(String filename) throws PluginExecutionException {
@@ -250,8 +266,7 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
             }
         } catch (IOException e) {
             LOGGER.debug("Unable to delete backup file {}", metacardPath, e);
-            throw new PluginExecutionException(String.format(
-                    "Unable to delete backup file for  %s",
+            throw new PluginExecutionException(String.format("Unable to delete backup file for  %s",
                     filename));
         }
     }
