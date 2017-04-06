@@ -40,6 +40,9 @@ import ddf.security.samlp.impl.RelayStates;
 
 public class IdpHandlerTest {
 
+    public static final String BROWSER_USER_AGENT =
+            "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Safari/537.36.";
+
     IdpHandler idpHandler;
 
     private RelayStates<String> relayStates;
@@ -90,6 +93,7 @@ public class IdpHandlerTest {
 
     @Test
     public void testGetNormalizedToken() throws Exception {
+        when(httpRequest.getHeader("User-Agent")).thenReturn(BROWSER_USER_AGENT);
         HandlerResult handlerResult = idpHandler.getNormalizedToken(httpRequest,
                 httpResponse,
                 null,
@@ -102,7 +106,7 @@ public class IdpHandlerTest {
 
     @Test
     public void testGetNormalizedTokenNoRedirect() throws Exception {
-
+        when(httpRequest.getHeader("User-Agent")).thenReturn(BROWSER_USER_AGENT);
         when(httpResponse.getWriter()).thenReturn(mock(PrintWriter.class));
         idpMetadata.setMetadata(metadata.replace("HTTP-Redirect", "HTTP-POST"));
         HandlerResult handlerResult = idpHandler.getNormalizedToken(httpRequest,
@@ -118,11 +122,24 @@ public class IdpHandlerTest {
 
     @Test
     public void testHandleError() throws Exception {
+        when(httpRequest.getHeader("User-Agent")).thenReturn(BROWSER_USER_AGENT);
         HandlerResult handlerResult = idpHandler.handleError(httpRequest, httpResponse, null);
         assertThat("Expected a non null handlerRequest",
                 handlerResult,
                 is(notNullValue(HandlerResult.class)));
         assertThat(handlerResult.getStatus(), equalTo(HandlerResult.Status.NO_ACTION));
 
+    }
+
+    @Test
+    public void testGetNormalizedTokenLegacyClient() throws Exception {
+        HandlerResult handlerResult = idpHandler.getNormalizedToken(httpRequest,
+                httpResponse,
+                null,
+                false);
+        assertThat("Expected a non null handlerRequest",
+                handlerResult,
+                is(notNullValue(HandlerResult.class)));
+        assertThat(handlerResult.getStatus(), equalTo(HandlerResult.Status.NO_ACTION));
     }
 }

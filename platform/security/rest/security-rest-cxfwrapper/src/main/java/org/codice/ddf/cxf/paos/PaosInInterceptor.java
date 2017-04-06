@@ -16,6 +16,7 @@ package org.codice.ddf.cxf.paos;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Iterator;
@@ -58,7 +59,7 @@ import com.google.api.client.http.HttpStatusCodes;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 import com.google.api.client.http.InputStreamContent;
-import com.google.api.client.http.apache.ApacheHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
 
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.ResponseBuilder;
@@ -143,7 +144,8 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
             return;
         }
         try {
-            SOAPPart soapMessage = SamlProtocol.parseSoapMessage(IOUtils.toString(content));
+            SOAPPart soapMessage = SamlProtocol.parseSoapMessage(IOUtils.toString(content,
+                    Charset.forName("UTF-8")));
             Iterator iterator = soapMessage.getEnvelope()
                     .getHeader()
                     .examineAllHeaderElements();
@@ -201,7 +203,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
             HttpResponseWrapper httpResponse = getHttpResponse(loc, soapRequest);
             InputStream httpResponseContent = httpResponse.content;
             SOAPPart idpSoapResponse = SamlProtocol.parseSoapMessage(IOUtils.toString(
-                    httpResponseContent));
+                    httpResponseContent, Charset.forName("UTF-8")));
             Iterator responseHeaderElements = idpSoapResponse.getEnvelope()
                     .getHeader()
                     .examineAllHeaderElements();
@@ -286,7 +288,8 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     HttpResponseWrapper getHttpResponse(String responseConsumerURL, String soapResponse)
             throws IOException {
-        HttpTransport httpTransport = new ApacheHttpTransport();
+        //This used to use the ApacheHttpTransport which appeared to not work with 2 way TLS auth but this one does
+        HttpTransport httpTransport = new NetHttpTransport();
         HttpContent httpContent = new InputStreamContent(TEXT_XML,
                 new ByteArrayInputStream(soapResponse.getBytes("UTF-8")));
         //this handles redirects for us

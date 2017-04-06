@@ -26,6 +26,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -35,13 +37,16 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 
+import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscription;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
@@ -59,7 +64,7 @@ import ddf.catalog.event.Subscription;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-
+import ddf.security.SecurityConstants;
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
@@ -120,8 +125,37 @@ public class CswSubscriptionEndpointTest {
 
     private TransformerManager mockInputManager;
 
+    File systemKeystoreFile = null;
+
+    File systemTruststoreFile = null;
+
+    String password = "changeit";
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Before
     public void setUp() throws Exception {
+        systemKeystoreFile = temporaryFolder.newFile("serverKeystore.jks");
+        FileOutputStream systemKeyOutStream = new FileOutputStream(systemKeystoreFile);
+        InputStream systemKeyStream =
+                CswSubscriptionEndpointTest.class.getResourceAsStream("/serverKeystore.jks");
+        IOUtils.copy(systemKeyStream, systemKeyOutStream);
+
+        systemTruststoreFile = temporaryFolder.newFile("serverTruststore.jks");
+        FileOutputStream systemTrustOutStream = new FileOutputStream(systemTruststoreFile);
+        InputStream systemTrustStream = CswSubscriptionEndpointTest.class.getResourceAsStream(
+                "/serverTruststore.jks");
+        IOUtils.copy(systemTrustStream, systemTrustOutStream);
+
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
+        System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "jks");
+        System.setProperty("ddf.home", "");
+        System.setProperty(SecurityConstants.KEYSTORE_PATH, systemKeystoreFile.getAbsolutePath());
+        System.setProperty(SecurityConstants.TRUSTSTORE_PATH, systemTruststoreFile.getAbsolutePath());
+        System.setProperty(SecurityConstants.KEYSTORE_PASSWORD, password);
+        System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, password);
+
         eventProcessor = mock(EventProcessor.class);
         mockInputManager = mock(TransformerManager.class);
         mockContext = mock(BundleContext.class);

@@ -167,6 +167,11 @@
                 <artifactId>wss4j-ws-security-dom</artifactId>
                 <version>${wss4j.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xmlsec-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
@@ -188,6 +193,10 @@
                         <Export-Package>
                             ddf.security*;version=${project.version}
                         </Export-Package>
+                        <Import-Package>
+                            org.opensaml.xmlsec.signature.support.provider,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

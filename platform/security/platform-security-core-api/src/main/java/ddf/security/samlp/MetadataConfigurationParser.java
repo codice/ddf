@@ -46,7 +46,7 @@ import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.apache.ApacheHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -126,7 +126,7 @@ public class MetadataConfigurationParser {
                         "Retrieving metadata via HTTP instead of HTTPS. The metadata configuration is unsafe!!!");
             }
             PropertyResolver propertyResolver = new PropertyResolver(entityDescription);
-            HttpTransport httpTransport = new ApacheHttpTransport();
+            HttpTransport httpTransport = new NetHttpTransport();
             HttpRequest httpRequest = httpTransport.createRequestFactory()
                     .buildGetRequest(new GenericUrl(propertyResolver.getResolvedString()));
             httpRequest.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(

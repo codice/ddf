@@ -149,7 +149,7 @@ public class SendEventTest {
     }
 
     public void verifyResults() throws Exception {
-        verify(webclient, times(1)).invoke(anyString(), anyObject());
+        verify(webclient, times(2)).invoke(anyString(), anyObject());
     }
 
     @Test
@@ -178,29 +178,7 @@ public class SendEventTest {
     }
 
     @Test
-    public void testIsAvailableRetryBackoff() throws Exception {
-        when(webclient.invoke(eq("HEAD"), isNull())).thenThrow(new RuntimeException("test"));
-        sendEvent.setSubject(subject);
-        long lastPing = sendEvent.getLastPing();
-        boolean available = true;
-        //loop until we get to a backoff that will be long enough not to cause intermitent test failures
-        while (sendEvent.getRetryCount() < 7) {
-            available = sendEvent.ping();
-        }
-        assertThat(available, is(false));
-        assertThat(lastPing, not(sendEvent.getLastPing()));
-        lastPing = sendEvent.getLastPing();
-        Thread.sleep(1);
-        //run again this time within a backoff period and verify that it doesn't retry this is
-        available = sendEvent.ping();
-        assertThat(available, is(false));
-        assertThat(7, is(sendEvent.getRetryCount()));
-        assertThat(lastPing, is(sendEvent.getLastPing()));
-
-    }
-
-    @Test
-    public void testIsAvailableSubjectExperation() throws Exception {
+    public void testIsAvailableSubjectExpiration() throws Exception {
         when(webclient.invoke(eq("HEAD"), isNull())).thenReturn(response);
         when(mockSecurity.getExpires(subject)).thenReturn(new Date(
                 System.currentTimeMillis() + 600000L))
@@ -217,7 +195,7 @@ public class SendEventTest {
         //run within the expiration period of the assertion
         available = sendEvent.ping();
         assertThat(available, is(true));
-        assertThat(lastPing, is(sendEvent.getLastPing()));
+        assertThat(lastPing, not(sendEvent.getLastPing()));
         //sleep incase the test runs too fast we want to make sure their is a time difference
         Thread.sleep(1);
         //run with expired assertion
@@ -227,14 +205,14 @@ public class SendEventTest {
     }
 
     @Test
-    public void testIsAvailableNoExperation() throws Exception {
+    public void testIsAvailableNoExpiration() throws Exception {
         long lastPing = sendEvent.getLastPing();
         when(webclient.invoke(eq("HEAD"), isNull())).thenReturn(response);
         boolean available;
         while (!sendEvent.ping()) {
 
         }
-        assertThat(lastPing, not(sendEvent.getLastPing()));
+        assertThat(lastPing, is(sendEvent.getLastPing()));
         lastPing = sendEvent.getLastPing();
         Thread.sleep(1);
         //run within the expiration period of the assertion
@@ -248,8 +226,7 @@ public class SendEventTest {
         public SendEventExtension(TransformerManager transformerManager, GetRecordsType request,
                 QueryRequest query, SecureCxfClientFactory<CswSubscribe> mockCxfClientFactory)
                 throws CswException {
-            super(transformerManager, request, query);
-            super.cxfClientFactory = mockCxfClientFactory;
+            super(transformerManager, request, query, mockCxfClientFactory);
             super.security = mockSecurity;
         }
 
