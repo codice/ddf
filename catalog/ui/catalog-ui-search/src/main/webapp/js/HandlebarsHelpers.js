@@ -357,7 +357,7 @@ define([
                 var callback = function() {
                     var $target = this.$el.find(options.hash.selector);
                     var value = _get(this.serializeData(), options.hash.key);
-                    $target.filter(':not(input)').html(value);
+                    $target.filter(':not(input)').html(Common.escapeHTML(value));
                     $target.filter('input').each(function(){
                         if ($(this).val() !== value){
                             $(this).val(value);
