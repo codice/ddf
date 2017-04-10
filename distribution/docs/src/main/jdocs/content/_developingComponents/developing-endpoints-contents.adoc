@@ -1,10 +1,8 @@
 :title: Developing Endpoints
 :type: developingComponent
 :status: published
-:filename: developing-endpoints-contents.adoc
 :link: _developing_endpoints
-:projectpath: {adoc-include}
-:summary: Creating a custom endpoint
+:summary: Creating a custom endpoint.
 :implements: https://www.w3.org/2001/sw/wiki/REST[REST specification].
 
 Custom endpoints can be created, if necessary.
@@ -21,7 +19,7 @@ Complete the following procedure to create an endpoint. 
 
 . Retrieve an instance of `CatalogFramework` from the OSGi registry. (Refer to <<_working_with_osgi_-_service_registry,Working with OSGi - Service Registry>> for examples.)
 
-Deploy the packaged service to ${branding}.
+. Deploy the packaged service to ${branding}.
 (Refer to <<_working_with_osgi_-_bundles,Working with OSGi - Bundles>>.)
 
 [NOTE]
