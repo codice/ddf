@@ -1089,10 +1089,11 @@ public class CatalogFrameworkImplTest {
                 })
                 .collect(Collectors.toList());
 
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+        QueryResponseImpl queryResponse = new QueryResponseImpl(mock(QueryRequest.class),
                 mockFederationResults,
-                1));
+                1);
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
+
         // send update to framework
         List<Update> returnedCards = framework.update(request)
                 .getUpdatedMetacards();
