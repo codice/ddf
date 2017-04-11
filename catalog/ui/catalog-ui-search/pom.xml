@@ -203,7 +203,6 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>
             <version>14.4</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -219,6 +218,10 @@
             <groupId>ddf.platform.email</groupId>
             <artifactId>platform-email-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
         </dependency>
     </dependencies>
 

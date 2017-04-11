@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.geotools.filter.text.ecql.ECQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +152,7 @@ public class ActiveSearch {
         if (request == null) {
             return "";
         } else {
-            cqlQuery = org.geotools.filter.text.cql2.CQL.toCQL(request.getQuery());
+            cqlQuery = ECQL.toCQL(request.getQuery());
 
         }
         return cqlQuery;

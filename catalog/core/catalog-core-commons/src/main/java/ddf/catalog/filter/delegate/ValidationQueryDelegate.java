@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -75,6 +75,20 @@ public class ValidationQueryDelegate extends SimpleFilterDelegate<Boolean> {
 
     @Override
     public Boolean propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
+        return propertyName.equals(Validation.VALIDATION_ERRORS)
+                || propertyName.equals(Validation.VALIDATION_WARNINGS);
+    }
+
+    @Override
+    public Boolean propertyIsInProximityTo(String propertyName, Integer distance,
+            String searchTerm) {
+        return propertyName.equals(Validation.VALIDATION_ERRORS)
+                || propertyName.equals(Validation.VALIDATION_WARNINGS);
+    }
+
+    @Override
+    public Boolean propertyIsNotInProximityTo(String propertyName, Integer distance,
+            String searchTerm) {
         return propertyName.equals(Validation.VALIDATION_ERRORS)
                 || propertyName.equals(Validation.VALIDATION_WARNINGS);
     }

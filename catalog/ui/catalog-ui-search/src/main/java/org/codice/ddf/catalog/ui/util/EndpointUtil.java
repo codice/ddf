@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +42,10 @@ import javax.ws.rs.NotFoundException;
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.FactoryIteratorProvider;
+import org.geotools.factory.GeoTools;
+import org.geotools.filter.FunctionFactory;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
@@ -54,6 +60,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -83,6 +90,22 @@ public class EndpointUtil {
         this.filterBuilder = filterBuilder;
         this.injectableAttributes = injectableAttributes;
         this.attributeRegistry = attributeRegistry;
+        registerGeoToolsFunctionFactory();
+    }
+
+    private void registerGeoToolsFunctionFactory() {
+        GeoTools.addFactoryIteratorProvider(new FactoryIteratorProvider() {
+            @Override
+            public <T> Iterator<T> iterator(Class<T> category) {
+                if (FunctionFactory.class == category) {
+                    List<FunctionFactory> functionFactories = new LinkedList<>();
+                    functionFactories.add(new GeoToolsFunctionFactory());
+                    return (Iterator<T>) functionFactories.iterator();
+                }
+                return null;
+            }
+        });
+        CommonFactoryFinder.reset();
     }
 
     public Metacard getMetacard(String id)

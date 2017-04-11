@@ -13,18 +13,23 @@
  */
 package ddf.catalog.source.solr;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.geotools.filter.FilterFactoryImpl;
+import org.geotools.filter.FunctionImpl;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Expression;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.impl.filter.ProximityFunction;
 
 public class SolrFilterBuilderTest extends GeotoolsFilterBuilder {
 
@@ -47,8 +52,19 @@ public class SolrFilterBuilderTest extends GeotoolsFilterBuilder {
     }
 
     public Filter dateIsDuring(String attribute, Date lowerBoundary, Date upperBoundary) {
-        return factory.during(factory.property(attribute),
-                factory.literal(makePeriod(lowerBoundary, upperBoundary)));
+        return factory.during(factory.property(attribute), factory.literal(makePeriod(lowerBoundary,
+                upperBoundary)));
+    }
+
+    public Filter proximity(String attribute, int distance, String searchTerms) {
+        FunctionImpl function = new FunctionImpl();
+        function.setName(ProximityFunction.NAME.getName());
+        List<Expression> parameters = new ArrayList<>();
+        parameters.add(factory.literal(attribute));
+        parameters.add(factory.literal(distance));
+        parameters.add(factory.literal(searchTerms));
+        function.setParameters(parameters);
+        return factory.equals(function, factory.literal(true));
     }
 
     private Period makePeriod(Date start, Date end) {
