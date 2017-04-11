@@ -93,7 +93,7 @@ public class QueryOperations extends DescribableImpl {
 
     private List<String> fanoutProxyTagBlacklist = new ArrayList<>();
 
-    private long queryTimeoutMillis = 30000;
+    private long queryTimeoutMillis = 300000;
 
     public QueryOperations(FrameworkProperties frameworkProperties,
             SourceOperations sourceOperations, OperationsSecuritySupport opsSecuritySupport,
