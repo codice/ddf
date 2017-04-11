@@ -50,7 +50,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
     List<Result> resultList = null;
 
-    private long timeoutMillis = 30000;
+    private long timeoutMillis = 300000;
 
     /**
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest)
