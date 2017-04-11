@@ -13,25 +13,30 @@
  */
 package org.codice.ddf.itests.common.opensearch;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.ServiceManager;
 
-public class OpenSearchSourceProperties extends HashMap<String, Object> {
+public class OpenSearchFeature {
 
     public static final String SYMBOLIC_NAME = "catalog-opensearch-source";
 
     public static final String FACTORY_PID = "OpenSearchSource";
 
-    private AbstractIntegrationTest itest;
+    public static void createManagedService(ServiceManager serviceManager, String sourceId,
+            String user, String pass) throws IOException {
+        Map propertyMap = new HashMap();
+        propertyMap.putAll(serviceManager.getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+        propertyMap.put("endpointUrl", AbstractIntegrationTest.OPENSEARCH_PATH);
 
-    public OpenSearchSourceProperties(AbstractIntegrationTest itest, String sourceId) {
-        this.itest = itest;
-        this.putAll(itest.getServiceManager()
-                .getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+        propertyMap.put("shortname", sourceId);
+        propertyMap.put("username", user);
+        propertyMap.put("password", pass);
 
-        this.put("shortname", sourceId);
-        this.put("endpointUrl", AbstractIntegrationTest.OPENSEARCH_PATH);
+        serviceManager.createManagedService(FACTORY_PID, propertyMap);
     }
 
 }
