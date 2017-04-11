@@ -413,6 +413,77 @@ public class TestRegistryStore {
 
     @Test
     public void testInit() throws Exception {
+        RegistryStoreImpl registryStore = spy(new RegistryStoreImpl(context,
+                cswSourceConfiguration,
+                provider,
+                factory,
+                encryptionService) {
+            @Override
+            protected void validateOperation() {
+            }
+
+            @Override
+            public boolean isAvailable(){
+                return availability;
+            }
+
+            @Override
+            protected SourceResponse query(QueryRequest queryRequest, ElementSetType elementSetName,
+                    List<QName> elementNames, Csw csw) throws UnsupportedQueryException {
+                if (queryResults == null) {
+                    throw new UnsupportedQueryException("Test - Bad Query");
+                }
+                return new SourceResponseImpl(queryRequest, queryResults);
+            }
+
+            @Override
+            public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
+                return new SourceResponseImpl(request, Collections.singletonList(new Result() {
+                    @Override
+                    public Metacard getMetacard() {
+                        MetacardImpl metacard = new MetacardImpl();
+                        metacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "registryId");
+                        metacard.setAttribute(Metacard.TITLE, "title");
+                        return metacard;
+                    }
+
+                    @Override
+                    public Double getRelevanceScore() {
+                        return null;
+                    }
+
+                    @Override
+                    public Double getDistanceInMeters() {
+                        return null;
+                    }
+                }));
+            }
+
+            @Override
+            protected CapabilitiesType getCapabilities() {
+                return mock(CapabilitiesType.class);
+            }
+
+            @Override
+            public void configureCswSource() {};
+
+            @Override
+            BundleContext getBundleContext() {
+                return context;
+            }
+        });
+
+        registryStore.setFilterBuilder(filterBuilder);
+        registryStore.setFilterAdapter(filterAdapter);
+        registryStore.setConfigAdmin(configAdmin);
+        registryStore.setMetacardMarshaller(new MetacardMarshaller(parser));
+        registryStore.setSchemaTransformerManager(transformer);
+        registryStore.setAutoPush(true);
+        registryStore.setRegistryUrl("http://test.url:0101/example");
+        properties = new Hashtable<>();
+        properties.put(RegistryStoreImpl.ID, "registryId");
+        registryStore.setMetacardMarshaller(marshaller);
+
         Csw csw = mock(Csw.class);
         when(factory.getClientForSubject(any())).thenReturn(csw);
         cswSourceConfiguration.setCswUrl("https://localhost");

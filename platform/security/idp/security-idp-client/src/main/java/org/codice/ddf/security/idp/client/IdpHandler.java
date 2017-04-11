@@ -83,6 +83,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import ddf.security.SecurityConstants;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.Response;
@@ -168,6 +169,8 @@ public class IdpHandler implements AuthenticationHandler {
 
     public final String soapfaultMessageTemplate;
 
+    private boolean userAgentCheck = true;
+
     private SessionFactory sessionFactory;
 
     public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, RelayStates<String> relayStates)
@@ -245,6 +248,15 @@ public class IdpHandler implements AuthenticationHandler {
             return doPaosRequest(request, response);
         }
 
+        if (userAgentCheck && userAgentIsNotBrowser(httpRequest)) {
+            SecurityLogger.audit("Attempting to log client in as a legacy system.");
+            //if we get here, it is most likely an older DDF that is federating
+            //it isn't going to understand the redirect to the IdP and it doesn't support ECP
+            //so we need to fall back to other handlers to allow it to log in using PKI, Basic or Guest
+
+            return new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+        }
+
         HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
         handlerResult.setSource("idp-" + SOURCE);
 
@@ -260,6 +272,17 @@ public class IdpHandler implements AuthenticationHandler {
         }
 
         return handlerResult;
+    }
+
+    private boolean userAgentIsNotBrowser(HttpServletRequest httpRequest) {
+        String userAgentHeader = httpRequest.getHeader("User-Agent");
+        //basically all browsers support the "Mozilla" way of operating, so they all have "Mozilla"
+        //in the string. I just added the rest in case that ever changes for existing browsers.
+        //New browsers should contain "Mozilla" as well, though.
+        return userAgentHeader == null || !(userAgentHeader.contains("Mozilla")
+                || userAgentHeader.contains("Safari") || userAgentHeader.contains("OPR")
+                || userAgentHeader.contains("MSIE") || userAgentHeader.contains("Edge")
+                || userAgentHeader.contains("Chrome"));
     }
 
     private boolean isEcpEnabled(ServletRequest request) {
@@ -306,7 +329,7 @@ public class IdpHandler implements AuthenticationHandler {
             }
             authnRequest = createAndSignAuthnRequest(true,
                     wantSigned && idpssoDescriptor.getWantAuthnRequestsSigned());
-            paosRequest = createPaosRequest();
+            paosRequest = createPaosRequest((HttpServletRequest) request);
             ecpRequest = createEcpRequest();
             ecpRelayState = createEcpRelayState((HttpServletRequest) request);
         } catch (ServletException | WSSecurityException e) {
@@ -339,12 +362,13 @@ public class IdpHandler implements AuthenticationHandler {
         return handlerResult;
     }
 
-    private String createPaosRequest() throws WSSecurityException {
+    private String createPaosRequest(HttpServletRequest request) throws WSSecurityException {
         String spIssuerId = getSpIssuerId();
         String spAssertionConsumerServiceUrl = getSpAssertionConsumerServiceUrl(spIssuerId);
         RequestBuilder requestBuilder = new RequestBuilder();
         Request paosRequest = requestBuilder.buildObject();
         paosRequest.setResponseConsumerURL(spAssertionConsumerServiceUrl);
+        paosRequest.setMessageID(createRelayState(request));
         paosRequest.setService(Request.ECP_SERVICE);
         paosRequest.setSOAP11MustUnderstand(true);
         paosRequest.setSOAP11Actor(HTTP_SCHEMAS_XMLSOAP_ORG_SOAP_ACTOR_NEXT);
@@ -625,5 +649,9 @@ public class IdpHandler implements AuthenticationHandler {
 
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
+    }
+
+    public void setUserAgentCheck(boolean userAgentCheck) {
+        this.userAgentCheck = userAgentCheck;
     }
 }

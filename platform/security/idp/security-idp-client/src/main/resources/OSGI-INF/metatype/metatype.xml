@@ -31,6 +31,13 @@
                 name="IdP Metadata" id="metadata" required="true" type="String"
                 default=""
                 description="Refer to metadata by HTTPS URL (https://), file URL (file:), or an XML block(<md:EntityDescriptor>...</md:EntityDescriptor>)."/>
+
+        <AD
+                name="Perform User-Agent Check" id="userAgentCheck" required="true" type="Boolean"
+                default="true"
+                description="If selected, this will allow clients that do not support ECP and are not browsers to fall back to PKI, BASIC, and potentially GUEST authentication, if enabled."/>
+
+
     </OCD>
 
     <Designate pid="org.codice.ddf.security.idp.client.IdpMetadata">
