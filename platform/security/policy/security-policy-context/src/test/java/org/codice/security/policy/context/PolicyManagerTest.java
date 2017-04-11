@@ -15,6 +15,7 @@ package org.codice.security.policy.context;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +23,8 @@ import java.util.Map;
 
 import org.apache.shiro.authz.Permission;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
+import org.codice.ddf.security.policy.context.attributes.DefaultContextAttributeMapping;
 import org.codice.ddf.security.policy.context.impl.Policy;
 import org.codice.ddf.security.policy.context.impl.PolicyManager;
 import org.junit.Before;
@@ -30,6 +33,8 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableMap;
 
 import junit.framework.Assert;
+
+import ddf.security.permission.CollectionPermission;
 
 /**
  * Test for PolicyManager
@@ -44,8 +49,7 @@ public class PolicyManagerTest {
 
     private static final String REQ_ATTRS = "requiredAttributes";
 
-    private static final List<String> DEFAULT_AUTH_TYPES = Arrays.asList(new String[] {"SAML",
-            "GUEST"});
+    private static final List<String> DEFAULT_AUTH_TYPES = Arrays.asList("SAML", "GUEST");
 
     private PolicyManager manager;
 
@@ -75,46 +79,68 @@ public class PolicyManagerTest {
     private final Map<String, List<String>> expectedRollBackAuthTypes =
             new ImmutableMap.Builder<String, List<String>>().put("/testContext", DEFAULT_AUTH_TYPES)
                     .put("/1/2/3/testContext2", Arrays.asList("SAML", "GUEST"))
-                    .put("/A/B/C/testContext3", Arrays.asList("a"))
-                    .put("/A/B/C/testContext4", Arrays.asList("abcTestContext4"))
+                    .put("/A/B/C/testContext3", Collections.singletonList("a"))
+                    .put("/A/B/C/testContext4", Collections.singletonList("abcTestContext4"))
                     .build();
 
     private final Map<String, List<String>> expectedRollBackReqAttrs =
             new ImmutableMap.Builder<String, List<String>>().put("/testContext5",
                     Arrays.asList(new String[] {}))
                     .put("/1/2/3/testContext6", Arrays.asList(new String[] {}))
-                    .put("/A/B/C/testContext7", Arrays.asList("A"))
-                    .put("/A/B/C/testContext8", Arrays.asList("AbcTestContext8"))
+                    .put("/A/B/C/testContext7", Collections.singletonList("A"))
+                    .put("/A/B/C/testContext8", Collections.singletonList("AbcTestContext8"))
+                    .build();
+
+    private final ContextAttributeMapping[] attributes = {new DefaultContextAttributeMapping(null,
+            "a",
+            "a"), new DefaultContextAttributeMapping(null, "b", "b"),
+            new DefaultContextAttributeMapping(null, "c", "c")};
+
+    private final Map<String, List<ContextAttributeMapping>> simpleAttributeMap =
+            new ImmutableMap.Builder<String, List<ContextAttributeMapping>>().put("/a",
+                    Collections.singletonList(attributes[0]))
+                    .put("/a/b", Collections.singletonList(attributes[1]))
+                    .put("/a/b/c", Collections.singletonList(attributes[2]))
+                    .build();
+
+    private final Map<String, List<ContextAttributeMapping>> complexAttributeMap =
+            new ImmutableMap.Builder<String, List<ContextAttributeMapping>>().put("/x",
+                    Collections.singletonList(attributes[0]))
+                    .put("/x/y/z", Collections.singletonList(attributes[1]))
                     .build();
 
     @Before
     public void setup() {
         manager = new PolicyManager();
         manager.setTraversalDepth(10);
-        manager.setContextPolicy("/", new Policy("/", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/search",
-                new Policy("/search", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/admin",
-                new Policy("/admin", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/", new Policy("/", null, new ArrayList<>(), null));
+        manager.setContextPolicy("/search", new Policy("/search", null, new ArrayList<>(), null));
+        manager.setContextPolicy("/admin", new Policy("/admin", null, new ArrayList<>(), null));
         manager.setContextPolicy("/search/standard",
-                new Policy("/search/standard", null, new ArrayList<String>(), null));
+                new Policy("/search/standard", null, new ArrayList<>(), null));
         manager.setContextPolicy("/search/cometd",
-                new Policy("/search/cometd", null, new ArrayList<String>(), null));
+                new Policy("/search/cometd", null, new ArrayList<>(), null));
         manager.setContextPolicy("/search/simple",
-                new Policy("/search/simple", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/aaaaaa",
-                new Policy("/aaaaaa", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/aaa", new Policy("/aaa", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/aaa/aaa",
-                new Policy("/aaa/aaa", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/foo/bar",
-                new Policy("/foo/bar", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/1/2",
-                new Policy("/1/2", null, new ArrayList<String>(), null));
-        manager.setContextPolicy(
-                "/1/2/3/4/5/6/7/8/9/10/11/12/13/14",
-                new Policy(
-                        "/1/2/3/4/5/6/7/8/9/10/11/12/13/14", null, new ArrayList<String>(), null));
+                new Policy("/search/simple", null, new ArrayList<>(), null));
+        manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", null, new ArrayList<>(), null));
+        manager.setContextPolicy("/aaa", new Policy("/aaa", null, new ArrayList<>(), null));
+        manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", null, new ArrayList<>(), null));
+        manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", null, new ArrayList<>(), null));
+        manager.setContextPolicy("/1/2", new Policy("/1/2", null, new ArrayList<>(), null));
+        manager.setContextPolicy("/1/2/3/4/5/6/7/8/9/10/11/12/13/14",
+                new Policy("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", null, new ArrayList<>(), null));
+
+        for (Map.Entry<String, List<ContextAttributeMapping>> entry : simpleAttributeMap.entrySet()) {
+            manager.setContextPolicy(entry.getKey(),
+                    new Policy(entry.getKey(), null, new ArrayList<>(), entry.getValue()));
+        }
+
+        for (Map.Entry<String, List<ContextAttributeMapping>> entry : complexAttributeMap.entrySet()) {
+            manager.setContextPolicy(entry.getKey(),
+                    new Policy(entry.getKey(), null, new ArrayList<>(), entry.getValue()));
+        }
+
+        // Can't use Collections.singletonList because the context policy manager must be able to change the passed in list
         manager.setWhiteListContexts(Arrays.asList("/foo"));
 
         Map<String, Object> contextPolicies = new HashMap<>();
@@ -124,6 +150,33 @@ public class PolicyManagerTest {
 
         rollBackTestManager = new PolicyManager();
         rollBackTestManager.setPolicies(contextPolicies);
+    }
+
+    @Test
+    public void testSimpleAttributeMappings() {
+
+        for (Map.Entry<String, List<ContextAttributeMapping>> entry : simpleAttributeMap.entrySet()) {
+            ContextPolicy policy = manager.getContextPolicy(entry.getKey());
+            CollectionPermission permission = policy.getAllowedAttributePermissions();
+
+            Assert.assertTrue(permission.implies(entry.getValue()
+                    .get(0)
+                    .getAttributePermission()));
+        }
+
+    }
+
+    @Test
+    public void testComplexPaths() {
+        CollectionPermission rootPermissions = manager.getContextPolicy("/x")
+                .getAllowedAttributePermissions();
+        CollectionPermission noPermissions = manager.getContextPolicy("/x/y")
+                .getAllowedAttributePermissions();
+        CollectionPermission lastPermission = manager.getContextPolicy("/x/y/z")
+                .getAllowedAttributePermissions();
+
+        Assert.assertTrue(noPermissions.implies(rootPermissions));
+        Assert.assertFalse(rootPermissions.implies(lastPermission));
     }
 
     @Test
@@ -154,13 +207,11 @@ public class PolicyManagerTest {
         Assert.assertEquals("/", contextPolicy4.getContextPath());
 
         //test two slashes
-        ContextPolicy contextPolicy5 = manager.getContextPolicy(
-                "//");
+        ContextPolicy contextPolicy5 = manager.getContextPolicy("//");
         Assert.assertEquals("/", contextPolicy5.getContextPath());
 
         //test one slash
-        ContextPolicy contextPolicy6 = manager.getContextPolicy(
-                "/");
+        ContextPolicy contextPolicy6 = manager.getContextPolicy("/");
         Assert.assertEquals("/", contextPolicy6.getContextPath());
     }
 
