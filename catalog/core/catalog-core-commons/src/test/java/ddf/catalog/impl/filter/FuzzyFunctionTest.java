@@ -21,6 +21,7 @@ import java.util.List;
 import org.junit.Test;
 import org.opengis.filter.expression.Expression;
 
+@Deprecated
 public class FuzzyFunctionTest {
 
     @Test(expected = NullPointerException.class)
