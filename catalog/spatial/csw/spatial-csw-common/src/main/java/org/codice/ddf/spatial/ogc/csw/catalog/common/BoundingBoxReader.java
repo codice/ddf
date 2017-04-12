@@ -48,6 +48,8 @@ public class BoundingBoxReader {
 
     private static final String SPACE = " ";
 
+    private static final String DEFAULT_CRS = "urn:ogc:def:crs:EPSG:4326";
+
     private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
     private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
@@ -83,7 +85,7 @@ public class BoundingBoxReader {
 
         String crs = reader.getAttribute("crs");
         // For now, default an empty CRS to EPSG:4326
-        crs = StringUtils.isEmpty(crs) ? "urn:ogc:def:crs:EPSG:6.11:4326" : crs;
+        crs = StringUtils.isEmpty(crs) ? DEFAULT_CRS : crs;
 
         LOGGER.debug("crs = {}, coordinate order = {}", crs, this.cswAxisOrder);
 
@@ -132,7 +134,7 @@ public class BoundingBoxReader {
         // Move position back up to the parent <BoundingBox> tag, where we started
         reader.moveUp();
 
-        if (!isEPSG4326(crs) || (cswAxisOrder.equals(CswAxisOrder.LAT_LON) && isEPSG4326(crs))) {
+        if (!isEPSG4326(crs) || cswAxisOrder.equals(CswAxisOrder.LAT_LON)) {
             wkt = convertToEPSG4326(wkt, crs);
         }
         LOGGER.debug("Returning WKT {}.", wkt);
@@ -177,10 +179,9 @@ public class BoundingBoxReader {
                 return WKT_WRITER_THREAD_LOCAL.get()
                         .write(convertedGeometry);
             } else {
-                throw new GeoFormatException();
+                throw new GeoFormatException("Converted Geometry is not set, or not within EPSG4326 bounds");
             }
         } catch (ParseException | GeoFormatException e) {
-            LOGGER.debug("Unable to convert {} from {} to EPSG:4326", wkt, crs, e);
             throw new CswException(String.format("Unable to convert %s from %s to EPSG:4326",
                     wkt,
                     crs));
@@ -188,18 +189,18 @@ public class BoundingBoxReader {
     }
 
     private boolean isEPSG4326(String crs) {
-        return (crs.contains("4326") || crs.contains("CRS84"));
+        return crs.contains("4326") || crs.contains("CRS84");
     }
 
     private boolean withinEPSG4326Bounds(Geometry geometry) {
         Coordinate[] coordinates = geometry.getCoordinates();
         for (Coordinate coordinate : coordinates) {
             // Longitude
-            if (coordinate.x <= -180 || coordinate.x >= 180) {
+            if (coordinate.x < -180 || coordinate.x > 180) {
                 return false;
             }
             // Latitude
-            if (coordinate.y <= -90 || coordinate.y >= 90) {
+            if (coordinate.y < -90 || coordinate.y > 90) {
                 return false;
             }
         }
