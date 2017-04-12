@@ -276,6 +276,12 @@
                     <version>2.8.1</version>
                     <configuration>
                         <argLine>${argLine} -Djava.awt.headless=true -noverify</argLine>
+                        <includes>
+                            <include>**/*.java</include>
+                            <!-- if the above include changes to **/*Test.java,
+                                 uncomment the line below -->
+                            <!--<include>**/*Spec.java</include>-->
+                        </includes>
                     </configuration>
                 </plugin>
                 <plugin>
