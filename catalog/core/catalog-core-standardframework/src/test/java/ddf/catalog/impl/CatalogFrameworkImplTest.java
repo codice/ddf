@@ -308,10 +308,14 @@ public class CatalogFrameworkImplTest {
         mockFederationStrategy = mock(FederationStrategy.class);
         Result mockFederationResult = mock(Result.class);
         when(mockFederationResult.getMetacard()).thenReturn(new MetacardImpl());
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+        QueryRequest mockQueryRequest = mock(QueryRequest.class);
+        Query mockQuery = mock(Query.class);
+        when(mockQuery.getTimeoutMillis()).thenReturn(1L);
+        when(mockQueryRequest.getQuery()).thenReturn(mockQuery);
+        QueryResponseImpl queryResponse = new QueryResponseImpl(mockQueryRequest,
                 Collections.singletonList(mockFederationResult),
-                1));
+                1);
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
 
         federatedSources = createDefaultFederatedSourceList(true);
 
@@ -825,10 +829,11 @@ public class CatalogFrameworkImplTest {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId(insertedCard.getId());
         when(mockFederationResult.getMetacard()).thenReturn(metacard);
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+
+        QueryResponseImpl queryResponse = new QueryResponseImpl(mock(QueryRequest.class),
                 Collections.singletonList(mockFederationResult),
-                1));
+                1);
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
 
         List<Entry<Serializable, Metacard>> updatedEntries =
                 new ArrayList<Entry<Serializable, Metacard>>();
@@ -879,10 +884,10 @@ public class CatalogFrameworkImplTest {
                 })
                 .collect(Collectors.toList());
 
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+        QueryResponseImpl queryResponse = new QueryResponseImpl(mock(QueryRequest.class),
                 mockFederationResults,
-                1));
+                1);
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
 
         UpdateRequest updateRequest = new UpdateRequestImpl(new String[] {"1", "2", "3", "4", "5"},
                 createResponse.getCreatedMetacards());
@@ -935,10 +940,10 @@ public class CatalogFrameworkImplTest {
                 })
                 .collect(Collectors.toList());
 
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+        QueryResponseImpl queryResponse = new QueryResponseImpl(mock(QueryRequest.class),
                 mockFederationResults,
-                1));
+                1);
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
 
         final UpdateResponse response = framework.update(request);
 
@@ -999,10 +1004,11 @@ public class CatalogFrameworkImplTest {
                 })
                 .collect(Collectors.toList());
 
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+        QueryResponseImpl queryResponse = new QueryResponseImpl(mock(QueryRequest.class),
                 mockFederationResults,
-                1));
+                1);
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
+
         // send update to framework
         List<Update> returnedCards = framework.update(request)
                 .getUpdatedMetacards();
@@ -1083,10 +1089,11 @@ public class CatalogFrameworkImplTest {
                 })
                 .collect(Collectors.toList());
 
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+        QueryResponseImpl queryResponse = new QueryResponseImpl(mock(QueryRequest.class),
                 mockFederationResults,
-                1));
+                1);
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
+
         // send update to framework
         List<Update> returnedCards = framework.update(request)
                 .getUpdatedMetacards();
@@ -1128,10 +1135,11 @@ public class CatalogFrameworkImplTest {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId(ids[0]);
         when(mockFederationResult.getMetacard()).thenReturn(metacard);
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+
+        QueryResponseImpl queryResponse = new QueryResponseImpl(mock(QueryRequest.class),
                 Collections.singletonList(mockFederationResult),
-                1));
+                1);
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
 
         // send delete to framework
         List<Metacard> returnedCards = framework.delete(new DeleteRequestImpl(ids))
@@ -1178,10 +1186,10 @@ public class CatalogFrameworkImplTest {
                 })
                 .collect(Collectors.toList());
 
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+        QueryResponseImpl queryResponse = new QueryResponseImpl(mock(QueryRequest.class),
                 mockFederationResults,
-                1));
+                1);
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
 
         final DeleteResponse response = framework.delete(request);
 
@@ -1232,10 +1240,10 @@ public class CatalogFrameworkImplTest {
                 })
                 .collect(Collectors.toList());
 
-        when(mockFederationStrategy.federate(anyList(),
-                anyObject())).thenReturn(new QueryResponseImpl(mock(QueryRequest.class),
+        QueryResponseImpl queryResponse = new QueryResponseImpl(mock(QueryRequest.class),
                 mockFederationResults,
-                1));
+                1);
+        when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
 
         // send update to framework
         UpdateResponse updateResponse = framework.update(request);

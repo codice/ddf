@@ -36,6 +36,9 @@
             type="String" cardinality="100"
             default="registry,registry-remote"
             description="Query operations with tags in this list will not be passed through."/>
+        <AD name="Query timeout (milliseconds)" id="queryTimeoutMillis" required="true" type="Long"
+            default="300000"
+            description="Time in milliseconds that a query will wait on the queue before timeout."/>
 
     </OCD>
 
