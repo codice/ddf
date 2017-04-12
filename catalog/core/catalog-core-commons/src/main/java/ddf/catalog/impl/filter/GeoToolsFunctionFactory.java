@@ -27,39 +27,43 @@ import org.opengis.filter.expression.Literal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FuzzyFunctionFactory implements FunctionFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FuzzyFunctionFactory.class);
+public class GeoToolsFunctionFactory implements FunctionFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoToolsFunctionFactory.class);
 
     public List<FunctionName> getFunctionNames() {
         String methodName = "getFunctionNames";
-        LOGGER.debug("ENTERING: {}", methodName);
+        LOGGER.trace("ENTERING: {}", methodName);
 
-        List<FunctionName> functionList = new ArrayList<FunctionName>();
+        List<FunctionName> functionList = new ArrayList<>();
         functionList.add(FuzzyFunction.NAME);
+        functionList.add(ProximityFunction.NAME);
 
-        LOGGER.debug("EXITING: {}", methodName);
+        LOGGER.trace("EXITING: {}", methodName);
 
         return Collections.unmodifiableList(functionList);
     }
 
     public Function function(String name, List<Expression> args, Literal fallback) {
-        LOGGER.debug("INSIDE: function(String name, ...)");
+        LOGGER.trace("INSIDE: function(String name, ...)");
         return function(new NameImpl(name), args, fallback);
     }
 
     public Function function(Name name, List<Expression> args, Literal fallback) {
         String methodName = "function";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        LOGGER.debug("Comparing [{}] to [{}]", FuzzyFunction.NAME.getName(), name.getLocalPart());
+        LOGGER.trace("ENTERING: {}", methodName);
 
         if (FuzzyFunction.NAME.getName()
                 .equals(name.getLocalPart())) {
-            LOGGER.debug("EXITING: {}    - returning FuzzyFunction instance", methodName);
+            LOGGER.trace("EXITING: {} - returning FuzzyFunction instance", methodName);
             return new FuzzyFunction(args, fallback);
         }
 
-        LOGGER.debug("EXITING: {}    - returning null", methodName);
+        if (ProximityFunction.NAME.getName().equals(name.getLocalPart())) {
+            LOGGER.trace("Inside function : returning {}", ProximityFunction.NAME);
+            return new ProximityFunction(args, fallback);
+        }
+
+        LOGGER.trace("EXITING: {} - returning null", methodName);
 
         return null; // we do not implement that function
     }

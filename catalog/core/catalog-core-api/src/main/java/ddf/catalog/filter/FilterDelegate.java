@@ -1239,4 +1239,30 @@ public abstract class FilterDelegate<T> {
                 "relative(String,long) not supported by org.opengis.filter.Filter Delegate.");
     }
 
+    /**
+     * Determines if the property contains search terms that are within a certain distance of each other.
+     *
+     * @param propertyName name of property to compare
+     * @param distance distance (in words) between search terms
+     * @param searchTerm search terms to compare
+     * @return
+     */
+    public T propertyIsInProximityTo(String propertyName, Integer distance, String searchTerm) {
+        throw new UnsupportedOperationException(
+                "propertyIsInProximityTo(String,Integer,String) not supported by org.opengis.filter.Filter Delegate.");
+    }
+
+    /**
+     * Determines if the property contains search terms that are not within a certain distance of each other.
+     *
+     * @param propertyName name of property to compare
+     * @param distance distance (in words) between search terms
+     * @param searchTerm search terms to compare
+     * @return
+     */
+    public T propertyIsNotInProximityTo(String propertyName, Integer distance, String searchTerm) {
+        throw new UnsupportedOperationException(
+                "propertyIsNotInProximityTo(String,Integer,String) not supported by org.opengis.filter.Filter Delegate.");
+    }
+
 }

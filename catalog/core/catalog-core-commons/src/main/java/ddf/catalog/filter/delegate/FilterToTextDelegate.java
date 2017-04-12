@@ -510,4 +510,13 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
         return "relative(" + propertyName + "," + duration + ")";
     }
 
+    @Override
+    public String propertyIsInProximityTo(String propertyName, Integer distance, String searchTerm) {
+        return "proximity(" + propertyName + "," + distance + "," + searchTerm + ")=true";
+    }
+
+    @Override
+    public String propertyIsNotInProximityTo(String propertyName, Integer distance, String searchTerm) {
+        return "proximity(" + propertyName + "," + distance + "," + searchTerm + ")=false";
+    }
 }

@@ -84,6 +84,7 @@ import org.opengis.temporal.Period;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.impl.filter.FuzzyFunction;
+import ddf.catalog.impl.filter.ProximityFunction;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
@@ -134,6 +135,29 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
             throw new UnsupportedOperationException(
                     Function.class.getSimpleName() + " must not be null.");
         }
+
+        if (expression.getName()
+                .equals(ProximityFunction.NAME.getName())) {
+            List<Expression> parameters = new ArrayList<>(expression.getParameters());
+            if (parameters.size() == ProximityFunction.NUM_PARAMETERS) {
+
+                String propertyName = parameters.remove(0)
+                        .toString();
+                int distance;
+                try {
+                    distance = Integer.parseInt(parameters.remove(0)
+                            .toString());
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Distance parameter was not valid");
+                }
+                String searchTerm = parameters.remove(0)
+                        .toString();
+                return new ProximityArguments(propertyName, distance, searchTerm);
+            } else {
+                throw new IllegalArgumentException("Not enough arguments for ProximityFunction");
+            }
+        }
+
         return expression;
     }
 
@@ -179,7 +203,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
     @SuppressWarnings("unchecked")
     public Object visit(And filter, Object delegate) {
-        List<Object> results = new ArrayList<Object>();
+        List<Object> results = new ArrayList<>();
         List<Filter> childList = filter.getChildren();
 
         if (childList != null) {
@@ -206,7 +230,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
     @SuppressWarnings("unchecked")
     public Object visit(Or filter, Object delegate) {
-        List<Object> results = new ArrayList<Object>();
+        List<Object> results = new ArrayList<>();
         List<Filter> childList = filter.getChildren();
 
         if (childList != null) {
@@ -284,13 +308,22 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         String propertyName = filterValues.propertyName;
         Object literal = filterValues.literal;
 
-        if (literal instanceof String) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
+        if (filterValues.proximityArguments != null) {
+            if (literal.equals(Boolean.TRUE)) {
+                return ((FilterDelegate<?>) delegate).propertyIsInProximityTo(filterValues.proximityArguments.propertyName,
+                        filterValues.proximityArguments.distance,
+                        filterValues.proximityArguments.searchTerm);
+            } else {
+                return ((FilterDelegate<?>) delegate).propertyIsNotInProximityTo(filterValues.proximityArguments.propertyName,
+                        filterValues.proximityArguments.distance,
+                        filterValues.proximityArguments.searchTerm);
+            }
+        } else if (literal instanceof String) {
+            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName,
                     (String) literal,
                     filter.isMatchingCase());
         } else if (literal instanceof Date) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    (Date) literal);
+            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName, (Date) literal);
         } else if (literal instanceof Instant) {
             return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName,
                     ((Instant) literal).getPosition()
@@ -304,28 +337,27 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                             .getPosition()
                             .getDate());
         } else if (literal instanceof Integer) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName,
                     ((Integer) literal).intValue());
         } else if (literal instanceof Short) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName,
                     ((Short) literal).shortValue());
         } else if (literal instanceof Long) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName,
                     ((Long) literal).longValue());
         } else if (literal instanceof Float) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName,
                     ((Float) literal).floatValue());
         } else if (literal instanceof Double) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName,
                     ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName,
                     ((Boolean) literal).booleanValue());
         } else if (literal instanceof byte[]) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    (byte[]) literal);
+            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName, (byte[]) literal);
         } else {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName, literal);
+            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName, literal);
         }
 
     }
@@ -336,11 +368,11 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         Object literal = filterValues.literal;
 
         if (literal instanceof String) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
                     (String) literal,
                     filter.isMatchingCase());
         } else if (literal instanceof Date) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
                     (Date) literal);
         } else if (literal instanceof Instant) {
             return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
@@ -355,29 +387,28 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                             .getPosition()
                             .getDate());
         } else if (literal instanceof Integer) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
                     ((Integer) literal).intValue());
         } else if (literal instanceof Short) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
                     ((Short) literal).shortValue());
         } else if (literal instanceof Long) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
                     ((Long) literal).longValue());
         } else if (literal instanceof Float) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
                     ((Float) literal).floatValue());
         } else if (literal instanceof Double) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
                     ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
                     ((Boolean) literal).booleanValue());
         } else if (literal instanceof byte[]) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
+            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
                     (byte[]) literal);
         } else {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
-                    literal);
+            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName, literal);
         }
 
     }
@@ -416,11 +447,9 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
             return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
                     ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    ((Boolean) literal));
+            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName, literal);
         } else if (literal instanceof byte[]) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    (byte[]) literal);
+            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName, literal);
         } else {
             return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName, literal);
         }
@@ -461,10 +490,10 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                     ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
             return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    ((Boolean) literal));
+                    literal);
         } else if (literal instanceof byte[]) {
             return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    (byte[]) literal);
+                    literal);
         } else {
             return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
                     literal);
@@ -504,11 +533,9 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
             return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName,
                     ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName,
-                    ((Boolean) literal));
+            return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName, literal);
         } else if (literal instanceof byte[]) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName,
-                    (byte[]) literal);
+            return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName, literal);
         } else {
             return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName, literal);
         }
@@ -522,8 +549,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         // Are property name and literal reversed?
         if (filter.getExpression1() instanceof Literal) {
             // convert literal <= property to property >= literal
-            Filter greaterThanOrEqual = FF.greaterOrEqual(FF.property(propertyName),
-                    FF.literal(literal));
+            Filter greaterThanOrEqual = FF.greaterOrEqual(FF.property(propertyName), FF.literal(
+                    literal));
             return greaterThanOrEqual.accept(this, delegate);
         }
 
@@ -550,10 +577,10 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                     ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
             return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    ((Boolean) literal));
+                    literal);
         } else if (literal instanceof byte[]) {
             return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    (byte[]) literal);
+                    literal);
         } else {
             return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
                     literal);
@@ -949,7 +976,12 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         String propertyName;
         Object literal;
 
-        if (expression1 instanceof PropertyName && expression2 instanceof Literal) {
+        if (expression1 instanceof Function && ProximityFunction.NAME.getName()
+                .equals(((Function) expression1).getFunctionName()
+                        .getName()) && expression2 instanceof Literal) {
+            return new ExpressionValues((ProximityArguments) expression1.accept(this, delegate),
+                    expression2.accept(this, delegate));
+        } else if (expression1 instanceof PropertyName && expression2 instanceof Literal) {
             propertyName = (String) expression1.accept(this, delegate);
             literal = expression2.accept(this, delegate);
         } else if (expression1 instanceof Literal && expression2 instanceof PropertyName) {
@@ -967,10 +999,31 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
         public Object literal;
 
+        public ProximityArguments proximityArguments;
+
+        public ExpressionValues(ProximityArguments proximityArguments, Object literal) {
+            this.proximityArguments = proximityArguments;
+            this.literal = literal;
+        }
+
         public ExpressionValues(String propertyName, Object literal) {
             this.propertyName = propertyName;
             this.literal = literal;
         }
     }
 
+    private static class ProximityArguments {
+
+        public String propertyName;
+
+        public Integer distance;
+
+        public String searchTerm;
+
+        public ProximityArguments(String propertyName, Integer distance, String searchTerm) {
+            this.propertyName = propertyName;
+            this.distance = distance;
+            this.searchTerm = searchTerm;
+        }
+    }
 }

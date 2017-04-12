@@ -339,11 +339,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     @Override
     public SolrQuery propertyIsEqualTo(String propertyName, Date exactDate) {
         String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.DATE, true);
-
         SolrQuery query = new SolrQuery();
         query.setQuery(
                 " " + mappedPropertyName + ":" + QUOTE + dateFormat.format(exactDate) + QUOTE);
-
         return query;
     }
 
@@ -624,7 +622,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     private String geoPointToCircleQuery(String propertyName, double distanceInDegrees, Point pnt) {
-        String circle = "BUFFER(POINT(" + pnt.getX() + " " + pnt.getY() + "), " + distanceInDegrees + ")";
+        String circle =
+                "BUFFER(POINT(" + pnt.getX() + " " + pnt.getY() + "), " + distanceInDegrees + ")";
         String geoIndexName = getMappedPropertyName(propertyName, AttributeFormat.GEOMETRY, false);
 
         return geoIndexName + ":\"" + INTERSECTS_OPERATION + "(" + circle + ")\"";
@@ -676,7 +675,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             Shape wktShape = WKT_READER.read(wkt);
             //All polygons will be an instance of JtsGeometry. If it is not a polygon we don't need
             //to do anything with it so just return the original wkt string.
-            if(!(wktShape instanceof JtsGeometry)){
+            if (!(wktShape instanceof JtsGeometry)) {
                 return wkt;
             }
             return SPATIAL_CONTEXT.getFormats()
@@ -755,6 +754,33 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return getXPathQuery(xpath, literal, false);
     }
 
+    @Override
+    public SolrQuery propertyIsInProximityTo(String propertyName, Integer distance, String searchTerms) {
+        return getProximityQuery(propertyName, distance, searchTerms, true);
+    }
+
+    @Override
+    public SolrQuery propertyIsNotInProximityTo(String propertyName, Integer distance, String searchTerms) {
+        return getProximityQuery(propertyName, distance, searchTerms, false);
+    }
+
+    private SolrQuery getProximityQuery(String propertyName, Integer distance, String searchTerms, boolean is) {
+        if (propertyName == null) {
+            throw new UnsupportedOperationException("Property name should not be null.");
+        }
+
+        if (distance < 0) {
+            throw new UnsupportedOperationException("Distance should be greater than or equal to zero.");
+        }
+
+        String not = is ? "" : "!";
+        String searchPhrase = QUOTE + escapeSpecialCharacters(searchTerms) + QUOTE + " ~" + distance;
+        SolrQuery query = new SolrQuery(wildcardSolrQuery(searchPhrase, propertyName, false));
+        query.setQuery(not + query.getQuery());
+        LOGGER.debug("Generated Query : {}", query.getQuery());
+        return query;
+    }
+
     private SolrQuery getXPathQuery(final String pattern, final String searchPhrase,
             final boolean isCaseSensitive) {
         // TODO should use XPath parser to make sure to only remove namespace pattern from path and not quoted text
@@ -790,7 +816,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         if (sortBy != null && sortBy.getPropertyName() != null) {
             String sortByPropertyName = sortBy.getPropertyName()
                     .getPropertyName();
-            if (Result.DISTANCE.equals(sortByPropertyName) || propertyName.equals(sortByPropertyName)) {
+            if (Result.DISTANCE.equals(sortByPropertyName)
+                    || propertyName.equals(sortByPropertyName)) {
                 isSortedByDistance = true;
                 sortedDistancePoint = point.getY() + "," + point.getX();
             }
@@ -873,7 +900,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     /**
      * This builds a "is null" query based on the property name provided.
-     *
+     * <p>
      * Since no type is provided with this method, we build a OR chained expression with anonymous field names.
      * The actually expression uses a negative ranged query expression.  The null query needs to be used in order for this
      * expression to play well with other nested expressions.  The query used is outlined in:
@@ -962,7 +989,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             throw new UnsupportedOperationException("Wkt should not be null or empty.");
         }
 
-        String geoQuery = geoIndexName + ":\"" + operation + "(" + fixSelfIntersectingGeometry(wkt) + ")\"";
+        String geoQuery =
+                geoIndexName + ":\"" + operation + "(" + fixSelfIntersectingGeometry(wkt) + ")\"";
 
         Geometry pnt = getGeometry(wkt);
         if (pnt != null) {

@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 
 public class SolrFilterDelegateTest {
 
@@ -362,9 +363,7 @@ public class SolrFilterDelegateTest {
 
     @Test
     public void testTemporalBefore() {
-        stub(mockResolver.getField("created",
-                AttributeFormat.DATE,
-                false)).toReturn("created_date");
+        stub(mockResolver.getField("created", AttributeFormat.DATE, false)).toReturn("created_date");
 
         String expectedQuery = " created_date:[ * TO 1995-11-24T23:59:56.765Z } ";
         SolrQuery temporalQuery = toTest.before(Metacard.CREATED, getCannedTime());
@@ -373,9 +372,7 @@ public class SolrFilterDelegateTest {
 
     @Test
     public void testTemporalAfter() {
-        stub(mockResolver.getField("created",
-                AttributeFormat.DATE,
-                false)).toReturn("created_date");
+        stub(mockResolver.getField("created", AttributeFormat.DATE, false)).toReturn("created_date");
 
         String expectedQuery = " created_date:{ 1995-11-24T23:59:56.765Z TO * ] ";
         SolrQuery temporalQuery = toTest.after(Metacard.CREATED, getCannedTime());
@@ -484,6 +481,29 @@ public class SolrFilterDelegateTest {
         assertThat(combinedQuery.getFilterQueries()[0], is(combinedExpectedFilter));
         //        assertThat(combinedQuery.getFilterQueries()[1], is(expectedIndex));
     }
+
+    @Test
+    public void testPropertyIsInProximityTo() {
+        stub(mockResolver.getField("title", AttributeFormat.STRING, true)).toReturn("title_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("title_txt")).toReturn("title_txt_ws");
+
+        String expectedQuery = "(title_txt_ws:\"a proximity string\" ~2)";
+        SolrQuery solrQuery = toTest.propertyIsInProximityTo(Core.TITLE, 2, "a proximity string");
+
+        assertThat(solrQuery.getQuery(), is(expectedQuery));
+    }
+
+    @Test
+    public void testPropertyIsNotInProximityTo() {
+        stub(mockResolver.getField("title", AttributeFormat.STRING, true)).toReturn("title_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("title_txt")).toReturn("title_txt_ws");
+
+        String expectedQuery = "!(title_txt_ws:\"a proximity string\" ~2)";
+        SolrQuery solrQuery = toTest.propertyIsNotInProximityTo(Core.TITLE, 2, "a proximity string");
+
+        assertThat(solrQuery.getQuery(), is(expectedQuery));
+    }
+
 
     private Date getCannedTime() {
         return getCannedTime(1995, Calendar.NOVEMBER, 24, 23);
