@@ -1,0 +1,22 @@
+#
+# Copyright (c) Codice Foundation
+# <p/>
+# This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+# General Public License as published by the Free Software Foundation, either version 3 of the
+# License, or any later version.
+# <p/>
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+# is distributed along with this program and can be found at
+# <http://www.gnu.org/licenses/lgpl.html>.
+#
+# This file contains whitelist words that are accepted in the content of any files and commit messages
+# for this repository. This list will superseed any entries from the blacklist-words.txt file.
+#
+# Lines that starts with "REGEX:" are considered Java regular expressions, all others are considered
+# literals. All entries are always matched case insensitive.
+#
+# Make sure that an entry in this file matches exactly an entry in the blacklist-words.txt file in
+# order for it to be overridden.
+#
