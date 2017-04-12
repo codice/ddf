@@ -19,8 +19,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.input.TeeInputStream;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,8 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
      * populated with all the {@link Attribute}s parsed by the {@link SaxEventHandlerDelegate#eventHandlers}
      * @throws CatalogTransformerException
      */
-    public SaxEventHandlerDelegate read(InputStream inputStream) throws CatalogTransformerException {
+    public SaxEventHandlerDelegate read(InputStream inputStream)
+            throws CatalogTransformerException {
 
         try {
             InputSource newStream = new InputSource(new BufferedInputStream(inputStream));
@@ -134,24 +136,31 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
              */
         InputTransformerErrorHandler inputTransformerErrorHandler =
                 (InputTransformerErrorHandler) parser.getErrorHandler();
-        List<Serializable> errorsAndWarnings =
-                Arrays.asList(inputTransformerErrorHandler.getParseWarningsErrors());
-        if (!((String) errorsAndWarnings.get(0)).isEmpty()) {
-            LOGGER.debug((String) errorsAndWarnings.get(0));
-            Attribute attr;
-            List<Serializable> values;
-            if ((attr = metacard.getAttribute(Validation.VALIDATION_ERRORS)) != null
-                    && (values = attr.getValues()) != null) {
-                errorsAndWarnings.addAll(values);
+        if (inputTransformerErrorHandler != null) {
+            String parseWarningsErrors = inputTransformerErrorHandler.getParseWarningsErrors();
+            if (StringUtils.isNotBlank(parseWarningsErrors)) {
+                LOGGER.debug(parseWarningsErrors);
+
+                List<Serializable> warningsAndErrors = new ArrayList<>();
+                warningsAndErrors.add(parseWarningsErrors);
+                if (metacard.getAttribute(Validation.VALIDATION_ERRORS) != null) {
+                    List<Serializable> values = metacard.getAttribute(Validation.VALIDATION_ERRORS)
+                            .getValues();
+                    if (values != null) {
+                        warningsAndErrors.addAll(values);
+                    }
+                }
+
+                metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
+                        Collections.unmodifiableList(warningsAndErrors)));
             }
-            metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
-                    errorsAndWarnings));
         }
 
         /*
          * Populate metacard with all attributes constructed in SaxEventHandlers during parsing
          */
-        Map<String, Boolean> multiValuedMap = saxEventHandlerUtils.getMultiValuedNameMap(metacardType.getAttributeDescriptors());
+        Map<String, Boolean> multiValuedMap = saxEventHandlerUtils.getMultiValuedNameMap(
+                metacardType.getAttributeDescriptors());
         for (SaxEventHandler eventHandler : eventHandlers) {
             List<Attribute> attributes = eventHandler.getAttributes();
             for (Attribute attribute : attributes) {
@@ -163,7 +172,9 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
                 if (metacard.getAttribute(attribute.getName()) == null) {
                     metacard.setAttribute(attribute);
                 } else if (MapUtils.getBoolean(multiValuedMap, attribute.getName(), false)) {
-                    metacard.getAttribute(attribute.getName()).getValues().addAll(attribute.getValues());
+                    metacard.getAttribute(attribute.getName())
+                            .getValues()
+                            .addAll(attribute.getValues());
                 }
             }
         }
@@ -293,10 +304,6 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
  * of parsing.
  */
 class InputTransformerErrorHandler implements ErrorHandler {
-
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(InputTransformerErrorHandler.class);
-
     private StringBuilder outWriter;
 
     /**
@@ -324,7 +331,9 @@ class InputTransformerErrorHandler implements ErrorHandler {
      */
     @Override
     public void warning(SAXParseException exception) throws SAXException {
-        outWriter.append("Warning: " + getParseExceptionInfo(exception) + '\n');
+        outWriter.append("Warning: ")
+                .append(getParseExceptionInfo(exception))
+                .append('\n');
     }
 
     /**
@@ -335,7 +344,9 @@ class InputTransformerErrorHandler implements ErrorHandler {
      */
     @Override
     public void error(SAXParseException exception) throws SAXException {
-        outWriter.append("Error: " + getParseExceptionInfo(exception) + '\n');
+        outWriter.append("Error: ")
+                .append(getParseExceptionInfo(exception))
+                .append('\n');
     }
 
     /**
@@ -348,7 +359,8 @@ class InputTransformerErrorHandler implements ErrorHandler {
     @Override
     public void fatalError(SAXParseException exception) throws SAXException {
         String message = "Fatal Error: " + getParseExceptionInfo(exception);
-        outWriter.append(message + '\n');
+        outWriter.append(message)
+                .append('\n');
         throw new SAXException(message);
     }
 
