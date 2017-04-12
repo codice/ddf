@@ -40,6 +40,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -62,6 +63,8 @@ import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
+import org.osgi.framework.BundleException;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.metatype.MetaTypeService;
 import org.slf4j.Logger;
@@ -709,6 +712,16 @@ public abstract class AbstractIntegrationTest {
 
     public void configureRestForBasic(String whitelist) throws Exception {
         getSecurityPolicy().configureRestForBasic(whitelist);
+    }
+
+    protected void configureBundle(String bundleName, String pid,
+            Dictionary<String, Object> properties)
+            throws IOException, BundleException, InterruptedException {
+        getServiceManager().stopBundle(bundleName);
+        Configuration config = configAdmin.getConfiguration(pid, null);
+        config.update(properties);
+        getServiceManager().startBundle(bundleName);
+        getServiceManager().waitForAllBundles();
     }
 
     public void clearCatalog() {

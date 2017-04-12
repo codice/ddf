@@ -224,6 +224,15 @@
             <outputDirectory>/data</outputDirectory>
             <directoryMode>0775</directoryMode>
         </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/routes</directory>
+            <outputDirectory>/etc/routes/</outputDirectory>
+            <includes>
+                <include>*.xml</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
 
     </fileSets>
 

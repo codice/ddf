@@ -87,6 +87,8 @@ include::{adoc-include}/_installing/system-configuration-settings-contents.adoc[
 
 include::{adoc-include}/_installing/finish-page-contents.adoc[]
 
+include::{adoc-include}/_installing/firewall-config-contents.adoc[]
+
 == Configuring
 
 include::{adoc-include}/_configuring/configuring-intro-contents.adoc[]
@@ -833,6 +835,20 @@ include::{adoc-include}/_catalog-ui-contents/managing-catalog-ui-contents.adoc[]
 === ${ddf-admin} Reference
 
 include::{adoc-include}/_admin-contents/managing-admin-contents.adoc[]
+
+<<<
+
+===  ${ddf-broker}  Reference
+
+include::{adoc-include}/_broker/messaging-broker-app-contents.adoc[]
+
+include::{adoc-include}/_broker/message-ui-contents.adoc[]
+
+include::{adoc-include}/_broker/route-manager-contents.adoc[]
+
+include::{adoc-include}/_broker/configure-ha.adoc[]
+
+include::{adoc-include}/_broker/securing-artemis-contents.adoc[]
 
 <<<
 

@@ -37,6 +37,7 @@
         <feature>resourcemanagement-app</feature>
         <feature>geowebcache-app</feature>
         <feature>registry-app</feature>
+        <feature>broker-app</feature>
     </feature>
 
 </features>

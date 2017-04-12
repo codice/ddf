@@ -1,0 +1,172 @@
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns="urn:activemq"
+               xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+
+    <jms xmlns="urn:activemq:jms">
+        <queue name="DLQ"/>
+        <queue name="ExpiryQueue"/>
+    </jms>
+
+    <core xmlns="urn:activemq:core">
+
+        <persistence-enabled>true</persistence-enabled>
+
+        <!-- this could be ASYNCIO or NIO -->
+        <journal-type>ASYNCIO</journal-type>
+        <paging-directory>${ddf.home:.}/data/artemis/paging</paging-directory>
+        <bindings-directory>${ddf.home:.}/data/artemis/bindings</bindings-directory>
+        <journal-directory>${ddf.home:.}/data/artemis/journal</journal-directory>
+        <large-messages-directory>${ddf.home:.}/data/artemis/large-messages
+        </large-messages-directory>
+
+        <journal-datasync>true</journal-datasync>
+
+        <journal-min-files>2</journal-min-files>
+
+        <journal-pool-files>-1</journal-pool-files>
+
+        <!--
+          You can specify the NIC you want to use to verify if the network
+           <network-check-NIC>theNickName</network-check-NIC>
+          -->
+
+        <!--
+          Use this to use an HTTP server to validate the network
+        <network-check-URL-list>http://www.apache.org</network-check-URL-list> -->
+
+        <network-check-period>10000</network-check-period>
+        <network-check-timeout>255</network-check-timeout>
+
+        <!-- this is a comma separated list, no spaces, just DNS or IPs
+             it should accept IPV6
+
+             Warning: Make sure you understand your network topology as this is meant to validate if your network is valid.
+                      Using IPs that could eventually disappear or be partially visible may defeat the purpose.
+                      You can use a list of multiple IPs, and if any successful ping will make the server OK to continue running -->
+        <network-check-list>${artemis.network.iplist}</network-check-list>
+
+        <!-- use this to customize the ping used for ipv4 addresses -->
+        <!-- this will need to be updated to `ping -n %d %s`  on windows -->
+        <!-- <network-check-ping-command>ping -c 1 -t %d %s</network-check-ping-command> -->
+
+        <!-- use this to customize the ping used for ipv6 addresses -->
+        <!-- this will need to be updated to `ping -n %d %s`  on windows -->
+        <!-- <network-check-ping6-command>ping6 -c 1 %2$s</network-check-ping6-command> -->
+
+
+        <!--
+         This value was determined through a calculation.
+         Your system could perform 25 writes per millisecond
+         on the current journal configuration.
+         That translates as a sync write every 40000 nanoseconds
+        -->
+        <journal-buffer-timeout>40000</journal-buffer-timeout>
+
+        <message-expiry-scan-period>1000</message-expiry-scan-period>
+
+        <!-- how often we are looking for how many bytes are being used on the disk in ms -->
+        <disk-scan-period>5000</disk-scan-period>
+
+        <!-- once the disk hits this limit the system will block, or close the connection in certain protocols
+       that won't support flow control. -->
+        <max-disk-usage>90</max-disk-usage>
+
+        <!-- the system will enter into page mode once you hit this limit.
+             This is an estimate in bytes of how much the messages are using in memory -->
+        <global-max-size>504857600</global-max-size>
+
+        <ha-policy>
+            <replication>
+                <slave/>
+            </replication>
+        </ha-policy>
+
+        <!-- @formatter:off-->
+        <!-- Connectors -->
+        <connectors>
+            <connector name="netty-connector">tcp://${artemis.live.host}:${artemis.multiprotocol.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols}</connector>
+            <connector name="netty-backup-connector">tcp://${artemis.backup.host}:${artemis.multiprotocol.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols}</connector>
+            <connector name="vm-connector">vm://0</connector>
+        </connectors>
+
+        <!-- Acceptors -->
+        <acceptors>
+            <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Supports Core, Openwire, and AMQP. -->
+            <acceptor name="artemis">tcp://0.0.0.0:${artemis.multiprotocol.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols}</acceptor>
+
+            <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
+            <acceptor name="amqp">tcp://0.0.0.0:${artemis.amqp.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};protocols=AMQP</acceptor>
+
+             <!-- performance tests have shown that openWire performs best with these buffer sizes -->
+            <acceptor name="openwire">tcp://0.0.0.0:${artemis.openwire.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=OPENWIRE</acceptor>
+
+            <acceptor name="vm">vm://0</acceptor>
+        </acceptors>
+        <!-- @formatter:on  -->
+
+        <cluster-connections>
+            <cluster-connection name="broker-cluster">
+                <address>jms</address>
+                <connector-ref>netty-connector</connector-ref>
+                <static-connectors>
+                    <connector-ref>netty-live-connector</connector-ref>
+                </static-connectors>
+            </cluster-connection>
+        </cluster-connections>
+
+        <grouping-handler name="broker-grouping-handler">
+            <type>LOCAL</type>
+            <address>jms</address>
+            <timeout>5000</timeout>
+            <group-timeout>-1</group-timeout>
+            <reaper-period>30000</reaper-period>
+        </grouping-handler>
+
+        <!-- Other config -->
+        <security-invalidation-interval>600000</security-invalidation-interval>
+
+        <!--<password-codec>org.codice.ddf.broker.security.EncryptionCodec</password-codec>-->
+        <!--<mask-password>true</mask-password>-->
+        <cluster-user>${artemis.cluster.user:ACTIVEMQ.CLUSTER.ADMIN.USER}</cluster-user>
+        <cluster-password>${artemis.cluster.password:CHANGE ME!!}</cluster-password>
+
+        <security-settings>
+            <security-setting match="#">
+                <permission type="createNonDurableQueue" roles="manager,broker-client"/>
+                <permission type="deleteNonDurableQueue" roles="manager,broker-client"/>
+                <permission type="createDurableQueue" roles="manager"/>
+                <permission type="deleteDurableQueue" roles="manager"/>
+                <permission type="consume" roles="manager,broker-client"/>
+                <permission type="browse" roles="manager,broker-client"/>
+                <permission type="send" roles="manager,broker-client"/>
+                <!-- we need this otherwise ./artemis data imp wouldn't work -->
+                <permission type="manage" roles="manager"/>
+            </security-setting>
+        </security-settings>
+
+        <address-settings>
+            <!--default for catch all-->
+            <address-setting match="#">
+                <dead-letter-address>jms.queue.DLQ</dead-letter-address>
+                <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+                <redelivery-delay>0</redelivery-delay>
+                <!-- with -1 only the global-max-size is in use for limiting -->
+                <max-size-bytes>-1</max-size-bytes>
+                <message-counter-history-day-limit>10</message-counter-history-day-limit>
+                <address-full-policy>PAGE</address-full-policy>
+                <auto-create-jms-queues>true</auto-create-jms-queues>
+            </address-setting>
+        </address-settings>
+    </core>
+</configuration>

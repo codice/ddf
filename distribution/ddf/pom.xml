@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>kernel</artifactId>
@@ -104,6 +106,9 @@
                                 </descriptor>
                                 <descriptor>
                                     mvn:org.apache.karaf.features/enterprise/${karaf.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:org.codice.ddf.broker/broker-app/${project.version}/xml/features
                                 </descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
@@ -337,6 +342,13 @@
         <dependency>
             <groupId>ddf.admin</groupId>
             <artifactId>admin-app</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.broker</groupId>
+            <artifactId>broker-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
