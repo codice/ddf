@@ -12,32 +12,30 @@
  **/
  --}}
 <div class="if-editing">
-    <div class='enum-region'>
-    </div>
+    <input id="{{cid}}" value="{{value}}" placeholder="{{property.placeholder}}" name="{{property.id}}">
     <div class="for-error">
-        <span class="fa fa-exclamation-triangle"></span>
-        Not an acceptable value.
+        <div class="error-form">
+            <span class="fa fa-exclamation-triangle"></span>
+            Malformed WKT.
+        </div>
+        <div class="error-ordering">
+            <span class="fa fa-exclamation-triangle"></span>
+            Invalid lon / lat coordinates.
+        </div>
     </div>
 </div>
 <div class="if-viewing">
     <label>
-        {{#each this.label}}
-            <span>
-                {{#if this.label}}
-                    {{this.label}}
-                {{else}}
-                    {{this}}
-                {{/if}}
-            </span>
-        {{/each}}
-        {{#unless this.label}}
-            <span>
-                {{this}}
-            </span>
-        {{/unless}}
+        {{value}}
     </label>
     <div class="for-error">
-        <span class="fa fa-exclamation-triangle"></span>
-        Not an acceptable value.
+        <div class="error-form">
+            <span class="fa fa-exclamation-triangle"></span>
+            Malformed WKT.
+        </div>
+        <div class="error-ordering">
+            <span class="fa fa-exclamation-triangle"></span>
+            Invalid lon / lat coordinates.
+        </div>
     </div>
 </div>

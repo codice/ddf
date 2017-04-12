@@ -26,52 +26,28 @@ define([
     return Marionette.CollectionView.extend({
         childView: ValueView,
         tagName: CustomElements.register('value-collection'),
-        onRender: function () {
+        collectionEvents: {
+            'change:value': 'updateProperty',
+            'remove': 'updateProperty',
+            'add': 'updateProperty'
         },
-        hasChanged: function(){
-            switch(this.model.getCalculatedType()){
-                case 'thumbnail':
-                case 'location':
-                    return this.children.first().hasChanged();
-                case 'date':
-                    var currentValue = this.children.map(function(childView){
-                        return childView.getCurrentValue();
-                    });
-                    currentValue.sort();
-                    return currentValue.toString() !==  this.model.getInitialValue().map(function(dateValue){
-                            if (dateValue){
-                                return (moment(dateValue)).toISOString();
-                            } else {
-                                return dateValue;
-                            }
-                        }).toString();
-                case 'number':  //needed until cql result correctly returns numbers as numbers
-                    var currentValue = this.children.map(function(childView){
-                        return childView.getCurrentValue().toString();
-                    });
-                    currentValue.sort();
-                    return JSON.stringify(currentValue) !== JSON.stringify(this.model.getInitialValue().map(function(value){ 
-                        return Number(value).toString(); //handle cases of unnecessary number padding -> 22.0000
-                    }));
-                default:
-                    var currentValue = this.children.map(function(childView){
-                        return childView.getCurrentValue();
-                    });
-                    currentValue.sort();
-                    return JSON.stringify(currentValue) !== JSON.stringify(this.model.getInitialValue());
-            }
+        initialize: function(){
+            this.updateProperty();
+        },
+        getValue: function(){
+            return this.collection.map(function(valueModel){
+                return valueModel.getValue();
+            });
+        },
+        updateProperty: function(){
+            this.model.setValue(this.getValue());
         },
         addNewValue: function (propertyModel){
             this.collection.add({
-                value: 'New Value',
+                value: propertyModel.getDefaultValue(),
                 property: propertyModel
             });
             this.children.last().focus();
-        },
-        getCurrentValue: function(){
-            return this.children.map(function(childView){
-                return childView.getCurrentValue();
-            });
         }
     },{
         generateValueCollectionView: function(propertyModel){

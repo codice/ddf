@@ -55,89 +55,6 @@ function createMap(insertionElement) {
     return map;
 }
 
-function getResultCenterPoint(result) {
-    var regionPoints = [],
-        resultQuad,
-        quadrantCounts = [{
-            quad: 'one',
-            count: 0
-        }, {
-            quad: 'two',
-            count: 0
-        }, {
-            quad: 'three',
-            count: 0
-        }, {
-            quad: 'four',
-            count: 0
-        }];
-
-    result.each(function(item) {
-        if (item.get("metacard").get("geometry")) {
-            var point = item.get("metacard").get("geometry").getPoint();
-            if (point.longitude > 0 && point.latitude > 0) {
-                quadrantCounts[0].count++;
-            } else if (point.longitude < 0 && point.latitude > 0) {
-                quadrantCounts[1].count++;
-            } else if (point.longitude < 0 && point.latitude < 0) {
-                quadrantCounts[2].count++;
-            } else {
-                quadrantCounts[3].count++;
-            }
-        }
-    });
-
-    quadrantCounts = _.sortBy(quadrantCounts, 'count');
-
-    quadrantCounts.reverse();
-    resultQuad = quadrantCounts[0].quad;
-
-    result.each(function(item) {
-        if (item.get("metacard").get("geometry")) {
-            var newPoint = item.get("metacard").get("geometry").getPoint(),
-                isInRegion = false;
-
-            if (newPoint.longitude >= 0 && newPoint.latitude >= 0 && resultQuad === "one") {
-                isInRegion = true;
-            } else if (newPoint.longitude <= 0 && newPoint.latitude >= 0 && resultQuad === "two") {
-                isInRegion = true;
-            } else if (newPoint.longitude <= 0 && newPoint.latitude <= 0 && resultQuad === "three") {
-                isInRegion = true;
-            } else if (newPoint.longitude >= 0 && newPoint.latitude <= 0 && resultQuad === "four") {
-                isInRegion = true;
-            }
-
-            if (isInRegion) {
-                regionPoints.push(newPoint);
-            }
-        }
-    });
-
-    if (regionPoints.length === 0) {
-        return null;
-    }
-
-    var rectangle = {};
-    var minLon = Number.MAX_VALUE;
-    var maxLon = -Number.MAX_VALUE;
-    var minLat = Number.MAX_VALUE;
-    var maxLat = -Number.MAX_VALUE;
-
-    for (var i = 0, len = regionPoints.length; i < len; i++) {
-        var position = regionPoints[i];
-        minLon = Math.min(minLon, position.longitude);
-        maxLon = Math.max(maxLon, position.longitude);
-        minLat = Math.min(minLat, position.latitude);
-        maxLat = Math.max(maxLat, position.latitude);
-    }
-
-    rectangle.west = minLon;
-    rectangle.south = minLat;
-    rectangle.east = maxLon;
-    rectangle.north = maxLat;
-    return rectangle;
-}
-
 function determineIdFromPosition(position, map) {
     var features = [];
     map.forEachFeatureAtPixel(position, function(feature) {
@@ -246,12 +163,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         },
         panToResults: function(results) {
             var coordinates = _.flatten(results.map(function(result) {
-                var geometry = result.get('metacard').get('geometry');
-                if (geometry) {
-                    return geometry.getAllPoints();
-                } else {
-                    return [];
-                }
+                return result.getPoints();
             }), true);
             this.panToExtent(coordinates);
         },
@@ -320,7 +232,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
             var metacardId = model.get('properties').get('id');
             this.removeOverlay(metacardId);
 
-            var coords = model.get('geometry').getPolygon();
+            var coords = model.getPoints('location');
             var array = _.map(coords, function(coord) {
                 return Openlayers.proj.transform([coord.longitude, coord.latitude], 'EPSG:4326', properties.projection);
             });
@@ -356,12 +268,12 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         },
         getCartographicCenterOfClusterInDegrees: function(cluster) {
             return utility.calculateCartographicCenterOfGeometriesInDegrees(cluster.get('results').map(function(result) {
-                return result.get('metacard').get('geometry');
+                return result;
             }));
         },
         getWindowLocationsOfResults: function(results) {
             return results.map(function(result) {
-                var openlayersCenterOfGeometry = utility.calculateOpenlayersCenterOfGeometry(result.get('metacard').get('geometry'));
+                var openlayersCenterOfGeometry = utility.calculateOpenlayersCenterOfGeometry(result);
                 var center = map.getPixelFromCoordinate(openlayersCenterOfGeometry);
                 if (center) {
                     return center;

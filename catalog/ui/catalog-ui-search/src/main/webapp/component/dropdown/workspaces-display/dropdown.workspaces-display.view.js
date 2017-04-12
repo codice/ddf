@@ -29,14 +29,7 @@ define([
         },
         serializeData: function(){
             var modelJSON = DropdownView.prototype.serializeData.call(this);
-            modelJSON = {
-                value: modelJSON[0].label
-            };
-            if (modelJSON.value === 'List') {
-                modelJSON.icon = 'fa-th-list'
-            } else {
-                modelJSON.icon = 'fa-th'
-            }
+            modelJSON.icon = modelJSON.concatenatedLabel === 'List' ? 'fa-th-list' : 'fa-th';
             return modelJSON;
         }
     });

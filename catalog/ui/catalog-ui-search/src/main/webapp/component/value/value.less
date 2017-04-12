@@ -21,10 +21,6 @@
 @{customElementNamespace}value.is-editing.is-multivalued {
   .value-delete {
     display: inline-block;
-    position: absolute;
-    right: 0px;
-    top: ~'calc(50% - 1.375rem)';
-    z-index: 1;
   }
 
   .value-input {
@@ -33,8 +29,7 @@
 }
 
 @{customElementNamespace}value-collection {
-  //display: block;
   @{customElementNamespace}value {
-    padding: 5px 0px;
+    margin-top: @minimumSpacing;
   }
 }

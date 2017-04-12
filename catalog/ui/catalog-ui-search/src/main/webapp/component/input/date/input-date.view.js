@@ -33,7 +33,6 @@ define([
             'dp.show .input-group.date': 'handleOpen',
             'dp.hide .input-group.date': 'removeResizeHandler'
         },
-        regions: {},
         serializeData: function () {
             return _.extend(this.model.toJSON(), {
                 cid: this.cid,
@@ -56,16 +55,8 @@ define([
         handleValue: function(){
             this.$el.find('.input-group.date').data('DateTimePicker').date(Common.getHumanReadableDate(this.model.getValue()));
         },
-        save: function(){
-            var value = this.$el.find('input').val();
-            this.model.save(moment(value).toJSON());
-        },
         focus: function(){
             this.$el.find('input').select();
-        },
-        hasChanged: function(){
-            var value = this.$el.find('input').val();
-            return value !== Common.getHumanReadableDate(this.model.getInitialValue());
         },
         handleOpen: function(){
             this.updatePosition();
@@ -86,10 +77,16 @@ define([
         getCurrentValue: function(){
             var currentValue = this.$el.find('input').val();
             if (currentValue){
-                return (moment(this.$el.find('input').val(), Common.getDateFormat())).toISOString();
+                return (moment(currentValue, Common.getDateFormat())).toISOString();
             } else {
                 return null;
             }
+        },
+        listenForChange: function(){
+            this.$el.on('dp.change click input change keyup', function(){
+                this.model.set('value', this.getCurrentValue());
+            }.bind(this));
+
         },
         onDestroy: function(){
             var datetimepicker = this.$el.find('.input-group.date').data('DateTimePicker');

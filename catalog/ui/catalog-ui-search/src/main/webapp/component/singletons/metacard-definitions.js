@@ -15,8 +15,37 @@ define([
     'jquery',
     'backbone',
     'underscore',
-    'properties'
-], function ($, Backbone, _, properties) {
+    'properties',
+    'moment'
+], function ($, Backbone, _, properties, moment) {
+
+    function transformEnumResponse(metacardTypes, response) {
+        return _.reduce(response, function (result, value, key) {
+            switch (metacardTypes[key].type) {
+                case 'DATE':
+                    result[key] = value.map(function (subval) {
+                        if (subval) {
+                            return (moment(subval)).toISOString();
+                        }
+                        return subval;
+                    });
+                    break;
+                case 'LONG':
+                case 'DOUBLE':
+                case 'FLOAT':
+                case 'INTEGER':
+                case 'SHORT': //needed until enum response correctly returns numbers as numbers
+                    result[key] = value.map(function (subval) {
+                        return Number(subval); //handle cases of unnecessary number padding -> 22.0000
+                    });
+                    break;
+                default:
+                    result[key] = value;
+                    break;
+            }
+            return result;
+        }, {});
+    }
 
     return new (Backbone.Model.extend({
         initialize: function () {
@@ -43,7 +72,7 @@ define([
         },
         getEnumForMetacardDefinition: function(metacardDefinition){
             $.get( '/search/catalog/internal/enumerations/metacardtype/'+metacardDefinition).then(function(response){
-                _.extend(this.enums, response);
+                _.extend(this.enums, transformEnumResponse(this.metacardTypes, response));
             }.bind(this));
         },
         addMetacardDefinition: function(metacardDefinitionName, metacardDefinition){
@@ -97,6 +126,10 @@ define([
                 return 0;
             });
         },
+        getLabel: function(id){
+            var definition = this.metacardTypes[id];
+            return definition ? definition.alias || id : id;
+        },
         metacardDefinitions: [],
         sortedMetacardTypes: [],
         metacardTypes: {
@@ -130,6 +163,8 @@ define([
                 type: 'STRING',
                 multivalued: true
             }
+        },
+        validation: {
         },
         enums: {
         }

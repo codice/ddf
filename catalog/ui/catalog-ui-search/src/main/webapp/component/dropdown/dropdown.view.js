@@ -98,6 +98,9 @@ define([
         },
         determineSelections: function () {
             var values = this.model.get('value');
+            if (this.options.isMultiSelect === undefined && (values[0] === undefined || values[0] === null)){
+                return values[0];  // otherwise placeholder (click here to select) won't appear
+            }
             return values.map(function (value) {
                 var selection = this.options.list.filter(function (item) {
                     return JSON.stringify(item.value) === JSON.stringify(value);
@@ -106,7 +109,7 @@ define([
                     return selection[0];
                 } else {
                     return {
-                        invalid: true,
+                        value: value,
                         label: value
                     };
                 }
@@ -114,7 +117,13 @@ define([
         },
         serializeData: function () {
             if (this.options.list) {
-                return this.determineSelections();
+                var selections = this.determineSelections();
+                return {
+                    value: selections,
+                    concatenatedLabel: selections ? selections.map(function(selection){
+                        return selection.label || selection.value || selection;
+                    }).join(' | ') : selections
+                };
             } else {
                 return this.model.toJSON();
             }

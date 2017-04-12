@@ -151,9 +151,9 @@ define([
             this.setupType();
             this.setupTypeSpecific();
             this.turnOnLimitedWidth();
-            this.basicTime.currentView.$el.on('change', this.handleTimeRangeValue.bind(this));
-            this.basicLocation.currentView.$el.on('change', this.handleLocationValue.bind(this));
-            this.basicType.currentView.$el.on('change', this.handleTypeValue.bind(this));
+            this.listenTo(this.basicTime.currentView.model, 'change:value', this.handleTimeRangeValue);
+            this.listenTo(this.basicLocation.currentView.model, 'change:value', this.handleLocationValue);
+            this.listenTo(this.basicType.currentView.model, 'change:value', this.handleTypeValue);
             this.handleTimeRangeValue();
             this.handleLocationValue();
             this.handleTypeValue();
@@ -177,6 +177,7 @@ define([
             }
             this.basicTypeSpecific.show(new PropertyView({
                 model: new Property({
+                    showValidationIssues: false,
                     enumMulti: true,
                     enum: sources.toJSON().reduce(function(enumArray, source){
                         source.contentTypes.forEach(function(contentType){
@@ -253,17 +254,17 @@ define([
             }));
         },
         handleTypeValue: function(){
-            var type = this.basicType.currentView.getCurrentValue()[0];
+            var type = this.basicType.currentView.model.getValue()[0];
             this.$el.toggleClass('is-type-any', type === 'any');
             this.$el.toggleClass('is-type-specific', type === 'specific');
         },
         handleLocationValue: function(){
-            var location = this.basicLocation.currentView.getCurrentValue()[0];
+            var location = this.basicLocation.currentView.model.getValue()[0];
             this.$el.toggleClass('is-location-any', location === 'any');
             this.$el.toggleClass('is-location-specific', location === 'specific');
         },
         handleTimeRangeValue: function(){
-            var timeRange = this.basicTime.currentView.getCurrentValue()[0];
+            var timeRange = this.basicTime.currentView.model.getValue()[0];
             this.$el.toggleClass('is-timeRange-any', timeRange === 'any');
             this.$el.toggleClass('is-timeRange-before', timeRange === 'before');
             this.$el.toggleClass('is-timeRange-after', timeRange === 'after');
@@ -450,23 +451,23 @@ define([
         constructFilter: function(){
             var filters = [];
 
-            var text = this.basicText.currentView.getCurrentValue()[0];
+            var text = this.basicText.currentView.model.getValue()[0];
             text = text === "" ? '*' : text;
-            var matchCase = this.basicTextMatch.currentView.getCurrentValue()[0];
+            var matchCase = this.basicTextMatch.currentView.model.getValue()[0];
             filters.push(CQLUtils.generateFilter(matchCase, 'anyText', text));
 
-            var timeRange = this.basicTime.currentView.getCurrentValue()[0];
+            var timeRange = this.basicTime.currentView.model.getValue()[0];
             var timeBefore, timeAfter;
             switch(timeRange){
                 case 'before':
-                    timeBefore = this.basicTimeBefore.currentView.getCurrentValue()[0];
+                    timeBefore = this.basicTimeBefore.currentView.model.getValue()[0];
                     break;
                 case 'after':
-                    timeAfter = this.basicTimeAfter.currentView.getCurrentValue()[0];
+                    timeAfter = this.basicTimeAfter.currentView.model.getValue()[0];
                     break;
                 case 'between':
-                    timeBefore = this.basicTimeBetweenBefore.currentView.getCurrentValue()[0];
-                    timeAfter = this.basicTimeBetweenAfter.currentView.getCurrentValue()[0];
+                    timeBefore = this.basicTimeBetweenBefore.currentView.model.getValue()[0];
+                    timeAfter = this.basicTimeBetweenAfter.currentView.model.getValue()[0];
                     break;
             }
             if (timeBefore){
@@ -496,15 +497,15 @@ define([
                 filters.push(timeFilter);
             }
 
-            var locationSpecific = this.basicLocation.currentView.getCurrentValue()[0];
-            var location = this.basicLocationSpecific.currentView.getCurrentValue()[0];
+            var locationSpecific = this.basicLocation.currentView.model.getValue()[0];
+            var location = this.basicLocationSpecific.currentView.model.getValue()[0];
             var locationFilter = CQLUtils.generateFilter(undefined, 'anyGeo', location);
             if (locationSpecific === 'specific' && locationFilter){
                 filters.push(locationFilter);
             }
 
-            var types = this.basicType.currentView.getCurrentValue()[0];
-            var typesSpecific = this.basicTypeSpecific.currentView.getCurrentValue()[0];
+            var types = this.basicType.currentView.model.getValue()[0];
+            var typesSpecific = this.basicTypeSpecific.currentView.model.getValue()[0];
             if (types === 'specific' && typesSpecific.length !== 0){
                 var typeFilter = {
                     type: 'OR',

@@ -51,6 +51,12 @@ define([
         regions: {
             enumRegion: '.enum-region'
         },
+        listenForChange: function(){
+            this.listenTo(this.enumRegion.currentView.model, 'change:value', function(){
+                this.model.set('value', this.getCurrentValue());
+                this.handleValidation();
+            });
+        },
         serializeData: function () {
             var value = getValue(this.model);
             var choice = this.model.get('property').get('enum').filter(function(choice){
@@ -59,10 +65,7 @@ define([
                 }).length > 0;
             });
             return {
-                label: choice ? choice.reduce(function(label, subchoice){
-                    label += subchoice.label || subchoice;
-                    return label;
-                }, '') : value
+                label: choice.length > 0 ? choice : value
             };
         },
         onRender: function () {
@@ -78,7 +81,7 @@ define([
                             return {
                                 label: value.label,
                                 value: value.value
-                            }
+                            };
                         } else {
                             return {
                                 label: value,
@@ -91,7 +94,6 @@ define([
                     hasFiltering: this.model.get('property').get('enumFiltering')
                 }
             ));
-            this.listenTo(this.enumRegion.currentView.model, 'change:value', this.triggerChange);
         },
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
@@ -114,8 +116,17 @@ define([
                     return currentValue;
             }
         },
-        triggerChange: function(){
-            this.$el.trigger('change');
+        isValid: function(){
+            if (!this.model.showValidationIssues()){
+                return true;
+            }
+            var value = getValue(this.model);
+            var choice = this.model.get('property').get('enum').filter(function(choice){
+                return value.filter(function(subvalue){
+                    return JSON.stringify(choice.value) === JSON.stringify(subvalue) || JSON.stringify(choice) === JSON.stringify(subvalue);
+                }).length > 0;
+            });
+            return choice.length > 0;
         }
     });
 });

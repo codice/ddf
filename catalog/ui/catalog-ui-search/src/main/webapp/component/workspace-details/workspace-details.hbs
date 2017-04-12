@@ -12,9 +12,9 @@
  **/
  --}}
 <div class="choice-title" data-help="The title of the workspace.">
-    <span class="title-text" title="{{title}}">{{bind selector="> .choice-title > .title-text" event="change:title" key=(path "title") updateTitle=true}}</span>
+    <span class="title-text" title="{{bindAttr attr="title" selector="> .choice-title > .title-text" event="change:title" key=(path "title")}}">{{bind selector="> .choice-title > .title-text" event="change:title" key=(path "title")}}</span>
     <div class="title-indicator"></div>
 </div>
-<div class="choice-date" title="{{niceDate}}" data-help="The date the workspace was last modified">
-    {{bind selector="> .choice-date" event="change:modified" key=(path "niceDate") updateTitle=true}}
+<div class="choice-date" title="{{bindAttr attr="title" selector="> .choice-date" event="change:modified" key=(path "niceDate")}}" data-help="The date the workspace was last modified">
+    {{bind selector="> .choice-date" event="change:modified" key=(path "niceDate")}}
 </div>

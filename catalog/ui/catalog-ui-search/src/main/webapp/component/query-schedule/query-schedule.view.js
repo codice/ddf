@@ -114,7 +114,7 @@ define([
         save: function() {
             this.$el.removeClass('is-editing');
             this.model.set({
-                polling: this.propertyInterval.currentView.getCurrentValue()[0]
+                polling: this.propertyInterval.currentView.model.getValue()[0]
             });
             store.saveQuery();
         }

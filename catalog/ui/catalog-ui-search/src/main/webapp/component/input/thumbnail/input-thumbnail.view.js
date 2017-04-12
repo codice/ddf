@@ -29,8 +29,7 @@ define([
             message: 'There was an issue loading your image.  Please try again or recheck what you are attempting to upload.',
             type: 'error'
         });
-        this.hasUploaded = false;
-        this.$el.trigger('change');
+        this.model.revert();
         this.render();
     }
 
@@ -40,6 +39,7 @@ define([
             'click button': 'upload',
             'change input': 'handleUpload'
         },
+        listenForChange: $.noop,
         serializeData: function () {
             return _.extend(this.model.toJSON(), {cid: this.cid});
         },
@@ -49,14 +49,13 @@ define([
             var reader = new FileReader();
             reader.onload = function(event){
                 img.onload = function(){
-                    self.hasUploaded = true;
-                    self.$el.trigger('change');
+                    self.model.set('value', self.getCurrentValue());
                     self.handleEmpty();
                     self.resizeButton();
-                }
+                };
                 img.onerror = handleError.bind(self);
                 img.src = event.target.result;
-            }
+            };
             reader.onerror = handleError.bind(self);
             reader.readAsDataURL(e.target.files[0]);
         },
@@ -64,7 +63,6 @@ define([
             var self = this;
             var img = this.$el.find('img')[0];
             img.onload = function() {
-                self.handleRevert();
                 self.resizeButton();
             };
             if (this.model.getValue() && this.model.getValue().constructor === String) {
@@ -75,35 +73,17 @@ define([
         resizeButton: function(){
             this.$el.find('button').css('height', this.el.querySelector('img').height);
         },
-        save: function(){
-            var img = this.el.querySelector('img');
-            this.model.save(img.src.split(',')[1]);
-        },
         focus: function(){
             this.$el.find('input').select();
         },
-        hasChanged: function(){
-          return this.hasUploaded;
-        },
-        handleRevert: function(){
-            if (this.hasUploaded){
-                this.$el.addClass('is-changed');
-            } else {
-                this.$el.removeClass('is-changed');
-            }
-        },
         handleEdit: function () {
             this.$el.toggleClass('is-editing', this.model.isEditing());
-            if (!this.model.isEditing()){
-                this.hasUploaded = false;
-                this.$el.trigger('change');
-            }
         },
         handleEmpty: function(){
-            if (this.hasUploaded){
-                this.$el.toggleClass('is-empty', false);
-            } else if (!(this.model.getValue() && this.model.getValue().constructor === String)){
+            if (!(this.model.getValue() && this.model.getValue().constructor === String)){
                 this.$el.toggleClass('is-empty', true);
+            } else {
+                this.$el.toggleClass('is-empty', false);
             }
         },
         upload: function(){
@@ -113,7 +93,6 @@ define([
             var img = this.el.querySelector('img');
             return img.src.split(',')[1];
         },
-        hasUploaded: false,
         listenForResize: function(){
             $(window).off('resize.' + this.cid).on('resize.' + this.cid, _.throttle(function(event){
                 this.resizeButton();

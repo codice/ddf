@@ -20,6 +20,14 @@ var InputView = require('../input.view');
 module.exports = InputView.extend({
         template: template,
         getCurrentValue: function(){
-            return Number(this.$el.find('input').val());
+            var value = this.$el.find('input').val();
+            if (value !== ''){
+                return Number(value);
+            } else {
+                return value;
+            }
+        },
+        isValid: function(){
+            return this.getCurrentValue() !== '';
         }
 });

@@ -49,12 +49,12 @@ define([
 
             this.propertyResultCount.currentView.turnOnLimitedWidth();
             this.propertyResultCount.currentView.turnOnEditing();
-            this.propertyResultCount.currentView.$el.on('change', this.save.bind(this));
+            this.listenTo(this.propertyResultCount.currentView.model, 'change:value', this.save);
         },
         save: function () {
             var preferences = user.get('user').get('preferences');
             preferences.set({
-                resultCount: this.propertyResultCount.currentView.getCurrentValue()[0]
+                resultCount: this.propertyResultCount.currentView.model.getValue()[0]
             });
             preferences.savePreferences();
         }

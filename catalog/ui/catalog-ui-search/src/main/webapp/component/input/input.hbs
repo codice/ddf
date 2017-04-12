@@ -15,11 +15,10 @@
     <input id="{{cid}}" value="{{value}}" placeholder="{{property.placeholder}}" name="{{property.id}}">
 </div>
 <div class="if-viewing">
-    <label>
-        {{#ifUrl value}}
-            <a href="{{value}}" target="_blank">{{value}}</a>
-        {{else}}
-            {{value}}
-        {{/ifUrl}}
+    <label data-value="{{bindAttr attr="data-value" selector="> .if-viewing label" event="change:value" key=(path "value")}}">
+            <a href="{{bindAttr attr="href" selector="> .if-viewing a" event="change:value" key=(path "value")}}" target="_blank">
+                {{bind selector="> .if-viewing a" event="change:value" key=(path "value")}}
+            </a>
+            <span>{{bind selector="> .if-viewing span" event="change:value" key=(path "value")}}</span>
     </label>
 </div>

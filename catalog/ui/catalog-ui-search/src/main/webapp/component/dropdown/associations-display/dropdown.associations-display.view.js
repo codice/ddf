@@ -22,14 +22,7 @@ module.exports = DropdownView.extend({
     className: 'is-associationsDisplay',
     serializeData: function() {
         var modelJSON = DropdownView.prototype.serializeData.call(this);
-        modelJSON = {
-            value: modelJSON[0].label
-        };
-        if (modelJSON.value === 'Graph') {
-            modelJSON.icon = 'fa-sitemap'
-        } else {
-            modelJSON.icon = 'fa-th-list'
-        }
+        modelJSON.icon = modelJSON.concatenatedLabel === 'Graph' ? 'fa-sitemap' : 'fa-th-list';
         return modelJSON;
     }
 });

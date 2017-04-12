@@ -41,14 +41,13 @@ define([
             this.initializeRadio()
             InputView.prototype.onRender.call(this);
         },
+        listenForChange: function(){
+             this.listenTo(this.locationRegion.currentView.model, 'change', this.triggerChange);   
+        },
         initializeRadio: function(){
             this.locationRegion.show(new LocationView({
                 model: this.model
             }));
-            this.listenTo(this.locationRegion.currentView.model, 'change:value', this.triggerChange);
-            this.locationRegion.currentView.$el.on('change', function(){
-                this.hasDrawn = true;
-            }.bind(this));
         },
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
@@ -57,15 +56,10 @@ define([
             this.locationRegion.currentView.model.set('value', this.model.get('value'));
         },
         getCurrentValue: function(){
-            var currentValue = this.locationRegion.currentView.getCurrentValue();
-            return currentValue;
-        },
-        hasDrawn: false,
-        hasChanged: function(){
-            return this.hasDrawn;
+            return this.locationRegion.currentView.getCurrentValue();
         },
         triggerChange: function(){
-            this.$el.trigger('change');
+            this.model.set('value', this.getCurrentValue());
         }
     });
 });

@@ -52,6 +52,22 @@ define([
             this.handleEdit();
             this.handleReadOnly();
             this.handleValue();
+            this.handleValidation();
+        },
+        onAttach: function() {
+            this.listenForChange();
+        },
+        listenForChange: function(){
+            this.$el.on('change keyup input', function(){
+                this.model.set('value', this.getCurrentValue());
+                this.handleValidation();
+            }.bind(this));
+        },
+        handleValidation: function(){
+            this.$el.toggleClass('has-validation-issues', !this.isValid());
+        },
+        isValid: function(){
+            return true; //overwrite on a per input basis   
         },
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
@@ -66,16 +82,6 @@ define([
             var attributeToVal = {};
             attributeToVal[this.model.getId()] = this.model.getValue();
             return attributeToVal;
-        },
-        toPatchJSON: function(){
-            if (this.hasChanged()){
-                return {
-                    attribute: this.model.getId(),
-                    values: [this.model.getCurrentValue()]
-                };
-            } else {
-                return undefined;
-            }
         },
         focus: function(){
             this.$el.find('input').select();

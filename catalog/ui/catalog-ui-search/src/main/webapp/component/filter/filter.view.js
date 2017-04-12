@@ -161,7 +161,7 @@ define([
             var text = '(';
             text+=this.model.get('type') + ' ';
             text+=comparatorToCQL[this.model.get('comparator')] + ' ';
-            text+=this.filterInput.currentView.getCurrentValue();
+            text+=this.filterInput.currentView.model.getValue();
             text+=')';
             return text;
         },
@@ -171,16 +171,16 @@ define([
             if (metacardDefinitions.metacardTypes[this.model.get('type')].multivalued){
                 return {
                     type: 'AND',
-                    filters: this.filterInput.currentView.getCurrentValue().map(function(currentValue){
+                    filters: this.filterInput.currentView.model.getValue().map(function(currentValue){
                         return CQLUtils.generateFilter(type, property, currentValue);
                     })
                 }
             } else {
-                return CQLUtils.generateFilter(type, property, this.filterInput.currentView.getCurrentValue()[0]);
+                return CQLUtils.generateFilter(type, property, this.filterInput.currentView.model.getValue()[0]);
             }
         },
         deleteInvalidFilters: function(){
-            var currentValue = this.filterInput.currentView.getCurrentValue()[0];
+            var currentValue = this.filterInput.currentView.model.getValue()[0];
             if (currentValue === null){
                 this.delete();
             }

@@ -39,20 +39,11 @@ define([
             this.handleMultivalue();
             this.handleEdit();
         },
-        onRender: function () {
-        },
         handleEdit: function () {
             this.$el.toggleClass('is-editing', this.model.get('isEditing'));
         },
         onBeforeShow: function () {
             this.values.show(ValueCollection.generateValueCollectionView(this.model));
-        },
-        hasChanged: function () {
-            if (this.values.currentView) {
-                return this.values.currentView.hasChanged();
-            } else {
-                return false;
-            }
         },
         handleMultivalue: function(){
             this.$el.toggleClass('is-multivalued', this.model.get('multivalued'));
@@ -64,9 +55,6 @@ define([
         },
         addNewValue: function(){
             this.values.currentView.addNewValue(this.model);
-        },
-        getCurrentValue: function(){
-            return this.values.currentView.getCurrentValue();
         }
     });
 });
