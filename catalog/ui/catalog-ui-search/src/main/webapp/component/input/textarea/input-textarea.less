@@ -1,0 +1,26 @@
+@{customElementNamespace}input.is-textarea {
+    .if-editing {
+        position: relative;
+    }
+
+    textarea {
+        line-height: normal;
+        padding: 6px 10px 5px 10px;
+        width: 100% !important;
+        min-height: 100px;
+        max-height: 400px;
+        color: @text-color;
+        background: @medium-lighten-inherited-background-color;
+        .is-input;
+    }
+}
+
+@{customElementNamespace}input.is-textarea.is-editing {
+    .if-editing {
+        position: relative;
+    }
+
+    .if-viewing {
+        display: none;
+    }
+}

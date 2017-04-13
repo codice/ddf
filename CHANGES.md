@@ -65,6 +65,9 @@ _This is a preview of a pending release and is subject to change._
     </li>
     <li><a href='https://codice.atlassian.net/browse/DDF-2039'>DDF-2039</a> - As an integrator, I want to make a single request to the catalog framework to get back both the metacard and the resource.
     </li>
+	<li><a href='https://codice.atlassian.net/browse/DDF-2820'>DDF-2820</a> - As a user, I would like the ability to provide feedback on DDF.
+	</li>
+
 </ul>
     
 <h3>New Feature</h3>

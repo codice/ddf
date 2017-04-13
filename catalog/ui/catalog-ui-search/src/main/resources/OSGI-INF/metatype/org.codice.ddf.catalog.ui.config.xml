@@ -171,6 +171,35 @@
             type="Integer"
             default="25"
             required="true"/>
+
+        <AD id="queryFeedbackEnabled"
+            name="Enable Query Feedback"
+            description="Enable the query comments option."
+            type="Boolean"
+            default="true"
+            required="true"/>
+
+        <AD id="queryFeedbackEmailSubjectTemplate"
+            name="Feedback Email Subject Template"
+            description="Query Feedback template for the email subject."
+            type="String"
+            default="Query Feedback from {{username}}"
+            required="true"/>
+
+        <AD id="queryFeedbackEmailBodyTemplate"
+            name="Feedback Email Body Template"
+            description="Query Feedback template for the email body."
+            type="String"
+            default="<h2>Query Feedback</h2><p><br><b>Authenticated User</b>: {{{auth_username}}}<br><br><b>User</b>: {{{username}}}<br><br><b>Email</b>: {{{email}}}<br><br><b>Workspace</b>: {{{workspace_name}}} ({{{workspace_id}}})<br><br><b>Query</b>: {{{query}}}<br><br><b>Query time</b>: {{{query_initiated_time}}}<br><br><b>Query status</b>: {{{query_status}}}<br><br><b>Comments</b>: {{{comments}}}<br><br><b>Query_results</b>: <pre>{{{query_results}}}</pre></p>"
+            required="true"/>
+
+        <AD id="queryFeedbackEmailDestination"
+            name="Feedback Email Destination"
+            description="Email destination to send Query Feedback results."
+            type="String"
+            default=""
+            required="true"/>
+
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">

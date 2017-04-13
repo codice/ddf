@@ -149,5 +149,33 @@
 |1800,3600,7200,14400,28800,57600,86400
 |true
 
+|Enable Query Feedback
+|queryFeedbackEnabled
+|Boolean
+|Enable the query comments option.
+|true
+|true
+
+|Feedback Email Subject Template
+|queryFeedbackEmailSubjectTemplate
+|String
+|Query Feedback template for the email subject.
+|Query Feedback from {{username}}
+|true
+
+|Feedback Email Body Template
+|queryFeedbackEmailBodyTemplate
+|String
+|Query Feedback template for the email body.
+|Query Feedback\\n\\nAuthenticated User: {{auth_username}}\\nUser: {{username}}\\nEmail: {{email}}\\nWorkspace: {{workspace_name}} ({{workspace_id}})\\nQuery: {{{query}}}\\nQuery time: {{query_initiated_time}}\\nQuery status: {{query_status}}\\nQuery_results: {{query_results}}\\nComments: {{comments}}
+|true
+
+|Feedback Email Destination
+|queryFeedbackEmailDestination
+|String
+|Email destination to send Query Feedback results.
+|
+|true
+
 |===
 
