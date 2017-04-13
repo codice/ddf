@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.plugin.metacard.backup;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
@@ -196,7 +197,8 @@ public class MetacardBackupPluginTest {
     public void testCreateRequestWithNullContentInputStream() throws Exception {
         BinaryContent binaryContent = mock(BinaryContent.class);
         when(binaryContent.getInputStream()).thenReturn(null);
-        when(metacardTransformer.transform(any(Metacard.class), anyMap())).thenReturn(binaryContent);
+        when(metacardTransformer.transform(any(Metacard.class),
+                anyMap())).thenReturn(binaryContent);
         metacardBackupPlugin.processCreate(createRequest);
     }
 
@@ -232,6 +234,27 @@ public class MetacardBackupPluginTest {
         metacardBackupPlugin.setKeepDeletedMetacards(true);
         assertFiles(true);
         metacardBackupPlugin.processDelete(deleteRequest);
+    }
+
+    @Test
+    public void testGetContentBytes() throws Exception {
+        BinaryContent binaryContent = mock(BinaryContent.class);
+        byte[] content = {'a'};
+        when(binaryContent.getByteArray()).thenReturn(content);
+        byte[] bytes = metacardBackupPlugin.getContentBytes(binaryContent, "metacard");
+        assertThat(bytes, equalTo(content));
+    }
+
+    @Test(expected = PluginExecutionException.class)
+    public void testGetContentBytesNoContent() throws Exception {
+        metacardBackupPlugin.getContentBytes(null, "metacard");
+    }
+
+    @Test(expected = PluginExecutionException.class)
+    public void testGetContentBytesNoContentBytes() throws Exception {
+        BinaryContent binaryContent = mock(BinaryContent.class);
+        when(binaryContent.getByteArray()).thenReturn(null);
+        metacardBackupPlugin.getContentBytes(binaryContent, "metacard");
     }
 
     private ProcessRequest<ProcessDeleteItem> generateDeleteRequest() {
@@ -276,8 +299,9 @@ public class MetacardBackupPluginTest {
 
     private void assertFiles(boolean exists) {
         for (String id : METACARD_IDS) {
-            Path path  = metacardBackupPlugin.getMetacardDirectory(id);
-            assertThat(path.toFile().exists(), is(exists));
+            Path path = metacardBackupPlugin.getMetacardDirectory(id);
+            assertThat(path.toFile()
+                    .exists(), is(exists));
         }
     }
 }
