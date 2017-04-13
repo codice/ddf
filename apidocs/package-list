@@ -221,6 +221,8 @@ org.codice.ddf.admin.application.service.command.completers
 org.codice.ddf.admin.application.service.impl
 org.codice.ddf.admin.config.policy
 org.codice.ddf.admin.configuration.plugin
+org.codice.ddf.admin.core.alert.service.data.internal
+org.codice.ddf.admin.core.alert.service.internal
 org.codice.ddf.admin.insecure.defaults.service
 org.codice.ddf.branding
 org.codice.ddf.branding.impl
@@ -318,6 +320,7 @@ org.codice.ddf.itests.common.matchers
 org.codice.ddf.itests.common.opensearch
 org.codice.ddf.itests.common.restito
 org.codice.ddf.itests.common.security
+org.codice.ddf.itests.common.utils
 org.codice.ddf.landing
 org.codice.ddf.libs.geo
 org.codice.ddf.libs.geo.util
@@ -355,6 +358,7 @@ org.codice.ddf.platform.filter.delegate
 org.codice.ddf.platform.http.proxy
 org.codice.ddf.platform.logging
 org.codice.ddf.platform.migratable.impl
+org.codice.ddf.platform.response.filter
 org.codice.ddf.platform.services.common
 org.codice.ddf.platform.ui
 org.codice.ddf.platform.ui.logviewer
@@ -429,7 +433,7 @@ org.codice.ddf.security.migratable.impl
 org.codice.ddf.security.policy.context
 org.codice.ddf.security.policy.context.attributes
 org.codice.ddf.security.policy.context.impl
-org.codice.ddf.security.response.filter
+org.codice.ddf.security.rest.authentication
 org.codice.ddf.security.servlet.logout
 org.codice.ddf.security.session
 org.codice.ddf.security.sts.claims.property
