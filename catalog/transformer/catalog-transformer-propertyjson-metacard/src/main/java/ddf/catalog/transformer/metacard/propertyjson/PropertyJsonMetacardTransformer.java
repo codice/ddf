@@ -30,6 +30,7 @@ import javax.activation.MimeTypeParseException;
 import javax.annotation.Nullable;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang.StringUtils;
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializer;
@@ -73,8 +74,6 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
 
     private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
-
     private final JsonSerializer json = JsonFactory.create(new JsonParserFactory(),
             new JsonSerializerFactory().includeNulls()
                     .includeEmpty()
@@ -96,15 +95,15 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
             LOGGER.info("Failure creating MIME type", e);
             throw new ExceptionInInitializerError(e);
         }
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
-    public static Map<String, Object> convertToJSON(Metacard metacard) throws CatalogTransformerException{
+    public static Map<String, Object> convertToJSON(Metacard metacard)
+            throws CatalogTransformerException {
         return convertToJSON(metacard, Collections.emptyList());
     }
 
-    public static Map<String, Object> convertToJSON(Metacard metacard, List<AttributeType.AttributeFormat> dontInclude)
-            throws CatalogTransformerException {
+    public static Map<String, Object> convertToJSON(Metacard metacard,
+            List<AttributeType.AttributeFormat> dontInclude) throws CatalogTransformerException {
         if (metacard == null) {
             throw new CatalogTransformerException("Cannot transform null metacard.");
         }
@@ -128,7 +127,7 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
                 metacard.getMetacardType()
                         .getName());
 
-        if (metacard.getSourceId() != null && !"".equals(metacard.getSourceId())) {
+        if (StringUtils.isNotBlank(metacard.getSourceId())) {
             properties.put(SOURCE_ID_PROPERTY, metacard.getSourceId());
         }
 
@@ -160,9 +159,10 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
     }
 
     @Nullable
-    private static Object convertAttribute(Attribute attribute, AttributeDescriptor descriptor, List<AttributeType.AttributeFormat> dontInclude)
-            throws CatalogTransformerException {
-        if (dontInclude.contains(descriptor.getType().getAttributeFormat())) {
+    private static Object convertAttribute(Attribute attribute, AttributeDescriptor descriptor,
+            List<AttributeType.AttributeFormat> dontInclude) throws CatalogTransformerException {
+        if (dontInclude.contains(descriptor.getType()
+                .getAttributeFormat())) {
             return null;
         }
 
@@ -190,7 +190,13 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
 
         switch (format) {
         case DATE:
-            return DATE_FORMAT.format((Date) value);
+            // Creating date format instance each time is inefficient, however
+            // it is not a threadsafe class so we are not able to put it in a static
+            // class variable. If this proves to be a slowdown this class should be refactored
+            // such that we don't need this method to be static.
+            SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return dateFormat.format((Date) value);
         case BINARY:
             byte[] bytes = (byte[]) value;
             return DatatypeConverter.printBase64Binary(bytes);
