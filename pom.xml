@@ -277,10 +277,10 @@
                     <configuration>
                         <argLine>${argLine} -Djava.awt.headless=true -noverify</argLine>
                         <includes>
-                            <include>**/*.java</include>
-                            <!-- if the above include changes to **/*Test.java,
-                                 uncomment the line below -->
-                            <!--<include>**/*Spec.java</include>-->
+                            <include>**/*Test.java</include>
+                            <include>**/Test*.java</include>
+                            <include>**/*TestCase.java</include>
+                            <include>**/*Spec.class</include>
                         </includes>
                     </configuration>
                 </plugin>
