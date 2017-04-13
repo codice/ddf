@@ -13,6 +13,10 @@
  */
 package org.codice.security.policy.context;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,8 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
-
-import junit.framework.Assert;
 
 import ddf.security.permission.CollectionPermission;
 
@@ -159,9 +161,9 @@ public class PolicyManagerTest {
             ContextPolicy policy = manager.getContextPolicy(entry.getKey());
             CollectionPermission permission = policy.getAllowedAttributePermissions();
 
-            Assert.assertTrue(permission.implies(entry.getValue()
+            assertThat(permission.implies(entry.getValue()
                     .get(0)
-                    .getAttributePermission()));
+                    .getAttributePermission()), is(true));
         }
 
     }
@@ -175,8 +177,8 @@ public class PolicyManagerTest {
         CollectionPermission lastPermission = manager.getContextPolicy("/x/y/z")
                 .getAllowedAttributePermissions();
 
-        Assert.assertTrue(noPermissions.implies(rootPermissions));
-        Assert.assertFalse(rootPermissions.implies(lastPermission));
+        assertThat(noPermissions.implies(rootPermissions), is(true));
+        assertThat(rootPermissions.implies(lastPermission), is(false));
     }
 
     @Test
@@ -184,35 +186,35 @@ public class PolicyManagerTest {
         //test that we can still resolve policies for paths larger than the limit
         ContextPolicy contextPolicy = manager.getContextPolicy(
                 "/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15");
-        Assert.assertEquals("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", contextPolicy.getContextPath());
+        assertThat("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", is(contextPolicy.getContextPath()));
 
         //test that extra /s are removed from the end
         ContextPolicy contextPolicy1 = manager.getContextPolicy(
                 "/1/2/3/4/5/6/7/8/9/10/11/12/13/14////////////////");
-        Assert.assertEquals("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", contextPolicy1.getContextPath());
+        assertThat("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", is(contextPolicy1.getContextPath()));
 
         //test that all slashes resolves to just /
         ContextPolicy contextPolicy2 = manager.getContextPolicy(
                 "///////////////////////////////////////////////////////////////////////////");
-        Assert.assertEquals("/", contextPolicy2.getContextPath());
+        assertThat("/", is(contextPolicy2.getContextPath()));
 
         //test that we can remove slashes within paths and still resolve a policy
         ContextPolicy contextPolicy3 = manager.getContextPolicy(
                 "/1/2/3/////////////////////////////////////4/5//6/7////////////////");
-        Assert.assertEquals("/1/2", contextPolicy3.getContextPath());
+        assertThat("/1/2", is(contextPolicy3.getContextPath()));
 
         //test same as above but with a path that is too long so it resolves to /
         ContextPolicy contextPolicy4 = manager.getContextPolicy(
                 "/1/2/3////////4/5//////////6/7/8//////////9/10//////////11/12/13/14////////////////");
-        Assert.assertEquals("/", contextPolicy4.getContextPath());
+        assertThat("/", is(contextPolicy4.getContextPath()));
 
         //test two slashes
         ContextPolicy contextPolicy5 = manager.getContextPolicy("//");
-        Assert.assertEquals("/", contextPolicy5.getContextPath());
+        assertThat("/", is(contextPolicy5.getContextPath()));
 
         //test one slash
         ContextPolicy contextPolicy6 = manager.getContextPolicy("/");
-        Assert.assertEquals("/", contextPolicy6.getContextPath());
+        assertThat("/", is(contextPolicy6.getContextPath()));
     }
 
     /**
@@ -225,9 +227,9 @@ public class PolicyManagerTest {
     @Test
     public void testContextRealmRollBack() {
         for (String contextPath : expectedRollBackRealms.keySet()) {
-            Assert.assertEquals(expectedRollBackRealms.get(contextPath),
-                    rollBackTestManager.getContextPolicy(contextPath)
-                            .getRealm());
+            assertThat(expectedRollBackRealms.get(contextPath),
+                    is(rollBackTestManager.getContextPolicy(contextPath)
+                            .getRealm()));
         }
 
     }
@@ -244,8 +246,8 @@ public class PolicyManagerTest {
         for (String contextPath : expectedRollBackAuthTypes.keySet()) {
             for (String authType : rollBackTestManager.getContextPolicy(contextPath)
                     .getAuthenticationMethods()) {
-                Assert.assertTrue(expectedRollBackAuthTypes.get(contextPath)
-                        .contains(authType));
+                assertThat(expectedRollBackAuthTypes.get(contextPath)
+                        .contains(authType), is(true));
             }
         }
     }
@@ -262,71 +264,71 @@ public class PolicyManagerTest {
         for (String contextPath : expectedRollBackReqAttrs.keySet()) {
             for (String authType : rollBackTestManager.getContextPolicy(contextPath)
                     .getAllowedAttributeNames()) {
-                Assert.assertTrue(expectedRollBackReqAttrs.get(contextPath)
-                        .contains(authType));
+                assertThat(expectedRollBackReqAttrs.get(contextPath)
+                        .contains(authType), is(true));
             }
         }
     }
 
     @Test
     public void testInvalidEntry() {
-        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry")
-                .getRealm(), PolicyManager.DEFAULT_REALM_CONTEXT_VALUE);
-        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry")
-                .getAllowedAttributeNames(), Arrays.asList(new String[] {}));
-        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry")
-                .getAuthenticationMethods(), DEFAULT_AUTH_TYPES);
+        assertThat(rollBackTestManager.getContextPolicy("invalidContextPathEntry")
+                .getRealm(), is(PolicyManager.DEFAULT_REALM_CONTEXT_VALUE));
+        assertThat(rollBackTestManager.getContextPolicy("invalidContextPathEntry")
+                .getAllowedAttributeNames(), is(Arrays.asList(new String[] {})));
+        assertThat(rollBackTestManager.getContextPolicy("invalidContextPathEntry")
+                .getAuthenticationMethods(), is(DEFAULT_AUTH_TYPES));
     }
 
     @Test
     public void testFindContextPaths() {
         ContextPolicy policy = manager.getContextPolicy("/search/standard/user");
 
-        Assert.assertEquals("/search/standard", policy.getContextPath());
+        assertThat("/search/standard", is(policy.getContextPath()));
 
         policy = manager.getContextPolicy("/search/standard");
 
-        Assert.assertEquals("/search/standard", policy.getContextPath());
+        assertThat("/search/standard", is(policy.getContextPath()));
 
         policy = manager.getContextPolicy("/search/endpoint");
 
-        Assert.assertEquals("/search", policy.getContextPath());
+        assertThat("/search", is(policy.getContextPath()));
 
         policy = manager.getContextPolicy("/random/other/endpoint");
 
-        Assert.assertEquals("/", policy.getContextPath());
+        assertThat("/", is(policy.getContextPath()));
 
         policy = manager.getContextPolicy("/aaaaab");
 
-        Assert.assertEquals("/", policy.getContextPath());
+        assertThat("/", is(policy.getContextPath()));
 
         policy = manager.getContextPolicy("/aaa/aab");
 
-        Assert.assertEquals("/aaa", policy.getContextPath());
+        assertThat("/aaa", is(policy.getContextPath()));
 
         policy = manager.getContextPolicy("/");
 
-        Assert.assertEquals("/", policy.getContextPath());
+        assertThat("/", is(policy.getContextPath()));
 
         policy = manager.getContextPolicy("blah");
 
-        Assert.assertEquals("/", policy.getContextPath());
+        assertThat("/", is(policy.getContextPath()));
 
         policy = manager.getContextPolicy("/foo/bar");
 
-        Assert.assertEquals("/foo/bar", policy.getContextPath());
+        assertThat("/foo/bar", is(policy.getContextPath()));
 
         policy = manager.getContextPolicy("/foo/bar/foobar");
 
-        Assert.assertEquals("/foo/bar", policy.getContextPath());
+        assertThat("/foo/bar", is(policy.getContextPath()));
 
         policy = manager.getContextPolicy("/foo");
 
-        Assert.assertEquals(null, policy);
+        assertThat(policy, is(nullValue()));
 
-        Assert.assertTrue(manager.isWhiteListed("/foo"));
+        assertThat(manager.isWhiteListed("/foo"), is(true));
 
-        Assert.assertTrue(!manager.isWhiteListed("/foo/bar"));
+        assertThat(manager.isWhiteListed("/foo/bar"), is(false));
     }
 
     @Test
@@ -368,24 +370,24 @@ public class PolicyManagerTest {
         System.setProperty("org.codice.security.policy.context.test.bar", "/baz");
         manager.setWhiteListContexts(Arrays.asList("/foo",
                 "${org.codice.security.policy.context.test.bar}"));
-        Assert.assertTrue(manager.getWhiteListContexts()
-                .contains("/baz"));
+        assertThat(manager.getWhiteListContexts()
+                .contains("/baz"), is(true));
     }
 
     private void testAllPolicies() {
         //check search policy
         ContextPolicy policy = manager.getContextPolicy("/search");
-        Assert.assertEquals("/search", policy.getContextPath());
+        assertThat("/search", is(policy.getContextPath()));
         Iterator<String> authIter = policy.getAuthenticationMethods()
                 .iterator();
         int i = 0;
         while (authIter.hasNext()) {
             if (i == 0) {
-                Assert.assertEquals("SAML", authIter.next());
+                assertThat("SAML", is(authIter.next()));
             } else if (i == 1) {
-                Assert.assertEquals("BASIC", authIter.next());
+                assertThat("BASIC", is(authIter.next()));
             } else if (i == 2) {
-                Assert.assertEquals("GUEST", authIter.next());
+                assertThat("GUEST", is(authIter.next()));
             }
 
             i++;
@@ -393,27 +395,27 @@ public class PolicyManagerTest {
 
         List<Permission> permissionList = policy.getAllowedAttributePermissions()
                 .getPermissionList();
-        Assert.assertEquals("role : user",
-                permissionList.get(0)
-                        .toString());
-        Assert.assertEquals("control : foo",
-                permissionList.get(1)
-                        .toString());
-        Assert.assertEquals("control : bar",
-                permissionList.get(2)
-                        .toString());
+        assertThat("role : user",
+                is(permissionList.get(0)
+                        .toString()));
+        assertThat("control : foo",
+                is(permissionList.get(1)
+                        .toString()));
+        assertThat("control : bar",
+                is(permissionList.get(2)
+                        .toString()));
 
         //check admin policy
         policy = manager.getContextPolicy("/admin");
-        Assert.assertEquals("/admin", policy.getContextPath());
+        assertThat("/admin", is(policy.getContextPath()));
         authIter = policy.getAuthenticationMethods()
                 .iterator();
         i = 0;
         while (authIter.hasNext()) {
             if (i == 0) {
-                Assert.assertEquals("SAML", authIter.next());
+                assertThat("SAML", is(authIter.next()));
             } else if (i == 1) {
-                Assert.assertEquals("BASIC", authIter.next());
+                assertThat("BASIC", is(authIter.next()));
             }
 
             i++;
@@ -421,13 +423,13 @@ public class PolicyManagerTest {
 
         //check foo policy
         policy = manager.getContextPolicy("/foo");
-        Assert.assertEquals("/foo", policy.getContextPath());
+        assertThat("/foo", is(policy.getContextPath()));
         authIter = policy.getAuthenticationMethods()
                 .iterator();
         i = 0;
         while (authIter.hasNext()) {
             if (i == 0) {
-                Assert.assertEquals("BASIC", authIter.next());
+                assertThat("BASIC", is(authIter.next()));
             }
 
             i++;
@@ -435,15 +437,15 @@ public class PolicyManagerTest {
 
         //make sure some random context points to /
         policy = manager.getContextPolicy("/random");
-        Assert.assertEquals("/", policy.getContextPath());
+        assertThat("/", is(policy.getContextPath()));
         authIter = policy.getAuthenticationMethods()
                 .iterator();
         i = 0;
         while (authIter.hasNext()) {
             if (i == 0) {
-                Assert.assertEquals("SAML", authIter.next());
+                assertThat("SAML", is(authIter.next()));
             } else if (i == 1) {
-                Assert.assertEquals("BASIC", authIter.next());
+                assertThat("BASIC", is(authIter.next()));
             }
 
             i++;
@@ -451,15 +453,15 @@ public class PolicyManagerTest {
 
         //check unprotected contexts
         policy = manager.getContextPolicy("/unprotected");
-        Assert.assertEquals("/unprotected", policy.getContextPath());
+        assertThat("/unprotected", is(policy.getContextPath()));
         authIter = policy.getAuthenticationMethods()
                 .iterator();
-        Assert.assertEquals(false, authIter.hasNext());
+        assertThat(false, is(authIter.hasNext()));
 
         policy = manager.getContextPolicy("/unprotected2");
-        Assert.assertEquals("/unprotected2", policy.getContextPath());
+        assertThat("/unprotected2", is(policy.getContextPath()));
         authIter = policy.getAuthenticationMethods()
                 .iterator();
-        Assert.assertEquals(false, authIter.hasNext());
+        assertThat(authIter.hasNext(), is(false));
     }
 }
