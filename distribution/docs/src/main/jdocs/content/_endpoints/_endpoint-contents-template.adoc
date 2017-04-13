@@ -1,0 +1,38 @@
+:title: {endpoint name}
+:type: endpoint
+:status: draft //change to published
+:filename: {endpoint name}-contents.adoc
+:link: _{endpoint name}
+:projectpath: {adoc-include}
+:summary: endpoint summary
+
+==== {endpoint name}
+
+{description}
+// start with summary
+
+===== Installing the {endpoint name}
+
+//select one
+The {endpoint name} is installed by default with a standard installation in the ${app-name} application.
+The {endpoint name} is not installed by default with a standard installation in the ${app-name} application.
+To install:
+
+* Install steps
+
+===== Configuring the {endpoint name}
+
+* any applicable configurations
+
+===== {endpoint name} URL
+
+----
+${secure_url}/path/to/endpoint
+----
+
+{operations}
+
+==== Usage Limitations with {endpoint name}
+
+// delete if not applicable
+

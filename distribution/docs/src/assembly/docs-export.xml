@@ -28,7 +28,7 @@
             <directoryMode>0755</directoryMode>
             <directory>${project.build.directory}/docs/html</directory>
             <includes>
-                <include>*.html</include>
+                <include>documentation.html</include>
             </includes>
             <outputDirectory>html</outputDirectory>
         </fileSet>
@@ -37,7 +37,7 @@
             <directoryMode>0755</directoryMode>
             <directory>${project.build.directory}/docs/pdf</directory>
             <includes>
-                <include>*.pdf</include>
+                <include>documentation.pdf</include>
             </includes>
             <outputDirectory>pdf</outputDirectory>
         </fileSet>

@@ -1,5 +1,9 @@
+<#list endpointIntros as ei>
+<#if (ei.title == "Endpoints Intro")>
+include::${ei.file}[]
+</#if>
+</#list>
 
-include::{adoc-include}/_endpoints/endpoints-intro-contents.adoc[]
 
 === Available Endpoints
 
@@ -29,8 +33,12 @@ include::${endpoint.file}[]
 
 === Endpoint Utility Services
 
-include::{adoc-include}/_endpoints/endpoint-utilities-intro-contents.adoc[]
+<#list endpointIntros as ei>
+<#if (ei.title == "Endpoint Utilities Intro")>
+include::${ei.file}[]
+</#if>
 
+</#list>
 <#list endpointServices as endpointService>
 <#if (endpointService.status == "published")>
 

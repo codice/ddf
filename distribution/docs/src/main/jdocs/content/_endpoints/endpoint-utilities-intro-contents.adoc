@@ -1,4 +1,5 @@
-:type: documentation
+:type: endpointIntro
 :status: published
+:title: Endpoint Utilities Intro
 
 ${branding} also provides a variety of services to enhance the function of the endpoints.
