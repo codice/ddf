@@ -65,6 +65,16 @@
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
             <version>${solr.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-servlet</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -99,6 +109,30 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-test-framework</artifactId>
+            <version>${solr.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-server</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.3.14.v20161028</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>9.3.14.v20161028</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>
@@ -149,7 +183,10 @@
                             javax.net,
                             javax.net.ssl,
                             javax.script,
+                            javax.security.auth.callback,
+                            javax.security.auth.login,
                             javax.security.auth.x500,
+                            javax.security.sasl,
                             javax.xml.bind,
                             javax.xml.namespace,
                             javax.xml.parsers,
@@ -165,6 +202,7 @@
                             org.apache.karaf.shell.console,
                             org.codice.ddf.configuration,
                             org.fusesource.jansi,
+                            org.ietf.jgss,
                             org.osgi.framework;version="[1.5,2)",
                             org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
                             org.osgi.service.cm,

@@ -13,10 +13,14 @@
  */
 package org.codice.ddf.commands.solr;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -36,6 +40,10 @@ public abstract class SolrCommands extends OsgiCommandSupport {
     private static final Color ERROR_COLOR = Ansi.Color.RED;
 
     private static final Color SUCCESS_COLOR = Ansi.Color.GREEN;
+
+    private static final Color INFO_COLOR = Ansi.Color.BLUE;
+
+    private static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
 
     protected ConfigurationAdmin configurationAdmin;
 
@@ -76,4 +84,35 @@ public abstract class SolrCommands extends OsgiCommandSupport {
         printColor(ERROR_COLOR, message);
     }
 
+    protected void printInfoMessage(String message) {
+        printColor(INFO_COLOR, message);
+    }
+
+    private SolrClient getCloudSolrClient() {
+        String zkHosts = System.getProperty(ZOOKEEPER_HOSTS_PROP);
+        LOGGER.debug("zookeeper hosts: {}", zkHosts);
+
+        if (zkHosts != null) {
+            SolrClient client = new CloudSolrClient.Builder().withZkHost(zkHosts)
+                    .build();
+            LOGGER.debug("created solr client: {}", client);
+            return client;
+        } else {
+            printErrorMessage(String.format(
+                    String.format("Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
+                    ZOOKEEPER_HOSTS_PROP, Paths.get(System.getProperty("karaf.home"), "etc", "system.properties"))));
+            return null;
+        }
+    }
+
+    void shutdown(SolrClient client) throws IOException {
+        if(client != null) {
+            LOGGER.debug("Closing solr client");
+            client.close();
+        }
+    }
+
+    SolrClient getSolrClient() {
+        return getCloudSolrClient();
+    }
 }
