@@ -13,7 +13,6 @@ The following packages have been exported by the ${ddf-catalog} application and 
 * `ddf.catalog.federation.impl`
 * `ddf.catalog.filter`
 * `ddf.catalog.filter.delegate`
-* `ddf.catalog.impl.filter`
 * `ddf.catalog.operation`
 * `ddf.catalog.plugin`
 * `ddf.catalog.plugin.groomer`
