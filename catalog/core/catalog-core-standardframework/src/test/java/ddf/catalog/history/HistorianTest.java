@@ -16,12 +16,15 @@ package ddf.catalog.history;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,9 +42,12 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import ddf.catalog.content.StorageException;
+import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.content.operation.CreateStorageResponse;
 import ddf.catalog.content.operation.DeleteStorageRequest;
 import ddf.catalog.content.operation.ReadStorageRequest;
+import ddf.catalog.content.operation.ReadStorageResponse;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
@@ -82,8 +88,6 @@ public class HistorianTest {
 
     private Historian historian;
 
-    private Subject subject;
-
     @Before
     public void setup() {
         historian = new Historian();
@@ -99,7 +103,7 @@ public class HistorianTest {
         historian.setMetacardTypes(Collections.singletonList(BasicTypes.BASIC_METACARD));
 
         Security security = mock(Security.class);
-        subject = mock(MockSubject.class);
+        Subject subject = mock(MockSubject.class);
         when(subject.execute(any(Callable.class))).thenCallRealMethod();
         when(security.getSystemSubject()).thenReturn(subject);
         historian.setSecurity(security);
@@ -177,53 +181,47 @@ public class HistorianTest {
         UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
         UpdateResponse updateResponse = mock(UpdateResponse.class);
 
-        // Store the old metacard
-        ContentItem item = mock(ContentItem.class);
-        when(item.getId()).thenReturn(METACARD_ID);
-        when(item.getUri()).thenReturn(RESOURCE_URI);
-        when(item.getMetacard()).thenReturn(metacards.get(0));
-        storageProvider.storageMap.put(item.getUri(), item);
+        storeMetacard(metacards.get(0));
 
         // send a request to update the metacard
-        ContentItem updatedItem = mock(ContentItem.class);
-        when(updatedItem.getId()).thenReturn(METACARD_ID);
-        when(updatedItem.getUri()).thenReturn(RESOURCE_URI);
-        when(updatedItem.getMetacard()).thenReturn(metacards.get(1));
-        when(storageRequest.getContentItems()).thenReturn(Collections.singletonList(updatedItem));
-        when(storageResponse.getUpdatedContentItems()).thenReturn(Collections.singletonList(
-                updatedItem));
+        updateMetacard(storageRequest, storageResponse, metacards.get(1));
         storageProvider.update(storageRequest);
 
-        // Mocking for the catalog provider
-        SourceResponse sourceResponse = mock(SourceResponse.class);
-        Result result = mock(Result.class);
-        when(result.getMetacard()).thenReturn(metacards.get(1));
-        when(sourceResponse.getResults()).thenReturn(Collections.singletonList(result));
-        when(catalogProvider.query(any())).thenReturn(sourceResponse);
-
+        mockQuery(metacards.get(1));
         historian.version(storageRequest, storageResponse, updateResponse);
 
         // Verify that the metacard updated
-        ReadStorageRequest request = mock(ReadStorageRequest.class);
-        when(request.getResourceUri()).thenReturn(new URI(RESOURCE_URI));
-        Metacard update = storageProvider.read(request)
-                .getContentItem()
-                .getMetacard();
+        Metacard update = readMetacard();
 
         assertThat(update, equalTo(metacards.get(1)));
+    }
+
+    @Test
+    public void testUpdateStorageResponseNoContentItems()
+            throws StorageException, UnsupportedQueryException, SourceUnavailableException,
+            IngestException, URISyntaxException {
+        // The metacard and updated metacard
+        List<Metacard> metacards = getMetacardUpdatePair();
+
+        // Parameters for historian
+        UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
+        UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
+        UpdateResponse updateResponse = mock(UpdateResponse.class);
+
+        // send a request to update the metacard
+        updateMetacard(storageRequest, storageResponse, metacards.get(1));
+
+        mockQuery(metacards.get(1));
+        historian.version(storageRequest, storageResponse, updateResponse);
+
+        assertThat(storageProvider.storageMap.size(), equalTo(0));
     }
 
     @Test
     public void testDeleteResponse()
             throws SourceUnavailableException, IngestException, StorageException {
         Metacard metacard = getMetacardUpdatePair().get(0);
-
-        // Store the metacard to delete it
-        ContentItem contentItem = mock(ContentItem.class);
-        when(contentItem.getId()).thenReturn(METACARD_ID);
-        when(contentItem.getMetacard()).thenReturn(metacard);
-        when(contentItem.getUri()).thenReturn(RESOURCE_URI);
-        storageProvider.storageMap.put(contentItem.getUri(), contentItem);
+        storeMetacard(metacard);
 
         // Send a delete request
         DeleteStorageRequest deleteStorageRequest =
@@ -239,6 +237,140 @@ public class HistorianTest {
 
         // Only the version metacard is left
         assertThat(storageProvider.storageMap.size(), equalTo(1));
+    }
+
+    @Test
+    public void testDeleteResponseNoContentItems()
+            throws SourceUnavailableException, IngestException, StorageException {
+        Metacard metacard = getMetacardUpdatePair().get(0);
+        DeleteRequest deleteRequest = new DeleteRequestImpl("deleteRequest");
+        DeleteResponse deleteResponse = new DeleteResponseImpl(deleteRequest,
+                new HashMap<>(),
+                Collections.singletonList(metacard));
+
+        historian.version(deleteResponse);
+        assertThat(storageProvider.storageMap.size(), equalTo(0));
+    }
+
+    @Test
+    public void testNullContentItemStorageReadRequest()
+            throws StorageException, UnsupportedQueryException, SourceUnavailableException,
+            IngestException, URISyntaxException {
+        List<Metacard> metacards = getMetacardUpdatePair();
+
+        // Parameters for historian
+        UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
+        UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
+        UpdateResponse updateResponse = mock(UpdateResponse.class);
+
+        // Make content item null
+        storageProvider.storageMap.put(METACARD_ID, null);
+
+        mockQuery(metacards.get(1));
+        historian.version(storageRequest, storageResponse, updateResponse);
+
+        // Verify that the content item DIDN't updated
+        ReadStorageRequest request = mock(ReadStorageRequest.class);
+        when(request.getResourceUri()).thenReturn(new URI(RESOURCE_URI));
+        ContentItem item = storageProvider.read(request)
+                .getContentItem();
+
+        assertThat(item, nullValue());
+    }
+
+    @Test
+    public void testReadStorageException()
+            throws StorageException, SourceUnavailableException, IngestException,
+            UnsupportedQueryException, URISyntaxException {
+        StorageProvider exceptionStorageProvider = mock(StorageProvider.class);
+        when(exceptionStorageProvider.read(any())).thenThrow(StorageException.class);
+        historian.setStorageProviders(Collections.singletonList(exceptionStorageProvider));
+
+        Metacard metacard = getMetacardUpdatePair().get(0);
+
+        // Parameters for historian
+        UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
+        UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
+        UpdateResponse updateResponse = mock(UpdateResponse.class);
+
+        storeMetacard(metacard);
+
+        // send a request to update the metacard
+        updateMetacard(storageRequest, storageResponse, metacard);
+        storageProvider.update(storageRequest);
+
+        mockQuery(metacard);
+        historian.version(storageRequest, storageResponse, updateResponse);
+
+        // Verify that it wasn't updated
+        Metacard update = readMetacard();
+
+        assertThat(update, equalTo(metacard));
+    }
+
+    @Test(expected = IngestException.class)
+    public void testTryCommitStorageException()
+            throws StorageException, UnsupportedQueryException, SourceUnavailableException,
+            IngestException, URISyntaxException {
+        List<Metacard> metacards = getMetacardUpdatePair();
+
+        // Mock out a bad storage provider
+        StorageProvider exceptionStorageProvider = mock(StorageProvider.class);
+        doThrow(StorageException.class).when(exceptionStorageProvider)
+                .commit(any());
+
+        ContentItem item = mock(ContentItem.class);
+        when(item.getId()).thenReturn(METACARD_ID);
+        when(item.getUri()).thenReturn(RESOURCE_URI);
+        when(item.getMetacard()).thenReturn(metacards.get(0));
+
+        ReadStorageResponse readStorageResponse = mock(ReadStorageResponse.class);
+        when(readStorageResponse.getContentItem()).thenReturn(item);
+        when(exceptionStorageProvider.read(any())).thenReturn(readStorageResponse);
+
+        when(exceptionStorageProvider.create(any())).thenReturn(mock(CreateStorageResponse.class));
+
+        historian.setStorageProviders(Collections.singletonList(exceptionStorageProvider));
+
+        // Parameters for historian
+        UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
+        UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
+        UpdateResponse updateResponse = mock(UpdateResponse.class);
+
+        // send a request to update the metacard
+        updateMetacard(storageRequest, storageResponse, metacards.get(1));
+
+        mockQuery(metacards.get(1));
+        historian.version(storageRequest, storageResponse, updateResponse);
+    }
+
+    @Test
+    public void testBadContentItemSize()
+            throws StorageException, UnsupportedQueryException, SourceUnavailableException,
+            IngestException, URISyntaxException, IOException {
+        // The metacard and updated metacard
+        List<Metacard> metacards = getMetacardUpdatePair();
+
+        // Parameters for historian
+        UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
+        UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
+        UpdateResponse updateResponse = mock(UpdateResponse.class);
+
+        storeMetacard(metacards.get(0));
+
+        // send a request to update the metacard
+        updateMetacard(storageRequest, storageResponse, metacards.get(1));
+        storageProvider.update(storageRequest);
+        when(storageProvider.storageMap.get(RESOURCE_URI)
+                .getSize()).thenThrow(IOException.class);
+
+        mockQuery(metacards.get(1));
+        historian.version(storageRequest, storageResponse, updateResponse);
+
+        // Verify that the metacard updated
+        Metacard update = readMetacard();
+
+        assertThat(update, equalTo(metacards.get(1)));
     }
 
     private UpdateResponse createUpdateResponse(Map<String, Serializable> responseProperties) {
@@ -274,6 +406,44 @@ public class HistorianTest {
         update.setAttribute(new AttributeImpl(Metacard.DESCRIPTION, UPDATE_DESCRIPTION));
 
         return Arrays.asList(old, update);
+    }
+
+    private void mockQuery(Metacard metacard) throws UnsupportedQueryException {
+        SourceResponse sourceResponse = mock(SourceResponse.class);
+        Result result = mock(Result.class);
+        when(result.getMetacard()).thenReturn(metacard);
+        Result noMetacard = mock(Result.class);
+        when(sourceResponse.getResults()).thenReturn(Arrays.asList(noMetacard, result, noMetacard));
+        when(catalogProvider.query(any())).thenReturn(sourceResponse);
+    }
+
+    private void storeMetacard(Metacard metacard) {
+        ContentItem item = mock(ContentItem.class);
+        when(item.getId()).thenReturn(METACARD_ID);
+        when(item.getUri()).thenReturn(RESOURCE_URI);
+        when(item.getMetacard()).thenReturn(metacard);
+        storageProvider.storageMap.put(item.getUri(), item);
+    }
+
+    private void updateMetacard(UpdateStorageRequest request, UpdateStorageResponse response,
+            Metacard update) {
+        ContentItem noMetacard = mock(ContentItem.class);
+        ContentItem updatedItem = mock(ContentItem.class);
+        when(updatedItem.getId()).thenReturn(METACARD_ID);
+        when(updatedItem.getUri()).thenReturn(RESOURCE_URI);
+        when(updatedItem.getMetacard()).thenReturn(update);
+        when(request.getContentItems()).thenReturn(Collections.singletonList(updatedItem));
+        when(response.getUpdatedContentItems()).thenReturn(Arrays.asList(noMetacard,
+                updatedItem,
+                noMetacard));
+    }
+
+    private Metacard readMetacard() throws StorageException, URISyntaxException {
+        ReadStorageRequest request = mock(ReadStorageRequest.class);
+        when(request.getResourceUri()).thenReturn(new URI(RESOURCE_URI));
+        return storageProvider.read(request)
+                .getContentItem()
+                .getMetacard();
     }
 
     private abstract class MockSubject implements Subject {

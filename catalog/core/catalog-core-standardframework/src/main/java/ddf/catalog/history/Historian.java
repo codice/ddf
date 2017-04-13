@@ -332,6 +332,7 @@ public class Historian {
                 .filter(ci -> ci.getQualifier() == null || ci.getQualifier()
                         .equals(""))
                 .map(ContentItem::getMetacard)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
     }
 
@@ -506,7 +507,7 @@ public class Historian {
         this.metacardTypes = metacardTypes;
     }
 
-    public void setSecurity(Security security) {
+    void setSecurity(Security security) {
         this.security = security;
     }
 
