@@ -127,6 +127,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * Constructs a factory that will return security-aware cxf clients. Once constructed,
      * use the getClient* methods to retrieve a fresh client  with the same configuration.
+     * Providing {@link WebClient} to interfaceClass will create a generic web client.
      * <p>
      * This factory can and should be cached. The clients it constructs should not be.
      *
@@ -184,6 +185,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * Constructs a factory that will return security-aware cxf clients. Once constructed,
      * use the getClient* methods to retrieve a fresh client  with the same configuration.
+     * Providing {@link WebClient} to interfaceClass will create a generic web client.
      * <p>
      * This factory can and should be cached. The clients it constructs should not be.
      *
@@ -210,6 +212,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * Constructs a factory that will return security-aware cxf clients. Once constructed,
      * use the getClient* methods to retrieve a fresh client  with the same configuration.
+     * Providing {@link WebClient} to interfaceClass will create a generic web client.
      * <p>
      * This factory can and should be cached. The clients it constructs should not be.
      * <p>
@@ -284,7 +287,9 @@ public class SecureCxfClientFactory<T> {
     }
 
     private T getNewClient() {
-        T clientImpl = JAXRSClientFactory.fromClient(clientFactory.create(), interfaceClass);
+        T clientImpl = interfaceClass.equals(WebClient.class) ?
+                (T)clientFactory.create() :
+                JAXRSClientFactory.fromClient(clientFactory.create(), interfaceClass);
 
         ClientConfiguration clientConfig = WebClient.getConfig(clientImpl);
         clientConfig.getRequestContext()
