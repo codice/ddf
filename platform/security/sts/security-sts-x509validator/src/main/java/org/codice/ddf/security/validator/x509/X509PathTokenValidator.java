@@ -28,32 +28,17 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- * <p>
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
  */
 package org.codice.ddf.security.validator.x509;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
@@ -85,6 +70,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import ddf.security.PropertiesLoader;
+import ddf.security.SubjectUtils;
 
 /**
  * X509PKIPathv1 validator for the STS.  This validator is responsible for validating X509 tokens
@@ -117,7 +103,8 @@ public class X509PathTokenValidator implements TokenValidator {
                     X509PathTokenValidator.class.getClassLoader(),
                     null);
         } catch (WSSecurityException | IOException e) {
-            LOGGER.warn("Unable to read merlin properties file. Unable to validate certificates.", e);
+            LOGGER.warn("Unable to read merlin properties file. Unable to validate certificates.",
+                    e);
         }
     }
 
@@ -271,9 +258,28 @@ public class X509PathTokenValidator implements TokenValidator {
             }
 
             Credential returnedCredential = validator.validate(credential, requestData);
-            response.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
+            X500Principal subjectX500Principal =
+                    returnedCredential.getCertificates()[0].getSubjectX500Principal();
+            response.setPrincipal(subjectX500Principal);
+            if (response.getAdditionalProperties() == null) {
+                response.setAdditionalProperties(new HashMap<>());
+            }
+            try {
+                String emailAddress = SubjectUtils.getEmailAddress(subjectX500Principal);
+                if (emailAddress != null) {
+                    response.getAdditionalProperties()
+                            .put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, emailAddress);
+                }
+                String country = SubjectUtils.getCountry(subjectX500Principal);
+                if (country != null) {
+                    response.getAdditionalProperties()
+                            .put(SubjectUtils.COUNTRY_CLAIM_URI, country);
+                }
+            } catch (Exception e) {
+                LOGGER.debug("Unable to set email address or country from certificate.", e);
+            }
             validateTarget.setState(STATE.VALID);
-            validateTarget.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
+            validateTarget.setPrincipal(subjectX500Principal);
         } catch (WSSecurityException ex) {
             LOGGER.debug("Unable to validate credentials.", ex);
         }

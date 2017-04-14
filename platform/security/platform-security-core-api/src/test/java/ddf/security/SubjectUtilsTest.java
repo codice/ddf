@@ -118,6 +118,11 @@ public class SubjectUtilsTest {
     }
 
     @Test
+    public void testGetCommonNameNull() {
+        assertNull(SubjectUtils.getCommonName(new X500Principal("o=stuff")));
+    }
+
+    @Test
     public void testFilterDNKeepOne() {
         Predicate<RDN> predicate = rdn -> rdn.getTypesAndValues()[0].getType()
                 .equals(BCStyle.CN);
