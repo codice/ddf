@@ -186,6 +186,7 @@ public class Historian {
                 .map(ContentItem::getMetacard)
                 .filter(Objects::nonNull)
                 .filter(isVersionOrDeleted().negate())
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         Collection<ReadStorageRequest> ids = getReadStorageRequests(updatedMetacards);
@@ -232,6 +233,7 @@ public class Historian {
         List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards()
                 .stream()
                 .filter(isVersionOrDeleted().negate())
+
                 .collect(Collectors.toList());
 
         // [ContentItem.getId: content items]
