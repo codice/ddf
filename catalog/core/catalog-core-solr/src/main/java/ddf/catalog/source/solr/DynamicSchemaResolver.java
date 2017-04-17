@@ -312,7 +312,11 @@ public class DynamicSchemaResolver {
          * Lastly the metacardType must be added to the solr document. These are internal fields
          */
         solrInputDocument.addField(SchemaFields.METACARD_TYPE_FIELD_NAME, schema.getName());
-        byte[] metacardTypeBytes = metacardTypeNameToSerialCache.get(schema.getName());
+
+        byte[] metacardTypeBytes = null;
+        if (!(schema.getName().equals("metacard.version") || schema.getName().equals("metacard.deleted"))) {
+            metacardTypeBytes = metacardTypeNameToSerialCache.get(schema.getName());
+        }
 
         if (metacardTypeBytes == null) {
             MetacardType coreMetacardType = new MetacardTypeImpl(schema.getName(),
@@ -533,11 +537,16 @@ public class DynamicSchemaResolver {
         String mTypeFieldName = doc.getFirstValue(SchemaFields.METACARD_TYPE_FIELD_NAME)
                 .toString();
 
-        MetacardType cachedMetacardType = metacardTypesCache.get(mTypeFieldName);
+        MetacardType cachedMetacardType = null;
+        if (!(mTypeFieldName.equals("metacard.version")
+                || mTypeFieldName.equals("metacard.deleted"))) {
+            cachedMetacardType = metacardTypesCache.get(mTypeFieldName);
 
-        if (cachedMetacardType != null) {
-            return cachedMetacardType;
+            if (cachedMetacardType != null) {
+                return cachedMetacardType;
+            }
         }
+
 
         byte[] bytes = (byte[]) doc.getFirstValue(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 

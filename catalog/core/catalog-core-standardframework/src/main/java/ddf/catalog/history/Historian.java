@@ -100,20 +100,29 @@ public class Historian {
 
     private Security security;
 
-    static {
+    public void init() {
+
         Bundle bundle = FrameworkUtil.getBundle(Historian.class);
         BundleContext context = bundle == null ? null : bundle.getBundleContext();
         if (bundle == null || context == null) {
             LOGGER.error("Could not get bundle to register history metacard types!");
         } else {
+            //            MetacardType versionType = new MetacardTypeImpl();
+            DynamicMultiMetacardType versionType =
+                    new DynamicMultiMetacardType(MetacardVersionImpl.PREFIX,
+                            metacardTypes,
+                            MetacardVersionImpl.getMetacardVersionType());
+            DynamicMultiMetacardType deleteType =
+                    new DynamicMultiMetacardType(DeletedMetacardImpl.PREFIX,
+                            metacardTypes,
+                            DeletedMetacardImpl.getDeletedMetacardType());
             context.registerService(MetacardType.class,
-                    MetacardVersionImpl.getMetacardVersionType(),
+                    versionType,
                     new Hashtable<>());
             context.registerService(MetacardType.class,
-                    DeletedMetacardImpl.getDeletedMetacardType(),
+                    deleteType,
                     new Hashtable<>());
         }
-
     }
 
     /**
@@ -313,6 +322,10 @@ public class Historian {
         return filterBuilder.anyOf(idFilters);
     }
 
+    /*
+     * Assumptions: The ContentItem's <code>getId</code> method returns an ID that corresponds
+     * to the metacards ID.
+     */
     private Map<String, List<ContentItem>> getOldContent(Collection<ReadStorageRequest> ids) {
         return ids.stream()
                 .map(this::getStorageItem)
@@ -359,6 +372,7 @@ public class Historian {
         return null;
     }
 
+    /* Map< Metacard ID, content item> */
     private Map<String, List<ContentItem>> getContentItems(DeleteResponse deleteResponse) {
         return getOldContent(getReadStorageRequests(deleteResponse.getDeletedMetacards()));
     }
@@ -418,6 +432,7 @@ public class Historian {
                     content.getId(),
                     e);
         }
+        // TODO (RCZ) - Add a check in case we can't find in versionedMetacards
         return new ContentItemImpl(versionedMetacards.get(content.getId())
                 .getId(),
                 content.getQualifier(),

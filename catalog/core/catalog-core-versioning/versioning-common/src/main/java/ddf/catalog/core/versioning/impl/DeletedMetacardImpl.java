@@ -78,12 +78,9 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
         this.setDeletedBy(deletedBy);
         this.setLastVersionId(lastVersionId);
         this.setTags(ImmutableSet.of(DELETED_TAG));
-
-        if (this.getId() == null || "".equals(this.getId())) {
-            this.setId(UUID.randomUUID()
-                    .toString()
-                    .replace("-", ""));
-        }
+        this.setId(UUID.randomUUID()
+                .toString()
+                .replace("-", ""));
     }
 
     public static boolean isNotDeleted(Metacard metacard) {
