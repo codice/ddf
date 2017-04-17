@@ -13,14 +13,7 @@
  */
 package org.codice.ddf.catalog.plugin.metacard.backup;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +21,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
@@ -37,6 +29,8 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
 import org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin;
+import org.codice.ddf.catalog.plugin.metacard.backup.storage.api.MetacardBackupException;
+import org.codice.ddf.catalog.plugin.metacard.backup.storage.api.MetacardBackupStorageProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -61,8 +55,6 @@ import ddf.catalog.transform.MetacardTransformer;
 public class MetacardBackupPlugin implements PostProcessPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardBackupPlugin.class);
 
-    private static final String OUTPUT_DIRECTORY_PROPERTY = "outputDirectory";
-
     private static final String KEEP_DELETED_METACARDS_PROPERTY = "keepDeletedMetacards";
 
     private static final String METACARD_TRANSFORMER_ID_PROPERTY = "metacardTransformerId";
@@ -73,7 +65,7 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
 
     private MetacardTransformer metacardTransformer;
 
-    private String outputDirectory;
+    private List<MetacardBackupStorageProvider> storageBackupPlugins = Collections.emptyList();
 
     @Override
     public ProcessRequest<ProcessCreateItem> processCreate(
@@ -96,26 +88,26 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
             return processRequest;
         }
 
-        if (StringUtils.isEmpty(outputDirectory)) {
+        if (CollectionUtils.isEmpty(storageBackupPlugins)) {
             throw new PluginExecutionException(
-                    "Unable to delete backup ingested metacard; no output directory specified.");
+                    "Unable to delete backup ingested metacard; no metacard backup storage provider configured.");
         }
 
         List<ProcessDeleteItem> processUpdateItems = processRequest.getProcessItems();
         for (ProcessDeleteItem processUpdateItem : processUpdateItems) {
             Metacard metacard = processUpdateItem.getMetacard();
-            deleteBackupIfPresent(metacard.getId());
+            try {
+                for (MetacardBackupStorageProvider storageProvider : storageBackupPlugins) {
+                    storageProvider.deleteData(metacard.getId());
+                }
+            } catch (IOException | MetacardBackupException e) {
+                LOGGER.debug("Unable to delete backed up metacard data for metacard: {}",
+                        metacard.getId(),
+                        e);
+            }
         }
 
         return processRequest;
-    }
-
-    public void setOutputDirectory(String outputDirectory) {
-        this.outputDirectory = outputDirectory;
-    }
-
-    public String getOutputDirectory() {
-        return outputDirectory;
     }
 
     public void setKeepDeletedMetacards(Boolean keepDeletedMetacards) {
@@ -139,13 +131,20 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
         return metacardTransformerId;
     }
 
-    public void refresh(Map<String, Object> properties) {
-        Object outputDirectory = properties.get(OUTPUT_DIRECTORY_PROPERTY);
-        if (outputDirectory instanceof String && StringUtils.isNotBlank((String) outputDirectory)) {
-            this.outputDirectory = (String) outputDirectory;
-            LOGGER.debug("Updating {} with {}", OUTPUT_DIRECTORY_PROPERTY, outputDirectory);
+    public void setStorageBackupPlugins(List<MetacardBackupStorageProvider> storageBackupPlugins) {
+        if (storageBackupPlugins != null) {
+            this.storageBackupPlugins = storageBackupPlugins;
+        } else {
+            this.storageBackupPlugins = Collections.emptyList();
         }
 
+    }
+
+    public List<MetacardBackupStorageProvider> getStorageBackupPlugins() {
+        return storageBackupPlugins;
+    }
+
+    public void refresh(Map<String, Object> properties) {
         Object metacardTransformerProperty = properties.get(METACARD_TRANSFORMER_ID_PROPERTY);
         if (metacardTransformerProperty instanceof String
                 && StringUtils.isNotBlank((String) metacardTransformerProperty)) {
@@ -167,9 +166,9 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
     private void processRequest(ProcessRequest<? extends ProcessResourceItem> processRequest)
             throws PluginExecutionException {
         LOGGER.trace("Backing up metacard");
-        if (StringUtils.isEmpty(outputDirectory)) {
+        if (CollectionUtils.isEmpty(storageBackupPlugins)) {
             throw new PluginExecutionException(
-                    "Unable to backup ingested metacard; no outputDirectory.");
+                    "Unable to backup ingested metacard; no metacard backup storage provider configured.");
         }
 
         if (metacardTransformer == null) {
@@ -184,7 +183,7 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
                 LOGGER.trace("Backing up metacard : {}", metacard.getId());
                 BinaryContent binaryContent = metacardTransformer.transform(metacard,
                         Collections.emptyMap());
-                copyBackupToOutputDirectory(binaryContent, metacard.getId());
+                backupData(binaryContent, metacard.getId());
             } catch (CatalogTransformerException e) {
                 LOGGER.debug("Unable to transform metacard with id {}.", metacard.getId(), e);
                 throw new PluginExecutionException(String.format(
@@ -194,39 +193,20 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
         }
     }
 
-    private void copyBackupToOutputDirectory(BinaryContent content, String metacardId)
+    private void backupData(BinaryContent content, String metacardId)
             throws PluginExecutionException {
         byte[] contentBytes = getContentBytes(content, metacardId);
 
-        Path metacardPath = getMetacardDirectory(metacardId);
-        if (metacardPath == null) {
-            throw new PluginExecutionException(String.format(
-                    "Unable to create metacard path directory for %s",
-                    metacardId));
-        }
+        LOGGER.trace("Writing backup from {} to backup provider", metacardId);
 
         try {
-            Path parent = metacardPath.getParent();
-            if (parent != null) {
-                Files.createDirectories(parent);
+            for (MetacardBackupStorageProvider storageProvider : storageBackupPlugins) {
+                storageProvider.storeData(metacardId, contentBytes);
             }
-            Files.createFile(metacardPath);
-        } catch (IOException e) {
-            LOGGER.debug("Unable to create backup file {}.  File may already exist.",
-                    metacardPath,
-                    e);
+        } catch (IOException | MetacardBackupException e) {
+            LOGGER.warn("Unable to backup {} to backup provider.", metacardId, e);
         }
 
-        LOGGER.trace("Writing backup from {} to file {}", metacardId, metacardPath.toString());
-
-        try (OutputStream outputStream = new FileOutputStream(metacardPath.toFile())) {
-            IOUtils.write(contentBytes, outputStream);
-        } catch (IOException e) {
-            LOGGER.warn("Unable to backup {} to {}.  The directory may be full.",
-                    metacardId,
-                    metacardPath.toString(),
-                    e);
-        }
     }
 
     byte[] getContentBytes(BinaryContent content, String metacardId)
@@ -247,40 +227,6 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
                 });
     }
 
-    private void deleteBackupIfPresent(String filename) throws PluginExecutionException {
-        Path metacardPath = getMetacardDirectory(filename);
-        if (metacardPath == null) {
-            throw new PluginExecutionException(String.format("Unable to delete backup for  %s",
-                    filename));
-        }
-
-        try {
-            Files.deleteIfExists(metacardPath);
-            while (metacardPath.getParent() != null && !metacardPath.getParent()
-                    .toString()
-                    .equals(outputDirectory)) {
-                metacardPath = metacardPath.getParent();
-                if (isDirectoryEmpty(metacardPath)) {
-                    FileUtils.deleteDirectory(metacardPath.toFile());
-                }
-            }
-        } catch (IOException e) {
-            LOGGER.debug("Unable to delete backup file {}", metacardPath, e);
-            throw new PluginExecutionException(String.format("Unable to delete backup file for  %s",
-                    filename));
-        }
-    }
-
-    private boolean isDirectoryEmpty(Path dir) throws IOException {
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir)) {
-            return !dirStream.iterator()
-                    .hasNext();
-        } catch (IOException e) {
-            LOGGER.debug("Unable to open directory stream for {}", dir.toString(), e);
-            throw e;
-        }
-    }
-
     private MetacardTransformer lookupTransformerReference() {
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         if (bundle != null) {
@@ -299,18 +245,5 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
             }
         }
         return null;
-    }
-
-    Path getMetacardDirectory(String id) {
-        if (id.length() < 6) {
-            id = StringUtils.rightPad(id, 6, "0");
-        }
-
-        try {
-            return Paths.get(outputDirectory, id.substring(0, 3), id.substring(3, 6), id);
-        } catch (InvalidPathException e) {
-            LOGGER.debug("Unable to create path from id {}", outputDirectory, e);
-            return null;
-        }
     }
 }

@@ -14,6 +14,8 @@
 
 |<<_catalog_backup_plugin,Catalog Backup Plugin>>
 |||||||
+|<<_metacard_backup_plugin,Metacard Backup Plugin>>
+|||||||
 |<<_caching_federation_strategy,Caching Federation Strategy>>
 |||||||
 |<<_catalog_metrics_plugin,Catalog Metrics Plugin>>
@@ -71,6 +73,8 @@
 |<<_access_plugins,Access>>
 
 |<<_catalog_backup_plugin,Catalog Backup Plugin>>
+|x||||||
+|<<_metacard_backup_plugin,Metacard Backup Plugin>>
 |x||||||
 |<<_caching_federation_strategy,Caching Federation Strategy>>
 |x||||||

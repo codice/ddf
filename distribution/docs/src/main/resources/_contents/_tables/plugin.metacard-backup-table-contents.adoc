@@ -1,0 +1,27 @@
+.[[plugin.backup]]Metacard Backup Plugin
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Metacard Transformer Id
+|metacardTransformerId
+|String
+|ID of the metacard transformer to use to serialize metacard for backup.
+|metacard
+|true
+
+| Keep Deleted Metacard
+| keepDeletedMetacards
+| Boolean
+| Should backups for deleted metacards be kept or removed.
+| false
+| true
+
+|===
+

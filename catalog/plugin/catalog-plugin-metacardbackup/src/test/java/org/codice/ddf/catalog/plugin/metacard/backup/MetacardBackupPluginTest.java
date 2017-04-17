@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.catalog.plugin.metacard.backup;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
@@ -35,6 +35,8 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
+import org.codice.ddf.catalog.plugin.metacard.backup.storage.api.MetacardBackupStorageProvider;
+import org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -78,6 +80,8 @@ public class MetacardBackupPluginTest {
 
     private MetacardBackupPlugin metacardBackupPlugin;
 
+    private MetacardBackupFileStorage fileStorageProvider = new MetacardBackupFileStorage();
+
     private ProcessRequest<ProcessCreateItem> createRequest;
 
     private ProcessRequest<ProcessUpdateItem> updateRequest;
@@ -101,12 +105,9 @@ public class MetacardBackupPluginTest {
         createRequest = generateProcessRequest(ProcessCreateItem.class);
         updateRequest = generateProcessRequest(ProcessUpdateItem.class);
         deleteRequest = generateDeleteRequest();
-        metacardBackupPlugin.setOutputDirectory(OUTPUT_DIRECTORY);
-    }
-
-    @Test
-    public void testOutputDirectory() {
-        assertThat(metacardBackupPlugin.getOutputDirectory(), is(OUTPUT_DIRECTORY));
+        fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
+        metacardBackupPlugin.setStorageBackupPlugins(Arrays.asList(new MetacardBackupStorageProvider[] {
+                fileStorageProvider}));
     }
 
     @Test
@@ -127,51 +128,40 @@ public class MetacardBackupPluginTest {
 
     @Test
     public void testRefresh() {
-        String newBackupDir = "target/temp";
         String newMetacardTransformer = "tika";
         Map<String, Object> properties = new HashMap<>();
-        properties.put("outputDirectory", newBackupDir);
         properties.put("metacardTransformerId", newMetacardTransformer);
         properties.put("keepDeletedMetacards", Boolean.TRUE);
         metacardBackupPlugin.refresh(properties);
         assertThat(metacardBackupPlugin.getKeepDeletedMetacards(), is(true));
-        assertThat(metacardBackupPlugin.getOutputDirectory(), is(newBackupDir));
         assertThat(metacardBackupPlugin.getMetacardTransformerId(), is(newMetacardTransformer));
     }
 
     @Test
     public void testRefreshBadValues() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("outputDirectory", 2);
         properties.put("metacardTransformerId", 2);
         properties.put("keepDeletedMetacards", "bad");
         metacardBackupPlugin.refresh(properties);
         assertThat(metacardBackupPlugin.getKeepDeletedMetacards(), is(false));
-        assertThat(metacardBackupPlugin.getOutputDirectory(), is(OUTPUT_DIRECTORY));
         assertThat(metacardBackupPlugin.getMetacardTransformerId(), is(METACARD_TRANSFORMER_ID));
     }
 
     @Test
     public void testRefreshEmptyStrings() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("outputDirectory", "");
         properties.put("metacardTransformerId", "");
         metacardBackupPlugin.refresh(properties);
-        assertThat(metacardBackupPlugin.getOutputDirectory(), is(OUTPUT_DIRECTORY));
         assertThat(metacardBackupPlugin.getMetacardTransformerId(), is(METACARD_TRANSFORMER_ID));
     }
 
     @Test
     public void testCreateRequest() throws Exception {
+        metacardBackupPlugin.setStorageBackupPlugins(Arrays.asList(new MetacardBackupStorageProvider[] {
+                fileStorageProvider}));
         metacardBackupPlugin.processCreate(createRequest);
         assertFiles(true);
         metacardBackupPlugin.processDelete(deleteRequest);
-    }
-
-    @Test(expected = PluginExecutionException.class)
-    public void testCreateRequestEmptyOutputDirectory() throws Exception {
-        metacardBackupPlugin.setOutputDirectory("");
-        metacardBackupPlugin.processCreate(createRequest);
     }
 
     @Test(expected = PluginExecutionException.class)
@@ -206,18 +196,6 @@ public class MetacardBackupPluginTest {
     public void testUpdateRequest() throws Exception {
         metacardBackupPlugin.processUpdate(updateRequest);
         assertFiles(true);
-        metacardBackupPlugin.processDelete(deleteRequest);
-    }
-
-    @Test(expected = PluginExecutionException.class)
-    public void testUpdateRequestEmptyOutputDirectory() throws Exception {
-        metacardBackupPlugin.setOutputDirectory("");
-        metacardBackupPlugin.processUpdate(updateRequest);
-    }
-
-    @Test(expected = PluginExecutionException.class)
-    public void testDeleteRequestEmptyOutputDirectory() throws Exception {
-        metacardBackupPlugin.setOutputDirectory("");
         metacardBackupPlugin.processDelete(deleteRequest);
     }
 
@@ -299,7 +277,7 @@ public class MetacardBackupPluginTest {
 
     private void assertFiles(boolean exists) {
         for (String id : METACARD_IDS) {
-            Path path = metacardBackupPlugin.getMetacardDirectory(id);
+            Path path = fileStorageProvider.getMetacardDirectory(id);
             assertThat(path.toFile()
                     .exists(), is(exists));
         }
