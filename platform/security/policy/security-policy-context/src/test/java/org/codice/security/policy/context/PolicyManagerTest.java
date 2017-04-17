@@ -179,6 +179,7 @@ public class PolicyManagerTest {
 
         assertThat(noPermissions.implies(rootPermissions), is(true));
         assertThat(rootPermissions.implies(lastPermission), is(false));
+        assertThat(lastPermission.implies(noPermissions), is(false));
     }
 
     @Test
