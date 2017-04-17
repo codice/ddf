@@ -1000,6 +1000,7 @@
     <feature name="commons" version="${project.version}" install="manual" hidden="true">
         <bundle dependency="true">mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle dependency="true">mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
     </feature>
 
