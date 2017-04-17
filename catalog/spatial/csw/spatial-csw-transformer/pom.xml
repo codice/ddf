@@ -110,6 +110,11 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>geospatial</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-attributeregistry</artifactId>
             <version>${project.version}</version>
@@ -137,6 +142,7 @@
                             spatial-ogc-common,
                             catalog-core-api-impl,
                             platform-util,
+                            geospatial,
                             commons-lang3
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>

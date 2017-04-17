@@ -110,7 +110,7 @@ public class TestCswUnmarshallHelper {
 
         matcherMap.put(AttributeType.AttributeFormat.BINARY, notNullValue());
         matcherMap.put(AttributeType.AttributeFormat.GEOMETRY, is(
-                "POLYGON((44.792 -6.171, 51.126 -6.171, 51.126 -2.228, 44.792 -2.228, 44.792 -6.171))"));
+                "POLYGON ((44.792 -6.171, 44.792 -2.228, 51.126 -2.228, 51.126 -6.171, 44.792 -6.171))"));
 
         AttributeType.AttributeFormat[] attributeFormats = AttributeType.AttributeFormat.values();
 

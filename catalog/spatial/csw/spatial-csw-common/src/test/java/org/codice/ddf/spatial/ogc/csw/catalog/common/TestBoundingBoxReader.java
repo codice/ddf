@@ -41,12 +41,15 @@ public class TestBoundingBoxReader {
             LoggerFactory.getLogger(TestBoundingBoxReader.class);
 
     private static final String POLYGON_CONTROL_WKT_IN_LON_LAT =
-            "POLYGON((65.6272038662182 33.305863417212,"
-                    + " 65.7733371981862 33.305863417212, 65.7733371981862 33.6653407061501,"
-                    + " 65.6272038662182 33.6653407061501, 65.6272038662182 33.305863417212))";
+            "POLYGON ((65.6272038662182 33.305863417212, 65.6272038662182 33.6653407061501, 65.7733371981862 33.6653407061501, 65.7733371981862 33.305863417212, 65.6272038662182 33.305863417212))";
+
+    private static final String NON_JTS_FORMATTED_POLYGON_CONTROL_WKT_IN_LON_LAT =
+            "POLYGON ((65.6272038662182 33.305863417212, 65.7733371981862 33.305863417212, 65.7733371981862 33.6653407061501, 65.6272038662182 33.6653407061501, 65.6272038662182 33.305863417212))";
+
+    private static final String POLYGON_UTM_LON_LAT = "POLYGON ((29.999988636853967 9.999983148395557, 30.49995986771138 10.004117795867893, 30.499959660281664 10.00414490359446, 29.999988388080407 10.000010244696764, 29.999988636853967 9.999983148395557))";
 
     private static final String POINT_CONTROL_WKT_IN_LON_LAT =
-            "POINT(65.6272038662182 33.305863417212)";
+            "POINT (65.6272038662182 33.305863417212)";
 
     /**
      * Verify that if given a BoundingBox with coords in LON/LAT that the resulting WKT is in
@@ -67,7 +70,7 @@ public class TestBoundingBoxReader {
         LOGGER.debug("WKT: {}", wktInLonLat);
 
         // Verify
-        assertThat(wktInLonLat, is(POLYGON_CONTROL_WKT_IN_LON_LAT));
+        assertThat(wktInLonLat, is(NON_JTS_FORMATTED_POLYGON_CONTROL_WKT_IN_LON_LAT));
     }
 
     /**
@@ -176,4 +179,82 @@ public class TestBoundingBoxReader {
         boundingBoxReader.getWkt();
     }
 
+    @Test
+    public void testJTSConverterEPSG4326LatLon() throws Exception {
+        // Setup
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse("src/test/resources/BoundingBoxInLatLonEPSG4326.xml");
+        HierarchicalStreamReader hReader = new DomReader(doc);
+        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader, CswAxisOrder.LAT_LON);
+
+        // Perform Test
+        String wktInLonLat = boundingBoxReader.getWkt();
+        LOGGER.debug("WKT: {}", wktInLonLat);
+
+        // Verify
+        assertThat(wktInLonLat, is(POLYGON_CONTROL_WKT_IN_LON_LAT));
+    }
+
+    @Test
+    public void testJTSConverterEPSG4326LonLat() throws Exception {
+        // Setup
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse("src/test/resources/BoundingBoxInLonLatEPSG4326.xml");
+        HierarchicalStreamReader hReader = new DomReader(doc);
+        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader, CswAxisOrder.LON_LAT);
+
+        // Perform Test
+        String wktInLonLat = boundingBoxReader.getWkt();
+        LOGGER.debug("WKT: {}", wktInLonLat);
+
+        // Verify
+        assertThat(wktInLonLat, is(NON_JTS_FORMATTED_POLYGON_CONTROL_WKT_IN_LON_LAT));
+    }
+
+    @Test
+    public void testJTSConverterEPSG32636() throws Exception {
+        // Setup
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse("src/test/resources/BoundingBoxEPSG32636.xml");
+        HierarchicalStreamReader hReader = new DomReader(doc);
+        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader, CswAxisOrder.LAT_LON);
+
+        // Perform Test
+        String wktInLonLat = boundingBoxReader.getWkt();
+        LOGGER.debug("WKT: {}", wktInLonLat);
+
+        // Verify
+        assertThat(wktInLonLat, is(POLYGON_UTM_LON_LAT));
+    }
+
+    @Test(expected = CswException.class)
+    public void testJTSConverterBadCrs() throws Exception {
+        // Setup
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse("src/test/resources/BoundingBoxBadCrs.xml");
+        HierarchicalStreamReader hReader = new DomReader(doc);
+        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader, CswAxisOrder.LAT_LON);
+        boundingBoxReader.getWkt();
+    }
+
+    @Test(expected = CswException.class)
+    public void testJTSConverterBadLat() throws Exception {
+        // Setup
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse("src/test/resources/BoundingBoxBadCoordinates.xml");
+        HierarchicalStreamReader hReader = new DomReader(doc);
+        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader, CswAxisOrder.LAT_LON);
+
+        // Perform Test
+        String wktInLonLat = boundingBoxReader.getWkt();
+        LOGGER.debug("WKT: {}", wktInLonLat);
+
+        // Verify
+        assertThat(wktInLonLat, is(NON_JTS_FORMATTED_POLYGON_CONTROL_WKT_IN_LON_LAT));
+    }
 }

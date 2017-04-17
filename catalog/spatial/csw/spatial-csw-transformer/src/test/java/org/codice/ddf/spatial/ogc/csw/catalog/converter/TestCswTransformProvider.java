@@ -32,6 +32,7 @@ import javax.activation.MimeType;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.custommonkey.xmlunit.XMLAssert;
@@ -97,8 +98,7 @@ public class TestCswTransformProvider {
 
     @Test
     public void testMarshalOtherSchema() throws Exception {
-        when(mockMetacardManager.getTransformerByProperty(TransformerManager.SCHEMA,
-                OTHER_SCHEMA)).thenReturn(mockMetacardTransformer);
+        when(mockMetacardManager.getTransformerByProperty(TransformerManager.SCHEMA, OTHER_SCHEMA)).thenReturn(mockMetacardTransformer);
 
         when(mockMetacardTransformer.transform(any(Metacard.class),
                 any(Map.class))).thenReturn(new BinaryContentImpl(IOUtils.toInputStream(getRecord()),
@@ -157,6 +157,35 @@ public class TestCswTransformProvider {
         String outputSchema = captor.getValue();
 
         assertThat(outputSchema, is(CswConstants.CSW_OUTPUT_SCHEMA));
+    }
+
+    @Test
+    public void testUnmarshalCswRecordCoordinateOrder() throws Exception {
+        when(mockInputManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(
+                mockCswRecordConverter);
+
+        HierarchicalStreamReader reader =
+                new WstxDriver().createReader(new StringReader(getRecord()));
+        CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
+        UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
+        context.put(CswConstants.AXIS_ORDER_PROPERTY, CswAxisOrder.LAT_LON);
+
+        ArgumentCaptor<HierarchicalStreamReader> readerArgumentCaptor = ArgumentCaptor.forClass(HierarchicalStreamReader.class);
+        ArgumentCaptor<UnmarshallingContext> unmarshallingContextArgumentCaptor = ArgumentCaptor.forClass(UnmarshallingContext.class);
+
+        provider.unmarshal(reader, context);
+
+        // Verify that CswRecordConverter unmarshal was called
+        verify(mockCswRecordConverter, times(1)).unmarshal(readerArgumentCaptor.capture(),
+                unmarshallingContextArgumentCaptor.capture());
+
+        HierarchicalStreamReader hierarchicalStreamReader = readerArgumentCaptor.getValue();
+        UnmarshallingContext unmarshallingContext = unmarshallingContextArgumentCaptor.getValue();
+
+        // Verify that reader and context are passed to the CswRecordConverter correctly
+        assertThat(hierarchicalStreamReader, is(reader));
+        assertThat(unmarshallingContext, is(context));
+        assertThat(context.get(CswConstants.AXIS_ORDER_PROPERTY), is(CswAxisOrder.LAT_LON));
     }
 
     @Test

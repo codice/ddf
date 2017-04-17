@@ -101,6 +101,11 @@
             <artifactId>spatial-csw-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>geospatial</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -171,7 +176,8 @@
                             jaxb2-basics-runtime,
                             registry-common,
                             catalog-core-api-impl;scope=!test,
-                            commons-lang3
+                            commons-lang3,
+                            geospatial
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>

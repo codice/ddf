@@ -74,8 +74,8 @@ public class CswTransformProvider implements Converter {
      * @param o       - metacard to transform.
      * @param writer  - writes the XML.
      * @param context - the marshalling context. Should contain a map entry for {@link
-     *                org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.TRANSFORMER_LOOKUP_KEY}
-     *                {@link org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.TRANSFORMER_LOOKUP_VALUE}
+     *                org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants#TRANSFORMER_LOOKUP_KEY}
+     *                {@link org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants#TRANSFORMER_LOOKUP_VALUE}
      *                to identify which transformer to use. Also contains properties for any
      *                arguments to provide the transformer.
      */
@@ -87,7 +87,7 @@ public class CswTransformProvider implements Converter {
         Metacard metacard = (Metacard) o;
         String keyArg = (String) context.get(CswConstants.TRANSFORMER_LOOKUP_KEY);
         String valArg = (String) context.get(CswConstants.TRANSFORMER_LOOKUP_VALUE);
-        MetacardTransformer transformer = null;
+        MetacardTransformer transformer;
 
         if (StringUtils.isNotBlank(keyArg) && StringUtils.isNotBlank(valArg)) {
             transformer = metacardTransformerManager.getTransformerByProperty(keyArg, valArg);
@@ -102,7 +102,7 @@ public class CswTransformProvider implements Converter {
                     valArg));
         }
 
-        BinaryContent content = null;
+        BinaryContent content;
         try {
             content = transformer.transform(metacard, getArguments(context));
         } catch (CatalogTransformerException e) {
@@ -150,11 +150,11 @@ public class CswTransformProvider implements Converter {
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         String keyArg = (String) context.get(CswConstants.TRANSFORMER_LOOKUP_KEY);
         String valArg = (String) context.get(CswConstants.TRANSFORMER_LOOKUP_VALUE);
-        InputTransformer transformer = null;
+        InputTransformer transformer;
         if (StringUtils.isNotBlank(keyArg) && StringUtils.isNotBlank(valArg)) {
             transformer = inputTransformerManager.getTransformerByProperty(keyArg, valArg);
         } else {
-            transformer = inputTransformerManager.<InputTransformer>getTransformerBySchema(
+            transformer = inputTransformerManager.getTransformerBySchema(
                     CswConstants.CSW_OUTPUT_SCHEMA);
         }
 
@@ -164,7 +164,12 @@ public class CswTransformProvider implements Converter {
                     valArg));
         }
 
-        Metacard metacard = null;
+        /* The CswRecordConverter uses unmarshal, which requires the context */
+        if (transformer instanceof CswRecordConverter) {
+            return ((CswRecordConverter) transformer).unmarshal(reader, context);
+        }
+
+        Metacard metacard;
         try (InputStream is = readXml(reader, context)) {
             InputStream inputStream = is;
             if (LOGGER.isDebugEnabled()) {
@@ -183,7 +188,6 @@ public class CswTransformProvider implements Converter {
 
     private InputStream readXml(HierarchicalStreamReader reader, UnmarshallingContext context)
             throws IOException {
-        InputStream is = null;
 
         Map<String, String> namespaces = null;
         Object namespaceObj = context.get(CswConstants.NAMESPACE_DECLARATIONS);
