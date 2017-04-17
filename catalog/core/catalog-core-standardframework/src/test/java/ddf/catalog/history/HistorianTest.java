@@ -16,6 +16,7 @@ package ddf.catalog.history;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -48,10 +49,14 @@ import ddf.catalog.content.operation.CreateStorageResponse;
 import ddf.catalog.content.operation.DeleteStorageRequest;
 import ddf.catalog.content.operation.ReadStorageRequest;
 import ddf.catalog.content.operation.ReadStorageResponse;
+import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
+import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
+import ddf.catalog.core.versioning.impl.DeletedMetacardImpl;
+import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -77,6 +82,10 @@ import ddf.security.Subject;
 public class HistorianTest {
 
     private static final String METACARD_ID = "METACARD_ID";
+
+    private static final String DELETED_METACARD_ID = "DELETED_ID";
+
+    private static final String VERSIONED_METACARD_ID = "VERSIONED_ID";
 
     private static final String RESOURCE_URI = "content:example.com";
 
@@ -110,7 +119,8 @@ public class HistorianTest {
     }
 
     @Test
-    public void testDoSkip() throws SourceUnavailableException, IngestException {
+    public void testUpdateResponseHistorianDisabled()
+            throws SourceUnavailableException, IngestException {
         historian.setHistoryEnabled(false);
         historian.version(mock(UpdateResponse.class));
 
@@ -118,7 +128,7 @@ public class HistorianTest {
     }
 
     @Test
-    public void testSetSkipFlag() throws SourceUnavailableException, IngestException {
+    public void testUpdateResponseSetSkipFlag() throws SourceUnavailableException, IngestException {
         Map<String, Serializable> properties = new HashMap<>();
         UpdateResponse updateResponse = createUpdateResponse(properties);
 
@@ -128,15 +138,15 @@ public class HistorianTest {
     }
 
     @Test
-    public void testSkipProperty() throws SourceUnavailableException, IngestException {
+    public void testUpdateResponseSkipProperty()
+            throws SourceUnavailableException, IngestException {
         Map<String, Serializable> properties = new HashMap<>();
         properties.put(MetacardVersion.SKIP_VERSIONING, true);
 
         UpdateResponse updateResponse = createUpdateResponse(properties);
 
         historian.version(updateResponse);
-        // Called once for skip check
-        verify(updateResponse).getProperties();
+        verifyZeroInteractions(catalogProvider);
     }
 
     @Test
@@ -157,7 +167,50 @@ public class HistorianTest {
     }
 
     @Test
-    public void testUpdateStorageResponseSkip()
+    public void testUpdateStorageResponseHistorianDisabled()
+            throws SourceUnavailableException, IngestException, UnsupportedQueryException {
+        historian.setHistoryEnabled(false);
+        historian.version(mock(UpdateStorageRequest.class),
+                mock(UpdateStorageResponse.class),
+                mock(UpdateResponse.class));
+
+        verifyZeroInteractions(catalogProvider);
+    }
+
+    @Test
+    public void testUpdateStorageResponseSetSkipFlag()
+            throws SourceUnavailableException, IngestException, StorageException,
+            UnsupportedQueryException {
+        Map<String, Serializable> storageRequestProperties = new HashMap<>();
+        Map<String, Serializable> storageResponseProperties = new HashMap<>();
+
+        // The metacard and updated metacard
+        List<Metacard> metacards = getMetacardUpdatePair();
+
+        // Parameters for historian
+        UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
+        when(storageRequest.getProperties()).thenReturn(storageRequestProperties);
+
+        UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
+        when(storageResponse.getProperties()).thenReturn(storageResponseProperties);
+
+        UpdateResponse updateResponse = mock(UpdateResponse.class);
+
+        storeMetacard(metacards.get(0));
+
+        // send a request to update the metacard
+        updateMetacard(storageRequest, storageResponse, metacards.get(1));
+        storageProvider.update(storageRequest);
+
+        mockQuery(metacards.get(1));
+        historian.version(storageRequest, storageResponse, updateResponse);
+
+        assertThat(storageRequestProperties, hasEntry(MetacardVersion.SKIP_VERSIONING, true));
+        assertThat(storageResponseProperties, hasEntry(MetacardVersion.SKIP_VERSIONING, true));
+    }
+
+    @Test
+    public void testUpdateStorageResponseEmptyStorageRequest()
             throws UnsupportedQueryException, SourceUnavailableException, IngestException {
         UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
         UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
@@ -165,7 +218,23 @@ public class HistorianTest {
 
         historian.version(storageRequest, storageResponse, updateResponse);
 
+        verifyZeroInteractions(catalogProvider);
         assertThat(storageProvider.storageMap.size(), equalTo(0));
+    }
+
+    @Test
+    public void testUpdateStorageResponseSkipProperty()
+            throws SourceUnavailableException, IngestException, UnsupportedQueryException {
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(MetacardVersion.SKIP_VERSIONING, true);
+
+        UpdateStorageResponse updateStorageResponse = mock(UpdateStorageResponse.class);
+        when(updateStorageResponse.getProperties()).thenReturn(properties);
+
+        historian.version(mock(UpdateStorageRequest.class),
+                updateStorageResponse,
+                mock(UpdateResponse.class));
+        verifyZeroInteractions(catalogProvider);
     }
 
     @Test
@@ -194,6 +263,9 @@ public class HistorianTest {
         Metacard update = readMetacard();
 
         assertThat(update, equalTo(metacards.get(1)));
+        assertThat(storageResponse.getUpdatedContentItems()
+                .get(0)
+                .getUri(), not(equalTo(RESOURCE_URI)));
     }
 
     @Test
@@ -215,6 +287,49 @@ public class HistorianTest {
         historian.version(storageRequest, storageResponse, updateResponse);
 
         assertThat(storageProvider.storageMap.size(), equalTo(0));
+    }
+
+    @Test
+    public void testDeleteResponseHistorianDisabled()
+            throws SourceUnavailableException, IngestException, UnsupportedQueryException {
+        historian.setHistoryEnabled(false);
+        historian.version(mock(DeleteResponse.class));
+
+        verifyZeroInteractions(catalogProvider);
+    }
+
+    @Test
+    public void testDeleteResponseSetSkipFlag()
+            throws SourceUnavailableException, IngestException, StorageException {
+        Metacard metacard = getMetacardUpdatePair().get(0);
+        storeMetacard(metacard);
+
+        // Send a delete request
+        DeleteStorageRequest deleteStorageRequest =
+                new DeleteStorageRequestImpl(Collections.singletonList(metacard), new HashMap<>());
+        storageProvider.delete(deleteStorageRequest);
+
+        // Version delete request
+        DeleteRequest deleteRequest = new DeleteRequestImpl("deleteRequest");
+        DeleteResponse deleteResponse = new DeleteResponseImpl(deleteRequest,
+                new HashMap<>(),
+                Collections.singletonList(metacard));
+        historian.version(deleteResponse);
+
+        assertThat(deleteResponse.getProperties(), hasEntry(MetacardVersion.SKIP_VERSIONING, true));
+    }
+
+    @Test
+    public void testDeleteResponseSkipProperty()
+            throws SourceUnavailableException, IngestException {
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(MetacardVersion.SKIP_VERSIONING, true);
+
+        DeleteResponse deleteResponse = mock(DeleteResponse.class);
+        when(deleteResponse.getProperties()).thenReturn(properties);
+
+        historian.version(deleteResponse);
+        verifyZeroInteractions(catalogProvider);
     }
 
     @Test
@@ -342,6 +457,7 @@ public class HistorianTest {
 
         mockQuery(metacards.get(1));
         historian.version(storageRequest, storageResponse, updateResponse);
+        verify(exceptionStorageProvider).rollback(any(StorageRequest.class));
     }
 
     @Test
@@ -412,8 +528,24 @@ public class HistorianTest {
         SourceResponse sourceResponse = mock(SourceResponse.class);
         Result result = mock(Result.class);
         when(result.getMetacard()).thenReturn(metacard);
-        Result noMetacard = mock(Result.class);
-        when(sourceResponse.getResults()).thenReturn(Arrays.asList(noMetacard, result, noMetacard));
+        Result noResult = mock(Result.class);
+
+        Result deletedResult = mock(Result.class);
+        DeletedMetacard deletedMetacard = mock(DeletedMetacard.class);
+        when(deletedMetacard.getId()).thenReturn(DELETED_METACARD_ID);
+        when(deletedMetacard.getMetacardType()).thenReturn(DeletedMetacardImpl.getDeletedMetacardType());
+        when(deletedResult.getMetacard()).thenReturn(deletedMetacard);
+
+        Result notVersionedResult = mock(Result.class);
+        Metacard versionedMetacard = mock(MetacardVersion.class);
+        when(versionedMetacard.getId()).thenReturn(VERSIONED_METACARD_ID);
+        when(versionedMetacard.getMetacardType()).thenReturn(MetacardVersionImpl.getMetacardVersionType());
+        when(notVersionedResult.getMetacard()).thenReturn(versionedMetacard);
+
+        when(sourceResponse.getResults()).thenReturn(Arrays.asList(deletedResult,
+                result,
+                noResult,
+                notVersionedResult));
         when(catalogProvider.query(any())).thenReturn(sourceResponse);
     }
 
@@ -429,13 +561,21 @@ public class HistorianTest {
             Metacard update) {
         ContentItem noMetacard = mock(ContentItem.class);
         ContentItem updatedItem = mock(ContentItem.class);
+        ContentItem hasQualifier = mock(ContentItem.class);
+        ContentItem emptyQualifier = mock(ContentItem.class);
+
+        when(hasQualifier.getQualifier()).thenReturn("some-qualifier");
+        when(emptyQualifier.getQualifier()).thenReturn("");
+
         when(updatedItem.getId()).thenReturn(METACARD_ID);
         when(updatedItem.getUri()).thenReturn(RESOURCE_URI);
         when(updatedItem.getMetacard()).thenReturn(update);
+
         when(request.getContentItems()).thenReturn(Collections.singletonList(updatedItem));
         when(response.getUpdatedContentItems()).thenReturn(Arrays.asList(noMetacard,
                 updatedItem,
-                noMetacard));
+                hasQualifier,
+                emptyQualifier));
     }
 
     private Metacard readMetacard() throws StorageException, URISyntaxException {
