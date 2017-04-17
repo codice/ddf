@@ -1,0 +1,71 @@
+:title: GeoJSON Metacard Transformer
+:type: transformer
+:subtype: metacard
+:status: published
+:link: _geojson_metacard_transformer
+:summary: Translates a metacard into GeoJSON.
+
+GeoJSON Metacard Transformer translates a metacard into GeoJSON.
+
+===== Installing the GeoJSON Metacard Transformer
+
+The GeoJSON Metacard Transformer is not installed by default with a standard installation.
+
+To install:
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Features* tab.
+. Install the `catalog-transformer-json` feature.
+
+===== Configuring the GeoJSON Metacard Transformer
+
+The GeoJSON Metacard Transformer has no configurable properties.
+
+===== Using the GeoJSON Metacard Transformer
+
+The GeoJSON Metacard Transformer can be used programmatically by requesting a `MetacardTransformer` with the id `geojson`.
+It can also be used within the REST Endpoint by providing the transform option as `geojson`.
+
+.Example REST GET Method with the GeoJSON Metacard Transformer
+----
+${secure_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=geojson
+----
+
+.Example REST GET Output from the GeoJSON Metacard Transformer
+[source,JSON,linenums]
+----
+{
+    "properties":{
+        "title":"myTitle",
+        "thumbnail":"CA==",
+        "resource-uri":"http:\/\/example.com",
+        "created":"2012-08-31T23:55:19.518+0000",
+        "metadata-content-type-version":"myVersion",
+        "metadata-content-type":"myType",
+        "metadata":"<xml>text<\/xml>",
+        "modified":"2012-08-31T23:55:19.518+0000",
+        "metacard-type": "ddf.metacard"
+    },
+    "type":"Feature",
+    "geometry":{
+        "type":"LineString",
+        "coordinates":[
+            [
+                30.0,
+                10.0
+            ],
+            [
+                10.0,
+                30.0
+            ],
+            [
+                40.0,
+                40.0
+            ]
+        ]
+    }
+}
+----
+
+'''

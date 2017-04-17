@@ -1,0 +1,165 @@
+:title: KML Query Response Transformer
+:type: transformer
+:subtype: queryResponse
+:status: published
+:link: _kml_query_response_transformer
+:summary: Translates a query response into a KML-formatted document.
+
+The KML Query Response Transformer translates a query response into a KML-formatted document.
+The KML will contain an HTML description for each metacard that will display in the pop-up bubble in Google Earth.
+The HTML contains links to the full metadata view as well as the product.
+
+===== Installing the KML Query Response Transformer
+
+The `spatial-kml-transformer` feature is installed by default in the ${ddf-spatial} Application.
+
+===== Configuring the KML Query Response Transformer
+
+The KML Query Response Transformer has no configurable properties.
+
+===== Using the KML Query Response Transformer
+
+Using the OpenSearch Endpoint, for example, query with the format option set to the KML shortname: `kml`.
+
+.KML Query Response Transformer URL
+----
+${public_url}/services/catalog/query?q=schematypesearch&format=kml
+----
+
+.KML Query Response Transformer Example Output
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<kml xmlns:ns2="http://www.google.com/kml/ext/2.2" xmlns="http://www.opengis.net/kml/2.2" xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" xmlns:ns3="http://www.w3.org/2005/Atom">
+  <Document id="f0884d8c-cf9b-44a1-bb5a-d3c6fb9a96b6">
+    <name>Results (1)</name>
+    <open xsi:type="xs:boolean" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">false</open>
+    <Style id="bluenormal">
+      <LabelStyle>
+        <scale>0.0</scale>
+      </LabelStyle>
+      <LineStyle>
+        <color>33ff0000</color>
+        <width>3.0</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>33ff0000</color>
+        <fill xsi:type="xs:boolean" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">true</fill>
+      </PolyStyle>
+      <BalloonStyle>
+        <text>&lt;h3&gt;&lt;b&gt;$[name]&lt;/b&gt;&lt;/h3&gt;&lt;table&gt;&lt;tr&gt;&lt;td width="400"&gt;$[description]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</text>
+      </BalloonStyle>
+    </Style>
+    <Style id="bluehighlight">
+      <LabelStyle>
+        <scale>1.0</scale>
+      </LabelStyle>
+      <LineStyle>
+        <color>99ff0000</color>
+        <width>6.0</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>99ff0000</color>
+        <fill xsi:type="xs:boolean" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">true</fill>
+      </PolyStyle>
+      <BalloonStyle>
+        <text>&lt;h3&gt;&lt;b&gt;$[name]&lt;/b&gt;&lt;/h3&gt;&lt;table&gt;&lt;tr&gt;&lt;td width="400"&gt;$[description]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="default">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#bluenormal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#bluehighlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark id="Placemark-0103c77e66d9428d8f48fab939da528e">
+      <name>MultiPolygon</name>
+      <description>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta content="text/html; charset=windows-1252" http-equiv="content-type"&gt;
+    &lt;style media="screen" type="text/css"&gt;
+      .label {
+        font-weight: bold
+      }
+      .linkTable {
+width: 100% }
+      .thumbnailDiv {
+        text-align: center
+} img {
+        max-width: 100px;
+        max-height: 100px;
+        border-style:none
+      }
+    &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+        &lt;div class="thumbnailDiv"&gt;&lt;a
+href="${public_url}/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
+48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail"
+src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
+    &lt;table&gt;
+      &lt;tr&gt;
+        &lt;td class="label"&gt;Source:&lt;/td&gt;
+        &lt;td&gt;${ddf-branding-lowercase}.distribution&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="label"&gt;Created:&lt;/td&gt;
+        &lt;td&gt;Wed Oct 30 09:46:29 MDT 2013&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+￼￼￼        &lt;td class="label"&gt;Effective:&lt;/td&gt;
+        &lt;td&gt;2014-01-07T14:48:47-0700&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+    &lt;table class="linkTable"&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;a
+href="${public_url}/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
+48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a
+href="${public_url}/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
+48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</description>
+      <TimeSpan>
+        <begin>2014-01-07T21:48:47</begin>
+      </TimeSpan>
+      <styleUrl>#default</styleUrl>
+      <MultiGeometry>
+        <Point>
+          <coordinates>102.0,2.0</coordinates>
+        </Point>
+        <MultiGeometry>
+          <Polygon>
+            <outerBoundaryIs>
+              <LinearRing>
+                <coordinates>102.0,2.0 103.0,2.0 103.0,3.0 102.0,3.0
+102.0,2.0</coordinates>
+              </LinearRing>
+100.8,0.2
+  </outerBoundaryIs>
+</Polygon>
+<Polygon>
+  <outerBoundaryIs>
+    <LinearRing>
+      <coordinates>100.0,0.0 101.0,0.0 101.0,1.0 100.0,1.0 100.0,0.0 100.2,0.2
+        100.8,0.8 100.2,0.8 100.2,0.2</coordinates>
+              </LinearRing>
+            </outerBoundaryIs>
+          </Polygon>
+        </MultiGeometry>
+      </MultiGeometry>
+    </Placemark>
+  </Document>
+</kml>
+----
+
+'''

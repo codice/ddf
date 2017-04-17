@@ -1,0 +1,21 @@
+:type: documentation
+:status: published
+
+.[[ddf.catalog.transformer.input.pdf.PdfInputTransformer]]PDF Input Transformer
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Use PDF Title
+|usePdfTitleAsTitle
+|Boolean
+|Use the PDF's metadata to determine the metacard title. If this is not enabled, the metacard title will be the file name.
+|false
+|true
+
+|===

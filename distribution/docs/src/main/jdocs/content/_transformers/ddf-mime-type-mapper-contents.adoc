@@ -1,0 +1,18 @@
+:title: DDF Mime Type Mapper
+:type: mimeTypeMapper
+:status: published
+:link: _ddf_mime_type_mapper
+:summary: Core implementation of the ${ddf-branding} Mime API.
+
+The ${ddf-branding} Mime Type Mapper is the core implementation of the ${ddf-branding} Mime API.
+It provides access to all `MimeTypeResolvers` within ${branding}, which provide mapping of mime types to file extensions and file extensions to mime types.
+
+===== Installing the ${ddf-branding} Mime Type Mapper
+
+The ${ddf-branding} Mime Type Mapper is installed by default with a standard installation in the ${ddf-platform} application.
+
+===== Configuring ${ddf-branding} Mime Type Mapper
+
+The ${ddf-branding} Mime Type Mapper has no configurable properties.
+
+'''

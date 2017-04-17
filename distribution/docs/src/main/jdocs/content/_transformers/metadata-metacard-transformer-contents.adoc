@@ -1,0 +1,29 @@
+:title: Metadata Metacard Transformer
+:type: transformer
+:subtype: metacard
+:status: published
+:link: _metadata_metacard_transformer
+:summary: returns the `Metacard.METADATA` attribute when given a metacard.
+
+The Metadata Metacard Transformer returns the `Metacard.METADATA` attribute when given a metacard.
+The MIME Type returned is `text/xml`.
+
+===== Installing the Metadata Metacard Transformer
+
+The Metadata Metacard Transformer is installed by default in a standard installation with the ${ddf-catalog} application.
+
+===== Configuring the Metadata Metacard Transformer
+
+The Metadata Metacard Transformer has no configurable properties.
+
+===== Using the Metadata Metacard Transformer
+
+The Metadata Metacard Transformer can be used programmatically by requesting a metacard transformer with the id `metadata`.
+It can also be used within the REST Endpoint by providing the transform option as `metadata`.
+
+.Example REST GET method with the Metadata Metacard Transformer
+----
+${public_url}/services/catalog/0123456789abcdef0123456789abcdef?transform=metadata
+----
+
+'''

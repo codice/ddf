@@ -1,0 +1,82 @@
+:title: Transformers Intro
+:type: transformerIntro
+:status: published
+
+.Transformers
+[ditaa, catalog_architecture_transformers, png, ${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||c369           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                +-------------------+                       |
+|                |cDEF               |                       |
+|                | Storage Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+Transformers transform data to and from various formats.
+Transformers are categorized by when they are invoked and used.
+The <<_types_of_transformers,existing types>> are <<_available_input_transformers,Input transformers>>, <<_available_metacard_transformers,Metacard transformers>>, and <<_query_response_transformers,Query Response transformers>>.
+Additionally, XSLT transformers are provided to aid in developing custom, lightweight Metacard and Query Response transformers.
+
+Transformers are utility objects used to transform a set of standard ${branding} components into a desired format, such as into PDF, GeoJSON, XML, or any other format.
+For instance, a transformer can be used to convert a set of query results into an easy-to-read GeoJSON format (<<_geojson_transformer,GeoJSON Transformer>>) or convert a set of results into a RSS feed that can be easily published to a URL for RSS feed subscription.
+Transformers can be registered in the OSGi Service Registry so that any other developer can access them based on their standard interface and self-assigned identifier, referred to as its "shortname."
+Transformers are often used by endpoints for data conversion in a system standard way.
+Multiple endpoints can use the same transformer, a different transformer, or their own published transformer.
+
+[WARNING]
+====
+The current transformers only work for UTF-8 characters and do not support Non-Western Characters (for example, Hebrew).
+It is recommend not to use international character sets, as they may not be displayed properly.
+====
+
+.Communication Diagram
+[ditaa, transformer_communication_diagram, png, ${image-width}]
+....
+/------\
+|Client|
+|cDEF  |
+\------/
+    ^
+    |
++-------------------------------------------\
+|DDF|                                  cCCC |
+|   v                                       |
+|/--------\   /-----------------\   /------\|
+||Endpoint|<->|Catalog Framework|<->|Source||
+|| cDEF   |   | cDEF            |   | cDEF ||
+|\--------/   \-----------------/   \------/|
+|                      ^                    |
+|                      |                    |
+|                      v                    |
+|               /-------------\             |
+|               | Transformer |             |
+|               |  cDEF       |             |
+|               \-------------/             |
+\-------------------------------------------/
+....
+
+
+Transformers are used to alter the format of a resource or its metadata to or from the catalog’s metacard format.
+
+.[[_types_of_transformers]]Types of Transformers
+<<_available_input_transformers,Input Transformers>>:: Input Transformers create metacards from input. Once converted to a Metacard, the data can be used in a variety of ways, such as in an `UpdateRequest`, `CreateResponse`, or within Catalog Endpoints or Sources. For instance, an input transformer could be used to receive and translate XML into a Metacard so that it can be placed within a `CreateRequest` in order to be ingested within the Catalog. Input transformers should be registered within the Service Registry with the interface `ddf.catalog.transform.InputTransformer` in order to notify Catalog components of any new transformers.
+
+<<_available_metacard_transformers,Metacard Transformers>>:: Metacard Transformers translate a metacard from catalog metadata to a specific data format.
+
+<<_available_query_response_transformers,Query Response Transformers>>:: Query Response transformers convert query responses into other data formats.

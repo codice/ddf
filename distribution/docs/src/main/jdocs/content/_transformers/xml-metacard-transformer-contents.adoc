@@ -1,0 +1,65 @@
+:title: XML Metacard Transformer
+:type: transformer
+:subtype: metacard
+:status: published
+:link: _xml_metacard_transformer
+:summary: Translates a metacard into an XML-formatted document.
+
+The XML metacard transformer is responsible for translating a metacard into an XML-formatted document.
+The metacard element that is generated is an extension of `gml:AbstractFeatureType`, which makes the output of this transformer GML 3.1.1 compatible.
+
+===== Installing the XML Metacard Transformer
+
+This transformer comes installed by default with a standard installation in the ${ddf-catalog} application.
+
+To install or uninstall manually, use the `catalog-transformer-xml` feature.
+
+===== Configuring the XML Metacard Transformer
+
+The XML Metacard Transformer has no configurable properties.
+
+===== Using the XML Metacard Transformer
+
+Using the REST Endpoint for example, request a metacard with the transform option set to the XML shortname.
+
+.XML Metacard Transformer URL
+----
+${secure_url}/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml
+----
+
+.Metacard to XML Mappings
+[cols="1m,1m" options="header"]
+|===
+|Metacard Variables
+|XML Element
+
+|id
+|metacard/@gml:id
+
+|metacardType
+|metacard/type
+
+|sourceId
+|metacard/source
+
+|all other attributes
+|metacard/<AttributeType>[name='<AttributeName>']/value +
+For instance, the value for the metacard attribute named "title" would be found at
+`metacard/string[@name='title']/value`
+|===
+
+.XML Adapted Attributes (AttributeTypes)
+* `boolean`
+* `base64Binary`
+* `dateTime`
+* `double`
+* `float`
+* `geometry`
+* `int`
+* `long`
+* `object`
+* `short`
+* `string`
+* `stringxml`
+
+'''

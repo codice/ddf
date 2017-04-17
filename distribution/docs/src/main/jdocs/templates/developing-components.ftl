@@ -1,3 +1,6 @@
+== Developing ${branding} Components
+
+Create custom implementations of ${branding} components.
 
 <#list developingComponents as developingComponent>
 <#if (developingComponent.status == "published")>

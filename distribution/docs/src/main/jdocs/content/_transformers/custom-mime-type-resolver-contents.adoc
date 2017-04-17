@@ -1,0 +1,51 @@
+:title: Custom Mime Type Resolver
+:type: mimeTypeResolver
+:status: published
+:link: _custom_mime_type_resolver
+:summary: The Custom Mime Type Resolver is a `MimeTypeResolver` that defines the custom mime types that ${branding} will support.
+
+These are mime types not supported by the default `TikaMimeTypeResolver`.
+
+.Custom Mime Type Resolver Default Supported Mime Types
+[cols="1m,2m" options="header"]
+|===
+
+|File Extension
+|Mime Type
+
+|nitf
+|image/nitf
+
+|ntf
+|image/nitf
+
+|json
+|json=application/json;id=geojson
+
+|===
+
+As a `MimeTypeResolver`, the Custom Mime Type Resolver will provide methods to map the file extension to the corresponding mime type, and vice versa.
+
+===== Installing the Custom Mime Type Resolver
+
+One Custom Mime Type Resolver is configured and installed for the `image/nitf` mime type.
+This custom resolver is bundled in the `mime-core-app` application and is part of the `mime-core` feature.
+
+Additional Custom Mime Type Resolvers can be added for other custom mime types.
+
+====== Configuring the Custom Mime Type Resolver
+
+The configurable properties for the Custom Mime Type Resolver are accessed from the *MIME Custom Types* configuration in the ${admin-console}.
+
+* Navigate to the ${admin-console}.
+* Select the *${ddf-platform}* application.
+* Select *Configuration*.
+* Select *MIME Custom Types*.
+
+*Managed Service Factory PID*
+
+* `Ddf_Custom_Mime_Type_Resolver`
+
+include::{adoc-include}/_tables/DDF_Custom_Mime_Type_Resolver-table-contents.adoc[]
+
+'''

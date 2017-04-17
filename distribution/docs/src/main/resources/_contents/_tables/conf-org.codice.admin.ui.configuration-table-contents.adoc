@@ -1,4 +1,4 @@
 |<<org.codice.admin.ui.configuration,Admin UI Configuration>>
 |org.codice.admin.ui.configuration
-|null
+|Admin UI Configuration
 
