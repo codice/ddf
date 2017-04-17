@@ -171,8 +171,8 @@ public class Historian {
                 .filter(ci -> ci.getQualifier() == null || ci.getQualifier()
                         .equals(""))
                 .map(ContentItem::getMetacard)
-                .filter(isVersionOrDeleted().negate())
                 .filter(Objects::nonNull)
+                .filter(isVersionOrDeleted().negate())
                 .collect(Collectors.toList());
 
         Collection<ReadStorageRequest> ids = getReadStorageRequests(updatedMetacards);
@@ -219,7 +219,6 @@ public class Historian {
         List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards()
                 .stream()
                 .filter(isVersionOrDeleted().negate())
-
                 .collect(Collectors.toList());
 
         // [ContentItem.getId: content items]
@@ -512,18 +511,7 @@ public class Historian {
     }
 
     private Predicate<Metacard> isVersionOrDeleted() {
-        return (m) -> {
-            String metacardTypeName = m.getMetacardType()
-                    .getName();
-
-            String metacardVersionTypeName = MetacardVersionImpl.getMetacardVersionType()
-                    .getName();
-            String deletedMetacardTypeName = DeletedMetacardImpl.getDeletedMetacardType()
-                    .getName();
-
-            return metacardVersionTypeName.equals(metacardTypeName)
-                    || deletedMetacardTypeName.equals(metacardTypeName);
-        };
+        return (m) -> MetacardVersionImpl.isVersion(m) || DeletedMetacardImpl.isDeleted(m);
     }
 
     private static class WrappedByteSource extends ByteSource {
