@@ -27,6 +27,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
 import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.osgi.service.cm.Configuration;
@@ -208,25 +209,31 @@ public class BackupCommand extends SolrCommands {
         return requestId;
     }
 
-    private void getBackupStatus(SolrClient client, String requestId)
-            throws IOException, SolrServerException {
-        CollectionAdminRequest.RequestStatusResponse requestStatusResponse =
-                CollectionAdminRequest.requestStatus(requestId)
-                        .process(client);
-        RequestStatusState requestStatus = requestStatusResponse.getRequestStatus();
-        printInfoMessage(String.format("Backup status for request Id [%s] is [%s].",
-                asyncBackupReqId,
-                requestStatus.getKey()));
-        LOGGER.debug("Async backup request status: {}", requestStatus.getKey());
-        if (requestStatus == RequestStatusState.FAILED) {
-            NamedList<String> errorMessages = requestStatusResponse.getErrorMessages();
-            if (errorMessages != null) {
-                for (int i = 0; i < errorMessages.size(); i++) {
-                    String name = errorMessages.getName(i);
-                    String value = errorMessages.getVal(i);
-                    printErrorMessage(String.format("\t%d. Name: %s; Value: %s", i, name, value));
+    private void getBackupStatus(SolrClient client, String requestId) {
+        try {
+            CollectionAdminRequest.RequestStatusResponse requestStatusResponse =
+                    CollectionAdminRequest.requestStatus(requestId)
+                            .process(client);
+            RequestStatusState requestStatus = requestStatusResponse.getRequestStatus();
+            printInfoMessage(String.format("Backup status for request Id [%s] is [%s].",
+                    asyncBackupReqId,
+                    requestStatus.getKey()));
+            LOGGER.debug("Async backup request status: {}", requestStatus.getKey());
+            if (requestStatus == RequestStatusState.FAILED) {
+                NamedList<String> errorMessages = requestStatusResponse.getErrorMessages();
+                if (errorMessages != null) {
+                    for (int i = 0; i < errorMessages.size(); i++) {
+                        String name = errorMessages.getName(i);
+                        String value = errorMessages.getVal(i);
+                        printErrorMessage(String.format("\t%d. Name: %s; Value: %s",
+                                i,
+                                name,
+                                value));
+                    }
                 }
             }
+        } catch (Exception e) {
+            printErrorMessage(String.format("Backup status failed. %s", e.getMessage()));
         }
     }
 
@@ -255,26 +262,50 @@ public class BackupCommand extends SolrCommands {
 
     private void performSolrCloudBackup(SolrClient client) {
         String backupName = getBackupName();
-        LOGGER.debug("Backing up collection {} to {} using backup name {}.", coreName, backupLocation, backupName);
+        LOGGER.debug("Backing up collection {} to {} using backup name {}.",
+                coreName,
+                backupLocation,
+                backupName);
         printInfoMessage(String.format(
                 "Backing up collection [%s] to shared location [%s] using backup name [%s].",
                 coreName,
                 backupLocation,
                 backupName));
-        try {
-            if (asyncBackup) {
-                String requestId = backupAsync(client, coreName, backupLocation, backupName);
-                printInfoMessage("Solr Cloud backup request Id: " + requestId);
-            } else {
-                boolean isSuccess = backup(client, coreName, backupLocation, backupName);
-                if (isSuccess) {
-                    printInfoMessage("Backup complete.");
+        if (optimize(client, coreName)) {
+            try {
+                if (asyncBackup) {
+                    String requestId = backupAsync(client, coreName, backupLocation, backupName);
+                    printInfoMessage("Solr Cloud backup request Id: " + requestId);
                 } else {
-                    printErrorMessage("Backup failed.");
+                    boolean isSuccess = backup(client, coreName, backupLocation, backupName);
+                    if (isSuccess) {
+                        printInfoMessage("Backup complete.");
+                    } else {
+                        printErrorMessage("Backup failed.");
+                    }
                 }
+            } catch (Exception e) {
+                printErrorMessage(String.format("Backup failed. %s", e.getMessage()));
+            }
+        }
+    }
+
+    private boolean optimize(SolrClient client, String collection) {
+        try {
+            UpdateResponse updateResponse = client.optimize(collection);
+            LOGGER.error("optimization status: " + updateResponse.getStatus());
+            if (updateResponse.getStatus() != 0) {
+                printErrorMessage(String.format("Backup failed. Unable to optimize collection [%s].",
+                        coreName));
+                return false;
+            } else {
+                return true;
             }
         } catch (Exception e) {
-            printErrorMessage(String.format("Backup failed. %s", e.getMessage()));
+            printErrorMessage(String.format("Backup failed. Unable to optimize collection [%s]. %s",
+                    coreName,
+                    e.getMessage()));
+            return false;
         }
     }
 }

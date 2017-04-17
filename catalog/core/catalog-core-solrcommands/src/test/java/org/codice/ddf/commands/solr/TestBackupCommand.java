@@ -362,7 +362,8 @@ public class TestBackupCommand {
                         backupCommand.backupLocation,
                         INVALID_COLLECTION_NAME)));
         assertThat(consoleOutput.getOutput(),
-                containsString(String.format("Collection '%s' does not exist, no action taken.",
+                containsString(String.format("Backup failed. Unable to optimize collection [%s]. Collection not found: %s",
+                        INVALID_COLLECTION_NAME,
                         INVALID_COLLECTION_NAME)));
     }
 
@@ -568,23 +569,4 @@ public class TestBackupCommand {
     private void setupSolrClientType(String solrClientType) {
         System.setProperty(SOLR_CLIENT_PROP, solrClientType);
     }
-
-    // Remove
-//    private RequestStatusState getBackupStatus(String requestId) throws IOException, SolrServerException {
-//        CollectionAdminRequest.RequestStatusResponse requestStatusResponse =
-//                CollectionAdminRequest.requestStatus(requestId)
-//                        .process(miniSolrCloud.getSolrClient());
-//        RequestStatusState requestStatus = requestStatusResponse.getRequestStatus();
-//        return requestStatus;
-//    }
-
-    // Remove
-//    private void createCollection(SolrClient client, String collection)
-//            throws IOException, SolrServerException, KeeperException, InterruptedException {
-//        CollectionAdminRequest.Create create = CollectionAdminRequest.createCollection(collection, "myconf", 1, 1);
-//        CollectionAdminResponse response = create.process(client);
-//        if (response.getStatus() != 0 || response.getErrorMessages() != null) {
-//            fail("Could not create collection. Response" + response.toString());
-//        }
-//    }
 }
