@@ -134,13 +134,18 @@
                 <executions>
                     <execution>
                         <id>unpack-findbugs</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>generate-findbugs</id>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -150,23 +155,11 @@
                 <executions>
                     <execution>
                         <id>checkstyle-check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
+                        <phase>none</phase>
                     </execution>
                     <execution>
                         <id>checkstyle-check-xml</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>
