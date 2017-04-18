@@ -89,6 +89,9 @@ import ddf.security.SubjectUtils;
 public class Historian {
     private static final Logger LOGGER = LoggerFactory.getLogger(Historian.class);
 
+    private final Predicate<Metacard> isVersionOrDeleted =
+            (m) -> MetacardVersionImpl.isVersion(m) || DeletedMetacardImpl.isDeleted(m);
+
     private boolean historyEnabled = true;
 
     private List<StorageProvider> storageProviders;
@@ -145,7 +148,7 @@ public class Historian {
         List<Metacard> inputMetacards = updateResponse.getUpdatedMetacards()
                 .stream()
                 .map(Update::getOldMetacard)
-                .filter(isVersionOrDeleted().negate())
+                .filter(isVersionOrDeleted.negate())
                 .collect(Collectors.toList());
 
         final Map<String, Metacard> versionedMetacards = getVersionMetacards(inputMetacards,
@@ -185,7 +188,7 @@ public class Historian {
                         .equals(""))
                 .map(ContentItem::getMetacard)
                 .filter(Objects::nonNull)
-                .filter(isVersionOrDeleted().negate())
+                .filter(isVersionOrDeleted.negate())
                 .collect(Collectors.toList());
 
         Collection<ReadStorageRequest> ids = getReadStorageRequests(updatedMetacards);
@@ -231,7 +234,7 @@ public class Historian {
 
         List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards()
                 .stream()
-                .filter(isVersionOrDeleted().negate())
+                .filter(isVersionOrDeleted.negate())
                 .collect(Collectors.toList());
 
         // [ContentItem.getId: content items]
@@ -240,12 +243,11 @@ public class Historian {
         Action action = contentItems.isEmpty() ? Action.DELETED : Action.DELETED_CONTENT;
 
         // [MetacardVersion.VERSION_OF_ID: versioned metacard]
-        Map<String, Metacard> versionedMap =
-                getVersionMetacards(deletedMetacards,
-                        action,
-                        (Subject) deleteResponse.getRequest()
-                                .getProperties()
-                                .get(SecurityConstants.SECURITY_SUBJECT));
+        Map<String, Metacard> versionedMap = getVersionMetacards(deletedMetacards,
+                action,
+                (Subject) deleteResponse.getRequest()
+                        .getProperties()
+                        .get(SecurityConstants.SECURITY_SUBJECT));
 
         CreateStorageResponse createStorageResponse = versionContentItems(contentItems,
                 versionedMap);
@@ -533,10 +535,6 @@ public class Historian {
 
     void setSecurity(Security security) {
         this.security = security;
-    }
-
-    private Predicate<Metacard> isVersionOrDeleted() {
-        return (m) -> MetacardVersionImpl.isVersion(m) || DeletedMetacardImpl.isDeleted(m);
     }
 
     private static class WrappedByteSource extends ByteSource {
