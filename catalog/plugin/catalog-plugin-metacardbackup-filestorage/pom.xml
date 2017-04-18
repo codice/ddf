@@ -45,9 +45,19 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -56,10 +66,12 @@
                     <instructions>
                         <Export-Package/>
                         <Embed-Dependency>
+                            platform-util,
                             commons-lang3,
                             commons-io
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Include-Resource>{maven-resources},target/classes/describable.properties</Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>
@@ -81,17 +93,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.63</minimum>
+                                            <minimum>0.69</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.54</minimum>
+                                            <minimum>0.59</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.51</minimum>
+                                            <minimum>0.63</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

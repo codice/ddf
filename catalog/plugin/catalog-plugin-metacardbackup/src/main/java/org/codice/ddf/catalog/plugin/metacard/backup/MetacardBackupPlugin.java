@@ -14,6 +14,8 @@
 package org.codice.ddf.catalog.plugin.metacard.backup;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -59,11 +61,15 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
 
     private static final String METACARD_TRANSFORMER_ID_PROPERTY = "metacardTransformerId";
 
+    private static final String OUTPUT_PROVIDER_PROPERTY = "metacardOutputProviderIds";
+
     private Boolean keepDeletedMetacards = false;
 
     private String metacardTransformerId;
 
     private MetacardTransformer metacardTransformer;
+
+    private List<String> metacardOutputProviderIds = new ArrayList<>();
 
     private List<MetacardBackupStorageProvider> storageBackupPlugins = Collections.emptyList();
 
@@ -96,14 +102,15 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
         List<ProcessDeleteItem> processUpdateItems = processRequest.getProcessItems();
         for (ProcessDeleteItem processUpdateItem : processUpdateItems) {
             Metacard metacard = processUpdateItem.getMetacard();
-            try {
-                for (MetacardBackupStorageProvider storageProvider : storageBackupPlugins) {
+
+            for (MetacardBackupStorageProvider storageProvider : storageBackupPlugins) {
+                try {
                     storageProvider.deleteData(metacard.getId());
+                } catch (IOException | MetacardBackupException e) {
+                    LOGGER.debug("Unable to delete backed up metacard data for metacard: {}",
+                            metacard.getId(),
+                            e);
                 }
-            } catch (IOException | MetacardBackupException e) {
-                LOGGER.debug("Unable to delete backed up metacard data for metacard: {}",
-                        metacard.getId(),
-                        e);
             }
         }
 
@@ -144,6 +151,10 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
         return storageBackupPlugins;
     }
 
+    public void setMetacardOutputProviderIds(List<String> metacardOutputProviderIds) {
+        this.metacardOutputProviderIds = metacardOutputProviderIds;
+    }
+
     public void refresh(Map<String, Object> properties) {
         Object metacardTransformerProperty = properties.get(METACARD_TRANSFORMER_ID_PROPERTY);
         if (metacardTransformerProperty instanceof String
@@ -160,6 +171,11 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
             LOGGER.debug("Updating {} with {}",
                     KEEP_DELETED_METACARDS_PROPERTY,
                     keepDeletedMetacards);
+        }
+
+        Object metacardOutputProviderIds = properties.get(OUTPUT_PROVIDER_PROPERTY);
+        if (metacardOutputProviderIds instanceof String[]) {
+            this.metacardOutputProviderIds = Arrays.asList((String[]) metacardOutputProviderIds);
         }
     }
 
@@ -199,12 +215,14 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
 
         LOGGER.trace("Writing backup from {} to backup provider", metacardId);
 
-        try {
-            for (MetacardBackupStorageProvider storageProvider : storageBackupPlugins) {
-                storageProvider.storeData(metacardId, contentBytes);
+        for (MetacardBackupStorageProvider storageProvider : storageBackupPlugins) {
+            if (metacardOutputProviderIds.contains(storageProvider.getId())) {
+                try {
+                    storageProvider.storeData(metacardId, contentBytes);
+                } catch (IOException | MetacardBackupException e) {
+                    LOGGER.warn("Unable to backup {} to backup provider.", metacardId, e);
+                }
             }
-        } catch (IOException | MetacardBackupException e) {
-            LOGGER.warn("Unable to backup {} to backup provider.", metacardId, e);
         }
 
     }

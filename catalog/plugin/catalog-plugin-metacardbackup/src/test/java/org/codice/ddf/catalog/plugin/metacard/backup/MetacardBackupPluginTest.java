@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,8 @@ public class MetacardBackupPluginTest {
 
     private static final String OUTPUT_DIRECTORY = "target/";
 
+    private static final String FILE_STORAGE_PROVIDER_ID = "TestFileStorageProvider";
+
     private MetacardBackupPlugin metacardBackupPlugin;
 
     private MetacardBackupFileStorage fileStorageProvider = new MetacardBackupFileStorage();
@@ -105,7 +108,10 @@ public class MetacardBackupPluginTest {
         createRequest = generateProcessRequest(ProcessCreateItem.class);
         updateRequest = generateProcessRequest(ProcessUpdateItem.class);
         deleteRequest = generateDeleteRequest();
+        fileStorageProvider.setId(FILE_STORAGE_PROVIDER_ID);
         fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
+        metacardBackupPlugin.setMetacardOutputProviderIds(Collections.singletonList(
+                FILE_STORAGE_PROVIDER_ID));
         metacardBackupPlugin.setStorageBackupPlugins(Arrays.asList(new MetacardBackupStorageProvider[] {
                 fileStorageProvider}));
     }
@@ -157,6 +163,8 @@ public class MetacardBackupPluginTest {
 
     @Test
     public void testCreateRequest() throws Exception {
+        metacardBackupPlugin.setMetacardOutputProviderIds(Collections.singletonList(
+                FILE_STORAGE_PROVIDER_ID));
         metacardBackupPlugin.setStorageBackupPlugins(Arrays.asList(new MetacardBackupStorageProvider[] {
                 fileStorageProvider}));
         metacardBackupPlugin.processCreate(createRequest);
@@ -190,6 +198,16 @@ public class MetacardBackupPluginTest {
         when(metacardTransformer.transform(any(Metacard.class),
                 anyMap())).thenReturn(binaryContent);
         metacardBackupPlugin.processCreate(createRequest);
+    }
+
+    @Test
+    public void testCreateRequestNoStoragePlugin() throws Exception {
+        cleanup();
+        metacardBackupPlugin.setStorageBackupPlugins(Arrays.asList(new MetacardBackupStorageProvider[] {
+                fileStorageProvider}));
+        metacardBackupPlugin.setMetacardOutputProviderIds(Collections.singletonList("BogusId"));
+        metacardBackupPlugin.processCreate(createRequest);
+        assertFiles(false);
     }
 
     @Test
@@ -281,5 +299,9 @@ public class MetacardBackupPluginTest {
             assertThat(path.toFile()
                     .exists(), is(exists));
         }
+    }
+
+    private void cleanup() throws PluginExecutionException {
+        metacardBackupPlugin.processDelete(deleteRequest);
     }
 }

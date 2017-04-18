@@ -24,6 +24,13 @@
 
     <artifactId>catalog-plugin-metacardbackup-storage-api</artifactId>
     <name>DDF :: Catalog :: Plugin :: Metacard Backup Storage API</name>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.platform.api</groupId>
+            <artifactId>platform-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
     <packaging>bundle</packaging>
 
     <build>
@@ -33,9 +40,6 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Export-Package>
-                            org.codice.ddf.catalog.plugin.metacard.backup.storage.api*
-                        </Export-Package>
                         <Embed-Dependency>
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>

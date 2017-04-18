@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -22,6 +23,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -32,14 +34,69 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MetacardBackupFileStorage implements MetacardBackupStorageProvider {
+
+    private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
+
+    private static final String DESCRIPTION = "description";
+
+    private static final String ORGANIZATION = "organization";
+
+    private static final String VERSION = "version";
+
+    private static final String TITLE = "name";
+
+    private static final String ID = "id";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardBackupFileStorage.class);
 
     private static final String OUTPUT_DIRECTORY_PROPERTY = "outputDirectory";
 
+    private String id;
+
     private String outputDirectory;
+
+    private static Properties describableProperties = new Properties();
+
+    static {
+        try (InputStream properties = MetacardBackupFileStorage.class.getResourceAsStream(
+                DESCRIBABLE_PROPERTIES_FILE)) {
+            describableProperties.load(properties);
+        } catch (IOException e) {
+            LOGGER.info(e.getMessage(), e);
+        }
+    }
 
     public MetacardBackupFileStorage() {
 
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public String getVersion() {
+        return (String) describableProperties.get(VERSION);
+    }
+
+    @Override
+    public String getTitle() {
+        return (String) describableProperties.get(TITLE);
+    }
+
+    @Override
+    public String getDescription() {
+        return (String) describableProperties.get(DESCRIPTION);
+    }
+
+    @Override
+    public String getOrganization() {
+        return (String) describableProperties.get(ORGANIZATION);
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void deleteData(String id) throws IOException, MetacardBackupException {
@@ -53,8 +110,7 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
 
     public void storeData(String id, byte[] data) throws IOException, MetacardBackupException {
         if (StringUtils.isEmpty(outputDirectory)) {
-            throw new MetacardBackupException(
-                    "Unable to store data; no output directory specified.");
+            throw new MetacardBackupException("Unable to store data; no output directory specified.");
         }
 
         if (data == null) {
@@ -63,9 +119,8 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
 
         Path metacardPath = getMetacardDirectory(id);
         if (metacardPath == null) {
-            throw new MetacardBackupException(String.format(
-                    "Unable to create metacard path directory for %s",
-                    id));
+            LOGGER.debug(String.format("Unable to create metacard path directory for %s", id));
+            throw new MetacardBackupException("Unable to create metacard backup directory");
         }
 
         try {
@@ -99,13 +154,18 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
             this.outputDirectory = (String) outputDirectory;
             LOGGER.debug("Updating {} with {}", OUTPUT_DIRECTORY_PROPERTY, outputDirectory);
         }
+
+        Object id = properties.get(ID);
+        if (id instanceof String) {
+            setId((String) id);
+        }
     }
 
     private void deleteBackupIfPresent(String filename) throws MetacardBackupException {
         Path metacardPath = getMetacardDirectory(filename);
         if (metacardPath == null) {
-            throw new MetacardBackupException(String.format("Unable to delete backup for  %s",
-                    filename));
+            LOGGER.trace(String.format("Unable to delete backup for  %s", filename));
+            throw new MetacardBackupException("Unable to delete backup");
         }
 
         try {
@@ -119,9 +179,8 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
                 }
             }
         } catch (IOException e) {
-            LOGGER.debug("Unable to delete backup file {}", metacardPath, e);
-            throw new MetacardBackupException(String.format("Unable to delete backup file for  %s",
-                    filename), e);
+            LOGGER.trace("Unable to delete backup file {}", metacardPath, e);
+            throw new MetacardBackupException("Unable to delete backup file", e);
         }
     }
 

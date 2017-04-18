@@ -56,6 +56,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -457,7 +458,9 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testCswIngestWithMetadataBackup() throws Exception {
         getServiceManager().startFeature(true, METACARD_BACKUP_FILE_STORAGE_FEATURE);
+        String fileStorageId = "File_Storage_Provider";
         Map<String, Object> storageProps = new HashMap<>();
+        storageProps.put("id", fileStorageId);
         storageProps.put("outputDirectory", METACARD_BACKUP_DIRECTORY);
         getServiceManager().createManagedService(
                 "org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage",
@@ -467,6 +470,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put("metacardTransformerId", "metadata");
         properties.put("keepDeletedMetacards", false);
+        properties.put("metacardOutputProviderIds", Collections.singletonList(fileStorageId));
         getServiceManager().createManagedService(
                 "org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin",
                 properties);

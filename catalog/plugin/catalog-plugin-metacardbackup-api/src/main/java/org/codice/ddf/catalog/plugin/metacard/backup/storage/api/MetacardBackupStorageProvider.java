@@ -15,8 +15,35 @@ package org.codice.ddf.catalog.plugin.metacard.backup.storage.api;
 
 import java.io.IOException;
 
-public interface MetacardBackupStorageProvider {
+import org.codice.ddf.platform.services.common.Describable;
+
+/**
+ * <p>
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ * </p>
+ * <p>
+ * The {@code MetacardBackupStorageProvider} interface is used by the Metacard Backup Plugin
+ * to represent storage providers for the transformed metacard data.
+ */
+
+public interface MetacardBackupStorageProvider extends Describable {
+    /**
+     * Deletes backed up metacard with the provided metacard ID
+     *
+     * @param id - Identifier of the metacard to remove
+     * @throws IOException
+     * @throws MetacardBackupException
+     */
     void deleteData(String id) throws IOException, MetacardBackupException;
 
+    /**
+     * Stores data for the provided metacard ID
+     *
+     * @param id   - Identifier of the metacard to remove
+     * @param data - Bytes of the metacard to store
+     * @throws IOException
+     * @throws MetacardBackupException
+     */
     void storeData(String id, byte[] data) throws IOException, MetacardBackupException;
 }

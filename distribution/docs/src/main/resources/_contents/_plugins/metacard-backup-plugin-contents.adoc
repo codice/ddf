@@ -1,7 +1,7 @@
 ==== Metacard Backup Plugin
 
 The Metacard Backup Plugin is used to enable data backup of metacards using a configurable transformer.
-The plugin will store backups using a configured Metacard Backup Storage provider.
+The plugin will store backups using all configured Metacard Backup Storage provider.
 
 ===== Installing the Metacard Backup Plugin
 

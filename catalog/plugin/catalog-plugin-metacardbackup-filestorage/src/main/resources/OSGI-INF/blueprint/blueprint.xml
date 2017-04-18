@@ -24,6 +24,7 @@
         <cm:managed-component class="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage">
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
+            <property name="id" value=""/>
             <property name="outputDirectory" value="data/backup/metacard"/>
         </cm:managed-component>
     </cm:managed-service-factory>
