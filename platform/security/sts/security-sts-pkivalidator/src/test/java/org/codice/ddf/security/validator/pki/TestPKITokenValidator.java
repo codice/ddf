@@ -45,6 +45,7 @@ import org.junit.Test;
 
 import ddf.security.PropertiesLoader;
 import ddf.security.SecurityConstants;
+import ddf.security.SubjectUtils;
 
 public class TestPKITokenValidator {
 
@@ -213,6 +214,13 @@ public class TestPKITokenValidator {
         assertEquals(ReceivedToken.STATE.VALID,
                 tokenValidatorResponse.getToken()
                         .getState());
+
+        assertEquals("US",
+                tokenValidatorResponse.getAdditionalProperties()
+                        .get(SubjectUtils.COUNTRY_CLAIM_URI));
+        assertEquals("localhost@example.org",
+                tokenValidatorResponse.getAdditionalProperties()
+                        .get(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
     }
 
     @Test
@@ -246,6 +254,13 @@ public class TestPKITokenValidator {
         assertEquals(ReceivedToken.STATE.VALID,
                 tokenValidatorResponse.getToken()
                         .getState());
+
+        assertEquals("US",
+                tokenValidatorResponse.getAdditionalProperties()
+                        .get(SubjectUtils.COUNTRY_CLAIM_URI));
+        assertEquals("localhost@example.org",
+                tokenValidatorResponse.getAdditionalProperties()
+                        .get(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
     }
 
     @Test

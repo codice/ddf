@@ -141,11 +141,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.expansion</groupId>
-            <artifactId>security-expansion-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.expansion</groupId>
             <artifactId>security-expansion-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -292,11 +287,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-upbstvalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
             <artifactId>security-sts-guestvalidator</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -331,8 +321,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.certificate</groupId>
-            <artifactId>security-certificate-generator</artifactId>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-certificateclaimshandler</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

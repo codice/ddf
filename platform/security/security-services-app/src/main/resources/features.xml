@@ -198,6 +198,12 @@
         <bundle>mvn:ddf.security.sts/security-sts-guestclaimshandler/${project.version}</bundle>
     </feature>
 
+    <feature name="security-sts-certificateclaimshandler" install="manual"
+             version="${project.version}"
+             description="Retrieves claims from a user's certificate.">
+        <bundle>mvn:ddf.security.sts/security-sts-certificateclaimshandler/${project.version}</bundle>
+    </feature>
+
     <feature name="security-sts-propertyclaimshandler" install="manual" version="${project.version}"
              description="Looks up user properties via a properties file.">
         <bundle>mvn:ddf.security.sts/security-sts-propertyclaimshandler/${project.version}</bundle>
@@ -271,6 +277,7 @@
         <feature>security-policy-context</feature>
         <feature>security-web-sso-defaults</feature>
         <feature>security-guest</feature>
+        <feature>security-sts-certificateclaimshandler</feature>
         <feature>security-idp</feature>
         <feature>security-certificate</feature>
         <feature>security-migratable</feature>
