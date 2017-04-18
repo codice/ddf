@@ -54,6 +54,8 @@ import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -145,9 +147,15 @@ public class DynamicSchemaResolver {
 
     protected SchemaFields schemaFields;
 
-    protected Map<String, MetacardType> metacardTypesCache = new HashMap<>();
-
-    protected Map<String, byte[]> metacardTypeNameToSerialCache = new HashMap<>();
+    protected Cache<String, MetacardType> metacardTypesCache = CacheBuilder.newBuilder()
+            .maximumSize(4096)
+            .initialCapacity(64)
+            .build();
+    
+    protected Cache<String, byte[]> metacardTypeNameToSerialCache = CacheBuilder.newBuilder()
+            .maximumSize(4096)
+            .initialCapacity(64)
+            .build();
 
     private Processor processor = new Processor(new Config());
 
@@ -311,21 +319,18 @@ public class DynamicSchemaResolver {
         /*
          * Lastly the metacardType must be added to the solr document. These are internal fields
          */
-        solrInputDocument.addField(SchemaFields.METACARD_TYPE_FIELD_NAME, schema.getName());
-
-        byte[] metacardTypeBytes = null;
-        if (!(schema.getName().equals("metacard.version") || schema.getName().equals("metacard.deleted"))) {
-            metacardTypeBytes = metacardTypeNameToSerialCache.get(schema.getName());
-        }
+        String schemaName = String.format("%s#%s", schema.getName(), schema.hashCode());
+        solrInputDocument.addField(SchemaFields.METACARD_TYPE_FIELD_NAME, schemaName);
+        byte[] metacardTypeBytes = metacardTypeNameToSerialCache.getIfPresent(schemaName);
 
         if (metacardTypeBytes == null) {
             MetacardType coreMetacardType = new MetacardTypeImpl(schema.getName(),
                     convertAttributeDescriptors(schema.getAttributeDescriptors()));
 
-            metacardTypesCache.put(schema.getName(), coreMetacardType);
+            metacardTypesCache.put(schemaName, coreMetacardType);
 
             metacardTypeBytes = serialize(coreMetacardType);
-            metacardTypeNameToSerialCache.put(schema.getName(), metacardTypeBytes);
+            metacardTypeNameToSerialCache.put(schemaName, metacardTypeBytes);
 
             addToFieldsCache(coreMetacardType.getAttributeDescriptors());
         }
@@ -537,16 +542,11 @@ public class DynamicSchemaResolver {
         String mTypeFieldName = doc.getFirstValue(SchemaFields.METACARD_TYPE_FIELD_NAME)
                 .toString();
 
-        MetacardType cachedMetacardType = null;
-        if (!(mTypeFieldName.equals("metacard.version")
-                || mTypeFieldName.equals("metacard.deleted"))) {
-            cachedMetacardType = metacardTypesCache.get(mTypeFieldName);
+        MetacardType cachedMetacardType = metacardTypesCache.getIfPresent(mTypeFieldName);
 
-            if (cachedMetacardType != null) {
-                return cachedMetacardType;
-            }
+        if (cachedMetacardType != null) {
+            return cachedMetacardType;
         }
-
 
         byte[] bytes = (byte[]) doc.getFirstValue(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 
