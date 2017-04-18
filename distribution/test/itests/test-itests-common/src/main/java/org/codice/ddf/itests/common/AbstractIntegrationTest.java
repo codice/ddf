@@ -489,9 +489,6 @@ public abstract class AbstractIntegrationTest {
                         RMI_SERVER_PORT.getPort()),
                 installStartupFile(getClass().getClassLoader()
                         .getResourceAsStream("hazelcast.xml"), "/etc/hazelcast.xml"),
-                installStartupFile(getClass().getClassLoader()
-                                .getResourceAsStream("ddf.security.sts.client.configuration.config"),
-                        "/etc/ddf.security.sts.client.configuration.config"),
                 KarafDistributionOption.editConfigurationFilePut(
                         "etc/ddf.security.sts.client.configuration.config",
                         "address",
@@ -524,7 +521,6 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureSystemSettings() {
-
         return options(when(Boolean.getBoolean("isDebugEnabled")).useOptions(vmOption(
                 "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
                 when(System.getProperty("maven.repo.local") != null).useOptions(systemProperty(
@@ -576,11 +572,19 @@ public abstract class AbstractIntegrationTest {
      */
     protected Option[] configureCustom() {
         try {
-            return options(// extra config options for catalog-ui
-                    installStartupFile(getClass().getResourceAsStream("/catalog-ui/users.properties"),
-                            "/etc/users.properties"),
-                    installStartupFile(getClass().getResourceAsStream("/catalog-ui/users.attributes"),
-                            "/etc/users.attributes"),
+            return options(// extra config options for catalog-ui and security
+                    installStartupFile(getClass().getResourceAsStream(
+                            "/ddf.security.sts.client.configuration.config"),
+                            "etc/ddf.security.sts.client.configuration.config"),
+                    installStartupFile(getClass().getResourceAsStream(
+                            "/etc/test-users.properties"),
+                            "etc/users.properties"),
+                    installStartupFile(getClass().getResourceAsStream(
+                            "/etc/test-users.attributes"),
+                            "etc/users.attributes"),
+                    installStartupFile(getClass().getResourceAsStream(
+                            "/etc/ddf.security.sts.guestclaims.config"),
+                            "etc/ddf.security.sts.guestclaims.config"),
                     // extra config options for TestConfiguration
                     installStartupFile(getClass().getResourceAsStream(
                             "/ddf.test.itests.platform.TestPlatform.startup.config"),

@@ -21,5 +21,8 @@
     "srogers" : {
         "accessGroup" : ["D","U"],
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"srogers@example.com"
+    },
+    "random": {
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"random@localhost.local"
     }
 }

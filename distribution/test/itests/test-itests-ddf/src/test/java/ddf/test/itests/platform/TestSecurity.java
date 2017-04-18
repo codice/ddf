@@ -37,8 +37,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
@@ -77,7 +75,6 @@ import org.hamcrest.xml.HasXPath;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
@@ -342,22 +339,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     public static final String SAMPLE_SOAP =
             "<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><helloWorld xmlns=\"http://ddf.sdk/soap/hello\" /></soap:Body></soap:Envelope>";
-
-    @Override
-    protected Option[] configureSystemSettings() {
-        Option[] options = super.configureSystemSettings();
-
-        return combineOptions(options,
-                options(replaceConfigurationFile("etc/ddf.security.sts.guestclaims.config",
-                        new File("src/test/resources/etc/ddf.security.sts.guestclaims.config")),
-                        replaceConfigurationFile("etc/users.attributes",
-                                new File("src/test/resources/etc/test-security-users.attributes")),
-                        replaceConfigurationFile("etc/users.properties",
-                                new File("src/test/resources/etc/test-security-users.properties")),
-                        replaceConfigurationFile("etc/ddf.security.sts.client.configuration.config",
-                                new File(
-                                        "src/test/resources/ddf.security.sts.client.configuration.config"))));
-    }
 
     @BeforeExam
     public void beforeTest() throws Exception {
@@ -1348,7 +1329,12 @@ public class TestSecurity extends AbstractIntegrationTest {
                 null,
                 createWhitelist("/services/secure,/services/public"));
 
-        File definitionFile = ingestAttributesOnCreate();
+        final File definitionFile = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
+            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
+                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                            null), hasSize(4));
+            return null;
+        });
 
         List attr = ImmutableList.of("security.access-groups=accessGroup");
 
@@ -1421,7 +1407,12 @@ public class TestSecurity extends AbstractIntegrationTest {
                 null,
                 createWhitelist("/services/secure,/services/public"));
 
-        File definitionFile = ingestAttributesOnCreate();
+        final File definitionFile = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
+            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
+                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                            null), hasSize(4));
+            return null;
+        });
 
         List attr = ImmutableList.of("security.access-groups=accessGroup");
 
@@ -1485,17 +1476,6 @@ public class TestSecurity extends AbstractIntegrationTest {
                 return null;
             });
         }
-    }
-
-    private File ingestAttributesOnCreate() throws Exception {
-        final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
-            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
-                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                            null), hasSize(3));
-            return null;
-        });
-
-        return file;
     }
 
     private void uninstallDefinitionJson(File definitionFile, Callable<Void> waitCondition)
