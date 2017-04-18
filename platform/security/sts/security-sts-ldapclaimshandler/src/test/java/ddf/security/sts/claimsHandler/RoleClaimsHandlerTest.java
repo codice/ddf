@@ -16,7 +16,6 @@ package ddf.security.sts.claimsHandler;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyObject;
@@ -67,40 +66,35 @@ public class RoleClaimsHandlerTest {
     @Test
     public void testRetrieveClaimsValuesNotNullPrincipal()
             throws LdapException, SearchResultReferenceIOException {
-        BindResult bindResult;
+        BindResult bindResult = mock(BindResult.class);
         ClaimsParameters claimsParameters;
-        Connection connection;
-        ConnectionEntryReader membershipReader, groupNameReader;
-        LDAPConnectionFactory connectionFactory;
-        LinkedAttribute membershipAttribute, groupNameAttribute;
+        Connection connection = mock(Connection.class);
+        ConnectionEntryReader membershipReader = mock(ConnectionEntryReader.class);
+        ConnectionEntryReader groupNameReader = mock(ConnectionEntryReader.class);
+        LDAPConnectionFactory connectionFactory = PowerMockito.mock(LDAPConnectionFactory.class);
+        LinkedAttribute membershipAttribute = new LinkedAttribute("uid");
+        LinkedAttribute groupNameAttribute = new LinkedAttribute("cn");
         ProcessedClaimCollection processedClaims;
         RoleClaimsHandler claimsHandler;
-        SearchResultEntry membershipSearchResult, groupNameSearchResult;
+        SearchResultEntry membershipSearchResult = mock(SearchResultEntry.class);
+        SearchResultEntry groupNameSearchResult = mock(SearchResultEntry.class);
         String groupName = "avengers";
 
-        bindResult = mock(BindResult.class);
         when(bindResult.isSuccess()).thenReturn(true);
 
-        membershipSearchResult = mock(SearchResultEntry.class);
-        membershipAttribute = new LinkedAttribute("uid");
         membershipAttribute.add("tstark");
         when(membershipSearchResult.getAttribute(anyString())).thenReturn(membershipAttribute);
 
-        membershipReader = mock(ConnectionEntryReader.class);
         // hasNext() returns 'true' the first time, then 'false' every time after.
         when(membershipReader.hasNext()).thenReturn(true, false);
         when(membershipReader.readEntry()).thenReturn(membershipSearchResult);
 
-        groupNameSearchResult = mock(SearchResultEntry.class);
-        groupNameAttribute = new LinkedAttribute("cn");
         groupNameAttribute.add(groupName);
         when(groupNameSearchResult.getAttribute(anyString())).thenReturn(groupNameAttribute);
 
-        groupNameReader = mock(ConnectionEntryReader.class);
         when(groupNameReader.hasNext()).thenReturn(true, false);
         when(groupNameReader.readEntry()).thenReturn(groupNameSearchResult);
 
-        connection = mock(Connection.class);
         when(connection.bind(anyObject())).thenReturn(bindResult);
         when(connection.search(anyObject(),
                 anyObject(),
@@ -109,7 +103,6 @@ public class RoleClaimsHandlerTest {
         when(connection.search(anyString(), anyObject(), anyString(), matches("uid"))).thenReturn(
                 membershipReader);
 
-        connectionFactory = PowerMockito.mock(LDAPConnectionFactory.class);
         when(connectionFactory.getConnection()).thenReturn(connection);
 
         claimsHandler = new RoleClaimsHandler();
@@ -134,6 +127,6 @@ public class RoleClaimsHandlerTest {
     public void testSupportClaimTypes() {
         RoleClaimsHandler claimsHandler = new RoleClaimsHandler();
         List<URI> uris = claimsHandler.getSupportedClaimTypes();
-        assertThat(uris, hasSize(greaterThan(0)));
+        assertThat(uris, hasSize(1));
     }
 }
