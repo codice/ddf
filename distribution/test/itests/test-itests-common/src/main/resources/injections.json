@@ -1,7 +1,8 @@
 {
   "inject": [
     {
-      "attribute": "page-count"
+      "attribute": "page-count",
+      "attribute": "security.access-groups"
     },
     {
       "attribute": "temperature",

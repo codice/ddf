@@ -14,15 +14,20 @@
 package ddf.test.itests.platform;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureAuthZRealm;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardAttributeSecurityFiltering;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
+import static org.codice.ddf.itests.common.security.SecurityPolicyConfigurator.createWhitelist;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -32,13 +37,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,32 +59,57 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import javax.ws.rs.core.MediaType;
+
+import org.apache.http.HttpStatus;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.tika.io.IOUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.opensearch.OpenSearchFeature;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.hamcrest.xml.HasXPath;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.service.cm.Configuration;
 
+import com.google.common.collect.ImmutableList;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
+import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.security.SecurityConstants;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
 public class TestSecurity extends AbstractIntegrationTest {
+
+    /*****************
+     * USERS
+     *****************/
+    private static final String USER_PASSWORD = "password1";
+
+    private static final String A_USER = "slang";
+
+    private static final String B_USER = "tchalla";
+
+    private static final String C_USER = "nromanova";
+
+    private static final String D_USER = "srogers";
+
+    private static final String ACCESS_GROUP_REPLACE_TOKEN = "ACCESS_GROUP_REPLACE_TOKEN";
 
     protected static final String TRUST_STORE_PATH = System.getProperty("javax.net.ssl.trustStore");
 
@@ -309,11 +343,26 @@ public class TestSecurity extends AbstractIntegrationTest {
     public static final String SAMPLE_SOAP =
             "<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><helloWorld xmlns=\"http://ddf.sdk/soap/hello\" /></soap:Body></soap:Envelope>";
 
+    @Override
+    protected Option[] configureSystemSettings() {
+        Option[] options = super.configureSystemSettings();
+
+        return combineOptions(options,
+                options(replaceConfigurationFile("etc/ddf.security.sts.guestclaims.config",
+                        new File("src/test/resources/etc/ddf.security.sts.guestclaims.config")),
+                        replaceConfigurationFile("etc/users.attributes",
+                                new File("src/test/resources/etc/test-security-users.attributes")),
+                        replaceConfigurationFile("etc/users.properties",
+                                new File("src/test/resources/etc/test-security-users.properties")),
+                        replaceConfigurationFile("etc/ddf.security.sts.client.configuration.config",
+                                new File(
+                                        "src/test/resources/ddf.security.sts.client.configuration.config"))));
+    }
+
     @BeforeExam
     public void beforeTest() throws Exception {
         try {
             waitForSystemReady();
-            configurePDP();
             Configuration config = getAdminConfig().getConfiguration(
                     "org.codice.ddf.admin.config.policy.AdminConfigPolicy");
             config.setBundleLocation("mvn:ddf.admin.core/admin-core-configpolicy/"
@@ -344,7 +393,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         }
     }
 
-    public void configurePDP() throws Exception {
+    @After
+    public void teardown() throws Exception {
+        clearCatalog();
     }
 
     @Test
@@ -1288,5 +1339,192 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .get(SECURE_ROOT_AND_PORT + jolokiaEndpoint)
                 .body()
                 .print();
+    }
+
+    @Test
+    public void testAccessGroupsGuest() throws Exception {
+        getSecurityPolicy().configureWebContextPolicy("/=ldap,/solr=karaf,/services/csw=karaf",
+                null,
+                null,
+                createWhitelist("/services/secure,/services/public"));
+
+        File definitionFile = ingestAttributesOnCreate();
+
+        List attr = ImmutableList.of("security.access-groups=accessGroup");
+
+        configureAuthZRealm(attr, getAdminConfig());
+
+        try {
+            String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
+                    XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml")));
+            testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "A");
+
+            String id = CatalogTestCommons.ingest(testData, MediaType.TEXT_XML);
+
+            String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
+            configureRestForBasic(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+            getSecurityPolicy().waitForBasicAuthReady(url);
+
+            configureMetacardAttributeSecurityFiltering(attr,
+                    ImmutableList.of(""),
+                    getAdminConfig());
+
+            String response = given().auth()
+                    .basic(A_USER, USER_PASSWORD)
+                    .when()
+                    .get(url)
+                    .then()
+                    .log()
+                    .all()
+                    .assertThat()
+                    .statusCode(equalTo(HttpStatus.SC_OK))
+                    .extract()
+                    .response()
+                    .print();
+
+            assertThat(response, containsString("Lady Liberty"));
+
+            response = given().auth()
+                    .basic(B_USER, USER_PASSWORD)
+                    .when()
+                    .get(url)
+                    .then()
+                    .log()
+                    .all()
+                    .assertThat()
+                    .statusCode(equalTo(HttpStatus.SC_OK))
+                    .extract()
+                    .response()
+                    .print();
+
+            assertThat(response, (containsString("Lady Liberty")));
+
+        } finally {
+            getSecurityPolicy().configureWebContextPolicy("/=ldap,/solr=karaf",
+                    null,
+                    null,
+                    createWhitelist("/services/secure,/services/public"));
+            uninstallDefinitionJson(definitionFile, () -> {
+                expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
+                        .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                                null), hasSize(1));
+                return null;
+            });
+        }
+    }
+
+    @Test
+    public void testAccessGroups() throws Exception {
+        getSecurityPolicy().configureWebContextPolicy("/=ldap,/solr=karaf,/services/csw=karaf",
+                null,
+                null,
+                createWhitelist("/services/secure,/services/public"));
+
+        File definitionFile = ingestAttributesOnCreate();
+
+        List attr = ImmutableList.of("security.access-groups=accessGroup");
+
+        configureAuthZRealm(attr, getAdminConfig());
+
+        try {
+            String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
+                    XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml")));
+            testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "B");
+
+            String id = CatalogTestCommons.ingest(testData, MediaType.TEXT_XML);
+
+            String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
+            configureRestForBasic(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+            getSecurityPolicy().waitForBasicAuthReady(url);
+
+            configureMetacardAttributeSecurityFiltering(attr,
+                    ImmutableList.of(""),
+                    getAdminConfig());
+
+            String response = given().auth()
+                    .basic(A_USER, USER_PASSWORD)
+                    .when()
+                    .get(url)
+                    .then()
+                    .log()
+                    .all()
+                    .assertThat()
+                    .statusCode(equalTo(HttpStatus.SC_OK))
+                    .extract()
+                    .response()
+                    .print();
+
+            assertThat(response, not(containsString("Lady Liberty")));
+
+            response = given().auth()
+                    .basic(B_USER, USER_PASSWORD)
+                    .when()
+                    .get(url)
+                    .then()
+                    .log()
+                    .all()
+                    .assertThat()
+                    .statusCode(equalTo(HttpStatus.SC_OK))
+                    .extract()
+                    .response()
+                    .print();
+
+            assertThat(response, (containsString("Lady Liberty")));
+
+        } finally {
+            getSecurityPolicy().configureWebContextPolicy("/=ldap,/solr=karaf",
+                    null,
+                    null,
+                    createWhitelist("/services/secure,/services/public"));
+            uninstallDefinitionJson(definitionFile, () -> {
+                expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
+                        .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                                null), hasSize(1));
+                return null;
+            });
+        }
+    }
+
+    private File ingestAttributesOnCreate() throws Exception {
+        final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
+            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
+                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                            null), hasSize(3));
+            return null;
+        });
+
+        return file;
+    }
+
+    private void uninstallDefinitionJson(File definitionFile, Callable<Void> waitCondition)
+            throws Exception {
+        boolean success = definitionFile.delete();
+        if (!success) {
+            throw new Exception("Could not delete file(" + definitionFile.getAbsolutePath() + ")");
+        }
+        waitCondition.call();
+    }
+
+    private File ingestDefinitionJsonWithWaitCondition(String filename,
+            Callable<Void> waitCondition) throws Exception {
+        File definitionFile = copyFileToDefinitionsDir(filename);
+        waitCondition.call();
+        return definitionFile;
+    }
+
+    private File copyFileToDefinitionsDir(String filename) throws IOException {
+        Path definitionsDirPath = Paths.get(System.getProperty(DDF_HOME_PROPERTY),
+                "etc/definitions");
+        definitionsDirPath = Files.createDirectories(definitionsDirPath);
+        definitionsDirPath.toFile()
+                .deleteOnExit();
+
+        Path tmpFile = definitionsDirPath.resolve(filename);
+        tmpFile.toFile()
+                .deleteOnExit();
+        Files.copy(org.apache.commons.io.IOUtils.toInputStream(getFileContent(filename)), tmpFile);
+        return tmpFile.toFile();
     }
 }

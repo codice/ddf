@@ -1,0 +1,25 @@
+{
+    "admin" : {
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"admin@localhost.local"
+    },
+    "localhost" : {
+        "accessGroup" : "D",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"system@localhost.local"
+    },
+    "slang" : {
+        "accessGroup" : ["A","U"],
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"slang@example.com"
+    },
+    "tchalla" : {
+        "accessGroup" : ["B","W"],
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"tchalla@example.com"
+    },
+    "nromanova" : {
+        "accessGroup" : ["C","R"],
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"nromanova@example.com"
+    },
+    "srogers" : {
+        "accessGroup" : ["D","U"],
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"srogers@example.com"
+    }
+}
