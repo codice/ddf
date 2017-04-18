@@ -16,6 +16,7 @@
 var template = require('./association.hbs');
 var Marionette = require('marionette');
 var CustomElements = require('js/CustomElements');
+var Common = require('js/Common');
 var DropdownView = require('component/dropdown/dropdown.view');
 var _ = require('underscore');
 
@@ -186,7 +187,7 @@ module.exports = Marionette.LayoutView.extend({
         var label = currentMetacard.get('metacard').id === currentId ?
             'Current Metacard' : this.getChoiceById(currentId).label;
         this.$el.find('.association-child').attr('data-label', label);
-        this.$el.find('.association-child-link a').attr('href', '#metacards/'+currentId).html(label);
+        this.$el.find('.association-child-link a').attr('href', '#metacards/'+currentId).html(Common.escapeHTML(label));
     },
     updateParentReadOnly: function() {
         var currentMetacard = this.options.currentMetacard;
@@ -194,7 +195,7 @@ module.exports = Marionette.LayoutView.extend({
         var label = currentMetacard.get('metacard').id === currentId ?
             'Current Metacard' : this.getChoiceById(currentId).label;
         this.$el.find('.association-parent').attr('data-label', label);
-        this.$el.find('.association-parent-link a').attr('href', '#metacards/'+currentId).html(label);
+        this.$el.find('.association-parent-link a').attr('href', '#metacards/'+currentId).html(Common.escapeHTML(label));
     },
     updateRelationshipReadOnly: function() {
         var currentMetacard = this.options.currentMetacard;
