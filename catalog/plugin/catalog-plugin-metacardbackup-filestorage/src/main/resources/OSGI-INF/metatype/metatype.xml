@@ -21,10 +21,9 @@
             required="true"
             type="String" default="File_Storage_Provider"/>
 
-        <AD
-                description="Output directory to place backup files."
-                name="Output Directory" id="outputDirectory" required="true" type="String"
-                default="data/backup/metacard"/>
+        <AD description="Output directory to place backup files."
+            name="Output Directory" id="outputDirectory" required="true" type="String"
+            default="data/backup/metacard"/>
     </OCD>
 
     <Designate

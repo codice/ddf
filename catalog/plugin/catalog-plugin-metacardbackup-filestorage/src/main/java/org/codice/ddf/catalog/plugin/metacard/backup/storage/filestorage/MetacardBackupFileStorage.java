@@ -66,10 +66,6 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
         }
     }
 
-    public MetacardBackupFileStorage() {
-
-    }
-
     @Override
     public String getId() {
         return id;
@@ -119,8 +115,9 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
 
         Path metacardPath = getMetacardDirectory(id);
         if (metacardPath == null) {
-            LOGGER.debug(String.format("Unable to create metacard path directory for %s", id));
-            throw new MetacardBackupException("Unable to create metacard backup directory");
+            String message = String.format("Unable to create metacard path directory for %s", id);
+            LOGGER.debug(message);
+            throw new MetacardBackupException(message);
         }
 
         try {
@@ -164,7 +161,7 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
     private void deleteBackupIfPresent(String filename) throws MetacardBackupException {
         Path metacardPath = getMetacardDirectory(filename);
         if (metacardPath == null) {
-            LOGGER.trace(String.format("Unable to delete backup for  %s", filename));
+            LOGGER.trace("Unable to delete backup for: {}", filename);
             throw new MetacardBackupException("Unable to delete backup");
         }
 

@@ -42,7 +42,6 @@ public class MetacardBackupFileStorageTest {
 
     private MetacardBackupFileStorage fileStorageProvider = new MetacardBackupFileStorage();
 
-    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         fileStorageProvider.setId(PLUGIN_ID);
