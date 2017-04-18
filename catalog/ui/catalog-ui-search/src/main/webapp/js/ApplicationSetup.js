@@ -11,7 +11,15 @@
  **/
 /*global require, window */
 /*jslint nomen:false, -W064 */
-require('less/styles.less');
+
+// for webpack dev server hot reloading
+if (module.hot){
+    module.hot.accept(function() {
+        // we don't want to refresh the page when using the webpack dev server
+    });
+}
+
+require('styles/styles.less');
 var $ = require('jquery')
 $.ajaxSetup({
     cache: false
