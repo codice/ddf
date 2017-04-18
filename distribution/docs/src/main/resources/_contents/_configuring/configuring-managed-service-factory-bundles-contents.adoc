@@ -40,7 +40,7 @@ The following table shows the format to use for each property type supported.
 |name = "john"
 
 |Booleans
-|name = B"true|false"
+|name = B"true\|false"
 |authorized = B"true"
 
 |Integers
@@ -63,8 +63,8 @@ The following table shows the format to use for each property type supported.
 |name = [ "value1", "value2", …​ ]
 |`complexStringArray = [
     "{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\
-    \"VERSION\"\ \"1.1|1.2\"\ \"image/png\"}\ \"beta\"\ 1}",	"{\"url\"\ \"http://test.sample.com"\ 0.5}",
-	"/solr\=SAML|PKI|basic", "/security-config\=SAML|basic"
+    \"VERSION\"\ \"1.1\|1.2\"\ \"image/png\"}\ \"beta\"\ 1}",	"{\"url\"\ \"http://test.sample.com"\ 0.5}",
+	"/solr\=SAML\|PKI\|basic", "/security-config\=SAML\|basic"
 ]`
 
 |Lists of Integers
