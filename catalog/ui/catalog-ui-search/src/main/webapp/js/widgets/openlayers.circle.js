@@ -56,12 +56,12 @@ define([
                 this.model.set({
                     lat: center[1],
                     lon: center[0],
-                    radius: geometry.getRadius()
+                    radius: geometry.getRadius() * this.map.getView().getProjection().getMetersPerUnit()
                 });
             },
 
             modelToCircle: function (model) {
-                var rectangle = new ol.geom.Circle(translateToOpenlayersCoordinate([model.get('lon'), model.get('lat')]), model.get('radius'));
+                var rectangle = new ol.geom.Circle(translateToOpenlayersCoordinate([model.get('lon'), model.get('lat')]), model.get('radius') / this.map.getView().getProjection().getMetersPerUnit());
                 return rectangle;
             },
 
@@ -90,7 +90,7 @@ define([
                 }
 
                 var point = Turf.point(translateFromOpenlayersCoordinate(rectangle.getCenter()));
-                var turfCircle = new TurfCircle(point,rectangle.getRadius(), 64, 'meters');
+                var turfCircle = new TurfCircle(point, rectangle.getRadius() * this.map.getView().getProjection().getMetersPerUnit(), 64, 'meters');
                 var geometryRepresentation = new ol.geom.LineString(translateToOpenlayersCoordinates(turfCircle.geometry.coordinates[0]));
 
                 if (this.vectorLayer) {
