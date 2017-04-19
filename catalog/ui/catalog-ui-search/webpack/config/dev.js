@@ -40,6 +40,7 @@ module.exports = merge.smart(base, {
     },
     plugins: [
         new webpack.NoErrorsPlugin(),
+        new webpack.NamedModulesPlugin(),
         new webpack.HotModuleReplacementPlugin()
     ]
 });

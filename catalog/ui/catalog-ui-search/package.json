@@ -71,9 +71,7 @@
     "stack-source-map": "1.0.5",
     "url-loader": "0.5.8",
     "webpack": "1.13.0",
-    "webpack-dev-middleware": "1.6.1",
     "webpack-dev-server": "1.16.3",
-    "webpack-hot-middleware": "2.12.1",
     "webpack-merge": "0.14.0"
   },
   "dependencies": {
