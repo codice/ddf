@@ -82,7 +82,7 @@ module.exports = Marionette.LayoutView.extend({
                 id: store.getCurrentWorkspace().id,
                 name: store.getCurrentWorkspace().get('title')
             },
-            comments: this.comments.currentView.getCurrentValue()[0]
+            comments: this.comments.currentView.model.getValue()[0]
         };
         $.post('/search/catalog/internal/feedback', JSON.stringify(payload));
         this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
