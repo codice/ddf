@@ -43,7 +43,7 @@ public abstract class SolrCommands extends OsgiCommandSupport {
 
     private static final Color INFO_COLOR = Ansi.Color.BLUE;
 
-    private static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
+    protected static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
 
     protected ConfigurationAdmin configurationAdmin;
 
@@ -90,17 +90,17 @@ public abstract class SolrCommands extends OsgiCommandSupport {
 
     private SolrClient getCloudSolrClient() {
         String zkHosts = System.getProperty(ZOOKEEPER_HOSTS_PROP);
-        LOGGER.debug("zookeeper hosts: {}", zkHosts);
+        LOGGER.debug("Zookeeper hosts: {}", zkHosts);
 
         if (zkHosts != null) {
             SolrClient client = new CloudSolrClient.Builder().withZkHost(zkHosts)
                     .build();
-            LOGGER.debug("created solr client: {}", client);
+            LOGGER.debug("Created solr client: {}", client);
             return client;
         } else {
             printErrorMessage(String.format(
                     String.format("Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
-                    ZOOKEEPER_HOSTS_PROP, Paths.get(System.getProperty("karaf.home"), "etc", "system.properties"))));
+                    ZOOKEEPER_HOSTS_PROP, Paths.get(System.getProperty("ddf.home"), "etc", "system.properties"))));
             return null;
         }
     }

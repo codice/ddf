@@ -21,13 +21,13 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
@@ -37,14 +37,12 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.JettyConfig;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.zookeeper.KeeperException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -66,7 +64,7 @@ public class TestBackupCommand {
 
     private static final String DEFAULT_CONFIGSET = "collection_configset_1";
 
-    private static final String ASCII_COLOR_CODES_REGEX = "\u001B\\[[;\\d]*m";
+    private static final Pattern ASCII_COLOR_CODES_REGEX = Pattern.compile("\u001B\\[[;\\d]*m");
 
     HttpWrapper mockHttpWrapper;
 
@@ -78,10 +76,12 @@ public class TestBackupCommand {
 
     private static String protocols;
 
-    @Rule @ClassRule
+    @Rule
+    @ClassRule
     public static TemporaryFolder baseDir = new TemporaryFolder();
 
-    @Rule @ClassRule
+    @Rule
+    @ClassRule
     public static TemporaryFolder backupLocation = new TemporaryFolder();
 
     @BeforeClass
@@ -123,8 +123,9 @@ public class TestBackupCommand {
 
     @AfterClass
     public static void afterClass() throws Exception {
-        if(miniSolrCloud != null) {
-            miniSolrCloud.getSolrClient().close();
+        if (miniSolrCloud != null) {
+            miniSolrCloud.getSolrClient()
+                    .close();
             miniSolrCloud.shutdown();
         }
     }
@@ -207,20 +208,7 @@ public class TestBackupCommand {
         setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = new BackupCommand() {
-            @Override
-            SolrClient getSolrClient() {
-                return miniSolrCloud.getSolrClient();
-            }
-
-            // We get the solr client from the MiniSolrCloudCluster, so we don't
-            // want to shut it down after each test. We don't create a MiniSolrCloudCluster
-            // for each test to reduce the time it takes to run the tests.
-            @Override
-            void shutdown(SolrClient client) {}
-        };
-        backupCommand.backupLocation = getBackupLocation();
-        backupCommand.coreName = DEFAULT_CORE_NAME;
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME);
 
         // Perform Test
         backupCommand.doExecute();
@@ -243,18 +231,7 @@ public class TestBackupCommand {
         setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = new BackupCommand() {
-            @Override
-            SolrClient getSolrClient() {
-                return miniSolrCloud.getSolrClient();
-            }
-
-            // We get the solr client from the MiniSolrCloudCluster, so we don't
-            // want to shut it down after each test. We don't create a MiniSolrCloudCluster
-            // for each test to reduce the time it takes to run the tests.
-            @Override
-            void shutdown(SolrClient client) {}
-        };
+        BackupCommand backupCommand = getSynchronousBackupCommand(null, null);
 
         // Perform Test
         backupCommand.doExecute();
@@ -271,19 +248,7 @@ public class TestBackupCommand {
         setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = new BackupCommand() {
-            @Override
-            SolrClient getSolrClient() {
-                return miniSolrCloud.getSolrClient();
-            }
-
-            // We get the solr client from the MiniSolrCloudCluster, so we don't
-            // want to shut it down after each test. We don't create a MiniSolrCloudCluster
-            // for each test to reduce the time it takes to run the tests.
-            @Override
-            void shutdown(SolrClient client) {}
-        };
-        backupCommand.coreName = DEFAULT_CORE_NAME;
+        BackupCommand backupCommand = getSynchronousBackupCommand(null, DEFAULT_CORE_NAME);
 
         // Perform Test
         backupCommand.doExecute();
@@ -301,19 +266,7 @@ public class TestBackupCommand {
         setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = new BackupCommand() {
-            @Override
-            SolrClient getSolrClient() {
-                return miniSolrCloud.getSolrClient();
-            }
-
-            // We get the solr client from the MiniSolrCloudCluster, so we don't
-            // want to shut it down after each test. We don't create a MiniSolrCloudCluster
-            // for each test to reduce the time it takes to run the tests.
-            @Override
-            void shutdown(SolrClient client) {}
-        };
-        backupCommand.backupLocation = getBackupLocation();
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), null);
 
         // Perform Test
         backupCommand.doExecute();
@@ -336,20 +289,7 @@ public class TestBackupCommand {
         setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = new BackupCommand() {
-            @Override
-            SolrClient getSolrClient() {
-                return miniSolrCloud.getSolrClient();
-            }
-
-            // We get the solr client from the MiniSolrCloudCluster, so we don't
-            // want to shut it down after each test. We don't create a MiniSolrCloudCluster
-            // for each test to reduce the time it takes to run the tests.
-            @Override
-            void shutdown(SolrClient client) {}
-        };
-        backupCommand.backupLocation = getBackupLocation();
-        backupCommand.coreName = INVALID_COLLECTION_NAME;
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), INVALID_COLLECTION_NAME);
 
         // Perform Test
         backupCommand.doExecute();
@@ -362,7 +302,8 @@ public class TestBackupCommand {
                         backupCommand.backupLocation,
                         INVALID_COLLECTION_NAME)));
         assertThat(consoleOutput.getOutput(),
-                containsString(String.format("Backup failed. Unable to optimize collection [%s]. Collection not found: %s",
+                containsString(String.format(
+                        "Backup failed. Unable to optimize collection [%s]. Collection not found: %s",
                         INVALID_COLLECTION_NAME,
                         INVALID_COLLECTION_NAME)));
     }
@@ -374,60 +315,35 @@ public class TestBackupCommand {
         // BackupCommand knows that it needs to backup solr cloud.
         setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
 
-        // Setup BackupCommand
-        BackupCommand backupCommand1 = new BackupCommand() {
-            @Override
-            SolrClient getSolrClient() {
-                return miniSolrCloud.getSolrClient();
-            }
+        // Setup BackupCommand for async backup
+        BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME);
 
-            // We get the solr client from the MiniSolrCloudCluster, so we don't
-            // want to shut it down after each test. We don't create a MiniSolrCloudCluster
-            // for each test to reduce the time it takes to run the tests.
-            @Override
-            void shutdown(SolrClient client) {}
-        };
-        backupCommand1.asyncBackup = true;
-        backupCommand1.backupLocation = getBackupLocation();
-        backupCommand1.coreName = DEFAULT_CORE_NAME;
-
-        // Perform Test
-        backupCommand1.doExecute();
+        // Perform Test (backup)
+        backupCommand.doExecute();
 
         // Verify
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format(
                         "Backing up collection [%s] to shared location [%s] using backup name [%s_",
                         DEFAULT_CORE_NAME,
-                        backupCommand1.backupLocation,
+                        backupCommand.backupLocation,
                         DEFAULT_CORE_NAME)));
         assertThat(consoleOutput.getOutput(), containsString("Solr Cloud backup request Id:"));
 
         String requestId = getRequestId(consoleOutput.getOutput());
         consoleOutput.reset();
 
-        BackupCommand backupCommand2 = new BackupCommand() {
-            @Override
-            public SolrClient getSolrClient() {
-                return miniSolrCloud.getSolrClient();
-            }
+        // Setup BackupCommand for status lookup
+        BackupCommand statusBackupCommand = getStatusBackupCommand(requestId);
 
-            // We get the solr client from the MiniSolrCloudCluster, so we don't
-            // want to shut it down after each test. We don't create a MiniSolrCloudCluster
-            // for each test to reduce the time it takes to run the tests.
-            @Override
-            void shutdown(SolrClient client) {}
-        };
-        backupCommand2.asyncBackupStatus = true;
-        backupCommand2.asyncBackupReqId = requestId;
-
-        backupCommand2.doExecute();
+        // Perform status lookup
+        statusBackupCommand.doExecute();
         String status = getRequestStatus(consoleOutput.getOutput());
 
-        while(StringUtils.equals(status, RequestStatusState.RUNNING.getKey())) {
+        while (StringUtils.equals(status, RequestStatusState.RUNNING.getKey())) {
             TimeUnit.SECONDS.sleep(1);
             consoleOutput.reset();
-            backupCommand2.doExecute();
+            statusBackupCommand.doExecute();
             status = getRequestStatus(consoleOutput.getOutput());
         }
 
@@ -441,22 +357,10 @@ public class TestBackupCommand {
         // BackupCommand knows that it needs to backup solr cloud.
         setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
 
-        // Setup BackupCommand
-        BackupCommand backupCommand = new BackupCommand() {
-            @Override
-            SolrClient getSolrClient() {
-                return miniSolrCloud.getSolrClient();
-            }
+        // Setup BackupCommand for status lookup
+        BackupCommand statusBackupCommand = getStatusBackupCommand(null);
 
-            // We get the solr client from the MiniSolrCloudCluster, so we don't
-            // want to shut it down after each test. We don't create a MiniSolrCloudCluster
-            // for each test to reduce the time it takes to run the tests.
-            @Override
-            void shutdown(SolrClient client) {}
-        };
-        backupCommand.asyncBackupStatus = true;
-
-        backupCommand.doExecute();
+        statusBackupCommand.doExecute();
 
         assertThat(consoleOutput.getOutput(),
                 containsString("Insufficient options. Run solr:backup --help for usage details."));
@@ -469,21 +373,10 @@ public class TestBackupCommand {
         // BackupCommand knows that it needs to backup solr cloud.
         setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
 
-        // Setup BackupCommand
-        BackupCommand backupCommand = new BackupCommand() {
-            @Override
-            SolrClient getSolrClient() {
-                return miniSolrCloud.getSolrClient();
-            }
+        // Setup BackupCommand (ie. solr:backup -i <request Id>)
+        BackupCommand invalidBackupStatusCommand = getBackupCommand(null, null, false, false, "myRequestId0");
 
-            // We get the solr client from the MiniSolrCloudCluster, so we don't
-            // want to shut it down after each test. We don't create a MiniSolrCloudCluster
-            // for each test to reduce the time it takes to run the tests.
-            @Override
-            void shutdown(SolrClient client) {}
-        };
-
-        backupCommand.doExecute();
+        invalidBackupStatusCommand.doExecute();
 
         assertThat(consoleOutput.getOutput(),
                 containsString("Insufficient options. Run solr:backup --help for usage details."));
@@ -520,26 +413,35 @@ public class TestBackupCommand {
                 JettyConfig.builder()
                         .setContext("/solr")
                         .build());
-        miniSolrCloud.getSolrClient().connect();
+        miniSolrCloud.getSolrClient()
+                .connect();
     }
 
-    private static void uploadDefaultConfigset() throws InterruptedException, IOException, KeeperException {
-        miniSolrCloud.uploadConfigSet(Paths.get(TestBackupCommand.class.getClassLoader().getResource("configset").getPath()), DEFAULT_CONFIGSET);
+    private static void uploadDefaultConfigset() throws Exception {
+        miniSolrCloud.uploadConfigSet(Paths.get(TestBackupCommand.class.getClassLoader()
+                .getResource("configset")
+                .getPath()), DEFAULT_CONFIGSET);
     }
 
-    private static void createDefaultCollection() throws IOException, SolrServerException {
-        CollectionAdminRequest.Create create = CollectionAdminRequest.createCollection(DEFAULT_CORE_NAME, DEFAULT_CONFIGSET, 1, 1);
+    private static void createDefaultCollection() throws Exception {
+        CollectionAdminRequest.Create create = CollectionAdminRequest.createCollection(
+                DEFAULT_CORE_NAME,
+                DEFAULT_CONFIGSET,
+                1,
+                1);
         CollectionAdminResponse response = create.process(miniSolrCloud.getSolrClient());
         if (response.getStatus() != 0 || response.getErrorMessages() != null) {
             fail("Could not create collection. Response: " + response.toString());
         }
 
-        List<String> collections = CollectionAdminRequest.listCollections(miniSolrCloud.getSolrClient());
+        List<String> collections =
+                CollectionAdminRequest.listCollections(miniSolrCloud.getSolrClient());
         assertThat(collections.size(), is(1));
-        miniSolrCloud.getSolrClient().setDefaultCollection(DEFAULT_CORE_NAME);
+        miniSolrCloud.getSolrClient()
+                .setDefaultCollection(DEFAULT_CORE_NAME);
     }
 
-    private static void addDocument(String uniqueId) throws IOException, SolrServerException {
+    private static void addDocument(String uniqueId) throws Exception {
         SolrInputDocument doc = new SolrInputDocument();
         doc.setField("id", uniqueId);
         miniSolrCloud.getSolrClient()
@@ -548,14 +450,61 @@ public class TestBackupCommand {
                 .commit();
     }
 
+    private BackupCommand getSynchronousBackupCommand(String backupLocation, String collection) {
+        return getBackupCommand(backupLocation, collection, false, false, null);
+    }
+
+    private BackupCommand getAsnychronousBackupCommand(String backupLocation, String collection) {
+        return getBackupCommand(backupLocation, collection, true, false, null);
+    }
+
+    private BackupCommand getStatusBackupCommand(String requestId) {
+        return getBackupCommand(null, null, false, true, requestId);
+    }
+
+    private BackupCommand getBackupCommand(String backupLocation, String collection,
+            boolean asyncBackup, boolean asyncBackupStatus, String requestId) {
+        BackupCommand backupCommand = new BackupCommand() {
+            @Override
+            SolrClient getSolrClient() {
+                return miniSolrCloud.getSolrClient();
+            }
+
+            // We get the solr client from the MiniSolrCloudCluster, so we don't
+            // want to shut it down after each test as there is no way to restart it.
+            // We don't create a MiniSolrCloudCluster for each test to reduce the
+            // time it takes to run the tests.
+            @Override
+            void shutdown(SolrClient client) {
+                // do nothing
+            }
+        };
+        if (backupLocation != null) {
+            backupCommand.backupLocation = getBackupLocation();
+        }
+        if (collection != null) {
+            backupCommand.coreName = collection;
+        }
+        if (asyncBackup) {
+            backupCommand.asyncBackup = true;
+        }
+        if (asyncBackupStatus) {
+            backupCommand.asyncBackupStatus = true;
+        }
+        if (requestId != null) {
+            backupCommand.asyncBackupReqId = requestId;
+        }
+        return backupCommand;
+    }
+
     // Replace ASCII color codes in console output and get the request Id
     private String getRequestId(String consoleOutput) {
-        return StringUtils.trim(StringUtils.substringAfterLast(consoleOutput.replaceAll(ASCII_COLOR_CODES_REGEX, ""), ":"));
+        return StringUtils.trim(StringUtils.substringAfterLast(ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), ":"));
     }
 
     // Replace ASCII color codes in console output and get the status
     private String getRequestStatus(String consoleOutput) {
-        return StringUtils.trim(StringUtils.substringsBetween(consoleOutput.replaceAll(ASCII_COLOR_CODES_REGEX, ""), "[", "]")[1]);
+        return StringUtils.trim(StringUtils.substringsBetween(ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), "[", "]")[1]);
     }
 
     private static Path getBaseDirPath() {

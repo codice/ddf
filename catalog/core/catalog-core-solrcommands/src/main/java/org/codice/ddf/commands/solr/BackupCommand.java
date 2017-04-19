@@ -51,11 +51,13 @@ public class BackupCommand extends SolrCommands {
     boolean asyncBackup;
 
     @Option(name = "-s", aliases = {"--asyncBackupStatus"}, multiValued = false, required = false,
-            description = "Get the status of the Solr Cloud asynchronous backup.")
+            description = "Get the status of a Solr Cloud asynchronous backup. Used in conjunction with --asyncBackupReqId.")
     boolean asyncBackupStatus;
 
     @Option(name = "-i", aliases = {"--asyncBackupReqId"}, multiValued = false, required = false,
-            description = "Asynchronous backup request Id returned after performing a Solr Cloud asynchronous backup.")
+            description = "Request Id returned after performing a Solr Cloud asynchronous backup. This request Id is used to track"
+                    + " the status of a given backup. When requesting a backup status, --asyncBackupStatus and --asyncBackupReqId"
+                    + " are both required options.")
     String asyncBackupReqId;
 
     @Option(name = "-n", aliases = {"--numToKeep"}, multiValued = false, required = false,
@@ -79,8 +81,8 @@ public class BackupCommand extends SolrCommands {
 
                 if(client == null) {
                     printErrorMessage(String.format(
-                            "Could not determine Zookeeper Hosts. Please verify that the system property solr.cloud.zookeeper is configured in %s.",
-                            Paths.get(System.getProperty("karaf.home"), "etc", "system.properties")));
+                            "Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
+                            ZOOKEEPER_HOSTS_PROP, Paths.get(System.getProperty("ddf.home"), "etc", "system.properties")));
                     return null;
                 }
 
@@ -99,28 +101,31 @@ public class BackupCommand extends SolrCommands {
                 shutdown(client);
             }
         } else {
-
-            String backupUrl = getBackupUrl(coreName);
-
-            URIBuilder uriBuilder = new URIBuilder(backupUrl);
-            uriBuilder.addParameter("command", "backup");
-
-            if (StringUtils.isNotBlank(backupLocation)) {
-                uriBuilder.addParameter("location", backupLocation);
-            }
-            if (numberToKeep > 0) {
-                uriBuilder.addParameter("numberToKeep", Integer.toString(numberToKeep));
-            }
-
-            URI backupUri = uriBuilder.build();
-            LOGGER.debug("Sending request to {}", backupUri.toString());
-
-            HttpWrapper httpClient = getHttpClient();
-
-            processResponse(httpClient.execute(backupUri));
+            preformStandaloneSolrBackup();
         }
 
         return null;
+    }
+
+    private void preformStandaloneSolrBackup() throws Exception {
+        String backupUrl = getBackupUrl(coreName);
+
+        URIBuilder uriBuilder = new URIBuilder(backupUrl);
+        uriBuilder.addParameter("command", "backup");
+
+        if (StringUtils.isNotBlank(backupLocation)) {
+            uriBuilder.addParameter("location", backupLocation);
+        }
+        if (numberToKeep > 0) {
+            uriBuilder.addParameter("numberToKeep", Integer.toString(numberToKeep));
+        }
+
+        URI backupUri = uriBuilder.build();
+        LOGGER.debug("Sending request to {}", backupUri.toString());
+
+        HttpWrapper httpClient = getHttpClient();
+
+        processResponse(httpClient.execute(backupUri));
     }
 
     private void processResponse(ResponseWrapper responseWrapper) throws Exception {
@@ -181,7 +186,7 @@ public class BackupCommand extends SolrCommands {
         } else {
             printErrorMessage(String.format(
                     "Could not determine Solr Client Type. Please verify that the system property %s is configured in %s.",
-                    SOLR_CLIENT_PROP, Paths.get(System.getProperty("karaf.home"), "etc", "system.properties")));
+                    SOLR_CLIENT_PROP, Paths.get(System.getProperty("ddf.home"), "etc", "system.properties")));
             return false;
         }
     }
@@ -271,7 +276,7 @@ public class BackupCommand extends SolrCommands {
                 coreName,
                 backupLocation,
                 backupName));
-        if (optimize(client, coreName)) {
+        if (optimizeCollection(client, coreName)) {
             try {
                 if (asyncBackup) {
                     String requestId = backupAsync(client, coreName, backupLocation, backupName);
@@ -290,10 +295,10 @@ public class BackupCommand extends SolrCommands {
         }
     }
 
-    private boolean optimize(SolrClient client, String collection) {
+    private boolean optimizeCollection(SolrClient client, String collection) {
         try {
             UpdateResponse updateResponse = client.optimize(collection);
-            LOGGER.error("optimization status: " + updateResponse.getStatus());
+            LOGGER.debug("Optimization status: {}", updateResponse.getStatus());
             if (updateResponse.getStatus() != 0) {
                 printErrorMessage(String.format("Backup failed. Unable to optimize collection [%s].",
                         coreName));
