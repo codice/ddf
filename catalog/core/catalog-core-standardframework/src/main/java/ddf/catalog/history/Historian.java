@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
@@ -89,8 +90,9 @@ import ddf.security.SubjectUtils;
 public class Historian {
     private static final Logger LOGGER = LoggerFactory.getLogger(Historian.class);
 
-    private final Predicate<Metacard> isVersionOrDeleted =
-            (m) -> MetacardVersionImpl.isVersion(m) || DeletedMetacardImpl.isDeleted(m);
+    private final Predicate<Metacard> isNotVersionNorDeleted =
+            ((Predicate<Metacard>) MetacardVersionImpl::isVersion).or(DeletedMetacardImpl::isDeleted)
+                    .negate();
 
     private boolean historyEnabled = true;
 
@@ -148,7 +150,7 @@ public class Historian {
         List<Metacard> inputMetacards = updateResponse.getUpdatedMetacards()
                 .stream()
                 .map(Update::getOldMetacard)
-                .filter(isVersionOrDeleted.negate())
+                .filter(isNotVersionNorDeleted)
                 .collect(Collectors.toList());
 
         final Map<String, Metacard> versionedMetacards = getVersionMetacards(inputMetacards,
@@ -184,11 +186,10 @@ public class Historian {
 
         List<Metacard> updatedMetacards = updateStorageResponse.getUpdatedContentItems()
                 .stream()
-                .filter(ci -> ci.getQualifier() == null || ci.getQualifier()
-                        .equals(""))
+                .filter(ci -> StringUtils.isBlank(ci.getQualifier()))
                 .map(ContentItem::getMetacard)
                 .filter(Objects::nonNull)
-                .filter(isVersionOrDeleted.negate())
+                .filter(isNotVersionNorDeleted)
                 .collect(Collectors.toList());
 
         Collection<ReadStorageRequest> ids = getReadStorageRequests(updatedMetacards);
@@ -234,7 +235,7 @@ public class Historian {
 
         List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards()
                 .stream()
-                .filter(isVersionOrDeleted.negate())
+                .filter(isNotVersionNorDeleted)
                 .collect(Collectors.toList());
 
         // [ContentItem.getId: content items]
@@ -518,14 +519,14 @@ public class Historian {
     private StorageProvider storageProvider() {
         return storageProviders.stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new IllegalStateException(
                         "Cannot version metacards without a storage provider"));
     }
 
     private CatalogProvider catalogProvider() {
         return catalogProviders.stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new IllegalStateException(
                         "Cannot version metacards without a storage provider"));
     }
 
