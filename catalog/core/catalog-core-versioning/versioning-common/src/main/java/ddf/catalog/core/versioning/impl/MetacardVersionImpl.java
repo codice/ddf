@@ -36,6 +36,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -285,14 +287,17 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
         return (MetacardVersion) metacard;
     }
 
-    public static boolean isNotVersion(Metacard metacard) {
+    public static boolean isNotVersion(@Nullable Metacard metacard) {
         return !isVersion(metacard);
     }
 
-    public static boolean isVersion(Metacard metacard) {
+    public static boolean isVersion(@Nullable Metacard metacard) {
+
         return metacard instanceof MetacardVersion || getMetacardVersionType().getName()
-                .equals(metacard.getMetacardType()
-                        .getName());
+                .equals(Optional.ofNullable(metacard)
+                        .map(Metacard::getMetacardType)
+                        .map(MetacardType::getName)
+                        .orElse(null));
     }
 
     public URI getVersionResourceUri() {
