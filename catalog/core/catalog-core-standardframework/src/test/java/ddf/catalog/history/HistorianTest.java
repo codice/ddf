@@ -19,8 +19,10 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -408,19 +410,14 @@ public class HistorianTest {
         UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
         UpdateResponse updateResponse = mock(UpdateResponse.class);
 
-        storeMetacard(metacard);
-
-        // send a request to update the metacard
+        // create the update request
         updateMetacard(storageRequest, storageResponse, metacard);
-        storageProvider.update(storageRequest);
 
         mockQuery(metacard);
         historian.version(storageRequest, storageResponse, updateResponse);
 
         // Verify that it wasn't updated
-        Metacard update = readMetacard();
-
-        assertThat(update, equalTo(metacard));
+        verify(catalogProvider, times(0)).create(anyObject());
     }
 
     @Test(expected = IngestException.class)
@@ -433,6 +430,45 @@ public class HistorianTest {
         StorageProvider exceptionStorageProvider = mock(StorageProvider.class);
         doThrow(StorageException.class).when(exceptionStorageProvider)
                 .commit(any());
+
+        ContentItem item = mock(ContentItem.class);
+        when(item.getId()).thenReturn(METACARD_ID);
+        when(item.getUri()).thenReturn(RESOURCE_URI);
+        when(item.getMetacard()).thenReturn(metacards.get(0));
+
+        ReadStorageResponse readStorageResponse = mock(ReadStorageResponse.class);
+        when(readStorageResponse.getContentItem()).thenReturn(item);
+        when(exceptionStorageProvider.read(any())).thenReturn(readStorageResponse);
+
+        when(exceptionStorageProvider.create(any())).thenReturn(mock(CreateStorageResponse.class));
+
+        historian.setStorageProviders(Collections.singletonList(exceptionStorageProvider));
+
+        // Parameters for historian
+        UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
+        UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
+        UpdateResponse updateResponse = mock(UpdateResponse.class);
+
+        // send a request to update the metacard
+        updateMetacard(storageRequest, storageResponse, metacards.get(1));
+
+        mockQuery(metacards.get(1));
+        historian.version(storageRequest, storageResponse, updateResponse);
+        verify(exceptionStorageProvider).rollback(any(StorageRequest.class));
+    }
+
+    @Test(expected = IngestException.class)
+    public void testRollbackFailed()
+            throws StorageException, UnsupportedQueryException, SourceUnavailableException,
+            IngestException {
+        List<Metacard> metacards = getMetacardUpdatePair();
+
+        // Mock out a bad storage provider
+        StorageProvider exceptionStorageProvider = mock(StorageProvider.class);
+        doThrow(StorageException.class).when(exceptionStorageProvider)
+                .commit(any());
+        doThrow(StorageException.class).when(exceptionStorageProvider)
+                .rollback(any());
 
         ContentItem item = mock(ContentItem.class);
         when(item.getId()).thenReturn(METACARD_ID);
