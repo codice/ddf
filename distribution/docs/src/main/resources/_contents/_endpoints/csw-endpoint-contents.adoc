@@ -958,8 +958,13 @@ Namespace:: In POST operations, namespaces are defined in the XML. In GET operat
 Service:: The service being used, in this case it is fixed at CSW.
 Version:: The version of the service being used (2.0.2).
 OutputFormat:: The requester wants the response to be in this intended output. Currently, only one format is supported (application/xml). If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
-OutputSchema:: This is the schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
+OutputSchema:: The OutputSchema indicates which schema shall be used to generate the response to the GetRecords operation.  The supported output schemas are listed in the GetCapabilities response.
 ElementSetName:: CodeList with allowed values of “brief”, “summary”, or “full”. The default value is "summary". The predefined set names of “brief”, “summary”, and “full” represent different levels of detail for the source record. "Brief" represents the least amount of detail, and "full" represents all the metadata record elements.
+
+[IMPORTANT]
+====
+The CSW Endpoint expects all geospatial filters using the EPSG:4326 CRS to use "longitude then latitude" coordinate ordering.  Similarly, unless the output schema explicitly states otherwise, the GetRecordsResponse will use the same coordinate ordering. 
+====
 
 .`GetRecords` `HTTP GET`
 The `HTTP GET` request differs from the `POST` request in that it has the "typeNames" as a comma-separated list of namespace prefix qualified types as strings.
@@ -1290,7 +1295,7 @@ Namespace:: In POST operations, namespaces are defined in the XML. In GET operat
 Service:: The service being used, in this case it is fixed at "CSW".
 Version:: The version of the service being used (2.0.2).
 OutputFormat:: The requester wants the response to be in this intended output. Currently, two output formats are supported: `application/xml` for retrieving records, and `application/octet-stream` for retrieving a product. If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
-OutputSchema:: This is the schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema). Additionally the output schema `http://www.iana.org/assignments/media-types/application/octet-stream` is recognized and used to retrieve a product.
+OutputSchema:: The OutputSchema indicates which schema shall be used to generate the response to the GetRecordById operation.  The supported output schemas are listed in the GetCapabilities response.
 ElementSetName:: CodeList with allowed values of “brief”, “summary”, or “full”. The default value is "summary". The predefined set names of “brief”, “summary”, and “full” represent different levels of detail for the source record. "Brief" represents the least amount of detail, and "full" represents all the metadata record elements.
 Id:: The Id parameter is a comma-separated list of record identifiers for the records that CSW returns to the client. In the XML encoding, one or more <Id> elements may be used to specify the record identifier to be retrieved.
 
