@@ -182,7 +182,7 @@ define([
                     calculatedType = 'range';
                     break;
                 case 'GEOMETRY':
-                    this.set('calculatedType', 'geometry');
+                    calculatedType = 'geometry';
                     break;
                 case 'STRING':
                 case 'XML':
