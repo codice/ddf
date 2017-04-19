@@ -116,8 +116,6 @@ include::{adoc-include}/_securing/securing-admin-console-contents.adoc[]
 
 include::{adoc-include}/_configuring/configuring-for-an-ldap-server-contents.adoc[]
 
-include::{adoc-include}/_securing/hardening-user-access-contents.adoc[]
-
 include::{adoc-include}/_securing/hardening-guest-user-access-contents.adoc[]
 
 include::{adoc-include}/_configuring/configuring-http-port-admin-console-contents.adoc[]
@@ -163,6 +161,10 @@ include::{adoc-include}/_securing/hardening-solr-index-contents.adoc[]
 include::{adoc-include}/_configuring/configuration-files-intro-contents.adoc[]
 
 include::{adoc-include}/_configuring/configuring-global-settings-contents.adoc[]
+
+include::{adoc-include}/_configuring/updating-system-users.adoc[]
+
+include::{adoc-include}/_securing/hardening-user-access-contents.adoc[]
 
 include::{adoc-include}/_configuring/configuring-with-config-files-contents.adoc[]
 
