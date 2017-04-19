@@ -95,6 +95,7 @@ define([
                     return values.indexOf(Common.getHumanReadableDate(value)) >= 0;
                 case 'BOOLEAN':
                 case 'STRING':
+                case 'GEOMETRY':
                 return values.indexOf(value.toString() + zeroWidthSpace) >= 0;
                 default:
                     return value >= values[0] && value <= values[1];
@@ -110,6 +111,7 @@ define([
                     break;
                 case 'BOOLEAN':
                 case 'STRING':
+                case 'GEOMETRY':
                     valueArray.push(value.toString() + zeroWidthSpace);
                     break;
                 default:
