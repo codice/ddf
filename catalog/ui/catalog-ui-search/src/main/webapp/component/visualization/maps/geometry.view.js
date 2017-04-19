@@ -34,10 +34,7 @@ var GeometryView = Marionette.ItemView.extend({
         this.onDestroy();
         this.isSelected = undefined;
         this.isClustered = undefined;
-        var geometry = _.filter(this.model.get('metacard').get('properties').toJSON(), function(value, key){
-            return metacardDefinitions.metacardTypes[key] && 
-                metacardDefinitions.metacardTypes[key].type === "GEOMETRY";
-        }); 
+        var geometry = this.model.getGeometries();
         if (geometry.length > 0) {
             this.geometry = [];
             _.forEach(geometry, function(property){

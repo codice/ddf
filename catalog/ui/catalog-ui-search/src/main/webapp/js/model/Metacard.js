@@ -468,7 +468,7 @@ define([
             },
             getGeometries: function (attribute) {
                 return _.filter(this.toJSON(), function (value, key) {
-                    return (attribute === undefined || attribute === key) && metacardDefinitions.metacardTypes[key] &&
+                    return !properties.isHidden(key) && (attribute === undefined || attribute === key) && metacardDefinitions.metacardTypes[key] &&
                         metacardDefinitions.metacardTypes[key].type === "GEOMETRY";
                 });
             }
@@ -534,9 +534,6 @@ define([
             ],
             initialize: function(){
                 this.refreshData = _.throttle(this.refreshData, 200);
-                this.listenTo(this.get('metacard').get('properties'), 'change', function(propertiesModel){
-                    this.trigger('nestedChange', propertiesModel.changedAttributes());
-                }.bind(this));
             },
             isWorkspace: function(){
                 return this.get('metacard').get('properties').get('metacard-tags').indexOf('workspace') >= 0;

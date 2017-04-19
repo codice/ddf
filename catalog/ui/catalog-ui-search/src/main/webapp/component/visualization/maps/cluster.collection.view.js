@@ -124,10 +124,10 @@ var ClusterCollectionView = Marionette.CollectionView.extend({
     listenForResultsChange: function() {
         this.listenTo(this.selectionInterface.getActiveSearchResults(), 'reset',
             this.handleResultsChange);
-        this.listenTo(this.selectionInterface.getActiveSearchResults(), 'nestedChange', this.handleResultsNestedChange);
+        this.listenTo(this.selectionInterface.getActiveSearchResults(), 'change:metacard>properties', this.handleMetacardUpdate);
     },
-    handleResultsNestedChange: function(changedAttributes){
-        if (_.find(Object.keys(changedAttributes), function (attribute) {
+    handleMetacardUpdate: function(propertiesModel){
+        if (_.find(Object.keys(propertiesModel.changedAttributes()), function (attribute) {
                 return metacardDefinitions.metacardTypes[attribute] && metacardDefinitions.metacardTypes[attribute].type === "GEOMETRY";
             }) !== undefined){
             this.handleResultsChange();
