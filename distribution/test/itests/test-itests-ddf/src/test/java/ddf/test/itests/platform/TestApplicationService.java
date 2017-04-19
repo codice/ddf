@@ -36,8 +36,11 @@ import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
+import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -57,6 +60,9 @@ import ddf.security.common.util.Security;
 @ExamReactorStrategy(PerSuite.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestApplicationService extends AbstractIntegrationTest {
+
+    @Rule
+    public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestApplicationService.class);
 
@@ -160,6 +166,7 @@ public class TestApplicationService extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnoreRule.ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-2954
     public void cTestAppStartStop() throws ApplicationServiceException {
 
         systemSubject.execute(() -> {
