@@ -31,8 +31,8 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
 import org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin;
-import org.codice.ddf.catalog.plugin.metacard.backup.storage.api.MetacardBackupException;
-import org.codice.ddf.catalog.plugin.metacard.backup.storage.api.MetacardBackupStorageProvider;
+import org.codice.ddf.catalog.plugin.metacard.backup.storage.internal.MetacardBackupException;
+import org.codice.ddf.catalog.plugin.metacard.backup.storage.internal.MetacardBackupStorageProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -104,12 +104,16 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
             Metacard metacard = processUpdateItem.getMetacard();
 
             for (MetacardBackupStorageProvider storageProvider : storageBackupPlugins) {
-                try {
-                    storageProvider.deleteData(metacard.getId());
-                } catch (IOException | MetacardBackupException e) {
-                    LOGGER.debug("Unable to delete backed up metacard data for metacard: {}",
-                            metacard.getId(),
-                            e);
+                if (metacardOutputProviderIds.contains(storageProvider.getId())) {
+                    try {
+                        storageProvider.delete(metacard.getId());
+                    } catch (IOException | MetacardBackupException e) {
+                        LOGGER.debug(
+                                "Unable to delete backed up metacard data for metacard: {} from: {}",
+                                metacard.getId(),
+                                storageProvider.getId(),
+                                e);
+                    }
                 }
             }
         }
@@ -160,17 +164,11 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
         if (metacardTransformerProperty instanceof String
                 && StringUtils.isNotBlank((String) metacardTransformerProperty)) {
             setMetacardTransformerId((String) metacardTransformerProperty);
-            LOGGER.debug("Updating {} with {}",
-                    METACARD_TRANSFORMER_ID_PROPERTY,
-                    metacardTransformerProperty);
         }
 
         Object keepDeletedMetacards = properties.get(KEEP_DELETED_METACARDS_PROPERTY);
         if (keepDeletedMetacards instanceof Boolean) {
             this.keepDeletedMetacards = (Boolean) keepDeletedMetacards;
-            LOGGER.debug("Updating {} with {}",
-                    KEEP_DELETED_METACARDS_PROPERTY,
-                    keepDeletedMetacards);
         }
 
         Object metacardOutputProviderIds = properties.get(OUTPUT_PROVIDER_PROPERTY);
@@ -181,7 +179,6 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
 
     private void processRequest(ProcessRequest<? extends ProcessResourceItem> processRequest)
             throws PluginExecutionException {
-        LOGGER.trace("Backing up metacard");
         if (CollectionUtils.isEmpty(storageBackupPlugins)) {
             throw new PluginExecutionException(
                     "Unable to backup ingested metacard; no metacard backup storage provider configured.");
@@ -213,14 +210,14 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
             throws PluginExecutionException {
         byte[] contentBytes = getContentBytes(content, metacardId);
 
-        LOGGER.trace("Writing backup from {} to backup provider", metacardId);
+        LOGGER.trace("Writing backup from {} to backup provider(s)", metacardId);
 
         for (MetacardBackupStorageProvider storageProvider : storageBackupPlugins) {
             if (metacardOutputProviderIds.contains(storageProvider.getId())) {
                 try {
-                    storageProvider.storeData(metacardId, contentBytes);
+                    storageProvider.store(metacardId, contentBytes);
                 } catch (IOException | MetacardBackupException e) {
-                    LOGGER.warn("Unable to backup {} to backup provider.", metacardId, e);
+                    LOGGER.debug("Unable to backup {} to backup provider: {}.", metacardId, storageProvider.getId(), e);
                 }
             }
         }

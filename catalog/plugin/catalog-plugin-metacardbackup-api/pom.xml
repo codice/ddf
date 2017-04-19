@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>catalog-plugin-metacardbackup-storage-api</artifactId>
-    <name>DDF :: Catalog :: Plugin :: Metacard Backup Storage API</name>
+    <name>DDF :: Catalog :: Plugin :: Metacard Backup Storage :: API</name>
     <dependencies>
         <dependency>
             <groupId>ddf.platform.api</groupId>
@@ -42,6 +42,9 @@
                     <instructions>
                         <Embed-Dependency>
                         </Embed-Dependency>
+                        <Export-Package>
+                            org.codice.ddf.catalog.plugin.metacard.backup.storage.internal*
+                        </Export-Package>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                     </instructions>
                 </configuration>

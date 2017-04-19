@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codice.ddf.catalog.plugin.metacard.backup.storage.api.MetacardBackupException;
+import org.codice.ddf.catalog.plugin.metacard.backup.storage.internal.MetacardBackupException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,11 +52,11 @@ public class MetacardBackupFileStorageTest {
     public void cleanUp() throws Exception {
         fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
         if (fileExists(TEST_ID)) {
-            fileStorageProvider.deleteData(TEST_ID);
+            fileStorageProvider.delete(TEST_ID);
         }
 
         if (fileExists(TEST_SHORT_ID)) {
-            fileStorageProvider.deleteData(TEST_SHORT_ID);
+            fileStorageProvider.delete(TEST_SHORT_ID);
         }
     }
 
@@ -97,19 +97,19 @@ public class MetacardBackupFileStorageTest {
 
     @Test(expected = MetacardBackupException.class)
     public void testDeleteNotStored() throws Exception {
-        fileStorageProvider.deleteData(TEST_ID_NOT_STORED);
+        fileStorageProvider.delete(TEST_ID_NOT_STORED);
     }
 
     @Test(expected = MetacardBackupException.class)
     public void testStoreWithEmptyOutputDirectory() throws Exception {
         fileStorageProvider.setOutputDirectory("");
-        fileStorageProvider.storeData(TEST_ID, TEST_BYTES);
+        fileStorageProvider.store(TEST_ID, TEST_BYTES);
     }
 
     @Test(expected = MetacardBackupException.class)
     public void testDeleteWithEmptyOutputDirectory() throws Exception {
         fileStorageProvider.setOutputDirectory("");
-        fileStorageProvider.deleteData(TEST_ID);
+        fileStorageProvider.delete(TEST_ID);
     }
 
     @Test
@@ -122,43 +122,43 @@ public class MetacardBackupFileStorageTest {
     @Test
     public void testStoreTwice() throws Exception {
         fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        fileStorageProvider.storeData(TEST_ID, TEST_BYTES);
-        fileStorageProvider.storeData(TEST_ID, TEST_BYTES);
+        fileStorageProvider.store(TEST_ID, TEST_BYTES);
+        fileStorageProvider.store(TEST_ID, TEST_BYTES);
         assertFile(TEST_ID, true);
     }
 
     @Test
     public void testStoreAndDelete() throws Exception {
         fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        fileStorageProvider.storeData(TEST_ID, TEST_BYTES);
-        fileStorageProvider.storeData(TEST_SHORT_ID, TEST_BYTES);
+        fileStorageProvider.store(TEST_ID, TEST_BYTES);
+        fileStorageProvider.store(TEST_SHORT_ID, TEST_BYTES);
         assertFile(TEST_ID, true);
         assertFile(TEST_SHORT_ID, true);
 
-        fileStorageProvider.deleteData(TEST_ID);
+        fileStorageProvider.delete(TEST_ID);
         assertFile(TEST_ID, false);
 
-        fileStorageProvider.deleteData(TEST_SHORT_ID);
+        fileStorageProvider.delete(TEST_SHORT_ID);
         assertFile(TEST_SHORT_ID, false);
     }
 
     @Test
     public void testStoreShortId() throws Exception {
         fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        fileStorageProvider.storeData(TEST_SHORT_ID, TEST_BYTES);
+        fileStorageProvider.store(TEST_SHORT_ID, TEST_BYTES);
         assertFile(TEST_SHORT_ID, true);
     }
 
     @Test(expected = MetacardBackupException.class)
     public void testStoreNullId() throws Exception {
         fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        fileStorageProvider.storeData(null, TEST_BYTES);
+        fileStorageProvider.store(null, TEST_BYTES);
     }
 
     @Test(expected = MetacardBackupException.class)
     public void testStoreNullData() throws Exception {
         fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        fileStorageProvider.storeData(TEST_ID, null);
+        fileStorageProvider.store(TEST_ID, null);
     }
 
     @Test

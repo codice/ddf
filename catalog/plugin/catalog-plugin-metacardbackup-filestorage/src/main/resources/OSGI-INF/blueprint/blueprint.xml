@@ -17,7 +17,7 @@
     <cm:managed-service-factory
             id="metacardFileBackup"
             factory-pid="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage"
-            interface="org.codice.ddf.catalog.plugin.metacard.backup.storage.api.MetacardBackupStorageProvider">
+            interface="org.codice.ddf.catalog.plugin.metacard.backup.storage.internal.MetacardBackupStorageProvider">
         <service-properties>
             <cm:cm-properties persistent-id="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage" />
         </service-properties>

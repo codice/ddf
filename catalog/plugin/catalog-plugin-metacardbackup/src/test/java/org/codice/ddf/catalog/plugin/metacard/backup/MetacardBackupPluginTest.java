@@ -18,6 +18,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,8 +38,9 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResourceItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
-import org.codice.ddf.catalog.plugin.metacard.backup.storage.api.MetacardBackupStorageProvider;
 import org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage;
+import org.codice.ddf.catalog.plugin.metacard.backup.storage.internal.MetacardBackupException;
+import org.codice.ddf.catalog.plugin.metacard.backup.storage.internal.MetacardBackupStorageProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -81,6 +84,8 @@ public class MetacardBackupPluginTest {
 
     private static final String FILE_STORAGE_PROVIDER_ID = "TestFileStorageProvider";
 
+    private static final String MOCK_ID = "MockProvider";
+
     private MetacardBackupPlugin metacardBackupPlugin;
 
     private MetacardBackupFileStorage fileStorageProvider = new MetacardBackupFileStorage();
@@ -93,6 +98,8 @@ public class MetacardBackupPluginTest {
 
     private MetacardTransformer metacardTransformer;
 
+    private MetacardBackupStorageProvider mockProvider = mock(MetacardBackupStorageProvider.class);
+
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
@@ -102,6 +109,12 @@ public class MetacardBackupPluginTest {
                         StandardCharsets.UTF_8)));
         when(metacardTransformer.transform(any(Metacard.class),
                 anyMap())).thenReturn(binaryContent);
+        doThrow(new MetacardBackupException("Not Implemented")).when(mockProvider)
+                .store(any(), any());
+        doThrow(new MetacardBackupException("Not Implemented")).when(mockProvider)
+                .delete(any());
+        doReturn(MOCK_ID).when(mockProvider)
+                .getId();
         metacardBackupPlugin = new MetacardBackupPlugin();
         metacardBackupPlugin.setMetacardTransformerId(METACARD_TRANSFORMER_ID);
         metacardBackupPlugin.setMetacardTransformer(metacardTransformer);
@@ -169,7 +182,24 @@ public class MetacardBackupPluginTest {
                 fileStorageProvider}));
         metacardBackupPlugin.processCreate(createRequest);
         assertFiles(true);
-        metacardBackupPlugin.processDelete(deleteRequest);
+        cleanup();
+    }
+
+    @Test
+    public void testCreateAndDeleteRequestOneBadProvider() throws Exception {
+        cleanup();
+        metacardBackupPlugin.setMetacardOutputProviderIds(Arrays.asList(MOCK_ID,
+                FILE_STORAGE_PROVIDER_ID));
+        metacardBackupPlugin.setStorageBackupPlugins(Arrays.asList(mockProvider,
+                fileStorageProvider));
+        metacardBackupPlugin.processCreate(createRequest);
+        assertFiles(true);
+        cleanup();
+
+        metacardBackupPlugin.setMetacardOutputProviderIds(Collections.singletonList(
+                FILE_STORAGE_PROVIDER_ID));
+        metacardBackupPlugin.setStorageBackupPlugins(Arrays.asList(new MetacardBackupStorageProvider[] {
+                fileStorageProvider}));
     }
 
     @Test(expected = PluginExecutionException.class)
@@ -214,7 +244,7 @@ public class MetacardBackupPluginTest {
     public void testUpdateRequest() throws Exception {
         metacardBackupPlugin.processUpdate(updateRequest);
         assertFiles(true);
-        metacardBackupPlugin.processDelete(deleteRequest);
+        cleanup();
     }
 
     @Test
@@ -229,7 +259,7 @@ public class MetacardBackupPluginTest {
         metacardBackupPlugin.processCreate(createRequest);
         metacardBackupPlugin.setKeepDeletedMetacards(true);
         assertFiles(true);
-        metacardBackupPlugin.processDelete(deleteRequest);
+        cleanup();
     }
 
     @Test

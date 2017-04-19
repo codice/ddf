@@ -17,7 +17,7 @@
     <bean id="metacardBackupStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
     <reference-list id="metacardBackupStoragePluginList"
                     availability="optional"
-                    interface="org.codice.ddf.catalog.plugin.metacard.backup.storage.api.MetacardBackupStorageProvider">
+                    interface="org.codice.ddf.catalog.plugin.metacard.backup.storage.internal.MetacardBackupStorageProvider">
         <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
                             ref="metacardBackupStorageSortedList"/>
     </reference-list>

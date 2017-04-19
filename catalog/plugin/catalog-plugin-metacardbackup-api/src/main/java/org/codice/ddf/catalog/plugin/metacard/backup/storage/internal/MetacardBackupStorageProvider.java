@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.plugin.metacard.backup.storage.api;
+package org.codice.ddf.catalog.plugin.metacard.backup.storage.internal;
 
 import java.io.IOException;
 
@@ -35,7 +35,7 @@ public interface MetacardBackupStorageProvider extends Describable {
      * @throws IOException
      * @throws MetacardBackupException
      */
-    void deleteData(String id) throws IOException, MetacardBackupException;
+    void delete(String id) throws IOException, MetacardBackupException;
 
     /**
      * Stores data for the provided metacard ID
@@ -45,5 +45,5 @@ public interface MetacardBackupStorageProvider extends Describable {
      * @throws IOException
      * @throws MetacardBackupException
      */
-    void storeData(String id, byte[] data) throws IOException, MetacardBackupException;
+    void store(String id, byte[] data) throws IOException, MetacardBackupException;
 }
