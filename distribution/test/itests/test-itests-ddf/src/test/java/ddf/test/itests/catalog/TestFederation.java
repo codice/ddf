@@ -30,6 +30,7 @@ import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getO
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -63,6 +64,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
@@ -74,9 +77,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleService;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
@@ -107,6 +112,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -117,6 +123,7 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
+import com.jayway.restassured.response.ValidatableResponse;
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Condition;
@@ -126,6 +133,7 @@ import com.xebialabs.restito.server.secure.SecureStubServer;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
+import ddf.catalog.transform.InputTransformer;
 
 /**
  * Tests Federation aspects.
@@ -196,7 +204,7 @@ public class TestFederation extends AbstractIntegrationTest {
     private static final String LOCALHOST_USERNAME = "localhost";
 
     private static final String LOCALHOST_PASSWORD = "localhost";
-    
+
     private static final int CSW_SOURCE_POLL_INTERVAL = 10;
 
     private static final int MAX_DOWNLOAD_RETRY_ATTEMPTS = 3;
@@ -833,12 +841,18 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswQueryForMetacardXml() throws Exception {
-        String titleQuery = getCswQuery("title",
-                "myTitle",
-                "application/xml",
-                "urn:catalog:metacard");
 
-        given().contentType(ContentType.XML)
+        String openGis = "http://www.opengis.net/cat/csw/2.0.2";
+        String gmd = "http://www.isotc211.org/2005/gmd";
+        String metacardUri = "urn:catalog:metacard";
+
+        String titleQuery = getCswQuery("title", "myTitle", "application/xml", metacardUri);
+
+        String thumbNail =
+                "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAALAAgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAJBAAAAQFAwUAAAAAAAAAAAAAABETFAEDBBIVAgUGISJRYZP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBf/EABkRAAMAAwAAAAAAAAAAAAAAAAABAwISIv/aAAwDAQACEQMRAD8A3fRvVTHmTS+RjkUfbolC+fUBDhR0zXMN5WUyibqyClrhMj8WdoAtynSGLfJ//9k=";
+
+        String expectedLocation = "30.0 10.0";
+        ValidatableResponse response = given().contentType(ContentType.XML)
                 .body(titleQuery)
                 .when()
                 .post(CSW_PATH.getUrl())
@@ -849,7 +863,47 @@ public class TestFederation extends AbstractIntegrationTest {
                         hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
                                 is("1")),
                         hasXPath("/GetRecordsResponse/SearchResults/@recordSchema",
-                                is("urn:catalog:metacard")));
+                                is("urn:catalog:metacard")),
+                        hasXPath("//*[@name='title']/*/text()", equalTo("myTitle")),
+                        hasXPath("//*[@name='thumbnail']/*/text()",
+                                equalToIgnoringWhiteSpace(thumbNail)),
+                        hasXPath("//*[local-name()='pos']/text()", equalTo(expectedLocation)));
+        String allXml = response.extract()
+                .body()
+                .asString();
+        Pattern metacardPattern = Pattern.compile(".*?(<metacard.*?</metacard>).*", Pattern.DOTALL);
+        java.util.regex.Matcher matcher = metacardPattern.matcher(allXml);
+        assertThat("Could not find metacard XML", matcher.find(), is(true));
+        assertThat("Could not find metacard XML", matcher.groupCount(), is(1));
+        String metacardXml = matcher.group(1);
+
+        Collection<ServiceReference<InputTransformer>> transformerReferences =
+                getServiceManager().getServiceReferences(InputTransformer.class, "(id=xml)");
+
+        ServiceReference<InputTransformer> xmlInputTransformerReference =
+                (ServiceReference<InputTransformer>) transformerReferences.toArray()[0];
+
+        InputTransformer xmlMetacardInputTransformer = getServiceManager().getService(
+                xmlInputTransformerReference);
+
+        Metacard metacard = xmlMetacardInputTransformer.transform(IOUtils.toInputStream(metacardXml,
+                "UTF-8"));
+
+        //        WaitCondition.expect(String.format("A transformer with the id: \"%s\"", ""))
+        //                .within(1, TimeUnit.MINUTES)
+        //                .until(() -> (!getServiceManager().getServiceReferences(InputTransformer.class,
+        //                        "(|" + "(" + Constants.SERVICE_ID + "=" + DDMS20 + ")" + ")")
+        //                        .isEmpty()));
+
+        assertThat("Metacard's title is different", metacard.getTitle(), equalTo("myTitle"));
+        assertThat("Metacard's thumbnail is different",
+                new String(Base64.getEncoder()
+                        .encode(metacard.getThumbnail())),
+                equalTo(thumbNail));
+        assertThat("Metcard's geometry is different",
+                expectedLocation,
+                equalTo(metacard.getLocation()));
+
     }
 
     @Test
@@ -1853,12 +1907,9 @@ public class TestFederation extends AbstractIntegrationTest {
 
             found = activities.stream()
                     .anyMatch(activity -> {
-                        if (activity.toString()
+                        return activity.toString()
                                 .contains(messageToFind) && activity.toString()
-                                .contains(filename)) {
-                            return true;
-                        }
-                        return false;
+                                .contains(filename);
                     });
 
         }
