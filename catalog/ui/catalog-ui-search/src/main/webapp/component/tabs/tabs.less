@@ -1,7 +1,9 @@
 @{customElementNamespace}tabs {
 
   .customElement;
+  background: inherit;
   .tabs-list {
+    background: inherit;
     .inlineFix;
 
     z-index: @zIndexContent;
@@ -122,8 +124,14 @@
   }
 
   .tabs-content {
+    margin-top: 1px;
     height: ~"calc(100% - @{minimumButtonSize})";
     .boxShadowTop;
+    background: inherit;
+
+    > * {
+      margin-top: 1px;
+    }
   }
 
 }

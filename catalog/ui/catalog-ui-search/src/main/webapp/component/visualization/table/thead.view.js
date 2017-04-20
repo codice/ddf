@@ -26,6 +26,7 @@ var metacardDefinitions = require('component/singletons/metacard-definitions');
 
 module.exports = Marionette.ItemView.extend({
     template: template,
+    className: 'is-thead',
     tagName: CustomElements.register('result-thead'),
     events: {
         'click th.is-sortable': 'updateSorting'

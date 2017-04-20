@@ -13,25 +13,21 @@
  *
  **/
 /*global require*/
+var TableView = require('../table.view');
+var HeaderView = require('component/visualization/table/thead.view');
+var BodyView = require('component/visualization/table/tbody.view');
 
-var Marionette = require('marionette');
-var template = require('./query-status.hbs');
-var CustomElements = require('js/CustomElements');
-var store = require('js/store');
-var TableView = require('component/table/query-status/table-query-status.view');
-
-module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('query-status'),
-    regions: {
-        table: '.table-container'
+module.exports = TableView.extend({
+    className: 'is-results',
+    getHeaderView: function(){
+        return new HeaderView({
+            selectionInterface: this.options.selectionInterface
+        });
     },
-    initialize: function () {
-        this.model = store.getQueryById(this.model.id);
-    },
-    onBeforeShow: function(){
-        this.table.show(new TableView({
-            model: this.model
-        }));
+    getBodyView: function(){
+        return new BodyView({
+            selectionInterface: this.options.selectionInterface,
+            collection: this.options.selectionInterface.getActiveSearchResults()
+        });
     }
 });

@@ -48,6 +48,22 @@ define([
                     this.get('content').set('currentWorkspace', undefined);
                 }
             });
+            this.listenTo(this.get('content'), 'change:currentWorkspace', this.handleWorkspaceChange);
+        },
+        clearOtherWorkspaces: function(workspaceId){
+            this.get('workspaces').forEach(function(workspaceModel){
+                if (workspaceId !== workspaceModel.id){
+                    workspaceModel.clearResults();
+                }
+            });
+        },
+        handleWorkspaceChange: function(){
+            if (this.get('content').changedAttributes().currentWorkspace){
+                var previousWorkspace = this.get('content').previousAttributes().currentWorkspace;
+                if (previousWorkspace && previousWorkspace.id !== this.get('content').get('currentWorkspace').id){
+                    previousWorkspace.clearResults();
+                }
+            }
         },
         getWorkspaceById: function(workspaceId){
             return this.get('workspaces').get(workspaceId);

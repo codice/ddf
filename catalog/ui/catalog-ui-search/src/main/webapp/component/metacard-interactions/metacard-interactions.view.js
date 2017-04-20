@@ -23,9 +23,10 @@ define([
     'js/store',
     'component/router/router',
     'component/singletons/user-instance',
+    'component/singletons/sources-instance',
     'decorator/menu-navigation.decorator',
     'decorator/Decorators'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, router, user, MenuNavigationDecorator, Decorators) {
+], function (wreqr, Marionette, _, $, template, CustomElements, store, router, user, sources, MenuNavigationDecorator, Decorators) {
 
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
@@ -194,7 +195,7 @@ define([
             }
             var result = resultJSON[0];
             return {
-                remoteResourceCached: result.isResourceLocal && result.metacard.properties['source-id'] !== 'ddf.distribution',
+                remoteResourceCached: result.isResourceLocal && result.metacard.properties['source-id'] !== sources.localCatalog,
                 result: resultJSON,
                 workspace: workspaceJSON
             }

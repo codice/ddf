@@ -321,8 +321,8 @@ define([
                     result.setColor(this.getColor());
                     result.setQueryId(this.getId());
                     result.set('merged', true);
-                    result.get('mergedResults').fullCollection.reset();
-                    result.get('mergedResults').reset();
+                    result.get('queuedResults').fullCollection.reset();
+                    result.get('queuedResults').reset();
                     result.get('results').fullCollection.reset();
                     result.get('results').reset();
                     result.get('status').reset(initialStatus);
@@ -429,9 +429,14 @@ define([
 
             cancelCurrentSearches: function(){
                 this.currentSearches.forEach(function(request){
-                    request.abort();
+                    request.abort('Canceled');
                 });
                 this.currentSearches = [];
+            },
+
+            clearResults: function(){
+                this.cancelCurrentSearches();
+                this.set({result: undefined});
             },
 
             setSources: function (sources) {

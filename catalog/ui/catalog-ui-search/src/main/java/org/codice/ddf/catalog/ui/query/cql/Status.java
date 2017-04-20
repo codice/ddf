@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query.cql;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import ddf.catalog.operation.ProcessingDetails;
@@ -30,6 +31,8 @@ public class Status {
 
     private final boolean successful;
 
+    private final ArrayList<String> messages;
+
     public Status(QueryResponse response, String source, long elapsedTime) {
         elapsed = elapsedTime;
         id = source;
@@ -38,6 +41,17 @@ public class Status {
                 .size();
         hits = response.getHits();
         successful = isSuccessful(response.getProcessingDetails());
+        messages = getMessages(response.getProcessingDetails());
+    }
+
+    private ArrayList<String> getMessages(final Set<ProcessingDetails> details) {
+        ArrayList<String> messages = new ArrayList<String>();
+        for (ProcessingDetails detail : details) {
+            if (detail.hasException()) {
+               messages.add(detail.getException().getMessage());
+            }
+        }
+        return messages;
     }
 
     private boolean isSuccessful(final Set<ProcessingDetails> details) {

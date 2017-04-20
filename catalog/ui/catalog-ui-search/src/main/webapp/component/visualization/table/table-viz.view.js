@@ -15,7 +15,7 @@
 /*global require*/
 var wreqr = require('wreqr');
 var _ = require('underscore');
-var template = require('./table.hbs');
+var template = require('./table-viz.hbs');
 var Marionette = require('marionette');
 var MarionetteRegion = require('js/Marionette.Region');
 var CustomElements = require('js/CustomElements');
@@ -28,34 +28,18 @@ var HeaderView = require('./thead.view');
 var BodyView = require('./tbody.view');
 var TableVisibility = require('./table-visibility.view');
 var TableRearrange = require('./table-rearrange.view');
-
-function syncScrollbars(elementToUpdate, elementToMatch) {
-    elementToUpdate.scrollLeft = elementToMatch.scrollLeft;
-}
+var ResultsTableView = require('component/table/results/table-results.view');
 
 module.exports = Marionette.LayoutView.extend({
-    tagName: CustomElements.register('table'),
+    tagName: CustomElements.register('table-viz'),
     template: template,
     events: {
         'click .options-rearrange': 'startRearrange',
         'click .options-visibility': 'startVisibility'
     },
     regions: {
-        bodyThead: {
-            selector: '.table-body thead',
-            replaceElement: true
-        },
-        bodyTbody: {
-            selector: '.table-body tbody',
-            replaceElement: true
-        },
-        headerThead: {
-            selector: '.table-header thead',
-            replaceElement: true
-        },
-        headerTbody: {
-            selector: '.table-header tbody',
-            replaceElement: true
+        table: {
+            selector: '.tables-container'
         },
         tableVisibility: {
             selector: '.table-visibility',
@@ -77,32 +61,9 @@ module.exports = Marionette.LayoutView.extend({
     },
     onRender: function() {
         this.handleEmpty();
-        this.headerTbody.show(new BodyView({
-            selectionInterface: this.options.selectionInterface,
-            collection: this.options.selectionInterface.getActiveSearchResults()
-        }), {
-            replaceElement: true
-        });
-        this.headerThead.show(new HeaderView({
+        this.table.show(new ResultsTableView({
             selectionInterface: this.options.selectionInterface
-        }), {
-            replaceElement: true
-        });
-        this.bodyTbody.show(new BodyView({
-            selectionInterface: this.options.selectionInterface,
-            collection: this.options.selectionInterface.getActiveSearchResults()
-        }), {
-            replaceElement: true
-        });
-        this.bodyThead.show(new HeaderView({
-            selectionInterface: this.options.selectionInterface
-        }), {
-            replaceElement: true
-        });
-        this.syncScrollbars();
-    },
-    syncScrollbars: function() {
-        this.$el.find('.container-body').on('scroll', syncScrollbars.bind(this, this.$el.find('.container-header')[0], this.$el.find('.container-body')[0]));
+        }));
     },
     startRearrange: function() {
         this.$el.toggleClass('is-rearranging');

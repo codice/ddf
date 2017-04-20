@@ -1,4 +1,4 @@
-@{customElementNamespace}table {
+@{customElementNamespace}table-viz {
   .customElement;
   background: inherit;
 
@@ -10,11 +10,6 @@
     height: ~'calc(100% - @{minimumButtonSize})';
     position: relative;
     overflow: hidden;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: separate !important;
   }
 
   > .tables-container,
@@ -29,44 +24,6 @@
   > .table-empty {
     text-align: center;
     display: none;
-  }
-
-  .table-body {
-    @{customElementNamespace}result-thead {
-        visibility: hidden;
-    }
-  }
-
-  .container-header {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    width: 100%;
-    background: inherit;
-  }
-
-  .container-body {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    height: 100%;
-    overflow: auto;
-    width: 100%;
-  }
-
-  .table-header {
-    @{customElementNamespace}result-tbody {
-      visibility: hidden;
-    }
-  }
-
-  .table-body {
-    @{customElementNamespace}result-thead {
-      visibility: hidden;
-    }
   }
 
   > .table-options {
@@ -92,7 +49,7 @@
 
 }
 
-@{customElementNamespace}table.is-empty {
+@{customElementNamespace}table-viz.is-empty {
 
   > .table-empty {
     display: block;

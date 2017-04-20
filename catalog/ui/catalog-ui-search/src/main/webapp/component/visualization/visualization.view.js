@@ -21,7 +21,7 @@ define([
     'component/visualization/maps/cesium/cesium.view',
     'component/visualization/maps/openlayers/openlayers.view',
     'component/visualization/histogram/histogram.view',
-    'component/visualization/table/table.view',
+    'component/visualization/table/table-viz.view',
     'component/singletons/user-instance',
     'maptype'
 ], function (wreqr, Marionette, CustomElements, template, CesiumView, OpenlayersView, HistogramView,
