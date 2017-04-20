@@ -489,6 +489,9 @@ public abstract class AbstractIntegrationTest {
                         RMI_SERVER_PORT.getPort()),
                 installStartupFile(getClass().getClassLoader()
                         .getResourceAsStream("hazelcast.xml"), "/etc/hazelcast.xml"),
+                installStartupFile(getClass().getClassLoader()
+                                .getResourceAsStream("ddf.security.sts.client.configuration.config"),
+                        "/etc/ddf.security.sts.client.configuration.config"),
                 KarafDistributionOption.editConfigurationFilePut(
                         "etc/ddf.security.sts.client.configuration.config",
                         "address",
@@ -574,17 +577,11 @@ public abstract class AbstractIntegrationTest {
         try {
             return options(// extra config options for catalog-ui and security
                     installStartupFile(getClass().getResourceAsStream(
-                            "/etc/test-ddf.security.sts.client.configuration.config"),
-                            "/etc/ddf.security.sts.client.configuration.config"),
-                    installStartupFile(getClass().getResourceAsStream(
                             "/etc/test-users.properties"),
                             "/etc/users.properties"),
                     installStartupFile(getClass().getResourceAsStream(
                             "/etc/test-users.attributes"),
                             "/etc/users.attributes"),
-                    installStartupFile(getClass().getResourceAsStream(
-                            "/etc/test-ddf.security.sts.guestclaims.config"),
-                            "/etc/ddf.security.sts.guestclaims.config"),
                     // extra config options for TestConfiguration
                     installStartupFile(getClass().getResourceAsStream(
                             "/ddf.test.itests.platform.TestPlatform.startup.config"),

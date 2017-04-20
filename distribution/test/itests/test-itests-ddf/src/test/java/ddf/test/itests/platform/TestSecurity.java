@@ -23,7 +23,6 @@ import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOUR
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
-import static org.codice.ddf.itests.common.security.SecurityPolicyConfigurator.createWhitelist;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -1324,18 +1323,17 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testAccessGroupsGuest() throws Exception {
-        configureWebContextPolicy("/=ldap,/solr=karaf,/services/csw=karaf");
-
         final File definitionFile = addJsonInjectionDefinition("injections.json", 4);
 
-        List attr = ImmutableList.of("security.access-groups=accessGroup");
+        List attr = ImmutableList.of(
+                "security.access-groups=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
 
         configureAuthZRealm(attr, getAdminConfig());
 
         try {
             String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
                     XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml")));
-            testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "A");
+            testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "guest");
 
             String id = CatalogTestCommons.ingest(testData, MediaType.TEXT_XML);
 
@@ -1366,7 +1364,6 @@ public class TestSecurity extends AbstractIntegrationTest {
             assertThat(response, containsString("Lady Liberty"));
 
         } finally {
-            configureWebContextPolicy("/=ldap,/solr=karaf");
             removeJsonInjectionDefinition(definitionFile);
             //metacard will be deleted in @After
         }
@@ -1374,12 +1371,11 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testAccessGroups() throws Exception {
-        configureWebContextPolicy("/=ldap,/solr=karaf,/services/csw=karaf");
-
         final File definitionFile = addJsonInjectionDefinition("injections.json", 4);
 
         try {
-            List attr = ImmutableList.of("security.access-groups=accessGroup");
+            List attr = ImmutableList.of(
+                    "security.access-groups=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
             configureAuthZRealm(attr, getAdminConfig());
 
             String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
@@ -1405,8 +1401,16 @@ public class TestSecurity extends AbstractIntegrationTest {
             response = getBasicRestResponseAsString(url, B_USER, USER_PASSWORD);
             assertThat(response, containsString("Lady Liberty"));
 
+            //configure for guest
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+            getSecurityPolicy().waitForGuestAuthReady(url);
+
+            //anon guest cannot get results
+            response = getGuestRestResponseAsString(url);
+            assertThat(response, not(containsString("Lady Liberty")));
+
         } finally {
-            configureWebContextPolicy("/=ldap,/solr=karaf");
             removeJsonInjectionDefinition(definitionFile);
             //metacard will be deleted in @After
         }
@@ -1458,13 +1462,6 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .deleteOnExit();
         Files.copy(org.apache.commons.io.IOUtils.toInputStream(getFileContent(filename)), tmpFile);
         return tmpFile.toFile();
-    }
-
-    private void configureWebContextPolicy(String realms) throws Exception {
-        getSecurityPolicy().configureWebContextPolicy(realms,
-                null,
-                null,
-                createWhitelist("/services/secure,/services/public"));
     }
 
     private String getBasicRestResponseAsString(String url, String user, String pass) {
