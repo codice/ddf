@@ -71,6 +71,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
@@ -267,6 +268,9 @@ public class MetacardApplication implements SparkApplication {
                                     || getVersionedOnDate(mc).equals(getVersionedOnDate(
                                     versionMetacard)))
                     .filter(mc -> CONTENT_ACTIONS.contains(Action.ofMetacard(mc)))
+                    .filter(mc -> mc.getResourceURI() != null)
+                    .filter(mc -> ContentItem.CONTENT_SCHEME.equals(mc.getResourceURI()
+                            .getScheme()))
                     .sorted(Comparator.comparing((Metacard mc) -> util.parseToDate(mc.getAttribute(
                             MetacardVersion.VERSIONED_ON)
                             .getValue())))
