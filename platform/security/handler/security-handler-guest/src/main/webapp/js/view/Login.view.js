@@ -17,7 +17,7 @@ define([
     'text!templates/login.handlebars',
     'jquery',
     'purl'
-], function(Marionette, ich, _, loginTemplate, $) {
+], function (Marionette, ich, _, loginTemplate, $) {
 
     ich.addTemplate('loginTemplate', loginTemplate);
 
@@ -31,12 +31,12 @@ define([
             'keypress #username': 'logInEnter',
             'keypress #password': 'logInEnter'
         },
-        logInEnter: function(e) {
+        logInEnter: function (e) {
             if (e.keyCode === 13) {
                 this.logInUser();
             }
         },
-        logInUser: function() {
+        logInUser: function () {
             var view = this;
 
             var prevUrl = decodeURI($.url().param('prevurl'));
@@ -44,18 +44,19 @@ define([
             document.cookie = "JSESSIONID=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;secure";
 
             $.ajax({
-                type: "GET",
-                url: document.URL,
-                async: false,
-                beforeSend: function (xhr) {
-                    var base64 = window.btoa(view.$('#username').val() + ":" + view.$('#password').val());
-                    xhr.setRequestHeader ("Authorization", "Basic " + base64);
+                type: "POST",
+                url: "/services/login",
+                data: {
+                    "username": view.$('#username').val(),
+                    "password": view.$('#password').val(),
+                    "prevurl": prevUrl
                 },
-                error: function() {
+                async: false,
+                error: function () {
                     view.showErrorText();
                     view.setErrorState();
                 },
-                success: function() {
+                success: function () {
                     if (!_.isUndefined(prevUrl) && prevUrl !== 'undefined') {
                         window.location.href = prevUrl;
                     } else {
@@ -64,16 +65,16 @@ define([
                 }
             });
         },
-        showErrorText: function() {
+        showErrorText: function () {
             this.$('#loginError').show();
         },
-        setErrorState: function() {
-            this.$('#password').focus(function() {
-                this.select();
+        setErrorState: function () {
+            this.$('#password').focus(function () {
+                    this.select();
                 }
             );
         },
-        clearFields: function() {
+        clearFields: function () {
             this.$('#username').val('');
             this.$('#password').val('');
             this.$('#loginError').hide();
