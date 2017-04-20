@@ -98,6 +98,8 @@ public class Historian {
 
     private FilterBuilder filterBuilder;
 
+    private Security security;
+
     static {
         Bundle bundle = FrameworkUtil.getBundle(Historian.class);
         BundleContext context = bundle == null ? null : bundle.getBundleContext();
@@ -149,11 +151,13 @@ public class Historian {
     /**
      * Versions updated {@link Metacard}s and {@link ContentItem}s.
      *
-     * @param streamUpdateRequest   Needed to pass {@link MetacardVersion#SKIP_VERSIONING}
+     * @param streamUpdateRequest   Needed to pass {@link ddf.catalog.core.versioning.MetacardVersion#SKIP_VERSIONING}
      *                              flag into downstream update
      * @param updateStorageResponse Versions this response's updated items
      * @return the update response originally passed in
-     * @throws IOException
+     * @throws UnsupportedQueryException
+     * @throws SourceUnavailableException
+     * @throws IngestException
      */
     public UpdateStorageResponse version(UpdateStorageRequest streamUpdateRequest,
             UpdateStorageResponse updateStorageResponse, UpdateResponse updateResponse)
@@ -328,6 +332,7 @@ public class Historian {
                 .filter(ci -> ci.getQualifier() == null || ci.getQualifier()
                         .equals(""))
                 .map(ContentItem::getMetacard)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
     }
 
@@ -442,8 +447,11 @@ public class Historian {
      * @return result of the callable func
      */
     private <T> T executeAsSystem(Callable<T> func) {
-        Subject systemSubject = Security.runAsAdmin(() -> Security.getInstance()
-                .getSystemSubject());
+        if (security == null) {
+            security = Security.getInstance();
+        }
+
+        Subject systemSubject = Security.runAsAdmin(() -> security.getSystemSubject());
         if (systemSubject == null) {
             throw new RuntimeException("Could not get systemSubject to version metacards.");
         }
@@ -497,6 +505,10 @@ public class Historian {
 
     public void setMetacardTypes(List<MetacardType> metacardTypes) {
         this.metacardTypes = metacardTypes;
+    }
+
+    void setSecurity(Security security) {
+        this.security = security;
     }
 
     private static class WrappedByteSource extends ByteSource {
