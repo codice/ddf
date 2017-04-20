@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
@@ -164,7 +165,8 @@ public class SystemStateManager {
             //reset the catalog
             console.runCommand("catalog:removeall -f -p");
             console.runCommand("catalog:removeall -f -p --cache");
-            console.runCommand("catalog:import --provider --force --skip-signature-verification  itest-catalog-entries.zip");
+            console.runCommand(
+                    "catalog:import --provider --force --skip-signature-verification  itest-catalog-entries.zip");
             LOGGER.debug("Reset took {} sec", (System.currentTimeMillis() - start) / 1000.0);
 
         } catch (Exception e) {
@@ -180,8 +182,15 @@ public class SystemStateManager {
         Enumeration<String> keys = dictionary1.keys();
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
-            if (!dictionary1.get(key)
-                    .equals(dictionary2.get(key))) {
+            Object o = dictionary1.get(key);
+            Object o1 = dictionary2.get(key);
+            if (o.getClass()
+                    .isArray() && o1.getClass()
+                    .isArray()) {
+                if (!ArrayUtils.isEquals(o, o1)) {
+                    return false;
+                }
+            } else if (!o.equals(o1)) {
                 return false;
             }
         }
@@ -198,7 +207,8 @@ public class SystemStateManager {
             for (Configuration config : configs) {
                 baseConfigurations.put(config.getPid(), config);
             }
-            console.runCommand("catalog:export --provider --force --skip-signature-verification --delete=false --output \"./itest-catalog-entries.zip\" --cql \"\\\"metacard-tags\\\" like '*'\"");
+            console.runCommand(
+                    "catalog:export --provider --force --skip-signature-verification --delete=false --output \"./itest-catalog-entries.zip\" --cql \"\\\"metacard-tags\\\" like '*'\"");
             LOGGER.info("Feature Count: {}", baseFeatures.size());
             LOGGER.info("Configuration Count: {}", baseConfigurations.size());
         } catch (Exception e) {
