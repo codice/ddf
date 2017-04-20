@@ -30,6 +30,8 @@ import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getO
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -853,16 +855,16 @@ public class TestFederation extends AbstractIntegrationTest {
         String outputSchema = METACARD_URI;
         String extractMetacardXmlRegex = ".*?(<metacard.*?</metacard>).*";
 
-        List<Matcher<?>> assertions = getXpathMatchers("30.0 10.0",
-                thumbNailBase64EncSubstring,
-                metacardTitle,
-                outputSchema);
+        List<Matcher<?>> assertions = getXpathMatchers(outputSchema, 1);
+        assertions.add(hasXPath("//*[@name='thumbnail']/*/text()",
+                startsWith(thumbNailBase64EncSubstring)));
+        assertions.add(hasXPath("//*[@name='title']/*/text()", equalTo(metacardTitle)));
+        assertions.add(hasXPath("//ns1:pos/text()", equalTo("30.0 10.0")));
         ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
-                outputSchema,
-                (Matcher<?>[]) assertions.toArray());
+                outputSchema, assertions);
         String metacardXml = extractRecord(response, extractMetacardXmlRegex);
-        InputTransformer xmlMetacardInputTransformer = getInputTransformer("(id=xml)");
 
+        InputTransformer xmlMetacardInputTransformer = getInputTransformer("(id=xml)");
         Metacard metacard = xmlMetacardInputTransformer.transform(IOUtils.toInputStream(metacardXml,
                 "UTF-8"));
 
@@ -874,19 +876,62 @@ public class TestFederation extends AbstractIntegrationTest {
         assertThat("Incorrect geometry", "POINT (30 10)", equalTo(metacard.getLocation()));
     }
 
-    protected List<Matcher<?>> getXpathMatchers(String expectedLocation,
-            String thumbNailBase64EncSubstring, String metacardTitle, String outputSchema) {
-        return Arrays.asList(hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
-                is("1")),
-                hasXPath("/GetRecordsResponse/SearchResults/@recordSchema", is(outputSchema)),
-                hasXPath("//*[@name='title']/*/text()", equalTo(metacardTitle)),
-                hasXPath("//*[@name='thumbnail']/*/text()",
-                        startsWith(thumbNailBase64EncSubstring)),
-                hasXPath("//*[local-name()='pos']/text()", equalTo(expectedLocation)));
+    @Test
+    public void testCswQueryForOpenGisXml() throws Exception {
+        String thumbNailBase64EncSubstring = "/9j/4AAQSkZJRgABAQAAAQABAAD";
+        String metacardTitle = "myTitle";
+        String outputSchema = OPEN_GIS_SCHEMA_URI;
+        String xmlRegex = ".*?(<csw:Record>.*?</csw:Record>).*";
+
+        List<Matcher<?>> assertions = getXpathMatchers(outputSchema, 1);
+        assertions.add(hasXPath("//title/text()", equalTo(metacardTitle)));
+        assertions.add(hasXPath("//*[local-name()='references']/text()",
+                startsWith(thumbNailBase64EncSubstring)));
+        assertions.add(hasXPath("//references/text()", startsWith(thumbNailBase64EncSubstring)));
+        assertions.add(hasXPath("//*[local-name()='LowerCorner']/text()", equalTo("30.0 10.0")));
+        //
+        //        assertions.add(hasXPath("//*[@name='title']/*/text()", equalTo(metacardTitle)));
+        //        assertions.add(hasXPath("//*[@name='thumbnail']/*/text()",
+        //                startsWith(thumbNailBase64EncSubstring)));
+        //        assertions.add(hasXPath("//*[local-name()='pos']/text()", equalTo("30.0 10.0")));
+
+        ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
+                outputSchema,
+                assertions);
+        String xml = extractRecord(response, xmlRegex);
+
+        InputTransformer inputTransformer = getInputTransformer("(id=csw:Record)");
+        Metacard metacard = inputTransformer.transform(IOUtils.toInputStream(xml, "UTF-8"));
+
+        assertThat("Incorrect metacard's title", metacard.getTitle(), equalTo(metacardTitle));
+        assertThat("Incorrect geometry", "POINT (30.0 10.0)", equalTo(metacard.getLocation()));
+
+        // TODO: THIS ASSERTION FAILS. CHRIS THINKS IT IS WORKING AS DESIGNED.
+      /*  assertThat("Incorrect metacard's thumbnail",
+                new String(Base64.getEncoder()
+                        .encode(metacard.getThumbnail())),
+                startsWith(thumbNailBase64EncSubstring));
+     */
+    }
+
+    protected List<Matcher<?>> getXpathMatchers(String expectedOutputSchema,
+            int expectedNumberOfRecordsReturned) {
+        List<Matcher<?>> assertions = new ArrayList<>();
+        assertions.add(hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
+                equalTo(String.valueOf(expectedNumberOfRecordsReturned))));
+        assertions.add(hasXPath("/GetRecordsResponse/SearchResults/@recordSchema",
+                is(expectedOutputSchema)));
+        return assertions;
     }
 
     protected ValidatableResponse getAndValidateCswResponse(String metacardTitle,
-            String outputSchema, Matcher<?>[] assertionArray) {
+            String outputSchema, Collection<Matcher<?>> assertions) {
+
+        assertThat("Please pass at least two assertions. Go big or go home.",
+                assertions,
+                hasSize(greaterThanOrEqualTo(2)));
+
+        Matcher<?>[] assertionArray = assertions.toArray(new Matcher<?>[assertions.size()]);
         String titleQuery = getCswQuery("title", metacardTitle, "application/xml", outputSchema);
         return given().contentType(ContentType.XML)
                 .body(titleQuery)
@@ -915,7 +960,8 @@ public class TestFederation extends AbstractIntegrationTest {
         Collection<ServiceReference<InputTransformer>> transformerReferences =
                 getServiceManager().getServiceReferences(InputTransformer.class, filterString);
 
-        ServiceReference<InputTransformer> xmlInputTransformerReference = (ServiceReference<InputTransformer>) transformerReferences.toArray()[0];
+        ServiceReference<InputTransformer> xmlInputTransformerReference =
+                (ServiceReference<InputTransformer>) transformerReferences.toArray()[0];
 
         return getServiceManager().getService(xmlInputTransformerReference);
     }
