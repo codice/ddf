@@ -36,6 +36,23 @@
                             unbind-method="unbindPlugin"/>
     </reference-list>
 
+    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="metacardTransformerList" member-type="service-reference"
+                    interface="ddf.catalog.transform.MetacardTransformer">
+        <reference-listener bind-method="bindService" unbind-method="unbindService"
+                            ref="metacardTransformers"/>
+    </reference-list>
+
+
+    <bean id="metacardTransformerManager"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager">
+        <argument ref="metacardTransformers"/>
+    </bean>
+    <bean id="cswTransactionWriter"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.source.writer.CswTransactionRequestWriter">
+        <argument ref="cswTransformProvider"/>
+    </bean>
+
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
             factory-pid="Csw_Federated_Source"
@@ -162,6 +179,52 @@
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
             <argument ref="encryptionService"/>
+            <cm:managed-properties persistent-id="" update-strategy="component-managed"
+                                   update-method="refresh"/>
+        </cm:managed-component>
+    </cm:managed-service-factory>
+
+    <cm:managed-service-factory
+            id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswTransactionalFederatedSource.id"
+            factory-pid="Csw_Transactional_Federated_Source"
+            interface="ddf.catalog.source.FederatedSource">
+        <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.TransactionalCswStoreImpl"
+                              init-method="init" destroy-method="destroy">
+            <property name="context" ref="blueprintBundleContext"/>
+            <property name="filterBuilder" ref="filterBuilder"/>
+            <property name="filterAdapter" ref="filterAdapter"/>
+            <property name="cswUrl" value=""/>
+            <property name="id" value=""/>
+            <property name="username" value=""/>
+            <property name="password" value=""/>
+            <property name="disableCnCheck" value="false"/>
+            <property name="coordinateOrder" value="LON_LAT"/>
+            <property name="usePosList" value="false"/>
+            <property name="metacardMappings">
+                <list/>
+            </property>
+            <property name="pollInterval" value="5"/>
+            <property name="resourceReader" ref="resourceReader"/>
+            <property name="outputSchema" value="urn:catalog:metacard"/>
+            <property name="queryTypeName" value=""/>
+            <property name="queryTypeNamespace" value=""/>
+            <property name="cswTransformConverter">
+                <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter">
+                    <argument ref="cswTransformProvider"/>
+                </bean>
+            </property>
+            <property name="isCqlForced" value="false"/>
+            <property name="forceSpatialFilter" value="NO_FILTER"/>
+            <property name="connectionTimeout" value="30000"/>
+            <property name="receiveTimeout" value="60000"/>
+            <property name="securityManager" ref="securityManager"/>
+            <property name="metacardTypes" ref="metacardTypes"/>
+            <property name="eventServiceAddress" value=""/>
+            <property name="registerForEvents" value="false"/>
+            <argument ref="encryptionService"/>
+            <!-- CSW Store Properties -->
+            <property name="schemaTransformerManager" ref="metacardTransformerManager"/>
+            <property name="cswTransactionWriter" ref="cswTransactionWriter"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

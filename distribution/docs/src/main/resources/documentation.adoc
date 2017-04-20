@@ -365,6 +365,8 @@ include::{adoc-include}/_sources/confluence-federated-source-contents.adoc[]
 
 include::{adoc-include}/_sources/csw-federated-source-contents.adoc[]
 
+include::{adoc-include}/_sources/csw-transactional-federated-source-contents.adoc[]
+
 include::{adoc-include}/_sources/csw-federation-profile-source-contents.adoc[]
 
 include::{adoc-include}/_sources/gmd-csw-source-contents.adoc[]

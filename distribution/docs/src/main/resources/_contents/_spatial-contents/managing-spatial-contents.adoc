@@ -29,6 +29,7 @@ These configurations are available by default on a standard installation of ${dd
 
 include::{adoc-include}/_tables/conf-Csw_Federation_Profile_Source-table-contents.adoc[]
 include::{adoc-include}/_tables/conf-Csw_Federated_Source-table-contents.adoc[]
+include::{adoc-include}/_tables/conf-Csw_Transactional_Federated_Source-table-contents.adoc[]
 include::{adoc-include}/_tables/conf-Gmd_Csw_Federated_Source-table-contents.adoc[]
 include::{adoc-include}/_tables/conf-org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper-table-contents.adoc[]
 include::{adoc-include}/_tables/conf-org.codice.ddf.spatial.kml.endpoint.KmlEndpoint-table-contents.adoc[]
