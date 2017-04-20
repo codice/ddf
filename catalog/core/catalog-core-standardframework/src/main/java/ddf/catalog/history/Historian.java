@@ -112,7 +112,6 @@ public class Historian {
         if (bundle == null || context == null) {
             LOGGER.error("Could not get bundle to register history metacard types!");
         } else {
-            //            MetacardType versionType = new MetacardTypeImpl();
             DynamicMultiMetacardType versionType =
                     new DynamicMultiMetacardType(MetacardVersionImpl.PREFIX,
                             metacardTypes,
