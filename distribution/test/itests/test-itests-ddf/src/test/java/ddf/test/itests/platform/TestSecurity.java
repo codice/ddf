@@ -1324,17 +1324,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testAccessGroupsGuest() throws Exception {
-        getSecurityPolicy().configureWebContextPolicy("/=ldap,/solr=karaf,/services/csw=karaf",
-                null,
-                null,
-                createWhitelist("/services/secure,/services/public"));
+        configureWebContextPolicy("/=ldap,/solr=karaf,/services/csw=karaf");
 
-        final File definitionFile = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
-            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
-                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                            null), hasSize(4));
-            return null;
-        });
+        final File definitionFile = addJsonInjectionDefinition("injections.json", 4);
 
         List attr = ImmutableList.of("security.access-groups=accessGroup");
 
@@ -1348,77 +1340,48 @@ public class TestSecurity extends AbstractIntegrationTest {
             String id = CatalogTestCommons.ingest(testData, MediaType.TEXT_XML);
 
             String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
-            configureRestForBasic(SDK_SOAP_CONTEXT);
+            configureRestForGuest(SDK_SOAP_CONTEXT);
             waitForSecurityHandlers(url);
-            getSecurityPolicy().waitForBasicAuthReady(url);
+            getSecurityPolicy().waitForGuestAuthReady(url);
 
             configureMetacardAttributeSecurityFiltering(attr,
                     ImmutableList.of(""),
                     getAdminConfig());
 
-            String response = given().auth()
-                    .basic(A_USER, USER_PASSWORD)
-                    .when()
-                    .get(url)
-                    .then()
-                    .log()
-                    .all()
-                    .assertThat()
-                    .statusCode(equalTo(HttpStatus.SC_OK))
-                    .extract()
-                    .response()
-                    .print();
-
+            //anon guest
+            String response = getGuestRestResponseAsString(url);
             assertThat(response, containsString("Lady Liberty"));
 
-            response = given().auth()
-                    .basic(B_USER, USER_PASSWORD)
-                    .when()
-                    .get(url)
-                    .then()
-                    .log()
-                    .all()
-                    .assertThat()
-                    .statusCode(equalTo(HttpStatus.SC_OK))
-                    .extract()
-                    .response()
-                    .print();
+            //configure for basic
+            configureRestForBasic(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+            getSecurityPolicy().waitForBasicAuthReady(url);
 
-            assertThat(response, (containsString("Lady Liberty")));
+            //user with permissions gets results
+            response = getBasicRestResponseAsString(url, A_USER, USER_PASSWORD);
+            assertThat(response, containsString("Lady Liberty"));
+
+            //user without permissions gets results
+            response = getBasicRestResponseAsString(url, B_USER, USER_PASSWORD);
+            assertThat(response, containsString("Lady Liberty"));
 
         } finally {
-            getSecurityPolicy().configureWebContextPolicy("/=ldap,/solr=karaf",
-                    null,
-                    null,
-                    createWhitelist("/services/secure,/services/public"));
-            uninstallDefinitionJson(definitionFile, () -> {
-                expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
-                        .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                                null), hasSize(1));
-                return null;
-            });
+            configureWebContextPolicy("/=ldap,/solr=karaf");
+            removeJsonInjectionDefinition(definitionFile);
+            //metacard will be deleted in @After
         }
     }
 
     @Test
     public void testAccessGroups() throws Exception {
-        getSecurityPolicy().configureWebContextPolicy("/=ldap,/solr=karaf,/services/csw=karaf",
-                null,
-                null,
-                createWhitelist("/services/secure,/services/public"));
+        configureWebContextPolicy("/=ldap,/solr=karaf,/services/csw=karaf");
 
-        final File definitionFile = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
-            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
-                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                            null), hasSize(4));
-            return null;
-        });
-
-        List attr = ImmutableList.of("security.access-groups=accessGroup");
-
-        configureAuthZRealm(attr, getAdminConfig());
+        final File definitionFile = addJsonInjectionDefinition("injections.json", 4);
 
         try {
+            List attr = ImmutableList.of("security.access-groups=accessGroup");
+            configureAuthZRealm(attr, getAdminConfig());
+
             String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
                     XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml")));
             testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "B");
@@ -1434,48 +1397,37 @@ public class TestSecurity extends AbstractIntegrationTest {
                     ImmutableList.of(""),
                     getAdminConfig());
 
-            String response = given().auth()
-                    .basic(A_USER, USER_PASSWORD)
-                    .when()
-                    .get(url)
-                    .then()
-                    .log()
-                    .all()
-                    .assertThat()
-                    .statusCode(equalTo(HttpStatus.SC_OK))
-                    .extract()
-                    .response()
-                    .print();
-
+            //user without permissions cannot get results
+            String response = getBasicRestResponseAsString(url, A_USER, USER_PASSWORD);
             assertThat(response, not(containsString("Lady Liberty")));
 
-            response = given().auth()
-                    .basic(B_USER, USER_PASSWORD)
-                    .when()
-                    .get(url)
-                    .then()
-                    .log()
-                    .all()
-                    .assertThat()
-                    .statusCode(equalTo(HttpStatus.SC_OK))
-                    .extract()
-                    .response()
-                    .print();
-
-            assertThat(response, (containsString("Lady Liberty")));
+            //user with permissions gets results
+            response = getBasicRestResponseAsString(url, B_USER, USER_PASSWORD);
+            assertThat(response, containsString("Lady Liberty"));
 
         } finally {
-            getSecurityPolicy().configureWebContextPolicy("/=ldap,/solr=karaf",
-                    null,
-                    null,
-                    createWhitelist("/services/secure,/services/public"));
-            uninstallDefinitionJson(definitionFile, () -> {
-                expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
-                        .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                                null), hasSize(1));
-                return null;
-            });
+            configureWebContextPolicy("/=ldap,/solr=karaf");
+            removeJsonInjectionDefinition(definitionFile);
+            //metacard will be deleted in @After
         }
+    }
+
+    private File addJsonInjectionDefinition(String jsonFile, int numObjects) throws Exception {
+        return ingestDefinitionJsonWithWaitCondition(jsonFile, () -> {
+            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
+                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                            null), hasSize(numObjects));
+            return null;
+        });
+    }
+
+    private void removeJsonInjectionDefinition(File definitionFile) throws Exception {
+        uninstallDefinitionJson(definitionFile, () -> {
+            expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
+                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
+                            null), hasSize(1));
+            return null;
+        });
     }
 
     private void uninstallDefinitionJson(File definitionFile, Callable<Void> waitCondition)
@@ -1506,5 +1458,40 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .deleteOnExit();
         Files.copy(org.apache.commons.io.IOUtils.toInputStream(getFileContent(filename)), tmpFile);
         return tmpFile.toFile();
+    }
+
+    private void configureWebContextPolicy(String realms) throws Exception {
+        getSecurityPolicy().configureWebContextPolicy(realms,
+                null,
+                null,
+                createWhitelist("/services/secure,/services/public"));
+    }
+
+    private String getBasicRestResponseAsString(String url, String user, String pass) {
+        return given().auth()
+                .basic(user, pass)
+                .when()
+                .get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(HttpStatus.SC_OK))
+                .extract()
+                .response()
+                .print();
+    }
+
+    private String getGuestRestResponseAsString(String url) {
+        return given().when()
+                .get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(HttpStatus.SC_OK))
+                .extract()
+                .response()
+                .print();
     }
 }

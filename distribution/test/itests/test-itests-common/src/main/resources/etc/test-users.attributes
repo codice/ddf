@@ -3,7 +3,7 @@
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"admin@localhost.local"
     },
     "localhost" : {
-        "accessGroup" : "D",
+        "accessGroup" : ["A","B","C","D","U","W","R"],
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"system@localhost.local"
     },
     "slang" : {
