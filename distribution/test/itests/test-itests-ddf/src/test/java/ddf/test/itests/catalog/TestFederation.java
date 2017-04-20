@@ -30,10 +30,10 @@ import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getO
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -141,6 +141,12 @@ import ddf.catalog.transform.InputTransformer;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
 public class TestFederation extends AbstractIntegrationTest {
+
+    public static final String GMD_SCHEMA_URI = "http://www.isotc211.org/2005/gmd";
+
+    public static final String OPEN_GIS_SCHEMA_URI = "http://www.opengis.net/cat/csw/2.0.2";
+
+    public static final String METACARD_URI = "urn:catalog:metacard";
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(TestFederation.class);
 
@@ -842,68 +848,76 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testCswQueryForMetacardXml() throws Exception {
 
-        String openGis = "http://www.opengis.net/cat/csw/2.0.2";
-        String gmd = "http://www.isotc211.org/2005/gmd";
-        String metacardUri = "urn:catalog:metacard";
+        String thumbNailBase64EncSubstring = "/9j/4AAQSkZJRgABAQAAAQABAAD";
+        String metacardTitle = "myTitle";
+        String outputSchema = METACARD_URI;
+        String extractMetacardXmlRegex = ".*?(<metacard.*?</metacard>).*";
 
-        String titleQuery = getCswQuery("title", "myTitle", "application/xml", metacardUri);
+        List<Matcher<?>> assertions = getXpathMatchers("30.0 10.0",
+                thumbNailBase64EncSubstring,
+                metacardTitle,
+                outputSchema);
+        ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
+                outputSchema,
+                (Matcher<?>[]) assertions.toArray());
+        String metacardXml = extractRecord(response, extractMetacardXmlRegex);
+        InputTransformer xmlMetacardInputTransformer = getInputTransformer("(id=xml)");
 
-        String thumbNail =
-                "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAALAAgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAJBAAAAQFAwUAAAAAAAAAAAAAABETFAEDBBIVAgUGISJRYZP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBf/EABkRAAMAAwAAAAAAAAAAAAAAAAABAwISIv/aAAwDAQACEQMRAD8A3fRvVTHmTS+RjkUfbolC+fUBDhR0zXMN5WUyibqyClrhMj8WdoAtynSGLfJ//9k=";
+        Metacard metacard = xmlMetacardInputTransformer.transform(IOUtils.toInputStream(metacardXml,
+                "UTF-8"));
 
-        String expectedLocation = "30.0 10.0";
-        ValidatableResponse response = given().contentType(ContentType.XML)
+        assertThat("Incorrect metacard's title", metacard.getTitle(), equalTo(metacardTitle));
+        assertThat("Incorrect metacard's thumbnail",
+                new String(Base64.getEncoder()
+                        .encode(metacard.getThumbnail())),
+                startsWith(thumbNailBase64EncSubstring));
+        assertThat("Incorrect geometry", "POINT (30 10)", equalTo(metacard.getLocation()));
+    }
+
+    protected List<Matcher<?>> getXpathMatchers(String expectedLocation,
+            String thumbNailBase64EncSubstring, String metacardTitle, String outputSchema) {
+        return Arrays.asList(hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
+                is("1")),
+                hasXPath("/GetRecordsResponse/SearchResults/@recordSchema", is(outputSchema)),
+                hasXPath("//*[@name='title']/*/text()", equalTo(metacardTitle)),
+                hasXPath("//*[@name='thumbnail']/*/text()",
+                        startsWith(thumbNailBase64EncSubstring)),
+                hasXPath("//*[local-name()='pos']/text()", equalTo(expectedLocation)));
+    }
+
+    protected ValidatableResponse getAndValidateCswResponse(String metacardTitle,
+            String outputSchema, Matcher<?>[] assertionArray) {
+        String titleQuery = getCswQuery("title", metacardTitle, "application/xml", outputSchema);
+        return given().contentType(ContentType.XML)
                 .body(titleQuery)
                 .when()
                 .post(CSW_PATH.getUrl())
                 .then()
                 .assertThat()
-                .body(hasXPath("/GetRecordsResponse/SearchResults/metacard/@id",
-                        is(metacardIds[GEOJSON_RECORD_INDEX])),
-                        hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
-                                is("1")),
-                        hasXPath("/GetRecordsResponse/SearchResults/@recordSchema",
-                                is("urn:catalog:metacard")),
-                        hasXPath("//*[@name='title']/*/text()", equalTo("myTitle")),
-                        hasXPath("//*[@name='thumbnail']/*/text()",
-                                equalToIgnoringWhiteSpace(thumbNail)),
-                        hasXPath("//*[local-name()='pos']/text()", equalTo(expectedLocation)));
+                // Have to match signature body(Matcher<?> matcher, Matcher<?>... additionalMatchers);
+                .body(assertionArray[0],
+                        Arrays.copyOfRange(assertionArray, 1, assertionArray.length));
+    }
+
+    protected String extractRecord(ValidatableResponse response, String regex) {
         String allXml = response.extract()
                 .body()
                 .asString();
-        Pattern metacardPattern = Pattern.compile(".*?(<metacard.*?</metacard>).*", Pattern.DOTALL);
+        Pattern metacardPattern = Pattern.compile(regex, Pattern.DOTALL);
         java.util.regex.Matcher matcher = metacardPattern.matcher(allXml);
-        assertThat("Could not find metacard XML", matcher.find(), is(true));
-        assertThat("Could not find metacard XML", matcher.groupCount(), is(1));
-        String metacardXml = matcher.group(1);
+        assertThat("Could not find transformable record", matcher.find(), is(true));
+        assertThat("Could not find transformable record", matcher.groupCount(), is(1));
+        return matcher.group(1);
+    }
 
+    protected InputTransformer getInputTransformer(String filterString)
+            throws InvalidSyntaxException {
         Collection<ServiceReference<InputTransformer>> transformerReferences =
-                getServiceManager().getServiceReferences(InputTransformer.class, "(id=xml)");
+                getServiceManager().getServiceReferences(InputTransformer.class, filterString);
 
-        ServiceReference<InputTransformer> xmlInputTransformerReference =
-                (ServiceReference<InputTransformer>) transformerReferences.toArray()[0];
+        ServiceReference<InputTransformer> xmlInputTransformerReference = (ServiceReference<InputTransformer>) transformerReferences.toArray()[0];
 
-        InputTransformer xmlMetacardInputTransformer = getServiceManager().getService(
-                xmlInputTransformerReference);
-
-        Metacard metacard = xmlMetacardInputTransformer.transform(IOUtils.toInputStream(metacardXml,
-                "UTF-8"));
-
-        //        WaitCondition.expect(String.format("A transformer with the id: \"%s\"", ""))
-        //                .within(1, TimeUnit.MINUTES)
-        //                .until(() -> (!getServiceManager().getServiceReferences(InputTransformer.class,
-        //                        "(|" + "(" + Constants.SERVICE_ID + "=" + DDMS20 + ")" + ")")
-        //                        .isEmpty()));
-
-        assertThat("Metacard's title is different", metacard.getTitle(), equalTo("myTitle"));
-        assertThat("Metacard's thumbnail is different",
-                new String(Base64.getEncoder()
-                        .encode(metacard.getThumbnail())),
-                equalTo(thumbNail));
-        assertThat("Metcard's geometry is different",
-                expectedLocation,
-                equalTo(metacard.getLocation()));
-
+        return getServiceManager().getService(xmlInputTransformerReference);
     }
 
     @Test
