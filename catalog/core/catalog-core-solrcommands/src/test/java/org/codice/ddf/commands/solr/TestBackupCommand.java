@@ -66,6 +66,8 @@ public class TestBackupCommand {
 
     private static final Pattern ASCII_COLOR_CODES_REGEX = Pattern.compile("\u001B\\[[;\\d]*m");
 
+    private static final long TIMEOUT_IN_MINUTES = 1;
+
     HttpWrapper mockHttpWrapper;
 
     ConsoleOutput consoleOutput;
@@ -338,14 +340,8 @@ public class TestBackupCommand {
 
         // Perform status lookup
         statusBackupCommand.doExecute();
-        String status = getRequestStatus(consoleOutput.getOutput());
 
-        while (StringUtils.equals(status, RequestStatusState.RUNNING.getKey())) {
-            TimeUnit.SECONDS.sleep(1);
-            consoleOutput.reset();
-            statusBackupCommand.doExecute();
-            status = getRequestStatus(consoleOutput.getOutput());
-        }
+        String status = waitForCompletedStatusOrFail(statusBackupCommand, consoleOutput);
 
         assertThat(status, is(RequestStatusState.COMPLETED.getKey()));
     }
@@ -505,6 +501,28 @@ public class TestBackupCommand {
     // Replace ASCII color codes in console output and get the status
     private String getRequestStatus(String consoleOutput) {
         return StringUtils.trim(StringUtils.substringsBetween(ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), "[", "]")[1]);
+    }
+
+    private String waitForCompletedStatusOrFail(BackupCommand statusBackupCommand,
+            ConsoleOutput consoleOutput) throws Exception {
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + TimeUnit.MINUTES.toMillis(TIMEOUT_IN_MINUTES);
+        String status = getRequestStatus(consoleOutput.getOutput());
+
+        while (!StringUtils.equals(status, RequestStatusState.COMPLETED.getKey())) {
+            if (System.currentTimeMillis() >= endTime) {
+                fail(String.format(
+                        "The backup status command did not complete within %s minute(s). Current backup status: %s.",
+                        TimeUnit.MINUTES.toMillis(TIMEOUT_IN_MINUTES),
+                        status));
+            }
+            TimeUnit.SECONDS.sleep(1);
+            consoleOutput.reset();
+            statusBackupCommand.doExecute();
+            status = getRequestStatus(consoleOutput.getOutput());
+        }
+
+        return status;
     }
 
     private static Path getBaseDirPath() {
