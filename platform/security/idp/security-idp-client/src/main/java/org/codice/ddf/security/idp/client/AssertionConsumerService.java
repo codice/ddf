@@ -178,8 +178,7 @@ public class AssertionConsumerService {
             throw new IOException("Unable to convert AuthnRequest document to XMLObject.");
         }
         if (!(responseXmlObj instanceof org.opensaml.saml.saml2.core.Response)) {
-            throw new IOException(
-                    "SAMLRequest object is not org.opensaml.saml.saml2.core.Response.");
+            throw new IOException("SAMLRequest object is not org.opensaml.saml.saml2.core.Response.");
         }
         return (org.opensaml.saml.saml2.core.Response) responseXmlObj;
     }
@@ -239,7 +238,8 @@ public class AssertionConsumerService {
         return signaturePasses;
     }
 
-    public Response processSamlResponse(org.opensaml.saml.saml2.core.Response samlResponse, String relayState) {
+    public Response processSamlResponse(org.opensaml.saml.saml2.core.Response samlResponse,
+            String relayState) {
         if (samlResponse == null) {
             return Response.serverError()
                     .entity("Unable to parse AuthN response.")
@@ -259,19 +259,31 @@ public class AssertionConsumerService {
                     .build();
         }
 
-        if (!login(samlResponse)) {
-            return Response.serverError()
-                    .entity(UNABLE_TO_LOGIN)
-                    .build();
-        }
-
         URI relayUri;
         try {
             relayUri = new URI(redirectLocation);
+            //if the host names don't match up then the cookie won't work correctly and the
+            //requester will be stuck in an infinite loop of redirects
+            if (relayUri.getHost() != null && !relayUri.getHost()
+                    .equals(request.getServerName())) {
+                relayUri = new URI(relayUri.getScheme(),
+                        relayUri.getUserInfo(),
+                        request.getServerName(),
+                        relayUri.getPort(),
+                        relayUri.getPath(),
+                        relayUri.getQuery(),
+                        relayUri.getFragment());
+            }
         } catch (URISyntaxException e) {
             LOGGER.info("Unable to parse relay state.", e);
             return Response.serverError()
                     .entity("Unable to redirect back to original location.")
+                    .build();
+        }
+
+        if (!login(samlResponse)) {
+            return Response.serverError()
+                    .entity(UNABLE_TO_LOGIN)
                     .build();
         }
 
