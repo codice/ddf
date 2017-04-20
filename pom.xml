@@ -958,6 +958,7 @@
         <module>gitsetup</module>
         <module>libs</module>
         <module>platform</module>
+        <module>admin</module>
         <module>catalog</module>
         <module>broker</module>
         <module>distribution</module>
