@@ -50,6 +50,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 public class TestBackupCommand {
@@ -67,6 +68,16 @@ public class TestBackupCommand {
     private static final Pattern ASCII_COLOR_CODES_REGEX = Pattern.compile("\u001B\\[[;\\d]*m");
 
     private static final long TIMEOUT_IN_MINUTES = 1;
+
+    private static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
+
+    private static final String DEFAULT_ZK_HOSTS = "zookeeperhost1:2181,zookeeperhost2:2181,zookeeperhost3:2181";
+
+    private static final String DDF_HOME_PROP = "ddf.home";
+
+    private static final String DEFAULT_DDF_HOME = "/opt/ddf";
+
+    private static final Path SYSTEM_PROPERTIES_PATH = Paths.get(DEFAULT_DDF_HOME, "etc", "system.properties");
 
     HttpWrapper mockHttpWrapper;
 
@@ -86,8 +97,12 @@ public class TestBackupCommand {
     @ClassRule
     public static TemporaryFolder backupLocation = new TemporaryFolder();
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @BeforeClass
     public static void beforeClass() throws Exception {
+        setDdfHome();
         createDefaultMiniSolrCloudCluster();
         addDocument("1");
     }
@@ -110,6 +125,7 @@ public class TestBackupCommand {
         consoleOutput.resetSystemOut();
 
         System.clearProperty(SOLR_CLIENT_PROP);
+        System.clearProperty(ZOOKEEPER_HOSTS_PROP);
 
         if (cipherSuites != null) {
             System.setProperty("https.cipherSuites", cipherSuites);
@@ -195,6 +211,27 @@ public class TestBackupCommand {
                         HttpStatus.SC_NOT_FOUND)));
     }
 
+    @Test
+    public void testSingleNodeBackupAsyncOptionSupplied() throws Exception {
+
+        // Setup exception expectations
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+
+        when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK,
+                ""));
+
+        BackupCommand backupCommand = new BackupCommand() {
+            @Override
+            protected HttpWrapper getHttpClient() {
+                return mockHttpWrapper;
+            }
+        };
+        backupCommand.asyncBackup = true;
+
+        backupCommand.doExecute();
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testSystemPropertiesNotSet() throws Exception {
 
@@ -205,9 +242,8 @@ public class TestBackupCommand {
     @Test
     public void testPerformSolrCloudSynchronousBackup() throws Exception {
 
-        // Set the solr client type system property so that the
-        // BackupCommand knows that it needs to backup solr cloud.
-        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
         BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME);
@@ -228,44 +264,42 @@ public class TestBackupCommand {
     @Test
     public void testPerformSolrCloudSynchronousBackupNoOptions() throws Exception {
 
-        // Set the solr client type system property so that the
-        // BackupCommand knows that it needs to backup solr cloud.
-        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+        // Setup exception expectations
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
         BackupCommand backupCommand = getSynchronousBackupCommand(null, null);
 
         // Perform Test
         backupCommand.doExecute();
-
-        // Verify
-        assertThat(consoleOutput.getOutput(), containsString("Insufficient options. Run solr:backup --help for usage details."));
     }
 
     @Test
     public void testPerformSolrCloudSynchronousBackupNoBackupLocation() throws Exception {
 
-        // Set the solr client type system property so that the
-        // BackupCommand knows that it needs to backup solr cloud.
-        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+        // Setup exception expectations
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
         BackupCommand backupCommand = getSynchronousBackupCommand(null, DEFAULT_CORE_NAME);
 
         // Perform Test
         backupCommand.doExecute();
-
-        // Verify
-        assertThat(consoleOutput.getOutput(),
-                containsString("Insufficient options. Run solr:backup --help for usage details."));
     }
 
     @Test
     public void testPerformSolrCloudSynchronousBackupNoCollection() throws Exception {
 
-        // Set the solr client type system property so that the
-        // BackupCommand knows that it needs to backup solr cloud.
-        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
         BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), null);
@@ -286,9 +320,8 @@ public class TestBackupCommand {
     @Test
     public void testPerformSolrCloudSynchronousBackupInvalidCollectionName() throws Exception {
 
-        // Set the solr client type system property so that the
-        // BackupCommand knows that it needs to backup solr cloud.
-        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
         BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), INVALID_COLLECTION_NAME);
@@ -311,11 +344,63 @@ public class TestBackupCommand {
     }
 
     @Test
+    public void testPerformSolrCloudSynchronousBackupNumberToKeepSupplied() throws Exception {
+
+        // Setup exception expectations
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+
+        // Setup BackupCommand
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME);
+        backupCommand.numberToKeep = 3;
+
+        // Perform Test
+        backupCommand.doExecute();
+    }
+
+    @Test
+    public void testPerformSolrCloudAsynchronousBackupWithAsyncStatusOptionsSupplied() throws Exception {
+
+        // Setup exception expectations
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+
+        // Setup BackupCommand
+        BackupCommand backupCommand = getBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, true, true, "myRequestId1");
+
+        // Perform Test
+        backupCommand.doExecute();
+    }
+
+    @Test
+    public void testPerformSolrCloudAsynchronousBackupNumberToKeepSupplied() throws Exception {
+
+        // Setup exception expectations
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+
+        // Setup BackupCommand
+        BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME);
+        backupCommand.numberToKeep = 3;
+
+        // Perform Test
+        backupCommand.doExecute();
+    }
+
+    @Test
     public void testPerformSolrCloudAsynchronousBackupAndStatus() throws Exception {
 
-        // Set the solr client type system property so that the
-        // BackupCommand knows that it needs to backup solr cloud.
-        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand for async backup
         BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME);
@@ -348,34 +433,52 @@ public class TestBackupCommand {
 
     @Test
     public void testGetSolrCloudAsynchronousBackupStatusNoRequestId() throws Exception {
+        // Setup exception expectations
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
 
-        // Set the solr client type system property so that the
-        // BackupCommand knows that it needs to backup solr cloud.
-        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand for status lookup
         BackupCommand statusBackupCommand = getStatusBackupCommand(null);
 
         statusBackupCommand.doExecute();
-
-        assertThat(consoleOutput.getOutput(),
-                containsString("Insufficient options. Run solr:backup --help for usage details."));
     }
 
     @Test
     public void testGetSolrCloudAsynchronousBackupStatusNoStatusOption() throws Exception {
 
-        // Set the solr client type system property so that the
-        // BackupCommand knows that it needs to backup solr cloud.
-        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+        // Setup exception expectations
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand (ie. solr:backup -i <request Id>)
         BackupCommand invalidBackupStatusCommand = getBackupCommand(null, null, false, false, "myRequestId0");
 
         invalidBackupStatusCommand.doExecute();
+    }
 
-        assertThat(consoleOutput.getOutput(),
-                containsString("Insufficient options. Run solr:backup --help for usage details."));
+    @Test
+    public void testGetCloudSolrClientNoZkHosts() throws Exception {
+
+        // Set the solr client type system property so that the
+        // BackupCommand knows that it needs to backup solr cloud.
+        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+
+        // Setup BackupCommand
+        BackupCommand backupCommand = new BackupCommand();
+        backupCommand.backupLocation = getBackupLocation();
+
+        backupCommand.doExecute();
+
+        // Verify
+        assertThat(consoleOutput.getOutput(), containsString(String.format(
+                String.format("Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
+                        ZOOKEEPER_HOSTS_PROP, SYSTEM_PROPERTIES_PATH))));
     }
 
     private ResponseWrapper mockResponse(int statusCode, String responseBody) {
@@ -533,7 +636,20 @@ public class TestBackupCommand {
         return backupLocation.getRoot().getPath().toString();
     }
 
+    private void setupSystemProperties(String solrClientType) {
+        setupSolrClientType(solrClientType);
+        setupZkHost();
+    }
+
+    private static void setDdfHome() {
+        System.setProperty(DDF_HOME_PROP, DEFAULT_DDF_HOME);
+    }
+
     private void setupSolrClientType(String solrClientType) {
         System.setProperty(SOLR_CLIENT_PROP, solrClientType);
+    }
+
+    private void setupZkHost() {
+        System.setProperty(ZOOKEEPER_HOSTS_PROP, DEFAULT_ZK_HOSTS);
     }
 }

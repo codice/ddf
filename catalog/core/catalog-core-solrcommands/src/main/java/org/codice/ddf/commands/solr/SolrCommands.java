@@ -15,7 +15,6 @@ package org.codice.ddf.commands.solr;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Paths;
 import java.util.Map;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -37,15 +36,15 @@ public abstract class SolrCommands extends OsgiCommandSupport {
 
     protected PrintStream console = System.out;
 
+    protected ConfigurationAdmin configurationAdmin;
+
+    static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
+
     private static final Color ERROR_COLOR = Ansi.Color.RED;
 
     private static final Color SUCCESS_COLOR = Ansi.Color.GREEN;
 
-    private static final Color INFO_COLOR = Ansi.Color.BLUE;
-
-    protected static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
-
-    protected ConfigurationAdmin configurationAdmin;
+    private static final Color INFO_COLOR = Ansi.Color.CYAN;
 
     protected abstract Object doExecute() throws Exception;
 
@@ -98,9 +97,6 @@ public abstract class SolrCommands extends OsgiCommandSupport {
             LOGGER.debug("Created solr client: {}", client);
             return client;
         } else {
-            printErrorMessage(String.format(
-                    String.format("Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
-                    ZOOKEEPER_HOSTS_PROP, Paths.get(System.getProperty("ddf.home"), "etc", "system.properties"))));
             return null;
         }
     }

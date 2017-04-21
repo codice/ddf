@@ -15,6 +15,7 @@ package org.codice.ddf.commands.solr;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,26 +37,27 @@ import org.osgi.service.cm.Configuration;
 @Command(scope = SolrCommands.NAMESPACE, name = "backup", description = "Makes a backup of the selected Solr core/collection.")
 public class BackupCommand extends SolrCommands {
 
-    @Option(name = "-d", aliases = {"--dir"}, multiValued = false, required = false,
-            description = "Full path to location where backups will be written. If none specified, "
-                    + "backup will be written in the $data directory for the selected core. For Solr Cloud "
-                    + "backups, the backup location must be shared by all Solr nodes.")
+    @Option(name = "-d", aliases = {"--dir"}, multiValued = false, required = false, description =
+            "Full path to location where backups will be written. If this option is not supplied "
+                    + " for single node Solr backups, the backup will be written in the data directory "
+                    + " for the selected core. For SolrCloud  backups, the backup location must be shared "
+                    + " by all Solr nodes.")
     String backupLocation;
 
     @Option(name = "-c", aliases = {"--coreName"}, multiValued = false, required = false,
             description = "Name of the Solr core/collection to be backed up.  If not specified, the 'catalog' core/collection will be backed up.")
-    String coreName = "catalog";
+    String coreName = DEFAULT_CORE_NAME;
 
     @Option(name = "-a", aliases = {"--asyncBackup"}, multiValued = false, required = false,
-            description = "Perform an asynchronous backup of Solr Cloud.")
+            description = "Perform an asynchronous backup of SolrCloud.")
     boolean asyncBackup;
 
     @Option(name = "-s", aliases = {"--asyncBackupStatus"}, multiValued = false, required = false,
-            description = "Get the status of a Solr Cloud asynchronous backup. Used in conjunction with --asyncBackupReqId.")
+            description = "Get the status of a SolrCloud asynchronous backup. Used in conjunction with --asyncBackupReqId.")
     boolean asyncBackupStatus;
 
     @Option(name = "-i", aliases = {"--asyncBackupReqId"}, multiValued = false, required = false,
-            description = "Request Id returned after performing a Solr Cloud asynchronous backup. This request Id is used to track"
+            description = "Request Id returned after performing a SolrCloud asynchronous backup. This request Id is used to track"
                     + " the status of a given backup. When requesting a backup status, --asyncBackupStatus and --asyncBackupReqId"
                     + " are both required options.")
     String asyncBackupReqId;
@@ -64,50 +66,33 @@ public class BackupCommand extends SolrCommands {
             description =
                     "Number of backups to be maintained.  If this backup opertion will result"
                             + " in exceeding this threshold, the oldest backup will be deleted. This option is not supported"
-                            + " when backing up Solr Cloud.")
+                            + " when backing up SolrCloud.")
     int numberToKeep = 0;
 
     private static final String SOLR_CLIENT_PROP = "solr.client";
 
     private static final String CLOUD_SOLR_CLIENT_TYPE = "CloudSolrClient";
 
+    private static final Path SYSTEM_PROPERTIES_PATH = Paths.get(System.getProperty("ddf.home"), "etc", "system.properties");
+
+    private static final String DEFAULT_CORE_NAME = "catalog";
+
     @Override
     public Object doExecute() throws Exception {
 
         if (isSystemConfiguredWithSolrCloud()) {
-            SolrClient client = null;
-            try {
-                client = getSolrClient();
+            performSolrCloudBackup();
 
-                if(client == null) {
-                    printErrorMessage(String.format(
-                            "Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
-                            ZOOKEEPER_HOSTS_PROP, Paths.get(System.getProperty("ddf.home"), "etc", "system.properties")));
-                    return null;
-                }
-
-                if (asyncBackupStatus) {
-                    if (!isCloudBackupStatusInputValid()) {
-                        return null;
-                    }
-                    getBackupStatus(client, asyncBackupReqId);
-                } else {
-                    if (!isCloudBackupInputValid()) {
-                        return null;
-                    }
-                    performSolrCloudBackup(client);
-                }
-            } finally {
-                shutdown(client);
-            }
         } else {
-            preformStandaloneSolrBackup();
+            performSingleNodeSolrBackup();
         }
 
         return null;
     }
 
-    private void preformStandaloneSolrBackup() throws Exception {
+    private void performSingleNodeSolrBackup() throws Exception {
+        verifySingleNodeBackupInput();
+
         String backupUrl = getBackupUrl(coreName);
 
         URIBuilder uriBuilder = new URIBuilder(backupUrl);
@@ -126,6 +111,31 @@ public class BackupCommand extends SolrCommands {
         HttpWrapper httpClient = getHttpClient();
 
         processResponse(httpClient.execute(backupUri));
+    }
+
+    private void performSolrCloudBackup() throws Exception {
+        SolrClient client = null;
+        try {
+            client = getSolrClient();
+
+            if (client == null) {
+                printErrorMessage(String.format(
+                        "Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
+                        ZOOKEEPER_HOSTS_PROP,
+                        SYSTEM_PROPERTIES_PATH));
+                return;
+            }
+
+            if (asyncBackupStatus) {
+                verifyCloudBackupStatusInput();
+                getBackupStatus(client, asyncBackupReqId);
+            } else {
+                verifyCloudBackupInput();
+                performSolrCloudBackup(client);
+            }
+        } finally {
+            shutdown(client);
+        }
     }
 
     private void processResponse(ResponseWrapper responseWrapper) throws Exception {
@@ -186,7 +196,7 @@ public class BackupCommand extends SolrCommands {
         } else {
             printErrorMessage(String.format(
                     "Could not determine Solr Client Type. Please verify that the system property %s is configured in %s.",
-                    SOLR_CLIENT_PROP, Paths.get(System.getProperty("ddf.home"), "etc", "system.properties")));
+                    SOLR_CLIENT_PROP, SYSTEM_PROPERTIES_PATH));
             return false;
         }
     }
@@ -247,21 +257,26 @@ public class BackupCommand extends SolrCommands {
         return String.format("%s_%d", coreName, timestamp);
     }
 
-    private boolean isCloudBackupInputValid() {
-        if (StringUtils.isBlank(backupLocation)) {
-            printErrorMessage("Insufficient options. Run solr:backup --help for usage details.");
-            return false;
-        } else {
-            return true;
+    private void verifySingleNodeBackupInput() {
+        if (asyncBackup || asyncBackupStatus || StringUtils.isNotBlank(asyncBackupReqId)) {
+            throw new IllegalArgumentException(
+                    "Invalid Argument(s). Run solr:backup --help for usage details.");
         }
     }
 
-    private boolean isCloudBackupStatusInputValid() {
-        if (StringUtils.isBlank(asyncBackupReqId)) {
-            printErrorMessage("Insufficient options. Run solr:backup --help for usage details.");
-            return false;
-        } else {
-            return true;
+    private void verifyCloudBackupInput() {
+        if (StringUtils.isBlank(backupLocation) || asyncBackupStatus || StringUtils.isNotBlank(asyncBackupReqId) || numberToKeep > 0) {
+            throw new IllegalArgumentException(
+                    "Invalid Argument(s). Run solr:backup --help for usage details.");
+        }
+    }
+
+    private void verifyCloudBackupStatusInput() {
+        if (StringUtils.isBlank(asyncBackupReqId) || numberToKeep > 0 || StringUtils.isNotBlank(
+                backupLocation) || !StringUtils.equals(coreName, DEFAULT_CORE_NAME)
+                || asyncBackup) {
+            throw new IllegalArgumentException(
+                    "Invalid Argument(s). Run solr:backup --help for usage details.");
         }
     }
 
