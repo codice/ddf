@@ -1328,7 +1328,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         List attr = ImmutableList.of(
                 "security.access-groups=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
 
-        configureAuthZRealm(attr, getAdminConfig());
+        Dictionary authZProperties = configureAuthZRealm(attr, getAdminConfig());
+
+        Dictionary metacardAttributeSecurityFilterProperties = null;
 
         try {
             String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
@@ -1337,14 +1339,15 @@ public class TestSecurity extends AbstractIntegrationTest {
 
             String id = CatalogTestCommons.ingest(testData, MediaType.TEXT_XML);
 
+            metacardAttributeSecurityFilterProperties = configureMetacardAttributeSecurityFiltering(
+                    attr,
+                    ImmutableList.of(""),
+                    getAdminConfig());
+
             String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
             configureRestForGuest(SDK_SOAP_CONTEXT);
             waitForSecurityHandlers(url);
             getSecurityPolicy().waitForGuestAuthReady(url);
-
-            configureMetacardAttributeSecurityFiltering(attr,
-                    ImmutableList.of(""),
-                    getAdminConfig());
 
             //anon guest
             String response = getGuestRestResponseAsString(url);
@@ -1365,6 +1368,12 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         } finally {
             removeJsonInjectionDefinition(definitionFile);
+            configureAuthZRealm(authZProperties, getAdminConfig());
+            if (metacardAttributeSecurityFilterProperties != null) {
+                configureMetacardAttributeSecurityFiltering(
+                        metacardAttributeSecurityFilterProperties,
+                        getAdminConfig());
+            }
             //metacard will be deleted in @After
         }
     }
@@ -1373,25 +1382,29 @@ public class TestSecurity extends AbstractIntegrationTest {
     public void testAccessGroups() throws Exception {
         final File definitionFile = addJsonInjectionDefinition("injections.json", 4);
 
-        try {
-            List attr = ImmutableList.of(
-                    "security.access-groups=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
-            configureAuthZRealm(attr, getAdminConfig());
+        List attr = ImmutableList.of(
+                "security.access-groups=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
 
+        Dictionary authZProperties = configureAuthZRealm(attr, getAdminConfig());
+
+        Dictionary metacardAttributeSecurityFilterProperties = null;
+
+        try {
             String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
                     XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml")));
             testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "B");
 
             String id = CatalogTestCommons.ingest(testData, MediaType.TEXT_XML);
 
+            metacardAttributeSecurityFilterProperties = configureMetacardAttributeSecurityFiltering(
+                    attr,
+                    ImmutableList.of(""),
+                    getAdminConfig());
+
             String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
             configureRestForBasic(SDK_SOAP_CONTEXT);
             waitForSecurityHandlers(url);
             getSecurityPolicy().waitForBasicAuthReady(url);
-
-            configureMetacardAttributeSecurityFiltering(attr,
-                    ImmutableList.of(""),
-                    getAdminConfig());
 
             //user without permissions cannot get results
             String response = getBasicRestResponseAsString(url, A_USER, USER_PASSWORD);
@@ -1412,6 +1425,12 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         } finally {
             removeJsonInjectionDefinition(definitionFile);
+            configureAuthZRealm(authZProperties, getAdminConfig());
+            if (metacardAttributeSecurityFilterProperties != null) {
+                configureMetacardAttributeSecurityFiltering(
+                        metacardAttributeSecurityFilterProperties,
+                        getAdminConfig());
+            }
             //metacard will be deleted in @After
         }
     }

@@ -94,24 +94,39 @@ public class ConfigureTestCommons {
         config.update(properties);
     }
 
-    public static void configureMetacardAttributeSecurityFiltering(List<String> intersectAttributes, List<String> unionAttributes,
-            AdminConfig configAdmin) throws IOException {
+    public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
+            List<String> intersectAttributes, List<String> unionAttributes, AdminConfig configAdmin)
+            throws IOException {
+        Dictionary properties = new Hashtable<>();
+        properties.put("intersectMetacardAttributes", intersectAttributes);
+        properties.put("unionMetacardAttributes", unionAttributes);
+        return configureMetacardAttributeSecurityFiltering(properties, configAdmin);
+    }
+
+    public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
+            Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
         Configuration config = configAdmin.getConfiguration(
                 METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID,
                 null);
 
-        Dictionary properties = new Hashtable<>();
-        properties.put("intersectMetacardAttributes", intersectAttributes);
-        properties.put("unionMetacardAttributes", unionAttributes);
+        Dictionary oldProperties = config.getProperties();
         config.update(properties);
+        return oldProperties;
     }
 
-    public static void configureAuthZRealm(List<String> attributes, AdminConfig configAdmin)
-            throws IOException {
-        Configuration config = configAdmin.getConfiguration(AUTH_Z_REALM_PID, null);
-
+    public static Dictionary<String, Object> configureAuthZRealm(List<String> attributes,
+            AdminConfig configAdmin) throws IOException {
         Dictionary properties = new Hashtable<>();
         properties.put("matchOneMap", attributes);
+        return configureAuthZRealm(properties, configAdmin);
+    }
+
+    public static Dictionary<String, Object> configureAuthZRealm(
+            Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+        Configuration config = configAdmin.getConfiguration(AUTH_Z_REALM_PID, null);
+
+        Dictionary oldProperties = config.getProperties();
         config.update(properties);
+        return oldProperties;
     }
 }
