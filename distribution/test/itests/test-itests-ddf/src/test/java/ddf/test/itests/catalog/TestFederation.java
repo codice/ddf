@@ -850,24 +850,32 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testCswQueryForMetacardXml() throws Exception {
 
+        // The first few bytes of the metacard's base-64 encoded thumbnail image
         String thumbNailBase64EncSubstring = "/9j/4AAQSkZJRgABAQAAAQABAAD";
         String metacardTitle = "myTitle";
-        String outputSchema = METACARD_URI;
-        String extractMetacardXmlRegex = ".*?(<metacard.*?</metacard>).*";
+        String extractXmlRegex = ".*?(<metacard.*?</metacard>).*";
 
-        List<Matcher<?>> assertions = getXpathMatchers(outputSchema, 1);
+        // Define the assertions that test the query results conform to expectations
+        List<Matcher<?>> assertions = getXpathMatchers(METACARD_URI, 1);
         assertions.add(hasXPath("//*[@name='thumbnail']/*/text()",
                 startsWith(thumbNailBase64EncSubstring)));
         assertions.add(hasXPath("//*[@name='title']/*/text()", equalTo(metacardTitle)));
-        assertions.add(hasXPath("//ns1:pos/text()", equalTo("30.0 10.0")));
-        ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
-                outputSchema, assertions);
-        String metacardXml = extractRecord(response, extractMetacardXmlRegex);
+        assertions.add(hasXPath("//pos/text()", equalTo("30.0 10.0")));
 
-        InputTransformer xmlMetacardInputTransformer = getInputTransformer("(id=xml)");
-        Metacard metacard = xmlMetacardInputTransformer.transform(IOUtils.toInputStream(metacardXml,
+        // Query for CSW result and assert expected results
+        ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
+                METACARD_URI,
+                assertions);
+
+        // Extract the port of the response that can be transformed into a metacard
+        String metacardXml = extractRecord(response, extractXmlRegex);
+
+        // Get the metacard XML input transformer and attempt to create a metacard object
+        Metacard metacard = getInputTransformer("(id=xml)").transform(IOUtils.toInputStream(
+                metacardXml,
                 "UTF-8"));
 
+        // Assert the newly created metacard's attributes are properly populated.
         assertThat("Incorrect metacard's title", metacard.getTitle(), equalTo(metacardTitle));
         assertThat("Incorrect metacard's thumbnail",
                 new String(Base64.getEncoder()
@@ -877,36 +885,71 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCswQueryForOpenGisXml() throws Exception {
+    public void testCswQueryForGmdXml() throws Exception {
+
+        // The first few bytes of the metacard's base-64 encoded thumbnail image
         String thumbNailBase64EncSubstring = "/9j/4AAQSkZJRgABAQAAAQABAAD";
         String metacardTitle = "myTitle";
-        String outputSchema = OPEN_GIS_SCHEMA_URI;
-        String xmlRegex = ".*?(<csw:Record>.*?</csw:Record>).*";
+        String extractXmlRegex = ".*?(<MD_Metadata.*?</MD_Metadata>).*";
 
-        List<Matcher<?>> assertions = getXpathMatchers(outputSchema, 1);
+        // Define the assertions that test the query results conform to expectations
+        List<Matcher<?>> assertions = getXpathMatchers(GMD_SCHEMA_URI, 1);
+        assertions.add(hasXPath("//*[name()='title']/*/text()", equalTo(metacardTitle)));
+        assertions.add(hasXPath("//*[name()='westBoundLongitude']/*[local-name()='Decimal']/text()",
+                equalTo("30.0")));
+
+        // Query for CSW result and assert expected results
+        ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
+                GMD_SCHEMA_URI,
+                assertions);
+
+        // Extract the port of the response that can be transformed into a metacard
+        String metacardXml = extractRecord(response, extractXmlRegex);
+
+        // Get the metacard XML input transformer and attempt to create a metacard object
+        Metacard metacard =
+                getInputTransformer("(id=gmd:MD_Metadata)").transform(IOUtils.toInputStream(
+                        metacardXml,
+                        "UTF-8"));
+
+        // Assert the newly created metacard's attributes are properly populated.
+        assertThat("Incorrect metacard's title", metacard.getTitle(), equalTo(metacardTitle));
+        assertThat("Incorrect geometry", "POINT (30 10)", equalTo(metacard.getLocation()));
+    }
+
+    @Test
+    public void testCswQueryForOpenGisXml() throws Exception {
+
+        //TODO: IF THUMBNAIL TRULY CANNOT BE EXTRACTED FROM OPEN GIS CSW RECORDS, REMOVE THIS VARIABLE.
+        String thumbNailBase64EncSubstring = "/9j/4AAQSkZJRgABAQAAAQABAAD";
+        String metacardTitle = "myTitle";
+        String extractXmlRegex = ".*?(<csw:Record>.*?</csw:Record>).*";
+
+        // Define the assertions that test the query results conform to expectations
+        List<Matcher<?>> assertions = getXpathMatchers(OPEN_GIS_SCHEMA_URI, 1);
         assertions.add(hasXPath("//title/text()", equalTo(metacardTitle)));
         assertions.add(hasXPath("//*[local-name()='references']/text()",
                 startsWith(thumbNailBase64EncSubstring)));
         assertions.add(hasXPath("//references/text()", startsWith(thumbNailBase64EncSubstring)));
         assertions.add(hasXPath("//*[local-name()='LowerCorner']/text()", equalTo("30.0 10.0")));
-        //
-        //        assertions.add(hasXPath("//*[@name='title']/*/text()", equalTo(metacardTitle)));
-        //        assertions.add(hasXPath("//*[@name='thumbnail']/*/text()",
-        //                startsWith(thumbNailBase64EncSubstring)));
-        //        assertions.add(hasXPath("//*[local-name()='pos']/text()", equalTo("30.0 10.0")));
 
-        ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
-                outputSchema,
+        // Query for CSW result and assert expected results
+        ValidatableResponse response = getAndValidateCswResponse(metacardTitle, OPEN_GIS_SCHEMA_URI,
                 assertions);
-        String xml = extractRecord(response, xmlRegex);
 
-        InputTransformer inputTransformer = getInputTransformer("(id=csw:Record)");
-        Metacard metacard = inputTransformer.transform(IOUtils.toInputStream(xml, "UTF-8"));
+        // Extract the port of the response that can be transformed into a metacard
+        String cswRecordXml = extractRecord(response, extractXmlRegex);
 
+        // Get the OPEN GIS CSW Record input transformer and create a metacard
+        Metacard metacard = getInputTransformer("(id=csw:Record)").transform(IOUtils.toInputStream(
+                cswRecordXml,
+                "UTF-8"));
+
+        // Assert the newly created metacard's attributes are properly populated.
         assertThat("Incorrect metacard's title", metacard.getTitle(), equalTo(metacardTitle));
         assertThat("Incorrect geometry", "POINT (30.0 10.0)", equalTo(metacard.getLocation()));
 
-        // TODO: THIS ASSERTION FAILS. CHRIS THINKS IT IS WORKING AS DESIGNED.
+        // TODO: THIS ASSERTION FAILS. VERIFY WITH CHRIS IT IS WORKING AS DESIGNED.
       /*  assertThat("Incorrect metacard's thumbnail",
                 new String(Base64.getEncoder()
                         .encode(metacard.getThumbnail())),
