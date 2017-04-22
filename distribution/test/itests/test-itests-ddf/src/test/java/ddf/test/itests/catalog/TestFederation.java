@@ -957,58 +957,6 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     }
 
-    protected List<Matcher<?>> getXpathMatchers(String expectedOutputSchema,
-            int expectedNumberOfRecordsReturned) {
-        List<Matcher<?>> assertions = new ArrayList<>();
-        assertions.add(hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
-                equalTo(String.valueOf(expectedNumberOfRecordsReturned))));
-        assertions.add(hasXPath("/GetRecordsResponse/SearchResults/@recordSchema",
-                is(expectedOutputSchema)));
-        return assertions;
-    }
-
-    protected ValidatableResponse getAndValidateCswResponse(String metacardTitle,
-            String outputSchema, Collection<Matcher<?>> assertions) {
-
-        assertThat("Please pass at least two assertions. Go big or go home.",
-                assertions,
-                hasSize(greaterThanOrEqualTo(2)));
-
-        Matcher<?>[] assertionArray = assertions.toArray(new Matcher<?>[assertions.size()]);
-        String titleQuery = getCswQuery("title", metacardTitle, "application/xml", outputSchema);
-        return given().contentType(ContentType.XML)
-                .body(titleQuery)
-                .when()
-                .post(CSW_PATH.getUrl())
-                .then()
-                .assertThat()
-                // Have to match signature body(Matcher<?> matcher, Matcher<?>... additionalMatchers);
-                .body(assertionArray[0],
-                        Arrays.copyOfRange(assertionArray, 1, assertionArray.length));
-    }
-
-    protected String extractRecord(ValidatableResponse response, String regex) {
-        String allXml = response.extract()
-                .body()
-                .asString();
-        Pattern metacardPattern = Pattern.compile(regex, Pattern.DOTALL);
-        java.util.regex.Matcher matcher = metacardPattern.matcher(allXml);
-        assertThat("Could not find transformable record", matcher.find(), is(true));
-        assertThat("Could not find transformable record", matcher.groupCount(), is(1));
-        return matcher.group(1);
-    }
-
-    protected InputTransformer getInputTransformer(String filterString)
-            throws InvalidSyntaxException {
-        Collection<ServiceReference<InputTransformer>> transformerReferences =
-                getServiceManager().getServiceReferences(InputTransformer.class, filterString);
-
-        ServiceReference<InputTransformer> xmlInputTransformerReference =
-                (ServiceReference<InputTransformer>) transformerReferences.toArray()[0];
-
-        return getServiceManager().getService(xmlInputTransformerReference);
-    }
-
     @Test
     public void testCswQueryForJson() throws Exception {
         String titleQuery = getCswQuery("title", "myTitle", "application/json", null);
@@ -2009,14 +1957,10 @@ public class TestFederation extends AbstractIntegrationTest {
                                     .contains(filename)));
 
             found = activities.stream()
-                    .anyMatch(activity -> {
-                        return activity.toString()
-                                .contains(messageToFind) && activity.toString()
-                                .contains(filename);
-                    });
-
+                    .anyMatch(activity -> activity.toString()
+                            .contains(messageToFind) && activity.toString()
+                            .contains(filename));
         }
-
         return found;
     }
 
@@ -2568,6 +2512,58 @@ public class TestFederation extends AbstractIntegrationTest {
 
         assertThat(path.getString(String.format(FIND_ACTION_URL_BY_TITLE_PATTERN, actionTitle)),
                 is(expectedUrl));
+    }
+
+    protected List<Matcher<?>> getXpathMatchers(String expectedOutputSchema,
+            int expectedNumberOfRecordsReturned) {
+        List<Matcher<?>> assertions = new ArrayList<>();
+        assertions.add(hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
+                equalTo(String.valueOf(expectedNumberOfRecordsReturned))));
+        assertions.add(hasXPath("/GetRecordsResponse/SearchResults/@recordSchema",
+                is(expectedOutputSchema)));
+        return assertions;
+    }
+
+    protected ValidatableResponse getAndValidateCswResponse(String metacardTitle,
+            String outputSchema, Collection<Matcher<?>> assertions) {
+
+        assertThat("Please pass at least two assertions. Go big or go home.",
+                assertions,
+                hasSize(greaterThanOrEqualTo(2)));
+
+        Matcher<?>[] assertionArray = assertions.toArray(new Matcher<?>[assertions.size()]);
+        String titleQuery = getCswQuery("title", metacardTitle, "application/xml", outputSchema);
+        return given().contentType(ContentType.XML)
+                .body(titleQuery)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                // Have to match signature body(Matcher<?> matcher, Matcher<?>... additionalMatchers);
+                .body(assertionArray[0],
+                        Arrays.copyOfRange(assertionArray, 1, assertionArray.length));
+    }
+
+    protected String extractRecord(ValidatableResponse response, String regex) {
+        String allXml = response.extract()
+                .body()
+                .asString();
+        Pattern metacardPattern = Pattern.compile(regex, Pattern.DOTALL);
+        java.util.regex.Matcher matcher = metacardPattern.matcher(allXml);
+        assertThat("Could not find transformable record", matcher.find(), is(true));
+        assertThat("Could not find transformable record", matcher.groupCount(), is(1));
+        return matcher.group(1);
+    }
+
+    protected InputTransformer getInputTransformer(String filterString)
+            throws InvalidSyntaxException {
+        Collection<ServiceReference<InputTransformer>> transformerReferences =
+                getServiceManager().getServiceReferences(InputTransformer.class, filterString);
+
+        ServiceReference<InputTransformer> xmlInputTransformerReference =
+                (ServiceReference<InputTransformer>) transformerReferences.toArray()[0];
+
+        return getServiceManager().getService(xmlInputTransformerReference);
     }
 
     private void setupCswServerForSuccess(CometDClient cometDClient, String filename)
