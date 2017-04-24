@@ -475,6 +475,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 .statusCode(equalTo(200));
+
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(url);
     }
 
     @Test
@@ -1324,6 +1327,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         Dictionary metacardAttributeSecurityFilterProperties = null;
 
+        String url = null;
+
         try {
             String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
                     XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml")));
@@ -1336,7 +1341,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                     ImmutableList.of(""),
                     getAdminConfig());
 
-            String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
+            url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
             configureRestForGuest(SDK_SOAP_CONTEXT);
             waitForSecurityHandlers(url);
             getSecurityPolicy().waitForGuestAuthReady(url);
@@ -1365,6 +1370,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                         metacardAttributeSecurityFilterProperties,
                         getAdminConfig());
             }
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            getSecurityPolicy().waitForGuestAuthReady(url);
             //metacard will be deleted in @After
         }
     }
@@ -1378,6 +1385,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         Dictionary metacardAttributeSecurityFilterProperties = null;
 
+        String url = null;
+
         try {
             String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
                     XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml")));
@@ -1390,7 +1399,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                     ImmutableList.of(""),
                     getAdminConfig());
 
-            String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
+            url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
             configureRestForBasic(SDK_SOAP_CONTEXT);
             waitForSecurityHandlers(url);
             getSecurityPolicy().waitForBasicAuthReady(url);
@@ -1419,6 +1428,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                         metacardAttributeSecurityFilterProperties,
                         getAdminConfig());
             }
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            getSecurityPolicy().waitForGuestAuthReady(url);
             //metacard will be deleted in @After
         }
     }

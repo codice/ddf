@@ -1,9 +1,11 @@
 {
     "admin" : {
-        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"admin@localhost.local"
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"admin@localhost.local",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role":["A","B","C","D"]
     },
     "localhost" : {
-        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"system@localhost.local"
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"system@localhost.local",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role":["A","B","C","D"]
     },
     "slang" : {
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"slang@example.com",
