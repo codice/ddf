@@ -358,6 +358,37 @@ application/x-msdownload,
 application/x-msmetafile
 |Yes
 
+6+^h|[[SolrProperties]]Solr Catalog Provider Properties
+
+|Solr Client
+|solr.client
+|String
+|Solr Catalog Provider selected.
+|HttpSolrClient, CloudSolrClient, EmbeddedSolrServer
+|Yes
+
+|Solr Data Directory
+|solr.data.dir
+|String
+|Solr Data Directory
+|${ddf.home}/data/solr
+|Yes
+
+|Solr Catalog Provider Url
+|solr.http.url
+|String
+|Url for a HTTP Solr server (required for HTTP Solr)
+|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}
+:${org.codice.ddf.system.httpsPort}/solr
+|No
+
+|Zookeeper Nodes
+|solr.cloud.zookeeper
+|String
+|Zookeeper hostnames and port numbers (required for Solr Cloud)
+|zookeeperhost1:2181,zookeeperhost2:2181,zookeeperhost3:2181
+|No
+
 |===
 
 These properties are available to be used as variable parameters in input url fields within the ${admin-console}.
