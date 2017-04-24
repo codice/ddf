@@ -112,7 +112,6 @@ import com.jayway.restassured.response.ValidatableResponse;
 
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.DefaultAttributeValueRegistry;
-import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
@@ -487,11 +486,11 @@ public class TestCatalog extends AbstractIntegrationTest {
         ValidatableResponse validatableResponse = response.then();
 
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("1")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("0")), hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
-                        is("myXmlTitle")), hasXPath(
-                        "//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
+                is("1")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/title", is("myXmlTitle")),
+                hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
 
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -512,8 +511,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .then()
                 .assertThat()
                 .statusCode(equalTo(200))
-                .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"), not(
-                        "0"));
+                .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"),
+                        not("0"));
 
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -634,9 +633,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(CSW_PATH.getUrl())
                 .then();
         validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                        is("0")), hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
-                        is("1")));
+                is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("1")));
 
         String url = REST_PATH.getUrl() + id;
         when().get(url)
@@ -759,20 +758,20 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testCswUpdateAllRecordsByFilterConstraint() {
         int numRecords = 25;
-        for (int i=0; i<numRecords; i++) {
+        for (int i = 0; i < numRecords; i++) {
             ingestCswRecord();
         }
 
         ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
-                .body(getFileContent(
-                        CSW_REQUEST_RESOURCE_PATH + "/CswUpdateAllByFilterRequest"))
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateAllByFilterRequest"))
                 .post(CSW_PATH.getUrl())
                 .then();
 
         response.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
-                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is(Integer.toString(numRecords))));
+                hasXPath("//TransactionResponse/TransactionSummary/totalUpdated",
+                        is(Integer.toString(numRecords))));
     }
 
     @Test
@@ -1861,13 +1860,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testInjectAttributesOnCreate() throws Exception {
-        final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
-            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
-                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                            null), hasSize(3));
-            return null;
-        });
-
         final String id = ingestXmlFromResource("/metacard-injections.xml");
 
         final String originalMetacardXml = getFileContent("metacard-injections.xml");
@@ -1896,25 +1888,12 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id);
             deleteMetacard(id2);
-            uninstallDefinitionJson(file, () -> {
-                expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
-                        .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                                null), hasSize(1));
-                return null;
-            });
         }
     }
 
     @Test
     @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testInjectAttributesOnUpdate() throws Exception {
-        final File file = ingestDefinitionJsonWithWaitCondition("injections.json", () -> {
-            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
-                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                            null), hasSize(3));
-            return null;
-        });
-
         final String id = ingestXmlFromResource("/metacard1.xml");
         final String id2 = ingestXmlFromResource("/metacard1.xml");
 
@@ -1949,12 +1928,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id);
             deleteMetacard(id2);
-            uninstallDefinitionJson(file, () -> {
-                expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
-                        .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                                null), hasSize(1));
-                return null;
-            });
         }
     }
 

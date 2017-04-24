@@ -1,0 +1,29 @@
+{
+    "admin" : {
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"admin@localhost.local",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role":["A","B","C","D"]
+    },
+    "localhost" : {
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"system@localhost.local",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role":["A","B","C","D"]
+    },
+    "slang" : {
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"slang@example.com",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role":"A"
+    },
+    "tchalla" : {
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"tchalla@example.com",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role":"B"
+    },
+    "nromanova" : {
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"nromanova@example.com",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role":"C"
+    },
+    "srogers" : {
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"srogers@example.com",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role":"D"
+    },
+    "random": {
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress":"random@localhost.local"
+    }
+}

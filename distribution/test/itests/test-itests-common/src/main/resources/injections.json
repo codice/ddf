@@ -4,6 +4,9 @@
       "attribute": "page-count"
     },
     {
+      "attribute": "security.access-groups"
+    },
+    {
       "attribute": "temperature",
       "metacardTypes": ["other.metacard.type"]
     }

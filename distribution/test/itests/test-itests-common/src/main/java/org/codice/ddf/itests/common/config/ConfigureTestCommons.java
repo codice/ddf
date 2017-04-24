@@ -21,18 +21,24 @@ import java.util.List;
 import org.codice.ddf.itests.common.AdminConfig;
 import org.osgi.service.cm.Configuration;
 
-
 public class ConfigureTestCommons {
 
-    public static final String METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID = "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin";
+    public static final String METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID =
+            "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin";
 
-    public static final String METACARD_VALIDATITY_MARKER_PLUGIN_SERVICE_PID = "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin";
+    public static final String METACARD_VALIDATITY_MARKER_PLUGIN_SERVICE_PID =
+            "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin";
 
-    public static final String CACHING_FEDERATION_STRATEGY_PID = "ddf.catalog.federation.impl.CachingFederationStrategy";
+    public static final String CACHING_FEDERATION_STRATEGY_PID =
+            "ddf.catalog.federation.impl.CachingFederationStrategy";
 
+    public static final String METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID =
+            "org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin";
 
-    public static void configureMetacardValidityFilterPlugin(List<String> securityAttributeMappings, AdminConfig configAdmin)
-            throws IOException {
+    public static final String AUTH_Z_REALM_PID = "ddf.security.pdp.realm.AuthzRealm";
+
+    public static void configureMetacardValidityFilterPlugin(List<String> securityAttributeMappings,
+            AdminConfig configAdmin) throws IOException {
         Configuration config = configAdmin.getConfiguration(
                 METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID,
                 null);
@@ -41,11 +47,9 @@ public class ConfigureTestCommons {
         config.update(properties);
     }
 
-    public static void configureShowInvalidMetacards(String showErrors, String showWarnings, AdminConfig configAdmin)
-            throws IOException {
-        Configuration config = configAdmin.getConfiguration(
-                CACHING_FEDERATION_STRATEGY_PID,
-                null);
+    public static void configureShowInvalidMetacards(String showErrors, String showWarnings,
+            AdminConfig configAdmin) throws IOException {
+        Configuration config = configAdmin.getConfiguration(CACHING_FEDERATION_STRATEGY_PID, null);
 
         Dictionary properties = new Hashtable<>();
         properties.put("showErrors", showErrors);
@@ -53,8 +57,8 @@ public class ConfigureTestCommons {
         config.update(properties);
     }
 
-    public static void configureFilterInvalidMetacards(String filterErrors, String filterWarnings, AdminConfig configAdmin)
-            throws IOException {
+    public static void configureFilterInvalidMetacards(String filterErrors, String filterWarnings,
+            AdminConfig configAdmin) throws IOException {
         Configuration config = configAdmin.getConfiguration(
                 METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID,
                 null);
@@ -77,8 +81,8 @@ public class ConfigureTestCommons {
         config.update(properties);
     }
 
-    public static void configureEnforcedMetacardValidators(List<String> enforcedValidators, AdminConfig configAdmin)
-            throws IOException {
+    public static void configureEnforcedMetacardValidators(List<String> enforcedValidators,
+            AdminConfig configAdmin) throws IOException {
 
         // Update metacardMarkerPlugin config with no enforcedMetacardValidators
         Configuration config = configAdmin.getConfiguration(
@@ -88,5 +92,41 @@ public class ConfigureTestCommons {
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("enforcedMetacardValidators", enforcedValidators);
         config.update(properties);
+    }
+
+    public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
+            List<String> intersectAttributes, List<String> unionAttributes, AdminConfig configAdmin)
+            throws IOException {
+        Dictionary properties = new Hashtable<>();
+        properties.put("intersectMetacardAttributes", intersectAttributes);
+        properties.put("unionMetacardAttributes", unionAttributes);
+        return configureMetacardAttributeSecurityFiltering(properties, configAdmin);
+    }
+
+    public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
+            Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+        Configuration config = configAdmin.getConfiguration(
+                METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID,
+                null);
+
+        Dictionary oldProperties = config.getProperties();
+        config.update(properties);
+        return oldProperties;
+    }
+
+    public static Dictionary<String, Object> configureAuthZRealm(List<String> attributes,
+            AdminConfig configAdmin) throws IOException {
+        Dictionary properties = new Hashtable<>();
+        properties.put("matchOneMap", attributes);
+        return configureAuthZRealm(properties, configAdmin);
+    }
+
+    public static Dictionary<String, Object> configureAuthZRealm(
+            Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+        Configuration config = configAdmin.getConfiguration(AUTH_Z_REALM_PID, null);
+
+        Dictionary oldProperties = config.getProperties();
+        config.update(properties);
+        return oldProperties;
     }
 }

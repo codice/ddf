@@ -16,6 +16,8 @@ package ddf.test.itests.platform;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureAuthZRealm;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureMetacardAttributeSecurityFiltering;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
@@ -52,13 +54,19 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import javax.ws.rs.core.MediaType;
+
+import org.apache.http.HttpStatus;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.tika.io.IOUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.opensearch.OpenSearchFeature;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.hamcrest.xml.HasXPath;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -66,6 +74,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.service.cm.Configuration;
 
+import com.google.common.collect.ImmutableList;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
@@ -76,6 +85,21 @@ import ddf.security.SecurityConstants;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
 public class TestSecurity extends AbstractIntegrationTest {
+
+    /*****************
+     * USERS
+     *****************/
+    private static final String USER_PASSWORD = "password1";
+
+    private static final String A_USER = "slang";
+
+    private static final String B_USER = "tchalla";
+
+    private static final String C_USER = "nromanova";
+
+    private static final String D_USER = "srogers";
+
+    private static final String ACCESS_GROUP_REPLACE_TOKEN = "ACCESS_GROUP_REPLACE_TOKEN";
 
     protected static final String TRUST_STORE_PATH = System.getProperty("javax.net.ssl.trustStore");
 
@@ -313,7 +337,6 @@ public class TestSecurity extends AbstractIntegrationTest {
     public void beforeTest() throws Exception {
         try {
             waitForSystemReady();
-            configurePDP();
             Configuration config = getAdminConfig().getConfiguration(
                     "org.codice.ddf.admin.config.policy.AdminConfigPolicy");
             config.setBundleLocation("mvn:ddf.admin.core/admin-core-configpolicy/"
@@ -344,7 +367,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         }
     }
 
-    public void configurePDP() throws Exception {
+    @After
+    public void teardown() throws Exception {
+        clearCatalog();
     }
 
     @Test
@@ -450,6 +475,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 .statusCode(equalTo(200));
+
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(url);
     }
 
     @Test
@@ -1287,6 +1315,150 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .basic(SYSTEM_ADMIN_USER, SYSTEM_ADMIN_USER_PASSWORD)
                 .get(SECURE_ROOT_AND_PORT + jolokiaEndpoint)
                 .body()
+                .print();
+    }
+
+    @Test
+    public void testAccessGroupsGuest() throws Exception {
+        List attr = ImmutableList.of(
+                "security.access-groups=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
+
+        Dictionary authZProperties = configureAuthZRealm(attr, getAdminConfig());
+
+        Dictionary metacardAttributeSecurityFilterProperties = null;
+
+        String url = null;
+
+        try {
+            String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
+                    XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml")));
+            testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "guest");
+
+            String id = CatalogTestCommons.ingest(testData, MediaType.TEXT_XML);
+
+            metacardAttributeSecurityFilterProperties = configureMetacardAttributeSecurityFiltering(
+                    attr,
+                    ImmutableList.of(""),
+                    getAdminConfig());
+
+            url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+            getSecurityPolicy().waitForGuestAuthReady(url);
+
+            //anon guest
+            String response = getGuestRestResponseAsString(url);
+            assertThat(response, containsString("Lady Liberty"));
+
+            //configure for basic
+            configureRestForBasic(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+            getSecurityPolicy().waitForBasicAuthReady(url);
+
+            //user with permissions gets results
+            response = getBasicRestResponseAsString(url, A_USER, USER_PASSWORD);
+            assertThat(response, containsString("Lady Liberty"));
+
+            //user without permissions gets results
+            response = getBasicRestResponseAsString(url, B_USER, USER_PASSWORD);
+            assertThat(response, containsString("Lady Liberty"));
+
+        } finally {
+            configureAuthZRealm(authZProperties, getAdminConfig());
+            if (metacardAttributeSecurityFilterProperties != null) {
+                configureMetacardAttributeSecurityFiltering(
+                        metacardAttributeSecurityFilterProperties,
+                        getAdminConfig());
+            }
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            getSecurityPolicy().waitForGuestAuthReady(url);
+            //metacard will be deleted in @After
+        }
+    }
+
+    @Test
+    public void testAccessGroups() throws Exception {
+        List attr = ImmutableList.of(
+                "security.access-groups=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
+
+        Dictionary authZProperties = configureAuthZRealm(attr, getAdminConfig());
+
+        Dictionary metacardAttributeSecurityFilterProperties = null;
+
+        String url = null;
+
+        try {
+            String testData = IOUtils.toString(IOUtils.toInputStream(getFileContent(
+                    XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml")));
+            testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "B");
+
+            String id = CatalogTestCommons.ingest(testData, MediaType.TEXT_XML);
+
+            metacardAttributeSecurityFilterProperties = configureMetacardAttributeSecurityFiltering(
+                    attr,
+                    ImmutableList.of(""),
+                    getAdminConfig());
+
+            url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
+            configureRestForBasic(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+            getSecurityPolicy().waitForBasicAuthReady(url);
+
+            //user without permissions cannot get results
+            String response = getBasicRestResponseAsString(url, A_USER, USER_PASSWORD);
+            assertThat(response, not(containsString("Lady Liberty")));
+
+            //user with permissions gets results
+            response = getBasicRestResponseAsString(url, B_USER, USER_PASSWORD);
+            assertThat(response, containsString("Lady Liberty"));
+
+            //configure for guest
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+            getSecurityPolicy().waitForGuestAuthReady(url);
+
+            //anon guest cannot get results
+            response = getGuestRestResponseAsString(url);
+            assertThat(response, not(containsString("Lady Liberty")));
+
+        } finally {
+            configureAuthZRealm(authZProperties, getAdminConfig());
+            if (metacardAttributeSecurityFilterProperties != null) {
+                configureMetacardAttributeSecurityFiltering(
+                        metacardAttributeSecurityFilterProperties,
+                        getAdminConfig());
+            }
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            getSecurityPolicy().waitForGuestAuthReady(url);
+            //metacard will be deleted in @After
+        }
+    }
+
+    private String getBasicRestResponseAsString(String url, String user, String pass) {
+        return given().auth()
+                .basic(user, pass)
+                .when()
+                .get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(HttpStatus.SC_OK))
+                .extract()
+                .response()
+                .print();
+    }
+
+    private String getGuestRestResponseAsString(String url) {
+        return given().when()
+                .get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(HttpStatus.SC_OK))
+                .extract()
+                .response()
                 .print();
     }
 }
