@@ -234,6 +234,51 @@ public class AssertionConsumerServiceTest {
     }
 
     @Test
+    public void testProcessSamlResponseAgainstLoginPage() throws Exception {
+        when(relayStates.decode(RELAY_STATE_VAL)).thenReturn("https://test/login?prevurl=/newurl");
+
+        Response response = assertionConsumerService.processSamlResponse(cannedResponse,
+                RELAY_STATE_VAL);
+        assertThat("The http response was not 303 SEE OTHER",
+                response.getStatus(),
+                is(HttpStatus.SC_SEE_OTHER));
+        assertThat("The response did not redirect to the correct location.",
+                response.getLocation()
+                        .getPath(),
+                is("/newurl"));
+    }
+
+    @Test
+    public void testProcessSamlResponseAgainstLoginPage1() throws Exception {
+        when(relayStates.decode(RELAY_STATE_VAL)).thenReturn("https://test/login/?prevurl=/newurl");
+
+        Response response = assertionConsumerService.processSamlResponse(cannedResponse,
+                RELAY_STATE_VAL);
+        assertThat("The http response was not 303 SEE OTHER",
+                response.getStatus(),
+                is(HttpStatus.SC_SEE_OTHER));
+        assertThat("The response did not redirect to the correct location.",
+                response.getLocation()
+                        .getPath(),
+                is("/newurl"));
+    }
+
+    @Test
+    public void testProcessSamlResponseAgainstLoginPageBadQuery() throws Exception {
+        when(relayStates.decode(RELAY_STATE_VAL)).thenReturn("https://test/login?blah=/newurl");
+
+        Response response = assertionConsumerService.processSamlResponse(cannedResponse,
+                RELAY_STATE_VAL);
+        assertThat("The http response was not 303 SEE OTHER",
+                response.getStatus(),
+                is(HttpStatus.SC_SEE_OTHER));
+        assertThat("The response did not redirect to the correct location.",
+                response.getLocation()
+                        .getPath(),
+                is("/login"));
+    }
+
+    @Test
     public void testProcessSamlResponseAuthnFailure() throws Exception {
         String failureRequest = cannedResponse.replace(StatusCode.SUCCESS, StatusCode.AUTHN_FAILED);
         Response response = assertionConsumerService.processSamlResponse(failureRequest,

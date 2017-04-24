@@ -56,7 +56,7 @@ public class LocalLogoutServlet extends HttpServlet {
         try {
             redirectUrlBuilder = new URIBuilder("/logout/logout-response.html");
 
-            HttpSession session = request.getSession(false);
+            HttpSession session = request.getSession();
             if (session != null) {
                 SecurityTokenHolder savedToken = (SecurityTokenHolder) session.getAttribute(
                         SecurityConstants.SAML_ASSERTION);
@@ -65,9 +65,7 @@ public class LocalLogoutServlet extends HttpServlet {
                     boolean hasSecurityAuditRole = Arrays.stream(System.getProperty(
                             "security.audit.roles")
                             .split(","))
-                            .filter(subject::hasRole)
-                            .findFirst()
-                            .isPresent();
+                            .anyMatch(subject::hasRole);
                     if (hasSecurityAuditRole) {
                         SecurityLogger.audit("Subject with admin privileges has logged out",
                                 subject);

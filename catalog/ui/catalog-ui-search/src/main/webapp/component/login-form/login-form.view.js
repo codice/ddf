@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define,window,document*/
 define([
     'marionette',
     'jquery',
@@ -49,30 +49,27 @@ define([
         },
         login: function (e) {
             var view = this;
-            this.deleteCookie();
             e.preventDefault(); // prevent form submission
 
             $.ajax({
-                type: 'GET',
-                url: '/search/catalog/internal/user',
+                type: "POST",
+                url: "/services/login",
+                data: {
+                    "username": view.$('#username').val(),
+                    "password": view.$('#password').val(),
+                    "prevurl": window.location.href
+                },
                 async: false,
-                beforeSend: function (xhr) {
-                    var base64 = window.btoa(view.$('#username').val() + ':' + view.$('#password').val());
-                    xhr.setRequestHeader('Authorization', 'Basic ' + base64);
-                },
-                success: function () {
-                    document.location.reload();
-                },
                 error: function () {
                     view.$('#loginError').show();
                     view.$('#password').focus(function () {
                         view.select();
                     });
+                },
+                success: function () {
+                    document.location.reload();
                 }
             });
-        },
-        deleteCookie: function () {
-            document.cookie = 'JSESSIONID=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;secure';
         }
     });
 

@@ -274,6 +274,21 @@ public class AssertionConsumerService {
                         relayUri.getQuery(),
                         relayUri.getFragment());
             }
+            //this avoids the user ever being redirected to the built in login page if they've already
+            //logged in via the IDP.
+            if ((relayUri.getPath()
+                    .equals("/login") || relayUri.getPath()
+                    .equals("/login/")) && (relayUri.getQuery() != null && relayUri.getQuery()
+                    .contains("prevurl"))) {
+                relayUri = new URI(relayUri.getScheme(),
+                        relayUri.getUserInfo(),
+                        relayUri.getHost(),
+                        relayUri.getPort(),
+                        relayUri.getQuery()
+                                .replace("prevurl=", ""),
+                        null,
+                        relayUri.getFragment());
+            }
         } catch (URISyntaxException e) {
             LOGGER.info("Unable to parse relay state.", e);
             return Response.serverError()

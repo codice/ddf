@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, document, window,decodeURI*/
+/*global define, window,decodeURI*/
 define([
     'marionette',
     'icanhaz',
@@ -40,8 +40,6 @@ define([
             var view = this;
 
             var prevUrl = decodeURI($.url().param('prevurl'));
-
-            document.cookie = "JSESSIONID=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;secure";
 
             $.ajax({
                 type: "POST",
