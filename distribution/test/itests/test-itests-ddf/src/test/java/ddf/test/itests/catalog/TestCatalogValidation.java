@@ -48,6 +48,8 @@ import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
+import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
+import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.Rule;
@@ -226,6 +228,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-2958
     public void testNoEnforceValidityErrorsOrWarnings() throws Exception {
 
         //Configure to enforce validator
