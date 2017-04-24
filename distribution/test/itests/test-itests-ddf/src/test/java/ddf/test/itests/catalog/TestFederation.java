@@ -867,7 +867,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 METACARD_URI,
                 assertions);
 
-        // Extract the port of the response that can be transformed into a metacard
+        // Extract the part of the response that can be transformed into a metacard
         String metacardXml = extractRecord(response, extractXmlRegex);
 
         // Get the metacard XML input transformer and attempt to create a metacard object
@@ -903,7 +903,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 GMD_SCHEMA_URI,
                 assertions);
 
-        // Extract the port of the response that can be transformed into a metacard
+        // Extract the part of the response that can be transformed into a metacard
         String metacardXml = extractRecord(response, extractXmlRegex);
 
         // Get the metacard XML input transformer and attempt to create a metacard object
