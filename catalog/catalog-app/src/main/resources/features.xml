@@ -443,7 +443,7 @@
         </bundle>
     </feature>
 
-    <feature name="catalog-metacardbackup-storage-api" install="manual" version="${project.version"
+    <feature name="catalog-metacard-backup-storage-api" install="manual" version="${project.version"
              description="API for the metacard backup storage provider">
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardbackup-storage-api/${project.version}
         </bundle>
@@ -454,14 +454,14 @@
         <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">catalog-async-inmemory</feature>
         <feature prerequisite="true">catalog-transformer-metadata</feature>
-        <feature prerequisite="true">catalog-metacardbackup-storage-api</feature>
+        <feature prerequisite="true">catalog-metacard-backup-storage-api</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardbackup/${project.version}
         </bundle>
     </feature>
 
     <feature name="catalog-metacard-backup-filestorage" install="manual" version="${project.version"
              description="File system storage provider for metacard backup">
-        <feature prerequisite="true">catalog-metacardbackup-storage-api</feature>
+        <feature prerequisite="true">catalog-metacard-backup-storage-api</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardbackup-filestorage/${project.version}
         </bundle>
     </feature>
