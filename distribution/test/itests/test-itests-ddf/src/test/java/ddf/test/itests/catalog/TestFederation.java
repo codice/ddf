@@ -949,7 +949,11 @@ public class TestFederation extends AbstractIntegrationTest {
         assertThat("Incorrect title", metacard.getTitle(), equalTo(metacardTitle));
         assertThat("Incorrect geometry", "POINT (30.0 10.0)", equalTo(metacard.getLocation()));
 
-        // TODO: THIS ASSERTION FAILS. VERIFY WITH CHRIS IT IS WORKING AS DESIGNED.
+        // TODO: THIS ASSERTION FAILS. SEE DDF-2476 (https://codice.atlassian.net/browse/DDF-2476)
+        // The CSW Record metacard transformer preserves the metacard's thumbnail as a
+        // base-64 encoded string in an element named "<dct:references>".
+        // However the CSW input transformer does not used the "<dct:references>" element to
+        // populate the thumbnail attribute when it creates a metacard.
       /*  assertThat("Incorrect metacard's thumbnail",
                 new String(Base64.getEncoder()
                         .encode(metacard.getThumbnail())),
