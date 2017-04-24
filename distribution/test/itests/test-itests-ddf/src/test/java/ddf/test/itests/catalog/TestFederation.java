@@ -937,7 +937,7 @@ public class TestFederation extends AbstractIntegrationTest {
         ValidatableResponse response = getAndValidateCswResponse(metacardTitle, OPEN_GIS_SCHEMA_URI,
                 assertions);
 
-        // Extract the port of the response that can be transformed into a metacard
+        // Extract the part of the response that can be transformed into a metacard
         String cswRecordXml = extractRecord(response, extractXmlRegex);
 
         // Get the OPEN GIS CSW Record input transformer and create a metacard
