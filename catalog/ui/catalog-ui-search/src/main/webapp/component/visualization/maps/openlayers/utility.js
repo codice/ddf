@@ -31,8 +31,8 @@ module.exports = {
     /*
       Calculates the center of given a geometry (WKT)
     */
-    calculateOpenlayersCenterOfGeometry: function(geometry) {
-        var lineObject = geometry.getAllPoints().map(function(coordinate) {
+    calculateOpenlayersCenterOfGeometry: function(propertyModel) {
+        var lineObject = propertyModel.getPoints().map(function(coordinate) {
             return convertPointCoordinate(coordinate);
         });
         var extent = Openlayers.extent.boundingExtent(lineObject);
@@ -41,16 +41,16 @@ module.exports = {
     /*
       Calculates the center of given a geometry (WKT)
     */
-    calculateCartographicCenterOfGeometryInDegrees: function(geometry) {
-        var openlayersCenter = this.calculateOpenlayersCenterOfGeometry(geometry);
+    calculateCartographicCenterOfGeometryInDegrees: function(propertyModel) {
+        var openlayersCenter = this.calculateOpenlayersCenterOfGeometry(propertyModel);
         return unconvertPointCoordinate(openlayersCenter);
     },
     /*
       Calculates the center of given geometries (WKT)
     */
-    calculateOpenlayersCenterOfGeometries: function(geometries) {
-        var allPoints = _.flatten(geometries.map(function(geometry) {
-            return geometry.getAllPoints();
+    calculateOpenlayersCenterOfGeometries: function(propertyModels) {
+        var allPoints = _.flatten(propertyModels.map(function(propertyModel) {
+            return propertyModel.getPoints();
         }), true).map(function(coordinate) {
             return convertPointCoordinate(coordinate);
         });
@@ -60,8 +60,8 @@ module.exports = {
     /*
       Calculates the center of given geometries (WKT)
     */
-    calculateCartographicCenterOfGeometriesInDegrees: function(geometries) {
-        var openlayersCenter = this.calculateOpenlayersCenterOfGeometries(geometries);
+    calculateCartographicCenterOfGeometriesInDegrees: function(propertyModels) {
+        var openlayersCenter = this.calculateOpenlayersCenterOfGeometries(propertyModels);
         return unconvertPointCoordinate(openlayersCenter);
     },
 };

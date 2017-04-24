@@ -20,6 +20,15 @@ define([
     'jquery'
 ], function (_, moment, Handlebars, Common, metacardDefinitions, _get, $) {
     'use strict';
+
+    function bind(options, callback) {
+        options.data.root._view.listenTo(options.data.root._view.model, options.hash.event || 'change', callback);
+        options.data.root._view.listenToOnce(options.data.root._view, 'before:render', function(){
+            options.data.root._view.stopListening(options.data.root._view.model, options.hash.event || 'change', callback);
+        });
+        return _get(options.data.root, options.hash.key);
+    }
+
     // The module to be exported
     var helper, helpers = {
             /*
@@ -353,25 +362,33 @@ define([
                 return options.inverse(this);
             }
           },
-            bind: function(options) {
+            bindInput: function(options){
                 var callback = function() {
                     var $target = this.$el.find(options.hash.selector);
                     var value = _get(this.serializeData(), options.hash.key);
-                    $target.filter(':not(input)').html(Common.escapeHTML(value));
-                    $target.filter('input').each(function(){
+                    $target.each(function(){
                         if ($(this).val() !== value){
                             $(this).val(value);
                         }
                     });
-                    if (options.hash.updateTitle) {
-                        $target.attr('title', value);
-                    }
                 };
-                options.data.root._view.listenTo(options.data.root._view.model, options.hash.event || 'change', callback);
-                options.data.root._view.listenToOnce(options.data.root._view, 'before:render', function(){
-                    options.data.root._view.stopListening(options.data.root._view.model, options.hash.event || 'change', callback);
-                });
-                return _get(options.data.root, options.hash.key);
+                return bind(options, callback);
+            },
+            bindAttr: function(options){
+                var callback = function() {
+                    var $target = this.$el.find(options.hash.selector);
+                    var value = _get(this.serializeData(), options.hash.key);
+                    $target.attr(options.hash.attr, value);
+                };
+                return bind(options, callback);
+            },
+            bind: function(options) {
+                var callback = function() {
+                    var $target = this.$el.find(options.hash.selector);
+                    var value = _get(this.serializeData(), options.hash.key);
+                    $target.html(Common.escapeHTML(value));
+                };
+                return bind(options, callback);
             },
             path: function() {
                 var outArray = [];

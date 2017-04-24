@@ -51,7 +51,7 @@ define([
             this.setupSortDropdown();
             this.setupFederationDropdown();
             this.setupSrcDropdown();
-            this.settingsFederation.currentView.$el.on('change', this.handleFederationValue.bind(this));
+            this.listenTo(this.settingsFederation.currentView.model, 'change:value', this.handleFederationValue);
             this.handleFederationValue();
             if (this.model._cloneOf === undefined){
                 this.turnOnEditing();
@@ -172,7 +172,7 @@ define([
             this.settingsSrc.currentView.turnOffEditing();
         },
         handleFederationValue: function(){
-            var federation = this.settingsFederation.currentView.getCurrentValue()[0];
+            var federation = this.settingsFederation.currentView.model.getValue()[0];
             this.$el.toggleClass('is-specific-sources', federation === 'selected');
         },
         turnOnEditing: function(){
@@ -193,14 +193,14 @@ define([
             }
         },
         saveToModel: function(){
-            var federation = this.settingsFederation.currentView.getCurrentValue()[0];
+            var federation = this.settingsFederation.currentView.model.getValue()[0];
             this.model.set({
                 src: federation === 'selected' ? this._srcDropdownModel.get('value') : undefined
             });
             this.model.set({
                 federation: federation
             });
-            this.model.set(this.settingsSort.currentView.getCurrentValue()[0]);
+            this.model.set(this.settingsSort.currentView.model.getValue()[0]);
         },
         save: function(){
             this.$el.removeClass('is-editing');

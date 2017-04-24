@@ -28,9 +28,11 @@ define([
     'component/input/number/input-number.view',
     'component/input/boolean/input-boolean.view',
     'component/input/range/input-range.view',
-    'component/input/textarea/input-textarea.view'
+    'component/input/textarea/input-textarea.view',
+    'component/input/geometry/input-geometry.view'
 ], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView,
-             InputLocationView, InputEnumView, InputRadioView, InputNumberView, InputBooleanView, InputRangeView, InputTextareaView) {
+             InputLocationView, InputEnumView, InputRadioView, InputNumberView, InputBooleanView, InputRangeView, InputTextareaView,
+             InputGeometryView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -79,6 +81,11 @@ define([
                             model: this.model
                         }));
                         break;
+                    case 'geometry':
+                        this.input.show(new InputGeometryView({
+                            model: this.model
+                        }));
+                        break;
                     case 'number':
                         this.input.show(new InputNumberView({
                             model: this.model
@@ -102,9 +109,6 @@ define([
                 }
             }
         },
-        hasChanged: function(){
-            return this.input.currentView.hasChanged();
-        },
         handleEdit: function () {
             this.$el.toggleClass('is-editing', this.model.isEditing());
         },
@@ -116,9 +120,6 @@ define([
         },
         delete: function(){
             this.model.destroy();
-        },
-        getCurrentValue: function(){
-            return this.input.currentView.getCurrentValue();
         }
     });
 });

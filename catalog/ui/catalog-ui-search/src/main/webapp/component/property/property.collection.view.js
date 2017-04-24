@@ -99,6 +99,7 @@ define([
                     propertyArray.push({
                         enumFiltering: true,
                         enum: metacardDefinitions.enums[property],
+                        validation: metacardDefinitions.validation[property],
                         label: properties.attributeAliases[property],
                         readOnly: properties.isReadOnly(property),
                         id: property,
@@ -119,6 +120,7 @@ define([
                     propertyArray.push({
                         enumFiltering: true,
                         enum: metacardDefinitions.enums[property],
+                        validation: metacardDefinitions.validation[property],
                         label: properties.attributeAliases[property],
                         readOnly: properties.isReadOnly(property),
                         id: property,
@@ -144,6 +146,7 @@ define([
                 propertyArray.push({
                     enumFiltering: true,
                     enum: metacardDefinitions.enums[property],
+                    validation: metacardDefinitions.validation[property],
                     label: properties.attributeAliases[property],
                     readOnly: properties.isReadOnly(property),
                     id: property,
@@ -193,7 +196,7 @@ define([
                 if (metacards.length > 1) {
                     property.bulk = true;
                     if (Object.keys(property.values).length > 1) {
-                        property.value = [''];
+                        property.value = [];
                     }
                 }
             });
@@ -219,7 +222,17 @@ define([
                     });
                     return false;
                 }
-            }).sort();
+            }).sort(function(a, b){
+                a = metacardDefinitions.getLabel(a).toLowerCase();
+                b = metacardDefinitions.getLabel(b).toLowerCase();
+                if (a < b){
+                    return -1;
+                }
+                if (a > b){
+                    return 1;
+                }
+                return 0;
+            });
             return propertyIntersection;
         }
     });

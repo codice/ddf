@@ -264,7 +264,7 @@ define([
                     var retVal = '[';
                     for (var i = 0; i < value.length; i++) {
                         var point = value[i];
-                        retVal += '[' + point[0].toFixed(6) + ', ' + point[1].toFixed(6) + ']';
+                        retVal += '[' + point[0] + ', ' + point[1] + ']';
                         if (i < value.length - 1) {
                             retVal += ', ';
                         }

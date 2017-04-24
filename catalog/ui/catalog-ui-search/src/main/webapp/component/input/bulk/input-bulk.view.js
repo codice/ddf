@@ -35,11 +35,30 @@ define([
         },
         events: {
         },
+        listenForChange: function(){
+            this.listenTo(this.enumRegion.currentView.model, 'change:value', function(){
+                var value = this.enumRegion.currentView.model.get('value')[0];
+                switch(value){
+                    case 'bulkDefault':
+                        this.model.revert();
+                    break;
+                    case 'bulkCustom':
+                        this.model.setValue(this.otherInput.currentView.model.getValue());
+                        break;
+                    default:
+                        this.model.setValue(value);
+                    break;
+                }
+                this.handleChange();
+            });
+            this.listenTo(this.otherInput.currentView.model, 'change:value', function(){
+                this.model.setValue(this.otherInput.currentView.model.getValue());
+                this.handleChange();
+            });
+        },
         onRender: function () {
             this.initializeDropdown();
-            this.handleEdit();
-            this.handleReadOnly();
-            this.handleValue();
+            InputView.prototype.onRender.call(this);
             this.handleOther();
             this.handleBulk();
         },
@@ -101,12 +120,17 @@ define([
                     hasFiltering: true
                 }
             ));
-            this.listenTo(this.enumRegion.currentView.model, 'change:value', this.triggerChange);
         },
         onBeforeShow: function () {
             this.otherInput.show(new MultivalueView({
-                model: this.model
+                model: this.model.isHomogeneous() ? this.model : this.model.clone() // in most cases this view is the real input, except for the heterogenous case
             }));
+            this.otherInput.currentView.listenTo(this.model, 'change:isEditing', function(){
+                this.otherInput.currentView.model.set('isEditing', this.model.get('isEditing'));
+            }.bind(this));
+            if (!this.model.isHomogeneous() && this.model.isMultivalued()){
+                this.otherInput.currentView.addNewValue();
+            }
         },
         handleChange: function () {
             this.handleOther();
@@ -125,30 +149,6 @@ define([
         },
         turnOffBulk: function(){
             this.$el.addClass('is-homogeneous')
-        },
-        hasChanged: function(){
-            if (this.model.isHomogeneous()) {
-                return this.otherInput.currentView.hasChanged();
-            } else if (this.enumRegion.currentView.model.get('value')[0] === 'bulkDefault') {
-                return false;
-            } else {
-                return true;
-            }
-        },
-        getCurrentValue: function(){
-            if (this.model.isHomogeneous()) {
-                return this.otherInput.currentView.getCurrentValue();
-            } else if (this.enumRegion.currentView.model.get('value')[0] === 'bulkDefault') {
-                return false;
-            } else if (this.enumRegion.currentView.model.get('value')[0] === 'bulkCustom') {
-                return this.otherInput.currentView.getCurrentValue();
-            } else {
-                return this.enumRegion.currentView.model.get('value')[0];
-            }
-        },
-        triggerChange: function(){
-            this.handleChange();
-            this.$el.trigger('change');
         }
     });
 });

@@ -14,9 +14,30 @@
 <div class="if-editing">
     <div class='enum-region'>
     </div>
+    <div class="for-error">
+        <span class="fa fa-exclamation-triangle"></span>
+        Not an acceptable value.
+    </div>
 </div>
 <div class="if-viewing">
     <label>
-        {{label}}
+        {{#each this.label}}
+            <span>
+                {{#if this.label}}
+                    {{this.label}}
+                {{else}}
+                    {{this}}
+                {{/if}}
+            </span>
+        {{/each}}
+        {{#unless this.label}}
+            <span>
+                {{this}}
+            </span>
+        {{/unless}}
     </label>
+    <div class="for-error">
+        <span class="fa fa-exclamation-triangle"></span>
+        Not an acceptable value.
+    </div>
 </div>

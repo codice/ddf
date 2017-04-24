@@ -41,12 +41,14 @@ import org.locationtech.spatial4j.shape.Shape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import ddf.action.Action;
 import ddf.action.ActionRegistry;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -55,7 +57,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
+import ddf.catalog.transformer.metacard.propertyjson.PropertyJsonMetacardTransformer;
 
 public class CqlResult {
 
@@ -229,7 +231,10 @@ public class CqlResult {
                 }
             }
 
-            geoJson = GeoJsonMetacardTransformer.convertToJSON(resultMetacard);
+            geoJson = PropertyJsonMetacardTransformer.convertToJSON(resultMetacard,
+                    ImmutableList.of(AttributeType.AttributeFormat.BINARY,
+                            AttributeType.AttributeFormat.XML,
+                            AttributeType.AttributeFormat.OBJECT));
             addCachedDate(resultMetacard, geoJson);
         } catch (CatalogTransformerException e) {
             LOGGER.debug("Unable to convert metacard to GeoJSON", e);

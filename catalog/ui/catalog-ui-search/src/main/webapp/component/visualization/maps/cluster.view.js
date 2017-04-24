@@ -41,7 +41,7 @@ var ClusterView = Marionette.ItemView.extend({
     },
     addConvexHull: function() {
         var points = this.model.get('results').map(function(result) {
-            return result.get('metacard').get('geometry').getAllPoints();
+            return result.get('metacard').get('properties').getPoints();
         });
         var data = _.flatten(points, true).map(function(coord) {
             return {

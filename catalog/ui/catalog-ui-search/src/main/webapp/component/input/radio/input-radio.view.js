@@ -31,6 +31,11 @@ define([
         regions: {
             radioRegion: '.radio-region'
         },
+        listenForChange: function(){
+            this.$el.on('click', function(){
+                this.model.set('value', this.getCurrentValue());
+            }.bind(this));
+        },
         serializeData: function () {
             var value = this.model.get('value');
             var choice = this.model.get('property').get('radio').filter(function(choice){
@@ -41,7 +46,7 @@ define([
             };
         },
         onRender: function () {
-            this.initializeRadio()
+            this.initializeRadio();
             InputView.prototype.onRender.call(this);
         },
         initializeRadio: function(){
@@ -52,7 +57,7 @@ define([
                             return {
                                 label: value.label,
                                 value: value.value
-                            }
+                            };
                         } else {
                             return {
                                 label: value,
@@ -63,7 +68,6 @@ define([
                     defaultValue: [this.model.get('value')]
                 }
             ));
-            this.listenTo(this.radioRegion.currentView.model, 'change:value', this.triggerChange);
         },
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
@@ -74,9 +78,6 @@ define([
         getCurrentValue: function(){
             var currentValue = this.radioRegion.currentView.model.get('value');
             return currentValue;
-        },
-        triggerChange: function(){
-            this.$el.trigger('change');
         }
     });
 });

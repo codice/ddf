@@ -12,8 +12,10 @@
 /*global define*/
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
+    'backbone',
+    'moment',
+    'js/CQLUtils'
+], function (_, Backbone, moment, CQLUtils) {
 
     return Backbone.Model.extend({
         defaults: {
@@ -24,23 +26,92 @@ define([
             description: '',
             _initialValue: '',
             readOnly: false,
-            validation: '',
+            validation: undefined,
             id: '',
             isEditing: false,
             bulk: false,
             multivalued: false,
             type: 'STRING',
-            calculatedType: 'text'
+            calculatedType: 'text',
+            hasChanged: false,
+            showValidationIssues: true,
+            initializeToDefault: false
+        },
+        setDefaultValue: function(){
+            if (this.get('initializeToDefault')){
+                this.set('value', [this.getDefaultValue()]);
+            }
+        },
+        getDefaultValue: function(){
+            switch(this.getCalculatedType()){
+                case 'boolean':
+                    return true;
+                case 'date':
+                    return (new Date()).toISOString();
+                default:
+                    return '';
+            }
+        },
+        //transform incoming value so later comparisons are easier
+        transformValue: function(){
+            var currentValue = this.getValue();
+            switch(this.getCalculatedType()){
+                case 'thumbnail':
+                case 'location':
+                    return;
+                case 'date':
+                    currentValue.sort();
+                    this.setValue(currentValue.map(function (dateValue) {
+                        if (dateValue) {
+                            return (moment(dateValue)).toISOString();
+                        } else {
+                            return dateValue;
+                        }
+                    }));
+                    break;
+                case 'number':
+                    currentValue.sort();
+                    this.setValue(currentValue.map(function(value){ 
+                        return Number(value); //handle cases of unnecessary number padding -> 22.0000
+                    }));
+                    break;
+                default:
+                    return;
+            }
         },
         initialize: function(){
-            this._setInitialValue();
             this._setCalculatedType();
+            this.setDefaultValue();
+            this.transformValue();
+            this._setInitialValue();
             this.setDefaultLabel();
+            this.listenTo(this, 'change:value', this.updateHasChanged);
         },
         setDefaultLabel: function(){
             if (!this.get('label')){
                 this.set('label', this.get('id'));
             }
+        },
+        hasChanged: function(){
+            var currentValue = this.getValue();
+            currentValue.sort();
+            switch(this.getCalculatedType()){
+                case 'location': 
+                    return JSON.stringify(this.getInitialValue().map(function(val){
+                        return _.omit(val, ['property']);
+                    })) !== JSON.stringify(currentValue.map(function(val){
+                        val = CQLUtils.generateFilter(undefined, 'anyGeo', val);
+                        if (val === undefined){
+                            return val;
+                        }
+                        return _.omit(CQLUtils.transformCQLToFilter(CQLUtils.transformFilterToCQL(val)), ['property']);
+                    }));
+                default:
+                    return JSON.stringify(currentValue) !== JSON.stringify(this.getInitialValue());
+            }
+        },
+        updateHasChanged: function(){
+            this.set('hasChanged', this.hasChanged()); 
         },
         getValue: function(){
             return this.get('value');
@@ -69,13 +140,14 @@ define([
         isHomogeneous: function(){
             return !this.get('bulk') || Object.keys(this.get('values')).length <= 1;
         },
-        revert: function(){
-            this.set('value',this.getInitialValue());
-            this.trigger('change:value');
+        showValidationIssues: function(){
+            return this.get('showValidationIssues');
         },
-        save: function(value){
-            this.set('value', value);
-            this.trigger('change:value');
+        revert: function(){
+            this.set({
+                hasChanged: false,
+                value: this.getInitialValue()
+            });
         },
         _setInitialValue: function(){
             this.set('_initialValue', this.getValue());
@@ -109,8 +181,10 @@ define([
                 case 'RANGE':
                     calculatedType = 'range';
                     break;
-                case 'STRING':
                 case 'GEOMETRY':
+                    calculatedType = 'geometry';
+                    break;
+                case 'STRING':
                 case 'XML':
                 default:
                     calculatedType = 'text';

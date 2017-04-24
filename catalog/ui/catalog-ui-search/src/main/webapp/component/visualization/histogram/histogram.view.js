@@ -95,6 +95,7 @@ define([
                     return values.indexOf(Common.getHumanReadableDate(value)) >= 0;
                 case 'BOOLEAN':
                 case 'STRING':
+                case 'GEOMETRY':
                 return values.indexOf(value.toString() + zeroWidthSpace) >= 0;
                 default:
                     return value >= values[0] && value <= values[1];
@@ -110,6 +111,7 @@ define([
                     break;
                 case 'BOOLEAN':
                 case 'STRING':
+                case 'GEOMETRY':
                     valueArray.push(value.toString() + zeroWidthSpace);
                     break;
                 default:
@@ -186,7 +188,7 @@ define([
             this.setupListeners();
         },
         showHistogram: function(){
-            if (this.histogramAttribute.currentView.getCurrentValue()[0] && this.options.selectionInterface.getActiveSearchResults().length !== 0){
+            if (this.histogramAttribute.currentView.model.getValue()[0] && this.options.selectionInterface.getActiveSearchResults().length !== 0){
                 var histogramElement = this.el.querySelector('.histogram-container');
                 //Plotly.purge(histogramElement);
                 Plotly.newPlot(histogramElement, this.determineInitialData(), getLayout(), {
@@ -203,7 +205,7 @@ define([
             }
         },
         updateHistogram: function(){
-            if (this.histogramAttribute.currentView.getCurrentValue()[0] && this.options.selectionInterface.getActiveSearchResults().length !== 0){
+            if (this.histogramAttribute.currentView.model.getValue()[0] && this.options.selectionInterface.getActiveSearchResults().length !== 0){
                 var histogramElement = this.el.querySelector('.histogram-container');
                 Plotly.deleteTraces(histogramElement, 1);
                 Plotly.addTraces(histogramElement, this.determineData(histogramElement)[1]);     
@@ -215,10 +217,11 @@ define([
         showHistogramAttributeSelector: function(){
             var defaultValue = [];
             if (this.histogramAttribute.currentView) {
-                defaultValue = this.histogramAttribute.currentView.getCurrentValue();
+                defaultValue = this.histogramAttribute.currentView.model.getValue();
             }
             this.histogramAttribute.show(new PropertyView({
                 model: new Property({
+                    showValidationIssues: false,
                     enumFiltering: true,
                     enum: calculateAvailableAttributes(this.options.selectionInterface.getActiveSearchResults()),
                     value: defaultValue,
@@ -227,7 +230,7 @@ define([
             }));
             this.histogramAttribute.currentView.turnOnEditing();
             this.histogramAttribute.currentView.turnOnLimitedWidth();
-            $(this.histogramAttribute.currentView.el).on('change', this.showHistogram.bind(this));
+            this.listenTo(this.histogramAttribute.currentView.model, 'change:value', this.showHistogram);
         },
         onBeforeShow: function(){
             this.showHistogramAttributeSelector();
@@ -238,7 +241,7 @@ define([
             var activeResults = this.options.selectionInterface.getActiveSearchResults();
              return [
                 {
-                    x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
+                    x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.model.getValue()[0]),
                     opacity: 1,
                     type: 'histogram',
                     name: 'Hits        ',
@@ -259,7 +262,7 @@ define([
             xbins.end = xbins.end + xbins.size; //https://github.com/plotly/plotly.js/issues/1229
             return [
                 {
-                    x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
+                    x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.model.getValue()[0]),
                     opacity: 1,
                     type: 'histogram',
                     name: 'Hits        ',
@@ -273,7 +276,7 @@ define([
                     autobinx: false,
                     xbins: xbins
                 }, {
-                    x: calculateAttributeArray(selectedResults, this.histogramAttribute.currentView.getCurrentValue()[0]),
+                    x: calculateAttributeArray(selectedResults, this.histogramAttribute.currentView.model.getValue()[0]),
                     opacity: 1,
                     type: 'histogram',
                     name: 'Selected',
@@ -338,7 +341,7 @@ define([
             this.resetKeyTracking();
         },
         handleControlClick: function(data, alreadySelected){
-            var attributeToCheck = this.histogramAttribute.currentView.getCurrentValue()[0];
+            var attributeToCheck = this.histogramAttribute.currentView.model.getValue()[0];
             if (alreadySelected){
                 this.options.selectionInterface.removeSelectedResult(findMatchesForAttributeValues(
                     this.options.selectionInterface.getActiveSearchResults(),
@@ -380,7 +383,7 @@ define([
                     this.pointsSelected.push(i);
                 }
             }
-            var attributeToCheck = this.histogramAttribute.currentView.getCurrentValue()[0];
+            var attributeToCheck = this.histogramAttribute.currentView.model.getValue()[0];
             var categories = this.retrieveCategoriesFromPlotly();
             var validCategories = categories.slice(firstIndex, lastIndex);
             var activeSearchResults = this.options.selectionInterface.getActiveSearchResults();

@@ -45,42 +45,24 @@ module.exports = Marionette.LayoutView.extend({
         fontSize: '.theme-font-size'
     },
     onBeforeShow: function() {
+        var fontSizeModel = new Property({
+            label: 'Zoom Percentage',
+            value: [calculatePercentZoom(user)],
+            min: 62,
+            max: 200,
+            units: '%',
+            type: 'RANGE'
+        });
         this.fontSize.show(new PropertyView({
-            model: new Property({
-                label: 'Zoom Percentage',
-                value: [calculatePercentZoom(user)],
-                min: 62,
-                max: 200,
-                units: '%',
-                type: 'RANGE'
-            })
+            model: fontSizeModel
         }));
         this.fontSize.currentView.turnOnLimitedWidth();
         this.fontSize.currentView.turnOnEditing();
-        this.$el.on('change keyup mouseup revert', this.handleEvent.bind(this));
-    },
-    handleEvent: function(e){
-        switch(e.target.type){
-            case 'range':
-                if (e.type === 'mouseup' || e.type === 'keyup') {
-                    this.saveChanges();
-                }
-            break;
-            case 'number':
-                if (e.type === 'change'){
-                    this.saveChanges();
-                }
-            break;
-            default:
-                if (e.type === 'revert'){
-                    this.saveChanges();
-                }
-            break;
-        }
+        this.listenTo(fontSizeModel, 'change:value', this.saveChanges);
     },
     saveChanges: function(){
         var preferences = getPreferences(user);
-        var newFontSize = this.fontSize.currentView.getCurrentValue()[0];
+        var newFontSize = this.fontSize.currentView.model.getValue()[0];
         preferences.set('fontSize', calculateFontSize(newFontSize));
     }
 });

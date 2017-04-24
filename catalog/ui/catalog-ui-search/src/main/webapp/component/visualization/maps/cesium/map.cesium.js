@@ -123,76 +123,6 @@ function expandRectangle(rectangle) {
     return rectangle;
 }
 
-function getResultCenterPoint(result) {
-    var regionPoints = [],
-        resultQuad,
-        quadrantCounts = [{
-            quad: 'one',
-            count: 0
-        }, {
-            quad: 'two',
-            count: 0
-        }, {
-            quad: 'three',
-            count: 0
-        }, {
-            quad: 'four',
-            count: 0
-        }];
-
-    result.each(function(item) {
-        if (item.get("metacard").get("geometry")) {
-            var point = item.get("metacard").get("geometry").getPoint();
-            if (point.longitude > 0 && point.latitude > 0) {
-                quadrantCounts[0].count++;
-            } else if (point.longitude < 0 && point.latitude > 0) {
-                quadrantCounts[1].count++;
-            } else if (point.longitude < 0 && point.latitude < 0) {
-                quadrantCounts[2].count++;
-            } else {
-                quadrantCounts[3].count++;
-            }
-        }
-    });
-
-    quadrantCounts = _.sortBy(quadrantCounts, 'count');
-
-    quadrantCounts.reverse();
-    resultQuad = quadrantCounts[0].quad;
-
-    result.each(function(item) {
-        if (item.get("metacard").get("geometry")) {
-            var newPoint = item.get("metacard").get("geometry").getPoint(),
-                isInRegion = false;
-
-            if (newPoint.longitude >= 0 && newPoint.latitude >= 0 && resultQuad === "one") {
-                isInRegion = true;
-            } else if (newPoint.longitude <= 0 && newPoint.latitude >= 0 && resultQuad === "two") {
-                isInRegion = true;
-            } else if (newPoint.longitude <= 0 && newPoint.latitude <= 0 && resultQuad === "three") {
-                isInRegion = true;
-            } else if (newPoint.longitude >= 0 && newPoint.latitude <= 0 && resultQuad === "four") {
-                isInRegion = true;
-            }
-
-            if (isInRegion) {
-                regionPoints.push(newPoint);
-            }
-        }
-    });
-
-    if (regionPoints.length === 0) {
-        return null;
-    }
-
-    var cartPoints = _.map(regionPoints, function(point) {
-        return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
-    });
-
-    var rectangle = Cesium.Rectangle.fromCartographicArray(cartPoints);
-    return rectangle;
-}
-
 function getDestinationForVisiblePan(rectangle, map) {
     var destinationForZoom = expandRectangle(rectangle);
     if (map.scene.mode === Cesium.SceneMode.SCENE3D){
@@ -302,9 +232,9 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             var rectangle, cartArray;
 
             cartArray = _.flatten(results.filter(function(result) {
-                return Boolean(result.get('metacard').get('geometry'));
+                return result.hasGeometry();
             }).map(function(result) {
-                return _.map(result.get('metacard').get('geometry').getAllPoints(), function(coordinate) {
+                return _.map(result.getPoints(), function(coordinate) {
                     return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], map.camera._positionCartographic.height);
                 });
             }, true));
@@ -332,7 +262,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             var metacardId = model.get('properties').get('id');
             this.removeOverlay(metacardId);
 
-            var coords = model.get('geometry').getPolygon();
+            var coords = model.getPoints('location');
             var cartographics = _.map(coords, function(coord) {
                 return Cesium.Cartographic.fromDegrees(coord.longitude, coord.latitude, coord.altitude);
             });
@@ -362,7 +292,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
         },
         getCartographicCenterOfClusterInDegrees: function(cluster) {
             return utility.calculateCartographicCenterOfGeometriesInDegrees(cluster.get('results').map(function(result) {
-                return result.get('metacard').get('geometry');
+                return result;
             }));
         },
         getWindowLocationsOfResults: function(results) {
@@ -371,7 +301,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 occluder = new Cesium.EllipsoidalOccluder(Cesium.Ellipsoid.WGS84, map.scene.camera.position);
             }
             return results.map(function(result) {
-                var cartesian3CenterOfGeometry = utility.calculateCartesian3CenterOfGeometry(result.get('metacard').get('geometry'));
+                var cartesian3CenterOfGeometry = utility.calculateCartesian3CenterOfGeometry(result);
                 if (occluder && isNotVisible(cartesian3CenterOfGeometry, occluder)) {
                     return undefined;
                 }

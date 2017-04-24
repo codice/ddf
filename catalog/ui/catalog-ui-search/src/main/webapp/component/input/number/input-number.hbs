@@ -13,9 +13,17 @@
  --}}
 <div class="if-editing">
     <input id="{{cid}}" value="{{value}}" placeholder="{{property.placeholder}}" name="{{property.id}}" type="number">
+    <div class="for-error">
+        <span class="fa fa-exclamation-triangle"></span>
+        Not a valid number.
+    </div>
 </div>
 <div class="if-viewing">
     <label>
         {{value}}
     </label>
+    <div class="for-error">
+        <span class="fa fa-exclamation-triangle"></span>
+        Not a valid number.
+    </div>
 </div>

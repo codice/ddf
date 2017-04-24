@@ -58,14 +58,16 @@
   .cell-hits {
     position: absolute;
     right: 60px;
-    top: ~'calc(50% - .5*@{minimumButtonSize})';
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .cell-validation {
     position: absolute;
     right: 20px;
     line-height: @minimumButtonSize;
-    top: ~'calc(50% - .5*@{minimumButtonSize})';
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .if-homogeneous,
@@ -107,6 +109,7 @@
     position: relative;
     top: 0px;
     z-index: 1;
+    transform: none;
   }
 
   > .if-viewing {

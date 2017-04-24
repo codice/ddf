@@ -13,19 +13,38 @@
 var Marionette = require('marionette');
 var store = require('js/store');
 var _ = require('underscore');
+var wkx = require('wkx');
+var metacardDefinitions = require('component/singletons/metacard-definitions');
 
 var GeometryView = Marionette.ItemView.extend({
     template: false,
     geometry: undefined,
     isSelected: undefined,
     isClustered: undefined,
-    initialize: function(options) {
-        var geometry = this.model.get('metacard').get('geometry');
-        if (geometry) {
+    initialize: function() {
+        this.updateGeometry();
+        this.listenTo(this.model.get('metacard').get('properties'), 'change', this.updateGeometry);
+    },
+    updateGeometry: function(propertiesModel){
+        if (propertiesModel && _.find(Object.keys(propertiesModel.changedAttributes()), function (attribute) {
+                return metacardDefinitions.metacardTypes[attribute] && metacardDefinitions.metacardTypes[attribute].type === "GEOMETRY";
+            }) === undefined) {
+            return;
+        }
+        this.onDestroy();
+        this.isSelected = undefined;
+        this.isClustered = undefined;
+        var geometry = this.model.getGeometries();
+        if (geometry.length > 0) {
             this.geometry = [];
-            this.handleGeometry(geometry.toJSON());
+            _.forEach(geometry, function(property){
+                 this.handleGeometry(wkx.Geometry.parse(property).toGeoJSON());
+            }.bind(this));
             this.updateSelected = _.debounce(this.updateSelected, 100, {trailing: true, leading: true});
             this.updateSelected();
+            this.checkIfClustered();
+            this.stopListening(this.options.selectionInterface.getSelectedResults());
+            this.stopListening(this.options.clusterCollection);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.updateSelected);
             this.listenTo(this.options.clusterCollection, 'add remove update', this.checkIfClustered);
         }

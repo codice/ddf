@@ -85,6 +85,7 @@ define([
         save: function(){
             this.$el.removeClass('is-editing');
             this.afterSave(this.editorProperties.currentView.toPatchJSON());
+            this.editorProperties.currentView.revert();
             this.editorProperties.currentView.turnOffEditing();
         },
         afterCancel: function(){

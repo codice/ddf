@@ -11,9 +11,9 @@
  *
  **/
  --}}
-    <div class="dropdown-text">
-        {{#each this}}
-            <span class="text-src {{#if invalid}}is-invalid{{/if}}" title="{{label}}">
+    <div class="dropdown-text" title="{{concatenatedLabel}}">
+        {{#each this.value}}
+            <span class="text-src">
                 {{#each label}}
                     <span>
                         {{this}}
@@ -25,8 +25,8 @@
                 {{/each}}
             </span>
         {{/each}}
-        {{#unless this}}
-            <span class="text-src">
+        {{#unless this.value}}
+            <span class="is-placeholder">
                 Click here to select
             </span>
         {{/unless}}

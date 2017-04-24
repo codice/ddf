@@ -7,6 +7,8 @@
   .dropdown-text {
     display: inline-block;
     padding-left: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .dropdown-icon {
@@ -28,28 +30,18 @@
     vertical-align: middle;
   }
 
-  .text-src {
-    display: inline-block;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    width: 100%;
-  }
-
   span + span::before {
     content: '| ';
     opacity: @minimumOpacity;
   }
 
   .text-src + .text-src:before {
-    content: ',';
+    content: '| ';
+    opacity: @minimumOpacity;
   }
 
-  .is-invalid {
-    color: lighten(@warning-color, 10%);
-  }
-
-  .is-invalid::after {
-    content: ' (Invalid Selection)';
+  .is-placeholder {
+    opacity: @minimumOpacity;
   }
 }
 

@@ -14,7 +14,6 @@
 var _ = require('underscore');
 var Cesium = require('cesium');
 
-
 /*
   A variety of helpful functions for dealing with Cesium
 */
@@ -22,20 +21,20 @@ module.exports = {
     /*
       Calculates the center of given a geometry (WKT)
     */
-    calculateCartesian3CenterOfGeometry: function(geometry) {
-        return Cesium.BoundingSphere.fromPoints(Cesium.Cartesian3.fromDegreesArray(_.flatten(geometry.getAllPoints()))).center;
+    calculateCartesian3CenterOfGeometry: function(propertyModel) {
+        return Cesium.BoundingSphere.fromPoints(Cesium.Cartesian3.fromDegreesArray(_.flatten(propertyModel.getPoints()))).center;
     },
     /*
       Calculates the center of given a geometry (WKT)
     */
-    calculateCartographicCenterOfGeometryInRadians: function(geometry) {
-        return Cesium.Cartographic.fromCartesian(this.calculateCartesian3CenterOfGeometry(geometry));
+    calculateCartographicCenterOfGeometryInRadians: function(propertyModel) {
+        return Cesium.Cartographic.fromCartesian(this.calculateCartesian3CenterOfGeometry(propertyModel));
     },
     /*
       Calculates the center of given a geometry (WKT)
     */
-    calculateCartographicCenterOfGeometryInDegrees: function(geometry) {
-        var cartographicCenterInRadians = this.calculateCartographicCenterOfGeometryInRadians(geometry);
+    calculateCartographicCenterOfGeometryInDegrees: function(propertyModel) {
+        var cartographicCenterInRadians = this.calculateCartographicCenterOfGeometryInRadians(propertyModel);
         return [Cesium.Math.toDegrees(cartographicCenterInRadians.longitude), Cesium.Math.toDegrees(cartographicCenterInRadians.latitude)];
     },
     calculateWindowCenterOfGeometry: function(geometry, map) {
@@ -48,23 +47,23 @@ module.exports = {
     /*
       Calculates the center of given geometries (WKT)
     */
-    calculateCartesian3CenterOfGeometries: function(geometries) {
-        var allPoints = geometries.map(function(geometry) {
-            return geometry.getAllPoints();
+    calculateCartesian3CenterOfGeometries: function(propertyModels) {
+        var allPoints = propertyModels.map(function(propertyModel) {
+            return propertyModel.getPoints();
         });
         return Cesium.BoundingSphere.fromPoints(Cesium.Cartesian3.fromDegreesArray(_.flatten(allPoints))).center;
     },
     /*
       Calculates the center of given geometries (WKT)
     */
-    calculateCartographicCenterOfGeometriesInRadians: function(geometries) {
-        return Cesium.Cartographic.fromCartesian(this.calculateCartesian3CenterOfGeometries(geometries));
+    calculateCartographicCenterOfGeometriesInRadians: function(propertyModels) {
+        return Cesium.Cartographic.fromCartesian(this.calculateCartesian3CenterOfGeometries(propertyModels));
     },
     /*
       Calculates the center of given geometries (WKT)
     */
-    calculateCartographicCenterOfGeometriesInDegrees: function(geometries) {
-        var cartographicCenterInRadians = this.calculateCartographicCenterOfGeometriesInRadians(geometries);
+    calculateCartographicCenterOfGeometriesInDegrees: function(propertyModels) {
+        var cartographicCenterInRadians = this.calculateCartographicCenterOfGeometriesInRadians(propertyModels);
         return [Cesium.Math.toDegrees(cartographicCenterInRadians.longitude), Cesium.Math.toDegrees(cartographicCenterInRadians.latitude)];
     },
 };

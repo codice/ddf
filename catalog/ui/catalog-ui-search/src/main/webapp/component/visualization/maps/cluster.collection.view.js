@@ -16,6 +16,7 @@ var _ = require('underscore');
 var store = require('js/store');
 var ClusterView = require('./cluster.view');
 var Clustering = require('./Clustering');
+var metacardDefinitions = require('component/singletons/metacard-definitions');
 
 var ClusterCollectionView = Marionette.CollectionView.extend({
     childView: ClusterView,
@@ -34,7 +35,6 @@ var ClusterCollectionView = Marionette.CollectionView.extend({
         this.selectionInterface = options.selectionInterface || this.selectionInterface;
         this.options.map.onLeftClick(this.onMapLeftClick.bind(this));
         this.options.map.onMouseMove(this.handleMapHover.bind(this));
-        this.listenTo(this.selectionInterface.getActiveSearchResults(), 'reset', this.handleResultsChange);
         this.listenForCameraChange();
         this.listenForResultsChange();
         this.calculateClusters = _.throttle(this.calculateClusters, 200);
@@ -118,12 +118,20 @@ var ClusterCollectionView = Marionette.CollectionView.extend({
     },
     getResultsWithGeometry: function() {
         return this.selectionInterface.getActiveSearchResults().filter(function(result) {
-            return Boolean(result.get('metacard').get('geometry'));
+            return result.hasGeometry();
         });
     },
     listenForResultsChange: function() {
         this.listenTo(this.selectionInterface.getActiveSearchResults(), 'reset',
             this.handleResultsChange);
+        this.listenTo(this.selectionInterface.getActiveSearchResults(), 'change:metacard>properties', this.handleMetacardUpdate);
+    },
+    handleMetacardUpdate: function(propertiesModel){
+        if (_.find(Object.keys(propertiesModel.changedAttributes()), function (attribute) {
+                return metacardDefinitions.metacardTypes[attribute] && metacardDefinitions.metacardTypes[attribute].type === "GEOMETRY";
+            }) !== undefined){
+            this.handleResultsChange();
+        }
     },
     handleResultsChange: function() {
         this.collection.set([]);

@@ -133,5 +133,10 @@
             <artifactId>search-endpoint</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-propertyjson-metacard</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

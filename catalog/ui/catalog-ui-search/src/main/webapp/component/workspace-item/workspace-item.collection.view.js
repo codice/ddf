@@ -52,10 +52,10 @@ define([
         viewComparator: function (workspace) {
             switch (getPrefs().get('homeSort')) {
                 case 'Title':
-                    return workspace.get('title');
+                    return workspace.get('title').toLowerCase();
                 case 'Last modified':
                 default:
-                    return workspace.get('modified')
+                    return workspace.get('modified');
             }
         },
         initialize: function () {

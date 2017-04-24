@@ -29,6 +29,13 @@ define([
                 'data-hits': this.model.get('hits'),
                 'data-help': this.model.get('help')
             };
+        },
+        serializeData: function(){
+            var modelJSON = this.model.toJSON();
+            if (modelJSON.label.constructor === Array){
+                modelJSON.label = modelJSON.label.join(' | ');
+            }
+            return modelJSON;
         }
     });
 });
