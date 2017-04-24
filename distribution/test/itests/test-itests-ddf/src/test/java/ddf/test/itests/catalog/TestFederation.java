@@ -876,8 +876,8 @@ public class TestFederation extends AbstractIntegrationTest {
                 "UTF-8"));
 
         // Assert the newly created metacard's attributes are properly populated.
-        assertThat("Incorrect metacard's title", metacard.getTitle(), equalTo(metacardTitle));
-        assertThat("Incorrect metacard's thumbnail",
+        assertThat("Incorrect title", metacard.getTitle(), equalTo(metacardTitle));
+        assertThat("Incorrect thumbnail",
                 new String(Base64.getEncoder()
                         .encode(metacard.getThumbnail())),
                 startsWith(thumbNailBase64EncSubstring));
@@ -913,7 +913,7 @@ public class TestFederation extends AbstractIntegrationTest {
                         "UTF-8"));
 
         // Assert the newly created metacard's attributes are properly populated.
-        assertThat("Incorrect metacard's title", metacard.getTitle(), equalTo(metacardTitle));
+        assertThat("Incorrect title", metacard.getTitle(), equalTo(metacardTitle));
         assertThat("Incorrect geometry", "POINT (30 10)", equalTo(metacard.getLocation()));
     }
 
@@ -946,7 +946,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 "UTF-8"));
 
         // Assert the newly created metacard's attributes are properly populated.
-        assertThat("Incorrect metacard's title", metacard.getTitle(), equalTo(metacardTitle));
+        assertThat("Incorrect title", metacard.getTitle(), equalTo(metacardTitle));
         assertThat("Incorrect geometry", "POINT (30.0 10.0)", equalTo(metacard.getLocation()));
 
         // TODO: THIS ASSERTION FAILS. VERIFY WITH CHRIS IT IS WORKING AS DESIGNED.
