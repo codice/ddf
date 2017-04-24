@@ -14,7 +14,6 @@
 package ddf.test.itests.platform;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureAuthZRealm;
@@ -26,7 +25,6 @@ import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getO
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -41,10 +39,8 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,7 +52,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MediaType;
@@ -84,7 +79,6 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
-import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.security.SecurityConstants;
 
@@ -1323,8 +1317,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testAccessGroupsGuest() throws Exception {
-        final File definitionFile = addJsonInjectionDefinition("injections.json", 4);
-
         List attr = ImmutableList.of(
                 "security.access-groups=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
 
@@ -1367,7 +1359,6 @@ public class TestSecurity extends AbstractIntegrationTest {
             assertThat(response, containsString("Lady Liberty"));
 
         } finally {
-            removeJsonInjectionDefinition(definitionFile);
             configureAuthZRealm(authZProperties, getAdminConfig());
             if (metacardAttributeSecurityFilterProperties != null) {
                 configureMetacardAttributeSecurityFiltering(
@@ -1380,8 +1371,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testAccessGroups() throws Exception {
-        final File definitionFile = addJsonInjectionDefinition("injections.json", 4);
-
         List attr = ImmutableList.of(
                 "security.access-groups=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
 
@@ -1424,7 +1413,6 @@ public class TestSecurity extends AbstractIntegrationTest {
             assertThat(response, not(containsString("Lady Liberty")));
 
         } finally {
-            removeJsonInjectionDefinition(definitionFile);
             configureAuthZRealm(authZProperties, getAdminConfig());
             if (metacardAttributeSecurityFilterProperties != null) {
                 configureMetacardAttributeSecurityFiltering(
@@ -1433,54 +1421,6 @@ public class TestSecurity extends AbstractIntegrationTest {
             }
             //metacard will be deleted in @After
         }
-    }
-
-    private File addJsonInjectionDefinition(String jsonFile, int numObjects) throws Exception {
-        return ingestDefinitionJsonWithWaitCondition(jsonFile, () -> {
-            expect("Injectable attributes to be registered").within(30, TimeUnit.SECONDS)
-                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                            null), hasSize(numObjects));
-            return null;
-        });
-    }
-
-    private void removeJsonInjectionDefinition(File definitionFile) throws Exception {
-        uninstallDefinitionJson(definitionFile, () -> {
-            expect("Injectable attributes to be unregistered").within(10, TimeUnit.SECONDS)
-                    .until(() -> getServiceManager().getServiceReferences(InjectableAttribute.class,
-                            null), hasSize(1));
-            return null;
-        });
-    }
-
-    private void uninstallDefinitionJson(File definitionFile, Callable<Void> waitCondition)
-            throws Exception {
-        boolean success = definitionFile.delete();
-        if (!success) {
-            throw new Exception("Could not delete file(" + definitionFile.getAbsolutePath() + ")");
-        }
-        waitCondition.call();
-    }
-
-    private File ingestDefinitionJsonWithWaitCondition(String filename,
-            Callable<Void> waitCondition) throws Exception {
-        File definitionFile = copyFileToDefinitionsDir(filename);
-        waitCondition.call();
-        return definitionFile;
-    }
-
-    private File copyFileToDefinitionsDir(String filename) throws IOException {
-        Path definitionsDirPath = Paths.get(System.getProperty(DDF_HOME_PROPERTY),
-                "etc/definitions");
-        definitionsDirPath = Files.createDirectories(definitionsDirPath);
-        definitionsDirPath.toFile()
-                .deleteOnExit();
-
-        Path tmpFile = definitionsDirPath.resolve(filename);
-        tmpFile.toFile()
-                .deleteOnExit();
-        Files.copy(org.apache.commons.io.IOUtils.toInputStream(getFileContent(filename)), tmpFile);
-        return tmpFile.toFile();
     }
 
     private String getBasicRestResponseAsString(String url, String user, String pass) {

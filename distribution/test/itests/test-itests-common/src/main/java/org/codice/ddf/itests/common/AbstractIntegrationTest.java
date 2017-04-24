@@ -576,11 +576,9 @@ public abstract class AbstractIntegrationTest {
     protected Option[] configureCustom() {
         try {
             return options(// extra config options for catalog-ui and security
-                    installStartupFile(getClass().getResourceAsStream(
-                            "/etc/test-users.properties"),
+                    installStartupFile(getClass().getResourceAsStream("/etc/test-users.properties"),
                             "/etc/users.properties"),
-                    installStartupFile(getClass().getResourceAsStream(
-                            "/etc/test-users.attributes"),
+                    installStartupFile(getClass().getResourceAsStream("/etc/test-users.attributes"),
                             "/etc/users.attributes"),
                     // extra config options for TestConfiguration
                     installStartupFile(getClass().getResourceAsStream(
@@ -591,7 +589,9 @@ public abstract class AbstractIntegrationTest {
                             "/etc/ddf.test.itests.platform.TestPlatform.msf.1.config"),
                     installStartupFile(getClass().getResourceAsStream(
                             "/ddf.test.itests.platform.TestPlatform.startup.invalid.config"),
-                            "/etc/ddf.test.itests.platform.TestPlatform.startup.invalid.config"));
+                            "/etc/ddf.test.itests.platform.TestPlatform.startup.invalid.config"),
+                    installStartupFile(getClass().getResourceAsStream("/injections.json"),
+                            "/etc/definitions/injections.json"));
         } catch (IOException e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
         }
