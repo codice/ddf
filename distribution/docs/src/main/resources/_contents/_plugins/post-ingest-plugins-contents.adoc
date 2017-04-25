@@ -2,6 +2,8 @@
 .[[_included_post-ingest_plugins]]Included Post-Ingest Plugins
 <<_catalog_backup_plugin,Catalog Backup Plugin>>:: Enables data backup of the catalog and the metacards it contains.
 
+<<_metacard_backup_plugin,Metacard Backup Plugin>>:: Enable data backup of metacards using a configurable transformer.
+
 <<_catalog_metrics_plugin,Catalog Metrics Plugin>>:: The Catalog Metrics Plugin captures metrics on catalog operations.
 
 <<_event_processor,Event Processor>>:: Creates, updates, and deletes subscriptions for event notification.

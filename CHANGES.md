@@ -76,6 +76,8 @@ _This is a preview of a pending release and is subject to change._
     </li>
     <li><a href='https://codice.atlassian.net/browse/DDF-2916'>DDF-2916</a> - Add cache busting to the Catalog (Intrigue) UI
     </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2936'>DDF-2936</a> - As an integrator, I would like to have configurable writers for the MetacardBackupPlugin
+    </li>
 </ul>
     
 <h3>Task</h3>

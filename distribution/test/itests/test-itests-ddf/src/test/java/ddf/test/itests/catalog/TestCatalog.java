@@ -56,6 +56,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -132,6 +133,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     private static final String SAMPLE_MP4 = "/sample.mp4";
 
     private static final String METACARD_BACKUP_DIRECTORY = "data/tmp/backup";
+
+    private static final String METACARD_BACKUP_FILE_STORAGE_FEATURE = "catalog-metacard-backup-filestorage";
 
     private static final String METACARD_BACKUP_PLUGIN_FEATURE = "catalog-metacard-backup";
 
@@ -453,11 +456,20 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testCswIngestWithMetadataBackup() throws Exception {
+        getServiceManager().startFeature(true, METACARD_BACKUP_FILE_STORAGE_FEATURE);
+        String fileStorageId = "fileStorageProvider";
+        Map<String, Object> storageProps = new HashMap<>();
+        storageProps.put("id", fileStorageId);
+        storageProps.put("outputDirectory", METACARD_BACKUP_DIRECTORY);
+        getServiceManager().createManagedService(
+                "org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage",
+                storageProps);
+
         getServiceManager().startFeature(true, METACARD_BACKUP_PLUGIN_FEATURE);
         Map<String, Object> properties = new HashMap<>();
         properties.put("metacardTransformerId", "metadata");
-        properties.put("outputDirectory", METACARD_BACKUP_DIRECTORY);
         properties.put("keepDeletedMetacards", false);
+        properties.put("metacardOutputProviderIds", Collections.singletonList(fileStorageId));
         getServiceManager().createManagedService(
                 "org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin",
                 properties);
@@ -473,6 +485,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
         verifyMetadataBackup();
         getServiceManager().stopFeature(true, METACARD_BACKUP_PLUGIN_FEATURE);
+        getServiceManager().stopFeature(true, METACARD_BACKUP_FILE_STORAGE_FEATURE);
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
         } catch (IOException | XPathExpressionException e) {

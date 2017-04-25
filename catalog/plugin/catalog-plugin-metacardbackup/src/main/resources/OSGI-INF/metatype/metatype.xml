@@ -17,23 +17,25 @@
 
     <OCD name="Metacard Backup Plugin"
          id="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin">
-        <AD
-                description="Output directory to place backup files."
-                name="Output Directory" id="outputDirectory" required="true" type="String"
-                default="data/backup/metacard"/>
+        <AD description="Keep the Metacard backup file when Metacards are deleted from the framework."
+            name="Keep Deleted Metacards" id="keepDeletedMetacards" required="true"
+            type="Boolean"
+            default="false"/>
 
-        <AD
-                description="Keep the Metacard backup file when Metacards are deleted from the framework."
-                name="Keep Deleted Metacards" id="keepDeletedMetacards" required="true" type="Boolean"
-                default="false"/>
+        <AD description="Metacard Transformer ID to use to backup."
+            name="Metacard Transformer ID" id="metacardTransformerId" required="true"
+            type="String"
+            default="metadata"/>
 
-        <AD
-                description="Metacard Transformer ID to use to backup."
-                name="Metacard Transformer ID" id="metacardTransformerId" required="true" type="String"
-                default="metadata"/>
+        <AD description="Metacard Backup Provider IDs to use for this backup plugin"
+            cardinality="100"
+            name="Metacard Backup Output Provider(s)" id="metacardOutputProviderIds"
+            required="true" type="String"
+            default="fileStorageProvider"/>
     </OCD>
 
-    <Designate pid="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin" factoryPid="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin">
+    <Designate pid="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin"
+               factoryPid="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin">
         <Object ocdref="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin"/>
     </Designate>
 
