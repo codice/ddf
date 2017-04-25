@@ -934,8 +934,6 @@ public class TestFederation extends AbstractIntegrationTest {
         // Define the assertions that test the query results conform to expectations
         List<Matcher<?>> assertions = getXpathMatchers(OPEN_GIS_SCHEMA_URI, 1);
         assertions.add(hasXPath("//title/text()", equalTo(metacardTitle)));
-        assertions.add(hasXPath("//*[local-name()='references']/text()",
-                startsWith(THUMB_NAIL_BASE_64_ENC_SUBSTRING)));
         assertions.add(hasXPath("//references/text()",
                 startsWith(THUMB_NAIL_BASE_64_ENC_SUBSTRING)));
         assertions.add(hasXPath("//*[local-name()='LowerCorner']/text()", equalTo("30.0 10.0")));
