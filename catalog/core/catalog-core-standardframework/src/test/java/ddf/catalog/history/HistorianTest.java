@@ -212,19 +212,6 @@ public class HistorianTest {
     }
 
     @Test
-    public void testUpdateStorageResponseEmptyStorageRequest()
-            throws UnsupportedQueryException, SourceUnavailableException, IngestException {
-        UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
-        UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
-        UpdateResponse updateResponse = mock(UpdateResponse.class);
-
-        historian.version(storageRequest, storageResponse, updateResponse);
-
-        verifyZeroInteractions(catalogProvider);
-        assertThat(storageProvider.storageMap.size(), equalTo(0));
-    }
-
-    @Test
     public void testUpdateStorageResponseSkipProperty()
             throws SourceUnavailableException, IngestException, UnsupportedQueryException {
         Map<String, Serializable> properties = new HashMap<>();
