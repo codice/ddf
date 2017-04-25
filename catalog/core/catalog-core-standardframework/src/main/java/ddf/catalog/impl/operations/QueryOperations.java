@@ -193,6 +193,11 @@ public class QueryOperations extends DescribableImpl {
      */
     QueryResponse doQuery(QueryRequest queryRequest, FederationStrategy strategy)
             throws FederationException {
+        if (queryRequest == null) {
+            throw new FederationException(
+                "Query could not be performed because the query request was null.");
+        }
+        
         Set<String> sourceIds = getCombinedIdSet(queryRequest);
         LOGGER.debug("source ids: {}", sourceIds);
 
