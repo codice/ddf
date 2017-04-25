@@ -67,7 +67,8 @@ _This is a preview of a pending release and is subject to change._
     </li>
 	<li><a href='https://codice.atlassian.net/browse/DDF-2820'>DDF-2820</a> - As a user, I would like the ability to provide feedback on DDF.
 	</li>
-
+	<li><a href='https://codice.atlassian.net/browse/DDF-2961'>DDF-2961</a> - As an administrator I would like to set the transformer backup plugin to have an option to skip any metacards that has warnings or errors on it so that a non-conformant metadata card is not backed up
+    </li>
 </ul>
     
 <h3>New Feature</h3>

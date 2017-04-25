@@ -118,8 +118,8 @@ public class MetacardBackupPluginTest {
         metacardBackupPlugin = new MetacardBackupPlugin();
         metacardBackupPlugin.setMetacardTransformerId(METACARD_TRANSFORMER_ID);
         metacardBackupPlugin.setMetacardTransformer(metacardTransformer);
-        createRequest = generateProcessRequest(ProcessCreateItem.class);
-        updateRequest = generateProcessRequest(ProcessUpdateItem.class);
+        createRequest = generateProcessRequest(ProcessCreateItem.class, true);
+        updateRequest = generateProcessRequest(ProcessUpdateItem.class, true);
         deleteRequest = generateDeleteRequest();
         fileStorageProvider.setId(FILE_STORAGE_PROVIDER_ID);
         fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
@@ -151,9 +151,11 @@ public class MetacardBackupPluginTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put("metacardTransformerId", newMetacardTransformer);
         properties.put("keepDeletedMetacards", Boolean.TRUE);
+        properties.put("backupInvalidMetacards", Boolean.TRUE);
         metacardBackupPlugin.refresh(properties);
         assertThat(metacardBackupPlugin.getKeepDeletedMetacards(), is(true));
         assertThat(metacardBackupPlugin.getMetacardTransformerId(), is(newMetacardTransformer));
+        assertThat(metacardBackupPlugin.getBackupInvalidMetacards(), is(true));
     }
 
     @Test
@@ -161,9 +163,11 @@ public class MetacardBackupPluginTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put("metacardTransformerId", 2);
         properties.put("keepDeletedMetacards", "bad");
+        properties.put("backupInvalidMetacards", "bad");
         metacardBackupPlugin.refresh(properties);
         assertThat(metacardBackupPlugin.getKeepDeletedMetacards(), is(false));
         assertThat(metacardBackupPlugin.getMetacardTransformerId(), is(METACARD_TRANSFORMER_ID));
+        assertThat(metacardBackupPlugin.getBackupInvalidMetacards(), is(true));
     }
 
     @Test
@@ -283,6 +287,38 @@ public class MetacardBackupPluginTest {
         metacardBackupPlugin.getContentBytes(binaryContent, "metacard");
     }
 
+    @Test
+    public void testValidationNoBackup() throws Exception {
+        cleanup();
+        metacardBackupPlugin.setBackupInvalidMetacards(false);
+        ProcessRequest<ProcessCreateItem> createRequest = generateProcessRequest(ProcessCreateItem.class, false);
+        metacardBackupPlugin.processCreate(createRequest);
+        assertFiles(false);
+        metacardBackupPlugin.setBackupInvalidMetacards(true);
+        cleanup();
+    }
+
+    @Test
+    public void testValidationBackupInvalid() throws Exception {
+        cleanup();
+        metacardBackupPlugin.setBackupInvalidMetacards(true);
+        assertThat(metacardBackupPlugin.getBackupInvalidMetacards(), is(true));
+        ProcessRequest<ProcessCreateItem> createRequest = generateProcessRequest(ProcessCreateItem.class, false);
+        metacardBackupPlugin.processCreate(createRequest);
+        assertFiles(true);
+        cleanup();
+    }
+
+    @Test
+    public void testNoValidationTagsBackupSuccess() throws Exception {
+        cleanup();
+        metacardBackupPlugin.setBackupInvalidMetacards(false);
+        metacardBackupPlugin.processCreate(createRequest);
+        assertFiles(true);
+        metacardBackupPlugin.setBackupInvalidMetacards(true);
+        cleanup();
+    }
+
     private ProcessRequest<ProcessDeleteItem> generateDeleteRequest() {
         List<ProcessDeleteItem> processDeleteItems = new ArrayList<>();
 
@@ -300,13 +336,16 @@ public class MetacardBackupPluginTest {
         return processRequest;
     }
 
-    private ProcessRequest generateProcessRequest(Class<? extends ProcessResourceItem> clazz) {
+    private ProcessRequest generateProcessRequest(Class<? extends ProcessResourceItem> clazz, boolean validCard) {
         List<ProcessResourceItem> processCreateItems = new ArrayList<>();
 
         for (String id : METACARD_IDS) {
             Metacard metacard = new MetacardImpl();
             metacard.setAttribute(new AttributeImpl(Core.ID, id));
             metacard.setAttribute(new AttributeImpl(Core.METADATA, XML_METADATA));
+            if (!validCard) {
+                metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, "INVALID"));
+            }
             ProcessResourceItem processResourceItem;
             if (clazz.getName()
                     .contains("ProcessCreateItem")) {
