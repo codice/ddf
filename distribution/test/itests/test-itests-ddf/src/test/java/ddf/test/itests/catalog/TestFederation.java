@@ -81,6 +81,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import javax.xml.xpath.XPathConstants;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -119,6 +121,7 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.http.ContentType;
@@ -136,6 +139,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
 import ddf.catalog.transform.InputTransformer;
+import ddf.util.XPathHelper;
 
 /**
  * Tests Federation aspects.
@@ -853,7 +857,6 @@ public class TestFederation extends AbstractIntegrationTest {
         // The first few bytes of the metacard's base-64 encoded thumbnail image
         String thumbNailBase64EncSubstring = "/9j/4AAQSkZJRgABAQAAAQABAAD";
         String metacardTitle = "myTitle";
-        String extractXmlRegex = ".*?(<metacard.*?</metacard>).*";
 
         // Define the assertions that test the query results conform to expectations
         List<Matcher<?>> assertions = getXpathMatchers(METACARD_URI, 1);
@@ -867,8 +870,11 @@ public class TestFederation extends AbstractIntegrationTest {
                 METACARD_URI,
                 assertions);
 
-        // Extract the part of the response that can be transformed into a metacard
-        String metacardXml = extractRecord(response, extractXmlRegex);
+        XPathHelper xpHelper = new XPathHelper(response.extract()
+                .body()
+                .asString());
+        Node node = (Node) xpHelper.evaluate("//*[local-name()='metacard']", XPathConstants.NODE);
+        String metacardXml = XPathHelper.print(node);
 
         // Get the metacard XML input transformer and attempt to create a metacard object
         Metacard metacard = getInputTransformer("(id=xml)").transform(IOUtils.toInputStream(
@@ -890,7 +896,6 @@ public class TestFederation extends AbstractIntegrationTest {
         // The first few bytes of the metacard's base-64 encoded thumbnail image
         String thumbNailBase64EncSubstring = "/9j/4AAQSkZJRgABAQAAAQABAAD";
         String metacardTitle = "myTitle";
-        String extractXmlRegex = ".*?(<MD_Metadata.*?</MD_Metadata>).*";
 
         // Define the assertions that test the query results conform to expectations
         List<Matcher<?>> assertions = getXpathMatchers(GMD_SCHEMA_URI, 1);
@@ -904,12 +909,16 @@ public class TestFederation extends AbstractIntegrationTest {
                 assertions);
 
         // Extract the part of the response that can be transformed into a metacard
-        String metacardXml = extractRecord(response, extractXmlRegex);
+        XPathHelper xpHelper = new XPathHelper(response.extract()
+                .body()
+                .asString());
+        Node node = (Node) xpHelper.evaluate("//*[local-name()='MD_Metadata']",
+                XPathConstants.NODE);
+        String xml = XPathHelper.print(node);
 
         // Get the metacard XML input transformer and attempt to create a metacard object
         Metacard metacard =
-                getInputTransformer("(id=gmd:MD_Metadata)").transform(IOUtils.toInputStream(
-                        metacardXml,
+                getInputTransformer("(id=gmd:MD_Metadata)").transform(IOUtils.toInputStream(xml,
                         "UTF-8"));
 
         // Assert the newly created metacard's attributes are properly populated.
@@ -922,7 +931,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
         String thumbNailBase64EncSubstring = "/9j/4AAQSkZJRgABAQAAAQABAAD";
         String metacardTitle = "myTitle";
-        String extractXmlRegex = ".*?(<csw:Record>.*?</csw:Record>).*";
 
         // Define the assertions that test the query results conform to expectations
         List<Matcher<?>> assertions = getXpathMatchers(OPEN_GIS_SCHEMA_URI, 1);
@@ -937,12 +945,15 @@ public class TestFederation extends AbstractIntegrationTest {
                 OPEN_GIS_SCHEMA_URI,
                 assertions);
 
-        // Extract the part of the response that can be transformed into a metacard
-        String cswRecordXml = extractRecord(response, extractXmlRegex);
+        XPathHelper xpHelper = new XPathHelper(response.extract()
+                .body()
+                .asString());
+        Node node = (Node) xpHelper.evaluate("//*[local-name()='Record']", XPathConstants.NODE);
+        String xml = XPathHelper.print(node);
 
         // Get the OPEN GIS CSW Record input transformer and create a metacard
         Metacard metacard = getInputTransformer("(id=csw:Record)").transform(IOUtils.toInputStream(
-                cswRecordXml,
+                xml,
                 "UTF-8"));
 
         // Assert the newly created metacard's attributes are properly populated.
