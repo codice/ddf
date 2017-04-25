@@ -31,6 +31,7 @@ import java.util.function.Function;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
 import org.slf4j.Logger;
@@ -149,22 +150,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
             }
         }
 
-        // find where the geometry goes
-        String geoAttributeName = null;
-        for (AttributeDescriptor ad : metacardType.getAttributeDescriptors()) {
-            if (AttributeFormat.GEOMETRY.equals(ad.getType()
-                    .getAttributeFormat())) {
-                geoAttributeName = ad.getName();
-            }
-        }
-
-        if (geoJsonGeometry != null) {
-            if (geoAttributeName != null) {
-                metacard.setAttribute(geoAttributeName, geoJsonGeometry.toWkt());
-            } else {
-                LOGGER.info("Loss of data, could not place geometry [{}] in metacard",
-                        geoJsonGeometry.toWkt());
-            }
+        if (geoJsonGeometry != null && StringUtils.isNotEmpty(geoJsonGeometry.toWkt())) {
+            metacard.setLocation(geoJsonGeometry.toWkt());
         }
 
         Map<String, AttributeDescriptor> attributeDescriptorMap =
