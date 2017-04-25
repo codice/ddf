@@ -278,7 +278,7 @@ public class MetacardApplication implements SparkApplication {
 
             if (!contentVersion.isPresent()) {
                 /* no content versions, just restore metacard */
-                revertMetacard(versionMetacard, id);
+                revertMetacard(versionMetacard, id, false);
             } else {
                 revertContentandMetacard(contentVersion.get(), versionMetacard, id);
             }
@@ -445,7 +445,7 @@ public class MetacardApplication implements SparkApplication {
         });
     }
 
-    private void revertMetacard(Metacard versionMetacard, String id)
+    private void revertMetacard(Metacard versionMetacard, String id, boolean alreadyCreated)
             throws SourceUnavailableException, IngestException, FederationException,
             UnsupportedQueryException {
         LOGGER.trace("Reverting metacard [{}] to version [{}]", id, versionMetacard.getId());
@@ -455,11 +455,9 @@ public class MetacardApplication implements SparkApplication {
 
         if (DELETE_ACTIONS.contains(action)) {
             attemptDeleteDeletedMetacard(id);
-        }
-
-        // Only deleted; deleted_content will have already made metacard so we just want to update
-        if (action.equals(Action.DELETED)) {
-            catalogFramework.create(new CreateRequestImpl(revertMetacard));
+            if (!alreadyCreated) {
+                catalogFramework.create(new CreateRequestImpl(revertMetacard));
+            }
         } else {
             tryUpdate(4, () -> {
                 catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
@@ -496,9 +494,11 @@ public class MetacardApplication implements SparkApplication {
                 MetacardVersionImpl.toMetacard(versionMetacard, types));
 
         // Try to delete the "deleted metacard" marker first.
+        boolean alreadyCreated = false;
         Action action = Action.fromKey((String) versionMetacard.getAttribute(MetacardVersion.ACTION)
                 .getValue());
         if (DELETE_ACTIONS.contains(action)) {
+            alreadyCreated = true;
             catalogFramework.create(new CreateStorageRequestImpl(Collections.singletonList(
                     contentItem), id, new HashMap<>()));
         } else {
@@ -512,7 +512,7 @@ public class MetacardApplication implements SparkApplication {
             });
         }
         LOGGER.trace("Successfully reverted metacard content for [{}]", id);
-        revertMetacard(versionMetacard, id);
+        revertMetacard(versionMetacard, id, alreadyCreated);
     }
 
     private void trySleep(long millis) {

@@ -32,7 +32,7 @@ public class DynamicMultiMetacardType implements MetacardType {
 
     private final List<MetacardType> extraTypes;
 
-    private static final Set<String> registeredDmmts = Collections.synchronizedSet(new HashSet<>());
+    private static final Set<String> REGISTERED_DMMTS = Collections.synchronizedSet(new HashSet<>());
 
     public DynamicMultiMetacardType(String name, List<MetacardType> dynamicMetacardTypes) {
         this(name, dynamicMetacardTypes, new MetacardType[0]);
@@ -44,7 +44,7 @@ public class DynamicMultiMetacardType implements MetacardType {
         this.metacardTypes = dynamicMetacardTypes;
         this.extraTypes = Arrays.asList(extraTypes);
 
-        registeredDmmts.add(name);
+        REGISTERED_DMMTS.add(name);
     }
 
     @Override
@@ -54,12 +54,12 @@ public class DynamicMultiMetacardType implements MetacardType {
 
     @Override
     public Set<AttributeDescriptor> getAttributeDescriptors() {
-        return _getAttributeDescriptors().collect(Collectors.toSet());
+        return getAttributeDescriptorsInternal().collect(Collectors.toSet());
     }
 
     @Override
     public AttributeDescriptor getAttributeDescriptor(String attributeName) {
-        return _getAttributeDescriptors().filter(ad -> ad.getName()
+        return getAttributeDescriptorsInternal().filter(ad -> ad.getName()
                 .equals(attributeName))
                 .findFirst()
                 .orElse(null);
@@ -69,9 +69,9 @@ public class DynamicMultiMetacardType implements MetacardType {
      * WARNING: Attribute descriptors should always be fetched through this method to prevent
      * any infinite recursion.
      */
-    private Stream<AttributeDescriptor> _getAttributeDescriptors() {
+    private Stream<AttributeDescriptor> getAttributeDescriptorsInternal() {
         Stream<MetacardType> filteredTypes = metacardTypes.stream()
-                .filter(mt -> !registeredDmmts.contains(mt.getName()));
+                .filter(mt -> !REGISTERED_DMMTS.contains(mt.getName()));
 
         return Stream.concat(filteredTypes, extraTypes.stream())
                 .map(MetacardType::getAttributeDescriptors)

@@ -120,12 +120,8 @@ public class Historian {
                     new DynamicMultiMetacardType(DeletedMetacardImpl.PREFIX,
                             metacardTypes,
                             DeletedMetacardImpl.getDeletedMetacardType());
-            context.registerService(MetacardType.class,
-                    versionType,
-                    new Hashtable<>());
-            context.registerService(MetacardType.class,
-                    deleteType,
-                    new Hashtable<>());
+            context.registerService(MetacardType.class, versionType, new Hashtable<>());
+            context.registerService(MetacardType.class, deleteType, new Hashtable<>());
         }
 
     }
@@ -153,7 +149,7 @@ public class Historian {
                 .collect(Collectors.toList());
 
         final Map<String, Metacard> versionedMetacards = getVersionMetacards(inputMetacards,
-                Action.VERSIONED,
+                (id) -> Action.VERSIONED,
                 (Subject) updateResponse.getRequest()
                         .getProperties()
                         .get(SecurityConstants.SECURITY_SUBJECT));
@@ -191,21 +187,22 @@ public class Historian {
                 .filter(isNotVersionNorDeleted)
                 .collect(Collectors.toList());
 
+        Map<String, Metacard> originalMetacards = query(forIds(updatedMetacards.stream()
+                .map(Metacard::getId)
+                .collect(Collectors.toList())));
+
         Collection<ReadStorageRequest> ids = getReadStorageRequests(updatedMetacards);
-        if (ids.isEmpty()) {
-            LOGGER.debug("No root content items to version");
-            return updateStorageResponse;
-        }
+        Map<String, List<ContentItem>> content = getContent(ids);
 
-        Map<String, Metacard> metacards = query(forIds(fromStorageRequests(ids)));
-        Map<String, List<ContentItem>> oldContent = getContent(ids);
+        Function<String, Action> getAction =
+                (id) -> content.containsKey(id) ? Action.VERSIONED_CONTENT : Action.VERSIONED;
 
-        Map<String, Metacard> versionMetacards = getVersionMetacards(metacards.values(),
-                Action.VERSIONED_CONTENT,
+        Map<String, Metacard> versionMetacards = getVersionMetacards(originalMetacards.values(),
+                getAction,
                 (Subject) updateResponse.getProperties()
                         .get(SecurityConstants.SECURITY_SUBJECT));
 
-        CreateStorageResponse createStorageResponse = versionContentItems(oldContent,
+        CreateStorageResponse createStorageResponse = versionContentItems(content,
                 versionMetacards);
 
         if (createStorageResponse == null) {
@@ -240,11 +237,12 @@ public class Historian {
         // [ContentItem.getId: content items]
         Map<String, List<ContentItem>> contentItems = getContent(getReadStorageRequests(
                 deletedMetacards));
-        Action action = contentItems.isEmpty() ? Action.DELETED : Action.DELETED_CONTENT;
 
+        Function<String, Action> getAction =
+                (id) -> contentItems.containsKey(id) ? Action.DELETED_CONTENT : Action.DELETED;
         // [MetacardVersion.VERSION_OF_ID: versioned metacard]
         Map<String, Metacard> versionedMap = getVersionMetacards(deletedMetacards,
-                action,
+                getAction,
                 (Subject) deleteResponse.getRequest()
                         .getProperties()
                         .get(SecurityConstants.SECURITY_SUBJECT));
@@ -454,11 +452,13 @@ public class Historian {
 
     /*Map<MetacardVersion.VERSION_OF_ID -> MetacardVersion>*/
     private Map<String, Metacard> getVersionMetacards(Collection<Metacard> metacards,
-            final Action action, Subject subject) {
+            Function<String, Action> action, Subject subject) {
         return metacards.stream()
                 .filter(MetacardVersionImpl::isNotVersion)
                 .filter(DeletedMetacardImpl::isNotDeleted)
-                .map(metacard -> new MetacardVersionImpl(metacard, action, subject))
+                .map(metacard -> new MetacardVersionImpl(metacard,
+                        action.apply(metacard.getId()),
+                        subject))
                 .collect(Collectors.toMap(MetacardVersionImpl::getVersionOfId,
                         Function.identity()));
     }
