@@ -1,0 +1,6 @@
+:type: documentation
+:status: published
+:filename: developing-intro-contents.adoc
+:projectpath: {adoc-include}
+
+Developers will build or extend the functionality of the applications. 

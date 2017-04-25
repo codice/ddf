@@ -1,0 +1,7 @@
+:type: documentation
+:status: published
+:filename: managing-intro-contents.adoc
+:projectpath: {adoc-include}
+
+Administrators will be installing, maintaining, and supporting existing applications.
+Use this section to prepare, install, configure, run, and monitor a ${branding}.

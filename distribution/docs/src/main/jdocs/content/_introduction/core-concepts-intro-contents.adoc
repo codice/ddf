@@ -1,0 +1,6 @@
+:type: documentation
+:status: published
+:filename: core-concepts-intro-contents.adoc
+:projectpath: {adoc-include}
+
+This introduction section is intended to give a high level overview of the concepts and capabilities of ${branding}.
