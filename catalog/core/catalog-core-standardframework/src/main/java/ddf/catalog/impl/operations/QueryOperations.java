@@ -40,6 +40,7 @@ import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.impl.FrameworkProperties;
+import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -659,7 +660,8 @@ public class QueryOperations extends DescribableImpl {
                     if (!canAccessSource) {
                         notPermittedSources.add(source.getId());
                     }
-                    if (queryOps.sourceOperations.isSourceAvailable(source) && canAccessSource) {
+                    if (canAccessSource && (queryOps.sourceOperations.isSourceAvailable(source)
+                            || isCacheQuery(queryRequest))) {
                         sourcesToQuery.add(source);
                     } else {
                         exceptions.add(queryOps.createUnavailableProcessingDetails(source));
@@ -761,6 +763,10 @@ public class QueryOperations extends DescribableImpl {
 
         boolean isEmpty() {
             return sourcesToQuery.isEmpty();
+        }
+
+        boolean isCacheQuery(Operation operation) {
+            return "cache".equals(operation.getPropertyValue("mode"));
         }
     }
 }
