@@ -129,7 +129,7 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
             }
             Files.createFile(metacardPath);
         } catch (IOException e) {
-            LOGGER.debug("Unable to create backup file {}.  File may already exist.",
+            LOGGER.trace("Unable to create empty backup file {}.  File may already exist.",
                     metacardPath,
                     e);
         }

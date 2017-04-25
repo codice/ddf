@@ -31,7 +31,7 @@
             cardinality="100"
             name="Metacard Backup Output Provider(s)" id="metacardOutputProviderIds"
             required="true" type="String"
-            default="File_Storage_Provider"/>
+            default="fileStorageProvider"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin"

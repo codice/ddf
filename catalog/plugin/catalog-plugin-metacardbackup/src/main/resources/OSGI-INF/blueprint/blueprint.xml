@@ -39,7 +39,7 @@
             <property name="storageBackupPlugins" ref="metacardBackupStorageSortedList"/>
             <property name="metacardOutputProviderIds">
                 <list>
-                    <value>File_Storage_Provider</value>
+                    <value>fileStorageProvider</value>
                 </list>
             </property>
         </cm:managed-component>

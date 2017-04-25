@@ -458,7 +458,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testCswIngestWithMetadataBackup() throws Exception {
         getServiceManager().startFeature(true, METACARD_BACKUP_FILE_STORAGE_FEATURE);
-        String fileStorageId = "File_Storage_Provider";
+        String fileStorageId = "fileStorageProvider";
         Map<String, Object> storageProps = new HashMap<>();
         storageProps.put("id", fileStorageId);
         storageProps.put("outputDirectory", METACARD_BACKUP_DIRECTORY);

@@ -19,7 +19,7 @@
          id="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage">
         <AD description="The unique name of the storage provider" name="Storage Provider ID" id="id"
             required="true"
-            type="String" default="File_Storage_Provider"/>
+            type="String" default="fileStorageProvider"/>
 
         <AD description="Output directory to place backup files."
             name="Output Directory" id="outputDirectory" required="true" type="String"

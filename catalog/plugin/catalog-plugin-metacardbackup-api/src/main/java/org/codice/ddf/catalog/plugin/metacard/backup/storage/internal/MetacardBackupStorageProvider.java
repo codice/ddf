@@ -40,7 +40,7 @@ public interface MetacardBackupStorageProvider extends Describable {
     /**
      * Stores data for the provided metacard ID
      *
-     * @param id   - Identifier of the metacard to remove
+     * @param id   - Identifier of the metacard to create or update
      * @param data - Bytes of the metacard to store
      * @throws IOException
      * @throws MetacardBackupException
