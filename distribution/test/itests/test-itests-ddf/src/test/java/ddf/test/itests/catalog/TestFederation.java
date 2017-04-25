@@ -1867,7 +1867,7 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
-    @Ignore
+//    @Ignore
     public void testCancelDownload() throws Exception {
         getCatalogBundle().setupCaching(true);
         getSecurityPolicy().configureWebContextPolicy(null,
@@ -1882,6 +1882,7 @@ public class TestFederation extends AbstractIntegrationTest {
         Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).delayBetweenChunks(
                 Duration.ofMillis(200))
                 .fail(0)
+                .isInfinite(true)
                 .build();
 
         cswServer.whenHttp()
