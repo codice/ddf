@@ -920,7 +920,6 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testCswQueryForOpenGisXml() throws Exception {
 
-        //TODO: IF THUMBNAIL TRULY CANNOT BE EXTRACTED FROM OPEN GIS CSW RECORDS, REMOVE THIS VARIABLE.
         String thumbNailBase64EncSubstring = "/9j/4AAQSkZJRgABAQAAAQABAAD";
         String metacardTitle = "myTitle";
         String extractXmlRegex = ".*?(<csw:Record>.*?</csw:Record>).*";
@@ -934,7 +933,8 @@ public class TestFederation extends AbstractIntegrationTest {
         assertions.add(hasXPath("//*[local-name()='LowerCorner']/text()", equalTo("30.0 10.0")));
 
         // Query for CSW result and assert expected results
-        ValidatableResponse response = getAndValidateCswResponse(metacardTitle, OPEN_GIS_SCHEMA_URI,
+        ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
+                OPEN_GIS_SCHEMA_URI,
                 assertions);
 
         // Extract the part of the response that can be transformed into a metacard
