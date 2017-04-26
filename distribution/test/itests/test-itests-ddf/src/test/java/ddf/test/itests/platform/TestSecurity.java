@@ -54,9 +54,13 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
+import org.apache.http.NoHttpResponseException;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.tika.io.IOUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
@@ -75,6 +79,8 @@ import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.service.cm.Configuration;
 
 import com.google.common.collect.ImmutableList;
+import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.config.SSLConfig;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
@@ -476,6 +482,256 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .assertThat()
                 .statusCode(equalTo(200));
 
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(url);
+    }
+
+    @Test(expected = NoHttpResponseException.class)
+    public void testBasicAuthOverHttp() throws Exception {
+        String url = SERVICE_ROOT.getUrl()
+                .replace("https", "http") + "/catalog/query?q=*&src=local";
+
+        configureRestForBasic(SDK_SOAP_CONTEXT);
+
+        waitForSecurityHandlers(url);
+
+        //try basic auth over http
+        given().auth()
+                .basic("admin", "admin")
+                .when()
+                .get(url);
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(url);
+    }
+
+    @Test
+    public void testTLSv11() throws Exception {
+        String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+
+        configureRestForBasic(SDK_SOAP_CONTEXT);
+        waitForSecurityHandlers(url);
+
+        SSLContext sslContext = SSLContext.getInstance("TLSv1.1");
+        sslContext.init(null, null, null);
+        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
+
+        RestAssuredConfig config = new RestAssuredConfig();
+        config.sslConfig(SSLConfig.sslConfig()
+                .sslSocketFactory(sslSocketFactory));
+
+        given().config(config)
+                .auth()
+                .basic("admin", "admin")
+                .when()
+                .get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .assertThat()
+                .header("Set-Cookie", containsString("JSESSIONID"))
+                .extract()
+                .cookie("JSESSIONID");
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(url);
+    }
+
+    @Test
+    public void testTLSv12() throws Exception {
+        String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+
+        configureRestForBasic(SDK_SOAP_CONTEXT);
+        waitForSecurityHandlers(url);
+
+        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+        sslContext.init(null, null, null);
+        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
+
+        RestAssuredConfig config = new RestAssuredConfig();
+        config.sslConfig(SSLConfig.sslConfig()
+                .sslSocketFactory(sslSocketFactory));
+
+        given().config(config)
+                .auth()
+                .basic("admin", "admin")
+                .when()
+                .get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .assertThat()
+                .header("Set-Cookie", containsString("JSESSIONID"))
+                .extract()
+                .cookie("JSESSIONID");
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(url);
+    }
+
+    @Test
+    public void testTLSv1() throws Exception {
+        String httpsProtocols = System.getProperties()
+                .getProperty("https.protocols");
+        System.setProperty("https.protocols", "TLSv1");
+
+        String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+
+        configureRestForBasic(SDK_SOAP_CONTEXT);
+        waitForSecurityHandlers(url);
+
+        SSLContext sslContext = SSLContext.getInstance("TLSv1");
+        sslContext.init(null, null, null);
+        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
+
+        RestAssuredConfig config = new RestAssuredConfig();
+        config.sslConfig(SSLConfig.sslConfig()
+                .sslSocketFactory(sslSocketFactory));
+
+        given().config(config)
+                .auth()
+                .basic("admin", "admin")
+                .when()
+                .get(url)
+                .then()
+                .assertThat()
+                .statusCode(401);
+
+        System.setProperty("https.protocols", httpsProtocols);
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(url);
+    }
+
+    @Test
+    public void testAllowedCipherSuites() throws Exception {
+        List<String> supportedCipherSuites = Arrays.asList("TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
+
+        String originalCiphers = System.getProperty("https.cipherSuites");
+        System.setProperty("https.cipherSuites", StringUtils.join(supportedCipherSuites, ","));
+
+        String[] supportedHttpProtocols = {"https"};
+
+        SSLContext sslContext = SSLContext.getDefault();
+        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext,
+                supportedHttpProtocols,
+                supportedCipherSuites.toArray(new String[supportedCipherSuites.size()]),
+                new AllowAllHostnameVerifier());
+
+        RestAssuredConfig config = new RestAssuredConfig();
+        config.sslConfig(SSLConfig.sslConfig()
+                .sslSocketFactory(sslSocketFactory));
+
+        String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+
+        configureRestForBasic(SDK_SOAP_CONTEXT);
+        waitForSecurityHandlers(url);
+
+        given().config(config)
+                .auth()
+                .basic("admin", "admin")
+                .when()
+                .get(url)
+                .then()
+                .assertThat()
+                .statusCode(200);
+
+        System.setProperty("https.cipherSuites", originalCiphers);
+        configureRestForGuest(SDK_SOAP_CONTEXT);
+        getSecurityPolicy().waitForGuestAuthReady(url);
+    }
+
+    @Test
+    public void testDisallowedCipherSuites() throws Exception {
+        List<String> disallowedCipherSuites = Arrays.asList(
+                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+                "TLS_RSA_WITH_AES_256_CBC_SHA256",
+                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
+                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
+                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
+                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+                "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+                "SSL_RSA_WITH_RC4_128_SHA",
+                "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+                "TLS_ECDH_RSA_WITH_RC4_128_SHA",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
+                "TLS_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+                "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+                "SSL_RSA_WITH_RC4_128_MD5",
+                "TLS_EMPTY_RENEGOTIATION_INFO_SCSV");
+
+        String[] supportedHttpProtocols = {"https"};
+
+        String originalCiphers = System.getProperty("https.cipherSuites");
+        System.setProperty("https.cipherSuites", StringUtils.join(disallowedCipherSuites, ","));
+
+        SSLContext sslContext = SSLContext.getDefault();
+        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext,
+                supportedHttpProtocols,
+                disallowedCipherSuites.toArray(new String[disallowedCipherSuites.size()]),
+                new AllowAllHostnameVerifier());
+
+        RestAssuredConfig config = new RestAssuredConfig();
+        config.sslConfig(SSLConfig.sslConfig()
+                .sslSocketFactory(sslSocketFactory));
+
+        String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+
+        configureRestForBasic(SDK_SOAP_CONTEXT);
+        waitForSecurityHandlers(url);
+
+        given().config(config)
+                .auth()
+                .basic("admin", "admin")
+                .when()
+                .get(url)
+                .then()
+                .assertThat()
+                .statusCode(401);
+
+        System.setProperty("https.cipherSuites", originalCiphers);
         configureRestForGuest(SDK_SOAP_CONTEXT);
         getSecurityPolicy().waitForGuestAuthReady(url);
     }
