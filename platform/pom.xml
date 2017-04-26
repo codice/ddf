@@ -371,6 +371,7 @@
         <module>error</module>
         <module>platform-http-proxy</module>
         <module>admin</module>
+        <module>configurator</module>
         <module>landing-page</module>
         <module>country-converter</module>
         <module>platform-app</module>
