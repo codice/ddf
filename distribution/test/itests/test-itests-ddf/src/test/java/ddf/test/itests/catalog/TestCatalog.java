@@ -2112,14 +2112,19 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(REST_PATH.getUrl())
                 .getHeader("id");
 
-        given().multiPart("parse.resource", tmpFile)
-                .multiPart(Core.RESOURCE_URI, overrideResourceUri)
-                .expect()
-                .log()
-                .headers()
-                .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .when()
-                .put(REST_PATH.getUrl() + id);
+        expect("Sending bad HTTP PUT request with overridden resource-uri").within(1,
+                TimeUnit.MINUTES)
+                .until(() -> {
+                    Response response = given().multiPart("parse.resource", tmpFile)
+                            .multiPart(Core.RESOURCE_URI, overrideResourceUri)
+                            .expect()
+                            .log()
+                            .headers()
+                            .when()
+                            .put(REST_PATH.getUrl() + id);
+
+                    return response.getStatusCode() == HttpStatus.SC_BAD_REQUEST;
+                });
 
         deleteMetacard(id);
     }
