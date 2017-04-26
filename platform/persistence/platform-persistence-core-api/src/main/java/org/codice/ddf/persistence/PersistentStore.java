@@ -21,25 +21,25 @@ import java.util.Set;
 
 public interface PersistentStore {
 
-    public static final String METACARD_TYPE = "metacard";
-    public static final String SAVED_QUERY_TYPE = "saved_query";
-    public static final String NOTIFICATION_TYPE = "notification";
-    public static final String ACTIVITY_TYPE = "activity";
-    public static final String WORKSPACE_TYPE = "workspace";
-    public static final String PREFERENCES_TYPE = "preferences";
-    public static final String USER_ATTRIBUTE_TYPE = "attributes";
-    public static final String SUBSCRIPTION_TYPE = "subscriptions";
+    String METACARD_TYPE = "metacard";
+    String SAVED_QUERY_TYPE = "saved_query";
+    String NOTIFICATION_TYPE = "notification";
+    String ACTIVITY_TYPE = "activity";
+    String WORKSPACE_TYPE = "workspace";
+    String PREFERENCES_TYPE = "preferences";
+    String USER_ATTRIBUTE_TYPE = "attributes";
+    String SUBSCRIPTION_TYPE = "subscriptions";
+    String SUBSCRIBED_QUERY_TYPE = "subscribed_query";
 
-
-    public static final Set<String> PERSISTENCE_TYPES = new HashSet<String>(Arrays.asList(
-            METACARD_TYPE,
+    Set<String> PERSISTENCE_TYPES = new HashSet<String>(Arrays.asList(METACARD_TYPE,
             SAVED_QUERY_TYPE,
             NOTIFICATION_TYPE,
             ACTIVITY_TYPE,
             WORKSPACE_TYPE,
             PREFERENCES_TYPE,
             USER_ATTRIBUTE_TYPE,
-            SUBSCRIPTION_TYPE));
+            SUBSCRIPTION_TYPE,
+            SUBSCRIBED_QUERY_TYPE));
 
     /**
      * Adds item of specified type with the specified properties.
