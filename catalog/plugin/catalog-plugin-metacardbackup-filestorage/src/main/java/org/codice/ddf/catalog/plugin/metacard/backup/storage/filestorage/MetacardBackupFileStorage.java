@@ -37,19 +37,19 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
 
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
-    private static final String DESCRIPTION = "description";
+    private static final String DESCRIPTION_PROPERTY = "description";
 
-    private static final String ORGANIZATION = "organization";
+    private static final String ORGANIZATION_PROPERTY = "organization";
 
-    private static final String VERSION = "version";
+    private static final String VERSION_PROPERTY = "version";
 
-    private static final String TITLE = "name";
+    private static final String TITLE_PROPERTY = "name";
 
-    private static final String ID = "id";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardBackupFileStorage.class);
+    private static final String ID_PROPERTY = "id";
 
     private static final String OUTPUT_DIRECTORY_PROPERTY = "outputDirectory";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardBackupFileStorage.class);
 
     private String id;
 
@@ -73,22 +73,22 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
 
     @Override
     public String getVersion() {
-        return (String) describableProperties.get(VERSION);
+        return (String) describableProperties.get(VERSION_PROPERTY);
     }
 
     @Override
     public String getTitle() {
-        return (String) describableProperties.get(TITLE);
+        return (String) describableProperties.get(TITLE_PROPERTY);
     }
 
     @Override
     public String getDescription() {
-        return (String) describableProperties.get(DESCRIPTION);
+        return (String) describableProperties.get(DESCRIPTION_PROPERTY);
     }
 
     @Override
     public String getOrganization() {
-        return (String) describableProperties.get(ORGANIZATION);
+        return (String) describableProperties.get(ORGANIZATION_PROPERTY);
     }
 
     public void setId(String id) {
@@ -148,14 +148,15 @@ public class MetacardBackupFileStorage implements MetacardBackupStorageProvider 
     }
 
     public void refresh(Map<String, Object> properties) {
-        Object outputDirectory = properties.get(OUTPUT_DIRECTORY_PROPERTY);
-        if (outputDirectory instanceof String && StringUtils.isNotBlank((String) outputDirectory)) {
-            this.outputDirectory = (String) outputDirectory;
+        Object storedOutputDirectory = properties.get(OUTPUT_DIRECTORY_PROPERTY);
+        if (storedOutputDirectory instanceof String
+                && StringUtils.isNotBlank((String) storedOutputDirectory)) {
+            this.outputDirectory = (String) storedOutputDirectory;
         }
 
-        Object id = properties.get(ID);
-        if (id instanceof String) {
-            setId((String) id);
+        Object storedId = properties.get(ID_PROPERTY);
+        if (storedId instanceof String) {
+            setId((String) storedId);
         }
     }
 
