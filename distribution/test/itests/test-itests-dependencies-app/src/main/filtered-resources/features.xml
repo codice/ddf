@@ -12,14 +12,18 @@
  *
  **/
 -->
-<features name="ddf-itest-dependencies-${project.version}">
+<features name="ddf-itest-dependencies-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="ddf-itest-dependencies">
+    <feature name="ddf-itest-dependencies" version="${project.version}">
+        <feature prerequisite="true">wrap</feature>
         <feature>third-party-dependencies</feature>
         <feature>ddf-dependencies</feature>
     </feature>
 
-    <feature name="ddf-dependencies">
+    <feature name="ddf-dependencies" version="${project.version}">
         <feature>catalog-core</feature>
 
         <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
@@ -35,7 +39,7 @@
         <feature>broker-app</feature>
     </feature>
 
-    <feature name="third-party-dependencies">
+    <feature name="third-party-dependencies" version="${project.version}">
         <bundle>mvn:commons-io/commons-io/2.5</bundle>
         <bundle>mvn:io.fastjson/boon/0.33</bundle>
         <bundle>
@@ -45,13 +49,13 @@
         <bundle>wrap:mvn:commons-net/commons-net/3.5</bundle>
 
         <bundle>
-            wrap:mvn:org.cometd.java/cometd-java-client/${cometd.version}$Export-Package=*;version=${cometd.version}
+        wrap:mvn:org.cometd.java/cometd-java-client/${cometd.version}$Export-Package=*;version=${cometd.version}
         </bundle>
         <bundle>
-            wrap:mvn:org.cometd.java/bayeux-api/${cometd.version}$Export-Package=*;version=${cometd.version}
+        wrap:mvn:org.cometd.java/bayeux-api/${cometd.version}$Export-Package=*;version=${cometd.version}
         </bundle>
         <bundle>
-            wrap:mvn:org.cometd.java/cometd-java-common/${cometd.version}$Export-Package=*;version=${cometd.version}
+        wrap:mvn:org.cometd.java/cometd-java-common/${cometd.version}$Export-Package=*;version=${cometd.version}
         </bundle>
 
         <bundle>
