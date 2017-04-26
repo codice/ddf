@@ -41,6 +41,7 @@ define([
             'click #locationLine': 'drawLine',
             'click #latlon': 'swapLocationTypeLatLon',
             'click #usng': 'swapLocationTypeUsng',
+            'click #utm': 'swapLocationTypeUtm',
             'change #radiusUnits': 'onRadiusUnitsChanged',
             'change #lineUnits': 'onLineUnitsChanged',
            // 'keydown input[id=radiusValue]': 'filterNonPositiveNumericValues',
@@ -176,6 +177,9 @@ define([
                 polygon: undefined,
                 usng: undefined,
                 usngbb: undefined,
+                utm: undefined,
+                utmUpperLeft: undefined,
+                utmLowerRight: undefined,
                 line: undefined,
                 lineWidth: 1
             });
@@ -192,29 +196,54 @@ define([
             //this.model.setLatLon();
             this.updateLocationFields();
         },
+        swapLocationTypeUtm: function () {
+            this.model.set('locationType', 'utm');
+            //this.model.setLatLon();
+            this.updateLocationFields();
+        },
         updateLocationFields: function () {
             if (this.model.get('locationType') === 'latlon') {
                 //radius
                 this.$('#latdiv').css('display', 'table');
                 this.$('#londiv').css('display', 'table');
                 this.$('#usngdiv').css('display', 'none');
+                this.$('#utmdiv').css('display', 'none');
                 //bbox
                 this.$('#westdiv').css('display', 'table');
                 this.$('#southdiv').css('display', 'table');
                 this.$('#eastdiv').css('display', 'table');
                 this.$('#northdiv').css('display', 'table');
                 this.$('#usngbbdiv').css('display', 'none');
+                this.$('#utmuldiv').css('display', 'none');
+                this.$('#utmlrdiv').css('display', 'none');
             } else if (this.model.get('locationType') === 'usng') {
                 //radius
                 this.$('#latdiv').css('display', 'none');
                 this.$('#londiv').css('display', 'none');
                 this.$('#usngdiv').css('display', 'table');
+                this.$('#utmdiv').css('display', 'none');
                 //bbox
                 this.$('#westdiv').css('display', 'none');
                 this.$('#southdiv').css('display', 'none');
                 this.$('#eastdiv').css('display', 'none');
                 this.$('#northdiv').css('display', 'none');
                 this.$('#usngbbdiv').css('display', 'table');
+                this.$('#utmuldiv').css('display', 'none');
+                this.$('#utmlrdiv').css('display', 'none');
+            } else if (this.model.get('locationType') === 'utm') {
+                //radius
+                this.$('#latdiv').css('display', 'none');
+                this.$('#londiv').css('display', 'none');
+                this.$('#usngdiv').css('display', 'none');
+                this.$('#utmdiv').css('display', 'table');
+                //bbox
+                this.$('#westdiv').css('display', 'none');
+                this.$('#southdiv').css('display', 'none');
+                this.$('#eastdiv').css('display', 'none');
+                this.$('#northdiv').css('display', 'none');
+                this.$('#usngbbdiv').css('display', 'none');
+                this.$('#utmuldiv').css('display', 'table');
+                this.$('#utmlrdiv').css('display', 'table');
             }
         },
         serializeData: function () {

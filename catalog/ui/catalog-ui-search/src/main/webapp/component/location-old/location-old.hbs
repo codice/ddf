@@ -54,6 +54,12 @@
                 <i class="fa fa-circle-o"></i>
                 USNG / MGRS
             </label>
+            <label id="utm" class="btn {{#is locationType 'utm'}}active{{/is}}">
+                <input type="radio" name="utmButton" value="utm">
+                <i class="fa fa-circle"></i>
+                <i class="fa fa-circle-o"></i>
+                UTM
+            </label>
         </div>
     </div>
 
@@ -101,6 +107,11 @@
             <div id="usngdiv" class="input-group input-group-sm" style="display: none;">
                 <span class="input-group-addon usng-label">USNG / MGRS&nbsp;</span>
                 <input class="form-control" id="usng" name="usng" type="text" placeholder=""/>
+            </div>
+
+            <div id="utmdiv" class="input-group input-group-sm" style="display: none;">
+                <span class="input-group-addon usng-label">UTM&nbsp;</span>
+                <input class="form-control" id="utm" name="utm" type="text" placeholder=""/>
             </div>
 
             <div class="input-group input-group-sm for-radius">
@@ -158,6 +169,15 @@
             <div id="usngbbdiv" class="input-group input-group-sm" style="display: none;">
                 <span class="input-group-addon usng-label">USNG / MGRS&nbsp;</span>
                 <input class="form-control" id="usngbb" name="usngbb" type="text" placeholder=""/>
+            </div>
+
+            <div id="utmuldiv" class="input-group input-group-sm" style="display: none;">
+                <span class="input-group-addon usng-label">Upper-Left&nbsp;</span>
+                <input class="form-control" id="utmUpperLeft" name="utmUpperLeft" type="text" placeholder=""/>
+            </div>
+            <div id="utmlrdiv" class="input-group input-group-sm" style="display: none;">
+                <span class="input-group-addon usng-label">Lower-Right&nbsp;</span>
+                <input class="form-control" id="utmLowerRight" name="utmLowerRight" type="text" placeholder=""/>
             </div>
         </div>
     </div>
