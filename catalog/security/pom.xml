@@ -33,5 +33,7 @@
         <module>catalog-security-metacardattributeplugin</module>
         <module>catalog-security-resourceplugin</module>
         <module>catalog-security-pointofcontact-policyplugin</module>
+        <module>catalog-security-uploader-policyextension</module>
+        <module>catalog-security-uploader-policyplugin</module>
     </modules>
 </project>

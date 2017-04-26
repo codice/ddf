@@ -1,0 +1,16 @@
+==== Uploader Policy Plugin
+
+The Uploader Policy Plugin allows a user to query or update a metacard that they uploaded regardless of any security policies that would otherwise prevent it.
+
+===== Installing the Uploader Policy Plugin
+
+The Uploader Policy Plugin is not installed by default. In order to install this plugin:
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Features* tab.
+. Click the install button next to  *catalog-security-uploader-policy*.
+
+===== Configuring the Uploader Policy Plugin
+
+The Uploader Policy Plugin has no configurable properties.

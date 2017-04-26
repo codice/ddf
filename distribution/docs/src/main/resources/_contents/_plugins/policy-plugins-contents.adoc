@@ -13,3 +13,5 @@
 <<_registry_policy_plugin,Registry Policy Plugin>>:: Defines the policies for user access to registry entries and operations.
 
 <<_xml_attribute_security_policy_plugin,XML Attribute Security Policy Plugin>>:: Parses XML metadata contained within a metacard for security attributes on any number of XML elements in the metadata.
+
+<<_uploader_policy_plugin,Uploader Policy Plugin>>:: The Uploader Policy plugin allows a user to query or update a metacard that they uploaded regardless of any security policies that would otherwise prevent it.

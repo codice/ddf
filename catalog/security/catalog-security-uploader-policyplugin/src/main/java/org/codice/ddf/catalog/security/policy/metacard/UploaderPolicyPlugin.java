@@ -10,8 +10,8 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
-package ddf.sdk.plugin.filter;
+ */
+package org.codice.ddf.catalog.security.policy.metacard;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -31,7 +31,14 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
-public class FilterPostQueryPlugin implements PolicyPlugin {
+/**
+ * <p>
+ * Plugin that adds polices to the security map with the metacard's point of contact.
+ * This way, the UploaderPolicyExtension can check the user's email against the metacard's
+ * point of contact and give a security exception if they're equal.
+ * </p>
+ */
+public class UploaderPolicyPlugin implements PolicyPlugin {
 
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
@@ -42,7 +49,7 @@ public class FilterPostQueryPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl();
+        return getPointOfContactSecurity(input);
     }
 
     @Override
@@ -66,9 +73,7 @@ public class FilterPostQueryPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        HashMap<String, Set<String>> securityFinalMap = new HashMap<>();
-        securityFinalMap.put(Metacard.POINT_OF_CONTACT, new HashSet(Arrays.asList("admin")));
-        return new PolicyResponseImpl(new HashMap<>(), securityFinalMap);
+        return getPointOfContactSecurity(input.getMetacard());
     }
 
     @Override
@@ -81,5 +86,21 @@ public class FilterPostQueryPlugin implements PolicyPlugin {
     public PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
             throws StopProcessingException {
         return new PolicyResponseImpl();
+    }
+
+    private PolicyResponse getPointOfContactSecurity(Metacard metacard) {
+        if (metacard.getAttribute(Metacard.POINT_OF_CONTACT) != null) {
+            HashMap<String, Set<String>> securityFinalMap = new HashMap<>();
+            HashSet pocSet = new HashSet(Arrays.asList(metacard
+                    .getAttribute(Metacard.POINT_OF_CONTACT)
+                    .getValue()));
+            securityFinalMap.put(Metacard.POINT_OF_CONTACT + "-all", pocSet);
+            securityFinalMap.put(Metacard.POINT_OF_CONTACT + "-one", pocSet);
+            securityFinalMap.put(Metacard.POINT_OF_CONTACT + "-xacml", pocSet);
+
+            return new PolicyResponseImpl(new HashMap<>(), securityFinalMap);
+        } else {
+            return new PolicyResponseImpl();
+        }
     }
 }
