@@ -20,12 +20,13 @@
     {{/if}}
 </td>
 <td>
+    {{#if anyHasReturned}}
+        {{top}}
+    {{/if}}
     {{#if hasReturned}}
-        {{#if successful}}
-            {{top}}
-        {{else}}
+        {{#unless successful}}
             <span class="fa fa-warning" title="{{messages}}"></span>
-        {{/if}}
+        {{/unless}}
     {{else}}
         <span class="fa fa-circle-o-notch fa-spin" title="Waiting for source to return"></span>
     {{/if}}
