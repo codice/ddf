@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class MetacardBackupPluginTest {
                     + "                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>\n"
                     + "            </ows:BoundingBox>\n" + "        </csw:Record>";
 
-    private static final String OUTPUT_DIRECTORY = "target/";
+    private static final String OUTPUT_DIRECTORY = "target" + File.separator;
 
     private static final String FILE_STORAGE_PROVIDER_ID = "TestFileStorageProvider";
 

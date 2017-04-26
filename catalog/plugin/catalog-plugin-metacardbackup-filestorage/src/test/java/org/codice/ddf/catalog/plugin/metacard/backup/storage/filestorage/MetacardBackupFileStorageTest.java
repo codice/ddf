@@ -17,6 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class MetacardBackupFileStorageTest {
 
     private static final String PLUGIN_ID = "PluginId";
 
-    private static final String OUTPUT_DIRECTORY = "test-output/";
+    private static final String OUTPUT_DIRECTORY = "test-output" + File.separator;
 
     private static final String TEST_ID = "TestId";
 
@@ -67,7 +68,7 @@ public class MetacardBackupFileStorageTest {
 
     @Test
     public void testRefresh() {
-        String newBackupDir = "target/temp";
+        String newBackupDir = "target" + File.separator + "temp";
         String newId = "test2";
         Map<String, Object> properties = new HashMap<>();
         properties.put("outputDirectory", newBackupDir);
@@ -116,7 +117,8 @@ public class MetacardBackupFileStorageTest {
     public void testPath() throws Exception {
         fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
         Path path = fileStorageProvider.getMetacardDirectory(TEST_ID);
-        assertThat(path.toString(), is(OUTPUT_DIRECTORY + "Tes/tId/TestId"));
+        String testPath = "Tes" + File.separator + "tId" + File.separator + "TestId";
+        assertThat(path.toString(), is(OUTPUT_DIRECTORY + testPath));
     }
 
     @Test
