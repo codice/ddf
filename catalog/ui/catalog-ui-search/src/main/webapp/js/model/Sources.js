@@ -91,7 +91,8 @@ define([
             }
         },
         initialize: function () {
-            this.listenTo(this, 'change', this.sort);
+          this.listenTo(this, 'update add', _.debounce(this.determineWritableSources, 60));
+          this.listenTo(this, 'change', this.sort);
           this._types = new Types();
           this.determineLocalCatalog();
           this.listenTo(this, 'sync', this.updateLocalCatalog);
@@ -104,6 +105,13 @@ define([
             this._types.set(computeTypes(response));
             return response;
         },
+        determineWritableSources: function(){
+            $.get('/search/catalog/internal/writablesources').then(function(writableSources){
+                this.forEach(function(sourceModel){
+                    sourceModel.set('writable', writableSources.indexOf(sourceModel.id) >= 0);
+                }.bind(this));
+            }.bind(this));
+        },  
         determineLocalCatalog: function(){
             $.get('/search/catalog/internal/localcatalogid').then(function(data){
                 this.localCatalog = data['local-catalog-id'];

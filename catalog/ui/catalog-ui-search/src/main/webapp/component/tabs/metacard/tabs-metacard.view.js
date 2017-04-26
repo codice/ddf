@@ -59,7 +59,7 @@ define([
             } else if (result.isWorkspace() && ['History', 'Actions', 'Overwrite', 'Archive'].indexOf(activeTabName) >= 0){
                 this.model.set('activeTab', 'Summary');
             }
-            if (result.isRemote() && ['History', 'Associations', 'Quality', 'Archive', 'Overwrite'].indexOf(activeTabName) >=0){
+            if (result.isRemote() && ['History', 'Quality', 'Archive', 'Overwrite'].indexOf(activeTabName) >=0){
                 this.model.set('activeTab', 'Summary');
             }
             if (properties.isEditingRestricted() && ['Archive', 'Overwrite'].indexOf(activeTabName) >=0){

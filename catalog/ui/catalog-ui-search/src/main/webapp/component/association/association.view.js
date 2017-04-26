@@ -37,7 +37,7 @@ function determineChoices(view) {
     var choices = view.options.selectionInterface.getCurrentQuery().get('result').get('results').fullCollection.filter(function(result) {
         return result.get('metacard').id !== currentMetacard.get('metacard').id;
     }).filter(function(result){
-        return !(result.isWorkspace() || result.isRevision() || result.isRemote() || result.isDeleted());
+        return !(result.isWorkspace() || result.isRevision() || result.isUnwritable() || result.isDeleted());
     }).reduce(function(options, result) {
         options.push({
             label: result.get('metacard').get('properties').get('title'),
