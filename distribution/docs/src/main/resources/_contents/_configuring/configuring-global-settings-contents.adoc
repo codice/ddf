@@ -103,28 +103,46 @@ Does not change the address the system runs on.
 |HTTPS Port
 |org.codice.ddf.system.httpsPort
 |String
-|The https port used by the system.
+|The https port used to advertise the system.
 
-NOTE: This *DOES* change the port the system runs on.
+NOTE: This does not change the port the system runs on.
 |8993
 |Yes
 
 |HTTP Port
 |org.codice.ddf.system.httpPort
 |String
-|The http port used by the system.
+|The http port used to advertise the system.
 
-NOTE: This *DOES* change the port the system runs on.
+NOTE: This does not change the port the system runs on.
 |8181
 |Yes
 
 |Default Port
 |org.codice.ddf.system.port
 |String
-|The default port used to advertise the system. This should match either the http or https port.
+|The default port used to advertise the system. This should match either the above http or https port.
 
 NOTE: Does not change the port the system runs on.
 |8993
+|Yes
+
+|Internal HTTPS Port
+|org.codice.ddf.system.internalHttpsPort
+|String
+|The https port that the system uses.
+
+NOTE: This *DOES* change the port the system runs on.
+|8993
+|Yes
+
+|Internal HTTP Port
+|org.codice.ddf.system.internalHttpPort
+|String
+|The http port that the system uses.
+
+NOTE: This *DOES* change the port the system runs on.
+|8181
 |Yes
 
 |Root Context
