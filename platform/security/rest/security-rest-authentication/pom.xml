@@ -91,7 +91,6 @@
                             platform-util,
                             platform-util-unavailableurls
                         </Embed-Dependency>
-                        <Web-ContextPath>/login</Web-ContextPath>
                     </instructions>
                 </configuration>
             </plugin>
