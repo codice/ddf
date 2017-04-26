@@ -15,7 +15,6 @@ package org.codice.ddf.security.servlet.logout;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -53,8 +52,8 @@ public class TestLogoutServlet {
         System.setProperty("security.audit.roles", "none");
 
         HttpSession httpSession = mock(HttpSession.class);
-        when(request.getSession(anyBoolean())).thenReturn(httpSession);
-        when(request.getSession(anyBoolean())
+        when(request.getSession()).thenReturn(httpSession);
+        when(request.getSession()
                 .getId()).thenReturn("id");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.bar"));
 

@@ -68,6 +68,8 @@ public class FilterInjector {
         try {
             SessionCookieConfig sessionCookieConfig = context.getSessionCookieConfig();
             sessionCookieConfig.setPath("/");
+            sessionCookieConfig.setSecure(true);
+            sessionCookieConfig.setHttpOnly(true);
         } catch (Exception e) {
             LOGGER.trace(
                     "Failed trying to set the cookie config path to /. This can usually be ignored",

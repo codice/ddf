@@ -70,6 +70,11 @@ public class AuthenticationEndpoint {
             throw new IllegalArgumentException("Authentication request must use TLS.");
         }
 
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
         // Get the realm from the previous url
         String realm = BaseAuthenticationToken.DEFAULT_REALM;
         ContextPolicy policy = contextPolicyManager.getContextPolicy(prevurl);
@@ -98,7 +103,7 @@ public class AuthenticationEndpoint {
                 }
 
                 // Create a session and add the security token
-                HttpSession session = sessionFactory.getOrCreateSession(request);
+                session = sessionFactory.getOrCreateSession(request);
                 SecurityTokenHolder holder = (SecurityTokenHolder) session.getAttribute(
                         SecurityConstants.SAML_ASSERTION);
                 holder.addSecurityToken(realm, securityToken);

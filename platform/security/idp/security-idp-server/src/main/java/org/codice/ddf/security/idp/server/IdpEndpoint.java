@@ -867,6 +867,8 @@ public class IdpEndpoint implements Idp {
                             NewCookie.DEFAULT_VERSION,
                             null,
                             -1,
+                            null,
+                            true,
                             true);
                 } catch (MalformedURLException e) {
                     LOGGER.info("Unable to create session cookie. Client will need to log in again.",

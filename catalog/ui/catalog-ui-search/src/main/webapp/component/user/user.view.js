@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+/*global require,window,document*/
 var Marionette = require('marionette');
 var CustomElements = require('js/CustomElements');
 var user = require('component/singletons/user-instance');
@@ -53,32 +53,29 @@ module.exports = Marionette.ItemView.extend({
     },
     login: function(e) {
         var view = this;
-        this.deleteCookie();
         e.preventDefault(); // prevent form submission
 
         $.ajax({
-            type: 'GET',
-            url: '/search/catalog/internal/user',
+            type: "POST",
+            url: "/services/login",
+            data: {
+                "username": view.$('#username').val(),
+                "password": view.$('#password').val(),
+                "prevurl": window.location.href
+            },
             async: false,
             customErrorHandling: true,
-            beforeSend: function(xhr) {
-                var base64 = window.btoa(view.$('#username').val() + ':' + view.$('#password').val());
-                xhr.setRequestHeader('Authorization', 'Basic ' + base64);
-            },
-            success: function() {
-                document.location.reload();
-            },
-            error: function() {
+            error: function () {
                 announcement.announce({
                     title: 'Sign In Failed',
                     message: 'Please verify your credentials and attempt to sign in again.',
                     type: 'error'
                 });
+            },
+            success: function () {
+                document.location.reload();
             }
         });
-    },
-    deleteCookie: function() {
-        document.cookie = 'JSESSIONID=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;secure';
     },
     serializeData: function() {
         return this.model.toJSON();
