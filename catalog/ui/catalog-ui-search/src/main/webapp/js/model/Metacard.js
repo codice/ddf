@@ -547,6 +547,13 @@ define([
             isDeleted: function(){
                 return this.get('metacard').get('properties').get('metacard-tags').indexOf('deleted') >= 0;
             },
+            isUnwritable: function(){
+                return !this.isWritable();
+            },
+            isWritable: function(){
+                var originatingSource = Sources.get(this.get('metacard').get('properties').get('source-id'));
+                return originatingSource && originatingSource.get('writable') === true;
+            },
             isRemote: function(){
                 return this.get('metacard').get('properties').get('source-id') !== Sources.localCatalog;
             },
