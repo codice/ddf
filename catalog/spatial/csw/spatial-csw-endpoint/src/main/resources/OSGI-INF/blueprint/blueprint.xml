@@ -182,6 +182,9 @@
         </property>
     </bean>
 
+    <reference id="subscriptionContainer"
+               interface="org.codice.ddf.catalog.subscriptionstore.internal.SubscriptionContainer"/>
+
     <bean id="CswSubscriptionSvc"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint">
         <argument ref="eventProcessor"/>
@@ -190,6 +193,7 @@
         <argument ref="inputTransformerManager"/>
         <argument ref="validator"/>
         <argument ref="cswFilterFactory"/>
+        <argument ref="subscriptionContainer" />
     </bean>
 
     <service ref="ddf.catalog.endpoint.csw" interface="ddf.catalog.endpoint.CatalogEndpoint"/>
@@ -209,20 +213,6 @@
             <ref component-id="cswRecordCollectionWriter"/>
         </jaxrs:providers>
     </jaxrs:server>
-
-
-    <cm:managed-service-factory id="cswSubscriptionFactory" factory-pid="CSW_Subscription"
-                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" >
-        <cm:managed-component
-                class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" init-method="restore">
-            <argument ref="CswSubscriptionSvc"/>
-            <property name="filterXml" value=""/>
-            <property name="subscriptionId" value=""/>
-            <property name="deliveryMethodUrl" value=""/>
-            <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
-        </cm:managed-component>
-
-    </cm:managed-service-factory>
 
     <service ref="CswSubscriptionSvc" interface="ddf.catalog.event.Subscriber"/>
 
