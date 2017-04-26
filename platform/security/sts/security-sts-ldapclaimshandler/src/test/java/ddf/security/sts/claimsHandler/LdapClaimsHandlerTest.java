@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,8 +38,12 @@ import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
+import org.forgerock.opendj.ldap.LinkedAttribute;
+import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.forgerock.opendj.ldap.responses.BindResult;
+import org.forgerock.opendj.ldap.responses.SearchResultEntry;
+import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,9 +61,26 @@ import ddf.security.SubjectUtils;
 
 public class LdapClaimsHandlerTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LdapClaimsHandlerTest.class);
+    public static final String BINDING_TYPE = "Simple";
 
-    private static final String USER_NAME = "USER_NAME";
+    public static final String BIND_USER_DN = "cn=admin";
+
+    public static final String BIND_USER_CREDENTIALS = "test";
+
+    public static final String REALM = "kualdgalain";
+
+    public static final String KCD = "Kerberos Constrained Delegation";
+
+    public static final String ATTRIBUTE_NAME = "cn";
+
+    public static final String USER_BASE_DN = "ou=avengers,dc=marvel,dc=com";
+
+    public static final String USER_DN = String.format("%s=%s,%s",
+            ATTRIBUTE_NAME,
+            "Tony Stark",
+            USER_BASE_DN);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LdapClaimsHandlerTest.class);
 
     LdapClaimsHandler claimsHandler;
 
@@ -72,23 +94,37 @@ public class LdapClaimsHandlerTest {
 
     ClaimCollection claims;
 
-    @Before
-    public void setup() throws LdapException, URISyntaxException {
+    ConnectionEntryReader mockEntryReader;
 
+    SearchResultEntry mockEntry;
+
+    @Before
+    public void setup() throws LdapException, URISyntaxException, SearchResultReferenceIOException {
+        mockEntry = mock(SearchResultEntry.class);
+        LinkedAttribute attribute = new LinkedAttribute(ATTRIBUTE_NAME);
+        attribute.add("tstark");
+        mockEntryReader = mock(ConnectionEntryReader.class);
         mockBindRequest = mock(BindRequest.class);
         PowerMockito.mockStatic(BindMethodChooser.class);
-        when(BindMethodChooser.selectBindMethod(eq("Simple"),
-                eq("cn=admin"),
-                eq("test"),
-                eq("kualdgalain"),
-                eq("Kerberos Constrained Delegation"))).thenReturn(mockBindRequest);
-
+        when(BindMethodChooser.selectBindMethod(eq(BINDING_TYPE),
+                eq(BIND_USER_DN),
+                eq(BIND_USER_CREDENTIALS),
+                eq(REALM),
+                eq(KCD))).thenReturn(mockBindRequest);
         Map<String, String> map = new HashMap<>();
-        map.put("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
-                "emailaddress");
+        map.put("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+                ATTRIBUTE_NAME);
         PowerMockito.mockStatic(AttributeMapLoader.class);
         when(AttributeMapLoader.buildClaimsMapFile(anyString())).thenReturn(map);
-        when(AttributeMapLoader.getUser(anyObject())).thenReturn(USER_NAME);
+        when(AttributeMapLoader.getUser(any(Principal.class))).then(i -> i.getArgumentAt(0,
+                Principal.class)
+                .getName());
+
+        //TODO: Test the path where the method getUserBaseDN() returns null.
+        when(AttributeMapLoader.getBaseDN(any(Principal.class),
+                anyString(),
+                eq(false))).then(i -> i.getArgumentAt(1, String.class));
+
         claimsHandler = new LdapClaimsHandler();
         mockBindResult = mock(BindResult.class);
         mockConnection = mock(Connection.class);
@@ -96,16 +132,21 @@ public class LdapClaimsHandlerTest {
         when(mockConnectionFactory.getConnection()).thenReturn(mockConnection);
         when(mockConnection.bind(anyString(), any(char[].class))).thenReturn(mockBindResult);
         when(mockConnection.bind(any(BindRequest.class))).thenReturn(mockBindResult);
+        when(mockConnection.search(anyObject(), anyObject(), anyObject(), anyObject())).thenReturn(
+                mockEntryReader);
+        when(mockEntryReader.hasNext()).thenReturn(true, false);
+        when(mockEntryReader.readEntry()).thenReturn(mockEntry);
+        when(mockEntry.getAttribute(anyString())).thenReturn(attribute);
         claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
         claimsHandler.setPropertyFileLocation("thisstringisnotempty");
-        claimsHandler.setBindMethod("Simple");
-        claimsHandler.setBindUserCredentials("cn=admin");
-        claimsHandler.setBindUserCredentials("test");
-        claimsHandler.setRealm("kualdgalain");
-        claimsHandler.setKdcAddress("Kerberos Constrained Delegation");
+        claimsHandler.setBindMethod(BINDING_TYPE);
+        claimsHandler.setBindUserCredentials(BIND_USER_CREDENTIALS);
+        claimsHandler.setRealm(REALM);
+        claimsHandler.setKdcAddress(KCD);
+        claimsHandler.setUserBaseDN(USER_BASE_DN);
         claims = new ClaimCollection();
         Claim claim = new Claim();
-        claim.setClaimType(new URI(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
+        claim.setClaimType(new URI(SubjectUtils.NAME_IDENTIFIER_CLAIM_URI));
         claims.add(claim);
     }
 
@@ -131,7 +172,7 @@ public class LdapClaimsHandlerTest {
     public void testRetrieveClaimsValues() throws URISyntaxException {
         when(mockBindResult.isSuccess()).thenReturn(true);
         ClaimsParameters claimsParameters = mock(ClaimsParameters.class);
-        when(claimsParameters.getPrincipal()).thenReturn(new UserPrincipal(USER_NAME));
+        when(claimsParameters.getPrincipal()).thenReturn(new UserPrincipal(USER_DN));
 
         ProcessedClaimCollection processedClaims = claimsHandler.retrieveClaimValues(claims,
                 claimsParameters);
