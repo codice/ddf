@@ -15,8 +15,6 @@ package org.codice.ddf.commands.solr;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Command;
@@ -45,7 +43,7 @@ public class BackupCommand extends SolrCommands {
     String backupLocation;
 
     @Option(name = "-c", aliases = {"--coreName"}, multiValued = false, required = false,
-            description = "Name of the Solr core/collection to be backed up.  If not specified, the 'catalog' core/collection will be backed up.")
+            description = "Name of the Solr core/collection to be backed up. If not specified, the 'catalog' core/collection will be backed up.")
     String coreName = DEFAULT_CORE_NAME;
 
     @Option(name = "-a", aliases = {"--asyncBackup"}, multiValued = false, required = false,
@@ -64,7 +62,7 @@ public class BackupCommand extends SolrCommands {
 
     @Option(name = "-n", aliases = {"--numToKeep"}, multiValued = false, required = false,
             description =
-                    "Number of backups to be maintained.  If this backup opertion will result"
+                    "Number of backups to be maintained. If this backup opertion will result"
                             + " in exceeding this threshold, the oldest backup will be deleted. This option is not supported"
                             + " when backing up SolrCloud.")
     int numberToKeep = 0;
@@ -73,9 +71,9 @@ public class BackupCommand extends SolrCommands {
 
     private static final String CLOUD_SOLR_CLIENT_TYPE = "CloudSolrClient";
 
-    private static final Path SYSTEM_PROPERTIES_PATH = Paths.get(System.getProperty("ddf.home"), "etc", "system.properties");
-
     private static final String DEFAULT_CORE_NAME = "catalog";
+
+    private static final String SEE_COMMAND_USAGE_MESSAGE = "Invalid Argument(s). Please see command usage for details.";
 
     @Override
     public Object doExecute() throws Exception {
@@ -116,15 +114,7 @@ public class BackupCommand extends SolrCommands {
     private void performSolrCloudBackup() throws Exception {
         SolrClient client = null;
         try {
-            client = getSolrClient();
-
-            if (client == null) {
-                printErrorMessage(String.format(
-                        "Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
-                        ZOOKEEPER_HOSTS_PROP,
-                        SYSTEM_PROPERTIES_PATH));
-                return;
-            }
+            client = getCloudSolrClient();
 
             if (asyncBackupStatus) {
                 verifyCloudBackupStatusInput();
@@ -208,6 +198,10 @@ public class BackupCommand extends SolrCommands {
                 .setLocation(backupLocation);
         CollectionAdminResponse response = backup.process(client, collection);
         LOGGER.debug("Backup status: {}", response.getStatus());
+        if (response.getStatus() != 0) {
+            printErrorMessage("Backup failed. ");
+            printResponseErrorMessages(response);
+        }
         return response.isSuccess();
     }
 
@@ -235,20 +229,23 @@ public class BackupCommand extends SolrCommands {
                     requestStatus.getKey()));
             LOGGER.debug("Async backup request status: {}", requestStatus.getKey());
             if (requestStatus == RequestStatusState.FAILED) {
-                NamedList<String> errorMessages = requestStatusResponse.getErrorMessages();
-                if (errorMessages != null) {
-                    for (int i = 0; i < errorMessages.size(); i++) {
-                        String name = errorMessages.getName(i);
-                        String value = errorMessages.getVal(i);
-                        printErrorMessage(String.format("\t%d. Name: %s; Value: %s",
-                                i,
-                                name,
-                                value));
-                    }
-                }
+                printErrorMessage("Backup status failed. ");
+                printResponseErrorMessages(requestStatusResponse);
             }
         } catch (Exception e) {
-            printErrorMessage(String.format("Backup status failed. %s", e.getMessage()));
+            String message = e.getMessage() != null ? e.getMessage() : "Unable to get status of backup.";
+            printErrorMessage(String.format("Backup status failed. %s", message));
+        }
+    }
+
+    private void printResponseErrorMessages(CollectionAdminResponse response) {
+        NamedList<String> errorMessages = response.getErrorMessages();
+        if (errorMessages != null) {
+            for (int i = 0; i < errorMessages.size(); i++) {
+                String name = errorMessages.getName(i);
+                String value = errorMessages.getVal(i);
+                printErrorMessage(String.format("\t%d. Error Name: %s; Error Value: %s", i + 1, name, value));
+            }
         }
     }
 
@@ -259,15 +256,13 @@ public class BackupCommand extends SolrCommands {
 
     private void verifySingleNodeBackupInput() {
         if (asyncBackup || asyncBackupStatus || StringUtils.isNotBlank(asyncBackupReqId)) {
-            throw new IllegalArgumentException(
-                    "Invalid Argument(s). Run solr:backup --help for usage details.");
+            throw new IllegalArgumentException(SEE_COMMAND_USAGE_MESSAGE);
         }
     }
 
     private void verifyCloudBackupInput() {
         if (StringUtils.isBlank(backupLocation) || asyncBackupStatus || StringUtils.isNotBlank(asyncBackupReqId) || numberToKeep > 0) {
-            throw new IllegalArgumentException(
-                    "Invalid Argument(s). Run solr:backup --help for usage details.");
+            throw new IllegalArgumentException(SEE_COMMAND_USAGE_MESSAGE);
         }
     }
 
@@ -275,8 +270,7 @@ public class BackupCommand extends SolrCommands {
         if (StringUtils.isBlank(asyncBackupReqId) || numberToKeep > 0 || StringUtils.isNotBlank(
                 backupLocation) || !StringUtils.equals(coreName, DEFAULT_CORE_NAME)
                 || asyncBackup) {
-            throw new IllegalArgumentException(
-                    "Invalid Argument(s). Run solr:backup --help for usage details.");
+            throw new IllegalArgumentException(SEE_COMMAND_USAGE_MESSAGE);
         }
     }
 
@@ -291,41 +285,33 @@ public class BackupCommand extends SolrCommands {
                 coreName,
                 backupLocation,
                 backupName));
-        if (optimizeCollection(client, coreName)) {
-            try {
-                if (asyncBackup) {
-                    String requestId = backupAsync(client, coreName, backupLocation, backupName);
-                    printInfoMessage("Solr Cloud backup request Id: " + requestId);
-                } else {
-                    boolean isSuccess = backup(client, coreName, backupLocation, backupName);
-                    if (isSuccess) {
-                        printInfoMessage("Backup complete.");
-                    } else {
-                        printErrorMessage("Backup failed.");
-                    }
-                }
-            } catch (Exception e) {
-                printErrorMessage(String.format("Backup failed. %s", e.getMessage()));
-            }
-        }
-    }
-
-    private boolean optimizeCollection(SolrClient client, String collection) {
         try {
-            UpdateResponse updateResponse = client.optimize(collection);
-            LOGGER.debug("Optimization status: {}", updateResponse.getStatus());
-            if (updateResponse.getStatus() != 0) {
-                printErrorMessage(String.format("Backup failed. Unable to optimize collection [%s].",
-                        coreName));
-                return false;
+            optimizeCollection(client, coreName);
+            if (asyncBackup) {
+                String requestId = backupAsync(client, coreName, backupLocation, backupName);
+                printInfoMessage("Solr Cloud backup request Id: " + requestId);
             } else {
-                return true;
+                boolean isSuccess = backup(client, coreName, backupLocation, backupName);
+                if (isSuccess) {
+                    printInfoMessage("Backup complete.");
+                }
             }
         } catch (Exception e) {
-            printErrorMessage(String.format("Backup failed. Unable to optimize collection [%s]. %s",
-                    coreName,
-                    e.getMessage()));
-            return false;
+            String message = e.getMessage() != null ? e.getMessage() : "";
+            printErrorMessage(String.format("Backup failed. %s", e.getMessage()));
+        }
+
+    }
+
+    private void optimizeCollection(SolrClient client, String collection)
+            throws IOException, SolrServerException {
+        LOGGER.debug("Optimization of collection [{}] is in progress.", collection);
+        printInfoMessage(String.format("Optimizing of collection [%s] is in progress.", collection));
+        UpdateResponse updateResponse = client.optimize(collection);
+        LOGGER.debug("Optimization status: {}", updateResponse.getStatus());
+        if (updateResponse.getStatus() != 0) {
+            throw new RuntimeException(String.format("Unable to optimize collection [%s].",
+                    coreName));
         }
     }
 }

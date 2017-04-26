@@ -15,6 +15,8 @@ package org.codice.ddf.commands.solr;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -38,7 +40,9 @@ public abstract class SolrCommands extends OsgiCommandSupport {
 
     protected ConfigurationAdmin configurationAdmin;
 
-    static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
+    protected static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
+
+    protected static final Path SYSTEM_PROPERTIES_PATH = Paths.get(System.getProperty("ddf.home"), "etc", "system.properties");
 
     private static final Color ERROR_COLOR = Ansi.Color.RED;
 
@@ -87,7 +91,7 @@ public abstract class SolrCommands extends OsgiCommandSupport {
         printColor(INFO_COLOR, message);
     }
 
-    private SolrClient getCloudSolrClient() {
+    protected SolrClient getCloudSolrClient() {
         String zkHosts = System.getProperty(ZOOKEEPER_HOSTS_PROP);
         LOGGER.debug("Zookeeper hosts: {}", zkHosts);
 
@@ -97,18 +101,17 @@ public abstract class SolrCommands extends OsgiCommandSupport {
             LOGGER.debug("Created solr client: {}", client);
             return client;
         } else {
-            return null;
+            throw new IllegalArgumentException(String.format(
+                    "Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
+                    ZOOKEEPER_HOSTS_PROP,
+                    SYSTEM_PROPERTIES_PATH));
         }
     }
 
-    void shutdown(SolrClient client) throws IOException {
+    protected void shutdown(SolrClient client) throws IOException {
         if(client != null) {
             LOGGER.debug("Closing solr client");
             client.close();
         }
-    }
-
-    SolrClient getSolrClient() {
-        return getCloudSolrClient();
     }
 }

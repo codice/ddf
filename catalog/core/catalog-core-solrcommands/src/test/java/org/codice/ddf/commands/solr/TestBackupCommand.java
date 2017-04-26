@@ -17,6 +17,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,12 +39,16 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.JettyConfig;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.util.NamedList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -52,7 +58,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TestBackupCommand {
 
     private static final String DEFAULT_CORE_NAME = "catalog";
@@ -79,6 +89,12 @@ public class TestBackupCommand {
 
     private static final Path SYSTEM_PROPERTIES_PATH = Paths.get(DEFAULT_DDF_HOME, "etc", "system.properties");
 
+    private static final String SEE_COMMAND_USAGE_MESSAGE = "Invalid Argument(s). Please see command usage for details.";
+
+    private static final int SUCCESS_STATUS_CODE = 0;
+
+    private static final int FAILURE_STATUS_CODE = 500;
+
     HttpWrapper mockHttpWrapper;
 
     ConsoleOutput consoleOutput;
@@ -88,6 +104,9 @@ public class TestBackupCommand {
     private static String cipherSuites;
 
     private static String protocols;
+
+    @Mock
+    SolrClient mockSolrClient;
 
     @Rule
     @ClassRule
@@ -216,7 +235,7 @@ public class TestBackupCommand {
 
         // Setup exception expectations
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+        expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
         when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK,
                 ""));
@@ -246,7 +265,7 @@ public class TestBackupCommand {
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME);
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
 
         // Perform Test
         backupCommand.doExecute();
@@ -266,13 +285,13 @@ public class TestBackupCommand {
 
         // Setup exception expectations
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+        expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
         // Set system properties
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = getSynchronousBackupCommand(null, null);
+        BackupCommand backupCommand = getSynchronousBackupCommand(null, null, miniSolrCloud.getSolrClient());
 
         // Perform Test
         backupCommand.doExecute();
@@ -283,13 +302,13 @@ public class TestBackupCommand {
 
         // Setup exception expectations
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+        expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
         // Set system properties
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = getSynchronousBackupCommand(null, DEFAULT_CORE_NAME);
+        BackupCommand backupCommand = getSynchronousBackupCommand(null, DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
 
         // Perform Test
         backupCommand.doExecute();
@@ -302,7 +321,7 @@ public class TestBackupCommand {
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), null);
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), null, miniSolrCloud.getSolrClient());
 
         // Perform Test
         backupCommand.doExecute();
@@ -324,7 +343,7 @@ public class TestBackupCommand {
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), INVALID_COLLECTION_NAME);
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), INVALID_COLLECTION_NAME, miniSolrCloud.getSolrClient());
 
         // Perform Test
         backupCommand.doExecute();
@@ -338,7 +357,10 @@ public class TestBackupCommand {
                         INVALID_COLLECTION_NAME)));
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format(
-                        "Backup failed. Unable to optimize collection [%s]. Collection not found: %s",
+                        "Optimizing of collection [%s] is in progress.",
+                        INVALID_COLLECTION_NAME)));
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format("Backup failed. Collection not found: %s",
                         INVALID_COLLECTION_NAME,
                         INVALID_COLLECTION_NAME)));
     }
@@ -348,13 +370,13 @@ public class TestBackupCommand {
 
         // Setup exception expectations
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+        expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
         // Set system properties
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME);
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
         backupCommand.numberToKeep = 3;
 
         // Perform Test
@@ -366,13 +388,13 @@ public class TestBackupCommand {
 
         // Setup exception expectations
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+        expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
         // Set system properties
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = getBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, true, true, "myRequestId1");
+        BackupCommand backupCommand = getBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, true, true, "myRequestId1", miniSolrCloud.getSolrClient());
 
         // Perform Test
         backupCommand.doExecute();
@@ -383,13 +405,13 @@ public class TestBackupCommand {
 
         // Setup exception expectations
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+        expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
         // Set system properties
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand
-        BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME);
+        BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
         backupCommand.numberToKeep = 3;
 
         // Perform Test
@@ -397,13 +419,13 @@ public class TestBackupCommand {
     }
 
     @Test
-    public void testPerformSolrCloudAsynchronousBackupAndStatus() throws Exception {
+    public void testPerformSolrCloudAsynchronousBackup() throws Exception {
 
         // Set system properties
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand for async backup
-        BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME);
+        BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
 
         // Perform Test (backup)
         backupCommand.doExecute();
@@ -416,12 +438,26 @@ public class TestBackupCommand {
                         backupCommand.backupLocation,
                         DEFAULT_CORE_NAME)));
         assertThat(consoleOutput.getOutput(), containsString("Solr Cloud backup request Id:"));
+    }
+
+    @Test
+    public void testPerformSolrCloudAsynchronousBackupStatus() throws Exception {
+
+        // Set system properties
+        setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
+
+        // Setup BackupCommand for async backup
+        BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
+
+        // Perform Test (backup)
+        backupCommand.doExecute();
 
         String requestId = getRequestId(consoleOutput.getOutput());
-        consoleOutput.reset();
 
         // Setup BackupCommand for status lookup
-        BackupCommand statusBackupCommand = getStatusBackupCommand(requestId);
+        BackupCommand statusBackupCommand = getStatusBackupCommand(requestId, miniSolrCloud.getSolrClient());
+
+        consoleOutput.reset();
 
         // Perform status lookup
         statusBackupCommand.doExecute();
@@ -435,13 +471,13 @@ public class TestBackupCommand {
     public void testGetSolrCloudAsynchronousBackupStatusNoRequestId() throws Exception {
         // Setup exception expectations
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+        expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
         // Set system properties
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand for status lookup
-        BackupCommand statusBackupCommand = getStatusBackupCommand(null);
+        BackupCommand statusBackupCommand = getStatusBackupCommand(null, miniSolrCloud.getSolrClient());
 
         statusBackupCommand.doExecute();
     }
@@ -451,19 +487,26 @@ public class TestBackupCommand {
 
         // Setup exception expectations
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Invalid Argument(s). Run solr:backup --help for usage details.");
+        expectedException.expectMessage(SEE_COMMAND_USAGE_MESSAGE);
 
         // Set system properties
         setupSystemProperties(SOLR_CLOUD_CLIENT_TYPE);
 
         // Setup BackupCommand (ie. solr:backup -i <request Id>)
-        BackupCommand invalidBackupStatusCommand = getBackupCommand(null, null, false, false, "myRequestId0");
+        BackupCommand invalidBackupStatusCommand = getBackupCommand(null, null, false, false, "myRequestId0", miniSolrCloud.getSolrClient());
 
         invalidBackupStatusCommand.doExecute();
     }
 
     @Test
     public void testGetCloudSolrClientNoZkHosts() throws Exception {
+
+        // Setup exception expectations
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage(String.format(
+                "Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
+                ZOOKEEPER_HOSTS_PROP,
+                SYSTEM_PROPERTIES_PATH));
 
         // Set the solr client type system property so that the
         // BackupCommand knows that it needs to backup solr cloud.
@@ -474,11 +517,289 @@ public class TestBackupCommand {
         backupCommand.backupLocation = getBackupLocation();
 
         backupCommand.doExecute();
+    }
 
-        // Verify
-        assertThat(consoleOutput.getOutput(), containsString(String.format(
-                String.format("Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
-                        ZOOKEEPER_HOSTS_PROP, SYSTEM_PROPERTIES_PATH))));
+    /**
+     * Verify that backup failure messages are printed to the console.  In this test,
+     * the colleciton optimization succeeds but the backup fails.
+     */
+    @Test
+    public void testSolrCloudBackupFailsWithErrorMessages() throws Exception {
+
+        // Set the solr client type system property so that the
+        // BackupCommand knows that it needs to backup solr cloud.
+        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+
+        setupMockSolrClientForBackupFailure(DEFAULT_CORE_NAME, getErrorMessages(2));
+
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, mockSolrClient);
+
+        backupCommand.doExecute();
+
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format(
+                        "Backing up collection [%s] to shared location [%s] using backup name [%s_",
+                        DEFAULT_CORE_NAME,
+                        backupCommand.backupLocation,
+                        DEFAULT_CORE_NAME)));
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format(
+                        "Optimizing of collection [%s] is in progress.",
+                        DEFAULT_CORE_NAME)));
+        assertThat(consoleOutput.getOutput(), containsString("Backup failed."));
+        assertThat(consoleOutput.getOutput(),
+                containsString("1. Error Name: error name 1; Error Value: error value 1"));
+        assertThat(consoleOutput.getOutput(),
+                containsString("2. Error Name: error name 2; Error Value: error value 2"));
+    }
+
+    /**
+     * Verify that backup status failure messages are printed to the console.
+     */
+    @Test
+    public void testSolrCloudBackupStatusRequestFailsWithErrorMessages() throws Exception {
+
+        // Set the solr client type system property so that the
+        // BackupCommand knows that it needs to backup solr cloud.
+        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+
+        BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
+
+        // Perform async backup
+        backupCommand.doExecute();
+
+        // Get requestId so that we can request backup status
+        String requestId = getRequestId(consoleOutput.getOutput());
+
+        setupMockSolrClientForBackupStatusFailure(getErrorMessages(1));
+        BackupCommand backupStatusCommand = getStatusBackupCommand(requestId, mockSolrClient);
+
+        // Perform backup status request
+        backupStatusCommand.doExecute();
+
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format(
+                        "Backing up collection [%s] to shared location [%s] using backup name [%s_",
+                        DEFAULT_CORE_NAME,
+                        backupCommand.backupLocation,
+                        DEFAULT_CORE_NAME)));
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format("Optimizing of collection [%s] is in progress.",
+                        DEFAULT_CORE_NAME)));
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format("Backup status for request Id [%s] is [%s].",
+                        requestId,
+                        RequestStatusState.FAILED.getKey())));
+        assertThat(consoleOutput.getOutput(), containsString("Backup status failed."));
+        assertThat(consoleOutput.getOutput(), containsString("1. Error Name: error name 1; Error Value: error value 1"));
+    }
+
+    @Test
+    public void testSolrCloudBackupStatusRequestThrowsException() throws Exception {
+
+        // Set the solr client type system property so that the
+        // BackupCommand knows that it needs to backup solr cloud.
+        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+
+        BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
+
+        // Perform async backup
+        backupCommand.doExecute();
+
+        // Get requestId so that we can request backup status
+        String requestId = getRequestId(consoleOutput.getOutput());
+
+        setupMockSolrClientForStatusThrowsException();
+        BackupCommand backupStatusCommand = getStatusBackupCommand(requestId, mockSolrClient);
+
+        // Perform backup status request
+        backupStatusCommand.doExecute();
+
+        assertThat(consoleOutput.getOutput(), containsString("Backup status failed."));
+    }
+
+    /**
+     * Collections are optimized before backups. This test verifies that an error message is
+     * printed to the console when optimization of a collection fails.
+     */
+    @Test
+    public void testSolrCloudBackupFailsDuringOptimizationWithErrorCode() throws Exception {
+
+        // Set the solr client type system property so that the
+        // BackupCommand knows that it needs to backup solr cloud.
+        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+
+        setupMockSolrClientForCollectionOptimization(DEFAULT_CORE_NAME, FAILURE_STATUS_CODE);
+
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(),
+                DEFAULT_CORE_NAME,
+                mockSolrClient);
+
+        // Peform sync backup
+        backupCommand.doExecute();
+
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format(
+                        "Backing up collection [%s] to shared location [%s] using backup name [%s_",
+                        DEFAULT_CORE_NAME,
+                        backupCommand.backupLocation,
+                        DEFAULT_CORE_NAME)));
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format("Optimizing of collection [%s] is in progress.",
+                        DEFAULT_CORE_NAME)));
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format(
+                        "Backup failed. Unable to optimize collection [%s]",
+                        DEFAULT_CORE_NAME)));
+    }
+
+    /**
+     * Collections are optimized before backups. This test verifies that an error message is
+     * printed to the console when optimization of a collection throws an exception.
+     */
+    @Test
+    public void testSolrCloudBackupFailsDuringOptimizationThrowsException() throws Exception {
+        setupSolrClientType(SOLR_CLOUD_CLIENT_TYPE);
+
+        setupMockSolrClientForCollectionOptimizationThrowsException(DEFAULT_CORE_NAME);
+
+        BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(),
+                DEFAULT_CORE_NAME,
+                mockSolrClient);
+
+        backupCommand.doExecute();
+
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format(
+                        "Backing up collection [%s] to shared location [%s] using backup name [%s_",
+                        DEFAULT_CORE_NAME,
+                        backupCommand.backupLocation,
+                        DEFAULT_CORE_NAME)));
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format("Optimizing of collection [%s] is in progress.",
+                        DEFAULT_CORE_NAME)));
+        assertThat(consoleOutput.getOutput(),
+                containsString("Backup failed."));
+    }
+
+    private NamedList<String> getErrorMessages(int numberOfMessages) {
+        NamedList<String> errorMessages = new NamedList<>();
+        for(int i = 0; i < numberOfMessages; i++) {
+            errorMessages.add("error name " + (i + 1), "error value " + (i + 1));
+        }
+        return errorMessages;
+    }
+
+    private void setupMockSolrClientForBackupFailure(String collection, NamedList<String> backupErrorMessages) throws Exception {
+        setupMockSolrClientForBackup(collection, SUCCESS_STATUS_CODE, FAILURE_STATUS_CODE, backupErrorMessages);
+    }
+
+    /**
+     * See https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-BACKUP:BackupCollection for
+     * reqeusts and responses.
+     */
+    private NamedList<Object> getResponseHeader(int statusCode) {
+        NamedList<Object> responseHeader = new NamedList<>();
+        responseHeader.add("status", statusCode);
+        responseHeader.add("QTime", 345);
+        return responseHeader;
+    }
+
+    /**
+     * See https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-BACKUP:BackupCollection for
+     * reqeusts and responses.
+     */
+    private void setupMockSolrClientForBackup(String collection, int optimizationStatusCode,
+            int backupStatusCode, NamedList<String> backupErrorMessages) throws Exception {
+
+        UpdateResponse optimizationResponse = getMockOptimizationResponse(optimizationStatusCode);
+        when(mockSolrClient.optimize(eq(collection))).thenReturn(optimizationResponse);
+
+        NamedList<Object> responseHeader = getResponseHeader(backupStatusCode);
+
+        NamedList<Object> mockResponse = new NamedList<>();
+        mockResponse.add("responseHeader", responseHeader);
+        if (backupErrorMessages != null) {
+            mockResponse.add("failure", backupErrorMessages);
+        } else {
+            mockResponse.add("success", new Object());
+        }
+
+        if(collection != null) {
+            when(mockSolrClient.request(any(SolrRequest.class), eq(collection))).thenReturn(
+                    mockResponse);
+        }
+    }
+
+    private void setupMockSolrClientForCollectionOptimization(String collection,
+            int optimizationStatusCode) throws Exception {
+        UpdateResponse optimizationResponse = getMockOptimizationResponse(optimizationStatusCode);
+        when(mockSolrClient.optimize(eq(collection))).thenReturn(optimizationResponse);
+    }
+
+    private void setupMockSolrClientForCollectionOptimizationThrowsException(String collection)
+            throws Exception {
+        when(mockSolrClient.optimize(eq(collection))).thenThrow(SolrServerException.class);
+    }
+
+    private void setupMockSolrClientForBackupStatusFailure(NamedList<String> backupErrorMessages)
+            throws Exception {
+        NamedList<Object> response = getResponseForBackupStatus(FAILURE_STATUS_CODE,
+                RequestStatusState.FAILED,
+                backupErrorMessages);
+        when(mockSolrClient.request(any(SolrRequest.class), isNull(String.class))).thenReturn(
+                response);
+    }
+
+    private void setupMockSolrClientForStatusThrowsException() throws Exception {
+        when(mockSolrClient.request(any(SolrRequest.class), isNull(String.class))).thenThrow(
+                SolrServerException.class);
+    }
+
+    /**
+     * See https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-BACKUP:BackupCollection for
+     * reqeusts and responses.
+     */
+    private NamedList<Object> getResponseForBackupStatus(int statusCode, RequestStatusState requestStatusState, NamedList<String> errorMessages) {
+        NamedList<Object> responseHeader = getResponseHeader(statusCode);
+        NamedList<String> status = getStatus(requestStatusState);
+        NamedList<Object> response = new NamedList<>();
+        response.add("status", status);
+        response.add("responseHeader", responseHeader);
+        if (errorMessages != null) {
+            response.add("failure", errorMessages);
+        } else {
+            response.add("success", new Object());
+        }
+
+        return response;
+    }
+
+    /**
+     * On https://github.com/apache/lucene-solr see CollectionAdminRequest.RequestStatusResponse.getRequestStatus() for example
+     * usage.
+     * https://github.com/apache/lucene-solr/blob/master/solr/solrj/src/java/org/apache/solr/client/solrj/request/CollectionAdminRequest.java#L1343-L1346
+     */
+    private NamedList<String> getStatus(RequestStatusState requestStatusState) {
+        NamedList<String> status = new NamedList();
+        if (requestStatusState == RequestStatusState.FAILED){
+            status.add("state", RequestStatusState.FAILED.getKey());
+        } else if (requestStatusState == RequestStatusState.COMPLETED) {
+            status.add("state", RequestStatusState.COMPLETED.getKey());
+        } else if (requestStatusState == RequestStatusState.NOT_FOUND) {
+            status.add("state", RequestStatusState.NOT_FOUND.getKey());
+        } else if (requestStatusState == RequestStatusState.RUNNING) {
+            status.add("state", RequestStatusState.RUNNING.getKey());
+        } else if (requestStatusState == RequestStatusState.SUBMITTED) {
+            status.add("state", RequestStatusState.SUBMITTED.getKey());
+        }
+        return status;
+    }
+
+    private UpdateResponse getMockOptimizationResponse(int status) {
+        UpdateResponse mockOptimizationResponse = mock(UpdateResponse.class);
+        when(mockOptimizationResponse.getStatus()).thenReturn(status);
+        return mockOptimizationResponse;
     }
 
     private ResponseWrapper mockResponse(int statusCode, String responseBody) {
@@ -549,24 +870,24 @@ public class TestBackupCommand {
                 .commit();
     }
 
-    private BackupCommand getSynchronousBackupCommand(String backupLocation, String collection) {
-        return getBackupCommand(backupLocation, collection, false, false, null);
+    private BackupCommand getSynchronousBackupCommand(String backupLocation, String collection, SolrClient solrClient) {
+        return getBackupCommand(backupLocation, collection, false, false, null, solrClient);
     }
 
-    private BackupCommand getAsnychronousBackupCommand(String backupLocation, String collection) {
-        return getBackupCommand(backupLocation, collection, true, false, null);
+    private BackupCommand getAsnychronousBackupCommand(String backupLocation, String collection, SolrClient solrClient) {
+        return getBackupCommand(backupLocation, collection, true, false, null, solrClient);
     }
 
-    private BackupCommand getStatusBackupCommand(String requestId) {
-        return getBackupCommand(null, null, false, true, requestId);
+    private BackupCommand getStatusBackupCommand(String requestId, SolrClient solrClient) {
+        return getBackupCommand(null, null, false, true, requestId, solrClient);
     }
 
     private BackupCommand getBackupCommand(String backupLocation, String collection,
-            boolean asyncBackup, boolean asyncBackupStatus, String requestId) {
+            boolean asyncBackup, boolean asyncBackupStatus, String requestId, SolrClient solrClient) {
         BackupCommand backupCommand = new BackupCommand() {
             @Override
-            SolrClient getSolrClient() {
-                return miniSolrCloud.getSolrClient();
+            protected SolrClient getCloudSolrClient() {
+                return solrClient;
             }
 
             // We get the solr client from the MiniSolrCloudCluster, so we don't
@@ -574,7 +895,7 @@ public class TestBackupCommand {
             // We don't create a MiniSolrCloudCluster for each test to reduce the
             // time it takes to run the tests.
             @Override
-            void shutdown(SolrClient client) {
+            protected void shutdown(SolrClient client) {
                 // do nothing
             }
         };
