@@ -5,6 +5,9 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr:'25'))
     }
+    triggers {
+        cron('H H(20-23) * * *')
+    }
     stages {
         stage('Setup') {
             steps{
@@ -12,7 +15,7 @@ pipeline {
             }
         }
         stage('Parallel Build') {
-            // TODO refactor this stage from scripted syntax to declarative syntax to match the rest of the stages - https://issues.jenkins-ci.org/browse/JENKINS-41334
+            // TODO DDF-2971 refactor this stage from scripted syntax to declarative syntax to match the rest of the stages - https://issues.jenkins-ci.org/browse/JENKINS-41334
             steps{
                 parallel(
                     linux: {
@@ -21,7 +24,7 @@ pipeline {
                                 checkout scm
                                 withMaven(maven: 'M3', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings') {
                                     sh 'mvn clean install -pl !distribution/test/itests/test-itests-ddf'
-                                    sh 'mvn install -pl distribution/test/itests/test-itests-ddf'
+                                    sh 'mvn install -pl distribution/test/itests/test-itests-ddf -nsu'
                                 }
                             }
                         }
@@ -31,7 +34,7 @@ pipeline {
                                 checkout scm
                                 withMaven(maven: 'M3', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings') {
                                     bat 'mvn clean install -pl !distribution/test/itests/test-itests-ddf'
-                                    bat 'mvn install -pl distribution/test/itests/test-itests-ddf'
+                                    bat 'mvn install -pl distribution/test/itests/test-itests-ddf -nsu'
                                 }
                             }
                         }
@@ -44,7 +47,7 @@ pipeline {
             steps{
                 withMaven(maven: 'M3', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice_settings.xml') {
                     checkout scm
-                    sh 'mvn javadoc:aggregate -Pjavadoc -DskipStatic=true -DskipTests=true'
+                    sh 'mvn javadoc:aggregate -DskipStatic=true -DskipTests=true'
                     sh 'mvn deploy -DskipStatic=true -DskipTests=true'
                 }
             }
