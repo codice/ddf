@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.plugin.metacard.backup;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -173,7 +172,11 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
     }
 
     public void setBackupInvalidMetacards(Boolean backupInvalidMetacards) {
-        this.backupInvalidMetacards = backupInvalidMetacards;
+        if (backupInvalidMetacards != null) {
+            this.backupInvalidMetacards = backupInvalidMetacards;
+        } else {
+            this.backupInvalidMetacards = false;
+        }
     }
 
     public void refresh(Map<String, Object> properties) {
@@ -292,15 +295,11 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
         } else {
             Attribute metacardTagsAttr = metacard.getAttribute(Core.METACARD_TAGS);
             if (metacardTagsAttr != null) {
-                List<Serializable> metacardTags = metacardTagsAttr.getValues();
-                for (Serializable metacardTag : metacardTags) {
-                    if (metacardTag instanceof String) {
-                        String metacardTagStr = (String) metacardTag;
-                        if (metacardTagStr.equalsIgnoreCase(INVALID_TAG)) {
-                            return false;
-                        }
-                    }
-                }
+                return metacardTagsAttr.getValues()
+                        .stream()
+                        .filter(String.class::isInstance)
+                        .map(String.class::cast)
+                        .noneMatch(INVALID_TAG::equalsIgnoreCase);
             }
             return true;
         }
