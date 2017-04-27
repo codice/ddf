@@ -16,7 +16,9 @@ package ddf.security.sts.claimsHandler;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -51,8 +53,6 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.security.SubjectUtils;
 
@@ -75,12 +75,10 @@ public class LdapClaimsHandlerTest {
 
     public static final String USER_BASE_DN = "ou=avengers,dc=marvel,dc=com";
 
-    public static final String USER_DN = String.format("%s=%s,%s",
-            ATTRIBUTE_NAME,
-            "Tony Stark",
-            USER_BASE_DN);
+    public static final String DUMMY_VALUE = "Tony Stark";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LdapClaimsHandlerTest.class);
+    public static final String USER_DN = String.format("%s=%s,%s", ATTRIBUTE_NAME, DUMMY_VALUE,
+            USER_BASE_DN);
 
     LdapClaimsHandler claimsHandler;
 
@@ -98,11 +96,15 @@ public class LdapClaimsHandlerTest {
 
     SearchResultEntry mockEntry;
 
+    ClaimsParameters claimsParameters;
+
     @Before
     public void setup() throws LdapException, URISyntaxException, SearchResultReferenceIOException {
+        claimsParameters = mock(ClaimsParameters.class);
+        when(claimsParameters.getPrincipal()).thenReturn(new UserPrincipal(USER_DN));
         mockEntry = mock(SearchResultEntry.class);
         LinkedAttribute attribute = new LinkedAttribute(ATTRIBUTE_NAME);
-        attribute.add("tstark");
+        attribute.add(USER_DN);
         mockEntryReader = mock(ConnectionEntryReader.class);
         mockBindRequest = mock(BindRequest.class);
         PowerMockito.mockStatic(BindMethodChooser.class);
@@ -155,7 +157,7 @@ public class LdapClaimsHandlerTest {
         when(mockBindResult.isSuccess()).thenReturn(false);
 
         ProcessedClaimCollection testClaimCollection =
-                claimsHandler.retrieveClaimValues(new ClaimCollection(), new ClaimsParameters());
+                claimsHandler.retrieveClaimValues(new ClaimCollection(), claimsParameters);
         assertThat(testClaimCollection.isEmpty(), is(true));
     }
 
@@ -164,20 +166,19 @@ public class LdapClaimsHandlerTest {
         when(mockBindResult.isSuccess()).thenReturn(false);
 
         ProcessedClaimCollection processedClaims =
-                claimsHandler.retrieveClaimValues(new ClaimCollection(), new ClaimsParameters());
+                claimsHandler.retrieveClaimValues(new ClaimCollection(), claimsParameters);
         assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
     }
 
     @Test
     public void testRetrieveClaimsValues() throws URISyntaxException {
         when(mockBindResult.isSuccess()).thenReturn(true);
-        ClaimsParameters claimsParameters = mock(ClaimsParameters.class);
-        when(claimsParameters.getPrincipal()).thenReturn(new UserPrincipal(USER_DN));
 
         ProcessedClaimCollection processedClaims = claimsHandler.retrieveClaimValues(claims,
                 claimsParameters);
 
-        assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
+        assertThat(processedClaims, hasSize(1));
+        Claim claim = processedClaims.get(0);
+        assertThat(claim.getValues(), contains(DUMMY_VALUE));
     }
-
 }
