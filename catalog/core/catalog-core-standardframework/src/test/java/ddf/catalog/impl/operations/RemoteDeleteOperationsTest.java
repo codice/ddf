@@ -268,8 +268,8 @@ public class RemoteDeleteOperationsTest {
                 .map(Metacard::getTitle)
                 .collect(Collectors.toList());
 
-        assertThat(reason, idList1, containsInAnyOrder(idList2));
-        assertThat(reason, titleList1, containsInAnyOrder(titleList2));
+        assertThat(reason, idList1, containsInAnyOrder(idList2.toArray()));
+        assertThat(reason, titleList1, containsInAnyOrder(titleList2.toArray()));
     }
 
     private void setUpFrameworkProperties() {
