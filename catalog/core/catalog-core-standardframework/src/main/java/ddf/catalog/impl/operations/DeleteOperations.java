@@ -100,14 +100,12 @@ public class DeleteOperations {
     public DeleteOperations(FrameworkProperties frameworkProperties,
             QueryOperations queryOperations, SourceOperations sourceOperations,
             OperationsSecuritySupport opsSecuritySupport,
-            OperationsMetacardSupport opsMetacardSupport,
-            OperationsCatalogStoreSupport opsCatStoreSupport) {
+            OperationsMetacardSupport opsMetacardSupport) {
         this.frameworkProperties = frameworkProperties;
         this.queryOperations = queryOperations;
         this.sourceOperations = sourceOperations;
         this.opsSecuritySupport = opsSecuritySupport;
         this.opsMetacardSupport = opsMetacardSupport;
-        this.setOpsCatStoreSupport(opsCatStoreSupport);
     }
 
     public void setHistorian(Historian historian) {
