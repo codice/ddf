@@ -15,6 +15,7 @@
 package ddf.catalog.impl.operations;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
 
@@ -120,8 +122,10 @@ public class RemoteDeleteOperationsTest {
                 deleteRequest,
                 deleteResponse);
 
-        assertThat("Assert return of identical deleteResponse",
-                resultDeleteResponse.getDeletedMetacards() == deleteResponse.getDeletedMetacards());
+        assertEqualMetacards("Assert return of identical deleteResponse",
+                resultDeleteResponse.getDeletedMetacards(),
+                deleteResponse.getDeletedMetacards());
+
         verify(opsCatStoreSupport).isCatalogStoreRequest(deleteRequest);
 
     }
@@ -136,8 +140,10 @@ public class RemoteDeleteOperationsTest {
                 deleteRequest,
                 deleteResponse);
 
-        assertThat("Assert return of identical deleteResponse",
-                resultDeleteResponse.getDeletedMetacards() == deleteResponse.getDeletedMetacards());
+        assertEqualMetacards("Assert return of identical deleteResponse",
+                resultDeleteResponse.getDeletedMetacards(),
+                deleteResponse.getDeletedMetacards());
+
         verify(opsCatStoreSupport).isCatalogStoreRequest(deleteRequest);
     }
 
@@ -205,8 +211,10 @@ public class RemoteDeleteOperationsTest {
         DeleteResponse resultDeleteResponse = remoteDeleteOperations.performRemoteDelete(
                 deleteRequest,
                 deleteResponse);
-        assertThat("Assert return of identical deleteResponse",
-                resultDeleteResponse.getDeletedMetacards() == deleteResponse.getDeletedMetacards());
+
+        assertEqualMetacards("Assert return of identical deleteResponse",
+                resultDeleteResponse.getDeletedMetacards(),
+                deleteResponse.getDeletedMetacards());
 
         verify(opsCatStoreSupport).isCatalogStoreRequest(deleteRequest);
         verify(opsCatStoreSupport).getCatalogStoresForRequest(any(), any());
@@ -242,6 +250,26 @@ public class RemoteDeleteOperationsTest {
         verify(opsCatStoreSupport).getCatalogStoresForRequest(any(), any());
         verify(catalogStoreMock).isAvailable();
         verify(catalogStoreMock).delete(any());
+    }
+
+    private void assertEqualMetacards(String reason, List<Metacard> metacardList1,
+            List<Metacard> metacardList2) {
+
+        List<String> idList1 = metacardList1.stream()
+                .map(Metacard::getId)
+                .collect(Collectors.toList());
+        List<String> idList2 = metacardList2.stream()
+                .map(Metacard::getId)
+                .collect(Collectors.toList());
+        List<String> titleList1 = metacardList1.stream()
+                .map(Metacard::getTitle)
+                .collect(Collectors.toList());
+        List<String> titleList2 = metacardList2.stream()
+                .map(Metacard::getTitle)
+                .collect(Collectors.toList());
+
+        assertThat(reason, idList1, containsInAnyOrder(idList2));
+        assertThat(reason, titleList1, containsInAnyOrder(titleList2));
     }
 
     private void setUpFrameworkProperties() {
