@@ -264,6 +264,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
 
             var coords = model.getPoints('location');
             var cartographics = _.map(coords, function(coord) {
+                coord = convertPointCoordinate(coord);
                 return Cesium.Cartographic.fromDegrees(coord.longitude, coord.latitude, coord.altitude);
             });
 
