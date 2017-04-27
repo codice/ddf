@@ -41,51 +41,6 @@ import com.xebialabs.restito.semantics.Function;
 public class ChunkedContent {
     protected static final Logger LOGGER = LoggerFactory.getLogger(ChunkedContent.class);
 
-    private static Action getChunkedResponseHeaders() {
-        return composite(contentType("text/plain"),
-                header("Transfer-Encoding", "chunked"),
-                header("content-type", "text/plain"));
-    }
-
-    private static Action getRangeSupportHeaders() {
-        return header("Accept-Ranges", "bytes");
-    }
-
-    /**
-     * Returns a composite action that holds the headers required for a plain text response as well
-     * as the response function itself. Unless the headers included are not wanted, this is the
-     * preferred way to set the Restito response actions.
-     * <p>
-     * Note that additional headers may also be needed for specific endpoint functionality. This
-     * method returns a composite action so that additional headers can be set alongside this action.
-     *
-     * @param responseMessage    Message to be sent in response.
-     * @param delayBetweenChunks Time to wait between sending each character of the message.
-     * @param numberOfFailures   Number of times to fail (simulate network disconnect) after sending
-     *                           the first character. Once this number is reached, the message will
-     *                           send successfully.
-     * @param headerCapture      Object that can be called to return the request's headers.
-     * @return composite action that holds the headers required for a plain text response as well
-     * as the response function itself.
-     */
-    private static Action createChunkedContent(String responseMessage, Duration delayBetweenChunks,
-            int numberOfFailures, HeaderCapture headerCapture, boolean isInfinite) {
-
-        Action response = composite(getChunkedResponseHeaders(),
-                custom(new ChunkedContentFunction(responseMessage,
-                        delayBetweenChunks,
-                        numberOfFailures,
-                        headerCapture,
-                        isInfinite)));
-
-        // adds the Accept-Ranges header for range-header support
-        if (headerCapture != null) {
-            response = composite(getRangeSupportHeaders(), response);
-        }
-
-        return response;
-    }
-
     public static class ChunkedContentBuilder {
         private String message;
 
@@ -94,8 +49,6 @@ public class ChunkedContent {
         private int numberOfFailures = 0;
 
         private HeaderCapture headerCapture = null;
-
-        private boolean isInfinite = false;
 
         /**
          * Set message.
@@ -114,17 +67,6 @@ public class ChunkedContent {
          */
         public ChunkedContentBuilder delayBetweenChunks(Duration delay) {
             this.delayBetweenChunks = delay;
-            return this;
-        }
-
-        /**
-         * Determines whether the download will ever complete.
-         *
-         * @param isInfinite Whether the download will never complete
-         * @return Builder object
-         */
-        public ChunkedContentBuilder isInfinite(boolean isInfinite) {
-            this.isInfinite = isInfinite;
             return this;
         }
 
@@ -161,12 +103,53 @@ public class ChunkedContent {
          * @return Action constructed from builder object.
          */
         public Action build() {
-            return createChunkedContent(message,
-                    delayBetweenChunks,
-                    numberOfFailures,
-                    headerCapture,
-                    isInfinite);
+            return createChunkedContent(message, delayBetweenChunks, numberOfFailures,
+                    headerCapture);
         }
+    }
+
+    private static Action getChunkedResponseHeaders() {
+        return composite(contentType("text/plain"),
+                header("Transfer-Encoding", "chunked"),
+                header("content-type", "text/plain"));
+    }
+
+    private static Action getRangeSupportHeaders() {
+        return header("Accept-Ranges", "bytes");
+    }
+
+    /**
+     * Returns a composite action that holds the headers required for a plain text response as well
+     * as the response function itself. Unless the headers included are not wanted, this is the
+     * preferred way to set the Restito response actions.
+     * <p>
+     * Note that additional headers may also be needed for specific endpoint functionality. This
+     * method returns a composite action so that additional headers can be set alongside this action.
+     *
+     * @param responseMessage  Message to be sent in response.
+     * @param delayBetweenChunks     Time to wait between sending each character of the message.
+     * @param numberOfFailures Number of times to fail (simulate network disconnect) after sending
+     *                         the first character. Once this number is reached, the message will
+     *                         send successfully.
+     * @param headerCapture    Object that can be called to return the request's headers.
+     * @return composite action that holds the headers required for a plain text response as well
+     * as the response function itself.
+     */
+    private static Action createChunkedContent(String responseMessage,
+            Duration delayBetweenChunks, int numberOfFailures, HeaderCapture headerCapture) {
+
+        Action response = composite(getChunkedResponseHeaders(),
+                custom(new ChunkedContentFunction(responseMessage,
+                delayBetweenChunks,
+                numberOfFailures,
+                headerCapture)));
+
+        // adds the Accept-Ranges header for range-header support
+        if (headerCapture != null) {
+            response = composite(getRangeSupportHeaders(), response);
+        }
+
+        return response;
     }
 
     /**
@@ -183,28 +166,6 @@ public class ChunkedContent {
 
         private HeaderCapture headerCapture;
 
-        private boolean isInfinite;
-
-        /**
-         * Constructor for a response that has a delay and a number of planned failures.
-         * Supports range headers.
-         *
-         * @param responseMessage  Message to be sent in response.
-         * @param messageDelay     Time to wait between sending each character of the message.
-         * @param numberOfFailures Number of times to fail (simulate network disconnect) after sending
-         *                         the first character. Once this number is reached, the message will
-         *                         send successfully.
-         * @param headerCapture    HeaderCapture object that contains the request's headers.
-         */
-        private ChunkedContentFunction(String responseMessage, Duration messageDelay,
-                int numberOfFailures, HeaderCapture headerCapture, boolean isInfinite) {
-            this.responseMessage = responseMessage.toCharArray();
-            this.messageDelayMs = messageDelay.toMillis();
-            this.numberOfFailures = numberOfFailures;
-            this.headerCapture = headerCapture;
-            this.isInfinite = isInfinite;
-        }
-
         /**
          * Implementation of the Function interface's apply method. This class can also be used as a
          * Function<Response, Response> directly in the Restito response if custom actions are needed.
@@ -218,13 +179,32 @@ public class ChunkedContent {
             return respond(response);
         }
 
+        /**
+         * Constructor for a response that has a delay and a number of planned failures.
+         * Supports range headers.
+         *
+         * @param responseMessage  Message to be sent in response.
+         * @param messageDelay     Time to wait between sending each character of the message.
+         * @param numberOfFailures Number of times to fail (simulate network disconnect) after sending
+         *                         the first character. Once this number is reached, the message will
+         *                         send successfully.
+         * @param headerCapture    HeaderCapture object that contains the request's headers.
+         */
+        private ChunkedContentFunction(String responseMessage, Duration messageDelay,
+                int numberOfFailures, HeaderCapture headerCapture) {
+            this.responseMessage = responseMessage.toCharArray();
+            this.messageDelayMs = messageDelay.toMillis();
+            this.numberOfFailures = numberOfFailures;
+            this.headerCapture = headerCapture;
+        }
+
         private Response respond(Response response) {
             Map<String, String> requestHeaders = Collections.emptyMap();
             if (headerCapture != null) {
                 requestHeaders = headerCapture.getHeaders();
-                LOGGER.debug("ChunkedContentResponse: extracted request headers [{}]",
-                        requestHeaders);
+                LOGGER.debug("ChunkedContentResponse: extracted request headers [{}]", requestHeaders);
             }
+
 
             // if range header is present, return 206 - Partial Content status and set Content-Range header if byte Offset is specified
             ByteRange byteRange;
@@ -232,8 +212,7 @@ public class ChunkedContent {
                 byteRange = new ByteRange(requestHeaders.get("range"), responseMessage.length);
                 response.setStatus(HttpStatus.PARTIAL_CONTENT_206);
                 response.setHeader("Content-Range", byteRange.contentRangeValue());
-                LOGGER.debug(
-                        "ChunkedContentResponse: Response range header set to [Content-Range: {}]",
+                LOGGER.debug("ChunkedContentResponse: Response range header set to [Content-Range: {}]",
                         byteRange.contentRangeValue());
             } else {
                 response.setStatus(HttpStatus.OK_200);
@@ -248,54 +227,30 @@ public class ChunkedContent {
          * Sends message to the client one character at a time. Appropriate headers must be set on
          * the Response object before calling this method.
          *
-         * @param response  Response object containing an output stream to the client
-         * @param byteRange Object containing the range of bytes to send to the client
+         * @param response   Response object containing an output stream to the client
+         * @param byteRange  Object containing the range of bytes to send to the client
          * @return
          */
         private Response send(Response response, ByteRange byteRange) {
             // send each character, respecting the range header
-            if (isInfinite) {
-                while (true) {
-                    try {
-                        LOGGER.debug("ChunkedContentResponse: Sending character [{}]", 'a');
-                        response.getNIOWriter()
-                                .write('a');
-                        response.flush();
-                        sleep(messageDelayMs);
+            for (int i = byteRange.start; i <= byteRange.end; i++) {
+                try {
+                    LOGGER.debug("ChunkedContentResponse: Sending character [{}]", responseMessage[i]);
+                    response.getNIOWriter()
+                            .write(responseMessage[i]);
+                    response.flush();
+                    sleep(messageDelayMs);
 
-                        // fail download by ungracefully closing the output buffer to simulate connection lost
-                        if (numberOfRetries < numberOfFailures) {
-                            response.getOutputBuffer()
-                                    .recycle();
-                            numberOfRetries++;
-                            return response;
-                        }
-                    } catch (IOException | InterruptedException e) {
-                        LOGGER.error("Error", e);
-                        break;
+                    // fail download by ungracefully closing the output buffer to simulate connection lost
+                    if (numberOfRetries < numberOfFailures) {
+                        response.getOutputBuffer()
+                                .recycle();
+                        numberOfRetries++;
+                        return response;
                     }
-                }
-            } else {
-                for (int i = byteRange.start; i <= byteRange.end; i++) {
-                    try {
-                        LOGGER.debug("ChunkedContentResponse: Sending character [{}]",
-                                responseMessage[i]);
-                        response.getNIOWriter()
-                                .write(responseMessage[i]);
-                        response.flush();
-                        sleep(messageDelayMs);
-
-                        // fail download by ungracefully closing the output buffer to simulate connection lost
-                        if (numberOfRetries < numberOfFailures) {
-                            response.getOutputBuffer()
-                                    .recycle();
-                            numberOfRetries++;
-                            return response;
-                        }
-                    } catch (IOException | InterruptedException e) {
-                        LOGGER.error("Error", e);
-                        break;
-                    }
+                } catch (IOException | InterruptedException e) {
+                    LOGGER.error("Error", e);
+                    break;
                 }
             }
             response.finish();
@@ -343,11 +298,8 @@ public class ChunkedContent {
                     } else {
                         end = Integer.parseInt(endToken);
                     }
-                } catch (NumberFormatException e) {
-                    LOGGER.error(
-                            "Incoming request's range header is improperly formatted: [range={}]",
-                            rangeHeaderValue,
-                            e);
+                }catch (NumberFormatException e){
+                    LOGGER.error("Incoming request's range header is improperly formatted: [range={}]", rangeHeaderValue, e);
                     throw e;
                 }
             }
@@ -357,5 +309,6 @@ public class ChunkedContent {
             }
         }
     }
+
 
 }
