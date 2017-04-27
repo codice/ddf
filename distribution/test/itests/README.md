@@ -4,7 +4,7 @@
 Use the `isDebugEnabled` property to force the integration test to pause during startup and wait for a debugger to connect to port 5005.
 
 ```
-mvn clean test -DisDebugEnabled=true
+mvn clean verify -DisDebugEnabled=true
 ```
 
 ## SSH Into a Running Instance
@@ -18,8 +18,8 @@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 9101 admin@lo
 The Pax Exam tests support Maven Surefire Plugin properties.  One useful property is the `test` property to select a single test class or method to execute.
 
 ```
-mvn clean test -Dtest=TestFederation
-mvn clean test -Dtest=TestFederation#<testMethodName>
+mvn clean verify -Dit.test=TestFederation
+mvn clean verify -Dit.test=TestFederation#<testMethodName>
 ```
 
 This can be combined with the `isDebugEnabled` property.
@@ -28,7 +28,7 @@ This can be combined with the `isDebugEnabled` property.
 Use the `keepRuntimeFolder` property to keep the test container for test failure investigation.
 
 ```
-mvn clean test -DkeepRuntimeFolder=true
+mvn clean verify -DkeepRuntimeFolder=true
 ```
 
 The runtime folder used during the test will be available under `target/exam/<GUID>`.  It is possible to rerun the instance and verify that all bundles (excluding the test probe) are installed and working properly.  You can also inspect the logs under `target/exam/<GUID>/data/logs`.
