@@ -105,6 +105,7 @@
         <argument ref="cfOpsMetacard"/>
         <argument ref="cfOpsCatStore"/>
         <property name="historian" ref="historian"/>
+        <property name="remoteDeleteOperations" ref="remoteDeleteOperations"/>
     </bean>
 
     <bean id="cfTransformOps" class="ddf.catalog.impl.operations.TransformOperations">
