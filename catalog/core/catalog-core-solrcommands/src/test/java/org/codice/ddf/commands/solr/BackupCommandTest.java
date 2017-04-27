@@ -63,7 +63,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestBackupCommand {
+public class BackupCommandTest {
 
     private static final String DEFAULT_CORE_NAME = "catalog";
 
@@ -838,7 +838,7 @@ public class TestBackupCommand {
     }
 
     private static void uploadDefaultConfigset() throws Exception {
-        miniSolrCloud.uploadConfigSet(Paths.get(TestBackupCommand.class.getClassLoader()
+        miniSolrCloud.uploadConfigSet(Paths.get(BackupCommandTest.class.getClassLoader()
                 .getResource("configset")
                 .getPath()), DEFAULT_CONFIGSET);
     }
