@@ -488,28 +488,26 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test(expected = NoHttpResponseException.class)
     public void testBasicAuthOverHttp() throws Exception {
-        String url = SERVICE_ROOT.getUrl()
-                .replace("https", "http") + "/catalog/query?q=*&src=local";
-
-        configureRestForBasic(SDK_SOAP_CONTEXT);
-
-        waitForSecurityHandlers(url);
+        String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
         //try basic auth over http
-        given().auth()
-                .basic("admin", "admin")
-                .when()
-                .get(url);
-        configureRestForGuest(SDK_SOAP_CONTEXT);
-        getSecurityPolicy().waitForGuestAuthReady(url);
+        try {
+            configureRestForBasic(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+
+            given().auth()
+                    .basic("admin", "admin")
+                    .when()
+                    .get(url.replace("https://", "http://"));
+        } finally {
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            getSecurityPolicy().waitForGuestAuthReady(url);
+        }
     }
 
     @Test
     public void testTLSv11() throws Exception {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
-
-        configureRestForBasic(SDK_SOAP_CONTEXT);
-        waitForSecurityHandlers(url);
 
         SSLContext sslContext = SSLContext.getInstance("TLSv1.1");
         sslContext.init(null, null, null);
@@ -519,30 +517,12 @@ public class TestSecurity extends AbstractIntegrationTest {
         config.sslConfig(SSLConfig.sslConfig()
                 .sslSocketFactory(sslSocketFactory));
 
-        given().config(config)
-                .auth()
-                .basic("admin", "admin")
-                .when()
-                .get(url)
-                .then()
-                .log()
-                .all()
-                .assertThat()
-                .statusCode(equalTo(200))
-                .assertThat()
-                .header("Set-Cookie", containsString("JSESSIONID"))
-                .extract()
-                .cookie("JSESSIONID");
-        configureRestForGuest(SDK_SOAP_CONTEXT);
-        getSecurityPolicy().waitForGuestAuthReady(url);
+        checkAuthenticationRequest(config, url);
     }
 
     @Test
     public void testTLSv12() throws Exception {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
-
-        configureRestForBasic(SDK_SOAP_CONTEXT);
-        waitForSecurityHandlers(url);
 
         SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
         sslContext.init(null, null, null);
@@ -552,22 +532,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         config.sslConfig(SSLConfig.sslConfig()
                 .sslSocketFactory(sslSocketFactory));
 
-        given().config(config)
-                .auth()
-                .basic("admin", "admin")
-                .when()
-                .get(url)
-                .then()
-                .log()
-                .all()
-                .assertThat()
-                .statusCode(equalTo(200))
-                .assertThat()
-                .header("Set-Cookie", containsString("JSESSIONID"))
-                .extract()
-                .cookie("JSESSIONID");
-        configureRestForGuest(SDK_SOAP_CONTEXT);
-        getSecurityPolicy().waitForGuestAuthReady(url);
+        checkAuthenticationRequest(config, url);
     }
 
     @Test
@@ -578,9 +543,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-        configureRestForBasic(SDK_SOAP_CONTEXT);
-        waitForSecurityHandlers(url);
-
         SSLContext sslContext = SSLContext.getInstance("TLSv1");
         sslContext.init(null, null, null);
         SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
@@ -589,18 +551,23 @@ public class TestSecurity extends AbstractIntegrationTest {
         config.sslConfig(SSLConfig.sslConfig()
                 .sslSocketFactory(sslSocketFactory));
 
-        given().config(config)
-                .auth()
-                .basic("admin", "admin")
-                .when()
-                .get(url)
-                .then()
-                .assertThat()
-                .statusCode(401);
+        try {
+            configureRestForBasic(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
 
-        System.setProperty("https.protocols", httpsProtocols);
-        configureRestForGuest(SDK_SOAP_CONTEXT);
-        getSecurityPolicy().waitForGuestAuthReady(url);
+            given().config(config)
+                    .auth()
+                    .basic("admin", "admin")
+                    .when()
+                    .get(url)
+                    .then()
+                    .assertThat()
+                    .statusCode(401);
+        } finally {
+            System.setProperty("https.protocols", httpsProtocols);
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            getSecurityPolicy().waitForGuestAuthReady(url);
+        }
     }
 
     @Test
@@ -628,21 +595,11 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-        configureRestForBasic(SDK_SOAP_CONTEXT);
-        waitForSecurityHandlers(url);
-
-        given().config(config)
-                .auth()
-                .basic("admin", "admin")
-                .when()
-                .get(url)
-                .then()
-                .assertThat()
-                .statusCode(200);
-
-        System.setProperty("https.cipherSuites", originalCiphers);
-        configureRestForGuest(SDK_SOAP_CONTEXT);
-        getSecurityPolicy().waitForGuestAuthReady(url);
+        try {
+            checkAuthenticationRequest(config, url);
+        } finally {
+            System.setProperty("https.cipherSuites", originalCiphers);
+        }
     }
 
     @Test
@@ -719,21 +676,22 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-        configureRestForBasic(SDK_SOAP_CONTEXT);
-        waitForSecurityHandlers(url);
-
-        given().config(config)
-                .auth()
-                .basic("admin", "admin")
-                .when()
-                .get(url)
-                .then()
-                .assertThat()
-                .statusCode(401);
-
-        System.setProperty("https.cipherSuites", originalCiphers);
-        configureRestForGuest(SDK_SOAP_CONTEXT);
-        getSecurityPolicy().waitForGuestAuthReady(url);
+        try {
+            configureRestForBasic(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+            given().config(config)
+                    .auth()
+                    .basic("admin", "admin")
+                    .when()
+                    .get(url)
+                    .then()
+                    .assertThat()
+                    .statusCode(401);
+        } finally {
+            System.setProperty("https.cipherSuites", originalCiphers);
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            getSecurityPolicy().waitForGuestAuthReady(url);
+        }
     }
 
     @Test
@@ -1716,5 +1674,28 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .extract()
                 .response()
                 .print();
+    }
+
+    private void checkAuthenticationRequest(RestAssuredConfig config, String url) throws Exception {
+        try {
+            configureRestForBasic(SDK_SOAP_CONTEXT);
+            waitForSecurityHandlers(url);
+
+            given().config(config)
+                    .auth()
+                    .basic("admin", "admin")
+                    .when()
+                    .get(url)
+                    .then()
+                    .assertThat()
+                    .statusCode(equalTo(200))
+                    .assertThat()
+                    .header("Set-Cookie", containsString("JSESSIONID"))
+                    .extract()
+                    .cookie("JSESSIONID");
+        } finally {
+            configureRestForGuest(SDK_SOAP_CONTEXT);
+            getSecurityPolicy().waitForGuestAuthReady(url);
+        }
     }
 }
