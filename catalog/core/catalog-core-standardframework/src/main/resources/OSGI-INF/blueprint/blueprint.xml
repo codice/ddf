@@ -67,12 +67,6 @@
         <property name="masker" ref="sourceListener"/>
     </bean>
 
-    <bean id="remoteDeleteOperations" class="ddf.catalog.impl.operations.RemoteDeleteOperations">
-        <argument ref="frameworkProperties"/>
-        <argument ref="cfOpsMetacard"/>
-        <argument ref="cfOpsCatStore"/>
-    </bean>
-
     <bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
         <cm:managed-properties persistent-id="ddf.catalog.util.impl.SourcePoller"
                                update-strategy="container-managed"/>

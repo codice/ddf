@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.istack.Nullable;
+
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.impl.FrameworkProperties;
@@ -40,23 +42,23 @@ public class RemoteDeleteOperations {
 
     static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
-    private OperationsCatalogStoreSupport opsCatStoreSupport;
-
     private FrameworkProperties frameworkProperties;
 
     private OperationsMetacardSupport opsMetacardSupport;
 
+    private OperationsCatalogStoreSupport opsCatStoreSupport;
+
     public RemoteDeleteOperations(FrameworkProperties frameworkProperties,
             OperationsMetacardSupport opsMetacardSupport,
             OperationsCatalogStoreSupport opsCatStoreSupport) {
-
-        this.opsCatStoreSupport = opsCatStoreSupport;
         this.frameworkProperties = frameworkProperties;
         this.opsMetacardSupport = opsMetacardSupport;
-
+        this.opsCatStoreSupport = opsCatStoreSupport;
     }
 
-    public DeleteResponse performRemoteDelete(DeleteRequest deleteRequest, DeleteResponse deleteResponse) {
+    @Nullable
+    public DeleteResponse performRemoteDelete(DeleteRequest deleteRequest,
+            @Nullable DeleteResponse deleteResponse) {
 
         if (!opsCatStoreSupport.isCatalogStoreRequest(deleteRequest)) {
             return deleteResponse;
@@ -90,6 +92,7 @@ public class RemoteDeleteOperations {
                             null,
                             "CatalogStore is not available"));
                 } else {
+                    // TODO: 4/27/17 Address bug in DDF-2970 for overwriting deleted metacards
                     DeleteResponse response = store.delete(deleteRequest);
                     properties.put(store.getId(), new ArrayList<>(response.getDeletedMetacards()));
                     metacards = response.getDeletedMetacards();
@@ -105,7 +108,7 @@ public class RemoteDeleteOperations {
         return new DeleteResponseImpl(deleteRequest, properties, metacards, exceptions);
     }
 
-    void setOpsCatStoreSupport(OperationsCatalogStoreSupport opsCatStoreSupport) {
+    public void setOpsCatStoreSupport(OperationsCatalogStoreSupport opsCatStoreSupport) {
         this.opsCatStoreSupport = opsCatStoreSupport;
     }
 

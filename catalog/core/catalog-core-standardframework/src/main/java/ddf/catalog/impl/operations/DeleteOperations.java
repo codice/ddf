@@ -616,16 +616,8 @@ public class DeleteOperations {
         }
     }
 
-    OperationsCatalogStoreSupport getOpsCatStoreSupport() {
-        return opsCatStoreSupport;
-    }
-
     public void setOpsCatStoreSupport(OperationsCatalogStoreSupport opsCatStoreSupport) {
         this.opsCatStoreSupport = opsCatStoreSupport;
-    }
-
-    public RemoteDeleteOperations getRemoteDeleteOperations() {
-        return remoteDeleteOperations;
     }
 
     public void setRemoteDeleteOperations(RemoteDeleteOperations remoteDeleteOperations) {
