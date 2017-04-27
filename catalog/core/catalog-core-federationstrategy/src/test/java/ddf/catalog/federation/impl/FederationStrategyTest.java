@@ -199,12 +199,12 @@ public class FederationStrategyTest {
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
-                opsMetacard,
-                opsCatStore);
+                opsMetacard);
 
         opsStorage.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
+        deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
