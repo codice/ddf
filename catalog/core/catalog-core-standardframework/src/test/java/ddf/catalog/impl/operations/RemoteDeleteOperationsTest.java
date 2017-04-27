@@ -350,7 +350,6 @@ public class RemoteDeleteOperationsTest {
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
-                opsMetacard,
-                opsCatStore);
+                opsMetacard);
     }
 }
