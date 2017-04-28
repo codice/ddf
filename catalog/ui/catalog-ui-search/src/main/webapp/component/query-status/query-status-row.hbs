@@ -27,7 +27,8 @@
         {{#unless successful}}
             <span class="fa fa-warning" title="{{messages}}"></span>
         {{/unless}}
-    {{else}}
+    {{/if}}
+    {{#if anyHasNotReturned}}
         <span class="fa fa-circle-o-notch fa-spin" title="Waiting for source to return"></span>
     {{/if}}
 </td>

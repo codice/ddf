@@ -29,6 +29,7 @@ module.exports = Marionette.ItemView.extend({
         modelJSON.fromremote = modelJSON.top - modelJSON.fromcache;
         modelJSON.elapsed = modelJSON.elapsed / 1000;
         modelJSON.anyHasReturned = modelJSON.hasReturned || modelJSON.cacheHasReturned;
+        modelJSON.anyHasNotReturned = !modelJSON.hasReturned || !modelJSON.cacheHasReturned;
         return modelJSON;
     }
 });
