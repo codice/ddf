@@ -77,7 +77,9 @@ public class LdapClaimsHandlerTest {
 
     public static final String DUMMY_VALUE = "Tony Stark";
 
-    public static final String USER_DN = String.format("%s=%s,%s", ATTRIBUTE_NAME, DUMMY_VALUE,
+    public static final String USER_DN = String.format("%s=%s,%s",
+            ATTRIBUTE_NAME,
+            DUMMY_VALUE,
             USER_BASE_DN);
 
     LdapClaimsHandler claimsHandler;
@@ -121,12 +123,9 @@ public class LdapClaimsHandlerTest {
         when(AttributeMapLoader.getUser(any(Principal.class))).then(i -> i.getArgumentAt(0,
                 Principal.class)
                 .getName());
-
-        //TODO: Test the path where the method getUserBaseDN() returns null.
         when(AttributeMapLoader.getBaseDN(any(Principal.class),
                 anyString(),
                 eq(false))).then(i -> i.getArgumentAt(1, String.class));
-
         claimsHandler = new LdapClaimsHandler();
         mockBindResult = mock(BindResult.class);
         mockConnection = mock(Connection.class);
