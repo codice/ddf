@@ -65,7 +65,6 @@
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-attributeregistry/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-injectattribute/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
@@ -426,6 +425,13 @@
         <feature prerequisite="true">admin-app</feature>
         <feature>catalog-core-api</feature>
         <feature>catalog-core</feature>
+        <feature>catalog-camel-component</feature>
+    </feature>
+
+    <feature name="catalog-camel-component" install="auto" version="${project.version}"
+             description="Camel compoenent for catalog framework operations">
+        <feature prerequisite="true">catalog-core</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-client-info" install="auto" version="${project.version}"
