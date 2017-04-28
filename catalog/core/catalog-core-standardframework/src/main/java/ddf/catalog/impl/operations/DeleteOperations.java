@@ -46,13 +46,11 @@ import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.OperationTransaction;
-import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
-import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.AccessPlugin;
@@ -63,7 +61,6 @@ import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
@@ -79,8 +76,7 @@ import ddf.catalog.util.impl.Requests;
 public class DeleteOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteOperations.class);
 
-    private static final Logger INGEST_LOGGER =
-            LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
+    static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
     private static final String PRE_INGEST_ERROR = "Error during pre-ingest:\n\n";
 
@@ -95,21 +91,21 @@ public class DeleteOperations {
 
     private final OperationsMetacardSupport opsMetacardSupport;
 
-    private final OperationsCatalogStoreSupport opsCatStoreSupport;
+    private OperationsCatalogStoreSupport opsCatStoreSupport;
 
     private Historian historian;
+
+    private RemoteDeleteOperations remoteDeleteOperations;
 
     public DeleteOperations(FrameworkProperties frameworkProperties,
             QueryOperations queryOperations, SourceOperations sourceOperations,
             OperationsSecuritySupport opsSecuritySupport,
-            OperationsMetacardSupport opsMetacardSupport,
-            OperationsCatalogStoreSupport opsCatStoreSupport) {
+            OperationsMetacardSupport opsMetacardSupport) {
         this.frameworkProperties = frameworkProperties;
         this.queryOperations = queryOperations;
         this.sourceOperations = sourceOperations;
         this.opsSecuritySupport = opsSecuritySupport;
         this.opsMetacardSupport = opsMetacardSupport;
-        this.opsCatStoreSupport = opsCatStoreSupport;
     }
 
     public void setHistorian(Historian historian) {
@@ -168,7 +164,9 @@ public class DeleteOperations {
                             .size());
 
             deleteResponse = performLocalDelete(deleteRequest, deleteStorageRequest);
-            deleteResponse = performRemoteDelete(deleteRequest, deleteResponse);
+
+            deleteResponse = remoteDeleteOperations.performRemoteDelete(deleteRequest,
+                    deleteResponse);
 
             deleteResponse = postProcessPreAuthorizationPlugins(deleteResponse);
             deleteRequest = populateDeleteRequestPolicyMap(deleteRequest, deleteResponse);
@@ -298,25 +296,6 @@ public class DeleteOperations {
                 .put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
 
         return deleteRequest;
-    }
-
-    private DeleteResponse performRemoteDelete(DeleteRequest deleteRequest,
-            DeleteResponse deleteResponse) {
-        if (!opsCatStoreSupport.isCatalogStoreRequest(deleteRequest)) {
-            return deleteResponse;
-        }
-
-        DeleteResponse remoteDeleteResponse = doRemoteDelete(deleteRequest);
-        if (deleteResponse == null) {
-            deleteResponse = remoteDeleteResponse;
-            deleteResponse = injectAttributes(deleteResponse);
-        } else {
-            deleteResponse.getProperties()
-                    .putAll(remoteDeleteResponse.getProperties());
-            deleteResponse.getProcessingErrors()
-                    .addAll(remoteDeleteResponse.getProcessingErrors());
-        }
-        return deleteResponse;
     }
 
     private DeleteResponse performLocalDelete(DeleteRequest deleteRequest,
@@ -512,7 +491,8 @@ public class DeleteOperations {
         QueryImpl queryImpl =
                 new QueryImpl(queryOperations.getFilterWithAdditionalFilters(idFilters),
                         1,  /* start index */
-                        deleteRequest.getAttributeValues().size(),  /* page size */
+                        deleteRequest.getAttributeValues()
+                                .size(),  /* page size */
                         null,
                         false, /* total result count */
                         0   /* timeout */);
@@ -529,19 +509,6 @@ public class DeleteOperations {
         }
 
         return deleteRequest;
-    }
-
-    private DeleteResponse injectAttributes(DeleteResponse response) {
-        List<Metacard> deletedMetacards = response.getDeletedMetacards()
-                .stream()
-                .map((original) -> opsMetacardSupport.applyInjectors(original,
-                        frameworkProperties.getAttributeInjectors()))
-                .collect(Collectors.toList());
-
-        return new DeleteResponseImpl(response.getRequest(),
-                response.getProperties(),
-                deletedMetacards,
-                response.getProcessingErrors());
     }
 
     /**
@@ -567,36 +534,6 @@ public class DeleteOperations {
         }
 
         return deleteRequest;
-    }
-
-    private DeleteResponse doRemoteDelete(DeleteRequest deleteRequest) {
-        HashSet<ProcessingDetails> exceptions = new HashSet<>();
-        Map<String, Serializable> properties = new HashMap<>();
-
-        List<CatalogStore> stores = opsCatStoreSupport.getCatalogStoresForRequest(deleteRequest,
-                exceptions);
-
-        List<Metacard> metacards = new ArrayList<>();
-        for (CatalogStore store : stores) {
-            try {
-                if (!store.isAvailable()) {
-                    exceptions.add(new ProcessingDetailsImpl(store.getId(),
-                            null,
-                            "CatalogStore is not available"));
-                } else {
-                    DeleteResponse response = store.delete(deleteRequest);
-                    properties.put(store.getId(), new ArrayList<>(response.getDeletedMetacards()));
-                    metacards = response.getDeletedMetacards();
-                }
-            } catch (IngestException e) {
-                INGEST_LOGGER.error("Error deleting metacards for CatalogStore {}",
-                        store.getId(),
-                        e);
-                exceptions.add(new ProcessingDetailsImpl(store.getId(), e));
-            }
-        }
-
-        return new DeleteResponseImpl(deleteRequest, properties, metacards, exceptions);
     }
 
     /**
@@ -637,6 +574,21 @@ public class DeleteOperations {
         return true;
     }
 
+    // TODO: 4/24/17 Move to future utility class (called in RemoteDeleteOperations as well)
+    // https://codice.atlassian.net/browse/DDF-2962
+    private DeleteResponse injectAttributes(DeleteResponse response) {
+        List<Metacard> deletedMetacards = response.getDeletedMetacards()
+                .stream()
+                .map((original) -> opsMetacardSupport.applyInjectors(original,
+                        frameworkProperties.getAttributeInjectors()))
+                .collect(Collectors.toList());
+
+        return new DeleteResponseImpl(response.getRequest(),
+                response.getProperties(),
+                deletedMetacards,
+                response.getProcessingErrors());
+    }
+
     private void logFailedQueryInfo(DeleteRequest deleteRequest, QueryResponse query) {
         if (LOGGER.isDebugEnabled()) {
             final String attributeName = deleteRequest.getAttributeName();
@@ -661,4 +613,13 @@ public class DeleteOperations {
                     .collect(Collectors.joining(", ", "[", "]")));
         }
     }
+
+    public void setOpsCatStoreSupport(OperationsCatalogStoreSupport opsCatStoreSupport) {
+        this.opsCatStoreSupport = opsCatStoreSupport;
+    }
+
+    public void setRemoteDeleteOperations(RemoteDeleteOperations remoteDeleteOperations) {
+        this.remoteDeleteOperations = remoteDeleteOperations;
+    }
+
 }

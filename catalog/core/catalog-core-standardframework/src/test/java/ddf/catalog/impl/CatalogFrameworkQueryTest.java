@@ -139,8 +139,7 @@ public class CatalogFrameworkQueryTest {
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
-                opsMetacard,
-                opsCatStore);
+                opsMetacard);
 
         Historian historian = new Historian();
         historian.setHistoryEnabled(false);
@@ -148,6 +147,7 @@ public class CatalogFrameworkQueryTest {
         opsStorage.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
+        deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
         framework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,

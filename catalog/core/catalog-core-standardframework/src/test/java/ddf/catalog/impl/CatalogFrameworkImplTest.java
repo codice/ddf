@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.AdditionalAnswers.returnsSecondArg;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyMap;
@@ -130,6 +131,7 @@ import ddf.catalog.impl.operations.OperationsMetacardSupport;
 import ddf.catalog.impl.operations.OperationsSecuritySupport;
 import ddf.catalog.impl.operations.OperationsStorageSupport;
 import ddf.catalog.impl.operations.QueryOperations;
+import ddf.catalog.impl.operations.RemoteDeleteOperations;
 import ddf.catalog.impl.operations.ResourceOperations;
 import ddf.catalog.impl.operations.SourceOperations;
 import ddf.catalog.impl.operations.TransformOperations;
@@ -232,6 +234,10 @@ public class CatalogFrameworkImplTest {
 
     FederationStrategy mockFederationStrategy;
 
+    DeleteOperations deleteOperations;
+
+    RemoteDeleteOperations mockRemoteDeleteOperations;
+
     @Rule
     public MethodRule watchman = new TestWatchman() {
         public void starting(FrameworkMethod method) {
@@ -327,6 +333,8 @@ public class CatalogFrameworkImplTest {
         when(mimeTypeToTransformerMapper.findMatches(any(Class.class),
                 any(MimeType.class))).thenReturn(Collections.singletonList(inputTransformer));
 
+        mockRemoteDeleteOperations = mock(RemoteDeleteOperations.class);
+
         FrameworkProperties frameworkProperties = new FrameworkProperties();
         frameworkProperties.setAccessPlugins(new ArrayList<>());
         frameworkProperties.setPolicyPlugins(new ArrayList<>());
@@ -420,12 +428,13 @@ public class CatalogFrameworkImplTest {
                 opsMetacard,
                 opsCatStore,
                 opsStorage);
-        DeleteOperations deleteOperations = new DeleteOperations(frameworkProperties,
+        deleteOperations = new DeleteOperations(frameworkProperties,
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
-                opsMetacard,
-                opsCatStore);
+                opsMetacard);
+
+        deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
         ResourceOperations resOps = new ResourceOperations(frameworkProperties,
                 queryOperations,
@@ -1141,6 +1150,9 @@ public class CatalogFrameworkImplTest {
                 1);
         when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
 
+        when(mockRemoteDeleteOperations.performRemoteDelete(any(), any())).then(returnsSecondArg());
+        deleteOperations.setRemoteDeleteOperations(mockRemoteDeleteOperations);
+
         // send delete to framework
         List<Metacard> returnedCards = framework.delete(new DeleteRequestImpl(ids))
                 .getDeletedMetacards();
@@ -1190,6 +1202,9 @@ public class CatalogFrameworkImplTest {
                 mockFederationResults,
                 1);
         when(mockFederationStrategy.federate(anyList(), anyObject())).thenReturn(queryResponse);
+
+        when(mockRemoteDeleteOperations.performRemoteDelete(any(), any())).then(returnsSecondArg());
+        deleteOperations.setRemoteDeleteOperations(mockRemoteDeleteOperations);
 
         final DeleteResponse response = framework.delete(request);
 
@@ -1402,8 +1417,7 @@ public class CatalogFrameworkImplTest {
                 queryOperations,
                 sourceOperations,
                 opsSecurity,
-                opsMetacard,
-                opsCatStore);
+                opsMetacard);
         ResourceOperations resourceOperations = new ResourceOperations(frameworkProperties,
                 queryOperations,
                 opsSecurity);
@@ -1415,6 +1429,7 @@ public class CatalogFrameworkImplTest {
         opsStorage.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
+        deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
         CatalogFrameworkImpl catalogFramework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
