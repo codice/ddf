@@ -9,6 +9,13 @@
 |Default Value
 |Required
 
+|Keep Deleted Metacard
+|keepDeletedMetacards
+|Boolean
+|Should backups for deleted metacards be kept or removed.
+|false
+|true
+
 |Metacard Transformer Id
 |metacardTransformerId
 |String
@@ -16,12 +23,12 @@
 |metacard
 |true
 
-| Keep Deleted Metacard
-| keepDeletedMetacards
-| Boolean
-| Should backups for deleted metacards be kept or removed.
-| false
-| true
+|Backup Invalid Metacards
+|keepDeletedMetacards
+|Boolean
+|Keep backups for metacards that fail validation with warnings or errors.
+|true
+|true
 
 | Metacard Backup Output Provider(s)
 | metacardOutputProviderIds

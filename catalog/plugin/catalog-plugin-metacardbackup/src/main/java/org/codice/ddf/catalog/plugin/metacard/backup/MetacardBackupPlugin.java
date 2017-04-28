@@ -41,8 +41,10 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
@@ -63,11 +65,17 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
 
     private static final String OUTPUT_PROVIDER_PROPERTY = "metacardOutputProviderIds";
 
+    private static final String BACKUP_INVALID_METACARDS_PROPERTY = "backupInvalidMetacards";
+
+    private static final String INVALID_TAG = "INVALID";
+
     private Boolean keepDeletedMetacards = false;
 
     private String metacardTransformerId;
 
     private MetacardTransformer metacardTransformer;
+
+    private Boolean backupInvalidMetacards = true;
 
     private List<String> metacardOutputProviderIds = new ArrayList<>();
 
@@ -159,6 +167,18 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
         this.metacardOutputProviderIds = metacardOutputProviderIds;
     }
 
+    public Boolean getBackupInvalidMetacards() {
+        return backupInvalidMetacards;
+    }
+
+    public void setBackupInvalidMetacards(Boolean backupInvalidMetacards) {
+        if (backupInvalidMetacards != null) {
+            this.backupInvalidMetacards = backupInvalidMetacards;
+        } else {
+            this.backupInvalidMetacards = false;
+        }
+    }
+
     public void refresh(Map<String, Object> properties) {
         Object metacardTransformerProperty = properties.get(METACARD_TRANSFORMER_ID_PROPERTY);
         if (metacardTransformerProperty instanceof String
@@ -174,6 +194,11 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
         Object metacardOutputProviderIds = properties.get(OUTPUT_PROVIDER_PROPERTY);
         if (metacardOutputProviderIds instanceof String[]) {
             this.metacardOutputProviderIds = Arrays.asList((String[]) metacardOutputProviderIds);
+        }
+
+        Object backupInvalidMetacards = properties.get(BACKUP_INVALID_METACARDS_PROPERTY);
+        if (backupInvalidMetacards instanceof Boolean) {
+            this.backupInvalidMetacards = (Boolean) backupInvalidMetacards;
         }
     }
 
@@ -192,16 +217,18 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
         List<? extends ProcessResourceItem> processResourceItems = processRequest.getProcessItems();
         for (ProcessResourceItem processResourceItem : processResourceItems) {
             Metacard metacard = processResourceItem.getMetacard();
-            try {
-                LOGGER.trace("Backing up metacard : {}", metacard.getId());
-                BinaryContent binaryContent = metacardTransformer.transform(metacard,
-                        Collections.emptyMap());
-                backupData(binaryContent, metacard.getId());
-            } catch (CatalogTransformerException e) {
-                LOGGER.debug("Unable to transform metacard with id {}.", metacard.getId(), e);
-                throw new PluginExecutionException(String.format(
-                        "Unable to transform metacard with id %s.",
-                        metacard.getId()));
+            if (shouldBackupMetacard(metacard)) {
+                try {
+                    LOGGER.trace("Backing up metacard : {}", metacard.getId());
+                    BinaryContent binaryContent = metacardTransformer.transform(metacard,
+                            Collections.emptyMap());
+                    backupData(binaryContent, metacard.getId());
+                } catch (CatalogTransformerException e) {
+                    LOGGER.debug("Unable to transform metacard with id {}.", metacard.getId(), e);
+                    throw new PluginExecutionException(String.format(
+                            "Unable to transform metacard with id %s.",
+                            metacard.getId()));
+                }
             }
         }
     }
@@ -260,5 +287,21 @@ public class MetacardBackupPlugin implements PostProcessPlugin {
             }
         }
         return null;
+    }
+
+    private boolean shouldBackupMetacard(Metacard metacard) {
+        if (backupInvalidMetacards) {
+            return true;
+        } else {
+            Attribute metacardTagsAttr = metacard.getAttribute(Core.METACARD_TAGS);
+            if (metacardTagsAttr != null) {
+                return metacardTagsAttr.getValues()
+                        .stream()
+                        .filter(String.class::isInstance)
+                        .map(String.class::cast)
+                        .noneMatch(INVALID_TAG::equalsIgnoreCase);
+            }
+            return true;
+        }
     }
 }

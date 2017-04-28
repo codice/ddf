@@ -36,6 +36,7 @@
                                    update-method="refresh"/>
             <property name="metacardTransformerId" value="metadata"/>
             <property name="keepDeletedMetacards" value="false"/>
+            <property name="backupInvalidMetacards" value="true" />
             <property name="storageBackupPlugins" ref="metacardBackupStorageSortedList"/>
             <property name="metacardOutputProviderIds">
                 <list>
