@@ -78,8 +78,6 @@ public class ClaimsHandlerManager {
 
     public static final String GROUP_BASE_DN = "groupBaseDn";
 
-    public static final String USER_DN = "userDn";
-
     public static final String PROPERTY_FILE_LOCATION = "propertyFileLocation";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClaimsHandlerManager.class);
@@ -94,8 +92,6 @@ public class ClaimsHandlerManager {
 
     private Map<String, Object> ldapProperties = new HashMap<>();
 
-    private Map<String, Object> props;
-
     /**
      * Creates a new instance of the ClaimsHandlerManager.
      *
@@ -103,6 +99,72 @@ public class ClaimsHandlerManager {
      */
     public ClaimsHandlerManager(EncryptionService encryptService) {
         this.encryptService = encryptService;
+    }
+
+    public static KeyManagerFactory createKeyManagerFactory(String keyStoreLoc, String keyStorePass)
+            throws IOException {
+        KeyManagerFactory kmf;
+        try {
+            // keystore stuff
+            KeyStore keyStore =
+                    KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+            LOGGER.debug("keyStoreLoc = {}", keyStoreLoc);
+            FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
+            try {
+                LOGGER.debug("Loading keyStore");
+                keyStore.load(keyFIS, keyStorePass.toCharArray());
+            } catch (CertificateException e) {
+                throw new IOException("Unable to load certificates from keystore. " + keyStoreLoc,
+                        e);
+            } finally {
+                IOUtils.closeQuietly(keyFIS);
+            }
+            kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(keyStore, keyStorePass.toCharArray());
+            LOGGER.debug("key manager factory initialized");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IOException("Problems creating SSL socket. Usually this is "
+                    + "referring to the certificate sent by the server not being trusted by the client.",
+                    e);
+        } catch (UnrecoverableKeyException e) {
+            throw new IOException("Unable to load keystore. " + keyStoreLoc, e);
+        } catch (KeyStoreException e) {
+            throw new IOException("Unable to read keystore. " + keyStoreLoc, e);
+        }
+
+        return kmf;
+    }
+
+    public static TrustManagerFactory createTrustManagerFactory(String trustStoreLoc,
+            String trustStorePass) throws IOException {
+        TrustManagerFactory tmf;
+        try {
+            // truststore stuff
+            KeyStore trustStore = KeyStore.getInstance(System.getProperty(
+                    "javax.net.ssl.keyStoreType"));
+            LOGGER.debug("trustStoreLoc = {}", trustStoreLoc);
+            FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
+            try {
+                LOGGER.debug("Loading trustStore");
+                trustStore.load(trustFIS, trustStorePass.toCharArray());
+            } catch (CertificateException e) {
+                throw new IOException(
+                        "Unable to load certificates from truststore. " + trustStoreLoc, e);
+            } finally {
+                IOUtils.closeQuietly(trustFIS);
+            }
+
+            tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(trustStore);
+            LOGGER.debug("trust manager factory initialized");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IOException("Problems creating SSL socket. Usually this is "
+                    + "referring to the certificate sent by the server not being trusted by the client.",
+                    e);
+        } catch (KeyStoreException e) {
+            throw new IOException("Unable to read keystore. " + trustStoreLoc, e);
+        }
+        return tmf;
     }
 
     /**
@@ -178,7 +240,6 @@ public class ClaimsHandlerManager {
                     "Experienced error while configuring claims handlers. Handlers are NOT configured and claim retrieval will not work. Check LDAP configuration.",
                     e);
         }
-        this.props = props;
     }
 
     public void destroy() {
@@ -415,71 +476,5 @@ public class ClaimsHandlerManager {
     public void configure() {
         LOGGER.trace("configure method called - calling update");
         update(ldapProperties);
-    }
-
-    public static KeyManagerFactory createKeyManagerFactory(String keyStoreLoc, String keyStorePass)
-            throws IOException {
-        KeyManagerFactory kmf;
-        try {
-            // keystore stuff
-            KeyStore keyStore = KeyStore.getInstance(
-                    System.getProperty("javax.net.ssl.keyStoreType"));
-            LOGGER.debug("keyStoreLoc = {}", keyStoreLoc);
-            FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
-            try {
-                LOGGER.debug("Loading keyStore");
-                keyStore.load(keyFIS, keyStorePass.toCharArray());
-            } catch (CertificateException e) {
-                throw new IOException("Unable to load certificates from keystore. " + keyStoreLoc,
-                        e);
-            } finally {
-                IOUtils.closeQuietly(keyFIS);
-            }
-            kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(keyStore, keyStorePass.toCharArray());
-            LOGGER.debug("key manager factory initialized");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IOException("Problems creating SSL socket. Usually this is "
-                    + "referring to the certificate sent by the server not being trusted by the client.",
-                    e);
-        } catch (UnrecoverableKeyException e) {
-            throw new IOException("Unable to load keystore. " + keyStoreLoc, e);
-        } catch (KeyStoreException e) {
-            throw new IOException("Unable to read keystore. " + keyStoreLoc, e);
-        }
-
-        return kmf;
-    }
-
-    public static TrustManagerFactory createTrustManagerFactory(String trustStoreLoc,
-            String trustStorePass) throws IOException {
-        TrustManagerFactory tmf;
-        try {
-            // truststore stuff
-            KeyStore trustStore = KeyStore.getInstance(
-                    System.getProperty("javax.net.ssl.keyStoreType"));
-            LOGGER.debug("trustStoreLoc = {}", trustStoreLoc);
-            FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
-            try {
-                LOGGER.debug("Loading trustStore");
-                trustStore.load(trustFIS, trustStorePass.toCharArray());
-            } catch (CertificateException e) {
-                throw new IOException(
-                        "Unable to load certificates from truststore. " + trustStoreLoc, e);
-            } finally {
-                IOUtils.closeQuietly(trustFIS);
-            }
-
-            tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init(trustStore);
-            LOGGER.debug("trust manager factory initialized");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IOException("Problems creating SSL socket. Usually this is "
-                    + "referring to the certificate sent by the server not being trusted by the client.",
-                    e);
-        } catch (KeyStoreException e) {
-            throw new IOException("Unable to read keystore. " + trustStoreLoc, e);
-        }
-        return tmf;
     }
 }

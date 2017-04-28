@@ -155,7 +155,6 @@ public class LdapClaimsHandlerTest {
     @Test
     public void testUnsuccessfulConnectionBind() {
         when(mockBindResult.isSuccess()).thenReturn(false);
-
         ProcessedClaimCollection testClaimCollection =
                 claimsHandler.retrieveClaimValues(new ClaimCollection(), claimsParameters);
         assertThat(testClaimCollection.isEmpty(), is(true));
@@ -164,7 +163,6 @@ public class LdapClaimsHandlerTest {
     @Test
     public void testRetrieveClaimsValuesNullPrincipal() {
         when(mockBindResult.isSuccess()).thenReturn(false);
-
         ProcessedClaimCollection processedClaims =
                 claimsHandler.retrieveClaimValues(new ClaimCollection(), claimsParameters);
         assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
@@ -173,7 +171,6 @@ public class LdapClaimsHandlerTest {
     @Test
     public void testRetrieveClaimsValues() throws URISyntaxException {
         when(mockBindResult.isSuccess()).thenReturn(true);
-
         ProcessedClaimCollection processedClaims = claimsHandler.retrieveClaimValues(claims,
                 claimsParameters);
 
