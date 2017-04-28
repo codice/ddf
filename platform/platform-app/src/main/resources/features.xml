@@ -30,11 +30,24 @@
 
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
     <!--
-    Begin Camel Features ${camel.version}; All feature definitions come from 3rd party feature file
-        (org.apache.camel.karaf/apache-camel/${camel.version}/xml/features)
+    Begin Camel Features
 
-    DO NOT EDIT
+    The following camel feature definitions were originally copied from 3rd party feature file
+        (org.apache.camel.karaf/apache-camel/2.16.1/xml/features)
+
+    Various versions have been updated from the original to accommodate updates to the camel version in root pom.
+
+         DDF Changes made:
+
+         added install="manual" to all features
+
+         changed project.version to cxf.version
+
+         All other changes should include a reason for the change in a comment
+
+    DO NOT EDIT UNLESS UPDATING CAMEL
     -->
+
     <!--We don't want this pulling in additional XML libraries on top of the ones already installed by CXF-->
     <!--<feature name="xml-specs-api" version="2.5.0"  start-level="10">-->
         <!--<bundle dependency="true">-->
@@ -52,13 +65,6 @@
             <!--mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/2.2.6_1-->
         <!--</bundle>-->
     <!--</feature>-->
-
-    <feature name='platform-email' install="automatic" version='${project.version}' start-level='50'>
-        <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
-        <bundle dependency="true">mvn:com.sun.mail/javax.mail/1.5.5</bundle>
-        <bundle>mvn:ddf.platform.email/platform-email-api/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.email/platform-email-impl/${project.version}</bundle>
-    </feature>
 
     <feature name='camel' install="manual" version='${camel.version}' start-level='50'>
         <!-- Added cxf as prereq to keep things ordered -->
@@ -1075,6 +1081,13 @@
         <feature>platform-migratable-api</feature>
         <feature>platform-migration</feature>
         <feature>platform-migratable</feature>
+    </feature>
+
+    <feature name='platform-email' install="automatic" version='${project.version}' start-level='50'>
+        <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
+        <bundle dependency="true">mvn:com.sun.mail/javax.mail/1.5.5</bundle>
+        <bundle>mvn:ddf.platform.email/platform-email-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.email/platform-email-impl/${project.version}</bundle>
     </feature>
 
 </features>
