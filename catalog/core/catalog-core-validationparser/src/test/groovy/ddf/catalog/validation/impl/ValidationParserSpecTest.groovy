@@ -25,6 +25,8 @@ import spock.lang.Specification
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
+import static org.mockito.Matchers.any
+import static org.mockito.Matchers.isNull
 import static org.mockito.Mockito.when
 import static org.powermock.api.mockito.PowerMockito.mockStatic
 
@@ -411,6 +413,60 @@ class ValidationParserSpecTest extends Specification {
         }, { it.get("name") == type2Name })
     }
 
+    def "test metacard validators"() {
+        setup:
+        file.withPrintWriter { it.write(metacardValidator) }
+
+        mockStatic(FrameworkUtil.class)
+        def Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        def BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        when:
+        validationParser.install(file)
+
+        then:
+        1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull())
+    }
+
+    def "test invalid required attribute metacard validator"() {
+        setup:
+        file.withPrintWriter { it.write(invalidRequiredAttrMetacardValidator) }
+
+        mockStatic(FrameworkUtil.class)
+        def Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        def BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        when:
+        validationParser.install(file)
+
+        then:
+        0 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull())
+    }
+
+    def "test invalid metacard validators"() {
+        setup:
+        file.withPrintWriter { it.write(invalidMetacardValidator) }
+
+        mockStatic(FrameworkUtil.class)
+        def Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        def BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        when:
+        validationParser.install(file)
+
+        then:
+        0 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull())
+    }
+
     String valid = '''
 {
     "metacardTypes": [
@@ -593,4 +649,46 @@ class ValidationParserSpecTest extends Specification {
     }
 }
 '''
+
+    String metacardValidator = '''
+{
+  "metacardvalidators": [{
+    "validator": "requiredattribute",
+    "metacardtype": "fallback.common",
+    "requiredattributes": [
+      "id",
+      "title",
+      "attr"
+    ]
+  }
+  ]
+}
+'''
+
+    String invalidRequiredAttrMetacardValidator = '''
+{
+  "metacardvalidators": [{
+    "validator": "requiredattribute",
+    "metacardtype": "fallback.common",
+    "requiredattributes": []
+  }
+  ]
+}
+'''
+
+    String invalidMetacardValidator = '''
+{
+  "metacardvalidators": [{
+    "validator": "invalidator",
+    "metacardtype": "fallback.common",
+    "requiredattributes": [
+      "id",
+      "title",
+      "attr"
+    ]
+  }
+  ]
+}
+'''
+
 }

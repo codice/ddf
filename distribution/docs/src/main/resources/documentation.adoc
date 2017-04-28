@@ -467,6 +467,8 @@ include::{adoc-include}/_catalog-frameworks/metacard-type-definition-contents.ad
 
 include::{adoc-include}/_catalog-frameworks/global-attribute-validators-definition-contents.adoc[]
 
+include::{adoc-include}/_catalog-frameworks/metacard-attribute-validators-definition-contents.adoc[]
+
 include::{adoc-include}/_catalog-frameworks/attribute-type-definition-contents.adoc[]
 
 include::{adoc-include}/_catalog-frameworks/default-attribute-values-contents.adoc[]
