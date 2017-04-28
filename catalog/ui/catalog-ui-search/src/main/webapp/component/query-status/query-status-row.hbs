@@ -43,28 +43,6 @@
     {{/if}}
 </td>
 <td>
-    {{#if cacheHasReturned}}
-        {{#if cacheSuccessful}}
-            {{fromcache}}
-        {{else}}
-            <span class="fa fa-warning" title="{{cacheMessages}}"></span>
-        {{/if}}
-    {{else}}
-        <span class="fa fa-circle-o-notch fa-spin" title="Checking for results locally"></span>
-    {{/if}}
-</td>
-<td>
-    {{#if hasReturned}}
-        {{#if successful}}
-            {{fromremote}}
-        {{else}}
-            <span class="fa fa-warning" title="{{messages}}"></span>
-        {{/if}}
-    {{else}}
-        <span class="fa fa-circle-o-notch fa-spin" title="Waiting for source to return"></span>
-    {{/if}}
-</td>
-<td>
     {{#if hasReturned}}
         {{#if successful}}
             {{elapsed}}

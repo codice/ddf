@@ -38,11 +38,9 @@ module.exports = Marionette.LayoutView.extend({
     headerAnimationFrameId: undefined,
     getHeaderView: function(){
         console.log('You need to overwrite this function and provide the constructed HeaderView');
-        // return new ExampleHeaderView({...})
     },
     getBodyView: function(){
         console.log('You need to overwrite this function and provide the constructed BodyView');
-        // return new ExampleBodyView({...})
     },
     onRender: function() {
         this.bodyTbody.show(this.getBodyView(), {
