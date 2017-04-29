@@ -1867,7 +1867,6 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void testCancelDownload() throws Exception {
         getCatalogBundle().setupCaching(true);
         getSecurityPolicy().configureWebContextPolicy(null,
@@ -2227,7 +2226,6 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void testSingleUserDownloadSameProductAsync() throws Exception {
         getCatalogBundle().setupCaching(true);
         getSecurityPolicy().configureWebContextPolicy(null,
