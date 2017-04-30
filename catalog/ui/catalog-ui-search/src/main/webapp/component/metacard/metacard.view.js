@@ -47,6 +47,14 @@ define([
             this.handleRoute();
             this.handleResultChange();
             this.listenTo(metacardInstance, 'change:currentResult', this.handleResultChange);
+            this.listenToCurrentMetacard();
+        },
+        listenToCurrentMetacard: function(){
+            /*
+                The throttle on the result change should take care of issues with result set merging, but this is a good to have in case
+                the timing changes or something else goes awry that we haven't thought of yet.
+            */
+            this.listenTo(metacardInstance, 'change:currentMetacard', this.handleStatus); 
         },
         handleStatus: function(){
             this.$el.toggleClass('not-found', metacardInstance.get('currentMetacard') === undefined);
@@ -54,7 +62,7 @@ define([
         },
         handleResultChange: function(){
             this.handleStatus();
-            this.listenTo(metacardInstance.get('currentResult'), 'sync request error', this.handleStatus);
+            this.listenTo(metacardInstance.get('currentResult'), 'sync request error',  _.throttle(this.handleStatus, 60, {leading: false}));
         },
         handleRoute: function(){
             if (router.toJSON().name === 'openMetacard'){
