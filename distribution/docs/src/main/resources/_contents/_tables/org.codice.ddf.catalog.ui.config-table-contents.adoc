@@ -19,7 +19,19 @@
 |Imagery Providers
 |imageryProviders
 |String
-|List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: {"type": "WMS", "url": "http://example.com", "layers": ["layer1", "layer2"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "alpha": 0.5}
+|List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). 
+
+WMS example: `[{"type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "alpha":1}]`
+
+OSM example: `[{ "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "alpha": 1.0 }]`
+
+AGM example: `[{"type": "AGM","url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer" }]`
+
+Multiple layer example: `[{"type": "AGM","url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer" }, {"type": "AGM","url": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer" }]`
+
+WMT example: `[{"type": "WMT","url": "http://suite.opengeo.org/geoserver/gwc/service/wmts", "layer" : "opengeo:countries", "style" : "", "format" : "image/jpeg", "tileMatrixSetID": "EPSG:4326", "tileMatrixLabels" : ['EPSG:4326:0', 'EPSG:4326:1', 'EPSG:4326:2', 'EPSG:4326:3', 'EPSG:4326:4', 'EPSG:4326:5', 'EPSG:4326:6', 'EPSG:4326:7', 'EPSG:4326:8', 'EPSG:4326:9', 'EPSG:4326:10', 'EPSG:4326:11', 'EPSG:4326:12', 'EPSG:4326:13', 'EPSG:4326:14', 'EPSG:4326:15', 'EPSG:4326:16', 'EPSG:4326:17', 'EPSG:4326:18', 'EPSG:4326:19', 'EPSG:4326:20', 'EPSG:4326:21']}]`
+
+TMS example (3d map support only): `[{"type" : "TMS", "url" : "https://cesiumjs.org/tilesets/imagery/blackmarble" }]`
 |
 |false
 
@@ -33,7 +45,7 @@
 |Map Projection
 |projection
 |String
-|Projection of imagery providers
+|Projection of imagery providers.  Valid values are `EPSG:4326` and `EPSG:3857`.
 |EPSG:4326
 |false
 
@@ -111,7 +123,15 @@
 |readOnly
 |String
 |List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.
-|^checksum$,^checksum-algorithm$,^id$,^metadata$,^metacard-type$,^source-id$,^metacard\\.,^version\\.,^validation\\.
+|^checksum$,
+^checksum-algorithm$,
+^id$,
+^metadata$,
+^metacard-type$,
+^source-id$,
+^metacard\.,
+^version\.,
+^validation\.
 |false
 
 |Summary Metacard Attributes
@@ -139,7 +159,11 @@
 |hiddenAttributes
 |String
 |List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.
-|`^metacard\\.modified$,^metacard\\.created$,^metacard-tags$,^metacard\\.owner$,^validation-errors$,^validation-warnings$,^sortOrder$,            ^sortField$,^cql$,^enterprise$,^polling$,^security\\.access-groups$,^security\\.access-individuals$,^failed-validators-warnings$,^failed-validators-errors$,^sources$,^federation$,^metacard\\.sharing$,^cached$`
+|^sortOrder$,
+^sortField$,
+^cql$,
+^polling$,
+^cached$
 |false
 
 |Query Schedule Frequencies
@@ -147,6 +171,20 @@
 |Long
 |Custom list of schedule frequencies in seconds.  This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog UI.
 |1800,3600,7200,14400,28800,57600,86400
+|true
+
+|Allow Editing
+|isEditingAllowed
+|Boolean
+|Allow editing capability to be visible in the UI
+|true
+|true
+
+|Result Page Size
+|resultPageSize
+|Integer
+|Specifies the number of results allowed per page on the client-side.
+|25
 |true
 
 |Enable Query Feedback
