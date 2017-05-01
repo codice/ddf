@@ -539,19 +539,19 @@ public class TestSecurity extends AbstractIntegrationTest {
     public void testTLSv1() throws Exception {
         String httpsProtocols = System.getProperties()
                 .getProperty("https.protocols");
-        System.setProperty("https.protocols", "TLSv1");
-
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-        SSLContext sslContext = SSLContext.getInstance("TLSv1");
-        sslContext.init(null, null, null);
-        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
-
-        RestAssuredConfig config = new RestAssuredConfig();
-        config.sslConfig(SSLConfig.sslConfig()
-                .sslSocketFactory(sslSocketFactory));
-
         try {
+            System.setProperty("https.protocols", "TLSv1");
+
+            SSLContext sslContext = SSLContext.getInstance("TLSv1");
+            sslContext.init(null, null, null);
+            SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
+
+            RestAssuredConfig config = new RestAssuredConfig();
+            config.sslConfig(SSLConfig.sslConfig()
+                    .sslSocketFactory(sslSocketFactory));
+
             configureRestForBasic(SDK_SOAP_CONTEXT);
             waitForSecurityHandlers(url);
 
@@ -579,23 +579,24 @@ public class TestSecurity extends AbstractIntegrationTest {
                 "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
 
         String originalCiphers = System.getProperty("https.cipherSuites");
-        System.setProperty("https.cipherSuites", StringUtils.join(supportedCipherSuites, ","));
-
-        String[] supportedHttpProtocols = {"https"};
-
-        SSLContext sslContext = SSLContext.getDefault();
-        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext,
-                supportedHttpProtocols,
-                supportedCipherSuites.toArray(new String[supportedCipherSuites.size()]),
-                new AllowAllHostnameVerifier());
-
-        RestAssuredConfig config = new RestAssuredConfig();
-        config.sslConfig(SSLConfig.sslConfig()
-                .sslSocketFactory(sslSocketFactory));
-
-        String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
         try {
+            System.setProperty("https.cipherSuites", StringUtils.join(supportedCipherSuites, ","));
+
+            String[] supportedHttpProtocols = {"https"};
+
+            SSLContext sslContext = SSLContext.getDefault();
+            SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext,
+                    supportedHttpProtocols,
+                    supportedCipherSuites.toArray(new String[supportedCipherSuites.size()]),
+                    new AllowAllHostnameVerifier());
+
+            RestAssuredConfig config = new RestAssuredConfig();
+            config.sslConfig(SSLConfig.sslConfig()
+                    .sslSocketFactory(sslSocketFactory));
+
+            String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+
             checkAuthenticationRequest(config, url);
         } finally {
             System.setProperty("https.cipherSuites", originalCiphers);
@@ -660,23 +661,22 @@ public class TestSecurity extends AbstractIntegrationTest {
                 "TLS_EMPTY_RENEGOTIATION_INFO_SCSV");
 
         String[] supportedHttpProtocols = {"https"};
-
         String originalCiphers = System.getProperty("https.cipherSuites");
-        System.setProperty("https.cipherSuites", StringUtils.join(disallowedCipherSuites, ","));
-
-        SSLContext sslContext = SSLContext.getDefault();
-        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext,
-                supportedHttpProtocols,
-                disallowedCipherSuites.toArray(new String[disallowedCipherSuites.size()]),
-                new AllowAllHostnameVerifier());
-
-        RestAssuredConfig config = new RestAssuredConfig();
-        config.sslConfig(SSLConfig.sslConfig()
-                .sslSocketFactory(sslSocketFactory));
-
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
         try {
+            System.setProperty("https.cipherSuites", StringUtils.join(disallowedCipherSuites, ","));
+
+            SSLContext sslContext = SSLContext.getDefault();
+            SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext,
+                    supportedHttpProtocols,
+                    disallowedCipherSuites.toArray(new String[disallowedCipherSuites.size()]),
+                    new AllowAllHostnameVerifier());
+
+            RestAssuredConfig config = new RestAssuredConfig();
+            config.sslConfig(SSLConfig.sslConfig()
+                    .sslSocketFactory(sslSocketFactory));
+
             configureRestForBasic(SDK_SOAP_CONTEXT);
             waitForSecurityHandlers(url);
             given().config(config)
