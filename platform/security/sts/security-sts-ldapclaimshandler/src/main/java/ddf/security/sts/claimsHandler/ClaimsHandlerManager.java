@@ -78,8 +78,6 @@ public class ClaimsHandlerManager {
 
     public static final String GROUP_BASE_DN = "groupBaseDn";
 
-    public static final String USER_DN = "userDn";
-
     public static final String PROPERTY_FILE_LOCATION = "propertyFileLocation";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClaimsHandlerManager.class);
@@ -93,8 +91,6 @@ public class ClaimsHandlerManager {
     private ServiceRegistration<ClaimsHandler> ldapHandlerRegistration = null;
 
     private Map<String, Object> ldapProperties = new HashMap<>();
-
-    private Map<String, Object> props;
 
     /**
      * Creates a new instance of the ClaimsHandlerManager.
@@ -178,7 +174,6 @@ public class ClaimsHandlerManager {
                     "Experienced error while configuring claims handlers. Handlers are NOT configured and claim retrieval will not work. Check LDAP configuration.",
                     e);
         }
-        this.props = props;
     }
 
     public void destroy() {

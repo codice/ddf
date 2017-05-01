@@ -16,67 +16,161 @@ package ddf.security.sts.claimsHandler;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static ddf.security.SubjectUtils.NAME_IDENTIFIER_CLAIM_URI;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
+import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
-import org.forgerock.opendj.ldap.LdapException;
+import org.forgerock.opendj.ldap.LinkedAttribute;
+import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.forgerock.opendj.ldap.responses.BindResult;
+import org.forgerock.opendj.ldap.responses.SearchResultEntry;
+import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(LDAPConnectionFactory.class)
+@PrepareForTest({LDAPConnectionFactory.class, AttributeMapLoader.class, BindMethodChooser.class})
 
 public class LdapClaimsHandlerTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LdapClaimsHandlerTest.class);
+    public static final String BINDING_TYPE = "Simple";
+
+    public static final String BIND_USER_DN = "cn=admin";
+
+    public static final String BIND_USER_CREDENTIALS = "test";
+
+    public static final String REALM = "kualdgalain";
+
+    public static final String KCD = "Kerberos Constrained Delegation";
+
+    public static final String ATTRIBUTE_NAME = "cn";
+
+    public static final String USER_BASE_DN = "ou=avengers,dc=marvel,dc=com";
+
+    public static final String DUMMY_VALUE = "Tony Stark";
+
+    public static final String USER_DN = String.format("%s=%s,%s",
+            ATTRIBUTE_NAME,
+            DUMMY_VALUE,
+            USER_BASE_DN);
+
+    LdapClaimsHandler claimsHandler;
+
+    LDAPConnectionFactory mockConnectionFactory;
+
+    BindResult mockBindResult;
+
+    BindRequest mockBindRequest;
+
+    Connection mockConnection;
+
+    ClaimCollection claims;
+
+    ConnectionEntryReader mockEntryReader;
+
+    SearchResultEntry mockEntry;
+
+    ClaimsParameters claimsParameters;
+
+    @Before
+    public void setup() throws Exception {
+        claimsParameters = mock(ClaimsParameters.class);
+        when(claimsParameters.getPrincipal()).thenReturn(new UserPrincipal(USER_DN));
+        mockEntry = mock(SearchResultEntry.class);
+        LinkedAttribute attribute = new LinkedAttribute(ATTRIBUTE_NAME);
+        attribute.add(USER_DN);
+        mockEntryReader = mock(ConnectionEntryReader.class);
+        mockBindRequest = mock(BindRequest.class);
+        PowerMockito.mockStatic(BindMethodChooser.class);
+        when(BindMethodChooser.selectBindMethod(eq(BINDING_TYPE),
+                eq(BIND_USER_DN),
+                eq(BIND_USER_CREDENTIALS),
+                eq(REALM),
+                eq(KCD))).thenReturn(mockBindRequest);
+        Map<String, String> map = new HashMap<>();
+        map.put(NAME_IDENTIFIER_CLAIM_URI, ATTRIBUTE_NAME);
+        PowerMockito.mockStatic(AttributeMapLoader.class);
+        when(AttributeMapLoader.buildClaimsMapFile(anyString())).thenReturn(map);
+        when(AttributeMapLoader.getUser(any(Principal.class))).then(i -> i.getArgumentAt(0,
+                Principal.class)
+                .getName());
+        when(AttributeMapLoader.getBaseDN(any(Principal.class),
+                anyString(),
+                eq(false))).then(i -> i.getArgumentAt(1, String.class));
+        claimsHandler = new LdapClaimsHandler();
+        mockBindResult = mock(BindResult.class);
+        mockConnection = mock(Connection.class);
+        mockConnectionFactory = PowerMockito.mock(LDAPConnectionFactory.class);
+        when(mockConnectionFactory.getConnection()).thenReturn(mockConnection);
+        when(mockConnection.bind(anyString(), any(char[].class))).thenReturn(mockBindResult);
+        when(mockConnection.bind(any(BindRequest.class))).thenReturn(mockBindResult);
+        when(mockConnection.search(anyObject(), anyObject(), anyObject(), anyObject())).thenReturn(
+                mockEntryReader);
+        when(mockEntryReader.hasNext()).thenReturn(true, false);
+        when(mockEntryReader.readEntry()).thenReturn(mockEntry);
+        when(mockEntry.getAttribute(anyString())).thenReturn(attribute);
+        claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
+        claimsHandler.setPropertyFileLocation("thisstringisnotempty");
+        claimsHandler.setBindMethod(BINDING_TYPE);
+        claimsHandler.setBindUserCredentials(BIND_USER_CREDENTIALS);
+        claimsHandler.setRealm(REALM);
+        claimsHandler.setKdcAddress(KCD);
+        claimsHandler.setUserBaseDN(USER_BASE_DN);
+        claims = new ClaimCollection();
+        Claim claim = new Claim();
+        claim.setClaimType(new URI(NAME_IDENTIFIER_CLAIM_URI));
+        claims.add(claim);
+    }
 
     @Test
     public void testUnsuccessfulConnectionBind() {
-        LDAPConnectionFactory mockedConnectionFactory =
-                PowerMockito.mock(LDAPConnectionFactory.class);
-        BindResult mockedBindResult = mock(BindResult.class);
-        when(mockedBindResult.isSuccess()).thenReturn(false);
-        Connection mockedConnection = mock(Connection.class);
-        try {
-            when(mockedConnectionFactory.getConnection()).thenReturn(mockedConnection);
-            when(mockedConnection.bind(anyString(),
-                    any(char[].class))).thenReturn(mockedBindResult);
-        } catch (LdapException e) {
-            LOGGER.error("LDAP Exception", e);
-        }
-        LdapClaimsHandler ldapClaimsHandler = new LdapClaimsHandler();
-        ldapClaimsHandler.setLdapConnectionFactory(mockedConnectionFactory);
-
+        when(mockBindResult.isSuccess()).thenReturn(false);
         ProcessedClaimCollection testClaimCollection =
-                ldapClaimsHandler.retrieveClaimValues(new ClaimCollection(),
-                        new ClaimsParameters());
+                claimsHandler.retrieveClaimValues(new ClaimCollection(), claimsParameters);
         assertThat(testClaimCollection.isEmpty(), is(true));
     }
 
     @Test
     public void testRetrieveClaimsValuesNullPrincipal() {
-        LdapClaimsHandler claimsHandler = new LdapClaimsHandler();
-        ClaimsParameters claimsParameters = new ClaimsParameters();
-        ClaimCollection claimCollection = new ClaimCollection();
-        ProcessedClaimCollection processedClaims = claimsHandler.retrieveClaimValues(
-                claimCollection, claimsParameters);
+        when(mockBindResult.isSuccess()).thenReturn(false);
+        ProcessedClaimCollection processedClaims =
+                claimsHandler.retrieveClaimValues(new ClaimCollection(), claimsParameters);
+        assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
+    }
 
-        Assert.assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
+    @Test
+    public void testRetrieveClaimsValues() throws URISyntaxException {
+        when(mockBindResult.isSuccess()).thenReturn(true);
+        ProcessedClaimCollection processedClaims = claimsHandler.retrieveClaimValues(claims,
+                claimsParameters);
+
+        assertThat(processedClaims, hasSize(1));
+        Claim claim = processedClaims.get(0);
+        assertThat(claim.getValues(), contains(DUMMY_VALUE));
     }
 }
