@@ -457,42 +457,11 @@ public class FileSystemStorageProviderTest {
                 NITF_MIME_TYPE,
                 mock(Metacard.class));
 
-        UpdateStorageRequest updateRequest = new UpdateStorageRequestImpl(Arrays.asList(updateItem, updateItem2), null);
+        UpdateStorageRequest updateRequest = new UpdateStorageRequestImpl(Arrays.asList(updateItem, updateItem2),
+                null);
 
         assertUpdateRequest(updateRequest);
 
-    }
-
-    @Test
-    public void testUpdateMultipleQualifiedItemsInTheSameRequest() throws Exception {
-        CreateStorageResponse createResponse = assertContentItem(TEST_INPUT_CONTENTS,
-                NITF_MIME_TYPE,
-                TEST_INPUT_FILENAME);
-
-        createResponse = assertContentItemWithQualifier(TEST_INPUT_CONTENTS,
-                NITF_MIME_TYPE,
-                TEST_INPUT_FILENAME,
-                createResponse.getCreatedContentItems()
-                        .get(0)
-                        .getId(),
-                QUALIFIER);
-
-        String id = createResponse.getCreatedContentItems()
-                .get(0)
-                .getId();
-        ByteSource byteSource = new ByteSource() {
-            @Override
-            public InputStream openStream() throws IOException {
-                return IOUtils.toInputStream("Updated NITF");
-            }
-        };
-        ContentItem updateItem = new ContentItemImpl(id,
-                byteSource,
-                NITF_MIME_TYPE,
-                mock(Metacard.class));
-
-        UpdateStorageRequest updateRequest = new UpdateStorageRequestImpl(Collections.singletonList(updateItem), null);
-        assertUpdateRequest(updateRequest);
     }
 
     @Test
