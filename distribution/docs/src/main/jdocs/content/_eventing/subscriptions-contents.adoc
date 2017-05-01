@@ -44,7 +44,7 @@ Certain endpoints, however, can persist the subscriptions on their own and recre
 ==== Creating a Subscription
 
 Currently, the Catalog reference implementation does not contain a subscription endpoint.
-Nevertheless, an endpoint that exposes a web service interface to create, update, and delete subscriptions would provide a client's subscription's filtering criteria to be used by Catalog's Event Processor to determine which create, update, and delete events are of interest to the client.
+Therefore, an endpoint that exposes a web service interface to create, update, and delete subscriptions would provide a client's subscription filtering criteria to be used by Catalog's Event Processor to determine which events are of interest to the client.
 The endpoint client also provides the callback URL of the event consumer to be called when an event matching the subscription's criteria is found.
 This callback to the event consumer is made by a Delivery Method implementation that the client provides when the subscription is created. 
 Whenever an event occurs in the Catalog matching the subscription, the Delivery Method implementation will be called by the Event Processor. 

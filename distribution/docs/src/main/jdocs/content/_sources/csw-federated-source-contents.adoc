@@ -9,8 +9,7 @@
 :storageprovider:
 :catalogstore:
 
-
-The CSW federated source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
+The CSW Federated Source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
 
 Use the CSW source if querying a CSW version 2.0.2 compliant service.
 
@@ -25,7 +24,7 @@ Add a New CSW Federated Source through the ${admin-console}:
 * Select the *Sources* tab.
 * Add a New source.
 * Name the New source.
-* Select *CSW Federated Source* from *Binding Configurations*.
+* Select *CSW Federation Profile Source* from *Binding Configurations*.
 
 ===== Configuring the CSW Federated Source
 

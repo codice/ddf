@@ -127,9 +127,9 @@ Create a custom implementation of a connected source.
 [IMPORTANT]
 ====
 In some Providers that are created, there is a need to make Web Service calls through JAXB clients.
-It is best to NOT create your JAXB client as a global variable.
+It is best to NOT create a JAXB client as a global variable.
 There may be intermittent failures with the creation of Providers and federated sources when clients are created in this manner.
-Create your JAXB clients every single time within the methods that require it in order to avoid this issue.
+To avoid this issue, create any JAXB within the methods requiring it.
 ====
 
 ===== Exception Handling
@@ -141,7 +141,7 @@ In general, sources should only send information back related to the call, not i
 Follow these guidelines for effective exception handling:
 
 * Use a "Site XYZ not found" message rather than the full stack trace with the original site not found exception.
-* IF the caller issues a malformed search request, return an error describing the right form, or specifically what was not recognized in the request. Do not return the exception and stack trace where the parsing broke.
+* If the caller issues a malformed search request, return an error describing the right form, or specifically what was not recognized in the request. Do not return the exception and stack trace where the parsing broke.
 * If the caller leaves something out, do not return the null pointer exception with a stack trace, rather return a generic exception with the message "xyz was missing."
 
 ====== External Resources for Developing Sources

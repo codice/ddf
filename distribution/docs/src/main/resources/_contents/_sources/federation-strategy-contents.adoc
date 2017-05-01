@@ -26,7 +26,7 @@
 ....
 
 The Catalog normalizes incoming queries into an OGC Filter format.
-When the query is disseminated by the Catalog Framework to the sources, each source is responsible for denormalizing the OGC Filter formatted query into the format understood by the external store that the source is acting as a proxy.
+When the query is disseminated by the Catalog Framework to the sources, each source is responsible for denormalizing the OGC-Filter-formatted query into the format understood by the external store being proxied by that source.
 This normalization/denormalization is what allows any endpoint to interface with any type of source.
 For example, a query received by the OpenSearch Endpoint can be executed against an OpenSearch Source.
 

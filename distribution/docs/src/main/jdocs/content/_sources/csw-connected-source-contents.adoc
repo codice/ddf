@@ -9,7 +9,7 @@
 :storageprovider:
 :catalogstore:
 
-The CSW connected source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
+The CSW Connected Source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
 
 ===== Installing the CSW Connected Source
 
@@ -25,7 +25,7 @@ Add a CSW Connected Source through the ${admin-console}:
 
 ===== Configuring the CSW Connected Source
 
-Configure an Existing CSW Federated Source through the ${admin-console}:
+Configure an Existing CSW Connected Source through the ${admin-console}:
 
 * Navigate to the *${admin-console}*.
 * Select the *${ddf-catalog}* application.

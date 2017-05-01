@@ -18,7 +18,7 @@ The `retrieveResource( ... )` and `getOptions( ... )` methods will be called and
 
 [[_federated_source]]
 <<_federated_sources,Federated Sources>>:: A federated source is a remote source that can be included in federated queries by request or as part of an enterprise query. Federated sources support query and site information operations only. Catalog modification operations, such as create, update, and delete, are not allowed.
-Federated sources also expose an event service, which allows the Catalog Framework to subscribe to even notifications when metacards are created, updated, and deleted.
+Federated sources also expose an event service, which allows the Catalog Framework to subscribe to event notifications when metacards are created, updated, and deleted.
 +
 ${ddf-catalog} instances can also be federated to each other.
 Therefore, a ${ddf-catalog} can also act as a federated source to another ${ddf-catalog}.

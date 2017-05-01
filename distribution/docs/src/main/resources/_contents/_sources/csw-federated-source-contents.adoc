@@ -16,7 +16,7 @@ Add a New CSW Federated Source through the ${admin-console}:
 * Select the *Sources* tab.
 * Add a New source.
 * Name the New source.
-* Select *CSW Federated Source* from *Binding Configurations*.
+* Select *CSW Federation Profile Source* from *Binding Configurations*.
 
 ===== Configuring the CSW Federated Source
 
