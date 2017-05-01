@@ -234,7 +234,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
 
             var coords = model.getPoints('location');
             var array = _.map(coords, function(coord) {
-                return Openlayers.proj.transform([coord.longitude, coord.latitude], 'EPSG:4326', properties.projection);
+                return convertPointCoordinate(coord);
             });
 
             var polygon = new Openlayers.geom.Polygon([array]);
