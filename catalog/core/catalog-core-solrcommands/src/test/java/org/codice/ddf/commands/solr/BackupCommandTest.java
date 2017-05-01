@@ -21,8 +21,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -271,13 +273,16 @@ public class BackupCommandTest {
         backupCommand.doExecute();
 
         // Verify
+        String backupName = getBackupName(consoleOutput.getOutput());
+        File backupFile = Paths.get(backupCommand.backupLocation, backupName).toAbsolutePath().toFile();
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format(
-                        "Backing up collection [%s] to shared location [%s] using backup name [%s_",
+                        "Backing up collection [%s] to shared location [%s] using backup name [%s",
                         DEFAULT_CORE_NAME,
                         backupCommand.backupLocation,
-                        DEFAULT_CORE_NAME)));
+                        backupName)));
         assertThat(consoleOutput.getOutput(), containsString("Backup complete."));
+        assertThat(backupFile.exists(), is(true));
     }
 
     @Test
@@ -327,13 +332,16 @@ public class BackupCommandTest {
         backupCommand.doExecute();
 
         // Verify
+        String backupName = getBackupName(consoleOutput.getOutput());
+        File backupFile = Paths.get(backupCommand.backupLocation, backupName).toAbsolutePath().toFile();
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format(
-                        "Backing up collection [%s] to shared location [%s] using backup name [%s_",
+                        "Backing up collection [%s] to shared location [%s] using backup name [%s",
                         DEFAULT_CORE_NAME,
                         backupCommand.backupLocation,
-                        DEFAULT_CORE_NAME)));
+                        backupName)));
         assertThat(consoleOutput.getOutput(), containsString("Backup complete."));
+        assertThat(backupFile.exists(), is(true));
     }
 
     @Test
@@ -638,6 +646,8 @@ public class BackupCommandTest {
         // Peform sync backup
         backupCommand.doExecute();
 
+        verify(mockSolrClient).optimize(DEFAULT_CORE_NAME);
+
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format(
                         "Backing up collection [%s] to shared location [%s] using backup name [%s_",
@@ -669,6 +679,8 @@ public class BackupCommandTest {
 
         backupCommand.doExecute();
 
+        verify(mockSolrClient).optimize(DEFAULT_CORE_NAME);
+
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format(
                         "Backing up collection [%s] to shared location [%s] using backup name [%s_",
@@ -696,7 +708,7 @@ public class BackupCommandTest {
 
     /**
      * See https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-BACKUP:BackupCollection for
-     * reqeusts and responses.
+     * requests and responses.
      */
     private NamedList<Object> getResponseHeader(int statusCode) {
         NamedList<Object> responseHeader = new NamedList<>();
@@ -707,7 +719,7 @@ public class BackupCommandTest {
 
     /**
      * See https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-BACKUP:BackupCollection for
-     * reqeusts and responses.
+     * requests and responses.
      */
     private void setupMockSolrClientForBackup(String collection, int optimizationStatusCode,
             int backupStatusCode, NamedList<String> backupErrorMessages) throws Exception {
@@ -758,7 +770,7 @@ public class BackupCommandTest {
 
     /**
      * See https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-BACKUP:BackupCollection for
-     * reqeusts and responses.
+     * requests and responses.
      */
     private NamedList<Object> getResponseForBackupStatus(int statusCode, RequestStatusState requestStatusState, NamedList<String> errorMessages) {
         NamedList<Object> responseHeader = getResponseHeader(statusCode);
@@ -925,6 +937,10 @@ public class BackupCommandTest {
     // Replace ASCII color codes in console output and get the status
     private String getRequestStatus(String consoleOutput) {
         return StringUtils.trim(StringUtils.substringsBetween(ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), "[", "]")[1]);
+    }
+
+    private String getBackupName(String consoleOutput) {
+        return StringUtils.trim(StringUtils.substringsBetween(ASCII_COLOR_CODES_REGEX.matcher(consoleOutput).replaceAll(""), "[", "]")[2]);
     }
 
     private String waitForCompletedStatusOrFail(BackupCommand statusBackupCommand,

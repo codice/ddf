@@ -40,7 +40,7 @@ public abstract class SolrCommands extends OsgiCommandSupport {
 
     protected ConfigurationAdmin configurationAdmin;
 
-    protected static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
+    private static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
 
     protected static final Path SYSTEM_PROPERTIES_PATH = Paths.get(System.getProperty("ddf.home"), "etc", "system.properties");
 
