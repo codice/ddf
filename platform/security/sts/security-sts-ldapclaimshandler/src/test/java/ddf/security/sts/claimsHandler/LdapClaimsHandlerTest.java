@@ -25,6 +25,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static ddf.security.SubjectUtils.NAME_IDENTIFIER_CLAIM_URI;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,9 +40,7 @@ import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
-import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.LinkedAttribute;
-import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
@@ -53,8 +52,6 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import ddf.security.SubjectUtils;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LDAPConnectionFactory.class, AttributeMapLoader.class, BindMethodChooser.class})
@@ -101,7 +98,7 @@ public class LdapClaimsHandlerTest {
     ClaimsParameters claimsParameters;
 
     @Before
-    public void setup() throws LdapException, URISyntaxException, SearchResultReferenceIOException {
+    public void setup() throws Exception {
         claimsParameters = mock(ClaimsParameters.class);
         when(claimsParameters.getPrincipal()).thenReturn(new UserPrincipal(USER_DN));
         mockEntry = mock(SearchResultEntry.class);
@@ -116,8 +113,7 @@ public class LdapClaimsHandlerTest {
                 eq(REALM),
                 eq(KCD))).thenReturn(mockBindRequest);
         Map<String, String> map = new HashMap<>();
-        map.put("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
-                ATTRIBUTE_NAME);
+        map.put(NAME_IDENTIFIER_CLAIM_URI, ATTRIBUTE_NAME);
         PowerMockito.mockStatic(AttributeMapLoader.class);
         when(AttributeMapLoader.buildClaimsMapFile(anyString())).thenReturn(map);
         when(AttributeMapLoader.getUser(any(Principal.class))).then(i -> i.getArgumentAt(0,
@@ -147,7 +143,7 @@ public class LdapClaimsHandlerTest {
         claimsHandler.setUserBaseDN(USER_BASE_DN);
         claims = new ClaimCollection();
         Claim claim = new Claim();
-        claim.setClaimType(new URI(SubjectUtils.NAME_IDENTIFIER_CLAIM_URI));
+        claim.setClaimType(new URI(NAME_IDENTIFIER_CLAIM_URI));
         claims.add(claim);
     }
 
