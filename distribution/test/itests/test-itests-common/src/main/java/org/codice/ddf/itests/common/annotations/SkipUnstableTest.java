@@ -20,8 +20,14 @@ import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.IgnoreCond
  * should only be run if the {@value INCLUDE_UNSTABLE_TESTS_PROPERTY} system property is set to
  * {@code true}.
  * <p>
+ * Note that you need the {@link ConditionalIgnoreRule} at the beginning of your test class
+ * in order for the annotation to take effect.
+ * <p>
  * Example:
  * <pre>
+ *   @Rule
+ *   public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
+ *   // ...
  *   @Test
  *   @ConditionalIgnore(condition = SkipUnstableTest.class)
  *   public void unstableTestMethod() throws Exception {
