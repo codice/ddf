@@ -369,12 +369,13 @@ public class FileSystemStorageProvider implements StorageProvider {
                     try {
                         Path createdTarget = Files.createDirectories(target);
                         List<Path> files = listPaths(contentIdDir);
-                        Files.copy(files.get(0),
-                                Paths.get(createdTarget.toAbsolutePath()
-                                                .toString(),
-                                        files.get(0)
-                                                .getFileName()
-                                                .toString()));
+                        for (Path path : files) {
+                            Path newTarget = Paths.get(createdTarget.toAbsolutePath().toString(), path.getFileName().toString());
+                            Path source = path;
+                            if (!Files.exists(newTarget)) {
+                                Files.copy(source, newTarget);
+                            }
+                        }
                     } catch (IOException e1) {
                         throw new StorageException(
                                 "Unable to commit changes for request: " + request.getId(), e1);
@@ -475,7 +476,7 @@ public class FileSystemStorageProvider implements StorageProvider {
                     result.add(entry);
                 }
             } catch (DirectoryIteratorException ex) {
-                // I/O error encounted during the iteration, the cause is an IOException
+                // I/O error encountered during the iteration, the cause is an IOException
                 throw ex.getCause();
             }
         }
