@@ -1,4 +1,8 @@
-=== Developing Sources
+:title: Developing Sources
+:type: developingComponent
+:status: published
+:link: _developing_sources
+:summary: Creating a custom source.
 
 Sources are components that enable ${branding} to talk to back-end services.
 They let ${branding} perform query and ingest operations on catalog stores and query operations on federated sources.
@@ -38,9 +42,7 @@ They let ${branding} perform query and ingest operations on catalog stores and q
 
 ==== Implement a Source Interface
 
-There are three types of sources that can be created.
-All of these types of sources can perform a query operation.
-Operating on queries is the foundation for all sources.
+There are three types of sources that can be created to perform query operations.
 All of these sources must also be able to return their availability and the list of content types currently stored in their back-end data stores.
 
 Catalog Provider:: `ddf.catalog.source.CatalogProvider` _is used to communicate with back-end storage and allows for Query and Create/Update/Delete operations._
@@ -49,12 +51,11 @@ Connected Source:: `ddf.catalog.source.ConnectedSource` _is similar to a Federat
 * _Queried on all local queries_
 * _`SiteName` is hidden (masked with the ${branding} sourceId) in query results_
 * _`SiteService` does not show this Source's information separate from ${branding}'s._
-Catalog Store:: `catalog.store.interface` is used to
+Catalog Store:: `catalog.store.interface` _is used to store data._
 
 The procedure for implementing any of the source types follows a similar format:
 
-. Create a new class that implements the specified Source interface and `ConfiguredService`.
-. Implement the required methods.
+. Create a new class that implements the specified Source interface, the `ConfiguredService` and the required methods.
 . Create an OSGi descriptor file to communicate with the OSGi registry. (Refer to <<_osgi_services,OSGi Services>>.)
 .. Import ${branding} packages.
 .. Register source class as service to the OSGi registry.
@@ -126,7 +127,7 @@ Create a custom implementation of a connected source.
 [IMPORTANT]
 ====
 In some Providers that are created, there is a need to make Web Service calls through JAXB clients.
-It is best NOT to create a JAXB client as a global variable.
+It is best to NOT create a JAXB client as a global variable.
 There may be intermittent failures with the creation of Providers and federated sources when clients are created in this manner.
 To avoid this issue, create any JAXB within the methods requiring it.
 ====

@@ -1,3 +1,6 @@
+:title: Sources Intro
+:type: sourceIntro
+:status: published
 
 A *source* is a system consisting of a catalog containing Metacards.
 

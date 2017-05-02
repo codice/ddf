@@ -1,3 +1,6 @@
+:type: documentation
+:status: published
+
 .[[org.codice.ddf.spatial.kml.endpoint.KmlEndpoint]]Spatial KML Endpoint
 [cols="1,1m,1,3,1,1" options="header"]
 |===

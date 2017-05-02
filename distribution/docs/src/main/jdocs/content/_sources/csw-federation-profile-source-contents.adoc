@@ -1,5 +1,14 @@
+:title: CSW Federation Profile Source
+:type: source
+:status: published
+:link: _csw_federation_profile_source
+:summary: Queries a CSW version 2.0.2 compliant service.
+:federated: x
+:connected:
+:catalogprovider:
+:storageprovider:
+:catalogstore:
 
-==== CSW Federation Profile Source
 
 The CSW Federation Profile Source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
 

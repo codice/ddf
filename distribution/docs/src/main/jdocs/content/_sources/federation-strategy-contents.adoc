@@ -1,3 +1,6 @@
+:title: Federation Strategy Intro
+:type: sourceIntro
+:status: published
 
 .Federation
 [ditaa, catalog_architecture_federation, png, ${image-width}]

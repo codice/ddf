@@ -1,3 +1,7 @@
+:title: Subscriptions
+:type: eventing
+:status: published
+
 ==== Subscriptions
 
 Subscriptions represent "standing queries" in the Catalog.

@@ -4,7 +4,6 @@ include::${ei.file}[]
 </#if>
 </#list>
 
-
 === Available Endpoints
 
 The following endpoints are available in a standard installation of ${branding}:

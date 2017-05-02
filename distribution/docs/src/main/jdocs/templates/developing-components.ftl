@@ -4,7 +4,7 @@
 
 === ${developingComponent.title}
 
-include::${developingComponent.projectpath}/_developingComponents/${developingComponent.filename}[]
+include::${developingComponent.file}[]
 
 </#if>
 </#list>
