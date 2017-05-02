@@ -174,9 +174,9 @@ public class ValidationParser implements ArtifactInstaller {
         handleSection(changeset, "Defaults", outer.defaults, this::parseDefaults);
         handleSection(changeset, "Injections", outer.inject, this::parseInjections);
         handleSection(changeset,
-                "MetacardValidators",
+                METACARD_VALIDATORS_PROPERTY,
                 outer.metacardValidators,
-                this::parseMetacardValidators);
+                this::registerMetacardValidators);
     }
 
     private <T> void handleSection(Changeset changeset, String sectionName, T sectionData,
@@ -326,7 +326,7 @@ public class ValidationParser implements ArtifactInstaller {
         return staged;
     }
 
-    private List<Callable<Boolean>> parseMetacardValidators(Changeset changeset,
+    private List<Callable<Boolean>> registerMetacardValidators(Changeset changeset,
             List<MetacardValidatorDefinition> metacardValidatorDefinitions) {
         List<Callable<Boolean>> staged = new ArrayList<>();
         BundleContext context = getBundleContext();
@@ -344,7 +344,7 @@ public class ValidationParser implements ArtifactInstaller {
                 }));
 
             } catch (IllegalStateException ise) {
-                LOGGER.error("Could not get validator for definition: {}",
+                LOGGER.error("Could not register metacard validator for definition: {}",
                         metacardValidatorDefinition,
                         ise);
             }
