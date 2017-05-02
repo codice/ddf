@@ -48,11 +48,4 @@
             <version>1.6.2</version>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>https://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
 </project>
