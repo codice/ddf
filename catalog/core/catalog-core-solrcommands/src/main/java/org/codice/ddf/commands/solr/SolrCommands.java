@@ -13,10 +13,15 @@
  */
 package org.codice.ddf.commands.solr;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -33,11 +38,17 @@ public abstract class SolrCommands extends OsgiCommandSupport {
 
     protected PrintStream console = System.out;
 
+    protected ConfigurationAdmin configurationAdmin;
+
+    private static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
+
+    protected static final Path SYSTEM_PROPERTIES_PATH = Paths.get(System.getProperty("ddf.home"), "etc", "system.properties");
+
     private static final Color ERROR_COLOR = Ansi.Color.RED;
 
     private static final Color SUCCESS_COLOR = Ansi.Color.GREEN;
 
-    protected ConfigurationAdmin configurationAdmin;
+    private static final Color INFO_COLOR = Ansi.Color.CYAN;
 
     protected abstract Object doExecute() throws Exception;
 
@@ -76,4 +87,31 @@ public abstract class SolrCommands extends OsgiCommandSupport {
         printColor(ERROR_COLOR, message);
     }
 
+    protected void printInfoMessage(String message) {
+        printColor(INFO_COLOR, message);
+    }
+
+    protected SolrClient getCloudSolrClient() {
+        String zkHosts = System.getProperty(ZOOKEEPER_HOSTS_PROP);
+        LOGGER.debug("Zookeeper hosts: {}", zkHosts);
+
+        if (zkHosts != null) {
+            SolrClient client = new CloudSolrClient.Builder().withZkHost(zkHosts)
+                    .build();
+            LOGGER.debug("Created solr client: {}", client);
+            return client;
+        } else {
+            throw new IllegalArgumentException(String.format(
+                    "Could not determine Zookeeper Hosts. Please verify that the system property %s is configured in %s.",
+                    ZOOKEEPER_HOSTS_PROP,
+                    SYSTEM_PROPERTIES_PATH));
+        }
+    }
+
+    protected void shutdown(SolrClient client) throws IOException {
+        if(client != null) {
+            LOGGER.debug("Closing solr client");
+            client.close();
+        }
+    }
 }
