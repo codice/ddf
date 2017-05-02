@@ -653,41 +653,41 @@ class ValidationParserSpecTest extends Specification {
     String metacardValidator = '''
 {
   "metacardvalidators": [{
-    "validator": "requiredattribute",
-    "metacardtype": "fallback.common",
-    "requiredattributes": [
-      "id",
-      "title",
-      "attr"
-    ]
-  }
-  ]
+    "fallback.common": [{
+        "validator": "requiredattributes",
+        "requiredattributes": [
+          "id",
+          "title",
+          "attr"
+        ]
+    }]
+  }]
 }
 '''
 
     String invalidRequiredAttrMetacardValidator = '''
 {
   "metacardvalidators": [{
-    "validator": "requiredattribute",
-    "metacardtype": "fallback.common",
-    "requiredattributes": []
-  }
-  ]
+    "fallback.common": [{
+        "validator": "requiredattributes",
+        "requiredattributes": []
+    }]
+  }]
 }
 '''
 
     String invalidMetacardValidator = '''
 {
   "metacardvalidators": [{
-    "validator": "invalidator",
-    "metacardtype": "fallback.common",
-    "requiredattributes": [
-      "id",
-      "title",
-      "attr"
-    ]
-  }
-  ]
+    "fallback.common": [{
+        "validator": "invalidator",
+        "requiredattributes": [
+          "id",
+          "title",
+          "attr"
+        ]
+    }]
+  }]
 }
 '''
 

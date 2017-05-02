@@ -15,8 +15,10 @@ The value of `metacardvalidators` is a map of the validator configuration parame
 ----
 {
     "metacardvalidators": [{
-        "validator": "requiredattribute",
-        "key": "value"
+        "metacard.type" : [{
+            "validator": "requiredattributes",
+            "key": "value"
+        }]
       }]
 }
 ----
@@ -29,23 +31,21 @@ properties are passed to an instance of that validator.
 
 The `validator` key must have a value of one of the following:
 
- - `requiredattribute` (ensures that configured set of required attributes are present on each metacard of the specified type)
- * `metacardtype`: The metacard type in which to apply the set of required attributes.
- * `requiredattributes`: Array of strings containing the required attributes.
+ - `requiredattributes` Configures the Required Attributes Metacard Validator
 
 Examples:
 [source, json]
 ----
 {
   "metacardvalidators": [{
-    "validator": "requiredattribute",
-    "metacardtype": "fallback.common",
-    "requiredattributes": [
-      "id",
-      "title",
-      "attr"
-    ]
-  }
-  ]
+    "fallback.common": [{
+        "validator": "requiredattributes",
+        "requiredattributes": [
+          "id",
+          "title",
+          "attr"
+        ]
+    }]
+  }]
 }
 ----

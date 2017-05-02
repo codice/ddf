@@ -40,6 +40,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -82,7 +84,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class ValidationParser implements ArtifactInstaller {
     private static final String METACARD_VALIDATORS_PROPERTY = "metacardvalidators";
 
-    private static final String REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY = "requiredattribute";
+    private static final String REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY = "requiredattributes";
 
     private static final String METACARD_TYPE_PROPERTY = "metacardtype";
 
@@ -173,7 +175,7 @@ public class ValidationParser implements ArtifactInstaller {
         handleSection(changeset, "Injections", outer.inject, this::parseInjections);
         handleSection(changeset,
                 "MetacardValidators",
-                outer.metacardValidatorDefinitions,
+                outer.metacardValidators,
                 this::parseMetacardValidators);
     }
 
@@ -221,7 +223,7 @@ public class ValidationParser implements ArtifactInstaller {
     }
 
     @SuppressWarnings("unchecked")
-    private void parseMetacardValidators(Map<String, Object> root, Outer outer) {
+    private void parseMetacardValidators(@Nullable Map<String, Object> root, Outer outer) {
         if (root == null || root.get(METACARD_VALIDATORS_PROPERTY) == null) {
             return;
         }
@@ -231,22 +233,27 @@ public class ValidationParser implements ArtifactInstaller {
         if (metacardValidatorsObj instanceof List) {
             List<Map<String, Object>> metacardValidatorsList =
                     (List<Map<String, Object>>) metacardValidatorsObj;
-            for (Map<String, Object> metacardDefinitionMap : metacardValidatorsList) {
-                MetacardValidatorDefinition validatorDefinition = new MetacardValidatorDefinition();
-                Map<String, Object> arguments = new HashMap<>(2);
-                for (Map.Entry<String, Object> entry : metacardDefinitionMap.entrySet()) {
-                    if (entry.getKey()
-                            .equals(VALIDATOR_PROPERTY) && entry.getValue() instanceof String) {
-                        validatorDefinition.validatorName = (String) entry.getValue();
-                    } else {
-                        arguments.put(entry.getKey(), entry.getValue());
+            for (Map<String, Object> metacardTypeList : metacardValidatorsList) {
+                for (Map.Entry<String, Object> typeEntry : metacardTypeList.entrySet()) {
+                    String metacardType = typeEntry.getKey();
+                    Object validatorDefinitionObj = typeEntry.getValue();
+                    if (validatorDefinitionObj instanceof List) {
+                        List<Map<String, Object>> validatorEntryList = (List<Map<String, Object>>) validatorDefinitionObj;
+                        for (Map<String, Object> metacardDefinitionMap : validatorEntryList) {
+                            MetacardValidatorDefinition validatorDefinition = new MetacardValidatorDefinition();
+                            validatorDefinition.metacardType = metacardType;
+                            Map<String, Object> arguments = new HashMap<>(2);
+                            for (Map.Entry<String, Object> entry : metacardDefinitionMap.entrySet()) {
+                                arguments.put(entry.getKey(), entry.getValue());
+                            }
+                            validatorDefinition.arguments = arguments;
+                            metacardValidators.add(validatorDefinition);
+                        }
                     }
                 }
-                validatorDefinition.arguments = arguments;
-                metacardValidators.add(validatorDefinition);
             }
         }
-        outer.metacardValidatorDefinitions = metacardValidators;
+        outer.metacardValidators = metacardValidators;
     }
 
     private List<Callable<Boolean>> parseAttributeTypes(Changeset changeset,
@@ -325,16 +332,17 @@ public class ValidationParser implements ArtifactInstaller {
         BundleContext context = getBundleContext();
         for (MetacardValidatorDefinition metacardValidatorDefinition : metacardValidatorDefinitions) {
             try {
-                MetacardValidator metacardValidator = getMetacardValidator(
+                List<MetacardValidator> metacardValidators = getMetacardValidators(
                         metacardValidatorDefinition);
-                staged.add(() -> {
+                metacardValidators.forEach(metacardValidator -> staged.add(() -> {
                     ServiceRegistration<MetacardValidator> registration = context.registerService(
                             MetacardValidator.class,
                             metacardValidator,
                             null);
                     changeset.metacardValidatorServices.add(registration);
                     return registration != null;
-                });
+                }));
+
             } catch (IllegalStateException ise) {
                 LOGGER.error("Could not get validator for definition: {}",
                         metacardValidatorDefinition,
@@ -368,39 +376,48 @@ public class ValidationParser implements ArtifactInstaller {
     }
 
     @SuppressWarnings("unchecked")
-    private MetacardValidator getMetacardValidator(
+    private List<MetacardValidator> getMetacardValidators(
             MetacardValidatorDefinition validatorDefinition) {
-        switch (validatorDefinition.validatorName) {
-        case REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY: {
-            String metacardType = null;
-            Object metacardTypeValue = validatorDefinition.arguments.get(METACARD_TYPE_PROPERTY);
+        List<MetacardValidator> metacardValidators = new ArrayList<>();
 
-            if (metacardTypeValue instanceof String) {
-                metacardType = (String) metacardTypeValue;
-            }
-
-            List<String> requiredAttributes = new ArrayList<>();
-            Object requiredAttributesObj = validatorDefinition.arguments.get(
-                    REQUIRED_ATTRIBUTES_PROPERTY);
-            if (requiredAttributesObj instanceof List) {
-                List<Object> requiredAttrObjList = (List) requiredAttributesObj;
-                requiredAttributes = requiredAttrObjList.stream()
-                        .filter(String.class::isInstance)
-                        .map(String.class::cast)
-                        .collect(Collectors.toList());
-            }
-
-            if (metacardType != null && CollectionUtils.isNotEmpty(requiredAttributes)) {
-                Set<String> requiredAttrSet = new HashSet<>(requiredAttributes);
-                return new RequiredAttributesMetacardValidator(metacardType, requiredAttrSet);
-            } else {
-                throw new IllegalStateException(
-                        "Required Attributes Validator received invalid configuration");
-            }
-        } default:
-            throw new IllegalStateException(
-                    "Validator does not exist. (" + validatorDefinition.validatorName + ")");
+        MetacardValidator metacardValidator = null;
+        String validatorName = null;
+        Object metacardValidatorObj = validatorDefinition.arguments.get(VALIDATOR_PROPERTY);
+        if (metacardValidatorObj instanceof String) {
+            validatorName = (String) metacardValidatorObj;
         }
+        if (validatorName != null) {
+            String metacardType = validatorDefinition.metacardType;
+            switch (validatorName) {
+            case REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY: {
+                Set<String> requiredAttributes = new HashSet<>();
+                Object requiredAttributesObj = validatorDefinition.arguments.get(
+                        REQUIRED_ATTRIBUTES_PROPERTY);
+                if (requiredAttributesObj instanceof List) {
+                    List<Object> requiredAttrObjList = (List) requiredAttributesObj;
+                    requiredAttributes = requiredAttrObjList.stream()
+                            .filter(String.class::isInstance)
+                            .map(String.class::cast)
+                            .collect(Collectors.toSet());
+                }
+
+                if (metacardType != null && CollectionUtils.isNotEmpty(requiredAttributes)) {
+                    metacardValidator = new RequiredAttributesMetacardValidator(metacardType,
+                            requiredAttributes);
+                } else {
+                    throw new IllegalStateException("Required Attributes Validator received invalid configuration");
+                }
+                break;
+            }
+            default:
+                throw new IllegalStateException("Validator does not exist. (" + validatorName + ")");
+            }
+        }
+
+        if (metacardValidator != null) {
+            metacardValidators.add(metacardValidator);
+        }
+        return metacardValidators;
     }
 
     private AttributeValidator getValidator(Outer.Validator validator) {
@@ -524,7 +541,7 @@ public class ValidationParser implements ArtifactInstaller {
     }
 
     private BundleContext getBundleContext() {
-        return Optional.of(FrameworkUtil.getBundle(getClass()))
+        return Optional.ofNullable(FrameworkUtil.getBundle(getClass()))
                 .map(Bundle::getBundleContext)
                 .orElseThrow(() -> new IllegalStateException(
                         "Could not get the bundle for " + getClass().getName()));
@@ -604,7 +621,7 @@ public class ValidationParser implements ArtifactInstaller {
 
         List<Injection> inject;
 
-        List<MetacardValidatorDefinition> metacardValidatorDefinitions;
+        List<MetacardValidatorDefinition> metacardValidators;
 
         class MetacardType {
             String type;
@@ -650,13 +667,9 @@ public class ValidationParser implements ArtifactInstaller {
     }
 
     class MetacardValidatorDefinition {
-        String validatorName;
+        String metacardType;
 
         Map<String, Object> arguments;
-
-        public String toString() {
-            return validatorName;
-        }
     }
 
     private class Changeset {
