@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.mime.MimeTypeMapper;
 
 public class ContentComponent extends DefaultComponent {
@@ -37,6 +38,8 @@ public class ContentComponent extends DefaultComponent {
     private CatalogFramework catalogFramework;
 
     private MimeTypeMapper mimeTypeMapper;
+
+    private FilterBuilder filterBuilder;
 
     public ContentComponent() {
         super();
@@ -83,6 +86,14 @@ public class ContentComponent extends DefaultComponent {
 
     public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
         this.mimeTypeMapper = mimeTypeMapper;
+    }
+
+    public FilterBuilder getFilterBuilder() {
+        return filterBuilder;
+    }
+
+    public void setFilterBuilder(FilterBuilder filterBuilder) {
+        this.filterBuilder = filterBuilder;
     }
 
 }

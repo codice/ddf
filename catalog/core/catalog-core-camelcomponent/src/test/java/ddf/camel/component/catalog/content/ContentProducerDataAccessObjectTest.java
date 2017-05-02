@@ -48,6 +48,8 @@ import ddf.catalog.Constants;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
@@ -60,6 +62,8 @@ public class ContentProducerDataAccessObjectTest {
 
     ContentProducerDataAccessObject contentProducerDataAccessObject =
             new ContentProducerDataAccessObject();
+
+    private FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
     @Test
     public void testGetFileUsingRefKey() throws Exception {
@@ -199,6 +203,7 @@ public class ContentProducerDataAccessObjectTest {
         ContentComponent mockComponent = mock(ContentComponent.class);
         doReturn(mockCatalogFramework).when(mockComponent)
                 .getCatalogFramework();
+        doReturn(filterBuilder).when(mockComponent).getFilterBuilder();
 
         //setup mockEndpoint
         ContentEndpoint mockEndpoint = mock(ContentEndpoint.class);

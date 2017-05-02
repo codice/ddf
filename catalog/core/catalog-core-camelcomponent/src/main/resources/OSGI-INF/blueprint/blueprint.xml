@@ -23,6 +23,8 @@
 
     <reference id="framework" interface="ddf.catalog.CatalogFramework"/>
 
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+
     <!--
     Instantiate our custom Camel CatalogComponent and inject this bundle context into it.  
     -->
@@ -58,6 +60,7 @@
     <bean id="contentComponent" class="ddf.camel.component.catalog.content.ContentComponent">
         <property name="catalogFramework" ref="framework"/>
         <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+        <property name="filterBuilder" ref="filterBuilder"/>
     </bean>
 
     <!--

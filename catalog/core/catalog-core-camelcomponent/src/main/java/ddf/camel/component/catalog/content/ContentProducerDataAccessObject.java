@@ -29,6 +29,8 @@ import org.apache.camel.Message;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileMessage;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,14 +44,21 @@ import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
 
@@ -121,7 +130,9 @@ public class ContentProducerDataAccessObject {
 
     public void createContentItem(FileSystemPersistenceProvider fileIdMap, ContentEndpoint endpoint,
             File ingestedFile, WatchEvent.Kind<Path> eventType, String mimeType,
-            Map<String, Object> headers) throws SourceUnavailableException, IngestException {
+            Map<String, Object> headers)
+            throws SourceUnavailableException, IngestException, FederationException,
+            UnsupportedQueryException {
         LOGGER.debug("Creating content item.");
 
         String key = String.valueOf(ingestedFile.getAbsolutePath()
@@ -148,13 +159,41 @@ public class ContentProducerDataAccessObject {
                 }
             }
         } else if (StandardWatchEventKinds.ENTRY_MODIFY.equals(eventType)) {
+
+            Metacard metacard = null;
+
+            if (StringUtils.isNotEmpty(id)) {
+
+                FilterBuilder filterBuilder = endpoint.getComponent()
+                        .getFilterBuilder();
+                if (filterBuilder != null) {
+                    Filter filter = filterBuilder.attribute(Metacard.ID)
+                            .is()
+                            .like()
+                            .text(id);
+
+                    QueryImpl query = new QueryImpl(filter);
+                    QueryResponse response = endpoint.getComponent()
+                            .getCatalogFramework()
+                            .query(new QueryRequestImpl(query));
+                    if (response != null) {
+                        metacard = response.getResults()
+                                .stream()
+                                .findFirst()
+                                .map(Result::getMetacard)
+                                .orElse(null);
+                    }
+                }
+
+            }
+
             UpdateStorageRequest updateRequest =
                     new UpdateStorageRequestImpl(Collections.singletonList(new ContentItemImpl(id,
                             Files.asByteSource(ingestedFile),
                             mimeType,
                             ingestedFile.getName(),
                             0,
-                            null)), null);
+                            metacard)), null);
 
             processHeaders(headers, updateRequest, ingestedFile);
 
