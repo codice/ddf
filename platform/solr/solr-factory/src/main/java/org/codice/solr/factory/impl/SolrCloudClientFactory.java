@@ -52,14 +52,14 @@ public class SolrCloudClientFactory implements SolrClientFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrCloudClientFactory.class);
 
-    private static final int SHARD_COUNT = NumberUtils.toInt("solr.cloud.shardCount", 2);
+    private static final int SHARD_COUNT = NumberUtils.toInt(System.getProperty(
+            "solr.cloud.shardCount"), 2);
 
-    private static final int REPLICATION_FACTOR = NumberUtils.toInt("solr.cloud.replicationFactor",
-            2);
+    private static final int REPLICATION_FACTOR = NumberUtils.toInt(System.getProperty(
+            "solr.cloud.replicationFactor"), 2);
 
-    private static final int MAXIMUM_SHARDS_PER_NODE = NumberUtils.toInt(
-            "solr.cloud.maxShardPerNode",
-            2);
+    private static final int MAXIMUM_SHARDS_PER_NODE = NumberUtils.toInt(System.getProperty(
+            "solr.cloud.maxShardPerNode"), 2);
 
     private static final int THREAD_POOL_DEFAULT_SIZE = 128;
 
@@ -112,8 +112,8 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     }
 
     private static ScheduledExecutorService createExecutorService() throws NumberFormatException {
-        Integer threadPoolSize = NumberUtils.toInt("org.codice.ddf.system.threadPoolSize",
-                THREAD_POOL_DEFAULT_SIZE);
+        Integer threadPoolSize = NumberUtils.toInt(System.getProperty(
+                "org.codice.ddf.system.threadPoolSize"), THREAD_POOL_DEFAULT_SIZE);
         return Executors.newScheduledThreadPool(threadPoolSize);
     }
 
