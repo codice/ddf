@@ -7,6 +7,7 @@ import org.osgi.framework.FrameworkUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import javax.annotation.Nullable
 import java.util.concurrent.atomic.AtomicBoolean
 
 @SuppressFBWarnings
@@ -77,6 +78,7 @@ public class ScriptRunner implements ArtifactInstaller {
                 .endsWith(".groovy")
     }
 
+    @Nullable
     private static BundleContext getBundleContext() {
         return FrameworkUtil.getBundle(ScriptRunner.class)?.getBundleContext()
     }
