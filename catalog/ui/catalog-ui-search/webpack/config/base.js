@@ -102,8 +102,8 @@ module.exports = {
                 loader: 'imports?jQuery=jquery'
             },
             {
-                test: /\.jsx$/,
-                loader: 'babel?presets[]=react',
+                test: /\.jsx?$/,
+                loader: 'babel',
                 exclude: /(node_modules|target)/
             },
             {
