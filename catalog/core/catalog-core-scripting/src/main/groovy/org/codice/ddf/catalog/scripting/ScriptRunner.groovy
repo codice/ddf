@@ -1,6 +1,7 @@
 package org.codice.ddf.catalog.scripting
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings
+import org.apache.camel.CamelContext
 import org.apache.felix.fileinstall.ArtifactInstaller
 import org.osgi.framework.BundleContext
 import org.osgi.framework.FrameworkUtil
@@ -13,10 +14,11 @@ import java.util.concurrent.atomic.AtomicBoolean
 @SuppressFBWarnings
 public class ScriptRunner implements ArtifactInstaller {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScriptRunner.class)
+    private final CamelContext camelContext
 
 
-    public ScriptRunner() {
-
+    public ScriptRunner(CamelContext camelContext) {
+        this.camelContext = camelContext
     }
 
     @Override
@@ -29,6 +31,7 @@ public class ScriptRunner implements ArtifactInstaller {
             def scriptLogger = LoggerFactory.getLogger(scriptName)
             Binding binding = new Binding(LOGGER: scriptLogger,
                     bundleContext: getBundleContext(),
+                    camelContext: camelContext,
                     ended: ended)
             GroovyShell shell = new GroovyShell(this.class.classLoader, binding)
 
@@ -53,10 +56,15 @@ public class ScriptRunner implements ArtifactInstaller {
             def scriptLogger = LoggerFactory.getLogger(scriptName)
             Binding binding = new Binding(LOGGER: scriptLogger,
                     bundleContext: getBundleContext(),
+                    camelContext: camelContext,
                     ended: ended)
             GroovyShell shell = new GroovyShell(this.class.classLoader, binding)
 
             def obj = shell.evaluate(file)
+
+            // TODO (RCZ) - Allow some way for scripts to cleanup on close/exit?
+//            binding.getVariable('destroyMethod')?.run()
+
             LOGGER.trace("Shell evaluated to: $obj")
 
         })
