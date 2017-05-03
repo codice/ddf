@@ -82,8 +82,8 @@ public class MetadataConfigurationParser {
 
     public MetadataConfigurationParser(List<String> entityDescriptions,
             Consumer<EntityDescriptor> updateCallback) throws IOException {
-        parseEntityDescriptions(entityDescriptions);
         this.updateCallback = updateCallback;
+        parseEntityDescriptions(entityDescriptions);
     }
 
     public Map<String, EntityDescriptor> getEntryDescriptions() {
