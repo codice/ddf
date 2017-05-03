@@ -19,7 +19,7 @@ var MarionetteRegion = require('js/Marionette.Region');
 var CustomElements = require('js/CustomElements');
 
 function moveHeaders(elementToUpdate, elementToMatch) {
-    this.$el.find('.column-absolute').css('transform', 'translate3d(0, '+ this.el.scrollTop+'px, 0)').attr('data-help-translateY', this.el.scrollTop);
+    this.$el.find('th').css('transform', 'translate3d(0, '+ this.el.scrollTop+'px, 0)');
 }
 
 module.exports = Marionette.LayoutView.extend({

@@ -23,5 +23,17 @@
   transform: translateX(0%);
   @{customElementNamespace}dropdown {
     display: block;
+    animation: help-spawn 2*@coreTransitionTime ease-in-out;
   }
+}
+
+@keyframes help-spawn{
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }

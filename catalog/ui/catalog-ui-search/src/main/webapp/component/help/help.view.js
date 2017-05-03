@@ -43,63 +43,53 @@ define([
         }
     }
 
-    function findHighestAncestorTop(element) {
-        var parent = element.parentNode;
-        var maxTop = parent.getBoundingClientRect().top;
-        try {
-            while (parent !== null) {
-                maxTop = Math.max(maxTop, parent.getBoundingClientRect().top);
-                parent = parent.parentNode;
+    // it'd be nice if we can use offsetParent directly, but that would require devs to be aware of how help.view works
+    function isOffsetParent(element){
+        return window.getComputedStyle(element).overflow !== 'visible';
+    }
+
+    function traverseAncestors(element, compareValue, extractValue) {
+        var value = extractValue(element);
+        element = element.parentNode;
+        while (element !== null && element !== document){
+            if (isOffsetParent(element)){
+                value = compareValue(value, extractValue(element));
             }
+            element = element.parentNode;
         }
-        catch (err) {
-        }
-        return maxTop;
+        return value;
+    }
+
+    function findHighestAncestorTop(element) {
+        return traverseAncestors(element, function(currentTop, proposedTop){
+            return Math.max(currentTop, proposedTop);
+        }, function(element){
+            return element.getBoundingClientRect().top;
+        });
     }
 
     function findHighestAncestorLeft(element) {
-        var parent = element.parentNode;
-        var maxTop = parent.getBoundingClientRect().left;
-        try {
-            while (parent !== null) {
-                maxTop = Math.max(maxTop, parent.getBoundingClientRect().left);
-                parent = parent.parentNode;
-            }
-        }
-        catch (err) {
-        }
-        return maxTop;
+        return traverseAncestors(element, function(currentLeft, proposedLeft){
+            return Math.max(currentLeft, proposedLeft);
+        }, function(element){
+            return element.getBoundingClientRect().left;
+        });
     }
 
-    function findLowestAncestorBottom(element, isAbsolute) {
-        if (isAbsolute && window.getComputedStyle(element.parentNode).overflow === 'visible') {
-            return findLowestAncestorBottom(element.parentNode, isAbsolute);
-        }
-        var parent = element.parentNode;
-        var maxTop = parent.getBoundingClientRect().bottom;
-        try {
-            while (parent !== null) {
-                maxTop = Math.min(maxTop, parent.getBoundingClientRect().bottom);
-                parent = parent.parentNode;
-            }
-        }
-        catch (err) {
-        }
-        return maxTop;
+    function findLowestAncestorBottom(element) {
+        return traverseAncestors(element, function(currentBottom, proposedBottom){
+            return Math.min(currentBottom, proposedBottom);
+        }, function(element){
+            return element.getBoundingClientRect().bottom;
+        });
     }
 
     function findLowestAncestorRight(element) {
-        var parent = element.parentNode;
-        var maxTop = parent.getBoundingClientRect().right;
-        try {
-            while (parent !== null) {
-                maxTop = Math.min(maxTop, parent.getBoundingClientRect().right);
-                parent = parent.parentNode;
-            }
-        }
-        catch (err) {
-        }
-        return maxTop;
+        return traverseAncestors(element, function(currentRight, proposedRight){
+            return Math.min(currentRight, proposedRight);
+        }, function(element){
+            return element.getBoundingClientRect().right;
+        });
     }
 
     function findBlockers() {
@@ -192,9 +182,8 @@ define([
                 return;
             }
             var boundingRect = element.getBoundingClientRect();
-            var isAbsolute = window.getComputedStyle(element).position === 'absolute';
             var top = Math.max(findHighestAncestorTop(element), boundingRect.top);
-            var bottom = Math.min(findLowestAncestorBottom(element, isAbsolute), boundingRect.bottom);
+            var bottom = Math.min(findLowestAncestorBottom(element), boundingRect.bottom);
             var left = Math.max(findHighestAncestorLeft(element), boundingRect.left);
             var right = Math.min(findLowestAncestorRight(element), boundingRect.right);
             var height = bottom - top;
@@ -217,13 +206,14 @@ define([
                     .css('top', top).css('left', left);
             }
         },
-        paintHints: function($elementsWithHints, index){
-            index = index || 0;
+        paintHints: function($elementsWithHints){
             this.animationFrameId = window.requestAnimationFrame(function(){  
-                var element = $elementsWithHints.get(index);
-                if (element !== undefined){
-                    this.paintHint(element);
-                    this.paintHints($elementsWithHints, index + 1);
+                var elements = $elementsWithHints.splice(0,4);
+                if (elements.length > 0){
+                    elements.forEach(function(element){
+                        this.paintHint(element);
+                    }.bind(this));
+                    this.paintHints($elementsWithHints);
                 }
             }.bind(this));
         },
@@ -232,6 +222,7 @@ define([
             this.hintOn = true;
             this.$el.addClass('is-shown');
             var $elementsWithHints = $('[data-help]').not('#content > div.is-hidden [data-help]');
+            $elementsWithHints = _.shuffle($elementsWithHints);
             this.addUntoggleElement();
             this.paintHints($elementsWithHints);
         },
