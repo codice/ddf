@@ -86,13 +86,19 @@ public class ValidationParser implements ArtifactInstaller {
 
     private static final String REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY = "requiredattributes";
 
-    private static final String METACARD_TYPE_PROPERTY = "metacardtype";
-
     private static final String REQUIRED_ATTRIBUTES_PROPERTY = "requiredattributes";
 
     private static final String VALIDATOR_PROPERTY = "validator";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
+    private static final String METACARD_TYPES_PROPERTY = "Metacard Types";
+
+    private static final String VALIDATORS_PROPERTY = "validators";
+
+    private static final String DEFAULTS_PROPERTY = "Defaults";
+
+    private static final String INJECTIONS_PROPERTY = "Injections";
+
+    private static final String NAME_PROPERTY = "name";
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
@@ -103,6 +109,8 @@ public class ValidationParser implements ArtifactInstaller {
     private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
     private final Map<String, Changeset> changesetsByFile = new ConcurrentHashMap<>();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
 
     public ValidationParser(AttributeRegistry attributeRegistry,
             AttributeValidatorRegistry attributeValidatorRegistry,
@@ -169,10 +177,10 @@ public class ValidationParser implements ArtifactInstaller {
                 "Attribute Types",
                 outer.attributeTypes,
                 this::parseAttributeTypes);
-        handleSection(changeset, "Metacard Types", outer.metacardTypes, this::parseMetacardTypes);
-        handleSection(changeset, "Validators", outer.validators, this::parseValidators);
-        handleSection(changeset, "Defaults", outer.defaults, this::parseDefaults);
-        handleSection(changeset, "Injections", outer.inject, this::parseInjections);
+        handleSection(changeset, METACARD_TYPES_PROPERTY, outer.metacardTypes, this::parseMetacardTypes);
+        handleSection(changeset, VALIDATORS_PROPERTY, outer.validators, this::parseValidators);
+        handleSection(changeset, DEFAULTS_PROPERTY, outer.defaults, this::parseDefaults);
+        handleSection(changeset, INJECTIONS_PROPERTY, outer.inject, this::parseInjections);
         handleSection(changeset,
                 METACARD_VALIDATORS_PROPERTY,
                 outer.metacardValidators,
@@ -207,12 +215,12 @@ public class ValidationParser implements ArtifactInstaller {
 
     @SuppressWarnings("unchecked")
     private void parseValidators(Map<String, Object> root, Outer outer) {
-        if (root == null || root.get("validators") == null) {
+        if (root == null || root.get(VALIDATORS_PROPERTY) == null) {
             return;
         }
 
         Map<String, List<Outer.Validator>> validators = new HashMap<>();
-        for (Map.Entry<String, Object> entry : ((Map<String, Object>) root.get("validators")).entrySet()) {
+        for (Map.Entry<String, Object> entry : ((Map<String, Object>) root.get(VALIDATORS_PROPERTY)).entrySet()) {
             String rejson = JsonFactory.create()
                     .toJson(entry.getValue());
             List<Outer.Validator> lv = JsonFactory.create()
@@ -313,7 +321,7 @@ public class ValidationParser implements ArtifactInstaller {
             }
 
             Dictionary<String, Object> properties = new Hashtable<>();
-            properties.put("name", metacardType.type);
+            properties.put(NAME_PROPERTY, metacardType.type);
             MetacardType type = new MetacardTypeImpl(metacardType.type, attributeDescriptors);
             staged.add(() -> {
                 ServiceRegistration<MetacardType> registration = context.registerService(
