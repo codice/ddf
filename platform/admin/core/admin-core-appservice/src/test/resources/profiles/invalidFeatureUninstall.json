@@ -1,0 +1,7 @@
+{
+  "uninstall-features": [
+    "feature1",
+    "badFeature",
+    "feature2"
+  ]
+}

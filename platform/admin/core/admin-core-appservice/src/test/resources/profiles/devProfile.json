@@ -1,0 +1,18 @@
+{
+  "start-apps": [
+    "app1",
+    "app2"
+  ],
+  "install-features": [
+    "feature1",
+    "feature2"
+  ],
+  "uninstall-features": [
+    "feature3",
+    "feature4"
+  ],
+  "stop-bundles": [
+    "bundle1",
+    "bundle2"
+  ]
+}
