@@ -15,6 +15,8 @@ package org.codice.ddf.cxf;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.SecurityConstants;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.RequestBuilder;
@@ -100,9 +103,13 @@ public class SecureCxfClientFactory<T> {
         XMLObjectProviderRegistry xmlObjectProviderRegistry = ConfigurationService.get(
                 XMLObjectProviderRegistry.class);
         xmlObjectProviderRegistry.registerObjectProvider(Request.DEFAULT_ELEMENT_NAME,
-                new RequestBuilder(), new RequestMarshaller(), new RequestUnmarshaller());
+                new RequestBuilder(),
+                new RequestMarshaller(),
+                new RequestUnmarshaller());
         xmlObjectProviderRegistry.registerObjectProvider(Response.DEFAULT_ELEMENT_NAME,
-                new ResponseBuilder(), new ResponseMarshaller(), new ResponseUnmarshaller());
+                new ResponseBuilder(),
+                new ResponseMarshaller(),
+                new ResponseUnmarshaller());
     }
 
     /**
@@ -120,7 +127,12 @@ public class SecureCxfClientFactory<T> {
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
             Interceptor<? extends Message> interceptor, boolean disableCnCheck,
             boolean allowRedirects) {
-        this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects,
+        this(endpointUrl,
+                interfaceClass,
+                providers,
+                interceptor,
+                disableCnCheck,
+                allowRedirects,
                 new PropertyResolver(endpointUrl));
     }
 
@@ -234,8 +246,14 @@ public class SecureCxfClientFactory<T> {
             boolean allowRedirects, Integer connectionTimeout, Integer receiveTimeout,
             String username, String password) {
 
-        this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects,
-                connectionTimeout, receiveTimeout);
+        this(endpointUrl,
+                interfaceClass,
+                providers,
+                interceptor,
+                disableCnCheck,
+                allowRedirects,
+                connectionTimeout,
+                receiveTimeout);
 
         this.clientFactory.setPassword(password);
         this.clientFactory.setUsername(username);
@@ -270,7 +288,26 @@ public class SecureCxfClientFactory<T> {
             }
         }
 
+        auditRemoteConnection(asciiString);
+
         return newClient;
+    }
+
+    private void auditRemoteConnection(String asciiString) {
+        try {
+            URI uri = new URI(asciiString);
+            String host = uri.getHost();
+            InetAddress inetAddress = InetAddress.getByName(host);
+            SecurityLogger.audit("Setting up remote connection to federated node [{}].",
+                    inetAddress.getHostAddress());
+        } catch (Exception e) {
+            LOGGER.debug(
+                    "Unhandled exception while attempting to determine the IP address for a federated node, might be a DNS issue.",
+                    e);
+            SecurityLogger.audit(
+                    "Unable to determine the IP address for a federated node [{}], might be a DNS issue.",
+                    asciiString);
+        }
     }
 
     /**
@@ -288,7 +325,7 @@ public class SecureCxfClientFactory<T> {
 
     private T getNewClient() {
         T clientImpl = interfaceClass.equals(WebClient.class) ?
-                (T)clientFactory.create() :
+                (T) clientFactory.create() :
                 JAXRSClientFactory.fromClient(clientFactory.create(), interfaceClass);
 
         ClientConfiguration clientConfig = WebClient.getConfig(clientImpl);

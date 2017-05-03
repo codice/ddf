@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.claims.attributequery.common;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 import ddf.security.PropertiesLoader;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.samlp.SimpleSign;
 
 public class AttributeQueryClaimsHandler implements ClaimsHandler {
@@ -176,7 +178,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                 createClaims(claimCollection, assertion);
             }
         } catch (AttributeQueryException ex) {
-            LOGGER.info("Error occurred in AttributeQueryClient, did not retrieve response. Set log level for \"org.codice.ddf.security.claims.attributequery.common\" to DEBUG for more information.");
+            LOGGER.info(
+                    "Error occurred in AttributeQueryClient, did not retrieve response. Set log level for \"org.codice.ddf.security.claims.attributequery.common\" to DEBUG for more information.");
             LOGGER.debug("Error occurred in AttributeQueryClient, did not retrieve response.", ex);
         }
 
@@ -274,12 +277,30 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                 uriResolver.resolve("", wsdlLocation, this.getClass());
                 wsdlURL = uriResolver.isResolved() ? uriResolver.getURL() : new URL(wsdlLocation);
                 service = Service.create(wsdlURL, QName.valueOf(serviceName));
+                auditRemoteConnection(wsdlURL);
             } catch (Exception e) {
-                LOGGER.info("Unable to create service from WSDL location. Set log level for \"org.codice.ddf.security.claims.attributequery.common\" to DEBUG for more information.");
+                LOGGER.info(
+                        "Unable to create service from WSDL location. Set log level for \"org.codice.ddf.security.claims.attributequery.common\" to DEBUG for more information.");
                 LOGGER.debug("Unable to create service from WSDL location.", e);
             }
         }
         return service;
+    }
+
+    private void auditRemoteConnection(URL wsdlURL) {
+        try {
+            InetAddress inetAddress = InetAddress.getByName(wsdlURL.getHost());
+            SecurityLogger.audit(
+                    "Setting up remote connection to a SAML Attribute Store [{}].",
+                    inetAddress.getHostAddress());
+        } catch (Exception e) {
+            LOGGER.debug(
+                    "Unhandled exception while attempting to determine the IP address for a SAML Attribute Store, might be a DNS issue.",
+                    e);
+            SecurityLogger.audit(
+                    "Unable to determine the IP address for a SAML Attribute Store LDAP [{}], might be a DNS issue.",
+                    wsdlURL.getHost());
+        }
     }
 
     /**

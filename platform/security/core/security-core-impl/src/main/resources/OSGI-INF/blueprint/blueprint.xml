@@ -69,4 +69,9 @@
         <bean class="ddf.security.http.impl.HttpSessionFactory"/>
     </service>
 
+    <bean id="sessionListener" class="ddf.security.listener.AuditingHttpSessionListener"/>
+
+    <service id="sessionListenerService" ref="sessionListener"
+             interface="javax.servlet.http.HttpSessionListener"/>
+
 </blueprint>

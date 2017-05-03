@@ -15,6 +15,7 @@
 package ddf.ldap.ldaplogin;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -489,7 +490,24 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         } catch (NumberFormatException ignore) {
         }
 
+        auditRemoteConnection(host);
+
         return new LDAPConnectionFactory(host, port, lo);
+    }
+
+    private void auditRemoteConnection(String host) {
+        try {
+            InetAddress inetAddress = InetAddress.getByName(host);
+            SecurityLogger.audit("Setting up remote connection to LDAP [{}].",
+                    inetAddress.getHostAddress());
+        } catch (Exception e) {
+            LOGGER.debug(
+                    "Unhandled exception while attempting to determine the IP address for an LDAP, might be a DNS issue.",
+                    e);
+            SecurityLogger.audit(
+                    "Unable to determine the IP address for an LDAP [{}], might be a DNS issue.",
+                    host);
+        }
     }
 
     private void initializeSslContext() throws NoSuchAlgorithmException {

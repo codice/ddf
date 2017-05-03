@@ -360,5 +360,10 @@
             <artifactId>security-rest-authentication</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.command</groupId>
+            <artifactId>security-command-listener</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

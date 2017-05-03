@@ -84,8 +84,9 @@ public class AuthorizationFilter implements Filter {
 
             ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
 
+            CollectionPermission permissions = null;
             if (policy != null && subject != null) {
-                CollectionPermission permissions = policy.getAllowedAttributePermissions();
+                permissions = policy.getAllowedAttributePermissions();
                 if (!permissions.isEmpty()) {
                     permitted = subject.isPermitted(permissions);
                 }
@@ -101,6 +102,9 @@ public class AuthorizationFilter implements Filter {
                 LOGGER.debug("Subject not authorized.");
                 returnNotAuthorized(httpResponse);
             } else {
+                if (!permissions.isEmpty()) {
+                    SecurityLogger.audit("Subject is authorized to view resource {}", path);
+                }
                 LOGGER.debug("Subject is authorized!");
                 chain.doFilter(request, response);
             }
