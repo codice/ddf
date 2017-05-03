@@ -1,6 +1,6 @@
 ==== Metacard Validator Definition
 
-Metacard Validator definitions are similar to the Validators defintions. To define Metacard Validators, your definition file must have a `metacardvalidators` key in the root object.
+Metacard Validator definitions are similar to the Validators definitions. To define Metacard Validators, your definition file must have a `metacardvalidators` key in the root object.
 
 [source,json]
 ----
