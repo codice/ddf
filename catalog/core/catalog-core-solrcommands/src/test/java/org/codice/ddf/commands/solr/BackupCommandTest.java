@@ -850,9 +850,9 @@ public class BackupCommandTest {
     }
 
     private static void uploadDefaultConfigset() throws Exception {
-        miniSolrCloud.uploadConfigSet(Paths.get(BackupCommandTest.class.getClassLoader()
+        miniSolrCloud.uploadConfigSet(new File(BackupCommandTest.class.getClassLoader()
                 .getResource("configset")
-                .getPath()), DEFAULT_CONFIGSET);
+                .getPath()).toPath(), DEFAULT_CONFIGSET);
     }
 
     private static void createDefaultCollection() throws Exception {
