@@ -135,24 +135,24 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.org.forgerock.opendj</groupId>
+            <groupId>org.forgerock.opendj</groupId>
             <artifactId>opendj-core</artifactId>
-            <version>3.0.0.ALPHA2</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.org.forgerock.opendj</groupId>
+            <groupId>org.forgerock.opendj</groupId>
             <artifactId>opendj-grizzly</artifactId>
-            <version>3.0.0.ALPHA2</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.org.forgerock.commons</groupId>
+            <groupId>org.forgerock.commons</groupId>
             <artifactId>forgerock-util</artifactId>
-            <version>2.0.0.ALPHA1</version>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.grizzly</groupId>
             <artifactId>grizzly-framework</artifactId>
-            <version>2.3.14</version>
+            <version>2.3.30</version>
         </dependency>
         <dependency>
             <groupId>org.forgerock.commons</groupId>
@@ -217,12 +217,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <version>${hamcrest-all.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

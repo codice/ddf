@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +42,6 @@ import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.ByteString;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
-import org.forgerock.opendj.ldap.LDAPOptions;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
@@ -52,6 +52,7 @@ import org.forgerock.opendj.ldap.requests.Requests;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
+import org.forgerock.util.Options;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -460,23 +461,26 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         boolean useSsl = url.startsWith("ldaps");
         boolean useTls = !url.startsWith("ldaps") && startTls;
 
-        LDAPOptions lo = new LDAPOptions();
+        Options lo = Options.defaultOptions();
 
         try {
             if (useSsl || useTls) {
                 initializeSslContext();
-                lo.setSSLContext(getSslContext());
+                lo.set(LDAPConnectionFactory.SSL_CONTEXT, getSslContext());
             }
         } catch (GeneralSecurityException e) {
             LOGGER.info("Error encountered while configuring SSL. Secure connection will fail.", e);
         }
 
-        lo.setUseStartTLS(useTls);
-        lo.addEnabledCipherSuite(System.getProperty("https.cipherSuites")
-                .split(","));
-        lo.addEnabledProtocol(System.getProperty("https.protocols")
-                .split(","));
-        lo.setProviderClassLoader(SslLdapLoginModule.class.getClassLoader());
+        lo.set(LDAPConnectionFactory.SSL_USE_STARTTLS, useTls);
+        lo.set(LDAPConnectionFactory.SSL_ENABLED_CIPHER_SUITES,
+                Arrays.asList(System.getProperty("https.cipherSuites")
+                        .split(",")));
+        lo.set(LDAPConnectionFactory.SSL_ENABLED_PROTOCOLS,
+                Arrays.asList(System.getProperty("https.protocols")
+                        .split(",")));
+        lo.set(LDAPConnectionFactory.TRANSPORT_PROVIDER_CLASS_LOADER,
+                SslLdapLoginModule.class.getClassLoader());
 
         String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(":"));
         Integer port = useSsl ? 636 : 389;
@@ -490,7 +494,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     private void initializeSslContext() throws NoSuchAlgorithmException {
         // Only set if null so tests can inject a context.
-        if (getEncryptionService() == null) {
+        if (getSslContext() == null) {
             setSslContext(SSLContext.getDefault());
         }
     }
