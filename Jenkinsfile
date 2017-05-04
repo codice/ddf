@@ -8,6 +8,10 @@ pipeline {
     triggers {
         cron('H H(20-23) * * *')
     }
+    environment {
+        DOCS = 'distribution/docs'
+        ITESTS= 'distribution/test/itests/test-itests-ddf'
+    }
     stages {
         stage('Setup') {
             steps{
@@ -20,25 +24,84 @@ pipeline {
                 parallel(
                     linux: {
                         node('linux-large') {
+                            echo sh(returnStdout: true, script: 'env')
+                            checkout scm
                             timeout(time: 3, unit: 'HOURS') {
-                                checkout scm
                                 withMaven(maven: 'M3', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings') {
-                                    sh 'mvn clean install -pl !distribution/test/itests/test-itests-ddf'
-                                    sh 'mvn install -pl distribution/test/itests/test-itests-ddf -nsu'
+                                    sh 'mvn clean install -B -T 1C -pl !$ITESTS'
+                                    sh 'mvn install -B -Dmaven.test.redirectTestOutputToFile=true -pl $ITESTS -nsu'
                                 }
                             }
                         }
-                    }, windows: {
-                        node('proxmox-windows'){
+                    },
+                    windows: {
+                        node('proxmox-windows') {
+                            checkout scm
                             timeout(time: 3, unit: 'HOURS') {
-                                checkout scm
                                 withMaven(maven: 'M3', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings') {
-                                    bat 'mvn clean install -pl !distribution/test/itests/test-itests-ddf'
-                                    bat 'mvn install -pl distribution/test/itests/test-itests-ddf -nsu'
+                                    bat 'mvn clean install -B -T 1C -pl !%ITESTS%'
+                                    bat 'mvn install -B -Dmaven.test.redirectTestOutputToFile=true -pl %ITESTS% -nsu'
                                 }
                             }
                         }
                     }
+                )
+            }
+        }
+        stage('Static Analysis') {
+            steps {
+                parallel(
+                        owasp: {
+                            node('linux-large') {
+                                checkout scm
+                                withMaven(maven: 'M3', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings') {
+                                    sh 'mvn install -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS'
+                                }
+                            }
+                        },
+                        sonarqube: {
+                            node('linux-large') {
+                                checkout scm
+                                withMaven(maven: 'M3', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings') {
+                                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                                        sh 'mvn -q -B -Dfindbugs.skip=true -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=$SONAR_TOKEN  -Dsonar.organization=codice -Dsonar.projectKey=ddf -pl !$DOCS,!$ITESTS'
+                                    }
+                                }
+                            }
+                        },
+                        coverity: {
+                            node('linux-medium') {
+                                checkout scm
+                                withMaven(maven: 'M3', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings') {
+                                    withCredentials([string(credentialsId: 'ddf-coverity-token', variable: 'COVERITY_TOKEN')]) {
+                                        withEnv(["PATH=${tool 'coverity-linux'}/bin:${env.PATH}"]) {
+                                            configFileProvider([configFile(fileId: 'coverity-maven-settings', replaceTokens: true, variable: 'MAVEN_SETTINGS')]) {
+                                                echo sh(returnStdout: true, script: 'env')
+                                                sh 'cov-build --dir cov-int mvn -DskipTests=true -DskipStatic=true install -pl !$DOCS --settings $MAVEN_SETTINGS'
+                                                sh 'tar czvf ddf.tgz cov-int'
+                                                sh 'curl --form token=$COVERITY_TOKEN --form email=cmp-security-team@connexta.com --form file=@ddf.tgz --form version="master" --form description="Description: DDF CI Build" https://scan.coverity.com/builds?project=codice%2Fddf'
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        nodeJsSecurity: {
+                            node('linux-small') {
+                                checkout scm
+                                script {
+                                    def packageFiles = findFiles(glob: '**/package.json')
+                                    for (int i = 0; i < packageFiles.size(); i++) {
+                                        dir(packageFiles[i].path.split('package.json')[0]) {
+                                            echo "Scanning ${packageFiles[i].name}"
+                                            nodejs(configId: 'npmrc-default', nodeJSInstallationName: 'nodejs') {
+                                                sh 'nsp check'
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                 )
             }
         }
@@ -48,7 +111,7 @@ pipeline {
                 withMaven(maven: 'M3', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice_settings.xml') {
                     checkout scm
                     sh 'mvn javadoc:aggregate -DskipStatic=true -DskipTests=true'
-                    sh 'mvn deploy -DskipStatic=true -DskipTests=true'
+                    sh 'mvn deploy -T 1C -DskipStatic=true -DskipTests=true'
                 }
             }
         }

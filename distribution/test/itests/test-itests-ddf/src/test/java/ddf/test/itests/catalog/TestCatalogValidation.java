@@ -183,6 +183,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-2958
     public void testEnforceValidityErrorsAndWarnings() throws Exception {
 
         //Configure to enforce validator
@@ -499,6 +500,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-2958
     public void testFilterPluginNoFiltering() throws Exception {
 
         //Configure not enforcing validators so invalid metacards can ingest
