@@ -104,9 +104,9 @@ public abstract class AbstractIntegrationTest {
 
     public static final String RESOURCE_VARIABLE_DELIMETER = "$";
 
-    public static final String REMOVE_ALL = "catalog:removeall -f -p";
+    public static final String REMOVE_ALL = "catalog:removeall -f";
 
-    private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
+    private static final String CLEAR_CACHE = "catalog:removeall -f --cache";
 
     protected static ServerSocket placeHolderSocket;
 
