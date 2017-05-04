@@ -117,9 +117,7 @@ public class DeleteOperations {
     //
     public DeleteResponse delete(DeleteRequest deleteRequest, List<String> fanoutTagBlacklist)
             throws IngestException, SourceUnavailableException {
-        DeleteResponse deleteResponse = doDelete(deleteRequest, fanoutTagBlacklist);
-        deleteResponse = doPostIngest(deleteResponse);
-        return deleteResponse;
+        return doDelete(deleteRequest, fanoutTagBlacklist);
     }
 
     private List<Metacard> getDeleteMetacards(DeleteRequest deleteRequest) {
