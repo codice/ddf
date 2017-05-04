@@ -24,6 +24,8 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
@@ -39,8 +41,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 public class MetadataConfigurationParserTest {
@@ -80,13 +80,24 @@ public class MetadataConfigurationParserTest {
 
     @Test
     public void testMetadataFolder() throws Exception {
+        metadataFolderEntities(null);
+    }
+
+    @Test
+    public void testMetadataFolderCallback() throws Exception {
+        AtomicBoolean invoked = new AtomicBoolean(false);
+        metadataFolderEntities(ed -> invoked.set(true));
+        assertThat("Callback was not invoked", invoked.get());
+    }
+
+    private void metadataFolderEntities(Consumer<EntityDescriptor> updateCallback) throws Exception {
         System.setProperty("ddf.home",
                 descriptorPath.getParent()
                         .getParent()
                         .getParent()
                         .toString());
         MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
-                Collections.<String>emptyList());
+                Collections.emptyList(), updateCallback);
         Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(1));
@@ -94,8 +105,19 @@ public class MetadataConfigurationParserTest {
 
     @Test
     public void testMetadataFile() throws Exception {
+        metadataFile(null);
+    }
+
+    @Test
+    public void testMetadataFileCallback() throws Exception {
+        AtomicBoolean invoked = new AtomicBoolean(false);
+        metadataFile(ed -> invoked.set(true));
+        assertThat("Callback was not invoked", invoked.get());
+    }
+
+    private void metadataFile(Consumer<EntityDescriptor> updateCallback) throws IOException {
         MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
-                Collections.singletonList("file:" + descriptorPath.toString()));
+                Collections.singletonList("file:" + descriptorPath.toString()), updateCallback);
         Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(1));
@@ -103,8 +125,19 @@ public class MetadataConfigurationParserTest {
 
     @Test
     public void testMetadataString() throws Exception {
+        metadataString(null);
+    }
+
+    @Test
+    public void testMetadataStringCallback() throws Exception {
+        AtomicBoolean invoked = new AtomicBoolean(false);
+        metadataString(ed -> invoked.set(true));
+        assertThat("Callback was not invoked", invoked.get());
+    }
+
+    private void metadataString(Consumer<EntityDescriptor> updateCallback) throws IOException {
         MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
-                Collections.singletonList(IOUtils.toString(descriptorPath.toUri())));
+                Collections.singletonList(IOUtils.toString(descriptorPath.toUri())), updateCallback);
         Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(1));
@@ -145,13 +178,10 @@ public class MetadataConfigurationParserTest {
     }
 
     private void serverRespondsWith(String message) throws HttpException, IOException {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                HttpResponse response = (HttpResponse) invocationOnMock.getArguments()[1];
-                response.setEntity(new StringEntity(message));
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            HttpResponse response = (HttpResponse) invocationOnMock.getArguments()[1];
+            response.setEntity(new StringEntity(message));
+            return null;
         }).when(handler)
                 .handle(any(), any(), any());
     }

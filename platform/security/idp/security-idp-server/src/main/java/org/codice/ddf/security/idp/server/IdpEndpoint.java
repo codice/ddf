@@ -238,10 +238,13 @@ public class IdpEndpoint implements Idp {
         if (serviceProviderMetadata != null) {
             try {
                 MetadataConfigurationParser metadataConfigurationParser =
-                        new MetadataConfigurationParser(serviceProviderMetadata,
-                                ed -> serviceProviders.put(ed.getEntityID(),
-                                        new EntityInformation.Builder(ed,
-                                                SUPPORTED_BINDINGS).build()));
+                        new MetadataConfigurationParser(serviceProviderMetadata, ed -> {
+                            EntityInformation entityInfo = new EntityInformation.Builder(ed,
+                                    SUPPORTED_BINDINGS).build();
+                            if (entityInfo != null) {
+                                serviceProviders.put(ed.getEntityID(), entityInfo);
+                            }
+                        });
 
                 serviceProviders.putAll(metadataConfigurationParser.getEntryDescriptions()
                         .entrySet()

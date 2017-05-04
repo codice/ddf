@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -52,7 +53,7 @@ public class IdpMetadata {
 
     private String encryptionCertificate;
 
-    private Map<String, EntityDescriptor> entryDescriptions;
+    private Map<String, EntityDescriptor> entryDescriptions = new ConcurrentHashMap<>();
 
     private String singleLogoutBinding;
 
@@ -61,8 +62,9 @@ public class IdpMetadata {
     public void setMetadata(String metadata)
             throws WSSecurityException, XMLStreamException, SAMLException, IOException {
         MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
-                Collections.singletonList(metadata));
-        entryDescriptions = metadataConfigurationParser.getEntryDescriptions();
+                Collections.singletonList(metadata),
+                ed -> entryDescriptions.put(ed.getEntityID(), ed));
+        entryDescriptions.putAll(metadataConfigurationParser.getEntryDescriptions());
     }
 
     private void initSingleSignOn() {
