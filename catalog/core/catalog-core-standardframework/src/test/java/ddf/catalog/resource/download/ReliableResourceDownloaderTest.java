@@ -22,6 +22,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,6 +65,7 @@ import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
 @PrepareForTest(ReliableResourceDownloader.class)
@@ -107,6 +109,29 @@ public class ReliableResourceDownloaderTest {
         // Don't wait between attempts
         downloaderConfig.setDelayBetweenAttemptsMS(0);
         mockMetacard = getMockMetacard(DOWNLOAD_ID, "sauce");
+    }
+
+    @Test
+    public void testBadKeyName() throws Exception {
+        Metacard metacard = getMockMetacard(DOWNLOAD_ID, ":badsourcename");
+
+        downloaderConfig.setCacheEnabled(true);
+
+        ResourceResponse mockResponse = getMockResourceResponse(mockStream);
+
+        ResourceCacheImpl mockCache = mock(ResourceCacheImpl.class);
+        when(mockCache.isPending(anyString())).thenReturn(false);
+        when(mockCache.getProductCacheDirectory()).thenReturn(productCacheDirectory);
+        downloaderConfig.setResourceCache(mockCache);
+
+        ReliableResourceDownloader downloader = new ReliableResourceDownloader(downloaderConfig,
+                new AtomicBoolean(),
+                DOWNLOAD_ID,
+                mockResponse,
+                getMockRetriever());
+
+        downloader.setupDownload(metacard, new DownloadStatusInfoImpl());
+        verify(mockCache, never()).addPendingCacheEntry(any(ReliableResource.class));
     }
 
     @Test

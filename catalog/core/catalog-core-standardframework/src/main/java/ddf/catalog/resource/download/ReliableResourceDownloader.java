@@ -183,6 +183,14 @@ public class ReliableResourceDownloader implements Runnable {
                 // <INSTALL-DIR>/data/product-cache/<source-id>-<metacard-id>
                 // <INSTALL-DIR>/data/product-cache/ddf.distribution-abc123
                 filePath = FilenameUtils.concat(resourceCache.getProductCacheDirectory(), key);
+                if (filePath == null) {
+                    LOGGER.info(
+                            "Unable to create cache for cache directory {} and key {} - no caching will be done.",
+                            resourceCache.getProductCacheDirectory(),
+                            key);
+                    return resourceResponse;
+                }
+
                 reliableResource = new ReliableResource(key,
                         filePath,
                         mimeType,
