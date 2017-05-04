@@ -26,13 +26,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.Phaser;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.Validate;
 import org.codice.ddf.configuration.SystemInfo;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -118,7 +115,10 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
      */
     protected static final String UPDATE_QUERY_MODE = "update";
 
-    private static final int DEFAULT_MAX_START_INDEX = 50000;
+    /**
+     * package-private to allow for unit testing
+     */
+    static final int DEFAULT_MAX_START_INDEX = 50000;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CachingFederationStrategy.class);
 
@@ -140,11 +140,14 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
      */
     protected List<PostFederatedQueryPlugin> postQuery;
 
+    private SortedQueryMonitorFactory sortedQueryMonitorFactory =
+            new SortedQueryMonitorFactory(this);
+
     private ExecutorService queryExecutorService;
 
     private int maxStartIndex;
 
-    private CacheCommitPhaser cacheCommitPhaser = new CacheCommitPhaser();
+    private CacheCommitPhaser cacheCommitPhaser;
 
     private CacheBulkProcessor cacheBulkProcessor;
 
@@ -169,20 +172,46 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery,
             SolrCache cache, ExecutorService cacheExecutorService,
             ValidationQueryFactory validationQueryFactory, CacheQueryFactory cacheQueryFactory) {
+
+        Validate.notNull(queryExecutorService, "Valid queryExecutorService required.");
+        Validate.notNull(preQuery, "Valid List<PreFederatedQueryPlugin> required.");
+        Validate.noNullElements(preQuery, "preQuery cannot contain null elements.");
+        Validate.notNull(postQuery, "Valid List<PostFederatedQueryPlugin> required.");
+        Validate.noNullElements(postQuery, "postQuery cannot contain null elements.");
+        Validate.notNull(cache, "Valid SolrCache required.");
+        Validate.notNull(cacheExecutorService, "Valid cacheExecutorService required.");
+        Validate.notNull(validationQueryFactory, "Valid ValidationQueryFactory required.");
+        Validate.notNull(cacheQueryFactory, "Valid CacheQueryFactory required.");
+
         this.queryExecutorService = queryExecutorService;
         this.preQuery = preQuery;
         this.postQuery = postQuery;
         this.maxStartIndex = DEFAULT_MAX_START_INDEX;
         this.cache = cache;
         this.cacheExecutorService = cacheExecutorService;
+        cacheCommitPhaser = new CacheCommitPhaser(cache);
         cacheBulkProcessor = new CacheBulkProcessor(cache);
         this.validationQueryFactory = validationQueryFactory;
         this.cacheQueryFactory = cacheQueryFactory;
         cacheSource = new SolrCacheSource(cache);
     }
 
+    void setSortedQueryMonitorFactory(SortedQueryMonitorFactory sortedQueryMonitorFactory) {
+        this.sortedQueryMonitorFactory = sortedQueryMonitorFactory;
+    }
+
+    void setCacheCommitPhaser(CacheCommitPhaser cacheCommitPhaser) {
+        this.cacheCommitPhaser = cacheCommitPhaser;
+    }
+
+    void setCacheBulkProcessor(CacheBulkProcessor cacheBulkProcessor) {
+        this.cacheBulkProcessor = cacheBulkProcessor;
+    }
+
     @Override
     public QueryResponse federate(List<Source> sources, QueryRequest queryRequest) {
+        Validate.noNullElements(sources, "Cannot federate with null sources.");
+        Validate.notNull(queryRequest, "Cannot federate with null QueryRequest.");
         Set<String> sourceIds = new HashSet<>();
         for (Source source : sources) {
             sourceIds.add(source.getId());
@@ -291,10 +320,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     offset));
         }
 
-        queryExecutorService.submit(createMonitor(queryCompletion,
+        queryExecutorService.submit(sortedQueryMonitorFactory.createMonitor(queryCompletion,
                 futures,
                 queryResponseQueue,
-                modifiedQueryRequest));
+                modifiedQueryRequest,
+                postQuery));
 
         QueryResponse queryResponse;
         if (offset > 1 && sources.size() > 1) {
@@ -418,14 +448,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         return input;
     }
 
-    private List<Metacard> getMetacards(List<Result> results) {
-        List<Metacard> metacards = new ArrayList<>(results.size());
-
-        for (Result result : results) {
-            metacards.add(result.getMetacard());
-        }
-
-        return metacards;
+    int getMaxStartIndex() {
+        return maxStartIndex;
     }
 
     /**
@@ -464,24 +488,28 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         this.cacheRemoteIngests = cacheRemoteIngests;
     }
 
-    protected Runnable createMonitor(final CompletionService<SourceResponse> completionService,
-            final Map<Future<SourceResponse>, QueryRequest> futures,
-            final QueryResponseImpl returnResults, final QueryRequest request) {
-
-        return new SortedQueryMonitor(this,
-                completionService,
-                futures,
-                returnResults,
-                request,
-                postQuery);
-    }
-
     public void shutdown() {
         cacheCommitPhaser.shutdown();
         cacheBulkProcessor.shutdown();
     }
 
-    private static class OffsetResultHandler implements Runnable {
+    public boolean getShowErrors() {
+        return showErrors;
+    }
+
+    public void setShowErrors(boolean showErrors) {
+        this.showErrors = showErrors;
+    }
+
+    public boolean getShowWarnings() {
+        return showWarnings;
+    }
+
+    public void setShowWarnings(boolean showWarnings) {
+        this.showWarnings = showWarnings;
+    }
+
+    static class OffsetResultHandler implements Runnable {
 
         private QueryResponseImpl originalResults = null;
 
@@ -491,8 +519,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
         private int offset = 1;
 
-        private OffsetResultHandler(QueryResponseImpl originalResults,
-                QueryResponseImpl offsetResultQueue, int pageSize, int offset) {
+        OffsetResultHandler(QueryResponseImpl originalResults, QueryResponseImpl offsetResultQueue,
+                int pageSize, int offset) {
             this.originalResults = originalResults;
             this.offsetResultQueue = offsetResultQueue;
             this.pageSize = pageSize;
@@ -520,24 +548,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         }
     }
 
-    /**
-     * Runnable that makes one party arrive to a phaser on each run
-     */
-    private static class PhaseAdvancer implements Runnable {
-
-        private final Phaser phaser;
-
-        public PhaseAdvancer(Phaser phaser) {
-            this.phaser = phaser;
-        }
-
-        @Override
-        public void run() {
-            phaser.arriveAndAwaitAdvance();
-        }
-
-    }
-
     private class CallableSourceResponse implements Callable<SourceResponse> {
 
         private final QueryRequest request;
@@ -552,8 +562,12 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         @Override
         public SourceResponse call() throws Exception {
             QueryRequest queryRequest;
-            if (CACHE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE)) || INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
-                queryRequest = new QueryRequestImpl(request.getQuery(), false, request.getSourceIds(), request.getProperties());
+            if (CACHE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))
+                    || INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
+                queryRequest = new QueryRequestImpl(request.getQuery(),
+                        false,
+                        request.getSourceIds(),
+                        request.getProperties());
             } else {
                 queryRequest = new QueryRequestImpl(request.getQuery(), request.getProperties());
             }
@@ -586,71 +600,16 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     .map(ResultImpl::new)
                     .collect(Collectors.toList());
 
-            return new QueryResponseImpl(sourceResponse.getRequest(), clonedResults, true, sourceResponse.getHits(), sourceResponse.getProperties());
+            return new QueryResponseImpl(sourceResponse.getRequest(),
+                    clonedResults,
+                    true,
+                    sourceResponse.getHits(),
+                    sourceResponse.getProperties());
         }
     }
 
     /**
      * Phaser that forces all added metacards to commit to the cache on phase advance
      */
-    private class CacheCommitPhaser extends Phaser {
-
-        private final ScheduledExecutorService phaseScheduler =
-                Executors.newSingleThreadScheduledExecutor();
-
-        public CacheCommitPhaser() {
-            // There will always be at least one party which will be the PhaseAdvancer
-            super(1);
-
-            // PhaseAdvancer blocks waiting for next phase advance, delay 1 second between advances
-            // this is used to block queries that request to be indexed before continuing
-            // committing Solr more often than 1 second can cause performance issues and exceptions
-            phaseScheduler.scheduleWithFixedDelay(new PhaseAdvancer(this), 1, 1, TimeUnit.SECONDS);
-        }
-
-        @Override
-        protected boolean onAdvance(int phase, int registeredParties) {
-            // registeredParties should be 1 since all parties other than the PhaseAdvancer
-            // will arriveAndDeregister in the add method
-            cache.forceCommit();
-
-            return super.onAdvance(phase, registeredParties);
-        }
-
-        /**
-         * Adds results to cache and blocks for next phase advance
-         *
-         * @param results metacards to add to cache
-         */
-        public void add(List<Result> results) {
-            // block next phase
-            this.register();
-            // add results to cache
-            cache.create(getMetacards(results));
-            // unblock phase and wait for all other parties to unblock phase
-            this.awaitAdvance(this.arriveAndDeregister());
-        }
-
-        public void shutdown() {
-            this.forceTermination();
-            phaseScheduler.shutdown();
-        }
-    }
-
-    public void setShowErrors(boolean showErrors) {
-        this.showErrors = showErrors;
-    }
-
-    public boolean getShowErrors() {
-        return showErrors;
-    }
-
-    public void setShowWarnings(boolean showWarnings) {
-        this.showWarnings = showWarnings;
-    }
-
-    public boolean getShowWarnings() {
-        return showWarnings;
-    }
 
 }

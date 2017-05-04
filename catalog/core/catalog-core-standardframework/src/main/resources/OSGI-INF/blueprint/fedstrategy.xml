@@ -44,7 +44,9 @@
         <argument ref="filterBuilder"/>
     </bean>
 
-    <bean id="federationStrategy" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
+    <bean id="federationStrategy"
+          depends-on="queryThreadPool preFederatedQuerySortedList postFederatedQuerySortedList solrCatalogCache cacheThreadPool validationQueryFactory cacheQueryFactory"
+          class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
           destroy-method="shutdown">
         <cm:managed-properties
                 persistent-id="ddf.catalog.federation.impl.CachingFederationStrategy"

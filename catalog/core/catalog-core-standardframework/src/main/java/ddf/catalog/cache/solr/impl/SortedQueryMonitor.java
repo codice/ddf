@@ -58,11 +58,11 @@ import ddf.catalog.util.impl.TemporalResultComparator;
 class SortedQueryMonitor implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortedQueryMonitor.class);
 
-    private CachingFederationStrategy cachingFederationStrategy;
-
     private final QueryRequest request;
 
     private final CompletionService<SourceResponse> completionService;
+
+    private CachingFederationStrategy cachingFederationStrategy;
 
     private QueryResponseImpl returnResults;
 
@@ -251,9 +251,8 @@ class SortedQueryMonitor implements Runnable {
                 .orElse(unkSource);
     }
 
-    private void executePostFederationQueryPluginsWithSourceError(
-            QueryRequest queryRequest, String sourceId, Exception e,
-            Set<ProcessingDetails> processingDetails) {
+    private void executePostFederationQueryPluginsWithSourceError(QueryRequest queryRequest,
+            String sourceId, Exception e, Set<ProcessingDetails> processingDetails) {
 
         ProcessingDetails processingDetail = new ProcessingDetailsImpl(sourceId, e);
         SourceResponse sourceResponse = new SourceResponseImpl(queryRequest, new ArrayList<>());
@@ -283,7 +282,9 @@ class SortedQueryMonitor implements Runnable {
         } catch (StopProcessingException e) {
             LOGGER.info("Plugin stopped processing", e);
         }
-        return new SourceResponseImpl(queryRequest, queryResponse.getResults(), queryResponse.getHits());
+        return new SourceResponseImpl(queryRequest,
+                queryResponse.getResults(),
+                queryResponse.getHits());
     }
 
 }
