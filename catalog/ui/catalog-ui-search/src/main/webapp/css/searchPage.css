@@ -493,10 +493,6 @@ table.metacard-table {
     background-color: rgba(90, 90, 90, 1);
 }
 
-.progress-background {
-    background: #fff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x;
-}
-
 .progress-btn {
     font-weight: normal;
     padding-top: 0px;
@@ -951,14 +947,6 @@ a.pause:hover, a.pause:focus {
     background: #242424;
 }
 
-.ui-progressbar-overlay {
-    background: url('../images/animated-overlay.gif');
-    height: 100%;
-    width: 100%;
-    filter: alpha(opacity=25);
-    opacity: .25;
-}
-
 .help-link {
     margin-top: 10px;
     display: block;
@@ -1252,12 +1240,6 @@ a.pause:hover, a.pause:focus {
 .fileinput-button input {
     height: 100%;
     width: 100%
-}
-
-.cluster-results {
-   display:block;
-   height:100%;
-   background-image: url('../images/clustering.png');
 }
 
 .fileinput-button {

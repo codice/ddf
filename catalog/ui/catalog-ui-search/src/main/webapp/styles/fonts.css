@@ -1,3 +1,5 @@
+/* Moved into a seperate file to keep source maps working in webpack dev server */
+
 /* open-sans-300 - latin */
 @font-face {
   font-family: 'Open Sans Light';
@@ -24,24 +26,4 @@
        url('fonts/open-sans/open-sans-v13-latin-regular.woff') format('woff'), /* Modern Browsers */
        url('fonts/open-sans/open-sans-v13-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
        url('fonts/open-sans/open-sans-v13-latin-regular.svg#OpenSans') format('svg'); /* Legacy iOS */
-}
-
-.is-bold {
-  font-family: 'Open Sans';
-}
-
-.is-not-bold {
-  font-family: 'Open Sans Light';
-}
-
-.is-small-font {
-  font-size: @minimumFontSize;
-}
-
-.is-medium-font {
-  font-size: @mediumFontSize;
-}
-
-.is-large-font {
-  font-size: @largeFontSize;
 }
