@@ -49,7 +49,6 @@ import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
-import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
@@ -61,6 +60,7 @@ import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -68,8 +68,6 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -79,9 +77,10 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.AttributeBuilder;
-import ddf.catalog.filter.ExpressionBuilder;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.delegate.TagsFilterDelegate;
+import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -121,14 +120,13 @@ public class FederationAdminServiceImplTest {
 
     private static final String TEST_XML_STRING = "SomeValidStringVersionOfXml";
 
-    @Mock
-    RefreshRegistryEntries refreshRegistryEntries;
-
     private FederationAdminServiceImpl federationAdminServiceImpl;
 
     private Metacard testMetacard;
 
     private FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+
+    private FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
 
     @Mock
     private ParserConfigurator configurator;
@@ -146,22 +144,7 @@ public class FederationAdminServiceImplTest {
     private Security security;
 
     @Mock
-    private AttributeBuilder attributeBuilder;
-
-    @Mock
-    private ExpressionBuilder expressionBuilder;
-
-    @Mock
     private Subject subject;
-
-    @Mock
-    private BundleContext bundleContext;
-
-    @Mock
-    private ServiceReference serviceReference;
-
-    @Mock
-    private RegistryStore registryStore;
 
     @Mock
     private DeleteResponse deleteResponse;
@@ -833,6 +816,7 @@ public class FederationAdminServiceImplTest {
 
     @Test
     public void testGetRegistryMetacardsByRegistryIds() throws Exception {
+        ArgumentCaptor<QueryRequest> captor = ArgumentCaptor.forClass(QueryRequest.class);
         QueryRequest request = getTestQueryRequest();
         QueryResponse response = getPopulatedTestQueryResponse(request,
                 getTestMetacard(),
@@ -846,7 +830,32 @@ public class FederationAdminServiceImplTest {
         List<Metacard> metacards =
                 federationAdminServiceImpl.getRegistryMetacardsByRegistryIds(ids);
         assertThat(metacards, hasSize(3));
-        verify(catalogFramework).query(any(QueryRequest.class));
+        verify(catalogFramework).query(captor.capture());
+
+        assertThat("Filter didn't contain the 'registry' and 'registry-remote' tag",
+                filterAdapter.adapt(captor.getValue()
+                        .getQuery(), new TagsFilterDelegate(RegistryConstants.REGISTRY_TAG)),
+                is(true));
+    }
+
+    @Test
+    public void testGetRegistryMetacardsByRegistryIdsIncludeInternal() throws Exception {
+        ArgumentCaptor<QueryRequest> captor = ArgumentCaptor.forClass(QueryRequest.class);
+        QueryRequest request = getTestQueryRequest();
+        QueryResponse response = getPopulatedTestQueryResponse(request, getTestMetacard());
+        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
+        List<String> ids = new ArrayList<>();
+        ids.add(RegistryObjectMetacardType.REGISTRY_ID);
+        federationAdminServiceImpl.getRegistryMetacardsByRegistryIds(ids, true);
+        verify(catalogFramework).query(captor.capture());
+
+        HashSet<String> tags = new HashSet<>();
+        tags.add(RegistryConstants.REGISTRY_TAG);
+        tags.add(RegistryConstants.REGISTRY_TAG_INTERNAL);
+        assertThat("Filter didn't contain the 'registry' and 'registry-remote' tag",
+                filterAdapter.adapt(captor.getValue()
+                        .getQuery(), new TagsFilterDelegate(tags)),
+                is(true));
     }
 
     @Test(expected = FederationAdminException.class)

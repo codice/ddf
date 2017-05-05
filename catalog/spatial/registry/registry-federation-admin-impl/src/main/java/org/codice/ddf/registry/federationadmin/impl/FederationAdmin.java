@@ -297,13 +297,14 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
         }
 
         List<Metacard> localMetacards =
-                federationAdminService.getRegistryMetacardsByRegistryIds(ids);
+                federationAdminService.getRegistryMetacardsByRegistryIds(ids, true);
+
         List<String> metacardIds = new ArrayList<>();
 
         metacardIds.addAll(localMetacards.stream()
                 .map(Metacard::getId)
                 .collect(Collectors.toList()));
-        if (ids.size() != metacardIds.size()) {
+        if (ids.size() > metacardIds.size()) {
             String message = "Error deleting local registry entries. ";
             LOGGER.debug("{} Registry Ids provided: {}. Registry metacard ids found: {}",
                     message,

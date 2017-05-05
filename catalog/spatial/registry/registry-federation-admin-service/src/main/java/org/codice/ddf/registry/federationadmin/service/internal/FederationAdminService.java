@@ -225,6 +225,21 @@ public interface FederationAdminService {
     List<Metacard> getRegistryMetacardsByRegistryIds(List<String> ids)
             throws FederationAdminException;
 
+
+    /**
+     * Get a list of registry metacards with the provided registry ids. It won't run the query
+     * if the list provided is empty.
+     *
+     * @param ids List of IDs to to get metacards for
+     * @param includeInternal boolean indicating whether the internal representation metacards should be included
+     * @return List<Metacard>
+     * @throws FederationAdminException If empty list of registry ids is provided
+     *                                  If the list of id filters isn't created
+     *                                  If any exception was thrown by the call to CatalogFramework.query()
+     */
+    List<Metacard> getRegistryMetacardsByRegistryIds(List<String> ids, boolean includeInternal)
+            throws FederationAdminException;
+
     /**
      * Get a list of local registry metacards with the provided registry ids. It won't run the query
      * if the list provided is empty.
