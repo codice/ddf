@@ -21,6 +21,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
@@ -71,7 +73,6 @@ public class RegistryIdPostIngestPluginTest {
         registryIdPostIngestPlugin.setCatalogFramework(framework);
         registryIdPostIngestPlugin.setExecutorService(executorService);
         registryIdPostIngestPlugin.setFilterBuilder(builder);
-        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(invocation -> ((Callable) invocation.getArguments()[0]).call());
     }
 
     @Test
@@ -176,6 +177,9 @@ public class RegistryIdPostIngestPluginTest {
         QueryResponseImpl response = new QueryResponseImpl(null,
                 Collections.singletonList(new ResultImpl(metacard)),
                 1L);
+        when(security.runAsAdminWithException(any(PrivilegedExceptionAction.class))).thenAnswer(
+                invocation -> ((PrivilegedExceptionAction) invocation.getArguments()[0]).run());
+        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(invocation -> ((Callable) invocation.getArguments()[0]).call());
         when(framework.query(any(QueryRequest.class))).thenReturn(response);
         registryIdPostIngestPlugin.init();
         assertThat(registryIdPostIngestPlugin.getRegistryIds()
@@ -187,8 +191,8 @@ public class RegistryIdPostIngestPluginTest {
 
     @Test
     public void testInitCatalogNotAvailable() throws Exception {
-        when(framework.query(any(QueryRequest.class))).thenThrow(new UnsupportedQueryException(
-                "exception"));
+        when(security.runAsAdminWithException(any(PrivilegedExceptionAction.class))).thenThrow(new PrivilegedActionException(
+                new UnsupportedQueryException("exception")));
         registryIdPostIngestPlugin.init();
         assertThat(registryIdPostIngestPlugin.getRegistryIds()
                 .size(), equalTo(0));

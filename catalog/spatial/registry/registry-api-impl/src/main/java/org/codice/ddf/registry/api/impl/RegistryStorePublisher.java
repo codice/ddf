@@ -145,8 +145,10 @@ public class RegistryStorePublisher implements EventHandler {
 
         executor.schedule(() -> {
             try {
+                Security security = Security.getInstance();
+
                 Optional<Metacard> registryIdentityMetacardOpt =
-                        Security.runAsAdminWithException(() -> federationAdminService.getLocalRegistryIdentityMetacard());
+                        security.runAsAdminWithException(() -> federationAdminService.getLocalRegistryIdentityMetacard());
 
                 if (registryIdentityMetacardOpt.isPresent()) {
                     Metacard registryIdentityMetacard = registryIdentityMetacardOpt.get();
@@ -155,7 +157,7 @@ public class RegistryStorePublisher implements EventHandler {
                     if (localRegistryId == null) {
                         throw new EventException();
                     }
-                    Security.runAsAdminWithException(() -> {
+                    security.runAsAdminWithException(() -> {
                         if (publish.equals(PUBLISH)) {
                             registryPublicationService.publish(localRegistryId,
                                     registryStore.getRegistryId());

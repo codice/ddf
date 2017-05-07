@@ -43,6 +43,8 @@ public class ApplicationConfigInstaller extends Thread {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfigInstaller.class);
 
+    private static final Security SECURITY = Security.getInstance();
+
     private ApplicationService appService;
 
     private FeaturesService featuresService;
@@ -151,8 +153,7 @@ public class ApplicationConfigInstaller extends Thread {
     }
 
     Subject getSystemSubject() {
-        return Security.runAsAdmin(() -> Security.getInstance()
-                .getSystemSubject());
+        return SECURITY.runAsAdmin(SECURITY::getSystemSubject);
     }
 
 }

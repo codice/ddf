@@ -39,6 +39,7 @@ import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.security.common.Security;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,8 +50,6 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ddf.security.common.util.Security;
 
 /**
  * Note: Tests prefixed with aRunFirst NEED to run before any other tests.  For this reason, we
@@ -102,8 +101,8 @@ public class TestApplicationService extends AbstractIntegrationTest {
     public void beforeExam() throws Exception {
         try {
             waitForSystemReady();
-            systemSubject =
-                    org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
+            Security security = Security.getInstance();
+            systemSubject = security.runAsAdmin(security::getSystemSubject);
         } catch (Exception e) {
             LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
         }

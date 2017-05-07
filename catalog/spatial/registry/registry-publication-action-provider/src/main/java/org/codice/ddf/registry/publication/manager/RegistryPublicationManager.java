@@ -78,8 +78,8 @@ public class RegistryPublicationManager implements EventHandler {
     public void init() {
 
         try {
-            List<Metacard> metacards =
-                    Security.runAsAdminWithException(() -> federationAdminService.getRegistryMetacards());
+            List<Metacard> metacards = Security.getInstance()
+                    .runAsAdminWithException(() -> federationAdminService.getRegistryMetacards());
 
             for (Metacard metacard : metacards) {
                 String registryId = RegistryUtility.getRegistryId(metacard);

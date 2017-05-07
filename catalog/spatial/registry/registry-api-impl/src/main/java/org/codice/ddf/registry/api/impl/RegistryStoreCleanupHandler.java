@@ -94,14 +94,16 @@ public class RegistryStoreCleanupHandler implements EventHandler {
         executor.execute(() -> {
             String registryId = service.getRegistryId();
             try {
+                Security security = Security.getInstance();
+
                 List<Metacard> metacards =
-                        Security.runAsAdminWithException(() -> federationAdminService.getInternalRegistryMetacardsByRegistryId(
+                        security.runAsAdminWithException(() -> federationAdminService.getInternalRegistryMetacardsByRegistryId(
                                 registryId));
                 List<String> idsToDelete = metacards.stream()
                         .map(Metacard::getId)
                         .collect(Collectors.toList());
                 if (!idsToDelete.isEmpty()) {
-                    Security.runAsAdminWithException(() -> {
+                    security.runAsAdminWithException(() -> {
                         federationAdminService.deleteRegistryEntriesByMetacardIds(idsToDelete);
                         return null;
                     });

@@ -90,6 +90,8 @@ public class TestRegistry extends AbstractIntegrationTest {
 
     private static final long SLEEP_TIME = 2000;
 
+    private static final Security SECURITY = Security.getInstance();
+
     private static String storeId;
 
     private static FederatedCswMockServer cswServer;
@@ -337,7 +339,7 @@ public class TestRegistry extends AbstractIntegrationTest {
                                 "2016-01-26T17:16:34.996Z").getBytes()));
 
         try {
-            Security.runAsAdminWithException(() -> {
+            SECURITY.runAsAdminWithException(() -> {
                 String id = createRegistryStoreEntry(METACARD_ID, regID, regID);
                 LOGGER.info("Created remote metacard with ID: {}", id);
                 assertThat(id, is(regID));
@@ -373,7 +375,7 @@ public class TestRegistry extends AbstractIntegrationTest {
                                 "NodeName",
                                 "2016-01-26T17:16:34.996Z").getBytes()));
         try {
-            Security.runAsAdminWithException(() -> {
+            SECURITY.runAsAdminWithException(() -> {
                 String id = createRegistryStoreEntry(METACARD_ID, regID, regID);
                 assertThat(id, is(regID));
                 cswServer.verifyHttp()
@@ -430,7 +432,7 @@ public class TestRegistry extends AbstractIntegrationTest {
                         contentType("text/xml"),
                         bytesContent(remoteUpdatedMetacardResponse.getBytes()));
         try {
-            Security.runAsAdminWithException(() -> {
+            SECURITY.runAsAdminWithException(() -> {
 
                 FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                         FederationAdminService.class);
@@ -483,7 +485,7 @@ public class TestRegistry extends AbstractIntegrationTest {
                             contentType("text/xml"),
                             bytesContent(remoteMetacardResponse.getBytes()));
 
-            Security.runAsAdminWithException(() -> {
+            SECURITY.runAsAdminWithException(() -> {
 
                 FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                         FederationAdminService.class);
@@ -564,7 +566,7 @@ public class TestRegistry extends AbstractIntegrationTest {
         long metacardLookupTimeout = TimeUnit.MINUTES.toMillis(20);
         while (!foundMetacard) {
             LOGGER.info("Waiting for metacard to be created");
-            List entries = Security.runAsAdminWithException(() -> {
+            List entries = SECURITY.runAsAdminWithException(() -> {
 
                 FederationAdminService federationAdminServiceImpl = getServiceManager().getService(
                         FederationAdminService.class);
