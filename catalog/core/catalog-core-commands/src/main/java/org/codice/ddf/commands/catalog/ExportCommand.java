@@ -297,6 +297,8 @@ public class ExportCommand extends CqlCommands {
                 .filter(ei -> ei.getResourceUri() != null)
                 // Only our content scheme
                 .filter(ei -> ei.getResourceUri()
+                        .getScheme() != null)
+                .filter(ei -> ei.getResourceUri()
                         .getScheme()
                         .startsWith(ContentItem.CONTENT_SCHEME))
                 // Deleted Metacards have no content associated
