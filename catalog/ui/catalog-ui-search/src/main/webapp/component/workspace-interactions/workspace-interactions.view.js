@@ -63,6 +63,7 @@ define([
             this.model.save();
         },
         handleRun: function(){
+            store.clearOtherWorkspaces(this.model.id);
             this.model.get('queries').forEach(function(query){
                 query.startSearch();
             });

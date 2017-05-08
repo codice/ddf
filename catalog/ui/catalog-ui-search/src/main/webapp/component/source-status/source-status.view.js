@@ -13,25 +13,24 @@
  *
  **/
 /*global require*/
-
 var Marionette = require('marionette');
-var template = require('./query-status.hbs');
+var _ = require('underscore');
+var $ = require('jquery');
 var CustomElements = require('js/CustomElements');
-var store = require('js/store');
-var TableView = require('component/table/query-status/table-query-status.view');
+var template = require('./source-status.hbs');
+var DropdownModel = require('component/dropdown/dropdown');
+require('behaviors/button.behavior');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
-    tagName: CustomElements.register('query-status'),
+    tagName: CustomElements.register('source-status'),
     regions: {
-        table: '.table-container'
+        sourceActions: '.source-actions'
+    },
+    behaviors: {
+        button: {}
     },
     initialize: function () {
-        this.model = store.getQueryById(this.model.id);
-    },
-    onBeforeShow: function(){
-        this.table.show(new TableView({
-            model: this.model
-        }));
+        this.listenTo(this.model, 'change:saved', this.handleSaved);
     }
 });

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query.cql;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import ddf.catalog.operation.ProcessingDetails;
@@ -30,6 +31,8 @@ public class Status {
 
     private final boolean successful;
 
+    private final ArrayList<String> messages;
+
     public Status(QueryResponse response, String source, long elapsedTime) {
         elapsed = elapsedTime;
         id = source;
@@ -38,6 +41,17 @@ public class Status {
                 .size();
         hits = response.getHits();
         successful = isSuccessful(response.getProcessingDetails());
+        messages = getMessages(response.getProcessingDetails());
+    }
+
+    private ArrayList<String> getMessages(final Set<ProcessingDetails> details) {
+        ArrayList<String> messages = new ArrayList<String>();
+        for (ProcessingDetails detail : details) {
+            if (detail.hasException()) {
+                messages.add(detail.getException().getMessage());
+            }
+        }
+        return messages;
     }
 
     private boolean isSuccessful(final Set<ProcessingDetails> details) {

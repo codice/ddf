@@ -21,10 +21,9 @@ define([
     'js/CustomElements',
     'component/query-selector/query-selector.view',
     'js/store',
-    'component/lightbox/lightbox.view.instance',
-    'component/queries/queries.view'
+    'component/lightbox/lightbox.view.instance'
 ], function (Marionette, _, $, workspaceExploreTemplate, CustomElements, QuerySelectorView,
-             store, lightboxViewInstance, QueriesView) {
+             store, lightboxViewInstance) {
 
     var WorkspaceExplore = Marionette.LayoutView.extend({
         setDefaultModel: function(){

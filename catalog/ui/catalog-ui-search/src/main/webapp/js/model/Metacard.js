@@ -26,11 +26,12 @@ define([
         'wkx',
         'moment',
         'properties',
+        'component/singletons/user-instance',
         'backboneassociations',
         'backbone.paginator'
     ],
     function (Backbone, _, $, wreqr, metacardDefinitions, Sources, Terraformer, TerraformerWKTParser, CQLUtils,
-              Turf, TurfMeta, wkx, moment, properties) {
+              Turf, TurfMeta, wkx, moment, properties, user) {
         "use strict";
 
         var blacklist = [];
@@ -694,21 +695,71 @@ define([
         });
 
         MetaCard.SourceStatus = Backbone.AssociatedModel.extend({
-
+            defaults: {
+                count: 0,
+                elapsed: 0,
+                hits: 0,
+                id: 'undefined',
+                successful: undefined,
+                top: 0,
+                fromcache: 0,
+                cacheHasReturned: properties.isCacheDisabled,
+                cacheSuccessful: true,
+                cacheMessages: [],
+                hasReturned: false,
+                messages: []
+            },
+            initialize: function(){
+                this.listenToOnce(this, 'change:successful', this.setHasReturned);
+            },
+            setHasReturned: function(){
+                this.set('hasReturned', true);
+            },
+            setCacheHasReturned: function(){
+                this.set('cacheHasReturned', true);
+            },
+            updateMessages: function(messages, id, status){
+                if (this.id === id){
+                    this.set('messages', messages);
+                }
+                if (id === 'cache'){
+                    this.set({
+                        cacheHasReturned: true,
+                        cacheSuccessful: status ? status.successful : false,
+                        cacheMessages: messages
+                    });
+                }
+            },
+            updateStatus: function(results){
+                var top = 0;
+                var fromcache = 0;
+                results.forEach(function(result){
+                    if (result.get('metacard').get('properties').get('source-id') === this.id){
+                        top++;
+                        if (!result.get('uncached')){
+                            fromcache++;
+                        }
+                    }
+                }.bind(this));
+                this.set({
+                    top: top,
+                    fromcache: fromcache
+                });
+            }
         });
 
         MetaCard.SearchResult = Backbone.AssociatedModel.extend({
             defaults: {
                 'queryId': undefined,
                 'results': [],
-                'mergedResults': [],
+                'queuedResults': [],
                 'merged': true,
                 'currentlyViewed': false
             },
             relations: [
                 {
                     type: Backbone.Many,
-                    key: 'mergedResults',
+                    key: 'queuedResults',
                     collectionType: MetaCard.Results,
                     relatedModel: MetaCard.MetacardResult
                 },
@@ -727,8 +778,22 @@ define([
             url: "/search/catalog/internal/cql",
             useAjaxSync: true,
             initialize: function(){
-                this.listenTo(this.get('mergedResults'), 'add change', _.throttle(this.updateMerged, 2500, {leading: false}));
+                this.listenTo(this.get('queuedResults'), 'add change remove reset', _.throttle(this.updateMerged, 2500, {leading: false}));
+                this.listenTo(this.get('queuedResults'), 'add', _.throttle(this.mergeQueue, 30, {leading: false}));
                 this.listenTo(this, 'change:currentlyViewed', this.handleCurrentlyViewed);
+                this.listenTo(this, 'error', this.handleError);
+                this.listenTo(this, 'sync', this.handleSync);
+            },
+            handleError: function(resultModel, response, sent){
+                var dataJSON = JSON.parse(sent.data);
+                this.updateMessages(response.responseJSON ? response.responseJSON.message : response.statusText, dataJSON.src);
+            },
+            handleSync: function(resultModel, response, sent){
+                this.updateStatus();
+                if (sent) {
+                    var dataJSON = JSON.parse(sent.data);
+                    this.updateMessages(response.status.messages, dataJSON.src, response.status);
+                }
             },
             parse: function (resp, options) {
                 metacardDefinitions.addMetacardDefinitions(resp.types);
@@ -739,6 +804,9 @@ define([
                         result.propertyTypes = resp.types[result.metacard.properties['metacard-type']];
                         result.metacardType = result.metacard.properties['metacard-type'];
                         result.metacard.id = result.metacard.properties.id;
+                        if (resp.status.id !== 'cache'){
+                            result.uncached = true;
+                        }
                         result.id = result.metacard.id + result.metacard.properties['source-id'];
                         result.metacard.queryId = queryId;
                         result.metacard.color = color;
@@ -756,8 +824,8 @@ define([
                 }
 
                 return {
-                    mergedResults: resp.results,
-                    results: this.allowAutoMerge() ? resp.results : [],
+                    queuedResults: resp.results,
+                    results: [],
                     status: resp.status   
                 };
             },
@@ -768,17 +836,52 @@ define([
                     return (Date.now() - this.lastMerge) < 16;
                 }
             },
+            mergeQueue: function(userTriggered){
+                if (userTriggered === true || this.allowAutoMerge()) {
+                    this.lastMerge = Date.now();
+                    this.set('merged', true);
+                    var interimCollection = new MetaCard.Results(this.get('results').fullCollection.models);
+                    interimCollection.add(this.get('queuedResults').fullCollection.models, {merge: true});
+                    interimCollection.fullCollection.comparator = this.get('results').fullCollection.comparator;
+                    interimCollection.fullCollection.sort();
+                    this.get('results').fullCollection.reset(interimCollection.fullCollection.slice(0, user.get('user').get('preferences').get('resultCount')));
+                    this.get('queuedResults').fullCollection.reset();
+                    this.updateStatus();
+                }
+            },
+            cacheHasReturned: function(){
+                return this.get('status').filter(function(statusModel){
+                    return statusModel.id === 'cache';
+                }).reduce(function(hasReturned, statusModel){
+                    return statusModel.get('successful') !== undefined;
+                }, false);
+            },
+            setCacheChecked: function(){
+                if (this.cacheHasReturned()) {
+                    this.get('status').forEach(function(statusModel){
+                        statusModel.setCacheHasReturned();
+                    }.bind(this));
+                }
+            },
+            updateMessages: function(message, id, status){
+                this.get('status').forEach(function(statusModel){
+                    statusModel.updateMessages(message, id, status);
+                }.bind(this));
+            },
+            updateStatus: function(){
+                this.setCacheChecked();
+                this.get('status').forEach(function(statusModel){
+                    statusModel.updateStatus(this.get('results').fullCollection);
+                }.bind(this));
+            },
             updateMerged: function(){
-                this.set('merged', this.get('results').fullCollection.length === this.get('mergedResults').fullCollection.length);
+                this.set('merged', this.get('queuedResults').fullCollection.length === 0);
             },
             isUnmerged: function(){
                 return !this.get('merged');
             },
             mergeNewResults: function(){
-                this.lastMerge = Date.now();
-                this.set('merged', true);
-                this.get('results').set(this.get('mergedResults').fullCollection.models, { remove: false });
-                this.get('results').fullCollection.sort();
+                this.mergeQueue(true);
                 this.trigger('sync');
             },
             handleCurrentlyViewed: function(){

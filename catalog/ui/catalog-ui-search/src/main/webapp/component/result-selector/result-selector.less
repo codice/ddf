@@ -77,9 +77,9 @@
     width: 100%;
     position: absolute;
     left: 0px;
-    top: -.5*@minimumSpacing;
-    height: .5*@minimumSpacing;
-    background: @heavily-lighten-inherited-background-color;
+    border-top: @largeSpacing solid @heavily-lighten-inherited-background-color;
+    top: -@largeSpacing;
+    height: 100%;
     animation: result-selector-is-searching 10*@coreTransitionTime infinite ease-in-out;
   } 
 
@@ -141,9 +141,9 @@
 
 @keyframes result-selector-is-searching{
     0% {
-      top: -.5*@minimumSpacing;
+      transform: translate3d(0, -@largeSpacing, 0);
     }
     100% {
-      top: 100%;
+      transform: translate3d(0, 100%, 0);
     } 
 }

@@ -82,12 +82,10 @@ define([
                 this.set('saved', false);
             },
             handleChange: function(model){
-                if (model !== undefined && 
-                    model.changedAttributes().result === undefined && 
-                    model.changedAttributes().saved === undefined &&
-                    model.changedAttributes()['metacard.modified'] === undefined &&
-                    model.changedAttributes().id === undefined &&
-                    model.changedAttributes().subscribed === undefined){
+                if (model !==undefined &&
+                     _.intersection(Object.keys(model.changedAttributes()), [
+                         'result', 'saved', 'metacard.modified', 'id', 'subscribed'
+                     ]).length === 0){
                     this.set('saved', false);
                 }
             },
@@ -144,6 +142,11 @@ define([
                 }).then(function () {
                     this.set('subscribed', false);
                 }.bind(this));
+            },
+            clearResults: function(){
+                this.get('queries').forEach(function(queryModel){
+                    queryModel.clearResults();
+                });
             }
         });
 

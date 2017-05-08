@@ -43,65 +43,58 @@ define([
         }
     }
 
-    function findHighestAncestorTop(element) {
-        var parent = element.parentNode;
-        var maxTop = parent.getBoundingClientRect().top;
-        try {
-            while (parent !== null) {
-                maxTop = Math.max(maxTop, parent.getBoundingClientRect().top);
-                parent = parent.parentNode;
+    // it'd be nice if we can use offsetParent directly, but that would require devs to be aware of how help.view works
+    function isOffsetParent(element){
+        return window.getComputedStyle(element).overflow !== 'visible';
+    }
+
+    function traverseAncestors(element, compareValue, extractValue) {
+        var value = extractValue(element);
+        element = element.parentNode;
+        while (element !== null && element !== document){
+            if (isOffsetParent(element)){
+                value = compareValue(value, extractValue(element));
             }
+            element = element.parentNode;
         }
-        catch (err) {
-        }
-        return maxTop;
+        return value;
+    }
+
+    function findHighestAncestorTop(element) {
+        return traverseAncestors(element, function(currentTop, proposedTop){
+            return Math.max(currentTop, proposedTop);
+        }, function(element){
+            return element.getBoundingClientRect().top;
+        });
     }
 
     function findHighestAncestorLeft(element) {
-        var parent = element.parentNode;
-        var maxTop = parent.getBoundingClientRect().left;
-        try {
-            while (parent !== null) {
-                maxTop = Math.max(maxTop, parent.getBoundingClientRect().left);
-                parent = parent.parentNode;
-            }
-        }
-        catch (err) {
-        }
-        return maxTop;
+        return traverseAncestors(element, function(currentLeft, proposedLeft){
+            return Math.max(currentLeft, proposedLeft);
+        }, function(element){
+            return element.getBoundingClientRect().left;
+        });
     }
 
     function findLowestAncestorBottom(element) {
-        var parent = element.parentNode;
-        var maxTop = parent.getBoundingClientRect().bottom;
-        try {
-            while (parent !== null) {
-                maxTop = Math.min(maxTop, parent.getBoundingClientRect().bottom);
-                parent = parent.parentNode;
-            }
-        }
-        catch (err) {
-        }
-        return maxTop;
+        return traverseAncestors(element, function(currentBottom, proposedBottom){
+            return Math.min(currentBottom, proposedBottom);
+        }, function(element){
+            return element.getBoundingClientRect().bottom;
+        });
     }
 
     function findLowestAncestorRight(element) {
-        var parent = element.parentNode;
-        var maxTop = parent.getBoundingClientRect().right;
-        try {
-            while (parent !== null) {
-                maxTop = Math.min(maxTop, parent.getBoundingClientRect().right);
-                parent = parent.parentNode;
-            }
-        }
-        catch (err) {
-        }
-        return maxTop;
+        return traverseAncestors(element, function(currentRight, proposedRight){
+            return Math.min(currentRight, proposedRight);
+        }, function(element){
+            return element.getBoundingClientRect().right;
+        });
     }
 
     function findBlockers() {
         var blockingElements = $(CustomElements.getNamespace() + 'dropdown-companion.is-open')
-            .add(CustomElements.getNamespace() + 'menu-vertical.is-open');
+            .add(CustomElements.getNamespace() + 'menu-vertical.is-open').add('.is-blocker');
         return _.map(blockingElements, function (blockingElement) {
             return {
                 boundingRect: blockingElement.getBoundingClientRect(),
@@ -132,27 +125,19 @@ define([
     }
 
     function isBlocked(element, boundingRect) {
-        var blocked = false;
-        _.forEach(findBlockers(), function (blocker) {
-            if ($(blocker.element).find(element).length === 0) {
-                if (((boundingRect.left > blocker.boundingRect.left)
-                    && (boundingRect.left < blocker.boundingRect.right))
-                    || ((boundingRect.right > blocker.boundingRect.left)
-                    && (boundingRect.right < blocker.boundingRect.right))
-                    || ((boundingRect.left < blocker.boundingRect.left)
-                    && (boundingRect.right > blocker.boundingRect.right))) {
-                    if ((boundingRect.top > blocker.boundingRect.top)
-                        && (boundingRect.top < blocker.boundingRect.bottom)) {
-                        blocked = true;
-                    }
-                    if ((boundingRect.bottom > blocker.boundingRect.top)
-                        && (boundingRect.bottom < blocker.boundingRect.bottom)) {
-                        blocked = true;
-                    }
+        return _.some(findBlockers(), function (blocker) {
+            if (blocker.element !== element && $(blocker.element).find(element).length === 0) {
+                var top = Math.max(blocker.boundingRect.top, boundingRect.top);
+                var bottom = Math.min(blocker.boundingRect.bottom, boundingRect.bottom);
+                var left = Math.max(blocker.boundingRect.left, boundingRect.left);
+                var right = Math.min(blocker.boundingRect.right, boundingRect.right); 
+                var height = bottom - top;
+                var width = right - left; 
+                if (height > 0 && width > 0){
+                    return true;
                 }
             }
         });
-        return blocked;
     }
 
     return new (Marionette.LayoutView.extend({
@@ -170,6 +155,7 @@ define([
         onRender: function () {
         },
         hintOn: false,
+        animationFrameId: undefined,
         toggleHints: function () {
             if (this.hintOn) {
                 this.hideHints();
@@ -184,46 +170,70 @@ define([
             }
         },
         removeOldHints: function () {
+            this.stopPaintingHints();
             this.el.innerHTML = '';
             $(CustomElements.getNamespace() + 'dropdown-companion.is-hint').remove();
+        },
+        stopPaintingHints: function(){
+            window.cancelAnimationFrame(this.animationFrameId);
+        },
+        paintHint: function(element){
+            if (isEffectivelyHidden(element)){
+                return;
+            }
+            var boundingRect = element.getBoundingClientRect();
+            var top = Math.max(findHighestAncestorTop(element), boundingRect.top);
+            var bottom = Math.min(findLowestAncestorBottom(element), boundingRect.bottom);
+            var left = Math.max(findHighestAncestorLeft(element), boundingRect.left);
+            var right = Math.min(findLowestAncestorRight(element), boundingRect.right);
+            var height = bottom - top;
+            var width = right - left;
+            if (boundingRect.width > 0 && height > 0 && width > 0 && !isBlocked(element, {
+                top: top,
+                bottom: bottom,
+                left: left,
+                right: right
+            })) {
+                var dropdownHintView = new DropdownHintView({
+                    model: new Dropdown(),
+                    modelForComponent: new Hint({
+                        hint: element.getAttribute('data-help')
+                    })
+                });
+                dropdownHintView.render();
+                this.$el.append(dropdownHintView.$el);
+                dropdownHintView.$el.css('height', height).css('width', width)
+                    .css('top', top).css('left', left);
+            }
+        },
+        paintHints: function($elementsWithHints){
+            this.animationFrameId = window.requestAnimationFrame(function(){  
+                var elements = $elementsWithHints.splice(0,4);
+                if (elements.length > 0){
+                    elements.forEach(function(element){
+                        this.paintHint(element);
+                    }.bind(this));
+                    this.paintHints($elementsWithHints);
+                }
+            }.bind(this));
         },
         showHints: function () {
             this.removeOldHints();
             this.hintOn = true;
             this.$el.addClass('is-shown');
-            var $elementsWithHints = $('[data-help]');
-            _.each($elementsWithHints, function (element) {
-                if (isEffectivelyHidden(element)){
-                    return;
-                }
-                var boundingRect = element.getBoundingClientRect();
-                var top = Math.max(findHighestAncestorTop(element), boundingRect.top);
-                var bottom = Math.min(findLowestAncestorBottom(element), boundingRect.bottom);
-                var left = Math.max(findHighestAncestorLeft(element), boundingRect.left);
-                var right = Math.min(findLowestAncestorRight(element), boundingRect.right);
-                var height = bottom - top;
-                var width = right - left;
-                if (boundingRect.width > 0 && height > 0 && width > 0 && !isBlocked(element, boundingRect)) {
-                    var dropdownHintView = new DropdownHintView({
-                        model: new Dropdown(),
-                        modelForComponent: new Hint({
-                            hint: element.getAttribute('data-help')
-                        })
-                    });
-                    dropdownHintView.render();
-                    this.$el.append(dropdownHintView.$el);
-                    dropdownHintView.$el.css('height', height).css('width', width)
-                        .css('top', top).css('left', left);
-                }
-            }.bind(this));
+            var $elementsWithHints = $('[data-help]').not('#content > div.is-hidden [data-help]');
+            $elementsWithHints = _.shuffle($elementsWithHints);
             this.addUntoggleElement();
+            this.paintHints($elementsWithHints);
         },
+
         hideHints: function () {
+            this.stopPaintingHints();
             this.hintOn = false;
             this.$el.removeClass('is-shown');
         },
         addUntoggleElement: function () {
-            var $untoggleElement = $('.navigation-right > .item-help');
+            var $untoggleElement = $('.navigation-item.item-help');
             _.forEach($untoggleElement, function (element) {
                 var $untoggleElementClone = $(element).clone(true);
                 this.$el.append($untoggleElementClone);
@@ -240,9 +250,9 @@ define([
             e.stopPropagation();
         },
         listenForResize: function () {
-            $(window).on('resize.' + this.cid, _.throttle(function (event) {
+            $(window).on('resize.' + this.cid, _.debounce(function (event) {
                 this.showHints();
-            }.bind(this), 16));
+            }.bind(this), 50));
         },
         stopListeningForResize: function () {
             $(window).off('resize.' + this.cid);

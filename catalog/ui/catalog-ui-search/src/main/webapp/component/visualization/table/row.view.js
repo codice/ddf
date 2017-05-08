@@ -26,6 +26,7 @@ var user = require('component/singletons/user-instance');
 var properties = require('properties');
 
 module.exports = Marionette.ItemView.extend({
+    className: 'is-tr',
     tagName: CustomElements.register('result-row'),
     attributes: function() {
         return {

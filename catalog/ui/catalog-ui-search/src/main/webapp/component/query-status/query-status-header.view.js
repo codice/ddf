@@ -13,25 +13,12 @@
  *
  **/
 /*global require*/
-
+var template = require('./query-status-header.hbs');
 var Marionette = require('marionette');
-var template = require('./query-status.hbs');
 var CustomElements = require('js/CustomElements');
-var store = require('js/store');
-var TableView = require('component/table/query-status/table-query-status.view');
 
-module.exports = Marionette.LayoutView.extend({
+module.exports = Marionette.ItemView.extend({
+    className: 'is-thead',
     template: template,
-    tagName: CustomElements.register('query-status'),
-    regions: {
-        table: '.table-container'
-    },
-    initialize: function () {
-        this.model = store.getQueryById(this.model.id);
-    },
-    onBeforeShow: function(){
-        this.table.show(new TableView({
-            model: this.model
-        }));
-    }
+    tagName: CustomElements.register('query-status-header')
 });

@@ -13,25 +13,15 @@
  *
  **/
 /*global require*/
-
 var Marionette = require('marionette');
-var template = require('./query-status.hbs');
 var CustomElements = require('js/CustomElements');
-var store = require('js/store');
-var TableView = require('component/table/query-status/table-query-status.view');
+var RowView = require('./query-status-row.view');
 
-module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('query-status'),
-    regions: {
-        table: '.table-container'
-    },
-    initialize: function () {
-        this.model = store.getQueryById(this.model.id);
-    },
-    onBeforeShow: function(){
-        this.table.show(new TableView({
-            model: this.model
-        }));
+module.exports = Marionette.CollectionView.extend({
+    tagName: CustomElements.register('query-status-tbody'),
+    className: 'is-tbody is-list has-list-highlighting',
+    childView: RowView,
+    filter: function(childModel){
+        return childModel.get('id') !== 'cache';
     }
 });

@@ -13,25 +13,23 @@
  *
  **/
 /*global require*/
-
+var template = require('./query-status-row.hbs');
 var Marionette = require('marionette');
-var template = require('./query-status.hbs');
 var CustomElements = require('js/CustomElements');
-var store = require('js/store');
-var TableView = require('component/table/query-status/table-query-status.view');
 
-module.exports = Marionette.LayoutView.extend({
+module.exports = Marionette.ItemView.extend({
+    className: 'is-tr',
+    tagName: CustomElements.register('query-status-row'),
     template: template,
-    tagName: CustomElements.register('query-status'),
-    regions: {
-        table: '.table-container'
+    modelEvents: {
+        'change': 'render'
     },
-    initialize: function () {
-        this.model = store.getQueryById(this.model.id);
-    },
-    onBeforeShow: function(){
-        this.table.show(new TableView({
-            model: this.model
-        }));
+    serializeData: function(){
+        var modelJSON = this.model.toJSON();
+        modelJSON.fromremote = modelJSON.top - modelJSON.fromcache;
+        modelJSON.elapsed = modelJSON.elapsed / 1000;
+        modelJSON.anyHasReturned = modelJSON.hasReturned || modelJSON.cacheHasReturned;
+        modelJSON.anyHasNotReturned = !modelJSON.hasReturned || !modelJSON.cacheHasReturned;
+        return modelJSON;
     }
 });

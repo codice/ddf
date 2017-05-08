@@ -23,7 +23,7 @@ var RowView = require('./row.view');
 
 module.exports = Marionette.CollectionView.extend({
     tagName: CustomElements.register('result-tbody'),
-    className: 'is-list has-list-highlighting',
+    className: 'is-tbody is-list has-list-highlighting',
     events: {
         'click > *': 'handleClick',
         'mousedown > *': 'handleMouseDown',
