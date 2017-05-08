@@ -270,6 +270,15 @@ public abstract class AbstractIntegrationTest {
 
     public static final DynamicPort RMI_REG_PORT = new DynamicPort(5);
 
+    public static final AbstractIntegrationTest.DynamicPort AMQP_PORT =
+            new AbstractIntegrationTest.DynamicPort(6);
+
+    public static final AbstractIntegrationTest.DynamicPort ARTEMIS_PORT =
+            new AbstractIntegrationTest.DynamicPort(7);
+
+    public static final AbstractIntegrationTest.DynamicPort OPENWIRE_PORT =
+            new AbstractIntegrationTest.DynamicPort(8);
+
     public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(SECURE_ROOT,
             HTTPS_PORT,
             "/services");
@@ -459,6 +468,15 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/system.properties",
                         BASE_PORT.getSystemProperty(),
                         BASE_PORT.getPort()),
+                editConfigurationFilePut("etc/system.properties",
+                        "artemis.amqp.port",
+                        AMQP_PORT.getPort()),
+                editConfigurationFilePut("etc/system.properties",
+                        "artemis.multiprotocol.port",
+                        ARTEMIS_PORT.getPort()),
+                editConfigurationFilePut("etc/system.properties",
+                        "artemis.openwire.port",
+                        OPENWIRE_PORT.getPort()),
 
                 // DDF-1572: Disables the periodic backups of .bundlefile. In itests, having those
                 // backups serves no purpose and it appears that intermittent failures have occurred
@@ -540,7 +558,10 @@ public abstract class AbstractIntegrationTest {
                 System.getProperty(AdminConfig.TEST_LOGLEVEL_PROPERTY) != null).useOptions(
                 systemProperty(AdminConfig.TEST_LOGLEVEL_PROPERTY).value(System.getProperty(
                         AdminConfig.TEST_LOGLEVEL_PROPERTY,
-                        ""))));
+                        ""))),
+                editConfigurationFilePut("etc/" + LOG_CONFIG_PID + ".cfg",
+                        "log4j.additivity.org.apache.activemq.artemis",
+                        "true"));
     }
 
     protected Option[] configureIncludeUnstableTests() {

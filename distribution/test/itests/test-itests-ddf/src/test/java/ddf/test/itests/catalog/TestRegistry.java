@@ -75,7 +75,7 @@ public class TestRegistry extends AbstractIntegrationTest {
 
     private static final String CSW_REGISTRY_TYPE = "CSW Registry Store";
 
-    private static final DynamicPort CSW_STUB_SERVER_PORT = new DynamicPort(8);
+    private static final DynamicPort CSW_STUB_SERVER_PORT = new DynamicPort(9);
 
     private static final String REMOTE_REGISTRY_ID = "urn:uuid:12121212121212121212121212121212";
 

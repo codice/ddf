@@ -164,7 +164,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String DEFAULT_SAMPLE_PRODUCT_FILE_NAME = "sample.txt";
 
-    private static final DynamicPort RESTITO_STUB_SERVER_PORT = new DynamicPort(6);
+    private static final DynamicPort RESTITO_STUB_SERVER_PORT = new DynamicPort(9);
 
     public static final DynamicUrl RESTITO_STUB_SERVER = new DynamicUrl("https://localhost:",
             RESTITO_STUB_SERVER_PORT,
@@ -172,7 +172,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final Path PRODUCT_CACHE = Paths.get("data", "Product_Cache");
 
-    private static final DynamicPort CSW_STUB_SERVER_PORT = new DynamicPort(7);
+    private static final DynamicPort CSW_STUB_SERVER_PORT = new DynamicPort(10);
 
     public static final DynamicUrl CSW_STUB_SERVER_PATH = new DynamicUrl(INSECURE_ROOT,
             CSW_STUB_SERVER_PORT,

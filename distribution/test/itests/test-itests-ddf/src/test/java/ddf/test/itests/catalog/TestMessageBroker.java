@@ -17,12 +17,9 @@ import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.with;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
@@ -43,14 +40,13 @@ import org.codice.ddf.itests.common.WaitCondition;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
-public class MessageBrokerTest extends AbstractIntegrationTest {
+@ExamReactorStrategy(PerSuite.class)
+public class TestMessageBroker extends AbstractIntegrationTest {
 
     private static final int TIMEOUT_IN_SECONDS = 60;
 
@@ -105,46 +101,14 @@ public class MessageBrokerTest extends AbstractIntegrationTest {
 
     private static CamelContext camelContext;
 
-    protected final AbstractIntegrationTest.DynamicPort amqpPort =
-            new AbstractIntegrationTest.DynamicPort(6);
-
-    protected final AbstractIntegrationTest.DynamicPort artemisPort =
-            new AbstractIntegrationTest.DynamicPort(7);
-
-    protected final AbstractIntegrationTest.DynamicPort openwirePort =
-            new AbstractIntegrationTest.DynamicPort(8);
-
     private String messageId;
-
-    @Override
-    protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {
-        return combineOptions(super.configureConfigurationPorts(),
-                new Option[] {editConfigurationFilePut("etc/system.properties",
-                        "artemis.amqp.port",
-                        amqpPort.getPort()), editConfigurationFilePut("etc/system.properties",
-                        "artemis.multiprotocol.port",
-                        artemisPort.getPort()), editConfigurationFilePut("etc/system.properties",
-                        "artemis.openwire.port",
-                        openwirePort.getPort())});
-    }
-
-    @Override
-    protected Option[] configureLogLevel() {
-        return combineOptions(super.configureLogLevel(),
-                options(editConfigurationFilePut("etc/" + LOG_CONFIG_PID + ".cfg",
-                        "log4j.additivity.org.apache.activemq.artemis",
-                        "true")));
-    }
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
+        waitForSystemReady();
 
         getServiceManager().waitForRequiredApps(REQUIRED_APPS);
         setupCamelContext();
-        configureRestForGuest();
-        getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         FileUtils.copyInputStreamToFile(AbstractIntegrationTest.getFileContentAsStream(
                 "sdk-example-route.xml",
                 AbstractIntegrationTest.class), Paths.get(ddfHome, "etc", "routes")
