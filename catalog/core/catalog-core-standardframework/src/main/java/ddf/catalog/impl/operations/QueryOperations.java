@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +96,19 @@ public class QueryOperations extends DescribableImpl {
     private List<String> fanoutProxyTagBlacklist = new ArrayList<>();
 
     private long queryTimeoutMillis = 300000;
+
+    private static final String MAX_PAGE_SIZE_PROPERTY = "catalog.maxPageSize";
+
+    /**
+     * Enforcing a default maximum page size of 1000 to avoid overloading the system with too many
+     * records. In practice, correct paging techniques should be implemented. If needed, this property can
+     * be overridden by setting "catalog.maxPageSize" in system properties.
+     * <p>
+     * (See DDF-2872 for more details)
+     */
+    private static final Integer DEFAULT_MAX_PAGE_SIZE = 1000;
+
+    public static final Integer MAX_PAGE_SIZE = determineAndRetrieveMaxPageSize();
 
     public QueryOperations(FrameworkProperties frameworkProperties,
             SourceOperations sourceOperations, OperationsSecuritySupport opsSecuritySupport,
@@ -340,6 +354,10 @@ public class QueryOperations extends DescribableImpl {
                 || sourceIds.contains(null));
     }
 
+    private static Integer determineAndRetrieveMaxPageSize() {
+        return NumberUtils.toInt(System.getProperty(MAX_PAGE_SIZE_PROPERTY), DEFAULT_MAX_PAGE_SIZE);
+    }
+
     private QueryResponse processPostQueryPlugins(QueryResponse queryResponse)
             throws FederationException {
         for (PostQueryPlugin service : frameworkProperties.getPostQuery()) {
@@ -495,6 +513,8 @@ public class QueryOperations extends DescribableImpl {
 
     /**
      * Validates that the {@link QueryRequest} is non-null and that the query in it is non-null.
+     * Also checks that the query's page size is between 1 and the {@link #MAX_PAGE_SIZE}.
+     * If not, the query's page size is set to the {@link #MAX_PAGE_SIZE}.
      *
      * @param queryRequest the {@link QueryRequest}
      * @throws UnsupportedQueryException if the {@link QueryRequest} is null or the query in it is null
@@ -511,7 +531,26 @@ public class QueryOperations extends DescribableImpl {
                     "Cannot perform query with null query, either passed in from endpoint, or as output from a PreQuery Plugin");
         }
 
-        return queryRequest;
+        int queryPageSize = queryRequest.getQuery()
+                .getPageSize();
+
+        if (queryPageSize >= 1 && queryPageSize <= MAX_PAGE_SIZE) {
+            return queryRequest;
+        }
+
+        Query originalQuery = queryRequest.getQuery();
+
+        Query modifiedQuery = new QueryImpl(originalQuery,
+                originalQuery.getStartIndex(),
+                MAX_PAGE_SIZE,
+                originalQuery.getSortBy(),
+                originalQuery.requestsTotalResultsCount(),
+                originalQuery.getTimeoutMillis());
+
+        return new QueryRequestImpl(modifiedQuery,
+                queryRequest.isEnterprise(),
+                queryRequest.getSourceIds(),
+                queryRequest.getProperties());
     }
 
     private QueryResponse injectAttributes(QueryResponse response) {

@@ -277,15 +277,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             }
         }
 
-        if (request.getQuery()
-                .getPageSize() < 1) {
-            //TODO: Needs to pass in something else.
-            query.setRows(Integer.MAX_VALUE);
-        } else {
-            query.setRows(request.getQuery()
-                    .getPageSize());
-        }
-
         /* Start Index */
         if (request.getQuery()
                 .getStartIndex() < 1) {
@@ -296,9 +287,34 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         query.setStart(request.getQuery()
                 .getStartIndex() - 1);
 
+        if (queryingForAllRecords(request)) {
+            try {
+                query.setRows(queryForNumberOfRows(query));
+            } catch (SolrServerException | IOException | SolrException | ArithmeticException exception) {
+                throw new UnsupportedQueryException("Could not retrieve number of records.", exception);
+            }
+        } else {
+            query.setRows(request.getQuery()
+                    .getPageSize());
+        }
+
         setSortProperty(request, query, filterDelegate);
 
         return query;
+    }
+
+    private boolean queryingForAllRecords(QueryRequest request) {
+        return request.getQuery()
+                .getPageSize() < 1;
+    }
+
+    private int queryForNumberOfRows(SolrQuery query) throws SolrServerException, IOException {
+        int numRows;
+        query.setRows(0);
+        QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
+        numRows = Math.toIntExact(solrResponse.getResults()
+                .getNumFound());
+        return numRows;
     }
 
     private void addDistanceSort(SolrQuery query, String sortField, SolrQuery.ORDER order,

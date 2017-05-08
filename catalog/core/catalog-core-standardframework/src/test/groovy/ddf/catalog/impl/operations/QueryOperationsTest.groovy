@@ -670,6 +670,7 @@ class QueryOperationsTest extends Specification {
         def response = Mock(QueryResponse)
 
         query.getTimeoutMillis() >> { 100 }
+        query.getPageSize() >> { 100 }
         request.query >> { query }
         request.getQuery() >> { query }
         request.getProperties() >> [:]
