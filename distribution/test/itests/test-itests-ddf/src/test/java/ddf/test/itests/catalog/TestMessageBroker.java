@@ -75,6 +75,12 @@ public class TestMessageBroker extends AbstractIntegrationTest {
     private static final String UNDELIVERED_MESSAGES_MBEAN_URL =
             "/admin/jolokia/exec/org.codice.ddf.broker.ui.UndeliveredMessages:service=UndeliveredMessages/";
 
+    private static final DynamicPort AMQP_PORT = new DynamicPort(6);
+
+    private static final DynamicPort ARTEMIS_PORT = new DynamicPort(7);
+
+    private static final DynamicPort OPENWIRE_PORT = new DynamicPort(8);
+
     private static final DynamicUrl GET_UNDELIVERED_MESSAGES_PATH =
             new DynamicUrl(DynamicUrl.SECURE_ROOT,
                     HTTPS_PORT,
