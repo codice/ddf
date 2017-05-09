@@ -13,10 +13,14 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestCswRecord;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertTrue;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -24,6 +28,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -48,11 +53,15 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableMap;
+import com.jayway.restassured.path.xml.XmlPath;
+import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
 public class TestSpatial extends AbstractIntegrationTest {
+
+    private static final String CSW_RESPONSE_COUNTRY_CODE = "GBR";
 
     private static final String CSW_RESOURCE_ROOT = "/TestSpatial/";
 
@@ -343,6 +352,27 @@ public class TestSpatial extends AbstractIntegrationTest {
             throws XPathException, ParserConfigurationException, SAXException, IOException {
 
         performQueryAndValidateExpectedResults("CswFuzzyTextQuery");
+    }
+
+    @Test
+    public void testGeoCoderPlugin() throws Exception {
+        String uuid = UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
+
+        ingestCswRecord(getFileContent(CSW_RECORD_RESOURCE_PATH + "/CswRecord2",
+                ImmutableMap.of("id", uuid)));
+
+        StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH.getUrl()).append("?")
+                .append("format=")
+                .append("xml")
+                .append("&")
+                .append("q=*");
+
+        final Response response = when().get(buffer.toString());
+        String countryCode = XmlPath.given(response.asString()).getString(
+                "metacards.metacard[0].string.find { it.@name == 'location.country-code' }");
+        assertThat(countryCode, is(CSW_RESPONSE_COUNTRY_CODE));
     }
 
     /**

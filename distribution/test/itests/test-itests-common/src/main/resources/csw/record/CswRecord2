@@ -1,0 +1,20 @@
+        <csw:Record
+            xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:ows="http://www.opengis.net/ows">
+            <dc:identifier>fc3f1798fe17466fbbcc39dcfcb232e6</dc:identifier>
+            <dct:bibliographicCitation>fc3f1798fe17466fbbcc39dcfcb232e6</dct:bibliographicCitation>
+            <dc:title>A record in the UK</dc:title>
+            <dct:alternative>5710818352_8f794bd7b9_o.jpg</dct:alternative>
+            <dc:date>2011-05-08T08:51:25.000-06:00</dc:date>
+            <dct:modified>2011-05-08T08:51:25.000-06:00</dct:modified>
+            <dct:created>2011-05-08T08:51:25.000-06:00</dct:created>
+            <dct:dateSubmitted>2011-05-08T08:51:25.000-06:00</dct:dateSubmitted>
+            <dct:issued>2011-05-08T08:51:25.000-06:00</dct:issued>
+            <dct:abstract>A record in the UK</dct:abstract>
+            <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+                <ows:LowerCorner>-0.360823 51.241903</ows:LowerCorner>
+                <ows:UpperCorner>-0.360823 51.241903</ows:UpperCorner>
+            </ows:BoundingBox>
+        </csw:Record>
