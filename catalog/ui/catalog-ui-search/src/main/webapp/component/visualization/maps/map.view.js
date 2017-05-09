@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+/*global require, setTimeout*/
 var wreqr = require('wreqr');
 var template = require('./map.hbs');
 var Marionette = require('marionette');
@@ -150,7 +150,7 @@ module.exports = Marionette.LayoutView.extend({
                     if (CQLUtils.isPointRadiusFilter(filter)) {
                         pointText = filter.value.value.substring(6);
                         pointText = pointText.substring(0, pointText.length - 1);
-                        latLon = pointText.split(' ');
+                        var latLon = pointText.split(' ');
                         locationModel = new LocationModel({
                             lat: latLon[1],
                             lon: latLon[0],

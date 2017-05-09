@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+/*global require, document*/
 //allows us to get around svg security restrictions in IE11 (see using svg in opengl)
 //make our own image and manually set dimensions because of IE: https://github.com/openlayers/openlayers/issues/3939
 var _ = require('underscore');
@@ -47,7 +47,7 @@ module.exports = {
             textColor: 'white'
         });
         var canvas = this.getCircle(options);
-        ctx = canvas.getContext("2d");
+        var ctx = canvas.getContext("2d");
         ctx.font = '16pt Helvetica';
         ctx.fillStyle = options.textColor;
         ctx.textAlign = 'center';
