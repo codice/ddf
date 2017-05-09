@@ -15,13 +15,13 @@ package ddf.security.sts.claimsHandler;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.KeyManagementException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,8 +34,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
-import org.forgerock.opendj.ldap.LDAPOptions;
 import org.forgerock.opendj.ldap.LdapException;
+import org.forgerock.util.Options;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -185,43 +185,24 @@ public class ClaimsHandlerManager {
         boolean useSsl = url.startsWith("ldaps");
         boolean useTls = !url.startsWith("ldaps") && startTls;
 
-        LDAPOptions lo = new LDAPOptions();
-
-        String truststoreLoc = System.getProperty("javax.net.ssl.trustStore");
-        String truststorePass = System.getProperty("javax.net.ssl.trustStorePassword");
-        String keystoreLoc = System.getProperty("javax.net.ssl.keyStore");
-        String keystorePass = System.getProperty("javax.net.ssl.keyStorePassword");
-
+        Options lo = Options.defaultOptions();
         try {
             if (useSsl || useTls) {
-                SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
-                if (keystoreLoc != null && truststoreLoc != null) {
-
-                    if (encryptService != null) {
-                        keystorePass = encryptService.decryptValue(keystorePass);
-                        truststorePass = encryptService.decryptValue(truststorePass);
-                    }
-
-                    sslContext.init(
-                            createKeyManagerFactory(keystoreLoc, keystorePass).getKeyManagers(),
-                            createTrustManagerFactory(truststoreLoc,
-                                    truststorePass).getTrustManagers(), new SecureRandom());
-                }
-
-                lo.setSSLContext(sslContext);
+                lo.set(LDAPConnectionFactory.SSL_CONTEXT, SSLContext.getDefault());
             }
-        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
-            LOGGER.error(
-                    "Error encountered while configuring SSL. Secure connection to LDAP will fail.",
-                    e);
+        } catch (GeneralSecurityException e) {
+            LOGGER.info("Error encountered while configuring SSL. Secure connection will fail.", e);
         }
 
-        lo.setUseStartTLS(useTls);
-        lo.addEnabledCipherSuite(System.getProperty("https.cipherSuites")
-                .split(","));
-        lo.addEnabledProtocol(System.getProperty("https.protocols")
-                .split(","));
-        lo.setProviderClassLoader(ClaimsHandlerManager.class.getClassLoader());
+        lo.set(LDAPConnectionFactory.SSL_USE_STARTTLS, useTls);
+        lo.set(LDAPConnectionFactory.SSL_ENABLED_CIPHER_SUITES,
+                Arrays.asList(System.getProperty("https.cipherSuites")
+                        .split(",")));
+        lo.set(LDAPConnectionFactory.SSL_ENABLED_PROTOCOLS,
+                Arrays.asList(System.getProperty("https.protocols")
+                        .split(",")));
+        lo.set(LDAPConnectionFactory.TRANSPORT_PROVIDER_CLASS_LOADER,
+                ClaimsHandlerManager.class.getClassLoader());
 
         String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(":"));
         Integer port = useSsl ? 636 : 389;

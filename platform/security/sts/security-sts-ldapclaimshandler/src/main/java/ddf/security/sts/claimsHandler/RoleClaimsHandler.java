@@ -207,7 +207,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
     @Override
     public List<URI> getSupportedClaimTypes() {
-        List<URI> uriList = new ArrayList<URI>();
+        List<URI> uriList = new ArrayList<>();
         uriList.add(getRoleURI());
 
         return uriList;
@@ -232,26 +232,36 @@ public class RoleClaimsHandler implements ClaimsHandler {
             connection = connectionFactory.getConnection();
             if (connection != null) {
 
-                BindRequest request = BindMethodChooser.selectBindMethod(bindMethod, bindUserDN,
-                        bindUserCredentials, kerberosRealm, kdcAddress);
+                BindRequest request = BindMethodChooser.selectBindMethod(bindMethod,
+                        bindUserDN,
+                        bindUserCredentials,
+                        kerberosRealm,
+                        kdcAddress);
 
                 BindResult bindResult = connection.bind(request);
 
-                String baseDN = AttributeMapLoader.getBaseDN(principal, userBaseDn, overrideCertDn);
-                AndFilter filter = new AndFilter();
-                filter.and(new EqualsFilter(this.getLoginUserAttribute(), user));
-                ConnectionEntryReader entryReader = connection.search(baseDN,
-                        SearchScope.WHOLE_SUBTREE,
-                        filter.toString(),
-                        membershipUserAttribute);
-                String membershipValue = null;
-                while (entryReader.hasNext()) {
-                    SearchResultEntry entry = entryReader.readEntry();
+                String membershipValue = user;
 
-                    Attribute attr = entry.getAttribute(membershipUserAttribute);
-                    if (attr != null) {
-                        for (ByteString value : attr) {
-                            membershipValue = value.toString();
+                AndFilter filter;
+                ConnectionEntryReader entryReader;
+                if (!membershipUserAttribute.equals(loginUserAttribute)) {
+                    String baseDN = AttributeMapLoader.getBaseDN(principal,
+                            userBaseDn,
+                            overrideCertDn);
+                    filter = new AndFilter();
+                    filter.and(new EqualsFilter(this.getLoginUserAttribute(), user));
+                    entryReader = connection.search(baseDN,
+                            SearchScope.WHOLE_SUBTREE,
+                            filter.toString(),
+                            membershipUserAttribute);
+                    while (entryReader.hasNext()) {
+                        SearchResultEntry entry = entryReader.readEntry();
+
+                        Attribute attr = entry.getAttribute(membershipUserAttribute);
+                        if (attr != null) {
+                            for (ByteString value : attr) {
+                                membershipValue = value.toString();
+                            }
                         }
                     }
                 }
