@@ -11,6 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+
 package ddf.catalog.data.impl.types;
 
 import java.util.Collections;
@@ -21,12 +22,12 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.types.Security;
+import ddf.catalog.data.types.Rights;
 
 /**
- * This class defines attributes that provide security restrictions on the metacard and/or resource.
+ * This class defines attributes that provide ownership restrictions on the metacard and/or resource.
  */
-public class SecurityAttributes implements Security, MetacardType {
+public class RightsAttributes implements Rights, MetacardType {
 
     private static final Set<AttributeDescriptor> DESCRIPTORS;
 
@@ -34,18 +35,24 @@ public class SecurityAttributes implements Security, MetacardType {
 
     static {
         Set<AttributeDescriptor> descriptors = new HashSet<>();
-        descriptors.add(new AttributeDescriptorImpl(ACCESS_GROUPS,
+        descriptors.add(new AttributeDescriptorImpl(PRIVACY,
                 true /* indexed */,
                 true /* stored */,
-                true /* tokenized */,
-                true /* multivalued */,
-                BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(ACCESS_INDIVIDUALS,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.BOOLEAN_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(INTELLECTUAL_PROPERTY,
                 true /* indexed */,
                 true /* stored */,
-                true /* tokenized */,
-                true /* multivalued */,
-                BasicTypes.STRING_TYPE));
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.BOOLEAN_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(COPYRIGHT,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.BOOLEAN_TYPE));
         DESCRIPTORS = Collections.unmodifiableSet(descriptors);
     }
 
@@ -70,4 +77,3 @@ public class SecurityAttributes implements Security, MetacardType {
         return NAME;
     }
 }
-
