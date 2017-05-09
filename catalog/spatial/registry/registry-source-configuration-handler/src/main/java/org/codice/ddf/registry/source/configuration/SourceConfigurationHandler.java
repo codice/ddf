@@ -164,7 +164,9 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
         try {
             updateRegistryConfigurations(metacard, true);
         } catch (IOException | InvalidSyntaxException | ParserException | RuntimeException e) {
-            LOGGER.debug("Unable to update registry configurations, metacard still ingested");
+            LOGGER.info(
+                    "Unable to update registry source configurations for {}. Sources maybe out of sync with registry entry",
+                    metacard.getTitle());
         }
     }
 
@@ -172,7 +174,9 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
         try {
             updateRegistryConfigurations(metacard, false);
         } catch (IOException | InvalidSyntaxException | ParserException | RuntimeException e) {
-            LOGGER.debug("Unable to update registry configurations, metacard still updated");
+            LOGGER.info(
+                    "Unable to update registry source configurations for {}. Sources maybe out of sync with registry entry",
+                    metacard.getTitle());
         }
     }
 
@@ -182,7 +186,8 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
                 deleteRegistryConfigurations(metacard);
             }
         } catch (IOException | InvalidSyntaxException e) {
-            LOGGER.debug("Unable to delete registry configurations, metacard still deleted");
+            LOGGER.info("Unable to delete registry source configurations for {}",
+                    metacard.getTitle());
         }
     }
 
@@ -262,6 +267,9 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
                     registryId);
 
             curConfig.update(serviceConfigurationProperties);
+            LOGGER.debug("Updating source configuration {} with registry-id {}",
+                    configId,
+                    registryId);
             fpidToConfigurationMap.remove(curConfig.getFactoryPid()
                     .concat(factoryPidMask));
         }
@@ -378,6 +386,11 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
                 RegistryConstants.CONFIGURATION_REGISTRY_ID_PROPERTY,
                 registryId));
         if (configurations != null && configurations.length > 0) {
+
+            LOGGER.debug("Deleting {} source configurations for registry-id {}",
+                    configurations.length,
+                    registryId);
+
             String sourceName = (String) configurations[0].getProperties()
                     .get(ID);
             configurations = configurationAdmin.listConfigurations(String.format(
@@ -403,6 +416,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
                 .contains(DISABLED_CONFIGURATION_SUFFIX)) {
             newFpid = config.getFactoryPid()
                     .replace(DISABLED_CONFIGURATION_SUFFIX, "");
+
         } else {
             newFpid = config.getFactoryPid()
                     .concat(DISABLED_CONFIGURATION_SUFFIX);
@@ -453,6 +467,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
                 registryId));
 
         if (configurations == null) {
+            LOGGER.debug("No sources found with registry-id {}", registryId);
             return configurationMap;
         }
 
@@ -468,6 +483,17 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
         for (Configuration config : configurations) {
             configurationMap.put(config.getFactoryPid()
                     .concat(getConfigStringProperty(config, BINDING_TYPE)), config);
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+
+            StringBuilder buffer = new StringBuilder();
+            buffer.append(System.lineSeparator());
+            for (String fpid : configurationMap.keySet()) {
+                buffer.append(String.format("%s%s", fpid, System.lineSeparator()));
+            }
+            LOGGER.debug("Configurations found for {}: {}", registryId, buffer.toString());
+
         }
 
         return configurationMap;
@@ -512,6 +538,11 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
 
         if (configRegistryId == null || !configRegistryId.equals(registryId)) {
             configId = String.format("%s - %s", configId, registryId);
+            LOGGER.debug(
+                    "Source with id {} and registry-id {} already exists. Switching to modified id {}",
+                    id,
+                    configRegistryId,
+                    configId);
         }
         return configId;
     }

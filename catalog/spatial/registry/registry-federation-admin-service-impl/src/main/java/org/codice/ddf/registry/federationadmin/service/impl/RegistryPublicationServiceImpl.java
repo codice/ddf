@@ -35,11 +35,15 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 
 public class RegistryPublicationServiceImpl implements RegistryPublicationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegistryPublicationServiceImpl.class);
 
     private static final String NO_PUBLICATIONS = "No_Publications";
 
@@ -65,6 +69,11 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
             throw new FederationAdminException(
                     "Could not find a source id for registry-id " + destinationRegistryId);
         }
+
+        LOGGER.info("Publishing registry entry {}:{} to {}",
+                metacard.getTitle(),
+                registryId,
+                sourceId);
 
         federationAdminService.addRegistryEntry(metacard, Collections.singleton(sourceId));
 
@@ -121,9 +130,13 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
                     "Could not find a source id for registry-id " + destinationRegistryId);
         }
 
+        LOGGER.info("Unpublishing registry entry {}:{} from {}",
+                metacard.getTitle(),
+                registryId,
+                sourceId);
+
         federationAdminService.deleteRegistryEntriesByRegistryIds(Collections.singletonList(
                 registryId), Collections.singleton(sourceId));
-
     }
 
     @Override
@@ -143,6 +156,10 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
 
         if (CollectionUtils.isNotEmpty(locations)) {
             try {
+                LOGGER.info("Updating publication for registry entry {}:{} at {}",
+                        metacard.getTitle(),
+                        RegistryUtility.getRegistryId(metacard),
+                        String.join(",", locations));
                 federationAdminService.updateRegistryEntry(metacard, locations);
             } catch (FederationAdminException e) {
                 //This should not happen often but could occur if the remote registry removed the metacard

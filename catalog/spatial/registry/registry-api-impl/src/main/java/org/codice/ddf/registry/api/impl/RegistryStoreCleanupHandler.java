@@ -90,6 +90,7 @@ public class RegistryStoreCleanupHandler implements EventHandler {
             return;
         }
         registryStorePidToServiceMap.remove(servicePid);
+        LOGGER.info("Removing registry entries associated with remote registry {}", service.getId());
 
         executor.execute(() -> {
             String registryId = service.getRegistryId();
@@ -103,6 +104,15 @@ public class RegistryStoreCleanupHandler implements EventHandler {
                         .map(Metacard::getId)
                         .collect(Collectors.toList());
                 if (!idsToDelete.isEmpty()) {
+                    if(LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(
+                                "Removing {} registry entries that came from {}. Removed entries: {}",
+                                metacards.size(),
+                                service.getId(),
+                                metacards.stream()
+                                        .map(m -> m.getTitle() + ":" + m.getId())
+                                        .collect(Collectors.joining(", ")));
+                    }
                     security.runAsAdminWithException(() -> {
                         federationAdminService.deleteRegistryEntriesByMetacardIds(idsToDelete);
                         return null;
