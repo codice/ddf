@@ -67,7 +67,7 @@ public class TestFtp extends AbstractIntegrationTest {
 
     private static final String FTP_PORT_PROPERTY = "org.codice.ddf.catalog.ftp.port";
 
-    private static final DynamicPort FTP_PORT = new DynamicPort(FTP_PORT_PROPERTY, 9);
+    private static final DynamicPort FTP_PORT = new DynamicPort(FTP_PORT_PROPERTY, 6);
 
     private static final String FTP_ENDPOINT_FEATURE = "catalog-ftp";
 
