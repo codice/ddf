@@ -270,14 +270,11 @@ public abstract class AbstractIntegrationTest {
 
     public static final DynamicPort RMI_REG_PORT = new DynamicPort(5);
 
-    public static final AbstractIntegrationTest.DynamicPort AMQP_PORT =
-            new AbstractIntegrationTest.DynamicPort(101);
+    public static final DynamicPort AMQP_PORT = new DynamicPort(101);
 
-    public static final AbstractIntegrationTest.DynamicPort ARTEMIS_PORT =
-            new AbstractIntegrationTest.DynamicPort(102);
+    public static final DynamicPort ARTEMIS_PORT = new DynamicPort(102);
 
-    public static final AbstractIntegrationTest.DynamicPort OPENWIRE_PORT =
-            new AbstractIntegrationTest.DynamicPort(103);
+    public static final DynamicPort OPENWIRE_PORT = new DynamicPort(103);
 
     public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(SECURE_ROOT,
             HTTPS_PORT,
