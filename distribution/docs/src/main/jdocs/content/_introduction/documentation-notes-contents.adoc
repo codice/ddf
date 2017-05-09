@@ -1,6 +1,7 @@
 :type: introduction
 :status: published
 :title: Documentation Guide
+:priority: 1
 
 The ${branding} documentation is organized by audience.
 

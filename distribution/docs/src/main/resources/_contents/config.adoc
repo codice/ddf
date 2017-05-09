@@ -24,7 +24,8 @@ ifdef::backend-pdf[]
 :sectnums:
 Copyright (c) Codice Foundation. +
 This work is licensed under a http://creativecommons.org/licenses/by/4.0[Creative Commons Attribution 4.0 International License].
-This page last updated:
+
+This document last updated: ${timestamp}.
 
 <<<
 endif::[]

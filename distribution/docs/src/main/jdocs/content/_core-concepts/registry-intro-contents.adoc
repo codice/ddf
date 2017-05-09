@@ -1,6 +1,7 @@
 :type: coreConcept
 :status: published
 :title: Introduction to Registries
+:order: 08
 
 The Registry Application serves as an index of registry nodes and their information, including service bindings, configurations and supplemental details.
 

@@ -1,6 +1,7 @@
 :type: coreConcept
 :status: published
 :title: Introduction to Endpoints
+:order: 09
 
 Endpoints expose the Catalog Framework to clients using protocols and formats that the clients understand.
 

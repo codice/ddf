@@ -1,6 +1,7 @@
 :type: introduction
 :status: published
 :title: Applications
+:priority: 1
 
 ${branding} is comprised of several modular applications, to be installed or uninstalled as needed.
 
@@ -14,7 +15,7 @@ At the core of the Catalog functionality is the *Catalog Framework*, which rout
 
 ${ddf-platform} Application::
 The Core application of the distribution.
-The Platform application has fundamental building blocks that the distribution needs to run.
+The Platform application contains the fundamental building blocks to run the distribution.
 
 ${ddf-security} Application::
 Provides authentication, authorization, and auditing services for the ${branding}.
