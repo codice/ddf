@@ -69,10 +69,11 @@
         <json-smart.version>2.2.1</json-smart.version>
         <httpclient.version>4.5.2</httpclient.version>
         <httpcore.version>4.4.5</httpcore.version>
-        <cxf.version>3.1.7</cxf.version>
+        <cxf.version>3.1.10</cxf.version>
         <cxf.xpp3.bundle.version>1.1.4c_6</cxf.xpp3.bundle.version>
         <bouncy.version>1.54</bouncy.version>
-        <xmlsec.version>2.0.7</xmlsec.version>
+        <!--<xmlsec.version>2.0.7</xmlsec.version>-->
+        <xmlsec.version>2.0.8</xmlsec.version>
         <jts.bundle.version>1.12_1</jts.bundle.version>
         <karaf.version>4.0.7</karaf.version>
         <lux.version>1.2</lux.version>
@@ -104,7 +105,7 @@
         <logback.classic.version>1.1.7</logback.classic.version>
         <usng4j.version>0.1</usng4j.version>
         <!--camel dependencies-->
-        <camel.version>2.18.0</camel.version>
+        <camel.version>2.18.3</camel.version>
         <servicemix-specs.version>2.7.0</servicemix-specs.version>
         <geronimo-jta-spec.version>1.1.1</geronimo-jta-spec.version>
         <geronimo-jms-spec.version>1.1.1</geronimo-jms-spec.version>
