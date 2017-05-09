@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+/*global require, setTimeout*/
 var MapView = require('../map.view');
 var template = require('./cesium.hbs');
 var $ = require('jquery');

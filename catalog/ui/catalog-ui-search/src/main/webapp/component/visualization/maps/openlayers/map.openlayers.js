@@ -24,7 +24,7 @@ var DrawLine = require('js/widgets/openlayers.line');
 
 var properties = require('properties');
 var Openlayers = require('openlayers');
-var geocoder = require('js/view/openlayers.geocoder');
+var Geocoder = require('js/view/openlayers.geocoder');
 var LayerCollectionController = require('js/controllers/ol.layerCollection.controller');
 var user = require('component/singletons/user-instance');
 var User = require('js/model/User');
@@ -49,8 +49,8 @@ function createMap(insertionElement) {
     });
 
     if (properties.gazetteer) {
-        geoCoder = new geocoder.View({ el: $(insertionElement).siblings('#mapTools') });
-        geoCoder.render();
+        var geocoder = new Geocoder.View({ el: $(insertionElement).siblings('#mapTools') });
+        geocoder.render();
     }
     return map;
 }

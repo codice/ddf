@@ -113,7 +113,7 @@ define([
                         if (CQLUtils.isPointRadiusFilter(filter)){
                             var pointText = filter.value.value.substring(6);
                             pointText = pointText.substring(0, pointText.length - 1);
-                            latLon = pointText.split(' ');
+                            var latLon = pointText.split(' ');
                             this.model.set({
                                 lat: latLon[1],
                                 lon: latLon[0],

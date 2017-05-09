@@ -25,7 +25,7 @@ Behaviors.addBehavior('button', Marionette.Behavior.extend({
         'click': 'blur'
     },
     emulateClick: function(e) {
-        if (e.target === this.el && (e.keyCode === 13 || event.keyCode === 32)) {
+        if (e.target === this.el && (e.keyCode === 13 || e.keyCode === 32)) {
             e.preventDefault();
             e.stopPropagation();
             this.$el.click();
