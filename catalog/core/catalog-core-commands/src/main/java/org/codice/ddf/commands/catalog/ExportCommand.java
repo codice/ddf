@@ -38,7 +38,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
@@ -177,10 +179,16 @@ public class ExportCommand extends CqlCommands {
         console.println("Starting metacard export...");
         Instant start = Instant.now();
         List<ExportItem> exportedItems = doMetacardExport(zipFile, filter);
-        console.println("Metacards exported in: " + getFormattedDuration(start));
+        if (exportedItems.isEmpty()) {
+            console.println("No metacards found to export, exiting.");
+            FileUtils.deleteQuietly(zipFile.getFile());
+            return null;
+        }
 
+        console.println("Metacards exported in: " + getFormattedDuration(start));
         console.println("Number of metacards exported: " + exportedItems.size());
         console.println();
+
 
         SecurityLogger.audit("Ids of exported metacards and content:\n{}",
                 exportedItems.stream()
