@@ -465,15 +465,6 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/system.properties",
                         BASE_PORT.getSystemProperty(),
                         BASE_PORT.getPort()),
-                editConfigurationFilePut("etc/system.properties",
-                        "artemis.amqp.port",
-                        AMQP_PORT.getPort()),
-                editConfigurationFilePut("etc/system.properties",
-                        "artemis.multiprotocol.port",
-                        ARTEMIS_PORT.getPort()),
-                editConfigurationFilePut("etc/system.properties",
-                        "artemis.openwire.port",
-                        OPENWIRE_PORT.getPort()),
 
                 // DDF-1572: Disables the periodic backups of .bundlefile. In itests, having those
                 // backups serves no purpose and it appears that intermittent failures have occurred
