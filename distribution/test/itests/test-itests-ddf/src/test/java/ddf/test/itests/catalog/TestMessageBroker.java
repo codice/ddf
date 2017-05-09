@@ -50,9 +50,6 @@ public class TestMessageBroker extends AbstractIntegrationTest {
 
     private static final int TIMEOUT_IN_SECONDS = 60;
 
-    private static final String[] REQUIRED_APPS =
-            {"catalog-app", "solr-app", "spatial-app", "broker-app"};
-
     private static final String EXAMPLE_TEST_ROUTE = "sdk.example";
 
     private static final String SJMS_EXAMPLE_TEST_QUEUE = String.format("sjms:%s",
@@ -107,7 +104,7 @@ public class TestMessageBroker extends AbstractIntegrationTest {
     public void beforeExam() throws Exception {
         waitForSystemReady();
 
-        getServiceManager().waitForRequiredApps(REQUIRED_APPS);
+        getServiceManager().waitForRequiredApps("broker-app");
         setupCamelContext();
         FileUtils.copyInputStreamToFile(AbstractIntegrationTest.getFileContentAsStream(
                 "sdk-example-route.xml",
