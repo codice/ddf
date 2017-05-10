@@ -28,7 +28,6 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -356,12 +355,7 @@ public class TestSpatial extends AbstractIntegrationTest {
 
     @Test
     public void testGeoCoderPlugin() throws Exception {
-        String uuid = UUID.randomUUID()
-                .toString()
-                .replaceAll("-", "");
-
-        ingestCswRecord(getFileContent(CSW_RECORD_RESOURCE_PATH + "/CswRecord2",
-                ImmutableMap.of("id", uuid)));
+        ingestCswRecord(getFileContent(CSW_RECORD_RESOURCE_PATH + "/CswRecord2"));
 
         StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH.getUrl()).append("?")
                 .append("format=")
