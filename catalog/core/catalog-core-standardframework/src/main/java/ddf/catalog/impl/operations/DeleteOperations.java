@@ -495,11 +495,10 @@ public class DeleteOperations {
                         null,
                         false, /* total result count */
                         0   /* timeout */);
-        return new QueryRequestImpl(queryImpl,
-                false,
-                deleteRequest.getStoreIds(),
-                opsSecuritySupport.getPropertiesWithSubject(deleteRequest.getPropertyValue(
-                        SecurityConstants.SECURITY_SUBJECT)));
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(SecurityConstants.SECURITY_SUBJECT,
+                opsSecuritySupport.getSubject(deleteRequest));
+        return new QueryRequestImpl(queryImpl, false, deleteRequest.getStoreIds(), properties);
     }
 
     private DeleteRequest validateLocalSource(DeleteRequest deleteRequest)

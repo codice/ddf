@@ -658,11 +658,10 @@ public class UpdateOperations {
                         null,
                         false, /* total result count */
                         0   /* timeout */);
-        return new QueryRequestImpl(queryImpl,
-                false,
-                updateRequest.getStoreIds(),
-                opsSecuritySupport.getPropertiesWithSubject(updateRequest.getPropertyValue(
-                        SecurityConstants.SECURITY_SUBJECT)));
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(SecurityConstants.SECURITY_SUBJECT,
+                opsSecuritySupport.getSubject(updateRequest));
+        return new QueryRequestImpl(queryImpl, false, updateRequest.getStoreIds(), properties);
     }
 
     private UpdateRequest validateLocalSource(UpdateRequest updateRequest)

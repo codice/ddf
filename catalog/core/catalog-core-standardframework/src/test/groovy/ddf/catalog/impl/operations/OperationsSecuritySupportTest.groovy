@@ -13,6 +13,7 @@
  */
 package ddf.catalog.impl.operations
 
+import ddf.catalog.operation.Operation;
 import ddf.security.SecurityConstants
 import ddf.security.Subject
 import org.apache.shiro.util.ThreadContext
@@ -63,42 +64,46 @@ class OperationsSecuritySupportTest extends Specification {
         policyMap.xx == ['yy'] as Set
     }
 
-    def 'test getting properties with valid subject'() {
+    def 'test get subject from operation'() {
         setup:
-        Subject subject = Mock(Subject)
-        Map<String, Serializable> properties
+        Subject subject
+        Subject mockSubject = Mock(Subject)
+        Operation operation = Mock(Operation);
+        operation.getPropertyValue(SecurityConstants.SECURITY_SUBJECT) >> mockSubject
+
 
         when:
-        properties = opsSecurity.getPropertiesWithSubject(subject)
+        subject = opsSecurity.getSubject(operation)
 
         then:
-        properties.size() == 1
-        properties.get(SecurityConstants.SECURITY_SUBJECT) == subject
+        subject == mockSubject
     }
 
-    def 'test getting properties with null subject and no context subject'() {
-        setup:
-        Subject subject = null
-        Map<String, Serializable> properties
+    def 'test get subject on operation without a subject'() {
+        Subject subject
+        Subject mockSubject = Mock(Subject)
+        Operation operation = Mock(Operation);
+        operation.getPropertyValue(SecurityConstants.SECURITY_SUBJECT) >> null
+        ThreadContext.bind(mockSubject)
 
         when:
-        properties = opsSecurity.getPropertiesWithSubject(subject)
+        subject = opsSecurity.getSubject(operation)
 
         then:
-        properties.size() == 0
+        subject == mockSubject
+        ThreadContext.unbindSubject()
     }
 
-    def 'test getting properties with context subject'() {
+    def 'test get subject with no subject'() {
         setup:
-        Subject subject = Mock(Subject)
-        Map<String, Serializable> properties
-        ThreadContext.bind(subject)
+        Subject subject
+        Operation operation = Mock(Operation);
+        operation.getPropertyValue(SecurityConstants.SECURITY_SUBJECT) >> null
 
         when:
-        properties = opsSecurity.getPropertiesWithSubject(null)
+        subject = opsSecurity.getSubject(operation)
 
         then:
-        properties.size() == 1
-        properties.get(SecurityConstants.SECURITY_SUBJECT) == subject
+        subject == null
     }
 }

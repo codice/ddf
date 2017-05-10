@@ -13,7 +13,6 @@
  */
 package ddf.catalog.impl.operations;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,6 +20,7 @@ import java.util.Set;
 
 import org.apache.shiro.SecurityUtils;
 
+import ddf.catalog.operation.Operation;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 
@@ -45,28 +45,27 @@ public class OperationsSecuritySupport {
     }
 
     /**
-     * Creates and returns a map of properties containing a security subject. If the correct subject
-     * type can not be obtained from the passed in subject or from the thread context no subject will
-     * be added to the properties.
-     * If the passed in subject is not compatible the method will fallback to trying to pull it from
-     * the thread context.
-     * @param subject The subject to be added. Can be {@code null}
+     * Returns the subject from the operation or if the operation contains no subject returns the
+     * subject for the current thread context. If neither the operation or the thread context contain
+     * a subject, {@code null} will be returned.
+     * @param operation the operation to pull the subject out of
+     * @return The operation subject or null
      */
-    Map<String, Serializable> getPropertiesWithSubject(Object subject) {
-        Map<String, Serializable> properties = new HashMap<>();
-        if(subject != null && subject instanceof Subject){
-            properties.put(SecurityConstants.SECURITY_SUBJECT, (Subject)subject);
-        } else {
-            try {
-                Object subjectFromContxt = SecurityUtils.getSubject();
-                if (subjectFromContxt instanceof Subject) {
-                    properties.put(SecurityConstants.SECURITY_SUBJECT, (Subject) subjectFromContxt);
-                }
-            } catch(Exception e){
-                //Error thrown if no subject/security manager found for thread context
-                //Ignore
-            }
+    Subject getSubject(Operation operation) {
+        Object subjectFromOperation = operation.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+        if(subjectFromOperation instanceof Subject) {
+            return (Subject) subjectFromOperation;
         }
-        return properties;
+
+        try {
+            Object subjectFromContext = SecurityUtils.getSubject();
+            if (subjectFromContext instanceof Subject) {
+                return (Subject) subjectFromContext;
+            }
+        } catch(Exception e){
+            //Error thrown if no subject/security manager found for thread context
+            //Ignore
+        }
+        return null;
     }
 }
