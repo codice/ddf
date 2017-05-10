@@ -9,7 +9,7 @@ IdP and SP are used for SSO authentication purposes.
 
 ===== Installing the IdP
 
-The IdP bundles are installed by default with ${ddf-security}.
+The IdP bundles are installed by default with the ${ddf-security} application.
 
 . Install the `security-idp` feature either by command line: `features:install security-idp`, or by the ${admin-console}: *${ddf-security}* -> *Features* -> `security-idp`
 
