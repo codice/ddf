@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<d:multistatus xmlns:d="DAV:">
+    <d:response>
+        <d:href>/webdavtest/</d:href>
+        <d:propstat xmlns:n="http://www.zope.org/propsets/default">
+            <d:prop>
+                <n:title>WebDAV test f[0xc3][0x83][0xc2][0xbc]r Cyberduck</n:title>
+            </d:prop>
+            <d:status>HTTP/1.1 200 OK</d:status>
+        </d:propstat>
+        <d:propstat xmlns:n="DAV:">
+            <d:prop>
+                <n:creationdate>1970-01-01T12:00:00Z</n:creationdate>
+                <n:displayname>WebDAV test f[0xc3][0x83][0xc2][0xbc]r Cyberduck</n:displayname>
+                <n:resourcetype>
+                    <n:collection/>
+                </n:resourcetype>
+                <n:getcontenttype/>
+                <n:getcontentlength/>
+                <n:source/>
+                <n:supportedlock>
+                    <n:lockentry>
+                        <d:lockscope>
+                            <d:exclusive/>
+                        </d:lockscope>
+                        <d:locktype>
+                            <d:write/>
+                        </d:locktype>
+                    </n:lockentry>
+                </n:supportedlock>
+                <n:lockdiscovery>
+                </n:lockdiscovery>
+                <n:getlastmodified>Wed, 17 Aug 2011 14:49:04 GMT</n:getlastmodified>
+            </d:prop>
+            <d:status>HTTP/1.1 200 OK</d:status>
+        </d:propstat>
+    </d:response>
+    <d:response>
+        <d:href>/webdavtest/folder1/</d:href>
+        <d:propstat xmlns:n="http://www.zope.org/propsets/default">
+            <d:prop>
+                <n:title/>
+            </d:prop>
+            <d:status>HTTP/1.1 200 OK</d:status>
+        </d:propstat>
+        <d:propstat xmlns:n="DAV:">
+            <d:prop>
+                <n:creationdate>1970-01-01T12:00:00Z</n:creationdate>
+                <n:displayname>folder1</n:displayname>
+                <n:resourcetype>
+                    <n:collection/>
+                </n:resourcetype>
+                <n:getcontenttype/>
+                <n:getcontentlength/>
+                <n:source/>
+                <n:supportedlock>
+                    <n:lockentry>
+                        <d:lockscope>
+                            <d:exclusive/>
+                        </d:lockscope>
+                        <d:locktype>
+                            <d:write/>
+                        </d:locktype>
+                    </n:lockentry>
+                </n:supportedlock>
+                <n:lockdiscovery>
+                </n:lockdiscovery>
+                <n:getlastmodified>Wed, 17 Aug 2011 14:50:18 GMT</n:getlastmodified>
+            </d:prop>
+            <d:status>HTTP/1.1 200 OK</d:status>
+        </d:propstat>
+    </d:response>
+    <d:response>
+        <d:href>/webdavtest/file1</d:href>
+        <d:propstat xmlns:n="http://www.zope.org/propsets/default">
+            <d:prop>
+                <n:title/>
+            </d:prop>
+            <d:status>HTTP/1.1 200 OK</d:status>
+        </d:propstat>
+        <d:propstat xmlns:n="DAV:">
+            <d:prop>
+                <n:creationdate>1970-01-01T12:00:00Z</n:creationdate>
+                <n:displayname>file1</n:displayname>
+                <n:resourcetype/>
+                <n:getcontenttype/>
+                <n:getcontentlength/>
+                <n:source/>
+                <n:supportedlock>
+                    <n:lockentry>
+                        <d:lockscope>
+                            <d:exclusive/>
+                        </d:lockscope>
+                        <d:locktype>
+                            <d:write/>
+                        </d:locktype>
+                    </n:lockentry>
+                </n:supportedlock>
+                <n:lockdiscovery>
+                </n:lockdiscovery>
+                <n:getlastmodified>Wed, 17 Aug 2011 14:50:18 GMT</n:getlastmodified>
+            </d:prop>
+            <d:status>HTTP/1.1 200 OK</d:status>
+        </d:propstat>
+    </d:response>
+</d:multistatus>

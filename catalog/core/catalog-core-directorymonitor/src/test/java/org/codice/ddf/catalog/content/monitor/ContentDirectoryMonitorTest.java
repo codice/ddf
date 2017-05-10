@@ -42,7 +42,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import ddf.catalog.Constants;
-
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
@@ -53,7 +52,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     private static final String DUMMY_DATA = "Dummy data in a text file. ";
 
     private static final String[] ATTRIBUTE_OVERRIDES =
-            new String[] {"test1=someParameter1", "test1=someParameter0", "test2=(some,parameter,with,commas)"};
+            new String[] {"test1=someParameter1", "test1=someParameter0",
+                    "test2=(some,parameter,with,commas)"};
 
     private static final int MAX_SECONDS_FOR_FILE_COPY = 5;
 
@@ -163,7 +163,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         System.setProperty("bad.file.extensions", "");
     }
 
-
     @Test
     public void testBlackListedFile() throws Exception {
         System.setProperty("bad.files", "input1.txt");
@@ -239,8 +238,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
                 1000);
         RouteDefinition routeDefinition = camelContext.getRouteDefinitions()
                 .get(0);
-        assertThat(routeDefinition.toString(), containsString(
-                "SetHeader[" + Constants.ATTRIBUTE_OVERRIDES_KEY
+        assertThat(routeDefinition.toString(),
+                containsString("SetHeader[" + Constants.ATTRIBUTE_OVERRIDES_KEY
                         + ", {{test2=[(some,parameter,with,commas)], test1=[someParameter1, someParameter0]}}"));
     }
 
@@ -349,11 +348,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
         assertThat(uri, equalTo(expectedUri));
         List<ProcessorDefinition<?>> processorDefinitions = routeDefinition.getOutputs();
-        if (ContentDirectoryMonitor.IN_PLACE.equals(processingMechanism)) {
-            assertThat(processorDefinitions.size(), is(2));
-        } else {
-            assertThat(processorDefinitions.size(), is(1));
-        }
+        assertThat(processorDefinitions.size(), is(1));
     }
 
     private void submitConfigOptions(ContentDirectoryMonitor monitor, String monitoredDirectory,

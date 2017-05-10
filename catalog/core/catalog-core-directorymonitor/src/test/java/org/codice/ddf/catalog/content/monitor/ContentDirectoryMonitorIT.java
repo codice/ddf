@@ -23,11 +23,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.ops4j.pax.exam.CoreOptions.composite;
+import static org.ops4j.pax.exam.CoreOptions.streamBundle;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.ops4j.pax.tinybundles.core.TinyBundles.withBnd;
+import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -46,6 +51,8 @@ import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
+import org.apache.commons.io.IOUtils;
+import org.codice.ddf.catalog.content.impl.FileSystemStorageProvider;
 import org.codice.ddf.catalog.content.monitor.configurators.KeystoreTruststoreConfigurator;
 import org.codice.ddf.catalog.content.monitor.features.CamelFeatures;
 import org.codice.ddf.catalog.content.monitor.features.CxfFeatures;
@@ -63,12 +70,31 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.tinybundles.core.TinyBundles;
 
+import com.xebialabs.restito.semantics.Action;
+import com.xebialabs.restito.semantics.Condition;
+import com.xebialabs.restito.server.StubServer;
+
+import aQute.bnd.osgi.Constants;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.content.StorageException;
 import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.content.data.impl.ContentItemImpl;
+import ddf.catalog.content.data.impl.ContentItemValidator;
 import ddf.catalog.content.operation.CreateStorageRequest;
+import ddf.catalog.content.operation.CreateStorageResponse;
+import ddf.catalog.content.operation.ReadStorageResponse;
+import ddf.catalog.content.operation.impl.CreateStorageResponseImpl;
+import ddf.catalog.content.operation.impl.DeleteStorageResponseImpl;
+import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
+import ddf.catalog.content.operation.impl.ReadStorageResponseImpl;
+import ddf.catalog.content.operation.impl.UpdateStorageResponseImpl;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.SourceInfoResponse;
+import ddf.catalog.operation.impl.OperationImpl;
+import ddf.catalog.operation.impl.ResponseImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
@@ -91,6 +117,8 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
     private CatalogFramework catalogFramework;
 
+    private StubServer stubServer;
+
     @Before
     public void setup() throws IOException, SourceUnavailableException {
         directoryPath = temporaryFolder.getRoot()
@@ -101,6 +129,14 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
         catalogFramework = mockCatalogFramework();
         registerService(catalogFramework, CatalogFramework.class);
+
+        stubServer = new StubServer();
+        whenHttp(stubServer).match(Condition.endsWithUri("/webdavtest"))
+                .then(Action.stringContent(IOUtils.toString(getClass().getClassLoader()
+                        .getResourceAsStream("proplist.xml"))));
+        whenHttp(stubServer).match(Condition.endsWithUri("/webdavtest/file1"))
+                .then(Action.bytesContent("test".getBytes()));
+        stubServer.start();
     }
 
     @Test
@@ -120,6 +156,27 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
         assertContentItem(result, file);
         assertThat(file.exists(), is(true));
+    }
+
+    @Test
+    public void testInPlaceDavMonitoring()
+            throws IOException, InterruptedException, SourceUnavailableException, IngestException,
+            MimeTypeParseException, StorageException, URISyntaxException {
+        updateContentDirectoryMonitor("http://localhost:" + stubServer.getPort() + "/webdavtest",
+                ContentDirectoryMonitor.IN_PLACE);
+        waitForCreate();
+        FileSystemStorageProvider provider = new FileSystemStorageProvider();
+        provider.setBaseContentDirectory(Files.createTempDirectory("dav")
+                .toString());
+        CreateStorageRequest createStorageRequest = getCreateStorageRequest();
+        CreateStorageResponse createStorageResponse = provider.create(createStorageRequest);
+        provider.commit(createStorageRequest);
+        ReadStorageResponse read = provider.read(new ReadStorageRequestImpl(new URI(
+                createStorageResponse.getCreatedContentItems()
+                        .get(0)
+                        .getUri()), null));
+        ContentItem contentItem = read.getContentItem();
+        assertThat(IOUtils.toString(contentItem.getInputStream()), is("test"));
     }
 
     @Test
@@ -164,7 +221,23 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
                         "cxf-frontend-javascript",
                         "cxf-jaxrs"),
                 keystoreAndTruststoreConfig(),
-                initContentDirectoryMonitorConfig());
+                initContentDirectoryMonitorConfig(),
+                streamBundle(TinyBundles.bundle()
+                        .add(FileSystemStorageProvider.class)
+                        .add(ContentItemImpl.class)
+                        .add(ContentItemValidator.class)
+                        .add(CreateStorageResponseImpl.class)
+                        .add(DeleteStorageResponseImpl.class)
+                        .add(ReadStorageResponseImpl.class)
+                        .add(UpdateStorageResponseImpl.class)
+                        .add(AttributeImpl.class)
+                        .add(ResponseImpl.class)
+                        .add(OperationImpl.class)
+                        .add(ReadStorageRequestImpl.class)
+                        .set(Constants.BUNDLE_SYMBOLICNAME, "tiny")
+                        .set(Constants.EXPORT_PACKAGE, "*")
+                        .set(Constants.IMPORT_PACKAGE, "")
+                        .build(withBnd())));
     }
 
     @Override
@@ -230,7 +303,12 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
                 new BundleInfo("ddf.mime.core", "mime-core-api"),
                 new BundleInfo("ddf.mime.core", "mime-core-impl"),
-                new BundleInfo("ddf.catalog.core", "catalog-core-camelcomponent"));
+                new BundleInfo("ddf.catalog.core", "catalog-core-camelcomponent"),
+
+                new BundleInfo("ddf.catalog.core", "catalog-core-directorymonitor"),
+                new BundleInfo("ddf.test.thirdparty", "restito"),
+                new BundleInfo("org.apache.servicemix.bundles",
+                        "org.apache.servicemix.bundles.xalan"));
     }
 
     private AtomicBoolean createStorageRequestNotification()
@@ -246,14 +324,17 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
     private File createTestFile(String directoryPath)
             throws IOException, SourceUnavailableException, IngestException {
-        AtomicBoolean created = createStorageRequestNotification();
-
         File file = File.createTempFile("test", ".txt", new File(directoryPath));
         Files.write(file.toPath(), Collections.singletonList("Hello, World"));
 
+        waitForCreate();
+        return file;
+    }
+
+    private void waitForCreate() throws SourceUnavailableException, IngestException {
+        AtomicBoolean created = createStorageRequestNotification();
         await("create storage request created").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
                 .until(created::get);
-        return file;
     }
 
     private void updateContentDirectoryMonitor(String directoryPath, String processingMechanism) {
@@ -268,12 +349,16 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     }
 
     private ContentItem getContentItem() throws SourceUnavailableException, IngestException {
+        return getCreateStorageRequest().getContentItems()
+                .get(0);
+    }
+
+    private CreateStorageRequest getCreateStorageRequest()
+            throws IngestException, SourceUnavailableException {
         ArgumentCaptor<CreateStorageRequest> createStorageRequest = ArgumentCaptor.forClass(
                 CreateStorageRequest.class);
         verify(catalogFramework).create(createStorageRequest.capture());
-        return createStorageRequest.getValue()
-                .getContentItems()
-                .get(0);
+        return createStorageRequest.getValue();
     }
 
     private void assertContentItem(ContentItem item, File file)

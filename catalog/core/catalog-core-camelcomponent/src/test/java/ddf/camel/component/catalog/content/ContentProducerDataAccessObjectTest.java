@@ -16,20 +16,21 @@ package ddf.camel.component.catalog.content;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,7 @@ import java.util.UUID;
 
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileMessage;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.Before;
@@ -45,13 +47,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.content.operation.CreateStorageRequest;
-import ddf.catalog.content.operation.StorageRequest;
+import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
@@ -179,8 +179,10 @@ public class ContentProducerDataAccessObjectTest {
 
         //make sample list of metacard and set of keys
         List<MetacardImpl> metacardList = ImmutableList.of(new MetacardImpl());
-        Set<String> keys = ImmutableSet.of(String.valueOf(testFile.getAbsolutePath()
-                .hashCode()));
+        String uri = testFile.toURI()
+                .toASCIIString();
+        Set<String> keys =
+                new HashSet<>(Collections.singletonList(String.valueOf(DigestUtils.sha1Hex(uri))));
 
         //mock out responses for create, delete, update
         CreateResponse mockCreateResponse = mock(CreateResponse.class);
@@ -200,6 +202,9 @@ public class ContentProducerDataAccessObjectTest {
                 FileSystemPersistenceProvider.class);
         doReturn(keys).when(mockFileSystemPersistenceProvider)
                 .loadAllKeys();
+        doAnswer(invocationOnMock -> keys.remove(invocationOnMock.getArguments()[0])).when(
+                mockFileSystemPersistenceProvider)
+                .delete(anyString());
         doReturn("sample").when(mockFileSystemPersistenceProvider)
                 .loadFromPersistence(any(String.class));
 
@@ -239,6 +244,7 @@ public class ContentProducerDataAccessObjectTest {
         attributeOverrides.put("example", ImmutableList.of("something", "something1"));
         attributeOverrides.put("example2", ImmutableList.of("something2"));
         headers.put(Constants.ATTRIBUTE_OVERRIDES_KEY, attributeOverrides);
+        headers.put(Constants.STORE_REFERENCE_KEY, uri);
 
         kind = StandardWatchEventKinds.ENTRY_CREATE;
         contentProducerDataAccessObject.createContentItem(mockFileSystemPersistenceProvider,
@@ -247,14 +253,7 @@ public class ContentProducerDataAccessObjectTest {
                 kind,
                 mimeType,
                 headers);
-
-        kind = StandardWatchEventKinds.ENTRY_DELETE;
-        contentProducerDataAccessObject.createContentItem(mockFileSystemPersistenceProvider,
-                mockEndpoint,
-                testFile,
-                kind,
-                mimeType,
-                headers);
+        verify(mockCatalogFramework).create(any(CreateStorageRequest.class));
 
         kind = StandardWatchEventKinds.ENTRY_MODIFY;
         contentProducerDataAccessObject.createContentItem(mockFileSystemPersistenceProvider,
@@ -263,37 +262,31 @@ public class ContentProducerDataAccessObjectTest {
                 kind,
                 mimeType,
                 headers);
+        verify(mockCatalogFramework).update(any(UpdateStorageRequest.class));
 
+        kind = StandardWatchEventKinds.ENTRY_DELETE;
+        contentProducerDataAccessObject.createContentItem(mockFileSystemPersistenceProvider,
+                mockEndpoint,
+                testFile,
+                kind,
+                mimeType,
+                headers);
+        verify(mockCatalogFramework).delete(any(DeleteRequest.class));
+
+        contentProducerDataAccessObject.createContentItem(mockFileSystemPersistenceProvider,
+                mockEndpoint,
+                testFile,
+                kind,
+                mimeType,
+                headers);
+        verify(mockCatalogFramework).delete(any(DeleteRequest.class));
     }
 
     @Test
-    public void testProcessHeaders() throws IOException {
-        Map<String, Serializable> requestProperties = new HashMap<>();
-        StorageRequest storageRequest = mock(StorageRequest.class);
-        doReturn(requestProperties).when(storageRequest)
-                .getProperties();
-
-        Map<String, Object> camelHeaders = new HashMap<>();
-        Map<String, Serializable> attributeOverrides = new HashMap<>();
-        attributeOverrides.put("example", ImmutableList.of("something", "something1"));
-        attributeOverrides.put("example2", ImmutableList.of("something2"));
-        camelHeaders.put(Constants.ATTRIBUTE_OVERRIDES_KEY, attributeOverrides);
-
-        contentProducerDataAccessObject.processHeaders(camelHeaders,
-                storageRequest,
-                Files.createTempFile("foobar", "txt")
-                        .toFile());
-        assertThat(requestProperties.containsKey(Constants.STORE_REFERENCE_KEY), is(false));
-        assertThat(((Map<String, List<String>>) requestProperties.get(Constants.ATTRIBUTE_OVERRIDES_KEY)).get(
-                "example"), is(Arrays.asList("something", "something1")));
-        requestProperties.clear();
-        camelHeaders.put(Constants.ATTRIBUTE_OVERRIDES_KEY, ImmutableMap.of());
-        camelHeaders.put(Constants.STORE_REFERENCE_KEY, "true");
-        contentProducerDataAccessObject.processHeaders(camelHeaders,
-                storageRequest,
-                Files.createTempFile("foobar", "txt")
-                        .toFile());
-        assertThat(requestProperties.containsKey(Constants.STORE_REFERENCE_KEY), is(true));
-        assertThat(requestProperties.containsKey(Constants.ATTRIBUTE_OVERRIDES_KEY), is(false));
+    public void testPropertiesAreMutable() {
+        HashMap<String, Serializable> properties =
+                contentProducerDataAccessObject.getProperties(new HashMap<>());
+        properties.put("test", "test");
+        assertThat(properties.get("test"), is("test"));
     }
 }

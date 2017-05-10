@@ -117,6 +117,19 @@
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.lookfirst</groupId>
+            <artifactId>sardine</artifactId>
+            <version>${sardine.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
 
         <!-- Component test dependencies -->
         <dependency>
@@ -271,6 +284,30 @@
             <artifactId>tika-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.test.thirdparty</groupId>
+            <artifactId>restito</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xalan</artifactId>
+            <version>${xalan.bundle.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-localstorageprovider</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.tinybundles</groupId>
+            <artifactId>tinybundles</artifactId>
+            <version>2.1.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -286,15 +323,26 @@
                             platform-util,
                             platform-util-unavailableurls,
                             failsafe,
-                            hazelcast
+                            hazelcast,
+                            sardine,
+                            httpclient,
+                            httpcore
                         </Embed-Dependency>
                         <Import-Package>
                             !org.eclipse.jetty.server.bio,
                             !org.eclipse.jetty.server.ssl,
+                            !org.apache.tools.ant,
+                            !org.apache.tools.ant.types,
                             org.apache.commons.io.comparator,
                             *
                         </Import-Package>
                     </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <excludes>**/test/resources/*</excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -315,17 +363,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.41</minimum>
+                                            <minimum>0.52</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.32</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.34</minimum>
+                                            <minimum>0.45</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
