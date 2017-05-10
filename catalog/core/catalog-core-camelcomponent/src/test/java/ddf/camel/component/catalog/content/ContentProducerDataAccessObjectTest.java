@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,12 +48,18 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.StorageRequest;
+import ddf.catalog.content.operation.UpdateStorageRequest;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.mime.MimeTypeMapper;
 
@@ -184,6 +191,15 @@ public class ContentProducerDataAccessObjectTest {
         doReturn(metacardList).when(mockUpdateResponse)
                 .getUpdatedMetacards();
 
+        Result mockResult = mock(Result.class);
+        doReturn(new MetacardImpl()).when(mockResult)
+                .getMetacard();
+        List<Result> results = ImmutableList.of(mockResult);
+
+        QueryResponse mockQueryResponse = mock(QueryResponse.class);
+        doReturn(results).when(mockQueryResponse)
+                .getResults();
+
         //setup mockFileSystemPersistenceProvider
         FileSystemPersistenceProvider mockFileSystemPersistenceProvider = mock(
                 FileSystemPersistenceProvider.class);
@@ -198,12 +214,15 @@ public class ContentProducerDataAccessObjectTest {
                 .create(any(CreateStorageRequest.class));
         doReturn(mockDeleteResponse).when(mockCatalogFramework)
                 .delete(any(DeleteRequest.class));
+        doReturn(mockQueryResponse).when(mockCatalogFramework)
+                .query(any(QueryRequest.class));
 
         //setup mockComponent
         ContentComponent mockComponent = mock(ContentComponent.class);
         doReturn(mockCatalogFramework).when(mockComponent)
                 .getCatalogFramework();
-        doReturn(filterBuilder).when(mockComponent).getFilterBuilder();
+        doReturn(filterBuilder).when(mockComponent)
+                .getFilterBuilder();
 
         //setup mockEndpoint
         ContentEndpoint mockEndpoint = mock(ContentEndpoint.class);
@@ -244,6 +263,167 @@ public class ContentProducerDataAccessObjectTest {
                 mimeType,
                 headers);
 
+    }
+
+    @Test
+    public void testUpdateContentItem() throws Exception {
+        File testFile = temporaryFolder.newFile("testUpdateContentItem.txt");
+
+        //make sample list of metacard and set of keys
+        List<MetacardImpl> metacardList = ImmutableList.of(new MetacardImpl());
+        Set<String> keys = ImmutableSet.of(String.valueOf(testFile.getAbsolutePath()
+                .hashCode()));
+
+        //mock metacard
+        Metacard mockMetacard = mock(Metacard.class);
+        doReturn("someId").when(mockMetacard).getId();
+
+        //mock out create response
+        CreateResponse mockCreateResponse = mock(CreateResponse.class);
+        doReturn(metacardList).when(mockCreateResponse)
+                .getCreatedMetacards();
+
+        //mock out query response
+        Result mockResult = mock(Result.class);
+        doReturn(mockMetacard).when(mockResult)
+                .getMetacard();
+        List<Result> results = ImmutableList.of(mockResult);
+
+        QueryResponse mockQueryResponse = mock(QueryResponse.class);
+        doReturn(results).when(mockQueryResponse)
+                .getResults();
+
+        //mock out update response
+        Update mockUpdate = mock(Update.class);
+        doReturn(mockMetacard).when(mockUpdate).getNewMetacard();
+
+        UpdateResponse mockUpdateResponse = mock(UpdateResponse.class);
+        doReturn(Collections.singletonList(mockUpdate)).when(mockUpdateResponse)
+                .getUpdatedMetacards();
+
+        //setup mockFileSystemPersistenceProvider
+        FileSystemPersistenceProvider mockFileSystemPersistenceProvider = mock(
+                FileSystemPersistenceProvider.class);
+        doReturn(keys).when(mockFileSystemPersistenceProvider)
+                .loadAllKeys();
+        doReturn("sample").when(mockFileSystemPersistenceProvider)
+                .loadFromPersistence(any(String.class));
+
+        //setup mockCatalogFramework
+        CatalogFramework mockCatalogFramework = mock(CatalogFramework.class);
+        doReturn(mockCreateResponse).when(mockCatalogFramework)
+                .create(any(CreateStorageRequest.class));
+        doReturn(mockQueryResponse).when(mockCatalogFramework)
+                .query(any(QueryRequest.class));
+        doReturn(mockUpdateResponse).when(mockCatalogFramework)
+                .update(any(UpdateStorageRequest.class));
+
+        //setup mockComponent
+        ContentComponent mockComponent = mock(ContentComponent.class);
+        doReturn(mockCatalogFramework).when(mockComponent)
+                .getCatalogFramework();
+        doReturn(filterBuilder).when(mockComponent)
+                .getFilterBuilder();
+
+        //setup mockEndpoint
+        ContentEndpoint mockEndpoint = mock(ContentEndpoint.class);
+        doReturn(mockComponent).when(mockEndpoint)
+                .getComponent();
+
+        WatchEvent.Kind<Path> kind;
+
+        String mimeType = "txt";
+
+        Map<String, Object> headers = new HashedMap();
+        Map<String, Serializable> attributeOverrides = new HashMap<>();
+        attributeOverrides.put("example", ImmutableList.of("something", "something1"));
+        attributeOverrides.put("example2", ImmutableList.of("something2"));
+        headers.put(Constants.ATTRIBUTE_OVERRIDES_KEY, attributeOverrides);
+
+        kind = StandardWatchEventKinds.ENTRY_CREATE;
+        contentProducerDataAccessObject.createContentItem(mockFileSystemPersistenceProvider,
+                mockEndpoint,
+                testFile,
+                kind,
+                mimeType,
+                headers);
+
+        kind = StandardWatchEventKinds.ENTRY_MODIFY;
+        contentProducerDataAccessObject.createContentItem(mockFileSystemPersistenceProvider,
+                mockEndpoint,
+                testFile,
+                kind,
+                mimeType,
+                headers);
+    }
+
+    @Test(expected = ContentComponentException.class)
+    public void testUpdateContentItemWithNoFilterBuilder() throws Exception {
+        File testFile = temporaryFolder.newFile("testUpdateContentItemWithNoId.txt");
+
+        //make sample set of keys
+        Set<String> keys = ImmutableSet.of(String.valueOf(testFile.getAbsolutePath()
+                .hashCode()));
+
+        //setup mockFileSystemPersistenceProvider
+        FileSystemPersistenceProvider mockFileSystemPersistenceProvider = mock(
+                FileSystemPersistenceProvider.class);
+        doReturn(keys).when(mockFileSystemPersistenceProvider)
+                .loadAllKeys();
+        doReturn("fakeId").when(mockFileSystemPersistenceProvider)
+                .loadFromPersistence(any(String.class));
+
+        //setup mockCatalogFramework
+        CatalogFramework mockCatalogFramework = mock(CatalogFramework.class);
+
+        //setup mockComponent
+        ContentComponent mockComponent = mock(ContentComponent.class);
+        doReturn(mockCatalogFramework).when(mockComponent)
+                .getCatalogFramework();
+
+        //setup mockEndpoint
+        ContentEndpoint mockEndpoint = mock(ContentEndpoint.class);
+        doReturn(mockComponent).when(mockEndpoint)
+                .getComponent();
+
+        WatchEvent.Kind<Path> kind;
+        String mimeType = "txt";
+
+        kind = StandardWatchEventKinds.ENTRY_MODIFY;
+        contentProducerDataAccessObject.createContentItem(mockFileSystemPersistenceProvider,
+                mockEndpoint,
+                testFile,
+                kind,
+                mimeType,
+                new HashedMap());
+    }
+
+    @Test(expected = ContentComponentException.class)
+    public void testUpdateContentItemWithNoId() throws Exception {
+        File testFile = temporaryFolder.newFile("testUpdateContentItemWithNoId.txt");
+
+        //make sample set of keys
+        Set<String> keys = ImmutableSet.of(String.valueOf(testFile.getAbsolutePath()
+                .hashCode()));
+
+        //setup mockFileSystemPersistenceProvider
+        FileSystemPersistenceProvider mockFileSystemPersistenceProvider = mock(
+                FileSystemPersistenceProvider.class);
+        doReturn(keys).when(mockFileSystemPersistenceProvider)
+                .loadAllKeys();
+        doReturn("").when(mockFileSystemPersistenceProvider)
+                .loadFromPersistence(any(String.class));
+
+        WatchEvent.Kind<Path> kind;
+        String mimeType = "txt";
+
+        kind = StandardWatchEventKinds.ENTRY_MODIFY;
+        contentProducerDataAccessObject.createContentItem(mockFileSystemPersistenceProvider,
+                null,
+                testFile,
+                kind,
+                mimeType,
+                new HashedMap());
     }
 
     @Test

@@ -132,7 +132,7 @@ public class ContentProducerDataAccessObject {
             File ingestedFile, WatchEvent.Kind<Path> eventType, String mimeType,
             Map<String, Object> headers)
             throws SourceUnavailableException, IngestException, FederationException,
-            UnsupportedQueryException {
+            UnsupportedQueryException, ContentComponentException {
         LOGGER.debug("Creating content item.");
 
         String key = String.valueOf(ingestedFile.getAbsolutePath()
@@ -162,30 +162,34 @@ public class ContentProducerDataAccessObject {
 
             Metacard metacard = null;
 
-            if (StringUtils.isNotEmpty(id)) {
-
-                FilterBuilder filterBuilder = endpoint.getComponent()
-                        .getFilterBuilder();
-                if (filterBuilder != null) {
-                    Filter filter = filterBuilder.attribute(Metacard.ID)
-                            .is()
-                            .like()
-                            .text(id);
-
-                    QueryImpl query = new QueryImpl(filter);
-                    QueryResponse response = endpoint.getComponent()
-                            .getCatalogFramework()
-                            .query(new QueryRequestImpl(query));
-                    if (response != null) {
-                        metacard = response.getResults()
-                                .stream()
-                                .findFirst()
-                                .map(Result::getMetacard)
-                                .orElse(null);
-                    }
-                }
-
+            if (StringUtils.isEmpty(id)) {
+                LOGGER.debug("Update content item contains empty id.");
+                throw new ContentComponentException("Empty metacard id found for previously ingested file " + ingestedFile.getName());
             }
+
+            FilterBuilder filterBuilder = endpoint.getComponent()
+                    .getFilterBuilder();
+
+            if (filterBuilder == null) {
+                LOGGER.debug("Filter builder is not set.");
+                throw new ContentComponentException("Unable to create filter for retrieving metacard.");
+            }
+
+            Filter filter = filterBuilder.attribute(Metacard.ID)
+                    .is()
+                    .equalTo()
+                    .text(id);
+
+            QueryImpl query = new QueryImpl(filter);
+            QueryResponse response = endpoint.getComponent()
+                    .getCatalogFramework()
+                    .query(new QueryRequestImpl(query));
+
+            metacard = response.getResults()
+                    .stream()
+                    .findFirst()
+                    .map(Result::getMetacard)
+                    .orElse(null);
 
             UpdateStorageRequest updateRequest =
                     new UpdateStorageRequestImpl(Collections.singletonList(new ContentItemImpl(id,
