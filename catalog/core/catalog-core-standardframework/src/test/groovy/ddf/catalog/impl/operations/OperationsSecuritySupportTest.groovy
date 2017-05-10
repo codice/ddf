@@ -13,6 +13,9 @@
  */
 package ddf.catalog.impl.operations
 
+import ddf.security.SecurityConstants
+import ddf.security.Subject
+import org.apache.shiro.util.ThreadContext
 import spock.lang.Specification
 
 class OperationsSecuritySupportTest extends Specification {
@@ -58,5 +61,44 @@ class OperationsSecuritySupportTest extends Specification {
         policyMap.b1 == ['b1', 'b2'] as Set
         policyMap.b2 == ['b2', 'b3', 'b4'] as Set
         policyMap.xx == ['yy'] as Set
+    }
+
+    def 'test getting properties with valid subject'() {
+        setup:
+        Subject subject = Mock(Subject)
+        Map<String, Serializable> properties
+
+        when:
+        properties = opsSecurity.getPropertiesWithSubject(subject)
+
+        then:
+        properties.size() == 1
+        properties.get(SecurityConstants.SECURITY_SUBJECT) == subject
+    }
+
+    def 'test getting properties with null subject and no context subject'() {
+        setup:
+        Subject subject = null
+        Map<String, Serializable> properties
+
+        when:
+        properties = opsSecurity.getPropertiesWithSubject(subject)
+
+        then:
+        properties.size() == 0
+    }
+
+    def 'test getting properties with context subject'() {
+        setup:
+        Subject subject = Mock(Subject)
+        Map<String, Serializable> properties
+        ThreadContext.bind(subject)
+
+        when:
+        properties = opsSecurity.getPropertiesWithSubject(null)
+
+        then:
+        properties.size() == 1
+        properties.get(SecurityConstants.SECURITY_SUBJECT) == subject
     }
 }

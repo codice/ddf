@@ -168,7 +168,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
         }
 
         try {
-            createdMetacards = transactionQuery(createdMetacardFilters);
+            createdMetacards = transactionQuery(createdMetacardFilters, subject);
         } catch (UnsupportedQueryException e) {
             errors.add(new ProcessingDetailsImpl(this.getId(),
                     e,
@@ -233,7 +233,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
         }
 
         try {
-            updatedMetacards.addAll(transactionQuery(updatedMetacardFilters));
+            updatedMetacards.addAll(transactionQuery(updatedMetacardFilters, subject));
         } catch (UnsupportedQueryException e) {
             errors.add(new ProcessingDetailsImpl(this.getId(),
                     e,
@@ -332,7 +332,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
         this.cswTransactionWriter = cswTransactionWriter;
     }
 
-    private List<Metacard> transactionQuery(List<Filter> idFilters)
+    private List<Metacard> transactionQuery(List<Filter> idFilters, Subject subject)
             throws UnsupportedQueryException {
         Filter createFilter = filterBuilder.allOf(filterBuilder.anyOf(filterBuilder.attribute(Core.METACARD_TAGS)
                         .is()
@@ -342,7 +342,9 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
                         .empty()), filterBuilder.anyOf(idFilters));
 
         Query query = new QueryImpl(createFilter);
-        QueryRequest queryRequest = new QueryRequestImpl(query);
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(SecurityConstants.SECURITY_SUBJECT, subject);
+        QueryRequest queryRequest = new QueryRequestImpl(query, properties);
 
         SourceResponse sourceResponse = query(queryRequest);
         List<Result> results = sourceResponse.getResults();
