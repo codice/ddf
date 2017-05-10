@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceManagerProxy implements InvocationHandler {
 
+    private static final Security SECURITY = Security.getInstance();
+
     private ServiceManager serviceManager;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManagerProxy.class);
@@ -37,11 +39,7 @@ public class ServiceManagerProxy implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        Subject subject =
-                org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getInstance()
-                        .getSystemSubject());
-        return subject.execute(() -> {
-            return method.invoke(serviceManager, args);
-        });
+        Subject subject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
+        return subject.execute(() -> method.invoke(serviceManager, args));
     }
 }

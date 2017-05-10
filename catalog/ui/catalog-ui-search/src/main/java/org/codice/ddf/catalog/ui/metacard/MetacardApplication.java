@@ -117,6 +117,8 @@ public class MetacardApplication implements SparkApplication {
     private static final Set<Action> DELETE_ACTIONS = ImmutableSet.of(Action.DELETED,
             Action.DELETED_CONTENT);
 
+    private static final Security SECURITY = Security.getInstance();
+
     private final CatalogFramework catalogFramework;
 
     private final FilterBuilder filterBuilder;
@@ -576,8 +578,7 @@ public class MetacardApplication implements SparkApplication {
      * @return result of the callable func
      */
     private <T> T executeAsSystem(Callable<T> func) {
-        Subject systemSubject = Security.runAsAdmin(() -> Security.getInstance()
-                .getSystemSubject());
+        Subject systemSubject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
         if (systemSubject == null) {
             throw new RuntimeException("Could not get systemSubject to version metacards.");
         }

@@ -72,7 +72,9 @@ public class RegistryMetacardHandler implements EventHandler {
 
     private void processEvent(Metacard mcard, String topic) {
         try {
-            Security.runAsAdminWithException(() -> {
+            Security security = Security.getInstance();
+
+            security.runAsAdminWithException(() -> {
                 if (topic.equals(EventProcessor.EVENTS_TOPIC_DELETED)) {
                     processMetacardDelete(mcard);
                 } else if (topic.equals(EventProcessor.EVENTS_TOPIC_CREATED) || topic.equals(

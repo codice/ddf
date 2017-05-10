@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -116,7 +117,7 @@ public class HistorianTest {
         Security security = mock(Security.class);
         Subject subject = mock(MockSubject.class);
         when(subject.execute(any(Callable.class))).thenCallRealMethod();
-        when(security.getSystemSubject()).thenReturn(subject);
+        when(security.runAsAdmin(any(PrivilegedAction.class))).thenReturn(subject);
         historian.setSecurity(security);
     }
 

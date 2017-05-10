@@ -80,7 +80,7 @@ public class RegistryIdPostIngestPlugin implements PostIngestPlugin {
         security = Security.getInstance();
     }
 
-    public RegistryIdPostIngestPlugin(Security security){
+    public RegistryIdPostIngestPlugin(Security security) {
         this.security = security;
     }
 
@@ -138,8 +138,9 @@ public class RegistryIdPostIngestPlugin implements PostIngestPlugin {
             query.setPageSize(PAGE_SIZE);
             QueryRequest request = new QueryRequestImpl(query);
 
-            QueryResponse response = Security.runAsAdminWithException(() -> security
-                    .runWithSubjectOrElevate(() -> catalogFramework.query(request)));
+            QueryResponse response =
+                    security.runAsAdminWithException(() -> security.runWithSubjectOrElevate(() -> catalogFramework.query(
+                            request)));
 
             if (response == null) {
                 throw new PluginExecutionException(

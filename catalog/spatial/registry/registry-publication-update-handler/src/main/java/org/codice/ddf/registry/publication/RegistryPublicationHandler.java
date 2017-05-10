@@ -96,7 +96,9 @@ public class RegistryPublicationHandler implements EventHandler {
         //since the last time we published send an update to the remote location
         if ((datePublished == null || datePublished.before(mcard.getModifiedDate()))) {
             try {
-                Security.runAsAdminWithException(() -> {
+                Security security = Security.getInstance();
+
+                security.runAsAdminWithException(() -> {
                     registryPublicationService.update(mcard);
                     return null;
                 });

@@ -160,7 +160,7 @@ public class SecurityTest {
 
     @Test
     public void testJavaSubjectHasAdminRole() throws Exception {
-        Security.runAsAdmin(() -> {
+        security.runAsAdmin(() -> {
             assertThat(security.javaSubjectHasAdminRole(), equalTo(true));
             return null;
         });
@@ -170,7 +170,7 @@ public class SecurityTest {
     public void testGetSystemSubject() throws Exception {
         configureMocksForBundleContext("server");
 
-        Security.runAsAdmin(() -> {
+        security.runAsAdmin(() -> {
             assertThat(security.getSystemSubject(), not(equalTo(null)));
             return null;
         });
@@ -199,9 +199,8 @@ public class SecurityTest {
         when(systemSubject.execute(callable)).thenReturn("Success!");
         configureMocksForBundleContext("server");
 
-        String result =
-                Security.runAsAdminWithException(() -> security.runWithSubjectOrElevate(
-                        callable));
+        String result = security.runAsAdminWithException(() -> security.runWithSubjectOrElevate(
+                callable));
 
         assertThat(result, is("Success!"));
         verifyStatic();
@@ -231,7 +230,7 @@ public class SecurityTest {
         when(SecurityUtils.getSubject()).thenThrow(new IllegalStateException());
         configureMocksForBundleContext("bad-alias");
 
-        boolean securityExceptionThrown = Security.runAsAdmin(() -> {
+        boolean securityExceptionThrown = security.runAsAdmin(() -> {
 
             try {
                 return security.runWithSubjectOrElevate(() -> false);
@@ -271,7 +270,7 @@ public class SecurityTest {
         when(systemSubject.execute(callable)).thenThrow(new ExecutionException(new UnsupportedOperationException()));
         configureMocksForBundleContext("server");
 
-        Exception exception = Security.runAsAdmin(() -> {
+        Exception exception = security.runAsAdmin(() -> {
 
             try {
                 security.runWithSubjectOrElevate(callable);

@@ -54,6 +54,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.security.common.Security;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -216,6 +217,8 @@ public abstract class AbstractCswSource extends MaskableImpl
             "http://www.iana.org/assignments/media-types/application/octet-stream";
 
     private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Error retrieving resource for ID: %s";
+
+    private static final Security SECURITY = Security.getInstance();
 
     private EncryptionService encryptionService;
 
@@ -1367,9 +1370,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
 
     protected Subject getSystemSubject() {
-        org.codice.ddf.security.common.Security security =
-                org.codice.ddf.security.common.Security.getInstance();
-        return org.codice.ddf.security.common.Security.runAsAdmin(security::getSystemSubject);
+        return SECURITY.runAsAdmin(SECURITY::getSystemSubject);
     }
 
     public void configureCswSource() {

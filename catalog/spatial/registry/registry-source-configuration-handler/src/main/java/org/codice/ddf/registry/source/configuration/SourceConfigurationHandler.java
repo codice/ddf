@@ -200,14 +200,14 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
      * @throws InvalidSyntaxException
      * @throws ParserException
      */
-    private synchronized void updateRegistryConfigurations(Metacard metacard, boolean activationHint)
-            throws IOException, InvalidSyntaxException, ParserException {
-        if(RegistryUtility.isIdentityNode(metacard)){
+    private synchronized void updateRegistryConfigurations(Metacard metacard,
+            boolean activationHint) throws IOException, InvalidSyntaxException, ParserException {
+        if (RegistryUtility.isIdentityNode(metacard)) {
             return;
         }
 
-        boolean autoActivateConfigurations = activateConfigurations && (activationHint
-                || !preserveActiveConfigurations);
+        boolean autoActivateConfigurations =
+                activateConfigurations && (activationHint || !preserveActiveConfigurations);
 
         List<ServiceBindingType> bindingTypes = registryTypeHelper.getBindingTypes(
                 metacardMarshaller.getRegistryPackageFromMetacard(metacard));
@@ -684,8 +684,8 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
 
     private void updateRegistrySourceConfigurations(boolean deleteOldConfig) {
         try {
-            List<Metacard> metacards =
-                    Security.runAsAdminWithException(() -> federationAdminService.getRegistryMetacards());
+            List<Metacard> metacards = Security.getInstance()
+                    .runAsAdminWithException(() -> federationAdminService.getRegistryMetacards());
 
             for (Metacard metacard : metacards) {
                 try {

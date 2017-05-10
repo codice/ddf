@@ -451,10 +451,12 @@ public class Historian {
             security = Security.getInstance();
         }
 
-        Subject systemSubject = Security.runAsAdmin(() -> security.getSystemSubject());
+        Subject systemSubject = security.runAsAdmin(() -> security.getSystemSubject());
+
         if (systemSubject == null) {
             throw new RuntimeException("Could not get systemSubject to version metacards.");
         }
+
         return systemSubject.execute(func);
     }
 

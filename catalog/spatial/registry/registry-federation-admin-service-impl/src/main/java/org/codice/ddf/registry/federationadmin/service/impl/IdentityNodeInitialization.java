@@ -84,7 +84,9 @@ public class IdentityNodeInitialization {
 
     public void init() {
         try {
-            Security.runAsAdminWithException(() -> {
+            Security security = Security.getInstance();
+
+            security.runAsAdminWithException(() -> {
                 Optional<Metacard> optional =
                         federationAdminService.getLocalRegistryIdentityMetacard();
                 if (optional.isPresent()) {

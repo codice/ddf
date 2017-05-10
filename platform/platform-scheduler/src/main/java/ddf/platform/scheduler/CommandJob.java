@@ -47,15 +47,16 @@ public class CommandJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandJob.class);
 
+    private static final Security SECURITY = Security.getInstance();
+
     public Subject getSystemSubject() {
-        return Security.getInstance()
-                .getSystemSubject();
+        return SECURITY.getSystemSubject();
     }
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
 
-        Security.runAsAdmin(() -> {
+        SECURITY.runAsAdmin(() -> {
             Subject subject = getSystemSubject();
 
             if (subject != null) {

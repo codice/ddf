@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
-import static org.codice.ddf.security.common.Security.runAsAdmin;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,12 +35,11 @@ import org.apache.camel.model.RouteDefinition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
-import ddf.security.common.util.Security;
-
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 
@@ -67,6 +64,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     private static final int MIN_THREAD_SIZE = 1;
 
     private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
+
+    private static final Security SECURITY = Security.getInstance();
 
     private final int maxRetries;
 
@@ -130,9 +129,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     private void setBlacklist() {
         String badFileProperty = System.getProperty("bad.files");
         String badFileExtensionProperty = System.getProperty("bad.file.extensions");
-        badFiles = StringUtils.isNotEmpty(badFileProperty) ?
-                Arrays.asList(badFileProperty.split("\\s*,\\s*")) :
-                null;
+        badFiles = StringUtils.isNotEmpty(badFileProperty) ? Arrays.asList(badFileProperty.split(
+                "\\s*,\\s*")) : null;
         badFileExtensions = StringUtils.isNotEmpty(badFileExtensionProperty) ? Arrays.asList(
                 badFileExtensionProperty.split(",")) : null;
     }
@@ -188,7 +186,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             LOGGER.trace("No routes to remove before configuring a new route");
         }
 
-        runAsAdmin(this::configure);
+        SECURITY.runAsAdmin(this::configure);
     }
 
     private Object configure() {
@@ -412,8 +410,9 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                             .constant(attributeOverrides);
                 }
                 if (IN_PLACE.equals(processingMechanism)) {
-                    routeDefinition.setHeader(Constants.STORE_REFERENCE_KEY, simple(String.valueOf(
-                            IN_PLACE.equals(processingMechanism)), Boolean.class));
+                    routeDefinition.setHeader(Constants.STORE_REFERENCE_KEY,
+                            simple(String.valueOf(IN_PLACE.equals(processingMechanism)),
+                                    Boolean.class));
                 }
 
                 LOGGER.trace("About to process scheme content:framework");
@@ -461,7 +460,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
          */
         @Override
         public void process(Exchange exchange) {
-            ThreadContext.bind(Security.getSystemSubject());
+            ThreadContext.bind(SECURITY.getSystemSubject());
         }
     }
 }

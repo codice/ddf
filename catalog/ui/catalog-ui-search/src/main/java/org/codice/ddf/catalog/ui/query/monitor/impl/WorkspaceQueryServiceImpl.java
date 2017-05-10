@@ -85,6 +85,8 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
 
     private static final String TRIGGER_NAME = "WorkspaceQueryTrigger";
 
+    private static final Security SECURITY = Security.getInstance();
+
     private final QueryUpdateSubscriber queryUpdateSubscriber;
 
     private final WorkspaceService workspaceService;
@@ -154,10 +156,10 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
 
     public void setQueryTimeInterval(Integer queryTimeInterval) {
         notNull(queryTimeInterval, "queryTimeInterval must be non-null");
-        if(queryTimeInterval > 0 && queryTimeInterval <= 1440) {
+        if (queryTimeInterval > 0 && queryTimeInterval <= 1440) {
             LOGGER.debug("Setting query time interval : {}", queryTimeInterval);
             this.queryTimeInterval = queryTimeInterval;
-        } else if(this.queryTimeInterval == null) {
+        } else if (this.queryTimeInterval == null) {
             this.queryTimeInterval = 1440;
         }
     }
@@ -216,12 +218,9 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
      * Main entry point, should be called by a scheduler.
      */
     public void run() {
-        Security.runAsAdmin(() -> {
+        SECURITY.runAsAdmin(() -> {
 
-            Subject runSubject = subject != null ?
-                    subject :
-                    Security.getInstance()
-                            .getSystemSubject();
+            Subject runSubject = subject != null ? subject : SECURITY.getSystemSubject();
 
             return runSubject.execute(() -> {
 
@@ -325,7 +324,8 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
 
     private List<QueryRequest> getQueryRequests(
             Stream<List<QueryMetacardImpl>> queriesGroupedBySource) {
-        final Filter modifiedFilter = filterService.getModifiedDateFilter(calculateQueryTimeInterval());
+        final Filter modifiedFilter =
+                filterService.getModifiedDateFilter(calculateQueryTimeInterval());
         return queriesGroupedBySource.map(this::queryMetacardsToFilters)
                 .map(filterBuilder::anyOf)
                 .map(filter -> filterBuilder.allOf(modifiedFilter, filter))

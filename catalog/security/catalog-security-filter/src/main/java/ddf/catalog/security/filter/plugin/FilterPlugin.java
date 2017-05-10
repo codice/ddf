@@ -23,6 +23,7 @@ import java.util.StringJoiner;
 import java.util.TreeMap;
 
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.security.common.Security;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -51,7 +52,6 @@ import ddf.catalog.util.impl.ServiceComparator;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.Security;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 
@@ -65,6 +65,8 @@ public class FilterPlugin implements AccessPlugin {
 
     private Map<ServiceReference, FilterStrategy> filterStrategies =
             Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
+
+    private static final Security SECURITY = Security.getInstance();
 
     public void addStrategy(ServiceReference<FilterStrategy> filterStrategyRef) {
         Bundle bundle = FrameworkUtil.getBundle(FilterPlugin.class);
@@ -80,7 +82,7 @@ public class FilterPlugin implements AccessPlugin {
     }
 
     protected Subject getSystemSubject() {
-        return org.codice.ddf.security.common.Security.runAsAdmin(() -> Security.getSystemSubject());
+        return SECURITY.runAsAdmin(SECURITY::getSystemSubject);
     }
 
     @Override

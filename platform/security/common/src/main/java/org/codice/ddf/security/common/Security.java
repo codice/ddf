@@ -65,7 +65,11 @@ import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
 /**
- * Singleton class that provides common security related utility functions.
+ * Singleton class that provides common security related utility functions. To use, get the
+ * instance of the class using {@link #getInstance()} and call the desired method, or inject as
+ * a dependency.
+ *
+ * IMPORTANT: New methods added to this class should be non-static.
  */
 public class Security {
 
@@ -304,11 +308,11 @@ public class Security {
         return null;
     }
 
-    public static <T> T runAsAdmin(PrivilegedAction<T> action) {
+    public <T> T runAsAdmin(PrivilegedAction<T> action) {
         return javax.security.auth.Subject.doAs(JAVA_ADMIN_SUBJECT, action);
     }
 
-    public static <T> T runAsAdminWithException(PrivilegedExceptionAction<T> action)
+    public <T> T runAsAdminWithException(PrivilegedExceptionAction<T> action)
             throws PrivilegedActionException {
         return javax.security.auth.Subject.doAs(JAVA_ADMIN_SUBJECT, action);
     }
