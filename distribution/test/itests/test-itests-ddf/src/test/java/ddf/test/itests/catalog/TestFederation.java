@@ -196,7 +196,7 @@ public class TestFederation extends AbstractIntegrationTest {
     private static final String LOCALHOST_USERNAME = "localhost";
 
     private static final String LOCALHOST_PASSWORD = "localhost";
-    
+
     private static final int CSW_SOURCE_POLL_INTERVAL = 10;
 
     private static final int MAX_DOWNLOAD_RETRY_ATTEMPTS = 3;
@@ -1852,17 +1852,10 @@ public class TestFederation extends AbstractIntegrationTest {
                                     .contains(filename)));
 
             found = activities.stream()
-                    .anyMatch(activity -> {
-                        if (activity.toString()
-                                .contains(messageToFind) && activity.toString()
-                                .contains(filename)) {
-                            return true;
-                        }
-                        return false;
-                    });
-
+                    .anyMatch(activity -> activity.toString()
+                            .contains(messageToFind) && activity.toString()
+                            .contains(filename));
         }
-
         return found;
     }
 
