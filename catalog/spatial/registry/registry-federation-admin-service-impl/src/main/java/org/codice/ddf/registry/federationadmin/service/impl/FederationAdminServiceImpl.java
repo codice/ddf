@@ -424,6 +424,12 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     @Override
     public List<Metacard> getRegistryMetacardsByRegistryIds(List<String> ids)
             throws FederationAdminException {
+        return getRegistryMetacardsByRegistryIds(ids, false);
+    }
+
+    @Override
+    public List<Metacard> getRegistryMetacardsByRegistryIds(List<String> ids,
+            boolean includeInternal) throws FederationAdminException {
         if (CollectionUtils.isEmpty(ids)) {
             throw new FederationAdminException(
                     "Error getting registry metacards by registry ids. Null list of Ids provided.");
@@ -437,6 +443,10 @@ public class FederationAdminServiceImpl implements FederationAdminService {
                 .collect(Collectors.toList());
         List<Filter> filters = getBasicFilter();
         Filter filter = filterBuilder.allOf(filters);
+        if (includeInternal) {
+            filter = filterBuilder.anyOf(filter,
+                    filterBuilder.allOf(getBasicFilter(RegistryConstants.REGISTRY_TAG_INTERNAL)));
+        }
         filter = filterBuilder.allOf(filter, filterBuilder.anyOf(idFilters));
         return getRegistryMetacardsByFilter(filter);
     }

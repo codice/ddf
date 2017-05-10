@@ -455,12 +455,12 @@ public class FederationAdminTest {
                 .map(Metacard::getId)
                 .collect(Collectors.toList()));
 
-        when(federationAdminService.getRegistryMetacardsByRegistryIds(ids)).thenReturn(
+        when(federationAdminService.getRegistryMetacardsByRegistryIds(ids, true)).thenReturn(
                 matchingMetacards);
 
         federationAdmin.deleteLocalEntry(ids);
 
-        verify(federationAdminService).getRegistryMetacardsByRegistryIds(ids);
+        verify(federationAdminService).getRegistryMetacardsByRegistryIds(ids, true);
         verify(federationAdminService).deleteRegistryEntriesByMetacardIds(metacardIds);
     }
 
