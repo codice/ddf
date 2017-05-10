@@ -9,8 +9,7 @@ IdP and SP are used for SSO authentication purposes.
 
 ===== Installing the IdP
 
-The IdP bundles are not installed by default.
-They can be started by installing the `security-idp` feature.
+The IdP bundles are installed by default with the ${ddf-security} application.
 
 . Install the `security-idp` feature either by command line: `features:install security-idp`, or by the ${admin-console}: *${ddf-security}* -> *Features* -> `security-idp`
 
@@ -20,7 +19,7 @@ The IdP client that interacts with the specified Identity Provider.
 
 ===== IdP SSO Configuration
 
-. Navigate to ${admin-console}.
+. Navigate to *${admin-console}*.
 . Select the *${ddf-security}* application.
 . Select the *Configuration* tab.
 . Select *IdP Client*.
@@ -76,7 +75,7 @@ An internal Identity Provider solution.
 
 ====== Configuring IdP Server
 
-. Navigate to ${admin-console}.
+. Navigate to *${admin-console}*.
 . Select the *${ddf-security}* application.
 . Select the *Configuration* tab.
 . Select *IdP Server*.
