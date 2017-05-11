@@ -14,8 +14,10 @@
 package org.codice.ddf.cxf.paos;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -52,7 +54,6 @@ import org.w3c.dom.Node;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpContent;
-import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpStatusCodes;
@@ -161,8 +162,8 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
                         && soapHeaderElement.getNamespaceURI()
                         .equals(URN_OASIS_NAMES_TC_SAML_2_0_PROFILES_SSO_ECP)) {
                     try {
-                        soapHeaderElement = SamlProtocol.convertDomImplementation(
-                                soapHeaderElement);
+                        soapHeaderElement =
+                                SamlProtocol.convertDomImplementation(soapHeaderElement);
                         Request ecpRequest = (Request) OpenSAMLUtil.fromDom(soapHeaderElement);
                         IDPList idpList = ecpRequest.getIDPList();
                         if (idpList == null) {
@@ -200,10 +201,11 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
                     .getFirstChild());
             String loc = idpEntry.getLoc();
             String soapRequest = buildSoapMessage(token, relayState, authnRequestElement, null);
-            HttpResponseWrapper httpResponse = getHttpResponse(loc, soapRequest);
+            HttpResponseWrapper httpResponse = getHttpResponse(loc, soapRequest, null);
             InputStream httpResponseContent = httpResponse.content;
             SOAPPart idpSoapResponse = SamlProtocol.parseSoapMessage(IOUtils.toString(
-                    httpResponseContent, Charset.forName("UTF-8")));
+                    httpResponseContent,
+                    Charset.forName("UTF-8")));
             Iterator responseHeaderElements = idpSoapResponse.getEnvelope()
                     .getHeader()
                     .examineAllHeaderElements();
@@ -217,7 +219,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
                     if (!responseConsumerURL.equals(assertionConsumerServiceURL)) {
                         String soapFault = buildSoapFault(ECP_RESPONSE,
                                 "The responseConsumerURL does not match the assertionConsumerServiceURL.");
-                        httpResponse = getHttpResponse(responseConsumerURL, soapFault);
+                        httpResponse = getHttpResponse(responseConsumerURL, soapFault, null);
                         message.setContent(InputStream.class, httpResponse.content);
                         return;
                     }
@@ -232,10 +234,9 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
                 }
             }
             checkSamlpResponse(idpSoapResponse);
-            Element samlpResponseElement =
-                    SamlProtocol.getDomElement(idpSoapResponse.getEnvelope()
-                            .getBody()
-                            .getFirstChild());
+            Element samlpResponseElement = SamlProtocol.getDomElement(idpSoapResponse.getEnvelope()
+                    .getBody()
+                    .getFirstChild());
             Response paosResponse = null;
             if (StringUtils.isNotEmpty(messageId)) {
                 paosResponse = getPaosResponse(messageId);
@@ -244,7 +245,10 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
                     newRelayState,
                     samlpResponseElement,
                     paosResponse);
-            httpResponse = getHttpResponse(responseConsumerURL, soapResponse);
+            httpResponse = getHttpResponse(responseConsumerURL,
+                    soapResponse,
+                    message.getExchange()
+                            .getOutMessage());
             if (httpResponse.statusCode < 400) {
                 httpResponseContent = httpResponse.content;
                 message.setContent(InputStream.class, httpResponseContent);
@@ -262,6 +266,10 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
             throw new Fault(new AccessDeniedException(
                     "Unable to complete SAML ECP connection. Unable to send SOAP request messages."));
         }
+    }
+
+    private boolean isRedirectable(String method) {
+        return "HEAD".equals(method) || "GET".equals(method) || "CONNECT".equals(method);
     }
 
     private String createToken(String authorization) throws IOException {
@@ -286,8 +294,8 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
         return token;
     }
 
-    HttpResponseWrapper getHttpResponse(String responseConsumerURL, String soapResponse)
-            throws IOException {
+    HttpResponseWrapper getHttpResponse(String responseConsumerURL, String soapResponse,
+            Message message) throws IOException {
         //This used to use the ApacheHttpTransport which appeared to not work with 2 way TLS auth but this one does
         HttpTransport httpTransport = new NetHttpTransport();
         HttpContent httpContent = new InputStreamContent(TEXT_XML,
@@ -303,15 +311,24 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
                     if (request.getFollowRedirects()
                             && HttpStatusCodes.isRedirect(response.getStatusCode())
                             && redirectLocation != null) {
+                        String method = (String) message.get(Message.HTTP_REQUEST_METHOD);
+                        HttpContent content = null;
+                        if (!isRedirectable(method)) {
+                            ByteArrayOutputStream byteArrayOutputStream =
+                                    new ByteArrayOutputStream();
+                            message.setContent(OutputStream.class, byteArrayOutputStream);
+                            BodyWriter bodyWriter = new BodyWriter();
+                            bodyWriter.handleMessage(message);
+                            content =
+                                    new InputStreamContent((String) message.get(Message.CONTENT_TYPE),
+                                            new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
+                        }
+
                         // resolve the redirect location relative to the current location
                         request.setUrl(new GenericUrl(request.getUrl()
                                 .toURL(redirectLocation)));
-                        // on 303 change method to GET
-                        if (response.getStatusCode() == HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
-                            request.setRequestMethod(HttpMethods.GET);
-                            // GET requests do not support non-zero content length
-                            request.setContent(null);
-                        }
+                        request.setRequestMethod(method);
+                        request.setContent(content);
                         // remove Authorization and If-* headers
                         request.getHeaders()
                                 .setAuthorization((String) null);
