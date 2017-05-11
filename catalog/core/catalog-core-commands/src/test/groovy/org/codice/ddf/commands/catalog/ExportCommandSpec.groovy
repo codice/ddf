@@ -96,23 +96,6 @@ class ExportCommandSpec extends spock.lang.Specification {
         thrown(IllegalStateException)
     }
 
-    def "Test bad parent file"() {
-        setup:
-        def file = Mock(File) { // This is really dirty and regardless that it works its bad
-            getParentFile() >> null // and I should feel bad and delete this.
-        }
-        exportCommand.with {
-            delete = false
-            output = file // <- setting a String field to a File Mock object that just happens to
-        }                   // get passed to the new File() constructor and so actually passes mock
-        // object on to the actual class to be used.
-        when:
-        exportCommand.executeWithSubject()
-
-        then:
-        thrown(IllegalStateException)
-    }
-
     def "Test bad file name"() {
         setup:
         def file = Paths.get(System.getProperty('ddf.home'), 'badFilename.notazip')
@@ -225,7 +208,7 @@ class ExportCommandSpec extends spock.lang.Specification {
             files.any { it.contains(id) }
         }
         assert [resourceName].every { name ->
-            files.any {it.contains(name)}
+            files.any { it.contains(name) }
         }
 
     }
@@ -298,10 +281,3 @@ class ExportCommandSpec extends spock.lang.Specification {
     }
 
 }
-
-
-
-
-
-
-
