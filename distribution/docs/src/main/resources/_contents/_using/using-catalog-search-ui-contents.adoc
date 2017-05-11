@@ -1,5 +1,5 @@
 
-Introduction: The ${catalog-ui} represents the most advanced search interface available with ${branding}.
+Introduction: ${catalog-ui} represents the most advanced search interface available with ${branding}.
 It provides a metadata search and discovery, resource retrieval, and workspace management with a 3d or optional 2d map visualization.
 
 [NOTE]
@@ -10,7 +10,7 @@ To exit this mode, click the `?` again or press `escape`.
 
 === Accessing ${catalog-ui}
 
-The default location for the ${catalog-ui} is ${secure_url}/search/catalog
+The default location for ${catalog-ui} is ${secure_url}/search/catalog
 
 .Catalog UI Guest Users
 [NOTE]
@@ -18,7 +18,7 @@ The default location for the ${catalog-ui} is ${secure_url}/search/catalog
 If Guest access has been enabled, users not signed in to ${branding} (guest users) will have access to search functions, but all workspace configuration and settings will only exist locally and not be available for sharing.
 ====
 
-The default view for the ${catalog-ui} is the workspaces view. For other views or to return to workspaces, select the *navigation* icon in the upper-left corner of the ${catalog-ui}.
+The default view for ${catalog-ui} is the workspaces view. For other views or to return to workspaces, select the *navigation* icon in the upper-left corner of ${catalog-ui}.
 
 image::navigator-icon.png[navigator icon]
 
@@ -27,7 +27,7 @@ image::navigator-menu.png[navigator menu]
 
 === Workspaces in ${catalog-ui}
 
-Within the ${catalog-ui}, workspaces are collections of settings, searches, and bookmarks that can be shared between users and stored to be accessed repeatedly.
+Within ${catalog-ui}, workspaces are collections of settings, searches, and bookmarks that can be shared between users and stored to be accessed repeatedly.
 
 ==== Creating a Workspace in ${catalog-ui}
 
@@ -72,7 +72,7 @@ Configure each workspace with queries and share options.
 
 ==== Sharing Workspaces
 
-In the ${catalog-ui}, workspaces can be shared between users at different levels of access as needed.
+In ${catalog-ui}, workspaces can be shared between users at different levels of access as needed.
 
 .Share a Workspace
 . Select the Workspace.
@@ -114,8 +114,46 @@ Existing searches and their settings can be updated by clicking on the search in
 
 The editable components of a search are defined on these tabs:
 
-* *Basic*: Define a <<_text_search,Text>>, <<_spatial_search,Spatial>>, <<_temporal_search,Temporal>>, or <<_datatype_search,Datatype>> Search.
+* *Basic*: Define a <<_text_search_details,Text>>, <<_spatial_search_details,Spatial>>, <<_temporal_search_details,Temporal>>, or <<_type_search_details,Type>> Search.
+
+[[_text_search_details]]Text Search Details:: Searches across all textual data of the targeted data source.
+Text search capabilities include:
++
+Search for an exact word, such as `Text = apple` : Returns items containing the word "apple" but not "apples". Matching occurs on word boundaries.
++
+Search for the existence of items containing multiple words, such as `Text = apple orange` : Returns items containing both "apple" and "orange" words. Words can occur anywhere in the item's metadata.
++
+Search using wildcards, such as `Text = foo*` : Returns items containing words like "food", "fool", etc
++
+Text searches are by default case insensitive, but case sensitive searches are an option.
+
+[[_temporal_search_details]]Temporal Search Details:: Search based on absolute time of the created, modified, or effective date.
++
+*Any*: Search without any time restrictions (default).
++
+*After*: search records after a specified time.
++
+*Before*: search records before a specified time.
++
+*Between*: set a beginning and end time to search between.
+
+[[_spatial_search_details]]Spatial Search Details:: Search by latitude/longitude or the USNG using a line, polygon, point-radius, or bounding box.
+
+[[_type_search_details]]Type Search Details:: Search for specific content types.
+
 * *Advanced*: Advanced query builder to create more specific searches.
++
+[[_advanced_query_builder_details]]Advanced Query Builder Details:: *Operator*: If 'AND' is used, all the filters in the branch have to be true for this branch to be true. If 'OR' is used, only one of the filters in this branch have to be true for this branch to be true.
++
+*Property*: Property to compare against.
++
+*Comparison*: How to compare the value for this property against the provided value.
++
+*Search Terms*: The value for the property to use during comparison.
++
+*Sorting*: Sort results by relevance, distance, created time, modified time or effective time.
++
+*Sources*: Perform an enterprise search (all federations are searched) or search specific sources.
 * *Settings*: Set preferences for *Sorting* and *Federation*.
 * *Notifications*: Define the frequency at which to run this search and receive notification of new results
 * *Status*: View details of recent instances of this search.
@@ -273,7 +311,7 @@ Replace a resource.
 
 ==== ${catalog-ui} Settings
 
-Customize the look and feel of the ${catalog-ui} using the *Settings* (image:gear-icon.png[settings]) menu on the Navigation Bar.
+Customize the look and feel of ${catalog-ui} using the *Settings* (image:gear-icon.png[settings]) menu on the navigation bar.
 
 .Settings Menu Options
 image::catalog-ui-settings-options.png[]
