@@ -65,6 +65,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
+import ddf.security.SecurityConstants;
 
 /**
  * Support class for delete delegate operations for the {@code CatalogFrameworkImpl}.
@@ -494,7 +495,10 @@ public class DeleteOperations {
                         null,
                         false, /* total result count */
                         0   /* timeout */);
-        return new QueryRequestImpl(queryImpl, deleteRequest.getStoreIds());
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(SecurityConstants.SECURITY_SUBJECT,
+                opsSecuritySupport.getSubject(deleteRequest));
+        return new QueryRequestImpl(queryImpl, false, deleteRequest.getStoreIds(), properties);
     }
 
     private DeleteRequest validateLocalSource(DeleteRequest deleteRequest)

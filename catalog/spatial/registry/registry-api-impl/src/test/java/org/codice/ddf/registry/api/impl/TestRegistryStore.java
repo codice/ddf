@@ -14,6 +14,7 @@
 package org.codice.ddf.registry.api.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
@@ -84,6 +85,8 @@ import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 import ddf.security.encryption.EncryptionService;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
@@ -120,6 +123,8 @@ public class TestRegistryStore {
 
     private Configuration configuration;
 
+    private Subject subject;
+
     private EncryptionService encryptionService;
 
     private List<Result> queryResults;
@@ -140,6 +145,7 @@ public class TestRegistryStore {
         encryptionService = mock(EncryptionService.class);
         configAdmin = mock(ConfigurationAdmin.class);
         configuration = mock(Configuration.class);
+        subject = mock(Subject.class);
         queryResults = new ArrayList<>();
         registryStore = spy(new RegistryStoreImpl(context,
                 cswSourceConfiguration,
@@ -171,6 +177,11 @@ public class TestRegistryStore {
 
             @Override
             public void configureCswSource() {};
+
+            @Override
+            protected Subject getSystemSubject(){
+                return subject;
+            }
 
             @Override
             BundleContext getBundleContext() {
@@ -277,6 +288,10 @@ public class TestRegistryStore {
 
         queryResults.add(new ResultImpl(getDefaultMetacard()));
         registryStore.registryInfoQuery();
+        ArgumentCaptor<QueryRequest> captor = ArgumentCaptor.forClass(QueryRequest.class);
+        verify(registryStore).query(captor.capture());
+        assertThat(captor.getValue()
+                .getPropertyValue(SecurityConstants.SECURITY_SUBJECT), notNullValue());
 
         assertThat(registryStore.getRegistryId(), is("registryId"));
     }
@@ -466,6 +481,11 @@ public class TestRegistryStore {
 
             @Override
             public void configureCswSource() {};
+
+            @Override
+            protected Subject getSystemSubject(){
+                return subject;
+            }
 
             @Override
             BundleContext getBundleContext() {

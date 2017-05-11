@@ -37,6 +37,7 @@ import java.util.concurrent.TimeoutException;
 import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.security.common.Security;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +55,7 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.Subject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RefreshRegistryEntriesTest {
@@ -72,6 +74,12 @@ public class RefreshRegistryEntriesTest {
     @Mock
     private ScheduledExecutorService executorService;
 
+    @Mock
+    private Security security;
+
+    @Mock
+    private Subject subject;
+
     private RefreshRegistryEntries refreshRegistryEntries;
 
     private FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
@@ -81,13 +89,16 @@ public class RefreshRegistryEntriesTest {
 
     @Before
     public void setUp() throws Exception {
-        refreshRegistryEntries = spy(new RefreshRegistryEntries());
+        refreshRegistryEntries = spy(new RefreshRegistryEntries(security));
         refreshRegistryEntries.setFederationAdminService(federationAdminService);
         refreshRegistryEntries.setRegistryStores(Collections.emptyList());
         refreshRegistryEntries.setFilterBuilder(filterBuilder);
         refreshRegistryEntries.setExecutor(executorService);
         when(registryStore.getId()).thenReturn(TEST_ID);
         when(registryStore.getRegistryId()).thenReturn(TEST_REG_ID);
+        when(security.runAsAdmin(any())).thenCallRealMethod();
+        when(security.runAsAdminWithException(any())).thenCallRealMethod();
+        when(security.getSystemSubject()).thenReturn(subject);
         setupSerialExecutor();
     }
 

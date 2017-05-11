@@ -13,6 +13,7 @@
  **/
 package org.codice.ddf.registry.federationadmin.service.impl;
 
+import java.io.Serializable;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,6 +53,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.security.SecurityConstants;
 
 /**
  * Though refreshRegistrySubscriptions in this class is a public method, it should never be called by any
@@ -65,8 +67,6 @@ public class RefreshRegistryEntries {
     private static final int PAGE_SIZE = 1000;
 
     private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
-
-    private static final Security SECURITY = Security.getInstance();
 
     private List<RegistryStore> registryStores;
 
@@ -84,8 +84,14 @@ public class RefreshRegistryEntries {
 
     private Future scheduledTask;
 
-    public RefreshRegistryEntries() {
+    private Security security;
 
+    public RefreshRegistryEntries() {
+        this.security = Security.getInstance();
+    }
+
+    public RefreshRegistryEntries(Security security){
+        this.security = security;
     }
 
     public void init() {
@@ -201,7 +207,7 @@ public class RefreshRegistryEntries {
     private Map<String, Metacard> getRegistryMetacardsMap() throws FederationAdminException {
         try {
             List<Metacard> registryMetacards =
-                    SECURITY.runAsAdminWithException(() -> federationAdminService.getInternalRegistryMetacards());
+                    security.runAsAdminWithException(() -> federationAdminService.getInternalRegistryMetacards());
 
             return registryMetacards.stream()
                     .collect(Collectors.toMap(e -> RegistryUtility.getStringAttribute(e,
@@ -218,6 +224,9 @@ public class RefreshRegistryEntries {
         List<String> storesQueried = new ArrayList<>();
         List<String> localMetacardRegIds = getLocalRegistryIds();
 
+        Map<String, Serializable> queryProps = new HashMap<>();
+        queryProps.put(SecurityConstants.SECURITY_SUBJECT, security.runAsAdmin(() -> security.getSystemSubject()));
+
         //Create the remote query task to be run.
         List<Callable<RemoteResult>> tasks = new ArrayList<>();
         for (RegistryStore store : registryStores) {
@@ -227,7 +236,7 @@ public class RefreshRegistryEntries {
             storesQueried.add(store.getRegistryId());
             tasks.add(() -> {
                 SourceResponse response =
-                        store.query(new QueryRequestImpl(getBasicRegistryQuery()));
+                        store.query(new QueryRequestImpl(getBasicRegistryQuery(), queryProps));
                 Map<String, Metacard> results = response.getResults()
                         .stream()
                         .map(Result::getMetacard)
@@ -271,7 +280,7 @@ public class RefreshRegistryEntries {
     private List<String> getLocalRegistryIds() throws FederationAdminException {
         try {
             List<Metacard> localMetacards =
-                    SECURITY.runAsAdminWithException(() -> federationAdminService.getLocalRegistryMetacards());
+                    security.runAsAdminWithException(() -> federationAdminService.getLocalRegistryMetacards());
             return localMetacards.stream()
                     .map(e -> RegistryUtility.getRegistryId(e))
                     .collect(Collectors.toList());
@@ -283,7 +292,7 @@ public class RefreshRegistryEntries {
     private void writeRemoteUpdates(List<Metacard> remoteMetacardsToUpdate)
             throws FederationAdminException {
         try {
-            SECURITY.runAsAdminWithException(() -> {
+            security.runAsAdminWithException(() -> {
                 for (Metacard m : remoteMetacardsToUpdate) {
                     federationAdminService.updateRegistryEntry(m);
                 }
@@ -299,7 +308,7 @@ public class RefreshRegistryEntries {
     private void createRemoteEntries(List<Metacard> remoteMetacardsToCreate)
             throws FederationAdminException {
         try {
-            SECURITY.runAsAdminWithException(() -> federationAdminService.addRegistryEntries(
+            security.runAsAdminWithException(() -> federationAdminService.addRegistryEntries(
                     remoteMetacardsToCreate,
                     null));
         } catch (PrivilegedActionException e) {
@@ -310,7 +319,7 @@ public class RefreshRegistryEntries {
     private void deleteRemoteEntries(List<Metacard> remoteMetacardsToDelete)
             throws FederationAdminException {
         try {
-            SECURITY.runAsAdminWithException(() -> {
+            security.runAsAdminWithException(() -> {
                 federationAdminService.deleteRegistryEntriesByMetacardIds(remoteMetacardsToDelete.stream()
                         .map(Metacard::getId)
                         .collect(Collectors.toList()));

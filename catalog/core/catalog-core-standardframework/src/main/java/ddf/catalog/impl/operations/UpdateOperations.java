@@ -79,6 +79,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
+import ddf.security.SecurityConstants;
 
 /**
  * Support class for update delegate operations for the {@code CatalogFrameworkImpl}.
@@ -657,7 +658,10 @@ public class UpdateOperations {
                         null,
                         false, /* total result count */
                         0   /* timeout */);
-        return new QueryRequestImpl(queryImpl, updateRequest.getStoreIds());
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(SecurityConstants.SECURITY_SUBJECT,
+                opsSecuritySupport.getSubject(updateRequest));
+        return new QueryRequestImpl(queryImpl, false, updateRequest.getStoreIds(), properties);
     }
 
     private UpdateRequest validateLocalSource(UpdateRequest updateRequest)

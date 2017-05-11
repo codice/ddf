@@ -13,6 +13,10 @@
  */
 package ddf.catalog.impl.operations
 
+import ddf.catalog.operation.Operation;
+import ddf.security.SecurityConstants
+import ddf.security.Subject
+import org.apache.shiro.util.ThreadContext
 import spock.lang.Specification
 
 class OperationsSecuritySupportTest extends Specification {
@@ -58,5 +62,48 @@ class OperationsSecuritySupportTest extends Specification {
         policyMap.b1 == ['b1', 'b2'] as Set
         policyMap.b2 == ['b2', 'b3', 'b4'] as Set
         policyMap.xx == ['yy'] as Set
+    }
+
+    def 'test get subject from operation'() {
+        setup:
+        Subject subject
+        Subject mockSubject = Mock(Subject)
+        Operation operation = Mock(Operation);
+        operation.getPropertyValue(SecurityConstants.SECURITY_SUBJECT) >> mockSubject
+
+
+        when:
+        subject = opsSecurity.getSubject(operation)
+
+        then:
+        subject == mockSubject
+    }
+
+    def 'test get subject on operation without a subject'() {
+        Subject subject
+        Subject mockSubject = Mock(Subject)
+        Operation operation = Mock(Operation);
+        operation.getPropertyValue(SecurityConstants.SECURITY_SUBJECT) >> null
+        ThreadContext.bind(mockSubject)
+
+        when:
+        subject = opsSecurity.getSubject(operation)
+
+        then:
+        subject == mockSubject
+        ThreadContext.unbindSubject()
+    }
+
+    def 'test get subject with no subject'() {
+        setup:
+        Subject subject
+        Operation operation = Mock(Operation);
+        operation.getPropertyValue(SecurityConstants.SECURITY_SUBJECT) >> null
+
+        when:
+        subject = opsSecurity.getSubject(operation)
+
+        then:
+        subject == null
     }
 }

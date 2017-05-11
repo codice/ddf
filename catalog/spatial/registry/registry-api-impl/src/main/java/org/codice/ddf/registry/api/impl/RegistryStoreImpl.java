@@ -14,6 +14,7 @@
 package org.codice.ddf.registry.api.impl;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,6 +74,7 @@ import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.SecurityConstants;
 import ddf.security.encryption.EncryptionService;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
@@ -173,11 +175,14 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
                 .is()
                 .equalTo()
                 .text(RegistryConstants.REGISTRY_TAG_INTERNAL);
+        Map<String, Serializable> queryProps = new HashMap<>();
+        queryProps.put(SecurityConstants.SECURITY_SUBJECT,
+                request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT));
         QueryImpl query = new QueryImpl(filterBuilder.allOf(tagFilter,
                 filterBuilder.attribute(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE)
                         .empty(),
                 filterBuilder.anyOf(regIdFilters)));
-        QueryRequest queryRequest = new QueryRequestImpl(query);
+        QueryRequest queryRequest = new QueryRequestImpl(query, queryProps);
         try {
             SourceResponse queryResponse = super.query(queryRequest);
 
@@ -192,7 +197,8 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
             List<Metacard> allMetacards = new ArrayList<>(responseMap.values());
             if (CollectionUtils.isNotEmpty(metacardsToCreate)) {
                 CreateResponse createResponse =
-                        super.create(new CreateRequestImpl(metacardsToCreate));
+                        super.create(new CreateRequestImpl(metacardsToCreate,
+                                request.getProperties()));
                 allMetacards.addAll(createResponse.getCreatedMetacards());
             }
             return new CreateResponseImpl(request, request.getProperties(), allMetacards);
@@ -348,8 +354,11 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
         filters.add(filterBuilder.not(filterBuilder.attribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE)
                 .empty()));
         Filter filter = filterBuilder.allOf(filters);
+
+        Map<String, Serializable> queryProps = new HashMap<>();
+        queryProps.put(SecurityConstants.SECURITY_SUBJECT, getSystemSubject());
         Query newQuery = new QueryImpl(filter);
-        QueryRequest queryRequest = new QueryRequestImpl(newQuery);
+        QueryRequest queryRequest = new QueryRequestImpl(newQuery, queryProps);
         SourceResponse identityMetacard = query(queryRequest);
         if (identityMetacard.getResults()
                 .size() > 0) {
