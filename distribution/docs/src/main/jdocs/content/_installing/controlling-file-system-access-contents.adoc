@@ -1,3 +1,9 @@
+:title: Controlling File System Access
+:type: installing
+:status: published
+:summary: Restrict access to sensitive files.
+:project: ${branding}
+:order: 01
 
 ==== Controlling File System Access
 

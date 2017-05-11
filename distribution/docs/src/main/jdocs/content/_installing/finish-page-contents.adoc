@@ -1,0 +1,18 @@
+:title: Finish Page
+:type: installing
+:status: published
+:summary: Finish page.
+:project: ${branding}
+:order: 07
+
+.Finished Page
+****
+Upon successful startup, the *Finish* page will redirect to the ${admin-console} to begin further configuration, ingest, or federation.
+
+[NOTE]
+====
+The redirect will only work if the certificates are configured in the browser. +
+Otherwise the redirect link must be used.
+====
+
+****
