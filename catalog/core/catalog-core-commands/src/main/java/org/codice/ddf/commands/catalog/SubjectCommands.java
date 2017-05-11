@@ -45,7 +45,7 @@ public abstract class SubjectCommands extends CommandSupport {
     protected String user = null;
 
     @Reference
-    Session session;
+    protected Session session;
 
     protected SubjectCommands() {
         this(Security.getInstance());

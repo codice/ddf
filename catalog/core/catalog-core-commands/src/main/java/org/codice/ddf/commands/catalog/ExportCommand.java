@@ -146,20 +146,20 @@ public class ExportCommand extends CqlCommands {
         final File outputFile = initOutputFile(output);
         if (outputFile.exists()) {
             printErrorMessage(String.format("File [%s] already exists!", outputFile.getPath()));
-            return null;
+            throw new IllegalStateException("File already exists!");
         }
 
         final File parentDirectory = outputFile.getParentFile();
         if (parentDirectory == null || !parentDirectory.isDirectory()) {
             printErrorMessage(String.format("Directory [%s] must exist.", output));
             console.println("If the directory does indeed exist, try putting the path in quotes.");
-            return null;
+            throw new IllegalStateException("Must be inside of a directory!");
         }
 
         String filename = FilenameUtils.getName(outputFile.getPath());
         if (StringUtils.isBlank(filename) || !filename.endsWith(".zip")) {
             console.println("Filename must end with '.zip' and not be blank");
-            return null;
+            throw new IllegalStateException("Must not be blank and end with '.zip'!");
         }
 
         if (delete && !force) {
@@ -570,4 +570,11 @@ public class ExportCommand extends CqlCommands {
                 TimeUnit.MINUTES.toMillis(1)), new HashMap<>());
     }
 
+    public void setStorageProvider(StorageProvider storageProvider) {
+        this.storageProvider = storageProvider;
+    }
+
+    public void setJarSigner(JarSigner jarSigner) {
+        this.jarSigner = jarSigner;
+    }
 }
