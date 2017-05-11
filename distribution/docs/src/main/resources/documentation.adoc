@@ -231,7 +231,7 @@ include::{adoc-include}/_running/troubleshooting-contents.adoc[]
 
 == Data Management
 
-include::{adoc-include}/_formats/draft-supported-file-formats-contents.adoc[]
+include::{adoc-include}/_formats/supported-file-formats-contents.adoc[]
 
 include::{adoc-include}/_running/ingesting-contents.adoc[]
 
@@ -286,34 +286,6 @@ include::{adoc-include}/_data/json-definition-intro-contents.adoc[]
 include::{adoc-include}/_validation/validation-intro-contents.adoc[]
 
 include::{adoc-include}/_validation/schematron-intro-contents.adoc[]
-
-=== Catalog Taxonomy
-
-include::{adoc-include}/_data/neutral-taxonomy-intro-contents.adoc[]
-
-include::{adoc-include}/_data/neutral-taxonomy-categories-contents.adoc[]
-
-include::{adoc-include}/_data/core-attributes-table-contents.adoc[]
-
-include::{adoc-include}/_data/metacard-attributes-table-contents.adoc[]
-
-include::{adoc-include}/_data/history-attributes-table-contents.adoc[]
-
-include::{adoc-include}/_data/associations-attributes-table-contents.adoc[]
-
-include::{adoc-include}/_data/datetime-attributes-table-contents.adoc[]
-
-include::{adoc-include}/_data/contact-attributes-table-contents.adoc[]
-
-include::{adoc-include}/_data/location-attributes-table-contents.adoc[]
-
-include::{adoc-include}/_data/media-attributes-table-contents.adoc[]
-
-include::{adoc-include}/_data/security-attributes-table-contents.adoc[]
-
-include::{adoc-include}/_data/topic-attributes-table-contents.adoc[]
-
-include::{adoc-include}/_data/validation-attributes-table-contents.adoc[]
 
 == Endpoints
 
@@ -945,7 +917,43 @@ include::{adoc-include}/_app-whitelists/spatial-whitelist-contents.adoc[]
 include::{adoc-include}/_app-whitelists/ui-whitelist-contents.adoc[]
 
 [appendix]
-== All File Formats Supported
+== Metadata Attributes
+
+=== Format-specific Attribute Mappings
+
+include::{adoc-include}/_data/format-specific-attributes-intro-contents.adoc[]
+
+include::{adoc-include}/_data/mp4-attributes-contents.adoc[]
+
+=== Catalog Taxonomy
+
+include::{adoc-include}/_data/neutral-taxonomy-intro-contents.adoc[]
+
+include::{adoc-include}/_data/neutral-taxonomy-categories-contents.adoc[]
+
+include::{adoc-include}/_data/core-attributes-table-contents.adoc[]
+
+include::{adoc-include}/_data/metacard-attributes-table-contents.adoc[]
+
+include::{adoc-include}/_data/history-attributes-table-contents.adoc[]
+
+include::{adoc-include}/_data/associations-attributes-table-contents.adoc[]
+
+include::{adoc-include}/_data/datetime-attributes-table-contents.adoc[]
+
+include::{adoc-include}/_data/contact-attributes-table-contents.adoc[]
+
+include::{adoc-include}/_data/location-attributes-table-contents.adoc[]
+
+include::{adoc-include}/_data/media-attributes-table-contents.adoc[]
+
+include::{adoc-include}/_data/security-attributes-table-contents.adoc[]
+
+include::{adoc-include}/_data/topic-attributes-table-contents.adoc[]
+
+include::{adoc-include}/_data/validation-attributes-table-contents.adoc[]
+
+=== All File Formats Supported
 
 include::{adoc-include}/_formats/complete-list-file-types-contents.adoc[]
 

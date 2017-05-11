@@ -1,0 +1,2 @@
+
+Many file formats support additional metadata attributes that ${branding} is able to extract and make discoverable.
