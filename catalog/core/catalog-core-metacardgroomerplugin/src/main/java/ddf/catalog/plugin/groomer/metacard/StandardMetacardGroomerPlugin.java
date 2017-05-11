@@ -15,13 +15,11 @@ package ddf.catalog.plugin.groomer.metacard;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,11 +66,6 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
 
         if (aMetacard.getEffectiveDate() == null) {
             aMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, now));
-        }
-
-        if (CollectionUtils.isEmpty(aMetacard.getTags())) {
-            aMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,
-                    Collections.singletonList(Metacard.DEFAULT_TAG)));
         }
 
         if (isDateAttributeEmpty(aMetacard, Core.METACARD_CREATED)) {
@@ -133,11 +126,6 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
 
         if (aMetacard.getEffectiveDate() == null) {
             aMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, now));
-        }
-
-        if (CollectionUtils.isEmpty(aMetacard.getTags())) {
-            aMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,
-                    Collections.singletonList(Metacard.DEFAULT_TAG)));
         }
 
         // upon an update operation, the metacard modified time should be updated

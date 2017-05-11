@@ -40,10 +40,9 @@
     <string name="metadata-content-type">
         <value>myContentType</value>
     </string>
-    <string name="metacard-tags">
-        <value>GAMMA</value>
-        <value>DELTA</value>
-        <value>FOXTROT</value>
-        <value>resource</value>
+    <string name="resource.derived-download-url">
+        <value>http://example.com/1</value>
+        <value>http://example.com/2</value>
+        <value>http://example.com/3</value>
     </string>
 </metacard>
