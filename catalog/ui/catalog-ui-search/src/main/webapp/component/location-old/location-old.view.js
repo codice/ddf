@@ -31,6 +31,19 @@ define([
     var minimumBuffer = 0.000001;
     var deltaThreshold = 0.0000001;
 
+    var singleselectOptions = {
+                                header: false,
+                                minWidth: 110,
+                                height: 185,
+                                classes: 'input-group-addon multiselect',
+                                multiple: false,
+                                selectedText: function (numChecked, numTotal, checkedItems) {
+                                    if (checkedItems && checkedItems.length > 0) {
+                                        return checkedItems.pop().value;
+                                    }
+                                    return '';
+                                }
+                            };
     return Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('location-old'),
@@ -40,11 +53,11 @@ define([
             'click #locationBbox': 'drawBbox',
             'click #locationLine': 'drawLine',
             'click #latlon': 'swapLocationTypeLatLon',
+            'click #latlon': 'swapLocationTypeLatLon',
             'click #usng': 'swapLocationTypeUsng',
+            'click #utm': 'swapLocationTypeUtm',
             'change #radiusUnits': 'onRadiusUnitsChanged',
-            'change #lineUnits': 'onLineUnitsChanged',
-           // 'keydown input[id=radiusValue]': 'filterNonPositiveNumericValues',
-            //'keydown input[id=lineWidthValue]': 'filterNonPositiveNumericValues'
+            'change #lineUnits': 'onLineUnitsChanged'
         },
         initialize: function (options) {
             this.propertyModel = this.model;
@@ -95,7 +108,13 @@ define([
             this.$el.find('form button').attr('disabled', 'disabled');
             this.$('#radiusUnits').multiselect('disable');
             this.$('#lineUnits').multiselect('disable');
-        },
+            this.$('#utmZone').multiselect('disable');
+            this.$('#utmUpperLeftZone').multiselect('disable');
+            this.$('#utmLowerRightZone').multiselect('disable');
+            this.$('#utmHemisphere').multiselect('disable');
+            this.$('#utmUpperLeftHemisphere').multiselect('disable');
+            this.$('#utmLowerRightHemisphere').multiselect('disable');
+         },
         edit: function () {
             this.$el.addClass('is-editing');
             this.$el.find('label').removeAttr('disabled');
@@ -104,6 +123,12 @@ define([
             this.$el.find('form button').removeAttr('disabled');
             this.$('#radiusUnits').multiselect('enable');
             this.$('#lineUnits').multiselect('enable');
+            this.$('#utmZone').multiselect('enable');
+            this.$('#utmUpperLeftZone').multiselect('enable');
+            this.$('#utmLowerRightZone').multiselect('enable');
+            this.$('#utmHemisphere').multiselect('enable');
+            this.$('#utmUpperLeftHemisphere').multiselect('enable');
+            this.$('#utmLowerRightHemisphere').multiselect('enable');
         },
         deserialize: function () {
             if (this.propertyModel) {
@@ -176,6 +201,18 @@ define([
                 polygon: undefined,
                 usng: undefined,
                 usngbb: undefined,
+                utmEasting: undefined,
+                utmNorthing: undefined,
+                utmZone: 1,
+                utmHemisphere: 'Northern',
+                utmUpperLeftEasting: undefined,
+                utmUpperLeftNorthing: undefined,
+                utmUpperLeftZone: 1,
+                utmUpperLeftHemisphere: 'Northern',
+                utmLowerRightEasting: undefined,
+                utmLowerRightNorthing: undefined,
+                utmLowerRightZone: 1,
+                utmLowerRightHemisphere: 'Northern',
                 line: undefined,
                 lineWidth: 1
             });
@@ -189,7 +226,10 @@ define([
         },
         swapLocationTypeUsng: function () {
             this.model.set('locationType', 'usng');
-            //this.model.setLatLon();
+            this.updateLocationFields();
+        },
+        swapLocationTypeUtm: function () {
+            this.model.set('locationType', 'utm');
             this.updateLocationFields();
         },
         updateLocationFields: function () {
@@ -198,23 +238,76 @@ define([
                 this.$('#latdiv').css('display', 'table');
                 this.$('#londiv').css('display', 'table');
                 this.$('#usngdiv').css('display', 'none');
+                this.$('#utmdivEasting').css('display', 'none');
+                this.$('#utmdivNorthing').css('display', 'none');
+                this.$('#utmdivZone').css('display', 'none');
+                this.$('#utmdivHemisphere').css('display', 'none');
                 //bbox
                 this.$('#westdiv').css('display', 'table');
                 this.$('#southdiv').css('display', 'table');
                 this.$('#eastdiv').css('display', 'table');
                 this.$('#northdiv').css('display', 'table');
                 this.$('#usngbbdiv').css('display', 'none');
+                this.$('#utmuldiv').css('display', 'none');
+                this.$('#utmuldivEasting').css('display', 'none');
+                this.$('#utmuldivNorthing').css('display', 'none');
+                this.$('#utmuldivHemisphere').css('display', 'none');
+                this.$('#utmuldivZone').css('display', 'none');
+                this.$('#utmlrdiv').css('display', 'none');
+                this.$('#utmlrdivEasting').css('display', 'none');
+                this.$('#utmlrdivNorthing').css('display', 'none');
+                this.$('#utmlrdivHemisphere').css('display', 'none');
+                this.$('#utmlrdivZone').css('display', 'none');
             } else if (this.model.get('locationType') === 'usng') {
                 //radius
                 this.$('#latdiv').css('display', 'none');
                 this.$('#londiv').css('display', 'none');
                 this.$('#usngdiv').css('display', 'table');
+                this.$('#utmdivEasting').css('display', 'none');
+                this.$('#utmdivNorthing').css('display', 'none');
+                this.$('#utmdivZone').css('display', 'none');
+                this.$('#utmdivHemisphere').css('display', 'none');
                 //bbox
                 this.$('#westdiv').css('display', 'none');
                 this.$('#southdiv').css('display', 'none');
                 this.$('#eastdiv').css('display', 'none');
                 this.$('#northdiv').css('display', 'none');
                 this.$('#usngbbdiv').css('display', 'table');
+                this.$('#utmuldiv').css('display', 'none');
+                this.$('#utmuldivEasting').css('display', 'none');
+                this.$('#utmuldivNorthing').css('display', 'none');
+                this.$('#utmuldivHemisphere').css('display', 'none');
+                this.$('#utmuldivZone').css('display', 'none');
+                this.$('#utmlrdiv').css('display', 'none');
+                this.$('#utmlrdivEasting').css('display', 'none');
+                this.$('#utmlrdivNorthing').css('display', 'none');
+                this.$('#utmlrdivHemisphere').css('display', 'none');
+                this.$('#utmlrdivZone').css('display', 'none');
+            } else if (this.model.get('locationType') === 'utm') {
+                //radius
+                this.$('#latdiv').css('display', 'none');
+                this.$('#londiv').css('display', 'none');
+                this.$('#usngdiv').css('display', 'none');
+                this.$('#utmdivEasting').css('display', 'table');
+                this.$('#utmdivNorthing').css('display', 'table');
+                this.$('#utmdivZone').css('display', 'table');
+                this.$('#utmdivHemisphere').css('display', 'table');
+                //bbox
+                this.$('#westdiv').css('display', 'none');
+                this.$('#southdiv').css('display', 'none');
+                this.$('#eastdiv').css('display', 'none');
+                this.$('#northdiv').css('display', 'none');
+                this.$('#usngbbdiv').css('display', 'none');
+                this.$('#utmuldiv').css('display', 'table');
+                this.$('#utmuldivEasting').css('display', 'table');
+                this.$('#utmuldivNorthing').css('display', 'table');
+                this.$('#utmuldivHemisphere').css('display', 'table');
+                this.$('#utmuldivZone').css('display', 'table');
+                this.$('#utmlrdiv').css('display', 'table');
+                this.$('#utmlrdivEasting').css('display', 'table');
+                this.$('#utmlrdivNorthing').css('display', 'table');
+                this.$('#utmlrdivHemisphere').css('display', 'table');
+                this.$('#utmlrdivZone').css('display', 'table');
             }
         },
         serializeData: function () {
@@ -272,7 +365,38 @@ define([
                     retVal += ']';
                     return retVal;
                 }
-            };
+            }, utmZoneConverter = function (direction, value) {
+                if (direction === 'ModelToView') {
+                    this.$('#utmZone').multiselect(singleselectOptions);
+                }
+                return value;
+            }.bind(this), utmHemisphereConverter = function (direction, value) {
+                if (direction === 'ModelToView') {
+                    this.$('#utmHemisphere').multiselect(singleselectOptions);
+                }
+                return value;
+            }.bind(this), utmUpperLeftZoneConverter = function (direction, value) {
+                if (direction === 'ModelToView') {
+                    this.$('#utmUpperLeftZone').multiselect(singleselectOptions);
+                }
+                return value;
+            }.bind(this), utmUpperLeftHemisphereConverter = function (direction, value) {
+                if (direction === 'ModelToView') {
+                    this.$('#utmUpperLeftHemisphere').multiselect(singleselectOptions);
+                }
+                return value;
+            }.bind(this), utmLowerRightZoneConverter = function (direction, value) {
+                if (direction === 'ModelToView') {
+                    this.$('#utmLowerRightZone').multiselect(singleselectOptions);
+                }
+                return value;
+            }.bind(this), utmLowerRightHemisphereConverter = function (direction, value) {
+                if (direction === 'ModelToView') {
+                    this.$('#utmLowerRightHemisphere').multiselect(singleselectOptions);
+                }
+                return value;
+            }.bind(this);
+
             var queryModelBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
             queryModelBindings.lineWidth.selector = '#lineWidthValue';
             queryModelBindings.lineWidth.converter = lineWidthConverter;
@@ -280,6 +404,12 @@ define([
             queryModelBindings.radius.converter = radiusConverter;
             queryModelBindings.polygon.converter = polygonConverter;
             queryModelBindings.line.converter = polygonConverter;
+            queryModelBindings.utmZone.converter = utmZoneConverter;
+            queryModelBindings.utmHemisphere.converter = utmHemisphereConverter;
+            queryModelBindings.utmUpperLeftZone.converter = utmUpperLeftZoneConverter;
+            queryModelBindings.utmUpperLeftHemisphere.converter = utmUpperLeftHemisphereConverter;
+            queryModelBindings.utmLowerRightZone.converter = utmLowerRightZoneConverter;
+            queryModelBindings.utmLowerRightHemisphere.converter = utmLowerRightHemisphereConverter;
             this.modelBinder.bind(this.model, this.$el, queryModelBindings, {
                 changeTriggers: {
                     '': 'change dp.change',
@@ -287,21 +417,15 @@ define([
                 }
             });
             this.delegateEvents();
-            var singleselectOptions = {
-                header: false,
-                minWidth: 110,
-                height: 185,
-                classes: 'input-group-addon multiselect',
-                multiple: false,
-                selectedText: function (numChecked, numTotal, checkedItems) {
-                    if (checkedItems && checkedItems.length > 0) {
-                        return checkedItems.pop().value;
-                    }
-                    return '';
-                }
-            };
             this.$('#radiusUnits').multiselect(singleselectOptions);
             this.$('#lineUnits').multiselect(singleselectOptions);
+            this.$('#utmUpperLeftZone').multiselect(singleselectOptions);
+            this.$('#utmLowerRightZone').multiselect(singleselectOptions);
+            this.$('#utmUpperLeftHemisphere').multiselect(singleselectOptions);
+            this.$('#utmLowerRightHemisphere').multiselect(singleselectOptions);
+            this.$('#utmZone').multiselect(singleselectOptions);
+            this.$('#utmHemisphere').multiselect(singleselectOptions);
+
             this.blockMultiselectEvents();
             this.updateLocationFields();
             this.handleEdit();

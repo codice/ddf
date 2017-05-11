@@ -84,6 +84,10 @@ define([
 
             drawBorderedPolygon: function (rectangle) {
 
+                if (this.vectorLayer) {
+                    this.map.removeLayer(this.vectorLayer);
+                }
+
                 if (!rectangle) {
                     // handles case where model changes to empty vars and we don't want to draw anymore
                     return;
@@ -92,10 +96,6 @@ define([
                 var point = Turf.point(translateFromOpenlayersCoordinate(rectangle.getCenter()));
                 var turfCircle = new TurfCircle(point, rectangle.getRadius() * this.map.getView().getProjection().getMetersPerUnit(), 64, 'meters');
                 var geometryRepresentation = new ol.geom.LineString(translateToOpenlayersCoordinates(turfCircle.geometry.coordinates[0]));
-
-                if (this.vectorLayer) {
-                    this.map.removeLayer(this.vectorLayer);
-                }
 
                 this.billboard = new ol.Feature({
                     geometry: geometryRepresentation

@@ -100,13 +100,13 @@ define([
 
             drawBorderedRectangle: function (rectangle) {
 
+                if(this.vectorLayer) {
+                    this.map.removeLayer(this.vectorLayer);
+                }
+
                 if (!rectangle) {
                     // handles case where model changes to empty vars and we don't want to draw anymore
                     return;
-                }
-
-                if(this.vectorLayer) {
-                    this.map.removeLayer(this.vectorLayer);
                 }
 
                 this.billboard = new ol.Feature({
@@ -189,6 +189,7 @@ define([
         Draw.Controller = Marionette.Controller.extend({
             enabled: maptype.is2d(),
             initialize: function (options) {
+
                 this.map = options.map;
                 this.notificationEl = options.notificationEl;
 
@@ -258,6 +259,7 @@ define([
                 }
             },
             draw: function (model) {
+
                 if (this.enabled) {
                     var bboxModel = model || new Draw.BboxModel();
                     var view = new Draw.BboxView(
