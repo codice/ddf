@@ -20,6 +20,7 @@ import ddf.catalog.source.IngestException
 import ddf.catalog.transform.InputTransformer
 import ddf.mime.MimeTypeMapper
 import ddf.mime.MimeTypeToTransformerMapper
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
 import spock.lang.Specification
 
 import java.nio.file.Files
@@ -32,6 +33,7 @@ class OperationsMetacardSupportTest extends Specification {
     private MimeTypeToTransformerMapper mimeTransMapper
     private DefaultAttributeValueRegistry defaultAttributeValueRegistry
     private Metacard generatedMetacard
+    private UuidGenerator uuidGenerator
     private InputTransformer transformer
 
     def setup() {
@@ -41,6 +43,7 @@ class OperationsMetacardSupportTest extends Specification {
 
         mimeTypeMapper = Mock(MimeTypeMapper)
         mimeTransMapper = Mock(MimeTypeToTransformerMapper)
+        uuidGenerator = Mock(UuidGenerator)
         defaultAttributeValueRegistry = Mock(DefaultAttributeValueRegistry)
 
         transformer = Mock(InputTransformer)
@@ -56,7 +59,7 @@ class OperationsMetacardSupportTest extends Specification {
             defaultAttributeValueRegistry = this.defaultAttributeValueRegistry
         }
 
-        def metacardFactory = new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper())
+        def metacardFactory = new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator)
         opsMetacard = new OperationsMetacardSupport(frameworkProperties, metacardFactory)
     }
 

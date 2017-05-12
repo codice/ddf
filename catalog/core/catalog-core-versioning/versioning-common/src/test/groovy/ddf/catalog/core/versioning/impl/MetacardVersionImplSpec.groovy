@@ -47,7 +47,7 @@ class MetacardVersionImplSpec extends Specification {
         Instant start = Instant.now()
 
         when:
-        MetacardVersionImpl history = new MetacardVersionImpl(
+        MetacardVersionImpl history = new MetacardVersionImpl("anId",
                 meta.metacard,
                 action,
                 SecurityUtils.subject)
@@ -76,7 +76,7 @@ class MetacardVersionImplSpec extends Specification {
         setup:
         def meta = defaultMetacard()
         Action action = Action.VERSIONED
-        MetacardVersionImpl history = new MetacardVersionImpl(
+        MetacardVersionImpl history = new MetacardVersionImpl("anId",
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject)
@@ -98,7 +98,7 @@ class MetacardVersionImplSpec extends Specification {
         Action action = Action.VERSIONED
 
         when: "History items are created from non basic metacard types"
-        MetacardVersionImpl history = new MetacardVersionImpl(
+        MetacardVersionImpl history = new MetacardVersionImpl("anId",
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject,
@@ -129,7 +129,7 @@ class MetacardVersionImplSpec extends Specification {
         Action action = Action.VERSIONED
 
         when: "History items are created from non basic metacard types"
-        MetacardVersionImpl history = new MetacardVersionImpl(
+        MetacardVersionImpl history = new MetacardVersionImpl("anId",
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject)

@@ -19,13 +19,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +51,12 @@ public class MetacardFactory {
     //
     private final MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
-    public MetacardFactory(MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
+    private UuidGenerator uuidGenerator;
+
+    public MetacardFactory(MimeTypeToTransformerMapper mimeTypeToTransformerMapper,
+            UuidGenerator uuidGenerator) {
         this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
+        this.uuidGenerator = uuidGenerator;
     }
 
     Metacard generateMetacard(String mimeTypeRaw, String id, String fileName, Path tmpContentPath)
@@ -97,9 +101,7 @@ public class MetacardFactory {
             generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
         } else {
             generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID,
-                    UUID.randomUUID()
-                            .toString()
-                            .replaceAll("-", "")));
+                    uuidGenerator.generateUuid()));
         }
 
         if (StringUtils.isBlank(generatedMetacard.getTitle())) {

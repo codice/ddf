@@ -11,11 +11,14 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
 
 	<!-- PreIngest Plugin -->
-    <bean id="plugin" class="ddf.catalog.plugin.groomer.metacard.StandardMetacardGroomerPlugin"/>
+    <bean id="plugin" class="ddf.catalog.plugin.groomer.metacard.StandardMetacardGroomerPlugin">
+        <property name="uuidGenerator" ref="uuidGenerator" />
+    </bean>
 
     <!-- Register in the OSGi Service Registry -->
     <service ref="plugin" interface="ddf.catalog.plugin.PreIngestPlugin" ranking="1000"/>

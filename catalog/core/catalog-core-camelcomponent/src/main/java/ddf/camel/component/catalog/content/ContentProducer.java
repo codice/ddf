@@ -23,6 +23,7 @@ import org.apache.camel.ExchangePattern;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +45,7 @@ public class ContentProducer extends DefaultProducer {
 
     private ContentEndpoint endpoint;
 
-    ContentProducerDataAccessObject contentProducerDataAccessObject =
-            new ContentProducerDataAccessObject();
+    ContentProducerDataAccessObject contentProducerDataAccessObject;
 
     /**
      * Constructs the {@link org.apache.camel.Producer} for the custom Camel ContentComponent. This producer would
@@ -56,7 +56,12 @@ public class ContentProducer extends DefaultProducer {
     public ContentProducer(ContentEndpoint endpoint) {
         super(endpoint);
         this.endpoint = endpoint;
-
+        ContentComponent contentComponent = endpoint.getComponent();
+        UuidGenerator uuidGenerator = null;
+        if (contentComponent != null) {
+            uuidGenerator = contentComponent.getUuidGenerator();
+        }
+        this.contentProducerDataAccessObject = new ContentProducerDataAccessObject(uuidGenerator);
         LOGGER.trace("INSIDE: ContentProducer constructor");
     }
 

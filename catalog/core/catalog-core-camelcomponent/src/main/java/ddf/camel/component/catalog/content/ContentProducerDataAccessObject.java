@@ -29,6 +29,7 @@ import org.apache.camel.Message;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileMessage;
 import org.apache.commons.io.FilenameUtils;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,12 @@ import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
 
 public class ContentProducerDataAccessObject {
+
+    private UuidGenerator uuidGenerator;
+
+    public ContentProducerDataAccessObject(UuidGenerator uuidGenerator) {
+        this.uuidGenerator = uuidGenerator;
+    }
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(
             ContentProducerDataAccessObject.class);
@@ -131,8 +138,13 @@ public class ContentProducerDataAccessObject {
 
         if (StandardWatchEventKinds.ENTRY_CREATE.equals(eventType)) {
             CreateStorageRequest createRequest =
-                    new CreateStorageRequestImpl(Collections.singletonList(new ContentItemImpl(Files.asByteSource(
-                            ingestedFile), mimeType, ingestedFile.getName(), null)), null);
+                    new CreateStorageRequestImpl(Collections.singletonList(new ContentItemImpl(
+                            uuidGenerator.generateUuid(),
+                            Files.asByteSource(ingestedFile),
+                            mimeType,
+                            ingestedFile.getName(),
+                            0L,
+                            null)), null);
 
             processHeaders(headers, createRequest, ingestedFile);
 

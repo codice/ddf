@@ -21,6 +21,7 @@
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="tikaMimeTypeResolver" filter="(name=tikaMimeTypeResolver)" interface="ddf.mime.MimeTypeResolver"/>
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
 
     <bean id="actionFactory"
           class="org.codice.ddf.endpoints.rest.action.MetacardTransformerActionProviderFactory"/>
@@ -44,6 +45,7 @@
         <property name="metacardTypes">
             <reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
         </property>
+        <property name="uuidGenerator" ref="uuidGenerator" />
     </bean>
 
     <jaxrs:server id="restService" address="/catalog">

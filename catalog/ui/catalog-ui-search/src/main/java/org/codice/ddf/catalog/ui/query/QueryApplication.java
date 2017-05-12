@@ -69,8 +69,8 @@ public class QueryApplication implements SparkApplication {
             CqlRequest cqlRequest = mapper.readValue(req.body(), CqlRequest.class);
 
             CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
-
-            return mapper.toJson(cqlQueryResponse);
+            String result = mapper.toJson(cqlQueryResponse);
+            return result;
         });
 
         after("/cql", (req, res) -> {

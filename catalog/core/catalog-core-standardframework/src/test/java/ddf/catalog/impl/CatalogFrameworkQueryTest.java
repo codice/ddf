@@ -26,7 +26,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
@@ -103,9 +105,13 @@ public class CatalogFrameworkQueryTest {
         props.setFilterBuilder(new GeotoolsFilterBuilder());
         props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
 
+        UuidGenerator uuidGenerator = mock(UuidGenerator.class);
+        when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID()
+                .toString());
+
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
         MetacardFactory metacardFactory =
-                new MetacardFactory(props.getMimeTypeToTransformerMapper());
+                new MetacardFactory(props.getMimeTypeToTransformerMapper(), uuidGenerator);
         OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props,
                 metacardFactory);
         SourceOperations sourceOperations = new SourceOperations(props);

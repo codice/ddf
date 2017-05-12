@@ -18,6 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,10 +32,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileMessage;
 import org.apache.commons.collections.map.HashedMap;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -58,8 +62,15 @@ public class ContentProducerDataAccessObjectTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    ContentProducerDataAccessObject contentProducerDataAccessObject =
-            new ContentProducerDataAccessObject();
+    ContentProducerDataAccessObject contentProducerDataAccessObject;
+
+    @Before
+    public void setUp() {
+        UuidGenerator uuidGenerator = mock(UuidGenerator.class);
+        when((uuidGenerator.generateUuid())).thenReturn(UUID.randomUUID()
+                .toString());
+        contentProducerDataAccessObject = new ContentProducerDataAccessObject(uuidGenerator);
+    }
 
     @Test
     public void testGetFileUsingRefKey() throws Exception {

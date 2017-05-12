@@ -122,6 +122,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.4</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>util-uuidgenerator-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -182,7 +187,6 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.35</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>

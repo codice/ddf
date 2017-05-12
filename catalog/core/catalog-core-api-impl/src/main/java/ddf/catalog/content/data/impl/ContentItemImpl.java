@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.UUID;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -52,22 +51,6 @@ public class ContentItemImpl implements ContentItem {
     private Metacard metacard;
 
     protected String qualifier;
-
-    /**
-     * An incoming content item whose ID will initially be
-     * <code>null</code> because the {@link ddf.catalog.CatalogFramework} will assign its GUID.
-     *
-     * @param byteSource      the {@link ContentItem}'s input stream containing its actual data
-     * @param mimeTypeRawData the {@link ContentItem}'s mime type
-     * @param filename        the {@link ContentItem}'s file name - can be null
-     * @param metacard        the {@link ContentItem}'s associated metacard
-     */
-    public ContentItemImpl(ByteSource byteSource, String mimeTypeRawData, String filename,
-            Metacard metacard) {
-        this(UUID.randomUUID()
-                .toString()
-                .replaceAll("-", ""), byteSource, mimeTypeRawData, filename, 0, metacard);
-    }
 
     /**
      * An incoming content item where the item's GUID should be known.

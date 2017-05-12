@@ -16,9 +16,9 @@
 
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                availability="mandatory"/>
-
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"/>
 
     <bean id="metacardMarshaller"
           class="org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller">
@@ -38,6 +38,7 @@
 
     <bean id="identificationPlugin"
           class="org.codice.ddf.registry.identification.IdentificationPlugin">
+        <argument ref="uuidGenerator"/>
         <property name="metacardMarshaller" ref="metacardMarshaller"/>
         <property name="registryIdPostIngestPlugin" ref="registryPostIngestPlugin"/>
     </bean>

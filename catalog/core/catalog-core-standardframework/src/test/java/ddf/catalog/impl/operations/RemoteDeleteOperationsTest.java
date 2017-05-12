@@ -30,10 +30,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
 
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -102,6 +104,8 @@ public class RemoteDeleteOperationsTest {
     PostResourcePlugin mockPostResourcePlugin;
 
     List<PostResourcePlugin> mockPostResourcePlugins;
+
+    UuidGenerator uuidGenerator;
 
     @Before
     public void setUp() throws Exception {
@@ -320,6 +324,10 @@ public class RemoteDeleteOperationsTest {
 
         mimeTypeToTransformerMapper = mock(MimeTypeToTransformerMapper.class);
 
+        uuidGenerator = mock(UuidGenerator.class);
+        when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID()
+                .toString());
+
         inputTransformer = mock(InputTransformer.class);
         when(inputTransformer.transform(any(InputStream.class))).thenReturn(new MetacardImpl());
         when(mimeTypeToTransformerMapper.findMatches(any(Class.class),
@@ -361,7 +369,8 @@ public class RemoteDeleteOperationsTest {
     private void setUpDeleteOperations() {
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-        MetacardFactory metacardFactory = new MetacardFactory(mimeTypeToTransformerMapper);
+        MetacardFactory metacardFactory = new MetacardFactory(mimeTypeToTransformerMapper,
+                uuidGenerator);
         OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
                 metacardFactory);
 

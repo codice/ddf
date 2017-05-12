@@ -261,6 +261,11 @@
             <version>${jetty.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>util-uuidgenerator-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.mime.core</groupId>
             <artifactId>mime-core-impl</artifactId>
             <scope>test</scope>
@@ -460,6 +465,7 @@
                             org.apache.xml.resolver,
                             org.apache.xml.resolver.helpers,
                             org.codice.ddf.security.handler.api,
+                            org.codice.ddf.platform.util.uuidgenerator,
                             org.geotools.filter.visitor,
                             org.geotools.geometry.jts.spatialschema,
                             org.geotools.geometry.jts.spatialschema.geometry.aggregate,

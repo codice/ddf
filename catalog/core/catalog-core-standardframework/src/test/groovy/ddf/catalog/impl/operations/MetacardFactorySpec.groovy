@@ -17,8 +17,8 @@ import ddf.catalog.data.Metacard
 import ddf.catalog.data.MetacardCreationException
 import ddf.catalog.transform.InputTransformer
 import ddf.mime.MimeTypeToTransformerMapper
-import ddf.security.Subject
-import org.apache.shiro.subject.PrincipalCollection
+
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Shared
@@ -42,6 +42,7 @@ class MetacardFactoryTest extends Specification {
     private InputTransformer itXml2
     private InputTransformer itBad
     private MetacardFactory metacardFactory
+    private UuidGenerator uuidGenerator
     private Path path
 
     def setup() {
@@ -51,6 +52,7 @@ class MetacardFactoryTest extends Specification {
         metacardPlain = Mock(Metacard)
         metacardXml = Mock(Metacard)
         metacardXml2 = Mock(Metacard)
+        uuidGenerator = Mock(UuidGenerator)
 
         itPlain = Mock(InputTransformer)
         itXml = Mock(InputTransformer)
@@ -77,7 +79,7 @@ class MetacardFactoryTest extends Specification {
             }
         }
 
-        metacardFactory = new MetacardFactory(mimeTypeToTransformerMapper)
+        metacardFactory = new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator)
     }
 
     def 'test metacard generation with bad xformer'() {
@@ -93,6 +95,7 @@ class MetacardFactoryTest extends Specification {
         def metacard = metacardFactory.generateMetacard('application/xml3', 'test-id', 'filename', path)
 
         then:
+        0 * uuidGenerator.generateUuid()
         1 * metacardXml.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
         1 * metacardXml.getTitle() >> { 'this is a title' }
         0 * metacardXml.setAttribute({ it.name == Metacard.TITLE })
@@ -101,11 +104,14 @@ class MetacardFactoryTest extends Specification {
     }
 
     def 'test plain text metacard with no id or title'() {
+        setup:
+        1 * uuidGenerator.generateUuid() >> UUID.randomUUID().toString()
+
         when:
         def metacard = metacardFactory.generateMetacard('text/plain', null, 'filename', path)
 
         then:
-        1 * metacardPlain.setAttribute({ it.name == Metacard.ID && isUUID(it.values.first()) })
+        1 * metacardPlain.setAttribute({ it.name == Metacard.ID && it.values.first() != null })
         1 * metacardPlain.getTitle() >> { null }
         1 * metacardPlain.setAttribute({
             it.name == Metacard.TITLE && it.values.first() == 'filename'
@@ -119,6 +125,7 @@ class MetacardFactoryTest extends Specification {
         def metacard = metacardFactory.generateMetacard('text/plain', 'test-id', 'filename', path)
 
         then:
+        0 * uuidGenerator.generateUuid()
         1 * metacardPlain.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
         1 * metacardPlain.getTitle() >> { 'this is a title' }
         0 * metacardPlain.setAttribute({ it.name == Metacard.TITLE })
@@ -131,6 +138,7 @@ class MetacardFactoryTest extends Specification {
         def metacard = metacardFactory.generateMetacard('application/xml', 'test-id', 'filename', path)
 
         then:
+        0 * uuidGenerator.generateUuid()
         1 * metacardXml.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
         1 * metacardXml.getTitle() >> { 'this is a title' }
         0 * metacardXml.setAttribute({ it.name == Metacard.TITLE })
@@ -143,28 +151,11 @@ class MetacardFactoryTest extends Specification {
         def metacard = metacardFactory.generateMetacard('application/xml2', 'test-id', 'filename', path)
 
         then:
+        0 * uuidGenerator.generateUuid()
         1 * metacardXml2.setAttribute({ it.name == Metacard.ID && it.values.first() == 'test-id' })
         1 * metacardXml2.getTitle() >> { 'this is a title' }
         0 * metacardXml2.setAttribute({ it.name == Metacard.TITLE })
 
         metacard == metacardXml2
-    }
-
-    private static boolean isUUID(String input) {
-        try {
-            if (input == null || input.length() != 32) {
-                return false
-            }
-            // Re-insert hyphens to return to 8-4-4-4-12 pattern
-            String uuid = input.substring(0, 8) + '-' +
-                    input.substring(8, 12) + '-' +
-                    input.substring(12, 16) + '-' +
-                    input.substring(16, 20) + '-' +
-                    input.substring(20)
-            UUID.fromString(uuid)
-            return true
-        } catch (IllegalArgumentException e) {
-            return false
-        }
     }
 }

@@ -37,9 +37,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.apache.shiro.subject.ExecutionException;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.security.common.Security;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,9 +102,16 @@ public class HistorianTest {
 
     private Historian historian;
 
+    private UuidGenerator uuidGenerator;
+
     @Before
     public void setup() {
         historian = new Historian();
+
+        uuidGenerator = mock(UuidGenerator.class);
+        when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID()
+                .toString());
+        historian.setUuidGenerator(uuidGenerator);
 
         catalogProvider = mock(CatalogProvider.class);
         historian.setCatalogProviders(Collections.singletonList(catalogProvider));

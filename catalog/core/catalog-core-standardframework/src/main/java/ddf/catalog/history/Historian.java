@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
@@ -106,6 +107,8 @@ public class Historian {
 
     private Security security;
 
+    private UuidGenerator uuidGenerator;
+
     public void init() {
         Bundle bundle = FrameworkUtil.getBundle(Historian.class);
         BundleContext context = bundle == null ? null : bundle.getBundleContext();
@@ -154,7 +157,7 @@ public class Historian {
                         .getProperties()
                         .get(SecurityConstants.SECURITY_SUBJECT));
 
-        CreateResponse response = storeVersionMetacards(versionedMetacards);
+        storeVersionMetacards(versionedMetacards);
 
         return updateResponse;
     }
@@ -212,7 +215,7 @@ public class Historian {
 
         setResourceUriForContent(/*mutable*/ versionMetacards, createStorageResponse);
 
-        CreateResponse createResponse = storeVersionMetacards(versionMetacards);
+        storeVersionMetacards(versionMetacards);
 
         return updateStorageResponse;
     }
@@ -253,24 +256,23 @@ public class Historian {
             setResourceUriForContent(/*Mutable*/ versionedMap, createStorageResponse);
         }
 
-        CreateResponse createResponse =
-                executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(new ArrayList<>(
-                        versionedMap.values()))));
+        executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(new ArrayList<>(
+                versionedMap.values()))));
+
         String emailAddress = SubjectUtils.getEmailAddress((Subject) deleteResponse.getProperties()
                 .get(SecurityConstants.SECURITY_SUBJECT));
         List<Metacard> deletionMetacards = versionedMap.entrySet()
                 .stream()
-                .map(s -> new DeletedMetacardImpl(s.getKey(),
+                .map(s -> new DeletedMetacardImpl(uuidGenerator.generateUuid(),
+                        s.getKey(),
                         emailAddress,
                         s.getValue()
                                 .getId(),
                         MetacardVersionImpl.toMetacard(s.getValue(), metacardTypes)))
                 .collect(Collectors.toList());
 
-        CreateResponse deletionMetacardsCreateResponse =
-                executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(
-                        deletionMetacards,
-                        new HashMap<>())));
+        executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(deletionMetacards,
+                new HashMap<>())));
 
         return deleteResponse;
     }
@@ -301,6 +303,10 @@ public class Historian {
 
     public void setFilterBuilder(FilterBuilder filterBuilder) {
         this.filterBuilder = filterBuilder;
+    }
+
+    public void setUuidGenerator(UuidGenerator uuidGenerator) {
+        this.uuidGenerator = uuidGenerator;
     }
 
     public void setSkipFlag(@Nullable Operation op) {
@@ -456,11 +462,11 @@ public class Historian {
         return metacards.stream()
                 .filter(MetacardVersionImpl::isNotVersion)
                 .filter(DeletedMetacardImpl::isNotDeleted)
-                .map(metacard -> new MetacardVersionImpl(metacard,
+                .map(metacard -> new MetacardVersionImpl(uuidGenerator.generateUuid(),
+                        metacard,
                         action.apply(metacard.getId()),
                         subject))
-                .collect(Collectors.toMap(MetacardVersionImpl::getVersionOfId,
-                        Function.identity()));
+                .collect(Collectors.toMap(MetacardVersionImpl::getVersionOfId, Function.identity()));
     }
 
     /**
@@ -475,7 +481,7 @@ public class Historian {
             security = Security.getInstance();
         }
 
-        Subject systemSubject = security.runAsAdmin(() -> security.getSystemSubject());
+        Subject systemSubject = security.runAsAdmin(security::getSystemSubject);
 
         if (systemSubject == null) {
             throw new RuntimeException("Could not get systemSubject to version metacards.");

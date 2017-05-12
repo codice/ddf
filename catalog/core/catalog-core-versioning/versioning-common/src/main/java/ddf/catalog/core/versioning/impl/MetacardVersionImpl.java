@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -131,8 +130,8 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
      * @param action         Which action was done to modify the metacard
      * @throws IllegalArgumentException
      */
-    public MetacardVersionImpl(Metacard sourceMetacard, Action action, Subject subject) {
-        this(sourceMetacard, action, subject, Collections.singletonList(BasicTypes.BASIC_METACARD));
+    public MetacardVersionImpl(String id, Metacard sourceMetacard, Action action, Subject subject) {
+        this(id, sourceMetacard, action, subject, Collections.singletonList(BasicTypes.BASIC_METACARD));
     }
 
     /**
@@ -148,7 +147,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
      * @param types          A list of currently defined types in the system
      * @throws IllegalArgumentException
      */
-    public MetacardVersionImpl(Metacard sourceMetacard, Action action, Subject subject,
+    public MetacardVersionImpl(String id, Metacard sourceMetacard, Action action, Subject subject,
             List<MetacardType> types) {
         super(sourceMetacard,
                 new MetacardTypeImpl(PREFIX,
@@ -179,9 +178,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
         this.setEditedBy(editedBy);
 
         this.setVersionedOn(Date.from(Instant.now()));
-        this.setId(UUID.randomUUID()
-                .toString()
-                .replace("-", ""));
+        this.setId(id);
         this.setVersionResourceUri(sourceMetacard.getResourceURI());
         this.setTags(Collections.singleton(VERSION_TAG));
     }

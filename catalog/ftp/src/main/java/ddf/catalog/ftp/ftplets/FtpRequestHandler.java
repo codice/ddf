@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -37,6 +37,7 @@ import org.apache.ftpserver.ftplet.FtpSession;
 import org.apache.ftpserver.ftplet.FtpletResult;
 import org.apache.ftpserver.impl.IODataConnectionFactory;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,12 +85,16 @@ public class FtpRequestHandler extends DefaultFtplet {
 
     private MimeTypeMapper mimeTypeMapper;
 
-    public FtpRequestHandler(CatalogFramework catalogFramework, MimeTypeMapper mimeTypeMapper) {
+    private UuidGenerator uuidGenerator;
+
+    public FtpRequestHandler(CatalogFramework catalogFramework, MimeTypeMapper mimeTypeMapper,
+            UuidGenerator uuidGenerator) {
         notNull(catalogFramework, "catalogFramework");
         notNull(mimeTypeMapper, "mimeTypeMapper");
 
         this.catalogFramework = catalogFramework;
         this.mimeTypeMapper = mimeTypeMapper;
+        this.uuidGenerator = uuidGenerator;
     }
 
     @Override
@@ -242,8 +247,7 @@ public class FtpRequestHandler extends DefaultFtplet {
             } catch (Exception e) {
                 throw new IOException("Error getting the output stream from FTP session", e);
             }
-            dataConnection.transferFromClient(session,
-                    addTempFileToSession(session,
+            dataConnection.transferFromClient(session, addTempFileToSession(session,
                             ftpFile.getAbsolutePath(),
                             new TemporaryFileBackedOutputStream()));
 
@@ -295,9 +299,11 @@ public class FtpRequestHandler extends DefaultFtplet {
         String fileExtension = FilenameUtils.getExtension(fileName);
         String mimeType = getMimeType(fileExtension, outputStream);
 
-        ContentItem newItem = new ContentItemImpl(outputStream.asByteSource(),
+        ContentItem newItem = new ContentItemImpl(uuidGenerator.generateUuid(),
+                outputStream.asByteSource(),
                 mimeType,
                 fileName,
+                0L,
                 null);
 
         return new CreateStorageRequestImpl(Collections.singletonList(newItem), null);
