@@ -122,5 +122,6 @@
         <module>catalog-core-tagsfilterplugin</module>
         <module>catalog-core-downloadaction</module>
         <module>catalog-core-metacardtype</module>
+        <module>catalog-core-subscriptionstore</module>
     </modules>
 </project>
