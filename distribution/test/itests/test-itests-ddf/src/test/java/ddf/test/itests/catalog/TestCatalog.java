@@ -1307,16 +1307,14 @@ public class TestCatalog extends AbstractIntegrationTest {
         Used for validation */
         final Matcher<Node> hasInitialDescription = hasMetacardAttributeXPath("description",
                 "Lombardi");
-        final Matcher<Node> hasInitialMetacardTags = hasMetacardAttributeXPath("metacard-tags",
-                "GAMMA",
-                "DELTA",
-                "FOXTROT",
-                "resource");
+        final Matcher<Node> hasInitialDerivedUrls = hasMetacardAttributeXPath("resource.derived-download-url",
+                "http://example.com/1",
+                "http://example.com/2",
+                "http://example.com/3");
         final Matcher<Node> hasNewDescription = hasMetacardAttributeXPath("description", "None");
-        final Matcher<Node> hasNewMetacardTags = hasMetacardAttributeXPath("metacard-tags",
-                "ALPHA",
-                "BRAVO",
-                "resource");
+        final Matcher<Node> hasNewDerivedUrls = hasMetacardAttributeXPath("resource.derived-download-url",
+                "http://example.com/4",
+                "http://example.com/5");
         final Matcher<Node> hasNewSecurityAccessGroups = hasMetacardAttributeXPath(
                 "security.access-groups",
                 "FIFA",
@@ -1338,7 +1336,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 "security.access-groups = FIFA, NFL");
 
         List<Object> attributeAdjustmentsForRule2 = ImmutableList.of("description = None",
-                "metacard-tags = ALPHA, BRAVO, resource");
+                "resource.derived-download-url = http://example.com/4, http://example.com/5");
 
         networkRule1Properties.put("criteriaKey", "remoteAddr");
         networkRule1Properties.put("expectedValue", clientIP);
@@ -1368,14 +1366,14 @@ public class TestCatalog extends AbstractIntegrationTest {
             Note only the first validation gets security since it's parsed by tika */
             getMetacardValidatableResponse(simpleProductId).assertThat()
                     .body(hasNewDescription)
-                    .body(hasNewMetacardTags)
+                    .body(hasNewDerivedUrls)
                     .body(hasNewSecurityAccessGroups);
             getMetacardValidatableResponse(card1Id).assertThat()
                     .body(hasInitialDescription)
-                    .body(hasNewMetacardTags);
+                    .body(hasNewDerivedUrls);
             getMetacardValidatableResponse(card2Id).assertThat()
                     .body(hasNewDescription)
-                    .body(hasInitialMetacardTags);
+                    .body(hasInitialDerivedUrls);
 
         } finally {
 
