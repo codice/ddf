@@ -560,32 +560,48 @@ define([
             getGeometries: function(attribute){
                 return this.get('metacard').getGeometries(attribute);
             },
-            refreshData: function(){
+            refreshData: function (){
                 //let solr flush
-                setTimeout(function() {
+                setTimeout(function (){
+                    var metacard = this.get('metacard');
                     var req = {
                         count: 1,
                         cql: CQLUtils.transformFilterToCQL({
-                            type: 'AND', 
+                            type: 'AND',
                             filters: [
                                 {
-                                    type: '=', 
-                                    property: '"id"', 
-                                    value: this.get('metacard').id
+                                    type: 'OR',
+                                    filters: [
+                                        {
+                                            type: '=',
+                                            property: '"id"',
+                                            value: metacard['metacard.deleted.id'] || metacard.id
+                                        }, {
+                                            type: '=',
+                                            property: '"metacard.deleted.id"',
+                                            value: metacard.id
+                                        }
+                                    ]
                                 },
                                 {
-                                    type: 'ILIKE', 
-                                    property: '"metacard-tags"', 
+                                    type: 'ILIKE',
+                                    property: '"metacard-tags"',
                                     value: '*'
                                 }
                             ]
                         }),
                         id: '0',
                         sort: 'modified:desc',
-                        src: this.get('metacard').get('properties').get('source-id'),
+                        src: metacard.get('properties').get('source-id'),
                         start: 1
                     };
-                    $.post('/search/catalog/internal/cql', JSON.stringify(req)).then(this.parseRefresh.bind(this), this.handleRefreshError.bind(this));
+                    $.ajax({
+                        type: "POST",
+                        url: '/search/catalog/internal/cql',
+                        data: JSON.stringify(req),
+                        dataType: 'json'
+                    }).then(this.parseRefresh.bind(this), this.handleRefreshError.bind(this));
+
                 }.bind(this), 1000);
             },
             handleRefreshError: function(){
@@ -826,7 +842,7 @@ define([
                 return {
                     queuedResults: resp.results,
                     results: [],
-                    status: resp.status   
+                    status: resp.status
                 };
             },
             allowAutoMerge: function(){

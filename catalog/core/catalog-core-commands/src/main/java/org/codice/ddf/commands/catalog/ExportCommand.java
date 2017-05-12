@@ -60,6 +60,8 @@ import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.impl.DeleteStorageRequestImpl;
+import ddf.catalog.core.versioning.DeletedMetacard;
+import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -295,6 +297,8 @@ public class ExportCommand extends CqlCommands {
                 .filter(ei -> ei.getResourceUri() != null)
                 // Only our content scheme
                 .filter(ei -> ei.getResourceUri()
+                        .getScheme() != null)
+                .filter(ei -> ei.getResourceUri()
                         .getScheme()
                         .startsWith(ContentItem.CONTENT_SCHEME))
                 // Deleted Metacards have no content associated
@@ -503,12 +507,12 @@ public class ExportCommand extends CqlCommands {
                 .getMetacardType()
                 .getName();
         switch (typeName) {
-        case "deleted":
+        case DeletedMetacard.PREFIX:
             id = String.valueOf(result.getMetacard()
                     .getAttribute("metacard.deleted.id")
                     .getValue());
             break;
-        case "revision":
+        case MetacardVersion.PREFIX:
             return null;
         default:
             id = result.getMetacard()

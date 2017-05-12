@@ -71,6 +71,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
@@ -269,6 +270,9 @@ public class MetacardApplication implements SparkApplication {
                                     || getVersionedOnDate(mc).equals(getVersionedOnDate(
                                     versionMetacard)))
                     .filter(mc -> CONTENT_ACTIONS.contains(Action.ofMetacard(mc)))
+                    .filter(mc -> mc.getResourceURI() != null)
+                    .filter(mc -> ContentItem.CONTENT_SCHEME.equals(mc.getResourceURI()
+                            .getScheme()))
                     .sorted(Comparator.comparing((Metacard mc) -> util.parseToDate(mc.getAttribute(
                             MetacardVersion.VERSIONED_ON)
                             .getValue())))
@@ -276,7 +280,7 @@ public class MetacardApplication implements SparkApplication {
 
             if (!contentVersion.isPresent()) {
                 /* no content versions, just restore metacard */
-                revertMetacard(versionMetacard, id);
+                revertMetacard(versionMetacard, id, false);
             } else {
                 revertContentandMetacard(contentVersion.get(), versionMetacard, id);
             }
@@ -443,16 +447,19 @@ public class MetacardApplication implements SparkApplication {
         });
     }
 
-    private void revertMetacard(Metacard versionMetacard, String id)
-            throws SourceUnavailableException, IngestException {
+    private void revertMetacard(Metacard versionMetacard, String id, boolean alreadyCreated)
+            throws SourceUnavailableException, IngestException, FederationException,
+            UnsupportedQueryException {
         LOGGER.trace("Reverting metacard [{}] to version [{}]", id, versionMetacard.getId());
         Metacard revertMetacard = MetacardVersionImpl.toMetacard(versionMetacard, types);
         Action action = Action.fromKey((String) versionMetacard.getAttribute(MetacardVersion.ACTION)
                 .getValue());
 
-        // Only deleted; deleted_content will have already made metacard so we just want to update
-        if (action.equals(Action.DELETED)) {
-            catalogFramework.create(new CreateRequestImpl(revertMetacard));
+        if (DELETE_ACTIONS.contains(action)) {
+            attemptDeleteDeletedMetacard(id);
+            if (!alreadyCreated) {
+                catalogFramework.create(new CreateRequestImpl(revertMetacard));
+            }
         } else {
             tryUpdate(4, () -> {
                 catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
@@ -489,10 +496,11 @@ public class MetacardApplication implements SparkApplication {
                 MetacardVersionImpl.toMetacard(versionMetacard, types));
 
         // Try to delete the "deleted metacard" marker first.
+        boolean alreadyCreated = false;
         Action action = Action.fromKey((String) versionMetacard.getAttribute(MetacardVersion.ACTION)
                 .getValue());
         if (DELETE_ACTIONS.contains(action)) {
-            attemptDeleteDeletedMetacard(id);
+            alreadyCreated = true;
             catalogFramework.create(new CreateStorageRequestImpl(Collections.singletonList(
                     contentItem), id, new HashMap<>()));
         } else {
@@ -506,7 +514,7 @@ public class MetacardApplication implements SparkApplication {
             });
         }
         LOGGER.trace("Successfully reverted metacard content for [{}]", id);
-        revertMetacard(versionMetacard, id);
+        revertMetacard(versionMetacard, id, alreadyCreated);
     }
 
     private void trySleep(long millis) {

@@ -196,6 +196,10 @@ public class ImportCommand extends CatalogCommands {
 
                 entry = zipInputStream.getNextEntry();
             }
+        } catch (Exception e) {
+            printErrorMessage(String.format("Exception while importing metacards (%s)%nFor more information set the log level to INFO (log:set INFO org.codice.ddf.commands.catalog) ", e.getMessage()));
+            LOGGER.info("Exception while importing metacards", e);
+            throw e;
         }
         console.println("File imported successfully. Imported in: " + getFormattedDuration(start));
         console.println("Number of metacards imported: " + metacards);

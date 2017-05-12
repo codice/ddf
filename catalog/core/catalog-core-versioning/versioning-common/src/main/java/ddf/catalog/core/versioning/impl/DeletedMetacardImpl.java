@@ -14,8 +14,11 @@
 package ddf.catalog.core.versioning.impl;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,22 +81,21 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
         this.setDeletedBy(deletedBy);
         this.setLastVersionId(lastVersionId);
         this.setTags(ImmutableSet.of(DELETED_TAG));
-
-        if (this.getId() == null || "".equals(this.getId())) {
-            this.setId(UUID.randomUUID()
-                    .toString()
-                    .replace("-", ""));
-        }
+        this.setId(UUID.randomUUID()
+                .toString()
+                .replace("-", ""));
     }
 
-    public static boolean isNotDeleted(Metacard metacard) {
+    public static boolean isNotDeleted(@Nullable Metacard metacard) {
         return !isDeleted(metacard);
     }
 
-    public static boolean isDeleted(Metacard metacard) {
+    public static boolean isDeleted(@Nullable Metacard metacard) {
         return metacard instanceof DeletedMetacard || getDeletedMetacardType().getName()
-                .equals(metacard.getMetacardType()
-                        .getName());
+                .equals(Optional.ofNullable(metacard)
+                        .map(Metacard::getMetacardType)
+                        .map(MetacardType::getName)
+                        .orElse(null));
     }
 
     public static MetacardType getDeletedMetacardType() {

@@ -29,10 +29,12 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
@@ -88,6 +90,10 @@ import ddf.security.SubjectUtils;
 public class Historian {
     private static final Logger LOGGER = LoggerFactory.getLogger(Historian.class);
 
+    private final Predicate<Metacard> isNotVersionNorDeleted =
+            ((Predicate<Metacard>) MetacardVersionImpl::isVersion).or(DeletedMetacardImpl::isDeleted)
+                    .negate();
+
     private boolean historyEnabled = true;
 
     private List<StorageProvider> storageProviders;
@@ -100,18 +106,22 @@ public class Historian {
 
     private Security security;
 
-    static {
+    public void init() {
         Bundle bundle = FrameworkUtil.getBundle(Historian.class);
         BundleContext context = bundle == null ? null : bundle.getBundleContext();
         if (bundle == null || context == null) {
             LOGGER.error("Could not get bundle to register history metacard types!");
         } else {
-            context.registerService(MetacardType.class,
-                    MetacardVersionImpl.getMetacardVersionType(),
-                    new Hashtable<>());
-            context.registerService(MetacardType.class,
-                    DeletedMetacardImpl.getDeletedMetacardType(),
-                    new Hashtable<>());
+            DynamicMultiMetacardType versionType =
+                    new DynamicMultiMetacardType(MetacardVersionImpl.PREFIX,
+                            metacardTypes,
+                            MetacardVersionImpl.getMetacardVersionType());
+            DynamicMultiMetacardType deleteType =
+                    new DynamicMultiMetacardType(DeletedMetacardImpl.PREFIX,
+                            metacardTypes,
+                            DeletedMetacardImpl.getDeletedMetacardType());
+            context.registerService(MetacardType.class, versionType, new Hashtable<>());
+            context.registerService(MetacardType.class, deleteType, new Hashtable<>());
         }
 
     }
@@ -135,10 +145,11 @@ public class Historian {
         List<Metacard> inputMetacards = updateResponse.getUpdatedMetacards()
                 .stream()
                 .map(Update::getOldMetacard)
+                .filter(isNotVersionNorDeleted)
                 .collect(Collectors.toList());
 
         final Map<String, Metacard> versionedMetacards = getVersionMetacards(inputMetacards,
-                Action.VERSIONED,
+                (id) -> Action.VERSIONED,
                 (Subject) updateResponse.getRequest()
                         .getProperties()
                         .get(SecurityConstants.SECURITY_SUBJECT));
@@ -168,21 +179,30 @@ public class Historian {
         setSkipFlag(streamUpdateRequest);
         setSkipFlag(updateStorageResponse);
 
-        Collection<ReadStorageRequest> ids = getReadStorageRequests(updateStorageResponse);
-        if (ids.isEmpty()) {
-            LOGGER.debug("No root content items to version");
-            return updateStorageResponse;
-        }
+        List<Metacard> updatedMetacards = updateStorageResponse.getUpdatedContentItems()
+                .stream()
+                .filter(ci -> StringUtils.isBlank(ci.getQualifier()))
+                .map(ContentItem::getMetacard)
+                .filter(Objects::nonNull)
+                .filter(isNotVersionNorDeleted)
+                .collect(Collectors.toList());
 
-        Map<String, Metacard> metacards = query(forIds(fromStorageRequests(ids)));
-        Map<String, List<ContentItem>> oldContent = getOldContent(ids);
+        Map<String, Metacard> originalMetacards = query(forIds(updatedMetacards.stream()
+                .map(Metacard::getId)
+                .collect(Collectors.toList())));
 
-        Map<String, Metacard> versionMetacards = getVersionMetacards(metacards.values(),
-                Action.VERSIONED_CONTENT,
+        Collection<ReadStorageRequest> ids = getReadStorageRequests(updatedMetacards);
+        Map<String, List<ContentItem>> content = getContent(ids);
+
+        Function<String, Action> getAction =
+                (id) -> content.containsKey(id) ? Action.VERSIONED_CONTENT : Action.VERSIONED;
+
+        Map<String, Metacard> versionMetacards = getVersionMetacards(originalMetacards.values(),
+                getAction,
                 (Subject) updateResponse.getProperties()
                         .get(SecurityConstants.SECURITY_SUBJECT));
 
-        CreateStorageResponse createStorageResponse = versionContentItems(oldContent,
+        CreateStorageResponse createStorageResponse = versionContentItems(content,
                 versionMetacards);
 
         if (createStorageResponse == null) {
@@ -209,15 +229,23 @@ public class Historian {
         }
         setSkipFlag(deleteResponse);
 
-        Map<String, List<ContentItem>> contentItems = getContentItems(deleteResponse);
-        Action action = contentItems.isEmpty() ? Action.DELETED : Action.DELETED_CONTENT;
+        List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards()
+                .stream()
+                .filter(isNotVersionNorDeleted)
+                .collect(Collectors.toList());
 
-        Map<String, Metacard> versionedMap =
-                getVersionMetacards(deleteResponse.getDeletedMetacards(),
-                        action,
-                        (Subject) deleteResponse.getRequest()
-                                .getProperties()
-                                .get(SecurityConstants.SECURITY_SUBJECT));
+        // [ContentItem.getId: content items]
+        Map<String, List<ContentItem>> contentItems = getContent(getReadStorageRequests(
+                deletedMetacards));
+
+        Function<String, Action> getAction =
+                (id) -> contentItems.containsKey(id) ? Action.DELETED_CONTENT : Action.DELETED;
+        // [MetacardVersion.VERSION_OF_ID: versioned metacard]
+        Map<String, Metacard> versionedMap = getVersionMetacards(deletedMetacards,
+                getAction,
+                (Subject) deleteResponse.getRequest()
+                        .getProperties()
+                        .get(SecurityConstants.SECURITY_SUBJECT));
 
         CreateStorageResponse createStorageResponse = versionContentItems(contentItems,
                 versionedMap);
@@ -230,7 +258,7 @@ public class Historian {
                         versionedMap.values()))));
         String emailAddress = SubjectUtils.getEmailAddress((Subject) deleteResponse.getProperties()
                 .get(SecurityConstants.SECURITY_SUBJECT));
-        List<Metacard> deletedMetacards = versionedMap.entrySet()
+        List<Metacard> deletionMetacards = versionedMap.entrySet()
                 .stream()
                 .map(s -> new DeletedMetacardImpl(s.getKey(),
                         emailAddress,
@@ -239,9 +267,9 @@ public class Historian {
                         MetacardVersionImpl.toMetacard(s.getValue(), metacardTypes)))
                 .collect(Collectors.toList());
 
-        CreateResponse deleteTrackResponse =
+        CreateResponse deletionMetacardsCreateResponse =
                 executeAsSystem(() -> catalogProvider().create(new CreateRequestImpl(
-                        deletedMetacards,
+                        deletionMetacards,
                         new HashMap<>())));
 
         return deleteResponse;
@@ -313,7 +341,11 @@ public class Historian {
         return filterBuilder.anyOf(idFilters);
     }
 
-    private Map<String, List<ContentItem>> getOldContent(Collection<ReadStorageRequest> ids) {
+    /*
+     * Assumptions: The ContentItem's <code>getId</code> method returns an ID that corresponds
+     * to the metacards ID.
+     */
+    private Map<String, List<ContentItem>> getContent(Collection<ReadStorageRequest> ids) {
         return ids.stream()
                 .map(this::getStorageItem)
                 .filter(Objects::nonNull)
@@ -323,17 +355,6 @@ public class Historian {
                     l.addAll(r);
                     return l;
                 }));
-    }
-
-    private List<ReadStorageRequest> getReadStorageRequests(
-            UpdateStorageResponse updateStorageResponse) {
-        return getReadStorageRequests(updateStorageResponse.getUpdatedContentItems()
-                .stream()
-                .filter(ci -> ci.getQualifier() == null || ci.getQualifier()
-                        .equals(""))
-                .map(ContentItem::getMetacard)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
     }
 
     private List<ReadStorageRequest> getReadStorageRequests(List<Metacard> metacards) {
@@ -359,8 +380,9 @@ public class Historian {
         return null;
     }
 
+    /* Map< Metacard ID, content item> */
     private Map<String, List<ContentItem>> getContentItems(DeleteResponse deleteResponse) {
-        return getOldContent(getReadStorageRequests(deleteResponse.getDeletedMetacards()));
+        return getContent(getReadStorageRequests(deleteResponse.getDeletedMetacards()));
     }
 
     private CreateStorageResponse versionContentItems(Map<String, List<ContentItem>> items,
@@ -430,11 +452,13 @@ public class Historian {
 
     /*Map<MetacardVersion.VERSION_OF_ID -> MetacardVersion>*/
     private Map<String, Metacard> getVersionMetacards(Collection<Metacard> metacards,
-            final Action action, Subject subject) {
+            Function<String, Action> action, Subject subject) {
         return metacards.stream()
                 .filter(MetacardVersionImpl::isNotVersion)
                 .filter(DeletedMetacardImpl::isNotDeleted)
-                .map(metacard -> new MetacardVersionImpl(metacard, action, subject))
+                .map(metacard -> new MetacardVersionImpl(metacard,
+                        action.apply(metacard.getId()),
+                        subject))
                 .collect(Collectors.toMap(MetacardVersionImpl::getVersionOfId,
                         Function.identity()));
     }
@@ -496,13 +520,15 @@ public class Historian {
     private StorageProvider storageProvider() {
         return storageProviders.stream()
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new IllegalStateException(
+                        "Cannot version metacards without a storage provider"));
     }
 
     private CatalogProvider catalogProvider() {
         return catalogProviders.stream()
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new IllegalStateException(
+                        "Cannot version metacards without a storage provider"));
     }
 
     public void setMetacardTypes(List<MetacardType> metacardTypes) {
