@@ -425,7 +425,6 @@ public class Historian {
                     content.getId(),
                     e);
         }
-        // TODO (RCZ) - Add a check in case we can't find in versionedMetacards
         return new ContentItemImpl(versionedMetacards.get(content.getId())
                 .getId(),
                 content.getQualifier(),
