@@ -45,8 +45,8 @@ public interface Query extends Filter {
 
     /**
      * The page size represents the maximum amount of results the query will return. Page sizes of
-     * less than 1 (0 or a negative number) should return the maximum number of results for each
-     * {@link ddf.catalog.source.Source}.
+     * less than 1 (0 or a negative number) should return the maximum number of results supported by
+     * the catalog or the maximum supported by each {@link ddf.catalog.source.Source}, whichever is smaller.
      *
      * @return the page size - the maximum result size
      */
