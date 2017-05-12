@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.registry.api.internal.RegistryStore;
+import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.security.common.Security;
 import org.osgi.framework.Bundle;
@@ -98,8 +100,13 @@ public class RegistryStoreCleanupHandler implements EventHandler {
                 Security security = Security.getInstance();
 
                 List<Metacard> metacards =
-                        security.runAsAdminWithException(() -> federationAdminService.getInternalRegistryMetacardsByRegistryId(
-                                registryId));
+                        security.runAsAdminWithException(() -> federationAdminService.getInternalRegistryMetacards()
+                                .stream()
+                                .filter(m -> RegistryUtility.getStringAttribute(m,
+                                        RegistryObjectMetacardType.REMOTE_REGISTRY_ID,
+                                        "")
+                                        .equals(registryId))
+                                .collect(Collectors.toList()));
                 List<String> idsToDelete = metacards.stream()
                         .map(Metacard::getId)
                         .collect(Collectors.toList());
