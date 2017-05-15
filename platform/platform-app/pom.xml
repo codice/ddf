@@ -327,6 +327,11 @@
             <artifactId>util-uuidgenerator-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>tika-bundle</artifactId>
+            <version>${tika.thirdparty.bundle.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <!--START versions for camel features in platform-app features
