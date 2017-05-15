@@ -31,8 +31,16 @@
     <reference-list id="contentExtractors"
                     interface="ddf.catalog.content.operation.ContentMetadataExtractor"
                     availability="optional">
-        <reference-listener bind-method="addContentMetadataExtractors"
+        <reference-listener bind-method="addContentMetadataExtractor"
                             unbind-method="removeContentMetadataExtractor"
+                            ref="tikaTransformer"/>
+    </reference-list>
+
+    <reference-list id="metadataExtractors"
+                    interface="ddf.catalog.content.operation.MetadataExtractor"
+                    availability="optional">
+        <reference-listener bind-method="addMetadataExtractor"
+                            unbind-method="removeMetadataExtractor"
                             ref="tikaTransformer"/>
     </reference-list>
 
@@ -45,6 +53,7 @@
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
             </list>
         </argument>
     </bean>
@@ -58,6 +67,7 @@
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
             </list>
         </argument>
     </bean>
@@ -71,6 +81,7 @@
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
             </list>
         </argument>
     </bean>
@@ -85,6 +96,7 @@
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.transformer.common.tika.Mp4MetacardType"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
             </list>
         </argument>
     </bean>
@@ -98,6 +110,7 @@
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
             </list>
         </argument>
     </bean>
@@ -111,6 +124,7 @@
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
             </list>
         </argument>
     </bean>
@@ -124,6 +138,7 @@
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
             </list>
         </argument>
     </bean>
@@ -137,6 +152,8 @@
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+
             </list>
         </argument>
     </bean>
