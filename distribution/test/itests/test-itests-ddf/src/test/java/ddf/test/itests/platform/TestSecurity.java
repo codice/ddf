@@ -42,6 +42,8 @@ import static com.jayway.restassured.authentication.CertificateAuthSettings.cert
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -506,51 +508,36 @@ public class TestSecurity extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testTLSv11() throws Exception {
+    public void testTLSv11IsAllowed() throws Exception {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-        SSLContext sslContext = SSLContext.getInstance("TLSv1.1");
-        sslContext.init(null, null, null);
-        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
-
-        RestAssuredConfig config = new RestAssuredConfig();
-        config.sslConfig(SSLConfig.sslConfig()
-                .sslSocketFactory(sslSocketFactory));
+        SSLSocketFactory sslSocketFactory = createSslSocketFactory("TLSv1.1");
+        RestAssuredConfig config = createRestAssuredConfigWith(sslSocketFactory);
 
         checkAuthenticationRequest(config, url);
     }
 
     @Test
-    public void testTLSv12() throws Exception {
+    public void testTLSv12IsAllowed() throws Exception {
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-        sslContext.init(null, null, null);
-        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
-
-        RestAssuredConfig config = new RestAssuredConfig();
-        config.sslConfig(SSLConfig.sslConfig()
-                .sslSocketFactory(sslSocketFactory));
+        SSLSocketFactory sslSocketFactory = createSslSocketFactory("TLSv1.2");
+        RestAssuredConfig config = createRestAssuredConfigWith(sslSocketFactory);
 
         checkAuthenticationRequest(config, url);
     }
 
     @Test
-    public void testTLSv1() throws Exception {
+    public void testTLSv1IsDisabled() throws Exception {
         String httpsProtocols = System.getProperties()
                 .getProperty("https.protocols");
+        System.setProperty("https.protocols", "TLSv1");
+
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
         try {
-            System.setProperty("https.protocols", "TLSv1");
-
-            SSLContext sslContext = SSLContext.getInstance("TLSv1");
-            sslContext.init(null, null, null);
-            SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
-
-            RestAssuredConfig config = new RestAssuredConfig();
-            config.sslConfig(SSLConfig.sslConfig()
-                    .sslSocketFactory(sslSocketFactory));
+            SSLSocketFactory sslSocketFactory = createSslSocketFactory("TLSv1");
+            RestAssuredConfig config = createRestAssuredConfigWith(sslSocketFactory);
 
             configureRestForBasic(SDK_SOAP_CONTEXT);
             waitForSecurityHandlers(url);
@@ -572,32 +559,22 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testAllowedCipherSuites() throws Exception {
-        List<String> supportedCipherSuites = Arrays.asList("TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
-                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-                "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
+        String[] supportedCipherSuites =
+                {"TLS_DHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+                        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"};
 
         String originalCiphers = System.getProperty("https.cipherSuites");
+        System.setProperty("https.cipherSuites", StringUtils.join(supportedCipherSuites, ","));
 
         try {
-            System.setProperty("https.cipherSuites", StringUtils.join(supportedCipherSuites, ","));
-
-            String[] supportedHttpProtocols = {"https"};
-
-            SSLContext sslContext = SSLContext.getDefault();
-            SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext,
-                    supportedHttpProtocols,
-                    supportedCipherSuites.toArray(new String[supportedCipherSuites.size()]),
-                    new AllowAllHostnameVerifier());
-
-            RestAssuredConfig config = new RestAssuredConfig();
-            config.sslConfig(SSLConfig.sslConfig()
-                    .sslSocketFactory(sslSocketFactory));
-
-            String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
-
-            checkAuthenticationRequest(config, url);
+            for (String cipher : supportedCipherSuites) {
+                SSLSocketFactory sslSocketFactory = createSslSocketFactory(new String[] {cipher});
+                RestAssuredConfig config = createRestAssuredConfigWith(sslSocketFactory);
+                String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+                checkAuthenticationRequest(config, url);
+            }
         } finally {
             System.setProperty("https.cipherSuites", originalCiphers);
         }
@@ -605,88 +582,55 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @Test
     public void testDisallowedCipherSuites() throws Exception {
-        List<String> disallowedCipherSuites = Arrays.asList(
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-                "TLS_RSA_WITH_AES_256_CBC_SHA256",
-                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
-                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
-                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
-                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
-                "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-                "SSL_RSA_WITH_RC4_128_SHA",
-                "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
-                "TLS_ECDH_RSA_WITH_RC4_128_SHA",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-                "TLS_RSA_WITH_AES_256_GCM_SHA384",
-                "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",
-                "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384",
-                "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
-                "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
-                "TLS_RSA_WITH_AES_128_GCM_SHA256",
-                "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256",
-                "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256",
-                "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
-                "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
-                "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
-                "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
-                "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
-                "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
-                "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
-                "SSL_RSA_WITH_RC4_128_MD5",
-                "TLS_EMPTY_RENEGOTIATION_INFO_SCSV");
+        String[] disallowedCipherSuites = new String[] {"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_RSA_WITH_AES_256_CBC_SHA256",
+                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384", "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
+                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256", "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA", "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA", "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+                "SSL_RSA_WITH_RC4_128_SHA", "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+                "TLS_ECDH_RSA_WITH_RC4_128_SHA", "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
+                "TLS_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256", "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+                "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+                "SSL_RSA_WITH_RC4_128_MD5", "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"};
 
-        String[] supportedHttpProtocols = {"https"};
         String originalCiphers = System.getProperty("https.cipherSuites");
+        System.setProperty("https.cipherSuites", StringUtils.join(disallowedCipherSuites, ","));
+
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
         try {
-            System.setProperty("https.cipherSuites", StringUtils.join(disallowedCipherSuites, ","));
+            for (String cipher : disallowedCipherSuites) {
+                SSLSocketFactory sslSocketFactory = createSslSocketFactory(new String[] {cipher});
+                RestAssuredConfig config = createRestAssuredConfigWith(sslSocketFactory);
 
-            SSLContext sslContext = SSLContext.getDefault();
-            SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext,
-                    supportedHttpProtocols,
-                    disallowedCipherSuites.toArray(new String[disallowedCipherSuites.size()]),
-                    new AllowAllHostnameVerifier());
-
-            RestAssuredConfig config = new RestAssuredConfig();
-            config.sslConfig(SSLConfig.sslConfig()
-                    .sslSocketFactory(sslSocketFactory));
-
-            configureRestForBasic(SDK_SOAP_CONTEXT);
-            waitForSecurityHandlers(url);
-            given().config(config)
-                    .auth()
-                    .basic("admin", "admin")
-                    .when()
-                    .get(url)
-                    .then()
-                    .assertThat()
-                    .statusCode(401);
+                configureRestForBasic(SDK_SOAP_CONTEXT);
+                waitForSecurityHandlers(url);
+                given().config(config)
+                        .auth()
+                        .basic("admin", "admin")
+                        .when()
+                        .get(url)
+                        .then()
+                        .assertThat()
+                        .statusCode(401);
+            }
         } finally {
             System.setProperty("https.cipherSuites", originalCiphers);
             configureRestForGuest(SDK_SOAP_CONTEXT);
@@ -1697,5 +1641,28 @@ public class TestSecurity extends AbstractIntegrationTest {
             configureRestForGuest(SDK_SOAP_CONTEXT);
             getSecurityPolicy().waitForGuestAuthReady(url);
         }
+    }
+
+    private SSLSocketFactory createSslSocketFactory(String protocol)
+            throws NoSuchAlgorithmException, KeyManagementException {
+        SSLContext sslContext = SSLContext.getInstance(protocol);
+        sslContext.init(null, null, null);
+        return new SSLSocketFactory(sslContext);
+    }
+
+    private SSLSocketFactory createSslSocketFactory(String[] cipherSuites)
+            throws NoSuchAlgorithmException, KeyManagementException {
+        SSLContext sslContext = SSLContext.getDefault();
+        return new SSLSocketFactory(sslContext,
+                new String[] {"https"},
+                cipherSuites,
+                new AllowAllHostnameVerifier());
+    }
+
+    private RestAssuredConfig createRestAssuredConfigWith(SSLSocketFactory sslSocketFactory) {
+        RestAssuredConfig config = new RestAssuredConfig();
+        config.sslConfig(SSLConfig.sslConfig()
+                .sslSocketFactory(sslSocketFactory));
+        return config;
     }
 }
