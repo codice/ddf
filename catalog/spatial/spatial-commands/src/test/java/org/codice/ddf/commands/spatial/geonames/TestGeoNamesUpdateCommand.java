@@ -130,7 +130,7 @@ public class TestGeoNamesUpdateCommand {
         geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
 
         geoNamesUpdateCommand.setResource("test");
-        geoNamesUpdateCommand.doExecute();
+        geoNamesUpdateCommand.execute();
 
         consoleInterceptor.resetSystemOut();
         consoleInterceptor.closeBuffer();
@@ -169,7 +169,7 @@ public class TestGeoNamesUpdateCommand {
         geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
         geoNamesUpdateCommand.setResource("temp.txt");
 
-        geoNamesUpdateCommand.doExecute();
+        geoNamesUpdateCommand.execute();
         assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
         consoleInterceptor.resetSystemOut();
@@ -195,7 +195,7 @@ public class TestGeoNamesUpdateCommand {
         geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
         geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
         geoNamesUpdateCommand.setResource("temp");
-        geoNamesUpdateCommand.doExecute();
+        geoNamesUpdateCommand.execute();
         assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
         consoleInterceptor.resetSystemOut();
