@@ -1,0 +1,14 @@
+:title: Configuring HTTP Port from ${admin-console}
+:type: configuringAdminConsole
+:status: published
+:summary: Configure HTTP Port from ${admin-console}.
+:order: 05
+
+==== Configuring HTTP Port from ${admin-console}
+
+[IMPORTANT]
+====
+Do not use the ${admin-console} to change the HTTP port.
+While the ${admin-console}'s Pax Web Runtime offers this configuration option, it has proven to be unreliable and may crash the system.
+Use the <<_configuring_from_the_command_console, ${command-console}>> instead.
+====

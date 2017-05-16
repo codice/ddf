@@ -1,0 +1,10 @@
+:title: Configuring from Config Files
+:type: configuringConfigFile
+:status: published
+:summary: Configuring by editing configuration files.
+:order: 00
+
+As most configurations are stored in configuration files, in some instances it may make sense to edit those configuration files directly.
+Additionally, configuration files may be pre-created and copied into a ${branding} installation.
+Finally, in an environment hardened for security purposes, access to the ${admin-console} or the ${command-console} might be denied and using the latter in such an environment may cause configuration errors.
+It is necessary to configure ${branding} (e.g., providers, Schematron rulesets, etc.) using `.config` files.

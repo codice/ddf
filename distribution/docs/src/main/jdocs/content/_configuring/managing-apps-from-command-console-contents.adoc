@@ -1,0 +1,37 @@
+:title: Managing Applications From the ${command-console}
+:type: configuringCommandConsole
+:status: published
+:summary: Managing Applications From the ${command-console}.
+:order: 01
+
+==== Managing Applications From the ${command-console}
+
+Applications can be installed from the ${command-console} using the following commands:
+
+.App Commands
+[cols="2,5" options="header"]
+|===
+|Command
+|Effect
+
+|`app:add <appName>`
+|Install an app.
+
+|`app:list`
+|List all installed apps and current status.
+
+|`app:remove <appName>`
+|Uninstall an app.
+
+|`app:start`
+|Start an inactive app.
+
+|`app:status <appName>`
+|Detailed view of application status
+
+|`app:stop <appName>`
+|Stop an active app.
+
+|`app:tree`
+|Dependency tree view of all installed apps.
+|===

@@ -1,0 +1,17 @@
+:title: Configuring Thread Pools
+:type: configuringConfigFile
+:status: published
+:summary: Configuring thread pools.
+:order: 11
+
+==== Configuring Thread Pools
+
+The `org.codice.ddf.system.threadPoolSize` property can be used to specify the size of thread pools used by:
+
+* Federating requests between ${branding} systems
+* Downloading resources
+* Handling asynchronous queries, such as queries from the UI
+
+By default, this value is set to 128.
+It is not recommended to set this value extremely high.
+If unsure, leave this setting at its default value of 128.

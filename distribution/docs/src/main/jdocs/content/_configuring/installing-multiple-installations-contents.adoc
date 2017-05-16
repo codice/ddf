@@ -1,0 +1,43 @@
+:title: Installing Multiple ${branding}s on the Same Host
+:type: configuringConfigFile
+:status: published
+:summary: Installing multiple ${branding}s on the same host.
+:order: 08
+
+==== Installing Multiple ${branding}s on the Same Host
+
+To have multiple ${branding} instances on the same host, it is necessary to edit the port numbers in the files in the ${branding} install folder.
+
+[cols="4" options="header"]
+|===
+
+|File to Edit
+|Property(ies)
+|Original Value
+|Example of New Value
+
+|`bin/karaf.bat`
+|`address`
+|`5005`
+|`5006`
+
+.2+|`etc/org.apache.karaf.management.cfg`
+|`rmiRegistryPort`
+|`1099`
+|`1199`
+
+
+|`rmiServerPort`
+|`44444`
+|`44445`
+
+.2+|`etc/system.properties`
+|`httpsPort`,`port`
+|`8993`
+|`8994`
+
+|`httpPort`
+|`8181`
+|`8281`
+
+|===

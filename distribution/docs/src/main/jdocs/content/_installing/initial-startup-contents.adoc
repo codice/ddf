@@ -1,7 +1,7 @@
 :title: Initial Startup
 :type: installing
 :status: published
-:summary: System state at Initial startup.
+:summary: System state at initial startup.
 :project: ${branding}
 :order: 02
 

@@ -1,0 +1,34 @@
+:title: Configuring Using a .config File Template
+:type: configuringConfigFile
+:status: published
+:summary: Configuring using a .config file template.
+:order: 05
+
+==== Configuring Using a .config File Template
+
+A template file is provided for some configurable ${branding} items so that they can be copied/renamed then modified with the appropriate settings.
+
+The following steps define the procedure for configuring a new source or feature using a `config` file:
+
+. Copy/rename the provided template file in the ``etc/templates` directory to the `etc` directory. (Refer to the table above to determine correct template.)
+.. Not required, but a good practice is to change the instance name (e.g., `OpenSearchSource.1.config`) of the file to something identifiable (`OpenSearchSource.remote-site-1.config`).
+. Edit the copied file to etc with the settings for the configuration. (Refer to the table above to determine the configurable properties).
+.. Consult the inline comments in the file for guidance on what to modify.
+
+The new service can now be used as if it was created using the ${admin-console}.
+
+.Templates included with ${branding}
+[cols="1,4,4,1" options="header"]
+|===
+
+|${ddf-branding} Service
+|Template File Name
+|Factory PID
+|Configurable Properties
+
+|${ddf-branding} Catalog Framework
+|`ddf.catalog.impl.service.CatalogFrameworkImpl.cfg`
+|`ddf.catalog.CatalogFrameworkImpl`
+|Standard Catalog Framework
+
+|===

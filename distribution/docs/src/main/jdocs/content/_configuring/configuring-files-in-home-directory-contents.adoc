@@ -1,0 +1,28 @@
+:title: Configuring Files in Home Directory Hierarchy
+:type: configuringConfigFile
+:status: published
+:summary: Configuring files in home directory hierarchy.
+:order: 09
+
+==== Configuring Files in Home Directory Hierarchy
+
+Many important configuration settings are stored in the `<${branding}_HOME>` directory.
+
+
+[NOTE]
+====
+Depending on the environment, it may be easier for integrators and administrators to configure ${branding} using the ${admin-console} prior to disabling it for hardening purposes.
+The ${admin-console} can be re-enabled for additional configuration changes.
+====
+
+In an environment hardened for security purposes, access to the ${admin-console} or the ${command-console} might be denied and using the latter in such an environment may cause configuration errors.
+It is necessary to configure ${branding} (e.g., providers, Schematron rulesets, etc.) using `.config` files.
+
+A template file is provided for some configurable ${branding} items so that they can be copied/renamed then modified with the appropriate settings.
+
+[WARNING]
+====
+If the ${admin-console} is enabled again, all of the configuration done via `.config` files will be loaded and displayed.
+However, note that the name of the `.config` file is not used in the ${admin-console}.
+Rather, a universally unique identifier (UUID) is added when the ${branding} item was created and displays this UUID in the console (e.g., `OpenSearchSource.112f298e-26a5-4094-befc-79728f216b9b`)
+====

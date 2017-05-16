@@ -1,0 +1,107 @@
+:title: Authentication Components
+:type: configuringAdminConsole
+:status: published
+:summary: Configure these components to authenticate users.
+:order: 16
+
+==== Authentication Components
+
+Configure these components to authenticate users.
+
+An LDAP server can be used to maintain a list of ${branding} users and the attributes associated with them.
+The <<_security_sts,Security Token Service (STS)>> can use an LDAP server as an attribute store and convert those attributes to SAML claims.
+
+${branding} includes a demo <<_embedded_ldap_server,LDAP server>>, but an external LDAP is required for actual installation.
+
+The STS is installed by default in ${branding}.
+
+.Configuring STS
+. Verify that the `serverKeystores.jks` file in `<${branding}_HOME>/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, and any ${branding} users that make use of this STS server).
+. Navigate to the *${admin-console}*.
+. Select the ${ddf-security} application.
+. Select the *Features* tab.
+. Start the `security-sts-ldaplogin` and `security-sts-ldapclaimshandler` features.
+. Select the *Configuration* tab.
+. Select the *Security STS LDAP Login* configuration.
+. Verify that the *LDAP URL*, *LDAP Bind User DN*, and *LDAP Bind User Password* fields match your LDAP server's information.
+.. The default ${branding} LDAP settings will match up with the default settings of the OpenDJ embedded LDAP server.
+.. If not using the embedded LDAP server, change these values to map to the location and settings of the LDAP server being used.
+. Select the *Save changes* button if changes were made.
+. Open the *Security STS LDAP and Roles Claims Handler* configuration.
+. Populate the same URL, user, and password fields with your LDAP server information.
+. Select the *Save Changes* button.
+
+Configure the ${branding} to use this authentication scheme.
+
+.Configuring ${branding} Authentication Scheme
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Open the *Web Context Policy Manager* configuration.
+.. Under *Context Realms* add the contexts that should be protected under the ldap realm.
+... The default setting is `/=karaf`, the `karaf` realm refers to the `user.properties` user store file located in the `<${branding}_HOME>/etc` directory. This can be changed to `/=ldap`, if it is desired that the entire container be protected under ldap. If the `/admin` context is changed to something other than the default (`karaf`), it will be required that you refresh the page in order to log in again, or your changes may not be saved. This includes changing the root context to something other than `karaf`, without specifically setting `/admin` to a realm. The policies for all contexts will roll up, for example: the `/admin` context policy will roll up to the karaf realm with the default configuration because `/` is higher in the context heirarchy than `/admin` and no realm is specifically set for `/admin`.
+.. Under *Authentication Types*, make any desired authentication changes to contexts.
+... In order to use the SAML 2.0 Web SSO profile against a context, you must specify only the IdP authentication type
+. Open the *Security STS Client* configuration. Verify that the host/port information in the *STS Address* field points to your STS server. If you are using the default bundled STS, this information will already be correct.
+
+The ${branding} should now use the SSO/STS/LDAP servers when it attempts to authenticate a user upon an attempted log in.
+
+===== Enable SSL for Clients
+
+In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties.
+These values are configured in the `<${branding}_HOME>/etc/system.properties` file.
+The following values can be set:
+
+[cols="1,1,3" options="header"]
+|===
+
+|Property
+|Sample Value
+|Description
+
+|`javax.net.ssl.trustStore`
+|`etc/keystores/serverTruststore.jks`
+|The java keystore that contains the trusted public certificates for Certificate Authorities (CA's) that can be used to validate SSL Connections for outbound TLS/SSL connections (e.g. HTTPS).
+When making outbound secure connections a handshake will be done with the remote secure server and the CA that is in the signing chain for the remote server's certificate must be present in the trust store for the secure connection to be successful.
+
+|`javax.net.ssl.trustStorePassword`
+|`changeit`
+|This is the password for the truststore listed in the above property
+
+|`javax.net.ssl.keyStore`
+|`etc/keystores/serverKeystore.jks`
+|The keystore that contains the private key for the local server that can be used for signing, encryption, and SSL/TLS.
+
+|`javax.net.ssl.keyStorePassword`
+|`changeit`
+|The password for the keystore listed above
+
+|`javax.net.ssl.keyStoreType`
+|`jks`
+|The type of keystore
+
+|`https.cipherSuites`
+|`TLS_DHE_RSA_WITH_AES_128_GCM_SHA256`,
+`TLS_DHE_RSA_WITH_AES_128_CBC_SHA256`,
+`TLS_DHE_RSA_WITH_AES_128_CBC_SHA`,
+`TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`,
+`TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256`
+|The cipher suites that are supported when making outbound HTTPS connections
+
+|`https.protocols`
+|`TLSv1.1`,`TLSv1.2`
+|The protocols that are supported when making outbound HTTPS connections
+
+|`jdk.tls.client.protocols`
+|`TLSv1.1`,`TLSv1.2`
+|The protocols that are supported when making inbound HTTPS connections
+
+|`jdk.tls.ephemeralDHKeySize`
+|'matched'
+|For X.509 certificate based authentication (of non-exportable cipher suites), the DH key size matching the corresponding authentication key is used, except that the size must be between 1024 bits and 2048 bits. For example, if the public key size of an authentication certificate is 2048 bits, then the ephemeral DH key size should be 2048 bits unless the cipher suite is exportable. This key sizing scheme keeps the cryptographic strength consistent between authentication keys and key-exchange keys.
+
+|===
+.`<${branding}_HOME>`
+[NOTE]
+====
+${branding} is installed in the `<${branding}_HOME>` directory.
+====

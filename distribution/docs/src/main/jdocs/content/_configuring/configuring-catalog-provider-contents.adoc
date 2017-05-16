@@ -1,0 +1,23 @@
+:title: Reconfiguring ${branding} with a Different Catalog Provider
+:type: configuringAdminConsole
+:status: published
+:summary: Change catalog providers.
+:order: 08
+
+==== Reconfiguring ${branding} with a Different Catalog Provider
+
+This scenario describes how to reconfigure ${branding} to use a different catalog provider.
+
+This scenario assumes ${branding} is already running.
+
+.Uninstall Catalog Provider (if installed).
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-solr}* application.
+. Select the *Features* tab.
+. Find and Stop the installed Catalog Provider
+
+.Install the new Catalog Provider
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-solr}* application.
+. Select the *Features* tab.
+. Find and Start the desired Catalog Provider.

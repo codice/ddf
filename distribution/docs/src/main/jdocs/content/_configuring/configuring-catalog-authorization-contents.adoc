@@ -1,0 +1,25 @@
+:title: Configuring Catalog Operation Authorization
+:type: configuringAdminConsole
+:status: published
+:summary: Configuring Catalog operation authorization.
+:order: 17
+
+==== Configuring Catalog Operation Authorization
+
+All ${branding} Catalog operations can be restricted to users with certain attributes.
+
+===== Configuring Operation Authorization
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Configuration* tab.
+. Select on the *Catalog Policy Plugin* configuration.
+. Add any required attributes for each operation type.
+. Select on the *Resource URI Policy Plugin* configuration.
+. Add any required attributes for each operation type.
+
+Only users with the attributes listed on the *Catalog Policy Plugin* configuration will be allowed to access those operations.
+By default, all operations only require a role of "guest" which every user has mixed into their attributes by way of the *Guest Claims Handler*.
+If the default Guest user role is changed to something other than "guest" this configuration will need to be updated to allow users to continue using ${branding} Catalog operations.
+
+The *Resource URI Policy Plugin* functions in a very similar manner, but permits the `resource-uri` field to be protected separately from the rest of the metacard.

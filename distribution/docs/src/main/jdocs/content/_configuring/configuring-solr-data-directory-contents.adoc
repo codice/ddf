@@ -1,0 +1,64 @@
+:title: Configuring Solr Catalog Provider Data Directory
+:type: configuringConfigFile
+:status: published
+:summary: Configuring solr catalog provider data directory.
+:order: 10
+
+==== Configuring Solr Catalog Provider Data Directory
+
+The HTTP Solr Catalog Provider and the Embedded Solr Catalog Provider writes index files to the file system.
+By default, these files are stored under `${branding}_HOME/data/solr/catalog/data`.
+If there is inadequate space in `${branding}_HOME`, or if it is desired to maintain backups of the indexes only, this directory can be changed.
+
+In order to change the Data Directory, the `system.properties` file in `${branding}_HOME/etc` must be edited prior to starting ${branding}.
+
+.Edit the `system.properties` file
+[source]
+----
+# Uncomment the following line and set it to the desired path
+# solr.data.dir = ${karaf.home}/data/solr
+----
+
+===== Changing the Data Directory
+
+It may become necessary to change the data directory after ${branding} has ingested data.
+
+. Shut down the ${branding}.
+. Create the new directory to hold the indexes.
++
+.Make new Data Directory
+[source,bash]
+----
+mkdir -p /path/to/new/data/dir
+----
++
+. Copy the indexes to the new directory.
++
+.Copy the indexes to the new Directory.
+[source,bash]
+----
+cp /path/to/old/data/dir/* /path/to/new/data/dir/.
+----
++
+. Set the `system.properties` file to use the new directory.
++
+.Update system.properties file
+[source,java]
+----
+solr.data.dir = /path/to/new/data/dir
+----
++
+. Restart the ${branding}.
+
+[WARNING]
+====
+*Changes Require a Distribution Restart* +
+If the Data Directory File Path property is changed, no changes will occur to the Solr Catalog Provider until the distribution has been restarted.
+====
+
+[NOTE]
+====
+If data directory file path property is changed to a new directory, and the previous data is not moved into that directory, no data will exist in Solr.
+Instead, Solr will create an empty index.
+Therefore, it is possible to have multiple places where Solr files are stored, and a user can toggle between those locations for different sets of data.
+====

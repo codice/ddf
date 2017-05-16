@@ -1,0 +1,24 @@
+:title: Importing the exported configuration settings
+:type: configuringImport
+:status: published
+:summary: Importing the exported configuration settings.
+:order: 02
+
+==== Importing the Exported Configuration Settings
+
+[WARNING]
+====
+Importing of configurations must take place before starting the new installation for the first time.
+====
+
+To import a previously exported configuration:
+
+. Delete all exising `.config` files from `<${branding}_HOME>/etc`:
+.. `cd <{$branding}_HOME>`
+.. `rm etc/*.config`
+.. `unzip /path/to/exported/zip/exportFiles.zip`
+. Unzip the exported files from a previous installation to the new instance's `<${branding}_HOME>/etc` directory: `unzip exportedFiles.zip <${branding}_HOME>/etc`
+. If needed, manually update system configuration files such as `system.properties`, `users.properties`. keystores, etc.
+. Launch the newly installed ${branding}.
+. Step through the installation process. The newly installed ${branding} will have the previous ${branding}'s settings imported.
+. To get a status of the import, run the `migration:status` from the ${command-console}.

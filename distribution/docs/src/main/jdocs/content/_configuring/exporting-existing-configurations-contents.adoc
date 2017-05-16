@@ -1,0 +1,68 @@
+:title: Exporting Existing Configurations
+:type: configuringImport
+:status: published
+:summary: Exporting existing configurations.
+:order: 01
+
+==== Exporting Existing Configurations
+
+.Exporting Existing Configurations from ${admin-console}
+****
+You can export the current system configurations using the ${admin-console}.
+This is useful for migrating from one running instance to another.
+
+To export the current system configurations, follow these instructions:
+
+. Select the *System* tab (next to the *Applications* tab)
++
+image::exporting_configuration_step1.png[Exporting Step 1]
+. Click the *Export Configuration* button
++
+image::exporting_configuration_step2.png[Exporting Step 2]
+. Fill out the form, specifying the _destination_ for the export. A relative path will be relative to `<${branding}_HOME>`.
++
+image::exporting_configuration_step3.png[Exporting Step 3]
+. Click the *Start Export* button.
+. If there are no warnings or errors, the form will automatically close upon finishing the export.
+
+****
+
+.Export Existing Configuration Settings from ${command-console}
+****
+
+* *{hardening-step}*
+
+To export the current ${branding} configuration from the ${command-console}:
+
+. Type in `migration:export <directory>`. This command creates the exported configuration files that are saved to the specified directory. If no directory is specified it will default to `<${branding}_HOME>/etc/exported`
+. Zip up the exported files in the export directory.
+----
+cd  <${branding}_HOME>/etc/exported
+zip -r exportedFiles.zip *
+----
+
+****
+
+===== Troubleshooting Common Warnings or Failures of Configuration Export
+
+If export is unsuccessful, use this list to verify the correct configuration.
+
+* Export Destination Directory Permissions Set to Read Only.
+
+.Insufficient Write Permissions
+image::exporting_configuration_error.png[]
+
+* Properties Set to Absolute File Paths
+** Setting properties to absolute paths is not allowed; so update the property to a value that is relative to `<${branding}_HOME>`.
+However, notice that the export did not completely fail, but issued a warning that a specific file was excluded.
+
+.Absolute File Path in Configuration Export
+image::exporting_configuration_warning.png[Absolute File Path in Configuration Export]
+
+[IMPORTANT]
+====
+Some system configuration files contain paths to other configuration files. For instance, the `system.properties` file contains the `javax.net.ssl.keyStore` property which provides the path to system key store.
+The files referred to in the system configuration files will be included in the export process only if the path is relative to `<${branding}_HOME>`.
+Using absolute paths and/or symbolic links in those cases will cause the `migration:export` command to display warnings about those files and exclude them from the export process.
+The export process itself will not be aborted.
+====
