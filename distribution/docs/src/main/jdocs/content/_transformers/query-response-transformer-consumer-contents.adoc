@@ -1,0 +1,16 @@
+:title: Query Response Transformer Consumer
+:type: transformer
+:subtype: queryResponse
+:status: published
+:link: _query_response_transformer_consumer
+:summary: Translates a query response into a Catalog Metacard.
+
+The Query Response Transformer Consumer is responsible for translating a query response into a Catalog Metacard.
+
+===== Installing the Query Response Transformer Consumer
+
+The Query Response Transformer Consumer is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Query Response Transformer Consumer
+
+The Query Response Transformer Consumer has no configurable properties.

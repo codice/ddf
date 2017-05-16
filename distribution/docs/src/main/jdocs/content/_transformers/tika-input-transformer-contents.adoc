@@ -1,0 +1,23 @@
+:title: Tika Input Transformer
+:type: transformer
+:subtype: input
+:status: published
+:link: _tika_input_transformer
+:summary: Translates Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into Catalog Metacards.
+
+The Tika Input Transformer is the default input transformer responsible for translating Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into Catalog Metacards.
+This input transformer utilizes https://tika.apache.org[Apache Tika] to provide basic support for these mime types.
+As such, the metadata extracted from these types of documents is the metadata that is common across all of these document types, e.g., creation date, author, last modified date, etc.
+The Tika Input Transformer's main purpose is to ingest these types of content into the Metadata Catalog.
+
+The Tika input transformer is given a service ranking (priority) of -1 so that it is guaranteed to be the last input transformer that is invoked.
+This allows any registered input transformer that are more specific for any of these document types to be invoked instead of this rudimentary input transformer.
+
+===== Installing the Tika Input Transformer
+
+This transformer is installed by default with a standard installation in the ${ddf-catalog}.
+
+===== Configuring the Tika Input Transformer
+
+The Tika Input Transformer has no configurable properties.
+

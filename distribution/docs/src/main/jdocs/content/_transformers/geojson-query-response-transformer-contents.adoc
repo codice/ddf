@@ -1,0 +1,18 @@
+:title: GeoJSON Query Response Transformer
+:type: transformer
+:status: published
+:link: _geojson_query_response_transformer
+:summary: Translates a query response into a GeoJSON-formatted document.
+:subtype: queryResponse
+
+The GeoJSON Query Response Transformer translates a query response into a GeoJSON-formatted document.
+
+===== Installing the GeoJSON Query Response Transformer
+
+The GeoJSON Query Response Transformer is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the GeoJSON Query Response Transformer
+
+The GeoJSON Query Response Transformer has no configurable properties.
+
+'''

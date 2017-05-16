@@ -1,0 +1,26 @@
+:title: Tika Mime Type Resolver
+:type: mimeTypeResolver
+:status: published
+:link: _tika_mime_type_resolver
+:summary: Provides support for resolving over 1300 mime types.
+
+The `TikaMimeTypeResolver` is a `MimeTypeResolver` that is implemented using the https://tika.apache.org[Apache Tika] open source product.
+
+Using the Apache Tika content analysis toolkit, the `TikaMimeTypeResolver` provides support for resolving over 1300 mime types, but not all mime types yield the same quality metadata.
+
+The `TikaMimeTypeResolver` is assigned a default priority of `-1` to insure that it is always invoked last by the `MimeTypeMapper`.
+This insures that any custom `MimeTypeResolvers` that may be installed will be invoked before the `TikaMimeTypeResolver`.
+
+The `TikaMimeTypeResolver` provides the bulk of the default mime type support for ${branding}.
+
+===== Installing the Tika Mime Type Resolver
+
+The `TikaMimeTypeResolver` is bundled as the `mime-tika-resolver` feature in the `mime-tika-app` application.
+
+This feature is installed by default.
+
+====== Configuring the Tika Mime Type Resolver
+
+The Tika Mime Type Resolver has no configurable properties.
+
+'''

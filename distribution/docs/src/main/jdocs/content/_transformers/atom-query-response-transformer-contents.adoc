@@ -1,0 +1,173 @@
+:title: Atom Query Response Transformer
+:type: transformer
+:subtype: queryResponse
+:status: published
+:link: _atom_query_response_transformer
+:summary: Transforms a query response into an http://tools.ietf.org/html/rfc4287[Atom 1.0] feed.
+
+The Atom Query Response Transformer transforms a query response into an http://tools.ietf.org/html/rfc4287[Atom 1.0] feed.
+The Atom transformer maps a `QueryResponse` object as described in the Query Result Mapping.
+
+===== Installing the Atom Query Response Transformer
+
+The Atom Query Response Transformer is installed by default with a standard installation.
+
+===== Configuring the Atom Query Response Transformer
+
+The Atom Query Response Transformer has no configurable properties.
+
+===== Using the Atom Query Response Transformer
+
+Use this transformer when Atom is the preferred medium of communicating information, such as for feed readers or federation.
+An integrator could use this with an endpoint to transform query responses into an Atom feed.
+
+For example, clients can use the https://tools.codice.org/#[OpenSearch Endpoint].
+The client can query with the format option set to the shortname, `atom`.
+
+.Sample OpenSearch Query with Atom Specified as Return Format
+----
+${public_url}/services/catalog/query?q=${branding-lowercase}?format=atom
+----
+
+Developers could use this transformer to programmatically transform `QueryResponse` objects on the fly.
+
+.Sample Atom Feed from `QueryResponse` object
+[source,xml,linenums]
+----
+ <feed xmlns="http://www.w3.org/2005/Atom" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+    <title type="text">Query Response</title>
+    <updated>2017-01-31T23:22:37.298Z</updated>
+    <id>urn:uuid:a27352c9-f935-45f0-9b8c-5803095164bb</id>
+    <link href="#" rel="self" />
+    <author>
+        <name>Organization Name</name>
+    </author>
+    <generator version="2.1.0.20130129-1341">${branding-lowercase}123</generator>
+    <os:totalResults>1</os:totalResults>
+    <os:itemsPerPage>10</os:itemsPerPage>
+    <os:startIndex>1</os:startIndex>
+    <entry xmlns:relevance="http://a9.com/-/opensearch/extensions/relevance/1.0/" xmlns:fs="http://a9.com/-/opensearch/extensions/federation/1.0/"
+        xmlns:georss="http://www.georss.org/georss">
+        <fs:resultSource fs:sourceId="${branding-lowercase}123" />
+        <relevance:score>0.19</relevance:score>
+        <id>urn:catalog:id:ee7a161e01754b9db1872bfe39d1ea09</id>
+        <title type="text">F-15 lands in Libya; Crew Picked Up</title>
+        <updated>2013-01-31T23:22:31.648Z</updated>
+        <published>2013-01-31T23:22:31.648Z</published>
+        <link href="http://123.45.67.123:8181/services/catalog/${branding-lowercase}123/ee7a161e01754b9db1872bfe39d1ea09" rel="alternate" title="View Complete Metacard" />
+        <category term="Resource" />
+        <georss:where xmlns:gml="http://www.opengis.net/gml">
+            <gml:Point>
+                <gml:pos>32.8751900768792 13.1874561309814</gml:pos>
+            </gml:Point>
+        </georss:where>
+        <content type="application/xml">
+            <ns3:metacard xmlns:ns3="urn:catalog:metacard" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ns1="http://www.opengis.net/gml"
+                xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" ns1:id="4535c53fc8bc4404a1d32a5ce7a29585">
+                <ns3:type>ddf.metacard</ns3:type>
+                <ns3:source>ddf.distribution</ns3:source>
+                <ns3:geometry name="location">
+                    <ns3:value>
+                        <ns1:Point>
+                            <ns1:pos>32.8751900768792 13.1874561309814</ns1:pos>
+                        </ns1:Point>
+                    </ns3:value>
+                </ns3:geometry>
+                <ns3:dateTime name="created">
+                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>
+                </ns3:dateTime>
+                <ns3:dateTime name="modified">
+                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>
+                </ns3:dateTime>
+                <ns3:stringxml name="metadata">
+                    <ns3:value>
+                        <ns6:xml xmlns:ns6="urn:sample:namespace" xmlns="urn:sample:namespace">Example description.</ns6:xml>
+                    </ns3:value>
+                </ns3:stringxml>
+                <ns3:string name="metadata-content-type-version">
+                    <ns3:value>myVersion</ns3:value>
+                </ns3:string>
+                <ns3:string name="metadata-content-type">
+                    <ns3:value>myType</ns3:value>
+                </ns3:string>
+                <ns3:string name="title">
+                    <ns3:value>Example title</ns3:value>
+                </ns3:string>
+            </ns3:metacard>
+        </content>
+    </entry>
+</feed>
+----
+
+.Atom Query Response Transformer Result Mapping
+[cols="2,3a" options="header"]
+|===
+
+|XPath to Atom XML
+|Value
+
+|`/feed/title`
+|"Query Response"
+
+|`/feed/updated`
+|ISO 8601 dateTime of when the feed was generated
+
+|`/feed/id`
+|Generated (http://en.wikipedia.org/wiki/Universally_Unique_Identifier)[UUID URN]
+
+|`/feed/author/name`
+|Platform Global Configuration organization
+
+|`/feed/generator`
+|Platform Global Configuration site name
+
+|`/feed/generator/@version`
+|Platform Global Configuration version
+
+|`/feed/os:totalResults`
+|SourceResponse Number of Hits
+
+|`/feed/os:itemsPerPage`
+|Request's Page Size
+
+|`/feed/os:startIndex`
+|Request's Start Index
+
+|`/feed/entry/fs:resultSource/@fs:sourceId`
+|Source Id from which the Result came. `Metacard.getSourceId()`
+
+|`/feed/entry/relevance:score`
+|Result's relevance score if applicable. `Result.getRelevanceScore()`
+
+|`/feed/entry/id`
+|`urn:catalog:id:<Metacard.ID>`
+
+|`/feed/entry/title`
+|`Metacard.TITLE`
+
+|`/feed/entry/updated`
+|ISO 8601 dateTime of `Metacard.MODIFIED`
+
+|`/feed/entry/published`
+|ISO 8601 dateTime of `Metacard.CREATED`
+
+|`/feed/entry/link[@rel='related']`
+|URL to retrieve underlying resource (if applicable and link is available)
+
+|`/feed/entry/link[@rel='alternate']`
+|Link to alternate view of the Metacard (if a link is available)
+
+|`/feed/entry/category`
+|`Metacard.CONTENT_TYPE`
+
+|`/feed/entry//georss:where`
+|GeoRSS GML of every Metacard attribute with format `AttributeFormat.GEOMETRY`
+
+|`/feed/entry/content`
+|Metacard XML generated by `${branding}.catalog.transform.MetacardTransformer` with `shortname=xml`.
+If no transformer found, `/feed/entry/content/@type` will be text and `Metacard.ID` is displayed
+
+`<content type="text">4e1f38d1913b4e93ac622e6c1b258f89</content>`
+|===
+
+'''

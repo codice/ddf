@@ -1,0 +1,126 @@
+:title: GeoJSON Input Transformer
+:type: transformer
+:subtype: input
+:status: published
+:link: _geojson_input_transformer
+:summary: Translates GeoJSON into a Catalog metacard.
+
+The GeoJSON input transformer is responsible for translating GeoJSON into a Catalog metacard.
+
+===== Installing the GeoJSON Input Transformer
+
+The GeoJSON Input Transformer is installed by default with a standard installation.
+
+===== Configuring the GeoJSON Input Transformer
+
+The GeoJSON Input Transformer has no configurable properties.
+
+===== Using the GeoJSON Input Transformer
+
+Using the REST Endpoint, for example, HTTP POST a GeoJSON metacard to the Catalog.
+Once the REST Endpoint receives the GeoJSON Metacard, it is converted to a Catalog metacard.
+
+.Example HTTP POST of a Local `metacard.json` File Using the Curl Command
+----
+curl -X POST -i -H "Content-Type: application/json" -d "${at-symbol}metacard.json" ${secure_url}/services/catalog
+----
+
+===== Conversion to a Metacard
+
+A http://geojson.org/geojson-spec.html#geojson-objects[GeoJSON object] consists of a single JSON object.
+This can be a geometry, a feature, or a `FeatureCollection`.
+The GeoJSON input transformer only converts "feature" objects into metacards because feature objects include geometry information and a list of properties.
+A geometry object alone does not contain enough information to create a metacard.
+Additionally, the input transformer currently does not handle ``FeatureCollection``s.
+
+[IMPORTANT]
+====
+.Cannot create Metacard from this limited GeoJSON
+[source,JSON,linenums]
+----
+{ "type": "LineString",
+ "coordinates": [ [100.0, 0.0], [101.0, 1.0] ]
+ }
+----
+====
+
+The following sample _will_ create a valid metacard:
+
+.Sample Parseable GeoJson (Point)
+[source,JSON,linenums]
+----
+{
+    "properties": {
+        "title": "myTitle",
+        "thumbnail": "CA==",
+        "resource-uri": "http://example.com",
+        "created": "2012-09-01T00:09:19.368+0000",
+        "metadata-content-type-version": "myVersion",
+        "metadata-content-type": "myType",
+        "metadata": "<xml></xml>",
+        "modified": "2012-09-01T00:09:19.368+0000"
+    },
+    "type": "Feature",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            30.0,
+            10.0
+        ]
+    }
+}
+----
+
+In the current implementation, `Metacard.LOCATION` is not taken from the properties list as WKT, but instead interpreted from the `geometry` JSON object.
+The geometry object is formatted according to the http://geojson.org/geojson-spec.html[GeoJSON] standard.
+Dates are in the ISO 8601 standard.
+White space is ignored, as in most cases with JSON.
+Binary data is accepted as Base64.
+XML must be properly escaped, such as what is proper for normal JSON.
+
+Currently, only *Required Attributes* are recognized in the properties.
+
+====== Metacard Extensibility
+
+GeoJSON supports custom, extensible properties on the incoming GeoJSON using ${branding}'s extensible metacard support.
+To have those customized attributes understood by the system, a corresponding `MetacardType` must be registered with the `MetacardTypeRegistry`.
+That `MetacardType` must be specified by name in the metacard-type property of the incoming GeoJSON.
+If a `MetacardType` is specified on the GeoJSON input, the customized properties can be processed, cataloged, and indexed.
+
+.Sample GeoJSON input
+[source,JSON,linenums]
+----
+{
+    "properties": {
+        "title": "myTitle",
+        "thumbnail": "CA==",
+        "resource-uri": "http://example.com",
+        "created": "2012-09-01T00:09:19.368+0000",
+        "metadata-content-type-version": "myVersion",
+        "metadata-content-type": "myType",
+        "metadata": "<xml></xml>",
+        "modified": "2012-09-01T00:09:19.368+0000",
+        "min-frequency": "10000000",
+        "max-frequency": "20000000",
+        "metacard-type": "ddf.metacard.custom.type"
+ },
+    "type": "Feature",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            30.0,
+            10.0
+        ]
+    }
+}
+----
+
+When the GeoJSON Input Transformer gets GeoJSON with the `MetacardType` specified, it will perform a lookup in the `MetacardTypeRegistry` to obtain the specified `MetacardType` in order to understand how to parse the GeoJSON.
+If no `MetacardType` is specified, the GeoJSON Input Transformer will assume the default `MetacardType`.
+If an unregistered `MetacardType` is specified, an exception will be returned to the client indicating that the `MetacardType` was not found.
+
+===== Usage Limitations of the GeoJSON Input Transformer
+
+The GeoJSON Input Transformer does not handle multiple geometries.
+
+'''

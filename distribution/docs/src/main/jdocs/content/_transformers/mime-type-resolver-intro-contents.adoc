@@ -1,0 +1,14 @@
+:title: Mime Type Resolver Intro
+:type: transformerIntro
+:status: published
+:link: _mime_type_resolver_intro
+:summary: Introduction to mime type resolvers.
+
+A `MimeTypeResolver` is a ${branding} service that can map a file extension to its corresponding mime type and, conversely, can map a mime type to its file extension.
+
+`MimeTypeResolvers` are assigned a priority (0-100, with the higher the number indicating the higher priority).
+This priority is used to sort all of the `MimeTypeResolvers` in the order they should be checked to map a file extension to a mime type (or vice versa).
+This priority also allows custom `MimeTypeResolvers` to be invoked before default `MimeTypeResolvers` by setting custom resolver's priority higher than the default.
+
+`MimeTypeResolvers` are not typically invoked directly.
+Rather, the `MimeTypeMapper` maintains a list of `MimeTypeResolvers` (sorted by their priority) that it invokes to resolve a mime type to its file extension (or to resolve a file extension to its mime type).

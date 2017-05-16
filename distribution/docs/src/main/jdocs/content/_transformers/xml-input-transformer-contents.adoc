@@ -1,0 +1,16 @@
+:title: XML Input Transformer
+:type: transformer
+:subtype: input
+:status: published
+:link: _xml_input_transformer
+:summary: Translates an XML document into a Catalog Metacard.
+
+The XML Input Transformer is responsible for translating an XML document into a Catalog Metacard.
+
+===== Installing the XML Input Transformer
+
+The XML Input Transformer is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the XML Input Transformer
+
+The XML Input Transformer has no configurable properties.
