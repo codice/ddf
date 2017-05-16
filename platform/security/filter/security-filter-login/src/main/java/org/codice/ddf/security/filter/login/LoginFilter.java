@@ -111,8 +111,12 @@ public class LoginFilter implements Filter {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 factory.setNamespaceAware(true);
                 try {
-                    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-                    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                    factory.setFeature(
+                            "http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
+                            false);
+                    factory.setFeature(
+                            "http://apache.org/xml/features/nonvalidating/load-external-dtd",
+                            false);
                 } catch (ParserConfigurationException e) {
                     LOGGER.debug("Unable to configure features on document builder.", e);
                 }
@@ -727,6 +731,11 @@ public class LoginFilter implements Filter {
         if (sessionToken == null) {
             addSecurityToken(session, realm, securityToken);
         }
+        SecurityAssertion securityAssertion = new SecurityAssertionImpl(securityToken);
+        SecurityLogger.audit("Added SAML for user [{}] to session [{}]",
+                securityAssertion.getPrincipal()
+                        .getName(),
+                session.getId());
         int minutes = getExpirationTime();
         //we just want to set this to some non-zero value if the configuration is messed up
         int seconds = 60;

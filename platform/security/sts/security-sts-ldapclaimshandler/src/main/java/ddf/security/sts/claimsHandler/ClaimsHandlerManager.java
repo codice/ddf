@@ -15,6 +15,7 @@ package ddf.security.sts.claimsHandler;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -43,6 +44,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 
 /**
@@ -111,8 +113,7 @@ public class ClaimsHandlerManager {
         if (props == null) {
             return;
         }
-        LOGGER.debug(
-                "Received an updated set of configurations for the LDAP/Role Claims Handlers.");
+        LOGGER.debug("Received an updated set of configurations for the LDAP/Role Claims Handlers.");
         String url = new PropertyResolver((String) props.get(ClaimsHandlerManager.URL)).toString();
         Boolean startTls;
         if (props.get(ClaimsHandlerManager.START_TLS) instanceof String) {
@@ -127,17 +128,16 @@ public class ClaimsHandlerManager {
         String memberNameAttribute = (String) props.get(ClaimsHandlerManager.MEMBER_NAME_ATTRIBUTE);
         String groupBaseDn = (String) props.get(ClaimsHandlerManager.GROUP_BASE_DN);
         String loginUserAttribute = (String) props.get(ClaimsHandlerManager.LOGIN_USER_ATTRIBUTE);
-        String membershipUserAttribute = (String) props.get(
-                ClaimsHandlerManager.MEMBER_USER_ATTRIBUTE);
-        String propertyFileLocation = (String) props.get(
-                ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
+        String membershipUserAttribute =
+                (String) props.get(ClaimsHandlerManager.MEMBER_USER_ATTRIBUTE);
+        String propertyFileLocation =
+                (String) props.get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
         String bindMethod = (String) props.get(ClaimsHandlerManager.BIND_METHOD);
-        String realm = (props.get(ClaimsHandlerManager.REALM) != null) ?
-                (String) props.get(ClaimsHandlerManager.REALM) :
-                "";
-        String kdcAddress = (props.get(ClaimsHandlerManager.KDC_ADDRESS) != null) ?
-                (String) props.get(ClaimsHandlerManager.KDC_ADDRESS) :
-                "";
+        String realm = (props.get(ClaimsHandlerManager.REALM) != null) ? (String) props.get(
+                ClaimsHandlerManager.REALM) : "";
+        String kdcAddress =
+                (props.get(ClaimsHandlerManager.KDC_ADDRESS) != null) ? (String) props.get(
+                        ClaimsHandlerManager.KDC_ADDRESS) : "";
         if ("GSSAPI SASL".equals(bindMethod) && (StringUtils.isEmpty(realm) || StringUtils.isEmpty(
                 kdcAddress))) {
             LOGGER.warn(
@@ -145,8 +145,8 @@ public class ClaimsHandlerManager {
         }
         Boolean overrideCertDn;
         if (props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN) instanceof String) {
-            overrideCertDn = Boolean.valueOf(
-                    (String) props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN));
+            overrideCertDn =
+                    Boolean.valueOf((String) props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN));
         } else {
             overrideCertDn = (Boolean) props.get(ClaimsHandlerManager.OVERRIDE_CERT_DN);
         }
@@ -162,11 +162,29 @@ public class ClaimsHandlerManager {
             }
             LDAPConnectionFactory connection1 = createLdapConnectionFactory(url, startTls);
             LDAPConnectionFactory connection2 = createLdapConnectionFactory(url, startTls);
-            registerRoleClaimsHandler(connection1, propertyFileLocation, userBaseDn,
-                    loginUserAttribute, membershipUserAttribute, objectClass, memberNameAttribute,
-                    groupBaseDn, userDn, password, overrideCertDn, bindMethod, realm, kdcAddress);
-            registerLdapClaimsHandler(connection2, propertyFileLocation, userBaseDn,
-                    loginUserAttribute, userDn, password, overrideCertDn, bindMethod, realm,
+            registerRoleClaimsHandler(connection1,
+                    propertyFileLocation,
+                    userBaseDn,
+                    loginUserAttribute,
+                    membershipUserAttribute,
+                    objectClass,
+                    memberNameAttribute,
+                    groupBaseDn,
+                    userDn,
+                    password,
+                    overrideCertDn,
+                    bindMethod,
+                    realm,
+                    kdcAddress);
+            registerLdapClaimsHandler(connection2,
+                    propertyFileLocation,
+                    userBaseDn,
+                    loginUserAttribute,
+                    userDn,
+                    password,
+                    overrideCertDn,
+                    bindMethod,
+                    realm,
                     kdcAddress);
 
         } catch (Exception e) {
@@ -211,7 +229,24 @@ public class ClaimsHandlerManager {
         } catch (NumberFormatException ignore) {
         }
 
+        auditRemoteConnection(host);
+
         return new LDAPConnectionFactory(host, port, lo);
+    }
+
+    private void auditRemoteConnection(String host) {
+        try {
+            InetAddress inetAddress = InetAddress.getByName(host);
+            SecurityLogger.audit("Setting up remote connection to LDAP [{}].",
+                    inetAddress.getHostAddress());
+        } catch (Exception e) {
+            LOGGER.debug(
+                    "Unhandled exception while attempting to determine the IP address for an LDAP, might be a DNS issue.",
+                    e);
+            SecurityLogger.audit(
+                    "Unable to determine the IP address for an LDAP [{}], might be a DNS issue.",
+                    host);
+        }
     }
 
     /**
@@ -398,8 +433,8 @@ public class ClaimsHandlerManager {
         KeyManagerFactory kmf;
         try {
             // keystore stuff
-            KeyStore keyStore = KeyStore.getInstance(
-                    System.getProperty("javax.net.ssl.keyStoreType"));
+            KeyStore keyStore =
+                    KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
             LOGGER.debug("keyStoreLoc = {}", keyStoreLoc);
             FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
             try {
@@ -432,8 +467,8 @@ public class ClaimsHandlerManager {
         TrustManagerFactory tmf;
         try {
             // truststore stuff
-            KeyStore trustStore = KeyStore.getInstance(
-                    System.getProperty("javax.net.ssl.keyStoreType"));
+            KeyStore trustStore = KeyStore.getInstance(System.getProperty(
+                    "javax.net.ssl.keyStoreType"));
             LOGGER.debug("trustStoreLoc = {}", trustStoreLoc);
             FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
             try {
