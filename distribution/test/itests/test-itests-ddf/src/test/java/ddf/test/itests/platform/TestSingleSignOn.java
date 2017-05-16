@@ -440,7 +440,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                         params(idpHelper.params).
                         redirects().follow(false).
                 expect().
-                        statusCode(anyOf(is(302), is(303))).
+                        statusCode(anyOf(is(307), is(303))).
                         when().
                 get(idpHelper.redirectUrl);
         // @formatter:on
@@ -495,7 +495,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                         params(idpHelper.params).
                         redirects().follow(false).
                 expect().
-                        statusCode(anyOf(is(302), is(303))).
+                        statusCode(anyOf(is(307), is(303))).
                 when().
                         get(idpHelper.redirectUrl);
         // @formatter:on
@@ -586,7 +586,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                         params(idpHelper.params).
                         redirects().follow(false).
                 expect().
-                        statusCode(anyOf(is(302), is(303))).
+                        statusCode(anyOf(is(307), is(303))).
                         when().
                 get(idpHelper.redirectUrl);
         // @formatter:on

@@ -52,34 +52,40 @@ public class PaosInInterceptorTest {
         XMLObjectProviderRegistry xmlObjectProviderRegistry = ConfigurationService.get(
                 XMLObjectProviderRegistry.class);
         xmlObjectProviderRegistry.registerObjectProvider(Request.DEFAULT_ELEMENT_NAME,
-                new RequestBuilder(), new RequestMarshaller(), new RequestUnmarshaller());
+                new RequestBuilder(),
+                new RequestMarshaller(),
+                new RequestUnmarshaller());
         xmlObjectProviderRegistry.registerObjectProvider(Response.DEFAULT_ELEMENT_NAME,
-                new ResponseBuilder(), new ResponseMarshaller(), new ResponseUnmarshaller());
+                new ResponseBuilder(),
+                new ResponseMarshaller(),
+                new ResponseUnmarshaller());
     }
 
     @Test
     public void handleMessagePaosResponseBasicGood() throws IOException {
         Message message = new MessageImpl();
-        message.setContent(InputStream.class, PaosInInterceptorTest.class.getClassLoader()
-                .getResource("ecprequest.xml")
-                .openStream());
+        message.setContent(InputStream.class,
+                PaosInInterceptorTest.class.getClassLoader()
+                        .getResource("ecprequest.xml")
+                        .openStream());
         message.put(Message.CONTENT_TYPE, "application/vnd.paos+xml");
         Message outMessage = new MessageImpl();
         HashMap<String, List> protocolHeaders = new HashMap<>();
         outMessage.put(Message.PROTOCOL_HEADERS, protocolHeaders);
+        outMessage.put(Message.HTTP_REQUEST_METHOD, "GET");
         protocolHeaders.put("Authorization", Collections.singletonList("BASIC dGVzdDp0ZXN0"));
         ExchangeImpl exchange = new ExchangeImpl();
         exchange.setOutMessage(outMessage);
         message.setExchange(exchange);
         PaosInInterceptor paosInInterceptor = new PaosInInterceptor(Phase.RECEIVE) {
-            HttpResponseWrapper getHttpResponse(String url, String soapResponse)
-                    throws IOException {
+            HttpResponseWrapper getHttpResponse(String responseConsumerURL, String soapResponse,
+                    Message message) throws IOException {
                 HttpResponseWrapper httpResponseWrapper = new HttpResponseWrapper();
-                if (url.equals("https://sp.example.org/PAOSConsumer")) {
+                if (responseConsumerURL.equals("https://sp.example.org/PAOSConsumer")) {
                     httpResponseWrapper.statusCode = 200;
-                    httpResponseWrapper.content = new ByteArrayInputStream(
-                            "actual content".getBytes());
-                } else if (url.equals("https://idp.example.org/saml2/sso")) {
+                    httpResponseWrapper.content =
+                            new ByteArrayInputStream("actual content".getBytes());
+                } else if (responseConsumerURL.equals("https://idp.example.org/saml2/sso")) {
                     httpResponseWrapper.statusCode = 200;
                     httpResponseWrapper.content = PaosInInterceptorTest.class.getClassLoader()
                             .getResource("idpresponse.xml")
@@ -95,26 +101,28 @@ public class PaosInInterceptorTest {
     @Test(expected = Fault.class)
     public void handleMessagePaosResponseBasicBad() throws IOException {
         Message message = new MessageImpl();
-        message.setContent(InputStream.class, PaosInInterceptorTest.class.getClassLoader()
-                .getResource("ecprequest.xml")
-                .openStream());
+        message.setContent(InputStream.class,
+                PaosInInterceptorTest.class.getClassLoader()
+                        .getResource("ecprequest.xml")
+                        .openStream());
         message.put(Message.CONTENT_TYPE, "application/vnd.paos+xml");
         Message outMessage = new MessageImpl();
         HashMap<String, List> protocolHeaders = new HashMap<>();
         outMessage.put(Message.PROTOCOL_HEADERS, protocolHeaders);
+        outMessage.put(Message.HTTP_REQUEST_METHOD, "GET");
         protocolHeaders.put("Authorization", Collections.singletonList("BASIC dGVzdDp0ZXN0"));
         ExchangeImpl exchange = new ExchangeImpl();
         exchange.setOutMessage(outMessage);
         message.setExchange(exchange);
         PaosInInterceptor paosInInterceptor = new PaosInInterceptor(Phase.RECEIVE) {
-            HttpResponseWrapper getHttpResponse(String url, String soapResponse)
-                    throws IOException {
+            HttpResponseWrapper getHttpResponse(String responseConsumerURL, String soapResponse,
+                    Message message) throws IOException {
                 HttpResponseWrapper httpResponseWrapper = new HttpResponseWrapper();
-                if (url.equals("https://sp.example.org/PAOSConsumer")) {
+                if (responseConsumerURL.equals("https://sp.example.org/PAOSConsumer")) {
                     httpResponseWrapper.statusCode = 400;
-                    httpResponseWrapper.content = new ByteArrayInputStream(
-                            "actual content".getBytes());
-                } else if (url.equals("https://idp.example.org/saml2/sso")) {
+                    httpResponseWrapper.content =
+                            new ByteArrayInputStream("actual content".getBytes());
+                } else if (responseConsumerURL.equals("https://idp.example.org/saml2/sso")) {
                     httpResponseWrapper.statusCode = 200;
                     httpResponseWrapper.content = PaosInInterceptorTest.class.getClassLoader()
                             .getResource("idpresponse.xml")
@@ -129,13 +137,15 @@ public class PaosInInterceptorTest {
     @Test(expected = Fault.class)
     public void handleMessagePaosResponseBasicNoIdp() throws IOException {
         Message message = new MessageImpl();
-        message.setContent(InputStream.class, PaosInInterceptorTest.class.getClassLoader()
-                .getResource("ecprequest_noidp.xml")
-                .openStream());
+        message.setContent(InputStream.class,
+                PaosInInterceptorTest.class.getClassLoader()
+                        .getResource("ecprequest_noidp.xml")
+                        .openStream());
         message.put(Message.CONTENT_TYPE, "application/vnd.paos+xml");
         Message outMessage = new MessageImpl();
         HashMap<String, List> protocolHeaders = new HashMap<>();
         outMessage.put(Message.PROTOCOL_HEADERS, protocolHeaders);
+        outMessage.put(Message.HTTP_REQUEST_METHOD, "GET");
         protocolHeaders.put("Authorization", Collections.singletonList("BASIC dGVzdDp0ZXN0"));
         ExchangeImpl exchange = new ExchangeImpl();
         exchange.setOutMessage(outMessage);
@@ -147,26 +157,28 @@ public class PaosInInterceptorTest {
     @Test
     public void handleMessagePaosResponseBasicBadAcsUrl() throws IOException {
         Message message = new MessageImpl();
-        message.setContent(InputStream.class, PaosInInterceptorTest.class.getClassLoader()
-                .getResource("ecprequest.xml")
-                .openStream());
+        message.setContent(InputStream.class,
+                PaosInInterceptorTest.class.getClassLoader()
+                        .getResource("ecprequest.xml")
+                        .openStream());
         message.put(Message.CONTENT_TYPE, "application/vnd.paos+xml");
         Message outMessage = new MessageImpl();
         HashMap<String, List> protocolHeaders = new HashMap<>();
         outMessage.put(Message.PROTOCOL_HEADERS, protocolHeaders);
+        outMessage.put(Message.HTTP_REQUEST_METHOD, "GET");
         protocolHeaders.put("Authorization", Collections.singletonList("BASIC dGVzdDp0ZXN0"));
         ExchangeImpl exchange = new ExchangeImpl();
         exchange.setOutMessage(outMessage);
         message.setExchange(exchange);
         PaosInInterceptor paosInInterceptor = new PaosInInterceptor(Phase.RECEIVE) {
-            HttpResponseWrapper getHttpResponse(String url, String soapResponse)
-                    throws IOException {
+            HttpResponseWrapper getHttpResponse(String responseConsumerURL, String soapResponse,
+                    Message message) throws IOException {
                 HttpResponseWrapper httpResponseWrapper = new HttpResponseWrapper();
-                if (url.equals("https://sp.example.org/PAOSConsumer")) {
+                if (responseConsumerURL.equals("https://sp.example.org/PAOSConsumer")) {
                     httpResponseWrapper.statusCode = 200;
-                    httpResponseWrapper.content = new ByteArrayInputStream(
-                            "error content".getBytes());
-                } else if (url.equals("https://idp.example.org/saml2/sso")) {
+                    httpResponseWrapper.content =
+                            new ByteArrayInputStream("error content".getBytes());
+                } else if (responseConsumerURL.equals("https://idp.example.org/saml2/sso")) {
                     httpResponseWrapper.statusCode = 200;
                     httpResponseWrapper.content = new ByteArrayInputStream(IOUtils.toString(
                             PaosInInterceptorTest.class.getClassLoader()

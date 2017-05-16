@@ -303,7 +303,7 @@ public class AssertionConsumerService {
         }
 
         LOGGER.trace("Successfully logged in.  Redirecting to {}", relayUri.toString());
-        return Response.seeOther(relayUri)
+        return Response.temporaryRedirect(relayUri)
                 .build();
     }
 

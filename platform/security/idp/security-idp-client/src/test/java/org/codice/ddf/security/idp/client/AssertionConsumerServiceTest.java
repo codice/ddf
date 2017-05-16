@@ -127,9 +127,9 @@ public class AssertionConsumerServiceTest {
     public void testPostSamlResponse() throws Exception {
         Response response = assertionConsumerService.postSamlResponse(Base64.getEncoder()
                 .encodeToString(this.cannedResponse.getBytes()), RELAY_STATE_VAL);
-        assertThat("The http response was not 303 SEE OTHER",
+        assertThat("The http response was not 307 TEMPORARY REDIRECT",
                 response.getStatus(),
-                is(HttpStatus.SC_SEE_OTHER));
+                is(HttpStatus.SC_TEMPORARY_REDIRECT));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
                         .toString(),
@@ -159,9 +159,9 @@ public class AssertionConsumerServiceTest {
         Response response =
                 assertionConsumerService.postSamlResponse(new String(this.cannedResponse.getBytes()),
                         relayStateValue);
-        assertThat("The http response was not 303 SEE OTHER",
+        assertThat("The http response was not 307 TEMPORARY REDIRECT",
                 response.getStatus(),
-                is(HttpStatus.SC_SEE_OTHER));
+                is(HttpStatus.SC_TEMPORARY_REDIRECT));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
                         .toString(),
@@ -175,9 +175,9 @@ public class AssertionConsumerServiceTest {
                 RELAY_STATE_VAL,
                 SIG_ALG_VAL,
                 SIGNATURE_VAL);
-        assertThat("The http response was not 303 SEE OTHER",
+        assertThat("The http response was not 307 TEMPORARY REDIRECT",
                 response.getStatus(),
-                is(HttpStatus.SC_SEE_OTHER));
+                is(HttpStatus.SC_TEMPORARY_REDIRECT));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
                         .toString(),
@@ -201,9 +201,9 @@ public class AssertionConsumerServiceTest {
                 RELAY_STATE_VAL,
                 SIG_ALG_VAL,
                 null);
-        assertThat("The http response was not 303 SEE OTHER",
+        assertThat("The http response was not 307 TEMPORARY REDIRECT",
                 response.getStatus(),
-                is(HttpStatus.SC_SEE_OTHER));
+                is(HttpStatus.SC_TEMPORARY_REDIRECT));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
                         .toString(),
@@ -239,9 +239,9 @@ public class AssertionConsumerServiceTest {
 
         Response response = assertionConsumerService.processSamlResponse(cannedResponse,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 303 SEE OTHER",
+        assertThat("The http response was not 307 TEMPORARY REDIRECT",
                 response.getStatus(),
-                is(HttpStatus.SC_SEE_OTHER));
+                is(HttpStatus.SC_TEMPORARY_REDIRECT));
         assertThat("The response did not redirect to the correct location.",
                 response.getLocation()
                         .getPath(),
@@ -254,9 +254,9 @@ public class AssertionConsumerServiceTest {
 
         Response response = assertionConsumerService.processSamlResponse(cannedResponse,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 303 SEE OTHER",
+        assertThat("The http response was not 307 TEMPORARY REDIRECT",
                 response.getStatus(),
-                is(HttpStatus.SC_SEE_OTHER));
+                is(HttpStatus.SC_TEMPORARY_REDIRECT));
         assertThat("The response did not redirect to the correct location.",
                 response.getLocation()
                         .getPath(),
@@ -269,9 +269,9 @@ public class AssertionConsumerServiceTest {
 
         Response response = assertionConsumerService.processSamlResponse(cannedResponse,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 303 SEE OTHER",
+        assertThat("The http response was not 307 TEMPORARY REDIRECT",
                 response.getStatus(),
-                is(HttpStatus.SC_SEE_OTHER));
+                is(HttpStatus.SC_TEMPORARY_REDIRECT));
         assertThat("The response did not redirect to the correct location.",
                 response.getLocation()
                         .getPath(),
@@ -340,9 +340,9 @@ public class AssertionConsumerServiceTest {
 
         Response response = assertionConsumerService.processSamlResponse(failureRequest,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 303 SEE OTHER",
+        assertThat("The http response was not 307 TEMPORARY REDIRECT",
                 response.getStatus(),
-                is(HttpStatus.SC_SEE_OTHER));
+                is(HttpStatus.SC_TEMPORARY_REDIRECT));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
                         .toString(),
@@ -368,9 +368,9 @@ public class AssertionConsumerServiceTest {
 
         Response response = assertionConsumerService.processSamlResponse(multipleAssertions,
                 RELAY_STATE_VAL);
-        assertThat("The http response was not 303 SEE OTHER",
+        assertThat("The http response was not 307 TEMPORARY REDIRECT",
                 response.getStatus(),
-                is(HttpStatus.SC_SEE_OTHER));
+                is(HttpStatus.SC_TEMPORARY_REDIRECT));
         assertThat("Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
                 response.getLocation()
                         .toString(),

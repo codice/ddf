@@ -168,6 +168,9 @@
                                     </limits>
                                 </rule>
                             </rules>
+                            <excludes>
+                                <exclude>**/BodyWriter.*</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
