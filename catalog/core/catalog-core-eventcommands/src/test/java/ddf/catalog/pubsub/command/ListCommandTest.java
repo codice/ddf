@@ -78,7 +78,7 @@ public class ListCommandTest {
         System.setOut(new PrintStream(buffer));
 
         // when
-        listCommand.doExecute();
+        listCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -115,7 +115,7 @@ public class ListCommandTest {
         System.setOut(new PrintStream(buffer));
 
         // when
-        listCommand.doExecute();
+        listCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -156,7 +156,7 @@ public class ListCommandTest {
 
         // when
         listCommand.id = MY_SUBSCRIPTION_ID;
-        listCommand.doExecute();
+        listCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -215,7 +215,7 @@ public class ListCommandTest {
 
         // when
         listCommand.id = MY_SUBSCRIPTION_ID;
-        listCommand.doExecute();
+        listCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -272,7 +272,7 @@ public class ListCommandTest {
         // when
         listCommand.id = ldapFilter;
         listCommand.ldapFilter = true;
-        listCommand.doExecute();
+        listCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
