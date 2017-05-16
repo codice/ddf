@@ -98,6 +98,13 @@ public class RegistryMetacardHandlerTest {
     }
 
     @Test
+    public void testRegistryMetacard() {
+        mcardInternal.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG);
+        rmh.handleEvent(event);
+        verify(executorService, never()).execute(any(Runnable.class));
+    }
+
+    @Test
     public void testCreateEvent() throws Exception {
         event = new Event(EventProcessor.EVENTS_TOPIC_CREATED, eventProperties);
         setupSerialExecutor();

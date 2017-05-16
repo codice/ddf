@@ -93,6 +93,7 @@ public class RegistryStoreCleanupHandlerTest {
         mcard.setModifiedDate(new Date());
         mcard.setAttribute(Metacard.TAGS, RegistryConstants.REGISTRY_TAG_INTERNAL);
         mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "registryId"));
+        mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REMOTE_REGISTRY_ID, "registryId"));
         eventProperties = new Hashtable<>();
 
     }
@@ -198,7 +199,7 @@ public class RegistryStoreCleanupHandlerTest {
         when(serviceEvent.getType()).thenReturn(serviceEventType);
         when(serviceEvent.getServiceReference()).thenReturn(eventRef);
         eventProperties.put(EventConstants.EVENT, serviceEvent);
-        when(federationAdmin.getInternalRegistryMetacardsByRegistryId(searchRegId)).thenReturn(
+        when(federationAdmin.getInternalRegistryMetacards()).thenReturn(
                 metacards);
         event = new Event("myevent", eventProperties);
         cleanupHandler.handleEvent(event);

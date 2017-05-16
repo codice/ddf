@@ -63,10 +63,27 @@ public class RegistryMetacardHandler implements EventHandler {
     @Override
     public void handleEvent(Event event) {
         Metacard mcard = (Metacard) event.getProperty(EventProcessor.EVENT_METACARD);
-        if (mcard == null || !RegistryUtility.isInternalRegistryMetacard(mcard)) {
+        if (mcard == null) {
             return;
         }
-        LOGGER.debug("RegistryMetacardHandler processing event {}", event.getTopic());
+
+        if (RegistryUtility.isRegistryMetacard(mcard)) {
+            LOGGER.info("Registry metacard {} for {} registry-id: {}",
+                    event.getTopic()
+                            .replace("ddf/catalog/event/", ""),
+                    mcard.getTitle(),
+                    RegistryUtility.getRegistryId(mcard));
+            return;
+        } else if (!RegistryUtility.isInternalRegistryMetacard(mcard)) {
+            return;
+        }
+
+        LOGGER.info("Remote registry metacard {} for {} registry-id: {}",
+                event.getTopic()
+                        .replace("ddf/catalog/event/", ""),
+                mcard.getTitle(),
+                RegistryUtility.getRegistryId(mcard));
+
         executor.execute(() -> processEvent(mcard, event.getTopic()));
     }
 
@@ -92,15 +109,26 @@ public class RegistryMetacardHandler implements EventHandler {
         List<Metacard> metacards = federationAdminService.getRegistryMetacardsByRegistryIds(
                 Collections.singletonList(RegistryUtility.getRegistryId(mcard)));
         if (CollectionUtils.isEmpty(metacards)) {
+            LOGGER.debug("Preparing to add remote registry entry {}: {}",
+                    mcard.getTitle(),
+                    RegistryUtility.getRegistryId(mcard));
             prepareMetacard(mcard, null);
             federationAdminService.addRegistryEntry(mcard);
-            LOGGER.debug("Successfully created new registry metacard");
         } else if (shouldUpdate(mcard, metacards.get(0))) {
+            LOGGER.debug("Preparing to update remote registry entry {}: {}",
+                    mcard.getTitle(),
+                    RegistryUtility.getRegistryId(mcard));
             prepareMetacard(mcard,
                     metacards.get(0)
                             .getId());
             federationAdminService.updateRegistryEntry(mcard);
-            LOGGER.debug("Successfully update registry metacard");
+        } else {
+            LOGGER.debug(
+                    "New remote registry metacard {} is older ({}) than current local version ({}). Not updating local version.",
+                    mcard.getTitle(),
+                    mcard.getModifiedDate(),
+                    metacards.get(0)
+                            .getModifiedDate());
         }
     }
 
@@ -119,6 +147,10 @@ public class RegistryMetacardHandler implements EventHandler {
         if (CollectionUtils.isNotEmpty(metacards)) {
             if (CollectionUtils.isEmpty(federationAdminService.getInternalRegistryMetacardsByRegistryId(
                     registryId))) {
+                LOGGER.debug(
+                        "Preparing to delete registry entry {}: {} since there are no more backing remote registry metacards",
+                        mcard.getTitle(),
+                        RegistryUtility.getRegistryId(mcard));
                 federationAdminService.deleteRegistryEntriesByRegistryIds(Collections.singletonList(
                         registryId));
             }

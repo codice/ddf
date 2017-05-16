@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.registry.api.internal.RegistryStore;
+import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
+import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.security.common.Security;
 import org.osgi.framework.Bundle;
@@ -90,6 +92,7 @@ public class RegistryStoreCleanupHandler implements EventHandler {
             return;
         }
         registryStorePidToServiceMap.remove(servicePid);
+        LOGGER.info("Removing registry entries associated with remote registry {}", service.getId());
 
         executor.execute(() -> {
             String registryId = service.getRegistryId();
@@ -97,12 +100,26 @@ public class RegistryStoreCleanupHandler implements EventHandler {
                 Security security = Security.getInstance();
 
                 List<Metacard> metacards =
-                        security.runAsAdminWithException(() -> federationAdminService.getInternalRegistryMetacardsByRegistryId(
-                                registryId));
+                        security.runAsAdminWithException(() -> federationAdminService.getInternalRegistryMetacards()
+                                .stream()
+                                .filter(m -> RegistryUtility.getStringAttribute(m,
+                                        RegistryObjectMetacardType.REMOTE_REGISTRY_ID,
+                                        "")
+                                        .equals(registryId))
+                                .collect(Collectors.toList()));
                 List<String> idsToDelete = metacards.stream()
                         .map(Metacard::getId)
                         .collect(Collectors.toList());
                 if (!idsToDelete.isEmpty()) {
+                    if(LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(
+                                "Removing {} registry entries that came from {}. Removed entries: {}",
+                                metacards.size(),
+                                service.getId(),
+                                metacards.stream()
+                                        .map(m -> m.getTitle() + ":" + m.getId())
+                                        .collect(Collectors.joining(", ")));
+                    }
                     security.runAsAdminWithException(() -> {
                         federationAdminService.deleteRegistryEntriesByMetacardIds(idsToDelete);
                         return null;

@@ -139,6 +139,9 @@ public class IdentityNodeInitialization {
         String registryPackageId = RegistryConstants.GUID_PREFIX + UUID.randomUUID()
                 .toString()
                 .replaceAll("-", "");
+        LOGGER.info("Creating registry identity node: {} {}",
+                SystemInfo.getSiteName(),
+                registryPackageId);
         RegistryPackageType registryPackage = RIM_FACTORY.createRegistryPackageType();
         registryPackage.setId(registryPackageId);
         registryPackage.setObjectType(RegistryConstants.REGISTRY_NODE_OBJECT_TYPE);
@@ -201,7 +204,6 @@ public class IdentityNodeInitialization {
             System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, registryPackageId);
             federationAdminService.addRegistryEntry(identityMetacard);
         }
-        LOGGER.debug("Successfully created registry identity node: {}", registryPackageId);
     }
 
     private Metacard getRegistryMetacardFromRegistryPackage(RegistryPackageType registryPackage)

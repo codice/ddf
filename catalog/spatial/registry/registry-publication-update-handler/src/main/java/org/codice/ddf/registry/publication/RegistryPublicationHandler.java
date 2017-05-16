@@ -103,7 +103,9 @@ public class RegistryPublicationHandler implements EventHandler {
                     return null;
                 });
             } catch (PrivilegedActionException e) {
-                LOGGER.debug("Unable to send update for {}", mcard.getTitle());
+                LOGGER.warn("Unable to send update for {}. Try unpublishing and republishing {}",
+                        mcard.getTitle(),
+                        mcard.getTitle());
             }
         }
 
