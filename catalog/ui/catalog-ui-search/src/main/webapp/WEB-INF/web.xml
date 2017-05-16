@@ -31,6 +31,16 @@
         <param-value>/</param-value>
     </context-param>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Catalog Search</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
     <servlet>
         <servlet-name>ErrorServlet</servlet-name>
         <servlet-class>org.codice.ddf.platform.error.servlet.ErrorServlet</servlet-class>
