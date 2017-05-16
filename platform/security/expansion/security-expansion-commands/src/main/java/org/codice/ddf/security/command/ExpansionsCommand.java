@@ -11,13 +11,16 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.command;
+package org.codice.ddf.security.command;
 
 import java.util.List;
 import java.util.Map;
 
-import org.apache.felix.gogo.commands.Command;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.fusesource.jansi.Ansi;
 
 import ddf.security.expansion.Expansion;
@@ -26,16 +29,18 @@ import ddf.security.expansion.Expansion;
  * Implements the "expansions" command - dumps the current expansion mapping table for each
  * expansion service.
  */
+@Service
 @Command(scope = "security", name = "expansions", description = "Dumps the current expansion tables.")
-public class ExpansionsCommand extends OsgiCommandSupport {
+public class ExpansionsCommand implements Action {
     // live list of expansion services
-    private List<Expansion> expansionList = null;
+    @Reference
+    List<Expansion> expansionList;
 
     /**
      * Called to execute the security:encrypt console command.
      */
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() throws Exception {
         if ((expansionList != null) && (!expansionList.isEmpty())) {
             for (Expansion expansion : expansionList) {
                 Map<String, List<String[]>> map = expansion.getExpansionMap();
@@ -60,9 +65,5 @@ public class ExpansionsCommand extends OsgiCommandSupport {
             System.out.println("No expansion services currently available.");
         }
         return null;
-    }
-
-    public void setExpansionList(List<Expansion> list) {
-        this.expansionList = list;
     }
 }
