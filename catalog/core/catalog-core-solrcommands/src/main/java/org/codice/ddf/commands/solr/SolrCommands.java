@@ -19,7 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.fusesource.jansi.Ansi;
@@ -28,7 +29,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SolrCommands extends OsgiCommandSupport {
+public abstract class SolrCommands implements Action {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(SolrCommands.class);
 
@@ -38,19 +39,20 @@ public abstract class SolrCommands extends OsgiCommandSupport {
 
     protected PrintStream console = System.out;
 
+    @Reference
     protected ConfigurationAdmin configurationAdmin;
 
     private static final String ZOOKEEPER_HOSTS_PROP = "solr.cloud.zookeeper";
 
-    protected static final Path SYSTEM_PROPERTIES_PATH = Paths.get(System.getProperty("ddf.home"), "etc", "system.properties");
+    protected static final Path SYSTEM_PROPERTIES_PATH = Paths.get(System.getProperty("ddf.home"),
+            "etc",
+            "system.properties");
 
     private static final Color ERROR_COLOR = Ansi.Color.RED;
 
     private static final Color SUCCESS_COLOR = Ansi.Color.GREEN;
 
     private static final Color INFO_COLOR = Ansi.Color.CYAN;
-
-    protected abstract Object doExecute() throws Exception;
 
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         LOGGER.debug("setConfigurationAdmin: {}", configurationAdmin);
@@ -109,7 +111,7 @@ public abstract class SolrCommands extends OsgiCommandSupport {
     }
 
     protected void shutdown(SolrClient client) throws IOException {
-        if(client != null) {
+        if (client != null) {
             LOGGER.debug("Closing solr client");
             client.close();
         }
