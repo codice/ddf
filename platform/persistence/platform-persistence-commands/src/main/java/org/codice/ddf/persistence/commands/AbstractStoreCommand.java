@@ -15,10 +15,12 @@ package org.codice.ddf.persistence.commands;
 
 import java.io.PrintStream;
 
-import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * Abstract store command that allows store commands to be built off this. Takes care of obtaining
  * the persistent store service, console, and logging.
  */
-public abstract class AbstractStoreCommand extends OsgiCommandSupport {
+public abstract class AbstractStoreCommand implements Action {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -43,15 +45,18 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
             "--cql"}, required = false, description = "OGC CQL statement to query the persistence store. Not specifying returns all entries. More information on CQL is available at: http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html", multiValued = false)
     protected String cql;
 
+    @Reference
+    BundleContext bundleContext;
+
     @Override
-    protected Object doExecute() {
+    public Object execute() {
 
         ServiceReference<PersistentStore> persistentStoreRef =
-                getBundleContext().getServiceReference(PersistentStore.class);
+                bundleContext.getServiceReference(PersistentStore.class);
 
         try {
             if (persistentStoreRef != null) {
-                persistentStore = getBundleContext().getService(persistentStoreRef);
+                persistentStore = bundleContext.getService(persistentStoreRef);
                 if (PersistentStore.PERSISTENCE_TYPES.contains(type)) {
                     storeCommand();
                 } else {
@@ -69,7 +74,7 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
         } finally {
             if (persistentStoreRef != null) {
                 try {
-                    getBundleContext().ungetService(persistentStoreRef);
+                    bundleContext.ungetService(persistentStoreRef);
                 } catch (IllegalStateException ise) {
                     logger.debug(
                             "Bundle Context was already closed, service reference has been removed.");
