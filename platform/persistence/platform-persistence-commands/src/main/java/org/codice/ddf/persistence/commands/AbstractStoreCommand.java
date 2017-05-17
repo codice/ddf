@@ -20,8 +20,6 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractStoreCommand implements Action {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    protected PersistentStore persistentStore;
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractStoreCommand.class);
 
     protected PrintStream console = System.out;
 
@@ -46,40 +42,24 @@ public abstract class AbstractStoreCommand implements Action {
     protected String cql;
 
     @Reference
-    BundleContext bundleContext;
+    protected PersistentStore persistentStore;
 
     @Override
     public Object execute() {
 
-        ServiceReference<PersistentStore> persistentStoreRef =
-                bundleContext.getServiceReference(PersistentStore.class);
-
         try {
-            if (persistentStoreRef != null) {
-                persistentStore = bundleContext.getService(persistentStoreRef);
-                if (PersistentStore.PERSISTENCE_TYPES.contains(type)) {
-                    storeCommand();
-                } else {
-                    console.println("Type passed in was not correct. Must be one of "
-                            + PersistentStore.PERSISTENCE_TYPES + ".");
-                }
+
+            if (PersistentStore.PERSISTENCE_TYPES.contains(type)) {
+                storeCommand();
             } else {
-                console.println(
-                        "Could not obtain reference to Persistent Store service. Cannot perform operation.");
+                console.println("Type passed in was not correct. Must be one of "
+                        + PersistentStore.PERSISTENCE_TYPES + ".");
             }
+
         } catch (PersistenceException pe) {
             console.println(
                     "Encountered an error when trying to perform the command. Check log for more details.");
-            logger.debug("Error while performing command.", pe);
-        } finally {
-            if (persistentStoreRef != null) {
-                try {
-                    bundleContext.ungetService(persistentStoreRef);
-                } catch (IllegalStateException ise) {
-                    logger.debug(
-                            "Bundle Context was already closed, service reference has been removed.");
-                }
-            }
+            LOGGER.debug("Error while performing command.", pe);
         }
 
         return null;
