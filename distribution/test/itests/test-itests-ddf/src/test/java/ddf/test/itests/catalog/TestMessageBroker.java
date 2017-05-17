@@ -37,6 +37,7 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.WaitCondition;
+import org.codice.ddf.itests.common.annotations.AfterExam;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -113,13 +114,24 @@ public class TestMessageBroker extends AbstractIntegrationTest {
         System.setProperty("artemis.multiprotocol.port", ARTEMIS_PORT.getPort());
         System.setProperty("artemis.openwire.port", OPENWIRE_PORT.getPort());
 
-        getServiceManager().waitForRequiredApps("broker-app");
+        getServiceManager().startFeature(true,
+                "broker-app",
+                "broker-undelivered-messages-ui",
+                "broker-route-manager");
         setupCamelContext();
         FileUtils.copyInputStreamToFile(AbstractIntegrationTest.getFileContentAsStream(
                 "sdk-example-route.xml",
                 AbstractIntegrationTest.class), Paths.get(ddfHome, "etc", "routes")
                 .resolve("sdk-example-route.xml")
                 .toFile());
+    }
+
+    @AfterExam
+    public void afterExam() throws Exception {
+        getServiceManager().stopFeature(true,
+                "broker-app",
+                "broker-undelivered-messages-ui",
+                "broker-route-manager");
     }
 
     @Test
@@ -233,6 +245,7 @@ public class TestMessageBroker extends AbstractIntegrationTest {
     private String performMbeanOperation(String operationUrl) {
         // Retrieve Jolokia response from the UndeliveredMessages MBean
         return given().auth()
+                .preemptive()
                 .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
                 .when()
                 .get(operationUrl)
