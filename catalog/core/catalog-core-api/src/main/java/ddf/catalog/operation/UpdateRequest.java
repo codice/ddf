@@ -67,5 +67,5 @@ public interface UpdateRequest extends Request {
      * @return List - pairs of {@link ddf.catalog.data.Attribute} values and associated new {@link Metacard}s to
      *         update if a match is found.
      */
-    public List<Entry<Serializable, Metacard>> getUpdates();
+    public List<Entry<? extends Serializable, Metacard>> getUpdates();
 }
