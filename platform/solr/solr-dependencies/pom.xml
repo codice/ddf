@@ -24,7 +24,6 @@
     <description>Shaded jar of Solr core dependencies.</description>
     <packaging>jar</packaging>
     <properties>
-        <io.dropwizard.metrics.version>3.1.2</io.dropwizard.metrics.version>
         <info.ganglia.gmetric4j.version>1.0.7</info.ganglia.gmetric4j.version>
         <org.slf4j.version>1.7.7</org.slf4j.version>
         <log4j.version>1.2.17</log4j.version>
@@ -49,27 +48,27 @@
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-jetty9</artifactId>
-            <version>${io.dropwizard.metrics.version}</version>
+            <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-graphite</artifactId>
-            <version>${io.dropwizard.metrics.version}</version>
+            <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-ganglia</artifactId>
-            <version>${io.dropwizard.metrics.version}</version>
+            <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-jvm</artifactId>
-            <version>${io.dropwizard.metrics.version}</version>
+            <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
-            <version>${io.dropwizard.metrics.version}</version>
+            <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
             <groupId>info.ganglia.gmetric4j</groupId>

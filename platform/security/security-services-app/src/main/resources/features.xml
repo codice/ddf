@@ -33,6 +33,7 @@
         <feature prerequisite="true">security-core-api</feature>
         <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
+        <bundle dependency="true">mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
     </feature>
 
@@ -82,6 +83,7 @@
 
     <feature name="security-expansion-metacard-attributes" install="manual" version="${project.version}"
              description="DDF Security Expansion Metacard Attributes Expansion">
+        <bundle dependency="true">mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.expansion/security-expansion-metacardattr-map/${project.version}</bundle>
     </feature>
 
@@ -92,6 +94,7 @@
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-jose/${cxf.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-jexl/2.1.1</bundle>
         <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>
+        <feature prerequisite="true">wrap</feature>
         <bundle>wrap:mvn:org.springframework.ldap/spring-ldap-core/1.3.2.RELEASE</bundle>
     </feature>
 
@@ -104,7 +107,7 @@
         <bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
         <bundle>mvn:ddf.security.sts/security-sts-propertyclaimshandler/${project.version}</bundle>
         <bundle dependency="true">
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${dom4j.bundle.version}
         </bundle>
         <bundle dependency="true">
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.oro/2.0.8_6

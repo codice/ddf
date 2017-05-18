@@ -32,8 +32,8 @@
             <artifactId>camel-http-common</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-servlet_3.0_spec</artifactId>
+                    <groupId>${geronimo-servlet-api.group}</groupId>
+                    <artifactId>${geronimo-servlet-api.artifact}</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -42,8 +42,8 @@
             <artifactId>camel-http</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-servlet_3.0_spec</artifactId>
+                    <groupId>${geronimo-servlet-api.group}</groupId>
+                    <artifactId>${geronimo-servlet-api.artifact}</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

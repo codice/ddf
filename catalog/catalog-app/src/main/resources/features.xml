@@ -169,6 +169,7 @@
 
     <feature name="abdera" install="manual" version="${project.version}"
              description="Apache Abdera">
+        <feature prerequisite="true">wrap</feature>
         <bundle>wrap:mvn:org.apache.james/apache-mime4j-core/0.7.2</bundle>
         <bundle>mvn:commons-codec/commons-codec/1.4</bundle>
         <!-- This bundle <bundle>mvn:org.apache.ws.commons.axiom/axiom-impl/1.2.10</bundle>
@@ -183,11 +184,11 @@
         <!-- Cannot use <bundle>mvn:org.apache.abdera/abdera-parser/${abdera.version}</bundle>
         because of a classpath issue with OMFactory. Servicemix fixes this abdera-parser.-->
         <bundle>
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera-parser/1.1.3_1
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera-parser/${abdera.osgi.version}
         </bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${dom4j.bundle.version}
         </bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/1.1.2_1
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${jdom.bundle.version}
         </bundle>
         <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
     </feature>
@@ -278,7 +279,7 @@
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>
         <bundle>
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${xpp3.bundle.version}
         </bundle>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
     </feature>
