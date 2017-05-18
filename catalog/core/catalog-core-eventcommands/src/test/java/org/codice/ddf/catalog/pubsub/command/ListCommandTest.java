@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.pubsub.command;
+package org.codice.ddf.catalog.pubsub.command;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
@@ -78,7 +78,7 @@ public class ListCommandTest {
         System.setOut(new PrintStream(buffer));
 
         // when
-        listCommand.doExecute();
+        listCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -115,7 +115,7 @@ public class ListCommandTest {
         System.setOut(new PrintStream(buffer));
 
         // when
-        listCommand.doExecute();
+        listCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -156,7 +156,7 @@ public class ListCommandTest {
 
         // when
         listCommand.id = MY_SUBSCRIPTION_ID;
-        listCommand.doExecute();
+        listCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -215,7 +215,7 @@ public class ListCommandTest {
 
         // when
         listCommand.id = MY_SUBSCRIPTION_ID;
-        listCommand.doExecute();
+        listCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -272,7 +272,7 @@ public class ListCommandTest {
         // when
         listCommand.id = ldapFilter;
         listCommand.ldapFilter = true;
-        listCommand.doExecute();
+        listCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);

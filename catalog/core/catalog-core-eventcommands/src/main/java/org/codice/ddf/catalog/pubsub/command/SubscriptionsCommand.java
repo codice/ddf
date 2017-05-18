@@ -11,12 +11,14 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.pubsub.command;
+package org.codice.ddf.catalog.pubsub.command;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -24,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.event.Subscription;
 
-public class SubscriptionsCommand extends OsgiCommandSupport {
+public class SubscriptionsCommand implements Action {
 
     public static final String NAMESPACE = "subscriptions";
 
@@ -32,8 +34,11 @@ public class SubscriptionsCommand extends OsgiCommandSupport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubscriptionsCommand.class);
 
+    @Reference
+    BundleContext bundleContext;
+
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() throws Exception {
 
         return null;
     }
@@ -75,6 +80,10 @@ public class SubscriptionsCommand extends OsgiCommandSupport {
         }
 
         return subscriptionIds;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
 }

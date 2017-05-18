@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.pubsub.command;
+package org.codice.ddf.catalog.pubsub.command;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
@@ -58,7 +58,7 @@ public class DeleteCommandTest {
         System.setOut(new PrintStream(buffer));
 
         // when
-        deleteCommand.doExecute();
+        deleteCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -118,7 +118,7 @@ public class DeleteCommandTest {
 
         // when
         deleteCommand.id = MY_SUBSCRIPTION_ID;
-        deleteCommand.doExecute();
+        deleteCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -176,7 +176,7 @@ public class DeleteCommandTest {
 
         // when
         deleteCommand.id = "my*";
-        deleteCommand.doExecute();
+        deleteCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -241,7 +241,7 @@ public class DeleteCommandTest {
         // when
         deleteCommand.id = ldapFilter;
         deleteCommand.ldapFilter = true;
-        deleteCommand.doExecute();
+        deleteCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -310,7 +310,7 @@ public class DeleteCommandTest {
         // when
         deleteCommand.id = ldapFilter;
         deleteCommand.ldapFilter = true;
-        deleteCommand.doExecute();
+        deleteCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -363,7 +363,7 @@ public class DeleteCommandTest {
 
         // when
         deleteCommand.id = "abc*";
-        deleteCommand.doExecute();
+        deleteCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
@@ -403,7 +403,7 @@ public class DeleteCommandTest {
 
         // when
         deleteCommand.id = "my*";
-        deleteCommand.doExecute();
+        deleteCommand.execute();
 
         /* cleanup */
         System.setOut(realSystemOut);
