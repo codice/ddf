@@ -181,7 +181,7 @@ public class BackupCommandTest {
                 return mockHttpWrapper;
             }
         };
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format("Backup of [%s] complete.", DEFAULT_CORE_NAME)));
@@ -203,7 +203,7 @@ public class BackupCommandTest {
         };
 
         backupCommand.coreName = coreName;
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format("Backup of [%s] complete.", coreName)));
@@ -225,7 +225,7 @@ public class BackupCommandTest {
         };
 
         backupCommand.coreName = coreName;
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format("Backup command failed due to: %d",
@@ -250,14 +250,14 @@ public class BackupCommandTest {
         };
         backupCommand.asyncBackup = true;
 
-        backupCommand.doExecute();
+        backupCommand.execute();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSystemPropertiesNotSet() throws Exception {
 
         BackupCommand backupCommand = new BackupCommand();
-        backupCommand.doExecute();
+        backupCommand.execute();
     }
 
     @Test
@@ -270,7 +270,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
 
         // Perform Test
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         // Verify
         String backupName = getBackupName(consoleOutput.getOutput());
@@ -299,7 +299,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = getSynchronousBackupCommand(null, null, miniSolrCloud.getSolrClient());
 
         // Perform Test
-        backupCommand.doExecute();
+        backupCommand.execute();
     }
 
     @Test
@@ -316,7 +316,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = getSynchronousBackupCommand(null, DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
 
         // Perform Test
-        backupCommand.doExecute();
+        backupCommand.execute();
     }
 
     @Test
@@ -329,7 +329,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), null, miniSolrCloud.getSolrClient());
 
         // Perform Test
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         // Verify
         String backupName = getBackupName(consoleOutput.getOutput());
@@ -354,7 +354,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), INVALID_COLLECTION_NAME, miniSolrCloud.getSolrClient());
 
         // Perform Test
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         // Verify
         assertThat(consoleOutput.getOutput(),
@@ -388,7 +388,7 @@ public class BackupCommandTest {
         backupCommand.numberToKeep = 3;
 
         // Perform Test
-        backupCommand.doExecute();
+        backupCommand.execute();
     }
 
     @Test
@@ -405,7 +405,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = getBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, true, true, "myRequestId1", miniSolrCloud.getSolrClient());
 
         // Perform Test
-        backupCommand.doExecute();
+        backupCommand.execute();
     }
 
     @Test
@@ -423,7 +423,7 @@ public class BackupCommandTest {
         backupCommand.numberToKeep = 3;
 
         // Perform Test
-        backupCommand.doExecute();
+        backupCommand.execute();
     }
 
     @Test
@@ -436,7 +436,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
 
         // Perform Test (backup)
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         // Verify
         assertThat(consoleOutput.getOutput(),
@@ -458,7 +458,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
 
         // Perform Test (backup)
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         String requestId = getRequestId(consoleOutput.getOutput());
 
@@ -468,7 +468,7 @@ public class BackupCommandTest {
         consoleOutput.reset();
 
         // Perform status lookup
-        statusBackupCommand.doExecute();
+        statusBackupCommand.execute();
 
         String status = waitForCompletedStatusOrFail(statusBackupCommand, consoleOutput);
 
@@ -487,7 +487,7 @@ public class BackupCommandTest {
         // Setup BackupCommand for status lookup
         BackupCommand statusBackupCommand = getStatusBackupCommand(null, miniSolrCloud.getSolrClient());
 
-        statusBackupCommand.doExecute();
+        statusBackupCommand.execute();
     }
 
     @Test
@@ -503,7 +503,7 @@ public class BackupCommandTest {
         // Setup BackupCommand (ie. solr:backup -i <request Id>)
         BackupCommand invalidBackupStatusCommand = getBackupCommand(null, null, false, false, "myRequestId0", miniSolrCloud.getSolrClient());
 
-        invalidBackupStatusCommand.doExecute();
+        invalidBackupStatusCommand.execute();
     }
 
     @Test
@@ -524,7 +524,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = new BackupCommand();
         backupCommand.backupLocation = getBackupLocation();
 
-        backupCommand.doExecute();
+        backupCommand.execute();
     }
 
     /**
@@ -542,7 +542,7 @@ public class BackupCommandTest {
 
         BackupCommand backupCommand = getSynchronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, mockSolrClient);
 
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format(
@@ -574,7 +574,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
 
         // Perform async backup
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         // Get requestId so that we can request backup status
         String requestId = getRequestId(consoleOutput.getOutput());
@@ -583,7 +583,7 @@ public class BackupCommandTest {
         BackupCommand backupStatusCommand = getStatusBackupCommand(requestId, mockSolrClient);
 
         // Perform backup status request
-        backupStatusCommand.doExecute();
+        backupStatusCommand.execute();
 
         assertThat(consoleOutput.getOutput(),
                 containsString(String.format(
@@ -612,7 +612,7 @@ public class BackupCommandTest {
         BackupCommand backupCommand = getAsnychronousBackupCommand(getBackupLocation(), DEFAULT_CORE_NAME, miniSolrCloud.getSolrClient());
 
         // Perform async backup
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         // Get requestId so that we can request backup status
         String requestId = getRequestId(consoleOutput.getOutput());
@@ -621,7 +621,7 @@ public class BackupCommandTest {
         BackupCommand backupStatusCommand = getStatusBackupCommand(requestId, mockSolrClient);
 
         // Perform backup status request
-        backupStatusCommand.doExecute();
+        backupStatusCommand.execute();
 
         assertThat(consoleOutput.getOutput(), containsString("Backup status failed."));
     }
@@ -644,7 +644,7 @@ public class BackupCommandTest {
                 mockSolrClient);
 
         // Peform sync backup
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         verify(mockSolrClient).optimize(DEFAULT_CORE_NAME);
 
@@ -677,7 +677,7 @@ public class BackupCommandTest {
                 DEFAULT_CORE_NAME,
                 mockSolrClient);
 
-        backupCommand.doExecute();
+        backupCommand.execute();
 
         verify(mockSolrClient).optimize(DEFAULT_CORE_NAME);
 
@@ -958,7 +958,7 @@ public class BackupCommandTest {
             }
             TimeUnit.SECONDS.sleep(1);
             consoleOutput.reset();
-            statusBackupCommand.doExecute();
+            statusBackupCommand.execute();
             status = getRequestStatus(consoleOutput.getOutput());
         }
 
