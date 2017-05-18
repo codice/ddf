@@ -103,8 +103,8 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>ddf.distribution</groupId>
-                <artifactId>branding-api</artifactId>
+                <groupId>ddf.platform</groupId>
+                <artifactId>platform-branding-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -348,6 +348,8 @@
     <modules>
         <module>platform-api</module>
         <module>branding-api</module>
+        <module>console-branding</module>
+        <module>ddf-branding-plugin</module>
         <module>util</module>
         <module>platform-paxweb-jettyconfig</module>
         <module>platform-logging</module>

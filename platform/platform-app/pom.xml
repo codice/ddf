@@ -318,6 +318,23 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-branding-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-branding-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>standard</artifactId>
+            <version>${karaf.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>util-uuidgenerator-api</artifactId>
             <version>${project.version}</version>

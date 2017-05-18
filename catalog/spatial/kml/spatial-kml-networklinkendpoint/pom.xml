@@ -38,8 +38,8 @@
             <artifactId>JavaAPIforKml</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.distribution</groupId>
-            <artifactId>branding-api</artifactId>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-branding-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.jknack</groupId>
