@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.XSearch;
+import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
@@ -549,7 +549,7 @@ public class TestRegistry extends AbstractIntegrationTest {
                         CoreMatchers.is("0")));
 
         String idPath = "//*[local-name()='identifier']/text()";
-        String mcardId = XSearch.evaluate(idPath,
+        String mcardId = XmlSearch.evaluate(idPath,
                 response.getBody()
                         .asString());
 

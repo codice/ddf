@@ -18,7 +18,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 /**
- * Simpler helper class for XPath searches. Use with the XDocument helper class.
+ * Simpler helper class for XPath searches. Use with the XmlDocument helper class.
  * <p>
  * The purpose is to reduce the amount of duplicated code used in the test classes.
  * <p>
@@ -34,7 +34,7 @@ import javax.xml.xpath.XPathFactory;
  * For XML related test assertions in REST Assured responses,
  * use the Hamcrest matcher method hasXpath().
  */
-public class XSearch {
+public class XmlSearch {
 
     /**
      * @param xPathExpression string representation of an XPath expression
@@ -57,7 +57,7 @@ public class XSearch {
      */
     public static String evaluate(String xPathExpression, String xml, boolean isNamespaceAware)
             throws Exception {
-        return compile(xPathExpression).evaluate(XDocument.build(xml, isNamespaceAware));
+        return compile(xPathExpression).evaluate(XmlDocument.build(xml, isNamespaceAware));
     }
 
     /**

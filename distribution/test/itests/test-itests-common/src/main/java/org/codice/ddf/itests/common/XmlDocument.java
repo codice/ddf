@@ -34,7 +34,7 @@ import org.w3c.dom.Document;
  * To format (pretty print) XML, use the ddf.util.XPathHelper or
  * org.codice.ddf.platform.util.XMLUtils classes.
  */
-public class XDocument {
+public class XmlDocument {
 
     /**
      * Create an DOM from a string representation of an XML document.

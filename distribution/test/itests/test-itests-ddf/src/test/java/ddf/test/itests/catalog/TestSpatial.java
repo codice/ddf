@@ -29,7 +29,7 @@ import java.util.Map;
 
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.XSearch;
+import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
@@ -447,7 +447,7 @@ public class TestSpatial extends AbstractIntegrationTest {
     private boolean hasExpectedResultCount(String queryResult, ExpectedResultPair expectedValue)
             throws Exception {
 
-        String originalCount = XSearch.evaluate("//@numberOfRecordsMatched", queryResult);
+        String originalCount = XmlSearch.evaluate("//@numberOfRecordsMatched", queryResult);
 
         return originalCount.equals(expectedValue.value);
     }
