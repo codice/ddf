@@ -22,23 +22,14 @@ import static org.junit.Assert.assertTrue;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathException;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
@@ -48,8 +39,6 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.framework.FrameworkUtil;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.path.xml.XmlPath;
@@ -179,176 +168,151 @@ public class TestSpatial extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCswAfterDateQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswAfterDateQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswAfterDateQuery");
     }
 
     @Test
-    public void testCswBeforeDateQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswBeforeDateQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswBeforeDateQuery");
     }
 
     @Test
-    public void testCswContainingWktLineStringQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswContainingWktLineStringQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswContainingWktLineStringQuery");
     }
 
     @Test
-    public void testCswContainingWktPolygonQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswContainingWktPolygonQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswContainingWktPolygonQuery");
     }
 
     @Test
-    public void testCswDuringDatesQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswDuringDatesQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswDuringDatesQuery");
     }
 
     @Test
-    public void testCswEqualToTextQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswEqualToTextQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswEqualToTextQuery");
     }
 
     @Test
-    public void testCswIntersectingWktLineStringQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswIntersectingWktLineStringQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswIntersectingWktLineStringQuery");
     }
 
     @Test
-    public void testCswIntersectingWktPolygonQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswIntersectingWktPolygonQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswIntersectingWktPolygonQuery");
     }
 
     @Test
-    public void testCswLikeTextQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswLikeTextQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswLikeTextQuery");
     }
 
     @Test
-    public void testCswNearestToWktLineStringQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswNearestToWktLineStringQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswNearestToWktLineStringQuery");
     }
 
     @Test
-    public void testCswNearestToWktPolygonQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswNearestToWktPolygonQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswNearestToWktPolygonQuery");
     }
 
     @Test
-    public void testCswOverLappingDatesQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswOverLappingDatesQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswOverLappingDatesQuery");
     }
 
     @Test
-    public void testCswWithinBufferWktLineStringQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswWithinBufferWktLineStringQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswWithinBufferWktLineStringQuery");
     }
 
     @Test
-    public void testCswWithinBufferWktPolygonQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswWithinBufferWktPolygonQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswWithinBufferWktPolygonQuery");
     }
 
     @Test
-    public void testCswWithinWktPolygonQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswWithinWktPolygonQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswWithinWktPolygonQuery");
     }
 
     @Test
-    public void testCswCompoundAfterDateAndIntersectingWktPolygon()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswCompoundAfterDateAndIntersectingWktPolygon() throws Exception {
 
         performQueryAndValidateExpectedResults("CswCompoundAfterDateAndIntersectingWktPolygon");
     }
 
     @Test
-    public void testCswCompoundBeforeDateAndLikeText()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswCompoundBeforeDateAndLikeText() throws Exception {
 
         performQueryAndValidateExpectedResults("CswCompoundBeforeDateAndLikeText");
     }
 
     @Test
-    public void testCswCompoundNotBeforeDateAndLikeText()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswCompoundNotBeforeDateAndLikeText() throws Exception {
 
         performQueryAndValidateExpectedResults("CswCompoundNotBeforeDateAndLikeText");
     }
 
     @Test
-    public void testCswCompoundLikeTextAndIntersectingWktLineString()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswCompoundLikeTextAndIntersectingWktLineString() throws Exception {
 
         performQueryAndValidateExpectedResults("CswCompoundLikeTextAndIntersectingWktLineString");
     }
 
     @Test
-    public void testCswLogicalOperatorContextualNotQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswLogicalOperatorContextualNotQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswLogicalOperatorContextualNotQuery");
     }
 
     @Test
-    public void testCswLogicalOperatorContextualOrQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswLogicalOperatorContextualOrQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswLogicalOperatorContextualOrQuery");
     }
 
     @Test
-    public void testCswXPathExpressionQueryWithAttributeSelector()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswXPathExpressionQueryWithAttributeSelector() throws Exception {
 
         performQueryAndValidateExpectedResults("CswXPathExpressionQueryWithAttributeSelector");
     }
 
     @Test
-    public void testCswXPathExpressionQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswXPathExpressionQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswXPathExpressionQuery");
     }
 
     @Test
-    public void testCswCompoundNot()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswCompoundNot() throws Exception {
 
         performQueryAndValidateExpectedResults("CswCompoundNot");
     }
 
     @Test
-    public void testCswFuzzyTextQuery()
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    public void testCswFuzzyTextQuery() throws Exception {
 
         performQueryAndValidateExpectedResults("CswFuzzyTextQuery");
     }
@@ -373,13 +337,9 @@ public class TestSpatial extends AbstractIntegrationTest {
      * Ingests data, performs and validates the query returns the correct results.
      *
      * @param queryType - The query that is performed
-     * @throws XPathException
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
+     * @throws Exception
      */
-    private void performQueryAndValidateExpectedResults(String queryType)
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+    private void performQueryAndValidateExpectedResults(String queryType) throws Exception {
         ingestMetacards(metacardIds);
 
         String cswQuery = savedCswQueries.get(queryType);
@@ -442,13 +402,10 @@ public class TestSpatial extends AbstractIntegrationTest {
      *
      * @param queryResult    - The result obtained from sending the query
      * @param expectedValues - The values expected within the results
-     * @throws XPathException
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
+     * @throws Exception
      */
     private void hasExpectedResults(String queryResult, ExpectedResultPair[] expectedValues)
-            throws XPathException, ParserConfigurationException, SAXException, IOException {
+            throws Exception {
         if (expectedValues[0].type == ResultType.COUNT) {
             assertTrue("The responses contained a different count",
                     hasExpectedResultCount(queryResult, expectedValues[0]));
@@ -466,15 +423,10 @@ public class TestSpatial extends AbstractIntegrationTest {
      * @param queryResult    - The result obtained from sending the query
      * @param expectedValues - The values expected within the result
      * @return
-     * @throws IOException
-     * @throws SAXException
-     * @throws ParserConfigurationException
-     * @throws XPathExpressionException
+     * @throws Exception
      */
     private boolean hasExpectedMetacardsReturned(String queryResult,
-            ExpectedResultPair[] expectedValues)
-            throws IOException, SAXException, ParserConfigurationException,
-            XPathExpressionException {
+            ExpectedResultPair[] expectedValues) throws Exception {
         boolean testPassed = false;
 
         for (int i = 0; i < expectedValues.length; i++) {
@@ -490,31 +442,14 @@ public class TestSpatial extends AbstractIntegrationTest {
      * @param queryResult   - The result obtained from sending the query
      * @param expectedValue - The values expected within the result
      * @return
-     * @throws XPathException
-     * @throws IOException
-     * @throws SAXException
-     * @throws ParserConfigurationException
+     * @throws Exception
      */
     private boolean hasExpectedResultCount(String queryResult, ExpectedResultPair expectedValue)
-            throws XPathException, IOException, SAXException, ParserConfigurationException {
+            throws Exception {
 
-        XPathExpression cswXPathExpression = getXPath().compile("//@numberOfRecordsMatched");
-
-        String originalCount = cswXPathExpression.evaluate(getDoc(queryResult));
+        String originalCount = XmlSearch.evaluate("//@numberOfRecordsMatched", queryResult);
 
         return originalCount.equals(expectedValue.value);
-    }
-
-    private static XPath getXPath() {
-        return XPathFactory.newInstance()
-                .newXPath();
-    }
-
-    private static Document getDoc(String input)
-            throws ParserConfigurationException, IOException, SAXException {
-        return DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder()
-                .parse(new ByteArrayInputStream(input.getBytes()));
     }
 
     public enum ResultType {

@@ -29,7 +29,6 @@ import static com.xebialabs.restito.semantics.Condition.post;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,11 +36,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
-
-import org.apache.commons.io.IOUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
@@ -58,7 +54,6 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
-import org.xml.sax.InputSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.Response;
@@ -553,13 +548,10 @@ public class TestRegistry extends AbstractIntegrationTest {
                 hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
                         CoreMatchers.is("0")));
 
-        XPath xPath = XPathFactory.newInstance()
-                .newXPath();
         String idPath = "//*[local-name()='identifier']/text()";
-        InputSource xml = new InputSource(IOUtils.toInputStream(response.getBody()
-                .asString(), StandardCharsets.UTF_8.name()));
-        String mcardId = xPath.compile(idPath)
-                .evaluate(xml);
+        String mcardId = XmlSearch.evaluate(idPath,
+                response.getBody()
+                        .asString());
 
         boolean foundMetacard = false;
         long startTime = System.currentTimeMillis();
