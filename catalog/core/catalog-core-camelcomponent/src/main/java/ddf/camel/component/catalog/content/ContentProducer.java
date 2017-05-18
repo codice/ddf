@@ -27,8 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 
 public class ContentProducer extends DefaultProducer {
     public static final int KB = 1024;
@@ -62,7 +64,8 @@ public class ContentProducer extends DefaultProducer {
 
     @Override
     public void process(Exchange exchange)
-            throws ContentComponentException, SourceUnavailableException, IngestException {
+            throws ContentComponentException, SourceUnavailableException, IngestException,
+            UnsupportedQueryException, FederationException {
         LOGGER.trace("ENTERING: process");
 
         if (!exchange.getPattern()
