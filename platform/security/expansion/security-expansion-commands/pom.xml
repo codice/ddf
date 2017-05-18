@@ -27,19 +27,17 @@
         <dependency>
             <groupId>ddf.security.expansion</groupId>
             <artifactId>security-expansion-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.expansion</groupId>
-            <artifactId>security-expansion-impl</artifactId>
-            <scope>test</scope>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>${jline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
-            <artifactId>org.apache.karaf.shell.console</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
+            <artifactId>org.apache.karaf.shell.core</artifactId>
+            <version>${karaf.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -50,14 +48,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <Karaf-Commands>*</Karaf-Commands>
                         <Export-Package/>
-                        <Import-Package>
-                            ddf.security.expansion,
-                            org.apache.felix.service.command,
-                            org.apache.felix.gogo.commands,
-                            org.apache.karaf.shell.console,
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

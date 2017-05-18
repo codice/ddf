@@ -11,14 +11,16 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.command;
+package org.codice.ddf.security.command;
 
 import java.util.List;
 import java.util.Set;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.fusesource.jansi.Ansi;
 
 import ddf.security.expansion.Expansion;
@@ -27,8 +29,9 @@ import ddf.security.expansion.Expansion;
  * Implements the "expand" command - taking an attribute name and the current value, and prints out
  * what the expansion of that value is using the currently-configured expansion service.
  */
+@Service
 @Command(scope = "security", name = "expand", description = "Expands a given key and set of values.")
-public class ExpandCommand extends OsgiCommandSupport {
+public class ExpandCommand implements Action {
     @Argument(name = "key", description = "The of the value to be encrypted.", index = 0, multiValued = false, required = true)
     private String key = null;
 
@@ -36,13 +39,14 @@ public class ExpandCommand extends OsgiCommandSupport {
     private Set<String> values = null;
 
     // live list of expansion services
-    private List<Expansion> expansionList = null;
+    @Reference
+    List<Expansion> expansionList;
 
     /**
      * Called to execute the security:encrypt console command.
      */
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() throws Exception {
         if ((key == null) || (values == null)) {
             return null;
         }
@@ -62,9 +66,5 @@ public class ExpandCommand extends OsgiCommandSupport {
             System.out.println("No expansion services currently available.");
         }
         return null;
-    }
-
-    public void setExpansionList(List<Expansion> list) {
-        this.expansionList = list;
     }
 }
