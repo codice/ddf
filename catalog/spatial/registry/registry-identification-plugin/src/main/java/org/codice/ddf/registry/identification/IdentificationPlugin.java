@@ -17,11 +17,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.parser.ParserException;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
@@ -52,6 +52,12 @@ public class IdentificationPlugin implements PreIngestPlugin {
     private MetacardMarshaller metacardMarshaller;
 
     private RegistryIdPostIngestPlugin registryIdPostIngestPlugin;
+
+    private UuidGenerator uuidGenerator;
+
+    public IdentificationPlugin(UuidGenerator uuidGenerator) {
+        this.uuidGenerator = uuidGenerator;
+    }
 
     /**
      * For registry metacards updates the tags and identifiers
@@ -90,10 +96,7 @@ public class IdentificationPlugin implements PreIngestPlugin {
                                 ""))) {
                     throw new StopProcessingException("Can't create duplicate registry entries.");
                 }
-                metacard.setAttribute(new AttributeImpl(Metacard.ID,
-                        UUID.randomUUID()
-                                .toString()
-                                .replaceAll("-", "")));
+                metacard.setAttribute(new AttributeImpl(Metacard.ID, uuidGenerator.generateUuid()));
                 updateTags(metacard);
                 updateIdentifiers(metacard, true);
 

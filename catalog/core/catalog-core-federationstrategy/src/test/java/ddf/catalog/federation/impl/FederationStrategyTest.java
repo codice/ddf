@@ -32,10 +32,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -133,6 +135,10 @@ public class FederationStrategyTest {
     public void testQueryTimeout() throws Exception {
         long queryDelay = 100;
 
+        UuidGenerator uuidGenerator = mock(UuidGenerator.class);
+        when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID()
+                .toString());
+
         MockDelayProvider provider = new MockDelayProvider("Provider",
                 "Provider",
                 "v1.0",
@@ -162,7 +168,7 @@ public class FederationStrategyTest {
 
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
         MetacardFactory metacardFactory =
-                new MetacardFactory(props.getMimeTypeToTransformerMapper());
+                new MetacardFactory(props.getMimeTypeToTransformerMapper(), uuidGenerator);
         OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props,
                 metacardFactory);
 

@@ -16,6 +16,8 @@ package org.codice.ddf.registry.identification;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -33,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBElement;
@@ -40,6 +43,7 @@ import javax.xml.bind.JAXBElement;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.xml.XmlParser;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.schemabindings.EbrimConstants;
@@ -59,6 +63,7 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
+
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
@@ -74,8 +79,12 @@ public class IdentificationPluginTest {
 
     @Before
     public void setUp() {
+        UuidGenerator uuidGenerator = mock(UuidGenerator.class);
+        when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID()
+                .toString());
+
         parser = new XmlParser();
-        identificationPlugin = new IdentificationPlugin();
+        identificationPlugin = new IdentificationPlugin(uuidGenerator);
         identificationPlugin.setMetacardMarshaller(new MetacardMarshaller(parser));
         identificationPlugin.setRegistryIdPostIngestPlugin(new RegistryIdPostIngestPlugin());
         setParser(parser);

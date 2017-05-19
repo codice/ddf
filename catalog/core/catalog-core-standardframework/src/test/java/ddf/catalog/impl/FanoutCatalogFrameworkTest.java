@@ -30,9 +30,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.activation.MimeType;
 
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -107,6 +109,8 @@ public class FanoutCatalogFrameworkTest {
 
     private FrameworkProperties frameworkProperties;
 
+    private UuidGenerator uuidGenerator;
+
     @Before
     public void initFramework() {
 
@@ -119,13 +123,18 @@ public class FanoutCatalogFrameworkTest {
         frameworkProperties.setFederationStrategy(new MockFederationStrategy());
         frameworkProperties.setPostIngest(postIngestPlugins);
 
+        uuidGenerator = mock(UuidGenerator.class);
+        when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID()
+                .toString());
+
         framework = createCatalogFramework(frameworkProperties);
     }
 
     private CatalogFrameworkImpl createCatalogFramework(FrameworkProperties frameworkProperties) {
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
         MetacardFactory metacardFactory =
-                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(),
+                        uuidGenerator);
         OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
                 metacardFactory);
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
@@ -435,7 +444,8 @@ public class FanoutCatalogFrameworkTest {
 
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
         MetacardFactory metacardFactory =
-                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(),
+                        uuidGenerator);
         OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
                 metacardFactory);
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
@@ -505,7 +515,8 @@ public class FanoutCatalogFrameworkTest {
 
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
         MetacardFactory metacardFactory =
-                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(),
+                        uuidGenerator);
         OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
                 metacardFactory);
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
@@ -554,9 +565,11 @@ public class FanoutCatalogFrameworkTest {
         framework.setFanoutEnabled(true);
         framework.setFanoutTagBlacklist(Collections.singletonList("blacklisted"));
 
-        ContentItem item = new ContentItemImpl(ByteSource.empty(),
+        ContentItem item = new ContentItemImpl(uuidGenerator.generateUuid(),
+                ByteSource.empty(),
                 "text/xml",
                 "filename.xml",
+                0L,
                 metacard);
         CreateStorageRequest request = new CreateStorageRequestImpl(Collections.singletonList(item),
                 new HashMap<>());
@@ -570,9 +583,11 @@ public class FanoutCatalogFrameworkTest {
         metacard.setAttribute(new AttributeImpl(Metacard.ID, "metacardId"));
         metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "blacklisted"));
 
-        ContentItem item = new ContentItemImpl(ByteSource.empty(),
+        ContentItem item = new ContentItemImpl(uuidGenerator.generateUuid(),
+                ByteSource.empty(),
                 "text/xml",
                 "filename.xml",
+                0L,
                 metacard);
         UpdateStorageRequest request = new UpdateStorageRequestImpl(Collections.singletonList(item),
                 new HashMap<>());

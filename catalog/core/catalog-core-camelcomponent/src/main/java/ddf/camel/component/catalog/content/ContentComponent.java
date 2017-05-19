@@ -17,7 +17,8 @@ import java.util.Map;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
-import org.osgi.framework.BundleContext;
+
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +33,11 @@ public class ContentComponent extends DefaultComponent {
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(ContentComponent.class);
 
-    private BundleContext bundleContext;
-
     private CatalogFramework catalogFramework;
 
     private MimeTypeMapper mimeTypeMapper;
+
+    private UuidGenerator uuidGenerator;
 
     public ContentComponent() {
         super();
@@ -83,6 +84,14 @@ public class ContentComponent extends DefaultComponent {
 
     public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
         this.mimeTypeMapper = mimeTypeMapper;
+    }
+
+    public void setUuidGenerator(UuidGenerator uuidGenerator) {
+        this.uuidGenerator = uuidGenerator;
+    }
+
+    public UuidGenerator getUuidGenerator() {
+        return uuidGenerator;
     }
 
 }

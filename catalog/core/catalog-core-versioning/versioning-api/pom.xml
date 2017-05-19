@@ -25,6 +25,7 @@
 
     <packaging>bundle</packaging>
     <artifactId>versioning-api</artifactId>
+    <name>DDF :: Catalog :: Core :: Versioning :: API</name>
 
     <dependencies>
         <dependency>

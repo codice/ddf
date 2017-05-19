@@ -68,6 +68,7 @@ import javax.activation.MimeType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -238,6 +239,8 @@ public class CatalogFrameworkImplTest {
 
     RemoteDeleteOperations mockRemoteDeleteOperations;
 
+    UuidGenerator uuidGenerator;
+
     @Rule
     public MethodRule watchman = new TestWatchman() {
         public void starting(FrameworkMethod method) {
@@ -394,8 +397,13 @@ public class CatalogFrameworkImplTest {
         attributeInjector = spy(new AttributeInjectorImpl(new AttributeRegistryImpl()));
         frameworkProperties.setAttributeInjectors(Collections.singletonList(attributeInjector));
 
+        uuidGenerator = mock(UuidGenerator.class);
+        when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID()
+                .toString());
+
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-        MetacardFactory metacardFactory = new MetacardFactory(mimeTypeToTransformerMapper);
+        MetacardFactory metacardFactory = new MetacardFactory(mimeTypeToTransformerMapper,
+                uuidGenerator);
         OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
                 metacardFactory);
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
@@ -653,9 +661,12 @@ public class CatalogFrameworkImplTest {
                 return new ByteArrayInputStream("blah".getBytes());
             }
         };
-        ContentItemImpl newItem = new ContentItemImpl(byteSource,
+        ContentItemImpl newItem = new ContentItemImpl(
+                uuidGenerator.generateUuid(),
+                byteSource,
                 "application/octet-stream",
                 "blah",
+                0L,
                 newCard);
         contentItems.add(newItem);
 
@@ -728,9 +739,11 @@ public class CatalogFrameworkImplTest {
                 return new ByteArrayInputStream("blah".getBytes());
             }
         };
-        ContentItemImpl newItem = new ContentItemImpl(byteSource,
+        ContentItemImpl newItem = new ContentItemImpl(uuidGenerator.generateUuid(),
+                byteSource,
                 "application/octet-stream",
                 "blah",
+                0L,
                 newCard);
         contentItems.add(newItem);
 
@@ -799,9 +812,11 @@ public class CatalogFrameworkImplTest {
                 return new ByteArrayInputStream("blah".getBytes());
             }
         };
-        ContentItemImpl newItem = new ContentItemImpl(byteSource,
+        ContentItemImpl newItem = new ContentItemImpl(uuidGenerator.generateUuid(),
+                byteSource,
                 "application/octet-stream",
                 "blah",
+                0L,
                 newCard);
         contentItems.add(newItem);
 
@@ -988,9 +1003,11 @@ public class CatalogFrameworkImplTest {
                 return new ByteArrayInputStream("blah".getBytes());
             }
         };
-        ContentItemImpl contentItem = new ContentItemImpl(byteSource,
+        ContentItemImpl contentItem = new ContentItemImpl(uuidGenerator.generateUuid(),
+                byteSource,
                 "application/octet-stream",
                 "blah",
+                0L,
                 metacard);
         contentItems.add(contentItem);
 
@@ -1050,9 +1067,11 @@ public class CatalogFrameworkImplTest {
                 return new ByteArrayInputStream("blah".getBytes());
             }
         };
-        ContentItemImpl contentItem = new ContentItemImpl(byteSource,
+        ContentItemImpl contentItem = new ContentItemImpl(uuidGenerator.generateUuid(),
+                byteSource,
                 "application/octet-stream",
                 "blah",
+                0L,
                 metacard);
         CreateResponse response =
                 framework.create(new CreateStorageRequestImpl(Collections.singletonList(contentItem),
@@ -1386,7 +1405,8 @@ public class CatalogFrameworkImplTest {
     private CatalogFrameworkImpl createFramework(FrameworkProperties frameworkProperties) {
         OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
         MetacardFactory metacardFactory =
-                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper());
+                new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(),
+                        uuidGenerator);
         OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties,
                 metacardFactory);
         SourceOperations sourceOperations = new SourceOperations(frameworkProperties);

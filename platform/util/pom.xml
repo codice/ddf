@@ -26,5 +26,6 @@
     <modules>
         <module>platform-util</module>
         <module>platform-util-unavailableurls</module>
+        <module>platform-util-uuidgenerator</module>
     </modules>
 </project>

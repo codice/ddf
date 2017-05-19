@@ -42,6 +42,7 @@
     <bean id="ftplet" class="ddf.catalog.ftp.ftplets.FtpRequestHandler">
         <argument ref="catalogFramework"/>
         <argument ref="mimeTypeMapper"/>
+        <argument ref="uuidGenerator"/>
     </bean>
     <bean id="userManager" class="ddf.catalog.ftp.UserManagerImpl">
         <property name="uploadDirectory" value="${ddf.home}/data/products"/>
@@ -56,4 +57,5 @@
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
 </blueprint>

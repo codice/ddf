@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,7 @@ import org.apache.ftpserver.ftplet.FtpSession;
 import org.apache.ftpserver.ftplet.FtpletResult;
 import org.apache.ftpserver.impl.IODataConnectionFactory;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -75,6 +77,8 @@ public class FtpRequestHandlerTest {
 
     private MimeTypeMapper mimeTypeMapper;
 
+    private UuidGenerator uuidGenerator;
+
     @Before
     public void setUp() {
         session = mock(FtpSession.class, RETURNS_DEEP_STUBS);
@@ -82,8 +86,10 @@ public class FtpRequestHandlerTest {
 
         catalogFramework = mock(CatalogFramework.class);
         mimeTypeMapper = mock(MimeTypeMapper.class);
-
-        ftplet = new FtpRequestHandler(catalogFramework, mimeTypeMapper);
+        uuidGenerator = mock(UuidGenerator.class);
+        when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID()
+                .toString());
+        ftplet = new FtpRequestHandler(catalogFramework, mimeTypeMapper, uuidGenerator);
     }
 
     @Test(expected = FtpException.class)
@@ -184,7 +190,7 @@ public class FtpRequestHandlerTest {
         String mimeType;
         catalogFramework = mock(CatalogFramework.class);
 
-        FtpRequestHandler ftplett = new FtpRequestHandler(catalogFramework, null);
+        FtpRequestHandler ftplett = new FtpRequestHandler(catalogFramework, null, uuidGenerator);
 
         mimeType = ftplett.getMimeType("xml", new TemporaryFileBackedOutputStream());
         assertEquals("", mimeType);

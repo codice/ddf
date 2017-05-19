@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -64,6 +64,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -121,6 +122,7 @@ import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
+
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
@@ -160,6 +162,8 @@ public class RESTEndpoint implements RESTService {
     private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
     private static final String DEFAULT_FILE_NAME = "file";
+
+    private UuidGenerator uuidGenerator;
 
     /**
      * Basic mime types that will be attempted to refine to a more accurate mime type
@@ -722,15 +726,21 @@ public class RESTEndpoint implements RESTService {
                 }
 
                 if (createInfo == null) {
-                    UpdateRequest updateRequest = new UpdateRequestImpl(id,
-                            generateMetacard(mimeType, id, message, transformerParam));
+                    UpdateRequest updateRequest = new UpdateRequestImpl(id, generateMetacard(
+                            mimeType,
+                            id,
+                            message,
+                            transformerParam));
                     catalogFramework.update(updateRequest);
                 } else {
                     UpdateStorageRequest streamUpdateRequest = new UpdateStorageRequestImpl(
-                            Collections.singletonList(
-                                    new IncomingContentItem(id, createInfo.getStream(),
-                                            createInfo.getContentType(), createInfo.getFilename(),
-                                            0, createInfo.getMetacard())), null);
+                            Collections.singletonList(new IncomingContentItem(id,
+                                            createInfo.getStream(),
+                                            createInfo.getContentType(),
+                                            createInfo.getFilename(),
+                                            0,
+                                            createInfo.getMetacard())),
+                            null);
                     catalogFramework.update(streamUpdateRequest);
                 }
 
@@ -796,15 +806,19 @@ public class RESTEndpoint implements RESTService {
 
                 CreateResponse createResponse;
                 if (createInfo == null) {
-                    CreateRequest createRequest = new CreateRequestImpl(
-                            generateMetacard(mimeType, null, message, transformerParam));
+                    CreateRequest createRequest = new CreateRequestImpl(generateMetacard(mimeType,
+                            null,
+                            message,
+                            transformerParam));
                     createResponse = catalogFramework.create(createRequest);
                 } else {
                     CreateStorageRequest streamCreateRequest = new CreateStorageRequestImpl(
-                            Collections.singletonList(
-                                    new IncomingContentItem(createInfo.getStream(),
-                                            createInfo.getContentType(), createInfo.getFilename(),
-                                            createInfo.getMetacard())), null);
+                            Collections.singletonList(new IncomingContentItem(uuidGenerator,
+                                            createInfo.getStream(),
+                                            createInfo.getContentType(),
+                                            createInfo.getFilename(),
+                                            createInfo.getMetacard())),
+                            null);
                     createResponse = catalogFramework.create(streamCreateRequest);
                 }
 
@@ -833,8 +847,7 @@ public class RESTEndpoint implements RESTService {
                 throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
             }
         } catch (SourceUnavailableException e) {
-            String exceptionMessage =
-                    "Cannot create catalog entry because source is unavailable: ";
+            String exceptionMessage = "Cannot create catalog entry because source is unavailable: ";
             LOGGER.info(exceptionMessage, e);
             // Catalog framework logs these exceptions to the ingest logger so we don't have to.
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
@@ -882,7 +895,8 @@ public class RESTEndpoint implements RESTService {
             } catch (IOException e) {
                 LOGGER.debug(
                         "Unable to get input stream for mime attachment. Ignoring override attribute: {}",
-                        name, e);
+                        name,
+                        e);
             }
 
         }
@@ -914,32 +928,31 @@ public class RESTEndpoint implements RESTService {
                 case XML:
                 case GEOMETRY:
                 case STRING:
-                    attributes.add(new AttributeImpl(parsedName,
-                            IOUtils.toString(inputStream)));
+                    attributes.add(new AttributeImpl(parsedName, IOUtils.toString(inputStream)));
                     break;
                 case BOOLEAN:
-                    attributes.add(new AttributeImpl(parsedName,
-                            Boolean.valueOf(IOUtils.toString(inputStream))));
+                    attributes.add(new AttributeImpl(parsedName, Boolean.valueOf(IOUtils.toString(
+                            inputStream))));
                     break;
                 case SHORT:
-                    attributes.add(new AttributeImpl(parsedName,
-                            Short.valueOf(IOUtils.toString(inputStream))));
+                    attributes.add(new AttributeImpl(parsedName, Short.valueOf(IOUtils.toString(
+                            inputStream))));
                     break;
                 case LONG:
-                    attributes.add(new AttributeImpl(parsedName,
-                            Long.valueOf(IOUtils.toString(inputStream))));
+                    attributes.add(new AttributeImpl(parsedName, Long.valueOf(IOUtils.toString(
+                            inputStream))));
                     break;
                 case INTEGER:
-                    attributes.add(new AttributeImpl(parsedName,
-                            Integer.valueOf(IOUtils.toString(inputStream))));
+                    attributes.add(new AttributeImpl(parsedName, Integer.valueOf(IOUtils.toString(
+                            inputStream))));
                     break;
                 case FLOAT:
-                    attributes.add(new AttributeImpl(parsedName,
-                            Float.valueOf(IOUtils.toString(inputStream))));
+                    attributes.add(new AttributeImpl(parsedName, Float.valueOf(IOUtils.toString(
+                            inputStream))));
                     break;
                 case DOUBLE:
-                    attributes.add(new AttributeImpl(parsedName,
-                            Double.valueOf(IOUtils.toString(inputStream))));
+                    attributes.add(new AttributeImpl(parsedName, Double.valueOf(IOUtils.toString(
+                            inputStream))));
                     break;
                 case DATE:
                     Instant instant = Instant.parse(IOUtils.toString(inputStream));
@@ -949,8 +962,7 @@ public class RESTEndpoint implements RESTService {
                     attributes.add(new AttributeImpl(parsedName, Date.from(instant)));
                     break;
                 case BINARY:
-                    attributes.add(new AttributeImpl(parsedName,
-                            IOUtils.toByteArray(inputStream)));
+                    attributes.add(new AttributeImpl(parsedName, IOUtils.toByteArray(inputStream)));
                     break;
                 case OBJECT:
                     LOGGER.debug("Object type not supported for override");
@@ -975,7 +987,9 @@ public class RESTEndpoint implements RESTService {
             MimeType mimeType = new MimeType(attachment.getContentType()
                     .toString());
             metacard = generateMetacard(mimeType,
-                    "assigned-when-ingested", inputStream, transformer);
+                    "assigned-when-ingested",
+                    inputStream,
+                    transformer);
         } catch (MimeTypeParseException | MetacardCreationException e) {
             LOGGER.debug("Unable to parse metadata {}",
                     attachment.getContentType()
@@ -1031,8 +1045,7 @@ public class RESTEndpoint implements RESTService {
                     fileExtension = DEFAULT_FILE_EXTENSION;
                 }
             } catch (MimeTypeResolutionException e) {
-                LOGGER.debug("Exception getting file extension for contentType = {}",
-                        contentType);
+                LOGGER.debug("Exception getting file extension for contentType = {}", contentType);
             }
             filename = DEFAULT_FILE_NAME + "." + fileExtension; // DDF-2263
             LOGGER.debug("No filename parameter provided - default to {}", filename);
@@ -1045,13 +1058,14 @@ public class RESTEndpoint implements RESTService {
             if (StringUtils.isEmpty(contentType) || REFINEABLE_MIME_TYPES.contains(contentType)) {
                 String fileExtension = FilenameUtils.getExtension(filename);
                 LOGGER.debug("fileExtension = {}, contentType before refinement = {}",
-                        fileExtension, contentType);
+                        fileExtension,
+                        contentType);
                 try {
                     contentType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
                 } catch (MimeTypeResolutionException e) {
-                    LOGGER.debug(
-                            "Unable to refine contentType {} based on filename extension {}",
-                            contentType, fileExtension);
+                    LOGGER.debug("Unable to refine contentType {} based on filename extension {}",
+                            contentType,
+                            fileExtension);
                 }
                 LOGGER.debug("Refined contentType = {}", contentType);
             }
@@ -1153,8 +1167,9 @@ public class RESTEndpoint implements RESTService {
             Iterator<InputTransformer> it = listOfCandidates.iterator();
             if (StringUtils.isNotEmpty(transformerId)) {
                 BundleContext bundleContext = getBundleContext();
-                Collection<ServiceReference<InputTransformer>> serviceReferences = bundleContext.getServiceReferences(
-                        InputTransformer.class, "(id=" + transformerId + ")");
+                Collection<ServiceReference<InputTransformer>> serviceReferences =
+                        bundleContext.getServiceReferences(InputTransformer.class,
+                                "(id=" + transformerId + ")");
                 it = serviceReferences.stream()
                         .map(bundleContext::getService)
                         .iterator();
@@ -1166,7 +1181,8 @@ public class RESTEndpoint implements RESTService {
                         .openStream()) {
                     generatedMetacard = transformer.transform(inputStreamMessageCopy);
                 } catch (CatalogTransformerException | IOException e) {
-                    List<String> stackTraces = Arrays.asList(ExceptionUtils.getRootCauseStackTrace(e));
+                    List<String> stackTraces =
+                            Arrays.asList(ExceptionUtils.getRootCauseStackTrace(e));
                     stackTraceList.add(String.format("Transformer [%s] could not create metacard.",
                             transformer));
                     stackTraceList.addAll(stackTraces);
@@ -1264,8 +1280,8 @@ public class RESTEndpoint implements RESTService {
             if (rangeHeader.startsWith(BYTES_EQUAL)) {
                 String tempString = rangeHeader.substring(BYTES_EQUAL.length());
                 if (tempString.contains("-")) {
-                    response = rangeHeader.substring(BYTES_EQUAL.length(),
-                            rangeHeader.lastIndexOf("-"));
+                    response = rangeHeader.substring(BYTES_EQUAL.length(), rangeHeader.lastIndexOf(
+                            "-"));
                 } else {
                     response = rangeHeader.substring(BYTES_EQUAL.length());
                 }
@@ -1304,6 +1320,10 @@ public class RESTEndpoint implements RESTService {
 
     public void setMetacardTypes(List<MetacardType> metacardTypes) {
         this.metacardTypes = metacardTypes;
+    }
+
+    public void setUuidGenerator(UuidGenerator uuidGenerator) {
+        this.uuidGenerator = uuidGenerator;
     }
 
     protected static class CreateInfo {
@@ -1352,14 +1372,19 @@ public class RESTEndpoint implements RESTService {
 
         private InputStream inputStream;
 
-        public IncomingContentItem(ByteSource byteSource, String mimeTypeRawData, String filename,
-                Metacard metacard) {
-            super(byteSource, mimeTypeRawData, filename, metacard);
+        public IncomingContentItem(UuidGenerator uuidGenerator, ByteSource byteSource,
+                String mimeTypeRawData, String filename, Metacard metacard) {
+            super(uuidGenerator.generateUuid(),
+                    byteSource,
+                    mimeTypeRawData,
+                    filename,
+                    0L,
+                    metacard);
         }
 
-        public IncomingContentItem(InputStream inputStream, String mimeTypeRawData, String filename,
-                Metacard metacard) {
-            super(null, mimeTypeRawData, filename, metacard);
+        public IncomingContentItem(UuidGenerator uuidGenerator, InputStream inputStream,
+                String mimeTypeRawData, String filename, Metacard metacard) {
+            super(uuidGenerator.generateUuid(), null, mimeTypeRawData, filename, 0L, metacard);
             this.inputStream = inputStream;
         }
 

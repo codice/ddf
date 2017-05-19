@@ -760,6 +760,17 @@
         <bundle>mvn:ddf.platform.migration/platform-migration/${project.version}</bundle>
     </feature>
 
+    <feature name="util-uuidgenerator-api" install="manual" version="${project.version}"
+             description="UUID Generator API">
+        <feature prerequisite="true">platform-dependencies</feature>
+        <bundle>mvn:ddf.platform.util/util-uuidgenerator-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="util-uuidgenerator" install="manual" version="${project.version}" description="A UUID generator service">
+        <feature>util-uuidgenerator-api</feature>
+        <bundle>mvn:ddf.platform.util/util-uuidgenerator-impl/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-scheduler" install="manual" version="${project.version}"
              description="Schedules tasks">
         <feature prerequisite="true">commons</feature>
@@ -1046,6 +1057,7 @@
         <feature>landing-page</feature>
         <feature>platform-filter-response</feature>
         <feature>platform-email</feature>
+        <feature>util-uuidgenerator</feature>
     </feature>
 
     <feature name="clientinfo-filter" install="auto" version="${project.version}"

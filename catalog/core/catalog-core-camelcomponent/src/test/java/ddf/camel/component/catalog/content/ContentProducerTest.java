@@ -17,12 +17,16 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.util.UUID;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Message;
+
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -47,6 +51,12 @@ public class ContentProducerTest {
         File testFile = testDir.newFile();
 
         mockEndpoint = mock(ContentEndpoint.class);
+
+        UuidGenerator uuidGenerator = mock(UuidGenerator.class);
+        ContentComponent contentComponent = mock(ContentComponent.class);
+        when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID()
+                .toString());
+        when(mockEndpoint.getComponent()).thenReturn(contentComponent);
 
         Message mockMessage = mock(Message.class);
         doReturn(ImmutableMap.of(Constants.STORE_REFERENCE_KEY, true)).when(mockMessage)

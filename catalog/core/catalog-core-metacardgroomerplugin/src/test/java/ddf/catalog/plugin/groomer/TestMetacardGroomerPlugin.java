@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +40,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.joda.time.DateTime;
+import org.junit.Before;
 import org.junit.Test;
 
 import ddf.catalog.content.data.ContentItem;
@@ -81,11 +84,22 @@ public class TestMetacardGroomerPlugin {
 
     private static final String DEFAULT_METADATA = "<sample>sample</sample>";
 
+    private UuidGenerator uuidGenerator;
+
+    private StandardMetacardGroomerPlugin plugin;
+
+    @Before
+    public void setUp() {
+        uuidGenerator = mock(UuidGenerator.class);
+        when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID()
+                .toString());
+        plugin = new StandardMetacardGroomerPlugin();
+        plugin.setUuidGenerator(uuidGenerator);
+    }
+
     @Test
     public void testCreateWithNullRequest()
         throws PluginExecutionException, StopProcessingException {
-
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
 
         CreateRequest returnedRequest = plugin.process((CreateRequest) null);
 
@@ -96,8 +110,6 @@ public class TestMetacardGroomerPlugin {
     @Test
     public void testCreateWithNullRecords()
         throws PluginExecutionException, StopProcessingException {
-
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
 
         CreateRequest request = mock(CreateRequest.class);
 
@@ -113,8 +125,6 @@ public class TestMetacardGroomerPlugin {
 
     @Test
     public void testCreateWithNoRecords() throws PluginExecutionException, StopProcessingException {
-
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
 
         CreateRequest request = mock(CreateRequest.class);
 
@@ -168,8 +178,8 @@ public class TestMetacardGroomerPlugin {
 
         Date snapshotOfNow = new Date();
 
-        String id = UUID.randomUUID().toString().replaceAll("-", "");
-
+        String id = UUID.randomUUID().toString();
+        when(uuidGenerator.validateUuid(anyString())).thenReturn(true);
         Metacard inputMetacard = getStandardMetacard(id);
         inputMetacard.setAttribute(
                 new AttributeImpl(Metacard.RESOURCE_URI, ContentItem.CONTENT_SCHEME + ":" + id));
@@ -242,7 +252,8 @@ public class TestMetacardGroomerPlugin {
 
         Date snapshotOfNow = new Date();
 
-        String id = UUID.randomUUID().toString().replaceAll("-", "");
+        String id = UUID.randomUUID().toString();
+        when(uuidGenerator.validateUuid(anyString())).thenReturn(true);
 
         Metacard inputMetacard = getStandardMetacard(id);
 
@@ -445,8 +456,6 @@ public class TestMetacardGroomerPlugin {
 
         DeleteRequest inputRequest = new DeleteRequestImpl(SAMPLE_ID);
 
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
-
         DeleteRequest returnedRequest = plugin.process(inputRequest);
 
         assertNotNull(returnedRequest);
@@ -533,8 +542,6 @@ public class TestMetacardGroomerPlugin {
         uris[0] = new URI(SAMPLE_ID);
         UpdateRequestImpl inputRequest = new UpdateRequestImpl(uris,
                 Arrays.asList(copy(inputMetacard)));
-
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
 
         UpdateRequest returnedRequest = plugin.process(inputRequest);
 
@@ -624,8 +631,6 @@ public class TestMetacardGroomerPlugin {
     public void testUpdateWithNullRequest()
         throws PluginExecutionException, StopProcessingException {
 
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
-
         UpdateRequest returnedRequest = plugin.process((UpdateRequest) null);
 
         assertThat(returnedRequest, nullValue());
@@ -635,8 +640,6 @@ public class TestMetacardGroomerPlugin {
     @Test
     public void testUpdateWithNullRecords()
         throws PluginExecutionException, StopProcessingException {
-
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
 
         UpdateRequest request = mock(UpdateRequest.class);
 
@@ -652,8 +655,6 @@ public class TestMetacardGroomerPlugin {
 
     @Test
     public void testUpdateWithNoRecords() throws PluginExecutionException, StopProcessingException {
-
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
 
         UpdateRequest request = mock(UpdateRequest.class);
 
@@ -673,8 +674,6 @@ public class TestMetacardGroomerPlugin {
     public void testUpdateSingleUpdateNull()
         throws PluginExecutionException, StopProcessingException {
 
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
-
         UpdateRequest request = mock(UpdateRequest.class);
 
         List<Entry<Serializable, Metacard>> updates = new ArrayList<>();
@@ -691,8 +690,6 @@ public class TestMetacardGroomerPlugin {
     @Test
     public void testUpdateSingleUpdateKeyNull()
         throws PluginExecutionException, StopProcessingException {
-
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
 
         UpdateRequest request = mock(UpdateRequest.class);
 
@@ -727,8 +724,6 @@ public class TestMetacardGroomerPlugin {
     public void testUpdateSingleUpdateValueNull()
         throws PluginExecutionException, StopProcessingException {
 
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
-
         UpdateRequest request = mock(UpdateRequest.class);
 
         List<Entry<Serializable, Metacard>> updates = new ArrayList<>();
@@ -762,8 +757,6 @@ public class TestMetacardGroomerPlugin {
         throws PluginExecutionException, StopProcessingException {
         CreateRequestImpl inputRequest = new CreateRequestImpl(copy(inputMetacard));
 
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
-
         CreateRequest returnedRequest = plugin.process(inputRequest);
 
         assertNotNull(returnedRequest);
@@ -776,8 +769,6 @@ public class TestMetacardGroomerPlugin {
     private Metacard processUpdate(Metacard inputMetacard)
         throws PluginExecutionException, StopProcessingException {
         UpdateRequestImpl inputRequest = new UpdateRequestImpl(SAMPLE_ID, copy(inputMetacard));
-
-        StandardMetacardGroomerPlugin plugin = new StandardMetacardGroomerPlugin();
 
         UpdateRequest returnedRequest = plugin.process(inputRequest);
 
