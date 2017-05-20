@@ -54,9 +54,9 @@
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_3.0_spec</artifactId>
-            <version>1.0</version>
+            <groupId>${geronimo-servlet-api.group}</groupId>
+            <artifactId>${geronimo-servlet-api.artifact}</artifactId>
+            <version>${geronimo-servlet-api.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>

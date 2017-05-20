@@ -25,7 +25,6 @@
     <packaging>pom</packaging>
     <properties>
         <jasypt.version>1.9.0</jasypt.version>
-        <wss4j.version>2.1.7</wss4j.version>
         <opensaml.version>3.1.1</opensaml.version>
         <powermock.agent>${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar</powermock.agent>
     </properties>
@@ -102,8 +101,8 @@
                 <version>${cxf.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-servlet_3.0_spec</artifactId>
+                        <groupId>${geronimo-servlet-api.group}</groupId>
+                        <artifactId>${geronimo-servlet-api.artifact}</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

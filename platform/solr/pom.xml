@@ -23,9 +23,6 @@
     <artifactId>solr</artifactId>
     <packaging>pom</packaging>
     <name>DDF Solr</name>
-    <properties>
-        <saxon.version>9.5.1-5</saxon.version>
-    </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>

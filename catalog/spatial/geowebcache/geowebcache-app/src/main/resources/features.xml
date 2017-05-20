@@ -23,7 +23,10 @@
      affect feature descriptors that are installed from the command line or as part of the 
      org.apache.karaf.features.cfg." 
 -->
-<features name="${project.artifactId}-${project.version}">
+<features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <feature name="geowebcache-server-standalone" install="manual" version="${project.version}"
              description="Standalone geowebcache server.">
