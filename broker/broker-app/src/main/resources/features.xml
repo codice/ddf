@@ -87,8 +87,15 @@
         <bundle>mvn:org.apache.activemq/artemis-server-osgi/${artemis.version}</bundle>
     </feature>
 
+    <!-- This feature has a start level of 80 to keep it higher than the "camel-amqp" feature
+        The "camel-amqp" feature uses a different version of proton than this feature. If this version of
+        proton starts before the "camel-amqp" version, that introduces version conflict issues.
+
+        TODO: DDF-3029 Once we have upgraded to Artemis 2.1.0, both "artemis-amqp" and "camel-amqp" should
+        use the same version of proton and the explicit start level on this feature should not be necessary.
+        -->
     <feature name="artemis-amqp" install="manual" version="${artemis.version}"
-             description="ActiveMQ Artemis AMQP protocol libraries">
+             description="ActiveMQ Artemis AMQP protocol libraries" start-level="80">
         <feature prerequisite="true">wrap</feature>
         <feature prerequisite="true">artemis-core</feature>
         <bundle>wrap:mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
