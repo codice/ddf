@@ -15,7 +15,7 @@ package org.codice.ddf.commands.platform;
 
 import java.io.PrintStream;
 
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 
@@ -23,7 +23,7 @@ import org.fusesource.jansi.Ansi.Attribute;
  * Parent object to all Platform Commands. Provides common methods and instance variables that
  * Platform Commands can use.
  */
-public abstract class PlatformCommands extends OsgiCommandSupport {
+public abstract class PlatformCommands implements Action {
 
     public static final String NAMESPACE = "platform";
 

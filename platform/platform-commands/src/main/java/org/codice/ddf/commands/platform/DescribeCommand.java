@@ -13,15 +13,17 @@
  */
 package org.codice.ddf.commands.platform;
 
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 
+@Service
 @Command(scope = PlatformCommands.NAMESPACE, name = "describe", description = "Provides a description of the platform")
 public class DescribeCommand extends PlatformCommands {
 
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() throws Exception {
         System.out.printf("%s=%s%n", "Protocol", SystemBaseUrl.getProtocol());
         System.out.printf("%s=%s%n", "Host", SystemBaseUrl.getHost());
         System.out.printf("%s=%s%n", "Port", SystemBaseUrl.getPort());
