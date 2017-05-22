@@ -16,10 +16,12 @@ package org.codice.ddf.commands.spatial.geonames;
 
 import java.io.PrintStream;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
@@ -29,10 +31,11 @@ import org.codice.ddf.spatial.geocoding.ProgressCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Service
 @Command(scope = "geonames", name = "update",
         description = "Adds new entries to an existing local GeoNames index. " + "Attempting to " +
                 "add entries when no index exists is an error.")
-public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
+public final class GeoNamesUpdateCommand implements Action {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesUpdateCommand.class);
 
     @Argument(index = 0, name = "resource",
@@ -51,8 +54,10 @@ public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
             description = "Create a new index, overwriting any existing index at the destination.")
     private boolean create;
 
+    @Reference
     private GeoEntryIndexer geoEntryIndexer;
 
+    @Reference
     private GeoEntryExtractor geoEntryExtractor;
 
     public void setGeoEntryExtractor(final GeoEntryExtractor geoEntryExtractor) {
@@ -68,7 +73,7 @@ public final class GeoNamesUpdateCommand extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
+    public Object execute() {
         final PrintStream console = System.out;
 
         final ProgressCallback progressCallback = new ProgressCallback() {
