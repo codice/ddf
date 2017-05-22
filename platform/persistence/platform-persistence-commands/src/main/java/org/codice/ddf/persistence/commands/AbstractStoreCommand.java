@@ -15,11 +15,11 @@ package org.codice.ddf.persistence.commands;
 
 import java.io.PrintStream;
 
-import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +27,9 @@ import org.slf4j.LoggerFactory;
  * Abstract store command that allows store commands to be built off this. Takes care of obtaining
  * the persistent store service, console, and logging.
  */
-public abstract class AbstractStoreCommand extends OsgiCommandSupport {
+public abstract class AbstractStoreCommand implements Action {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    protected PersistentStore persistentStore;
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractStoreCommand.class);
 
     protected PrintStream console = System.out;
 
@@ -43,38 +41,25 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
             "--cql"}, required = false, description = "OGC CQL statement to query the persistence store. Not specifying returns all entries. More information on CQL is available at: http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html", multiValued = false)
     protected String cql;
 
-    @Override
-    protected Object doExecute() {
+    @Reference
+    protected PersistentStore persistentStore;
 
-        ServiceReference<PersistentStore> persistentStoreRef =
-                getBundleContext().getServiceReference(PersistentStore.class);
+    @Override
+    public Object execute() {
 
         try {
-            if (persistentStoreRef != null) {
-                persistentStore = getBundleContext().getService(persistentStoreRef);
-                if (PersistentStore.PERSISTENCE_TYPES.contains(type)) {
-                    storeCommand();
-                } else {
-                    console.println("Type passed in was not correct. Must be one of "
-                            + PersistentStore.PERSISTENCE_TYPES + ".");
-                }
+
+            if (PersistentStore.PERSISTENCE_TYPES.contains(type)) {
+                storeCommand();
             } else {
-                console.println(
-                        "Could not obtain reference to Persistent Store service. Cannot perform operation.");
+                console.println("Type passed in was not correct. Must be one of "
+                        + PersistentStore.PERSISTENCE_TYPES + ".");
             }
+
         } catch (PersistenceException pe) {
             console.println(
                     "Encountered an error when trying to perform the command. Check log for more details.");
-            logger.debug("Error while performing command.", pe);
-        } finally {
-            if (persistentStoreRef != null) {
-                try {
-                    getBundleContext().ungetService(persistentStoreRef);
-                } catch (IllegalStateException ise) {
-                    logger.debug(
-                            "Bundle Context was already closed, service reference has been removed.");
-                }
-            }
+            LOGGER.debug("Error while performing command.", pe);
         }
 
         return null;

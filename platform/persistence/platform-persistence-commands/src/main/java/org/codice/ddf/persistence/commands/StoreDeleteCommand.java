@@ -17,14 +17,21 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.apache.karaf.shell.api.console.Session;
 import org.codice.ddf.persistence.PersistenceException;
 
 import jline.console.ConsoleReader;
 
+@Service
 @Command(scope = "store", name = "delete",
         description = "Deletes entries from the persistence store.")
 public class StoreDeleteCommand extends AbstractStoreCommand {
+
+    @Reference
+    Session session;
 
     @Override
     public void storeCommand() throws PersistenceException {
