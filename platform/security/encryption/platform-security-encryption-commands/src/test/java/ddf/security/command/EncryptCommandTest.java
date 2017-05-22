@@ -50,7 +50,7 @@ public class EncryptCommandTest {
     }
 
     @Test
-    public void testDoExecuteNonNullPlainTextValue() {
+    public void testExecuteNonNullPlainTextValue() {
         final String plainTextValue = "protect";
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
@@ -62,7 +62,7 @@ public class EncryptCommandTest {
         Object encryptedValue = null;
 
         try {
-            encryptedValue = encryptCommand.doExecute();
+            encryptedValue = encryptCommand.execute();
 
         } catch (Exception e) {
             fail(e.getMessage());
@@ -73,7 +73,7 @@ public class EncryptCommandTest {
     }
 
     @Test
-    public void testDoExecuteNullPlainTextValue() {
+    public void testExecuteNullPlainTextValue() {
         final String plainTextValue = null;
 
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
@@ -85,7 +85,7 @@ public class EncryptCommandTest {
         Object encryptedValue = null;
 
         try {
-            encryptedValue = encryptCommand.doExecute();
+            encryptedValue = encryptCommand.execute();
         } catch (Exception e) {
             fail(e.getMessage());
         }
