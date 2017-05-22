@@ -24,6 +24,7 @@
     <packaging>pom</packaging>
     <name>DDF SDK</name>
     <modules>
+        <module>artemis-sandbox</module>
         <module>sample-plugins</module>
         <module>sample-transformers</module>
         <module>ddf-sso-widget</module>

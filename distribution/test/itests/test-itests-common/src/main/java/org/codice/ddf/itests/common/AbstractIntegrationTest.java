@@ -540,7 +540,10 @@ public abstract class AbstractIntegrationTest {
                 System.getProperty(AdminConfig.TEST_LOGLEVEL_PROPERTY) != null).useOptions(
                 systemProperty(AdminConfig.TEST_LOGLEVEL_PROPERTY).value(System.getProperty(
                         AdminConfig.TEST_LOGLEVEL_PROPERTY,
-                        ""))));
+                        ""))),
+                editConfigurationFilePut("etc/" + LOG_CONFIG_PID + ".cfg",
+                        "log4j.additivity.org.apache.activemq.artemis",
+                        "true"));
     }
 
     protected Option[] configureIncludeUnstableTests() {

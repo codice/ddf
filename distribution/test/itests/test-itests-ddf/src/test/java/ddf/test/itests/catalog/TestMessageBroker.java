@@ -17,12 +17,9 @@ import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.with;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
@@ -40,22 +37,19 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.WaitCondition;
+import org.codice.ddf.itests.common.annotations.AfterExam;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.spi.reactors.PerSuite;
 
 @RunWith(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
-public class MessageBrokerTest extends AbstractIntegrationTest {
+@ExamReactorStrategy(PerSuite.class)
+public class TestMessageBroker extends AbstractIntegrationTest {
 
     private static final int TIMEOUT_IN_SECONDS = 60;
-
-    private static final String[] REQUIRED_APPS =
-            {"catalog-app", "solr-app", "spatial-app", "broker-app"};
 
     private static final String EXAMPLE_TEST_ROUTE = "sdk.example";
 
@@ -82,6 +76,12 @@ public class MessageBrokerTest extends AbstractIntegrationTest {
     private static final String UNDELIVERED_MESSAGES_MBEAN_URL =
             "/admin/jolokia/exec/org.codice.ddf.broker.ui.UndeliveredMessages:service=UndeliveredMessages/";
 
+    private static final DynamicPort AMQP_PORT = new DynamicPort(6);
+
+    private static final DynamicPort ARTEMIS_PORT = new DynamicPort(7);
+
+    private static final DynamicPort OPENWIRE_PORT = new DynamicPort(8);
+
     private static final DynamicUrl GET_UNDELIVERED_MESSAGES_PATH =
             new DynamicUrl(DynamicUrl.SECURE_ROOT,
                     HTTPS_PORT,
@@ -105,51 +105,33 @@ public class MessageBrokerTest extends AbstractIntegrationTest {
 
     private static CamelContext camelContext;
 
-    protected final AbstractIntegrationTest.DynamicPort amqpPort =
-            new AbstractIntegrationTest.DynamicPort(6);
-
-    protected final AbstractIntegrationTest.DynamicPort artemisPort =
-            new AbstractIntegrationTest.DynamicPort(7);
-
-    protected final AbstractIntegrationTest.DynamicPort openwirePort =
-            new AbstractIntegrationTest.DynamicPort(8);
-
     private String messageId;
-
-    @Override
-    protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {
-        return combineOptions(super.configureConfigurationPorts(),
-                new Option[] {editConfigurationFilePut("etc/system.properties",
-                        "artemis.amqp.port",
-                        amqpPort.getPort()), editConfigurationFilePut("etc/system.properties",
-                        "artemis.multiprotocol.port",
-                        artemisPort.getPort()), editConfigurationFilePut("etc/system.properties",
-                        "artemis.openwire.port",
-                        openwirePort.getPort())});
-    }
-
-    @Override
-    protected Option[] configureLogLevel() {
-        return combineOptions(super.configureLogLevel(),
-                options(editConfigurationFilePut("etc/" + LOG_CONFIG_PID + ".cfg",
-                        "log4j.additivity.org.apache.activemq.artemis",
-                        "true")));
-    }
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
+        waitForSystemReady();
+        System.setProperty("artemis.amqp.port", AMQP_PORT.getPort());
+        System.setProperty("artemis.multiprotocol.port", ARTEMIS_PORT.getPort());
+        System.setProperty("artemis.openwire.port", OPENWIRE_PORT.getPort());
 
-        getServiceManager().waitForRequiredApps(REQUIRED_APPS);
+        getServiceManager().startFeature(true,
+                "broker-app",
+                "broker-undelivered-messages-ui",
+                "broker-route-manager");
         setupCamelContext();
-        configureRestForGuest();
-        getSecurityPolicy().waitForGuestAuthReady(REST_PATH.getUrl() + "?_wadl");
         FileUtils.copyInputStreamToFile(AbstractIntegrationTest.getFileContentAsStream(
                 "sdk-example-route.xml",
                 AbstractIntegrationTest.class), Paths.get(ddfHome, "etc", "routes")
                 .resolve("sdk-example-route.xml")
                 .toFile());
+    }
+
+    @AfterExam
+    public void afterExam() throws Exception {
+        getServiceManager().stopFeature(true,
+                "broker-app",
+                "broker-undelivered-messages-ui",
+                "broker-route-manager");
     }
 
     @Test
@@ -263,6 +245,7 @@ public class MessageBrokerTest extends AbstractIntegrationTest {
     private String performMbeanOperation(String operationUrl) {
         // Retrieve Jolokia response from the UndeliveredMessages MBean
         return given().auth()
+                .preemptive()
                 .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
                 .when()
                 .get(operationUrl)
