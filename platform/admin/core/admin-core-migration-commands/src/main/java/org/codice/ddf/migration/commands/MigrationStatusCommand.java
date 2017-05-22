@@ -13,17 +13,16 @@
  */
 package org.codice.ddf.migration.commands;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import java.io.IOException;
 import java.util.Collection;
 
-import javax.validation.constraints.NotNull;
-
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.configuration.status.ConfigurationStatusService;
 import org.codice.ddf.migration.MigrationWarning;
 
+@Service
 @Command(scope = MigrationCommands.NAMESPACE, name = "status", description =
         "Lists import status of configuration files "
                 + "that were imported through the Migration Service. Files that failed to import correctly will be moved to the "
@@ -37,15 +36,11 @@ public class MigrationStatusCommand extends MigrationCommands {
     static final String NO_CONFIG_STATUS_MESSAGE =
             "No Configuration Status returned from Configuration Status Service.";
 
+    @Reference
     private ConfigurationStatusService configStatusService;
 
-    public MigrationStatusCommand(@NotNull ConfigurationStatusService configStatusService) {
-        notNull(configStatusService, "Configuration Status Service cannot be null");
-        this.configStatusService = configStatusService;
-    }
-
     @Override
-    protected Object doExecute() {
+    public Object execute() {
         try {
             Collection<MigrationWarning> configStatusMessages = getFailedImports();
 
@@ -77,5 +72,9 @@ public class MigrationStatusCommand extends MigrationCommands {
 
     private String constructErrorMessage(MigrationWarning configStatus) {
         return String.format(FAILED_IMPORT_MESSAGE, configStatus.getMessage());
+    }
+
+    public void setConfigStatusService(ConfigurationStatusService configStatusService) {
+        this.configStatusService = configStatusService;
     }
 }

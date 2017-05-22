@@ -82,19 +82,19 @@ public class ConfigStatusCommandTest {
     private ConfigurationStatusService mockConfigStatusService;
 
     @Test
-    public void testDoExecuteReportFailedImports() throws Exception {
+    public void testExecuteReportFailedImports() throws Exception {
         // Setup
         when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(CONFIG_STATUS_MSGS);
-        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(
-                mockConfigStatusService) {
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand() {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
             }
         };
+        migrationStatusCommand.setConfigStatusService(mockConfigStatusService);
 
         // Perform Test
-        migrationStatusCommand.doExecute();
+        migrationStatusCommand.execute();
 
         // Verify
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
@@ -111,19 +111,19 @@ public class ConfigStatusCommandTest {
     }
 
     @Test
-    public void testDoExecuteNoFailedImports() throws Exception {
+    public void testExecuteNoFailedImports() throws Exception {
         // Setup
         when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(new ArrayList<>(0));
-        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(
-                mockConfigStatusService) {
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand() {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
             }
         };
+        migrationStatusCommand.setConfigStatusService(mockConfigStatusService);
 
         // Perform Test
-        migrationStatusCommand.doExecute();
+        migrationStatusCommand.execute();
 
         // Verify
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
@@ -134,20 +134,20 @@ public class ConfigStatusCommandTest {
     }
 
     @Test
-    public void testDoExecuteRuntimeExceptionWhileReadingFailedDirectory() throws Exception {
+    public void testExecuteRuntimeExceptionWhileReadingFailedDirectory() throws Exception {
         // Setup
         doThrow(new RuntimeException()).when(mockConfigStatusService)
                 .getFailedConfigurationFiles();
-        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(
-                mockConfigStatusService) {
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand() {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
             }
         };
+        migrationStatusCommand.setConfigStatusService(mockConfigStatusService);
 
         // Perform Test
-        migrationStatusCommand.doExecute();
+        migrationStatusCommand.execute();
 
         // Verify
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
@@ -159,19 +159,19 @@ public class ConfigStatusCommandTest {
     }
 
     @Test
-    public void testDoExecuteNullConfigurationStatus() throws Exception {
+    public void testExecuteNullConfigurationStatus() throws Exception {
         // Setup
         when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(null);
-        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(
-                mockConfigStatusService) {
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand() {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
             }
         };
+        migrationStatusCommand.setConfigStatusService(mockConfigStatusService);
 
         // Perform Test
-        migrationStatusCommand.doExecute();
+        migrationStatusCommand.execute();
 
         // Verify
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
@@ -179,10 +179,5 @@ public class ConfigStatusCommandTest {
         List<String> values = argument.getAllValues();
         assertThat(values.get(0), is(ERROR_RED));
         assertThat(values.get(1), is(MigrationStatusCommand.NO_CONFIG_STATUS_MESSAGE));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorNullConfigurationStatusService() {
-        new MigrationStatusCommand(null);
     }
 }

@@ -117,7 +117,7 @@ public class ExportCommandTest {
     private Path mockDefaultExportDirectory;
 
     @Test
-    public void testDoExecuteReportWarnings() throws Exception {
+    public void testExecuteReportWarnings() throws Exception {
         // Setup
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
         when(mockConfigurationMigrationService.export(mockDefaultExportDirectory)).thenReturn(
@@ -126,7 +126,7 @@ public class ExportCommandTest {
                 mockDefaultExportDirectory);
 
         // Perform Test
-        exportCommand.doExecute();
+        exportCommand.execute();
 
         // Verify
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
@@ -143,7 +143,7 @@ public class ExportCommandTest {
     }
 
     @Test
-    public void testDoExecuteNoWarnings() throws Exception {
+    public void testExecuteNoWarnings() throws Exception {
         // Setup
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
         when(mockConfigurationMigrationService.export(mockDefaultExportDirectory)).thenReturn(
@@ -152,14 +152,14 @@ public class ExportCommandTest {
                 mockDefaultExportDirectory);
 
         // Perform Test
-        exportCommand.doExecute();
+        exportCommand.execute();
 
         // Verify
         assertSuccessMessage(mockDefaultExportDirectory);
     }
 
     @Test
-    public void testDoExecuteWithExportDirectoryArgument() throws Exception {
+    public void testExecuteWithExportDirectoryArgument() throws Exception {
         // Setup
         String exportDirectory = "export/directory";
         Path exportDirectoryPath = Paths.get(exportDirectory);
@@ -172,14 +172,14 @@ public class ExportCommandTest {
         exportCommand.exportDirectoryArgument = exportDirectory;
 
         // Perform Test
-        exportCommand.doExecute();
+        exportCommand.execute();
 
         // Verify
         assertSuccessMessage(exportDirectoryPath);
     }
 
     @Test
-    public void testDoExecuteWithEmptyExportDirectoryArgument() throws Exception {
+    public void testExecuteWithEmptyExportDirectoryArgument() throws Exception {
         // Setup
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
         when(mockConfigurationMigrationService.export(mockDefaultExportDirectory)).thenReturn(
@@ -190,14 +190,14 @@ public class ExportCommandTest {
         exportCommand.exportDirectoryArgument = "";
 
         // Perform Test
-        exportCommand.doExecute();
+        exportCommand.execute();
 
         // Verify
         assertSuccessMessage(mockDefaultExportDirectory);
     }
 
     @Test
-    public void testDoExecuteErrorOccurred() throws Exception {
+    public void testExecuteErrorOccurred() throws Exception {
         // Setup
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenThrow(new InvocationTargetException(
                 new MigrationException(MIGRATION_EXCEPTION_MESSAGE)));
@@ -205,7 +205,7 @@ public class ExportCommandTest {
                 mockDefaultExportDirectory);
 
         // Perform Test
-        exportCommand.doExecute();
+        exportCommand.execute();
 
         // Verify
         assertErrorMessage(MIGRATION_EXCEPTION_MESSAGE);
@@ -221,7 +221,7 @@ public class ExportCommandTest {
     }
 
     @Test
-    public void testDoExecuteWhenSecurityExceptionIsThrown() throws Exception {
+    public void testExecuteWhenSecurityExceptionIsThrown() throws Exception {
         // Setup
         when(security.runWithSubjectOrElevate(any(Callable.class))).thenThrow(new SecurityServiceException(
                 INSUFFICIENT_PRIVILEGES_MESSAGE));
@@ -229,7 +229,7 @@ public class ExportCommandTest {
                 mockDefaultExportDirectory);
 
         // Perform Test
-        exportCommand.doExecute();
+        exportCommand.execute();
 
         // Verify
         assertErrorMessage(INSUFFICIENT_PRIVILEGES_MESSAGE);
@@ -258,7 +258,9 @@ public class ExportCommandTest {
 
     private class ExportCommandUnderTest extends ExportCommand {
         public ExportCommandUnderTest(ConfigurationMigrationService service, Path exportPath) {
-            super(service, security, exportPath);
+            setDefaultExportDirectory(exportPath);
+            setSecurity(security);
+            setConfigurationMigrationService(service);
         }
 
         @Override
