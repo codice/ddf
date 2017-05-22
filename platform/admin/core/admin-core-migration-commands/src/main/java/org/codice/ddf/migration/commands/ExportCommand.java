@@ -18,11 +18,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
 import org.codice.ddf.migration.MigrationWarning;
-import org.codice.ddf.platform.util.PathBuilder;
 import org.codice.ddf.security.common.Security;
 
 import ddf.security.service.SecurityServiceException;
@@ -30,6 +31,7 @@ import ddf.security.service.SecurityServiceException;
 /**
  * Command class used to export the system configuration and data.
  */
+@Service
 @Command(scope = MigrationCommands.NAMESPACE, name = "export", description =
         "The export command delegates to all "
                 + "registered Migratable services to export bundle specific configuration and data.")
@@ -45,29 +47,24 @@ public class ExportCommand extends MigrationCommands {
     private static final String ERROR_EXPORT_MESSAGE =
             "An error was encountered while executing this command. %s";
 
-    private final ConfigurationMigrationService configurationMigrationService;
+    @Reference
+    private ConfigurationMigrationService configurationMigrationService;
 
-    private final Security security;
+    private Security security;
 
-    private final Path defaultExportDirectory;
+    private Path defaultExportDirectory = Paths.get(System.getProperty("ddf.home"),
+            "etc",
+            "exported");
 
     @Argument(index = 0, name = "exportDirectory", description = "Path to directory to store export", required = false, multiValued = false)
     String exportDirectoryArgument;
 
-    public ExportCommand(ConfigurationMigrationService configurationMigrationService,
-            Security security, PathBuilder pathBuilder) {
-        this(configurationMigrationService, security, pathBuilder.build());
-    }
-
-    ExportCommand(ConfigurationMigrationService configurationMigrationService,
-            Security security, Path path) {
-        this.configurationMigrationService = configurationMigrationService;
-        this.security = security;
-        this.defaultExportDirectory = path;
+    public ExportCommand() {
+        this.security = Security.getInstance();
     }
 
     @Override
-    protected Object doExecute() {
+    public Object execute() {
         Path exportDirectory;
 
         if (exportDirectoryArgument == null || exportDirectoryArgument.isEmpty()) {
@@ -102,4 +99,18 @@ public class ExportCommand extends MigrationCommands {
 
         return null;
     }
+
+    public void setDefaultExportDirectory(Path path) {
+        this.defaultExportDirectory = path;
+    }
+
+    public void setSecurity(Security security) {
+        this.security = security;
+    }
+
+    public void setConfigurationMigrationService(
+            ConfigurationMigrationService configurationMigrationService) {
+        this.configurationMigrationService = configurationMigrationService;
+    }
+
 }
