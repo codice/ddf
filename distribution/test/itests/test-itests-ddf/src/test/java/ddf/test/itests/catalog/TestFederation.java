@@ -30,9 +30,12 @@ import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getO
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -63,6 +66,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
@@ -74,9 +79,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleService;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
@@ -107,16 +117,19 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
+import com.jayway.restassured.response.ValidatableResponse;
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Condition;
@@ -126,6 +139,8 @@ import com.xebialabs.restito.server.secure.SecureStubServer;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
+import ddf.catalog.transform.InputTransformer;
+import ddf.util.XPathHelper;
 
 /**
  * Tests Federation aspects.
@@ -133,6 +148,14 @@ import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
 public class TestFederation extends AbstractIntegrationTest {
+
+    public static final String GMD_SCHEMA_URI = "http://www.isotc211.org/2005/gmd";
+
+    public static final String OPEN_GIS_SCHEMA_URI = "http://www.opengis.net/cat/csw/2.0.2";
+
+    public static final String METACARD_URI = "urn:catalog:metacard";
+
+    public static final String THUMB_NAIL_BASE_64_ENC_SUBSTRING = "/9j/4AAQSkZJRgABAQAAAQABAAD";
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(TestFederation.class);
 
@@ -833,23 +856,114 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswQueryForMetacardXml() throws Exception {
-        String titleQuery = getCswQuery("title",
-                "myTitle",
-                "application/xml",
-                "urn:catalog:metacard");
 
-        given().contentType(ContentType.XML)
-                .body(titleQuery)
-                .when()
-                .post(CSW_PATH.getUrl())
-                .then()
-                .assertThat()
-                .body(hasXPath("/GetRecordsResponse/SearchResults/metacard/@id",
-                        is(metacardIds[GEOJSON_RECORD_INDEX])),
-                        hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
-                                is("1")),
-                        hasXPath("/GetRecordsResponse/SearchResults/@recordSchema",
-                                is("urn:catalog:metacard")));
+        // The first few bytes of the metacard's base-64 encoded thumbnail image
+        String metacardTitle = "myTitle";
+
+        // Define the assertions that test the query results conform to expectations
+        List<Matcher<?>> assertions = getXpathMatchers(METACARD_URI, 1);
+        assertions.add(hasXPath("//*[@name='thumbnail']/*/text()",
+                startsWith(THUMB_NAIL_BASE_64_ENC_SUBSTRING)));
+        assertions.add(hasXPath("//*[@name='title']/*/text()", equalTo(metacardTitle)));
+        assertions.add(hasXPath("//pos/text()", equalTo("30.0 10.0")));
+
+        // Query for CSW result and assert expected results
+        ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
+                METACARD_URI,
+                assertions);
+
+        String metacardXml = extractXml(response, "//*[local-name()='metacard']");
+
+        // Get the metacard XML input transformer and attempt to create a metacard object
+        Metacard metacard = getInputTransformer("(id=xml)").transform(IOUtils.toInputStream(
+                metacardXml,
+                "UTF-8"));
+
+        // Assert the newly created metacard's attributes are properly populated.
+        assertThat("Incorrect title", metacard.getTitle(), equalTo(metacardTitle));
+        assertThat("Incorrect thumbnail",
+                new String(Base64.getEncoder()
+                        .encode(metacard.getThumbnail())),
+                startsWith(THUMB_NAIL_BASE_64_ENC_SUBSTRING));
+        assertThat("Incorrect geometry", "POINT (30 10)", equalTo(metacard.getLocation()));
+    }
+
+    @Test
+    public void testCswQueryForGmdXml() throws Exception {
+
+        // The first few bytes of the metacard's base-64 encoded thumbnail image
+        String metacardTitle = "myTitle";
+
+        // Define the assertions that test the query results conform to expectations
+        List<Matcher<?>> assertions = getXpathMatchers(GMD_SCHEMA_URI, 1);
+        assertions.add(hasXPath("//*[name()='title']/*/text()", equalTo(metacardTitle)));
+        assertions.add(hasXPath("//*[name()='westBoundLongitude']/*[local-name()='Decimal']/text()",
+                equalTo("30.0")));
+
+        // Query for CSW result and assert expected results
+        ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
+                GMD_SCHEMA_URI,
+                assertions);
+        String xml = extractXml(response, "//*[local-name()='MD_Metadata']");
+
+        // Get the metacard XML input transformer and attempt to create a metacard object
+        Metacard metacard =
+                getInputTransformer("(id=gmd:MD_Metadata)").transform(IOUtils.toInputStream(xml,
+                        "UTF-8"));
+
+        // Assert the newly created metacard's attributes are properly populated.
+        assertThat("Incorrect title", metacard.getTitle(), equalTo(metacardTitle));
+        assertThat("Incorrect geometry", "POINT (30 10)", equalTo(metacard.getLocation()));
+    }
+
+    protected String extractXml(ValidatableResponse response, String xpathQuery)
+            throws XPathExpressionException {
+        // Extract the part of the response that can be transformed into a metacard
+        XPathHelper xpHelper = new XPathHelper(response.extract()
+                .body()
+                .asString());
+        Node node = (Node) xpHelper.evaluate(xpathQuery, XPathConstants.NODE);
+        return XPathHelper.print(node);
+    }
+
+    @Test
+    public void testCswQueryForOpenGisXml() throws Exception {
+
+        String metacardTitle = "myTitle";
+
+        // Define the assertions that test the query results conform to expectations
+        List<Matcher<?>> assertions = getXpathMatchers(OPEN_GIS_SCHEMA_URI, 1);
+        assertions.add(hasXPath("//title/text()", equalTo(metacardTitle)));
+        assertions.add(hasXPath("//references/text()",
+                startsWith(THUMB_NAIL_BASE_64_ENC_SUBSTRING)));
+        assertions.add(hasXPath("//*[local-name()='LowerCorner']/text()", equalTo("30.0 10.0")));
+
+        // Query for CSW result and assert expected results
+        ValidatableResponse response = getAndValidateCswResponse(metacardTitle,
+                OPEN_GIS_SCHEMA_URI,
+                assertions);
+
+        String xml = extractXml(response, "//*[local-name()='Record']");
+
+        // Get the OPEN GIS CSW Record input transformer and create a metacard
+        Metacard metacard = getInputTransformer("(id=csw:Record)").transform(IOUtils.toInputStream(
+                xml,
+                "UTF-8"));
+
+        // Assert the newly created metacard's attributes are properly populated.
+        assertThat("Incorrect title", metacard.getTitle(), equalTo(metacardTitle));
+        assertThat("Incorrect geometry", "POINT (30.0 10.0)", equalTo(metacard.getLocation()));
+
+        // TODO: THIS ASSERTION FAILS. SEE DDF-2476 (https://codice.atlassian.net/browse/DDF-2476)
+        // The CSW Record metacard transformer preserves the metacard's thumbnail as a
+        // base-64 encoded string in an element named "<dct:references>".
+        // However the CSW input transformer does not used the "<dct:references>" element to
+        // populate the thumbnail attribute when it creates a metacard.
+      /*  assertThat("Incorrect metacard's thumbnail",
+                new String(Base64.getEncoder()
+                        .encode(metacard.getThumbnail())),
+                startsWith(THUMB_NAIL_BASE_64_ENC_SUBSTRING));
+     */
     }
 
     @Test
@@ -2405,6 +2519,58 @@ public class TestFederation extends AbstractIntegrationTest {
 
         assertThat(path.getString(String.format(FIND_ACTION_URL_BY_TITLE_PATTERN, actionTitle)),
                 is(expectedUrl));
+    }
+
+    protected List<Matcher<?>> getXpathMatchers(String expectedOutputSchema,
+            int expectedNumberOfRecordsReturned) {
+        List<Matcher<?>> assertions = new ArrayList<>();
+        assertions.add(hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
+                equalTo(String.valueOf(expectedNumberOfRecordsReturned))));
+        assertions.add(hasXPath("/GetRecordsResponse/SearchResults/@recordSchema",
+                is(expectedOutputSchema)));
+        return assertions;
+    }
+
+    protected ValidatableResponse getAndValidateCswResponse(String metacardTitle,
+            String outputSchema, Collection<Matcher<?>> assertions) {
+
+        assertThat("Please pass at least two assertions. Go big or go home.",
+                assertions,
+                hasSize(greaterThanOrEqualTo(2)));
+
+        Matcher<?>[] assertionArray = assertions.toArray(new Matcher<?>[assertions.size()]);
+        String titleQuery = getCswQuery("title", metacardTitle, "application/xml", outputSchema);
+        return given().contentType(ContentType.XML)
+                .body(titleQuery)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .then()
+                .assertThat()
+                // Have to match signature body(Matcher<?> matcher, Matcher<?>... additionalMatchers);
+                .body(assertionArray[0],
+                        Arrays.copyOfRange(assertionArray, 1, assertionArray.length));
+    }
+
+    protected String extractRecord(ValidatableResponse response, String regex) {
+        String allXml = response.extract()
+                .body()
+                .asString();
+        Pattern metacardPattern = Pattern.compile(regex, Pattern.DOTALL);
+        java.util.regex.Matcher matcher = metacardPattern.matcher(allXml);
+        assertThat("Could not find transformable record", matcher.find(), is(true));
+        assertThat("Could not find transformable record", matcher.groupCount(), is(1));
+        return matcher.group(1);
+    }
+
+    protected InputTransformer getInputTransformer(String filterString)
+            throws InvalidSyntaxException {
+        Collection<ServiceReference<InputTransformer>> transformerReferences =
+                getServiceManager().getServiceReferences(InputTransformer.class, filterString);
+
+        ServiceReference<InputTransformer> xmlInputTransformerReference =
+                (ServiceReference<InputTransformer>) transformerReferences.toArray()[0];
+
+        return getServiceManager().getService(xmlInputTransformerReference);
     }
 
     private void setupCswServerForSuccess(CometDClient cometDClient, String filename)
