@@ -25,7 +25,6 @@ import spock.lang.Specification
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-import static org.mockito.Matchers.any
 import static org.mockito.Matchers.isNull
 import static org.mockito.Mockito.when
 import static org.powermock.api.mockito.PowerMockito.mockStatic
@@ -467,6 +466,25 @@ class ValidationParserSpecTest extends Specification {
         0 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull())
     }
 
+    def "test match_any validator "() {
+        setup:
+        file.withPrintWriter { it.write(matchAnyAttributeValidator) }
+
+        mockStatic(FrameworkUtil.class)
+        def Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        def BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        when:
+        validationParser.install(file)
+
+        then:
+        attributeValidatorRegistry.getValidators("title").size() == 2
+    }
+
+
     String valid = '''
 {
     "metacardTypes": [
@@ -691,4 +709,29 @@ class ValidationParserSpecTest extends Specification {
 }
 '''
 
+    String matchAnyAttributeValidator = '''
+{
+    "validators": {
+        "title": [
+            {
+                "validator": "size",
+                "arguments": ["0", "128"]
+            },
+            {
+                "validator": "match_any",
+                "validators": [
+                    { 
+                        "validator": "enumeration", 
+                        "arguments": ["abe", "lincoln"] 
+                    },
+                    {
+                        "validator": "pattern",
+                        "arguments": ["sc-[0-9]\\+"] 
+                    }
+                ]
+            }
+        ]
+    }
+}
+'''
 }

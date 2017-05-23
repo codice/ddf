@@ -40,6 +40,19 @@ public class AttributeValidationReportImpl implements AttributeValidationReport 
     }
 
     /**
+     * Adds a set of {@link ValidationViolation} to the report.
+     *
+     * @param violations the violation set to add to the report, cannot be null or empty
+     * @throws IllegalArgumentException if {@code violation} is null or empty
+     */
+    public void addViolations(Set<ValidationViolation> violations) {
+        Preconditions.checkArgument(violations != null, "The violation list cannot be null.");
+        Preconditions.checkArgument(violations.size() > 0, "The violation list cannot be empty.");
+
+        attributeValidationViolations.addAll(violations);
+    }
+
+    /**
      * Adds a suggested attribute value to the report.
      *
      * @param value a suggested attribute value to add to the report
@@ -50,6 +63,20 @@ public class AttributeValidationReportImpl implements AttributeValidationReport 
 
         suggestedValues.add(value);
     }
+
+    /**
+     * Adds a a set of attribute values to the report.
+     *
+     * @param values a set of suggested attribute values to add to the report, cannot be null or empty
+     * @throws IllegalArgumentException if {@code value} is null or empty
+     */
+    public void addSuggestedValues(Set<String> values) {
+        Preconditions.checkArgument(values != null, "The suggested values cannot be null.");
+        Preconditions.checkArgument(values.size() > 0, "The suggested values cannot be empty.");
+
+        suggestedValues.addAll(values);
+    }
+
 
     @Override
     public Set<ValidationViolation> getAttributeValidationViolations() {

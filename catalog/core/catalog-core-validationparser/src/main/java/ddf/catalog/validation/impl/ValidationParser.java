@@ -46,7 +46,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.fileinstall.ArtifactInstaller;
+import org.boon.core.value.LazyValueMap;
+import org.boon.core.value.ValueList;
 import org.boon.json.JsonFactory;
+import org.boon.json.ObjectMapper;
 import org.boon.json.annotations.JsonIgnore;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -72,6 +75,7 @@ import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.impl.validator.EnumerationValidator;
 import ddf.catalog.validation.impl.validator.FutureDateValidator;
 import ddf.catalog.validation.impl.validator.ISO3CountryCodeValidator;
+import ddf.catalog.validation.impl.validator.MatchAnyValidator;
 import ddf.catalog.validation.impl.validator.PastDateValidator;
 import ddf.catalog.validation.impl.validator.PatternValidator;
 import ddf.catalog.validation.impl.validator.RangeValidator;
@@ -97,6 +101,8 @@ public class ValidationParser implements ArtifactInstaller {
     private static final String DEFAULTS_PROPERTY = "Defaults";
 
     private static final String INJECTIONS_PROPERTY = "Injections";
+
+    private static final String MATCH_ANY = "match_any";
 
     private static final String NAME_PROPERTY = "name";
 
@@ -144,6 +150,8 @@ public class ValidationParser implements ArtifactInstaller {
 
     private void apply(File file) throws Exception {
         String data;
+        ObjectMapper objectMapper = JsonFactory.create();
+
         try (InputStream input = new FileInputStream(file)) {
             data = IOUtils.toString(input, StandardCharsets.UTF_8.name());
             LOGGER.debug("Installing file [{}]. Contents:\n{}", file.getAbsolutePath(), data);
@@ -155,16 +163,14 @@ public class ValidationParser implements ArtifactInstaller {
 
         Outer outer;
         try {
-            outer = JsonFactory.create()
-                    .readValue(data, Outer.class);
+            outer = objectMapper.readValue(data, Outer.class);
         } catch (ClassCastException e) {
             throw new IllegalArgumentException("Cannot parse json [" + file.getAbsolutePath() + "]",
                     e);
         }
 
         /* Must manually parse validators */
-        Map<String, Object> root = JsonFactory.create()
-                .parser()
+        Map<String, Object> root = objectMapper.parser()
                 .parseMap(data);
         parseValidators(root, outer);
         parseMetacardValidators(root, outer);
@@ -177,7 +183,10 @@ public class ValidationParser implements ArtifactInstaller {
                 "Attribute Types",
                 outer.attributeTypes,
                 this::parseAttributeTypes);
-        handleSection(changeset, METACARD_TYPES_PROPERTY, outer.metacardTypes, this::parseMetacardTypes);
+        handleSection(changeset,
+                METACARD_TYPES_PROPERTY,
+                outer.metacardTypes,
+                this::parseMetacardTypes);
         handleSection(changeset, VALIDATORS_PROPERTY, outer.validators, this::parseValidators);
         handleSection(changeset, DEFAULTS_PROPERTY, outer.defaults, this::parseDefaults);
         handleSection(changeset, INJECTIONS_PROPERTY, outer.inject, this::parseInjections);
@@ -219,14 +228,37 @@ public class ValidationParser implements ArtifactInstaller {
             return;
         }
 
+        ObjectMapper objectMapper = JsonFactory.create();
+
         Map<String, List<Outer.Validator>> validators = new HashMap<>();
-        for (Map.Entry<String, Object> entry : ((Map<String, Object>) root.get(VALIDATORS_PROPERTY)).entrySet()) {
-            String rejson = JsonFactory.create()
-                    .toJson(entry.getValue());
-            List<Outer.Validator> lv = JsonFactory.create()
-                    .readValue(rejson, List.class, Outer.Validator.class);
-            validators.put(entry.getKey(), lv);
-        }
+        ((Map<String, Object>) root.get(VALIDATORS_PROPERTY)).forEach((attributeName, value) -> {
+            if (value instanceof ValueList) {
+                ValueList argumentList = (ValueList) value;
+                List<Outer.Validator> validatorList = new ArrayList<>();
+
+                for (Object object : argumentList) {
+                    if (object instanceof LazyValueMap) {
+                        LazyValueMap lazyValueMap = (LazyValueMap) object;
+                        final String comp = (String) lazyValueMap.get(VALIDATOR_PROPERTY);
+                        String json = objectMapper.toJson(object);
+                        Outer.Validator validator;
+
+                        switch (comp) {
+                        /* Switch is used with the intent that additional validators will be added in the future. */
+                        case MATCH_ANY:
+                            validator = objectMapper.readValue(json,
+                                    Outer.ValidatorCollection.class);
+                            break;
+                        default:
+                            validator = objectMapper.readValue(json, Outer.Validator.class);
+                            break;
+                        }
+                        validatorList.add(validator);
+                    }
+                }
+                validators.put(attributeName, validatorList);
+            }
+        });
         outer.validators = validators;
     }
 
@@ -253,9 +285,11 @@ public class ValidationParser implements ArtifactInstaller {
                     continue;
                 }
 
-                List<Map<String, Object>> validatorEntryList = (List<Map<String, Object>>) validatorDefinitionObj;
+                List<Map<String, Object>> validatorEntryList =
+                        (List<Map<String, Object>>) validatorDefinitionObj;
                 for (Map<String, Object> metacardDefinitionMap : validatorEntryList) {
-                    MetacardValidatorDefinition validatorDefinition = new MetacardValidatorDefinition();
+                    MetacardValidatorDefinition validatorDefinition =
+                            new MetacardValidatorDefinition();
                     validatorDefinition.metacardType = metacardType;
                     validatorDefinition.arguments = new HashMap<>(metacardDefinitionMap);
                     metacardValidators.add(validatorDefinition);
@@ -400,7 +434,8 @@ public class ValidationParser implements ArtifactInstaller {
             switch (validatorName) {
             case REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY: {
                 if (metacardType == null) {
-                    throw new IllegalStateException("Required Attributes Validator received invalid configuration");
+                    throw new IllegalStateException(
+                            "Required Attributes Validator received invalid configuration");
                 }
 
                 Set<String> requiredAttributes = new HashSet<>();
@@ -418,12 +453,14 @@ public class ValidationParser implements ArtifactInstaller {
                     metacardValidator = new RequiredAttributesMetacardValidator(metacardType,
                             requiredAttributes);
                 } else {
-                    throw new IllegalStateException("Required Attributes Validator received invalid configuration");
+                    throw new IllegalStateException(
+                            "Required Attributes Validator received invalid configuration");
                 }
                 break;
             }
             default:
-                throw new IllegalStateException("Validator does not exist. (" + validatorName + ")");
+                throw new IllegalStateException(String.format("Validator does not exist. (%s)",
+                        validatorName));
             }
         }
 
@@ -472,6 +509,12 @@ public class ValidationParser implements ArtifactInstaller {
         }
         case "iso3_countryignorecase": {
             return new ISO3CountryCodeValidator(true);
+        }
+        case "match_any": {
+            List<Outer.Validator> collection = ((Outer.ValidatorCollection) validator).validators;
+            return new MatchAnyValidator(collection.stream()
+                    .map(this::getValidator)
+                    .collect(Collectors.toList()));
         }
         default:
             throw new IllegalStateException(
@@ -662,6 +705,10 @@ public class ValidationParser implements ArtifactInstaller {
             String validator;
 
             List<String> arguments;
+        }
+
+        class ValidatorCollection extends Validator {
+            List<Outer.Validator> validators;
         }
 
         class Default {

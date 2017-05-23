@@ -157,6 +157,8 @@ _This is a preview of a pending release and is subject to change._
     </li>
     <li><a href='https://codice.atlassian.net/browse/DDF-2919'>DDF-2919</a> - Create generic WebClients with SecureCxfClientFactory
     </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-3030'>DDF-3030</a> - Added support for match any validator
+    </li>    	
 </ul>
 
 <h3>Technical Debt</h3>
