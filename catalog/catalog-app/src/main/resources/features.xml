@@ -387,6 +387,13 @@
         <feature prerequisite="true">catalog-core-validator</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-validationparser/${project.version}</bundle>
     </feature>
+    <feature name="catalog-core-scripting" install="auto" version="${project.version}"
+             description="Provides the ability to run scripts at runtime">
+        <!--TODO (RCZ) - what dependencies?-->
+        <bundle>mvn:ddf.catalog.core/catalog-core-scripting/${project.version}</bundle>
+    </feature>
+
+
 
     <feature name="catalog-transformer-pdf" install="auto" version="${project.version}"
              description="DDF PDF Input Transformer">

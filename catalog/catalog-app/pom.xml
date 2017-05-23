@@ -594,5 +594,10 @@
             <artifactId>catalog-plugin-metacardbackup-filestorage</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-scripting</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
