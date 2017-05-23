@@ -27,32 +27,40 @@ public class CswSubscription extends SubscriptionImpl {
 
     private GetRecordsType originalRequest;
 
-    private CswSubscription(GetRecordsType request, Filter filter, SendEvent sendEvent,
-            Set<String> sourceIds, boolean enterprise) {
+    private QueryRequest queryRequest;
+
+    private CswSubscription(GetRecordsType originalRequest, QueryRequest queryRequest,
+            Filter filter, SendEvent sendEvent, Set<String> sourceIds, boolean enterprise) {
         super(filter, sendEvent, sourceIds, enterprise);
-        this.originalRequest = request;
+        this.originalRequest = originalRequest;
+        this.queryRequest = queryRequest;
     }
 
-    public CswSubscription(TransformerManager mimeTypeTransformerManager, GetRecordsType request,
-            QueryRequest query) throws CswException {
-        this(request,
-                query.getQuery(),
-                new SendEvent(mimeTypeTransformerManager, request, query),
-                query.getSourceIds(),
-                query.isEnterprise());
+    public CswSubscription(GetRecordsType originalRequest, QueryRequest queryRequest,
+            TransformerManager mimeTypeTransformerManager) throws CswException {
+        this(originalRequest,
+                queryRequest,
+                queryRequest.getQuery(),
+                new SendEvent(mimeTypeTransformerManager, originalRequest, queryRequest),
+                queryRequest.getSourceIds(),
+                queryRequest.isEnterprise());
     }
 
-    public static CswSubscription getFilterlessSubscription(
-            TransformerManager mimeTypeTransformerManager, GetRecordsType request,
-            QueryRequest query) throws CswException {
-        return new CswSubscription(request,
+    public static CswSubscription getFilterlessSubscription(GetRecordsType originalRequest,
+            QueryRequest queryRequest, TransformerManager mimeTypeTransformerManager) throws CswException {
+        return new CswSubscription(originalRequest,
+                queryRequest,
                 Filter.INCLUDE,
-                new SendEvent(mimeTypeTransformerManager, request, query),
+                new SendEvent(mimeTypeTransformerManager, originalRequest, queryRequest),
                 null,
                 false);
     }
 
     public GetRecordsType getOriginalRequest() {
         return originalRequest;
+    }
+
+    public QueryRequest getQueryRequest() {
+        return queryRequest;
     }
 }
