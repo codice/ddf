@@ -82,7 +82,6 @@ public final class ContextualEvaluator {
      */
     public static boolean evaluate(ContextualEvaluationCriteria cec)
             throws IOException, ParseException {
-        String methodName = "evaluate";
 
         Directory index = cec.getIndex();
         String searchPhrase = cec.getCriteria();
@@ -176,8 +175,6 @@ public final class ContextualEvaluator {
      * @throws IOException
      */
     public static Directory buildIndex(String fullDocument) throws IOException {
-        String methodName = "buildIndex (DEFAULT)";
-
         return buildIndex(fullDocument, DEFAULT_XPATH_SELECTORS);
     }
 
@@ -193,7 +190,6 @@ public final class ContextualEvaluator {
      */
     public static Directory buildIndex(String fullDocument, String[] xpathSelectors)
             throws IOException {
-        String methodName = "buildIndex";
 
         // LOGGER.debug( XPathHelper.xmlToString( fullDocument ) );
 
@@ -252,8 +248,6 @@ public final class ContextualEvaluator {
         TermAttribute termAttribute = tokenStream.getAttribute(TermAttribute.class);
         LOGGER.debug("-----  {} tokens  -----", analyzerName);
         while (tokenStream.incrementToken()) {
-            int startOffset = offsetAttribute.startOffset();
-            int endOffset = offsetAttribute.endOffset();
             String term = termAttribute.term();
             LOGGER.debug(term);
         }
@@ -269,7 +263,6 @@ public final class ContextualEvaluator {
      * @return
      */
     private static String getIndexableText(String document, String[] xpathSelectors) {
-        String methodName = "getIndexableText";
         List<String> indexedText = new ArrayList<String>();
 
         LOGGER.debug("xpathSelectors.size = {}", xpathSelectors.length);

@@ -69,7 +69,6 @@ import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
@@ -905,7 +904,7 @@ public class SolrProviderTest extends SolrProviderTestCase {
                 assertTrue(Arrays.equals(newCard.getThumbnail(), oldCard.getThumbnail()));
 
             } else {
-                Assert.fail("Expecting one or the other of the updated records.");
+                fail("Expecting one or the other of the updated records.");
             }
 
         }
@@ -4448,8 +4447,6 @@ public class SolrProviderTest extends SolrProviderTestCase {
 
         List<Metacard> list = new ArrayList<Metacard>();
 
-        DateTime now = new DateTime();
-
         for (int i = 0; i < 5; i++) {
             Set<AttributeDescriptor> descriptors = numericalDescriptors(doubleField,
                     floatField,
@@ -4867,7 +4864,7 @@ public class SolrProviderTest extends SolrProviderTestCase {
         query.setPageSize(maxSize);
         query.setStartIndex(startIndex);
         SortByImpl sortBy = new SortByImpl(queryBuilder.filterFactory.property(Metacard.EFFECTIVE),
-                org.opengis.filter.sort.SortOrder.ASCENDING);
+                SortOrder.ASCENDING);
         query.setSortBy(sortBy);
 
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
@@ -5187,7 +5184,7 @@ public class SolrProviderTest extends SolrProviderTestCase {
 
         try {
             sourceResponse = provider.query(new QueryRequestImpl(query));
-            Assert.fail(
+            fail(
                     "Expected an exception stating that the start index should be greater than 0. ");
         } catch (UnsupportedQueryException e) {
             assertTrue(e.getMessage()
@@ -5345,8 +5342,7 @@ public class SolrProviderTest extends SolrProviderTestCase {
 
         // sort by distance
         QueryImpl query = new QueryImpl(finalFilter);
-        SortBy sortby = new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE,
-                org.opengis.filter.sort.SortOrder.DESCENDING);
+        SortBy sortby = new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE, SortOrder.DESCENDING);
         query.setSortBy(sortby);
 
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));

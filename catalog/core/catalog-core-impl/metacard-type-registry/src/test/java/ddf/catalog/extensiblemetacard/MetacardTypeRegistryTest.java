@@ -39,24 +39,6 @@ import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
 
 public class MetacardTypeRegistryTest {
 
-    public static final long SAMPLE_A_FREQUENCY = 14000000;
-
-    public static final long SAMPLE_A_MIN_FREQUENCY = 10000000;
-
-    public static final long SAMPLE_A_MAX_FREQUENCY = 20000000;
-
-    public static final int SAMPLE_A_ANGLE = 180;
-
-    public static final String DEFAULT_TITLE = "myTitle";
-
-    public static final String DEFAULT_ID = "myId";
-
-    public static final String DEFAULT_VERSION = "myVersion";
-
-    public static final String DEFAULT_TYPE = "myType";
-
-    public static final byte[] DEFAULT_BYTES = {8};
-
     // Constants for Sample Metacard A defined below
     private static final String ANGLE_ATTRIBUTE_NAME_SAMPLE_METACARD_TYPE_A = "angle";
 
@@ -110,22 +92,6 @@ public class MetacardTypeRegistryTest {
     private static final String QUALIFIED_METACARD_TYPE_NAMESPACE_1 = "ddf.test.namespace";
 
     private static final String QUALIFIED_METACARD_TYPE_NAME_1 = "qmt1";
-
-    private static final String DEFAULT_DESCRIPTION = "sample description";
-
-    private static final int DEFAULT_ROWS = 100;
-
-    private static final int DEFAULT_COLUMNS = 5;
-
-    private static final String DEFAULT_MODIFIED_DATE = "2012-09-01T00:09:19.368+0000";
-
-    private static final String DEFAULT_CREATED_DATE = "2012-08-01T00:09:19.368+0000";
-
-    private static final String DEFAULT_URI = "http://example.com";
-
-    private static final Object DEFAULT_EXPIRATION_DATE = "2013-09-01T00:09:19.368+0000";
-
-    private static final Object DEFAULT_EFFECTIVE_DATE = "2012-08-15T00:09:19.368+0000";
 
     private static MetacardTypeRegistry mtr;
 

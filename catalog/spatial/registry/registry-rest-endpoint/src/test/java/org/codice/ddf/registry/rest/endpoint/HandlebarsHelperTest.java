@@ -26,13 +26,6 @@ import com.github.jknack.handlebars.Template;
 
 public class HandlebarsHelperTest {
 
-    private HandlebarsHelper handlebarsHelper;
-
-    @Before
-    public void setup() {
-        handlebarsHelper = new HandlebarsHelper();
-    }
-
     @Test
     public void testHelperSameValue() throws IOException {
         HashMap map = new HashMap();

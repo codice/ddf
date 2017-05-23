@@ -135,8 +135,7 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     public void stopManagedService(String servicePid) throws IOException {
         Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
-        ServiceManagerImpl.ServiceConfigurationListener listener =
-                new ServiceManagerImpl.ServiceConfigurationListener(sourceConfig.getPid());
+        new ServiceManagerImpl.ServiceConfigurationListener(sourceConfig.getPid());
 
         adminConfig.getDdfConfigAdmin()
                 .delete(sourceConfig.getPid());

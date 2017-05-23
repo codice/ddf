@@ -1000,11 +1000,6 @@ public class FederationAdminTest {
         return mapConverter.convert(registryObject);
     }
 
-    private RegistryPackageType getRegistryObjectFromMap(Map<String, Object> registryMap) {
-        return typeConverter.convert(registryMap)
-                .get();
-    }
-
     private Metacard getTestMetacard() {
         return new MetacardImpl(new RegistryObjectMetacardType());
     }

@@ -129,8 +129,8 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
         verify(mbean, times(1)).removeAll();
     }
 
-    private java.util.List<Result> getResultList(int amount) {
-        java.util.List<Result> results = new ArrayList<>();
+    private List<Result> getResultList(int amount) {
+        List<Result> results = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
 
@@ -146,7 +146,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
         return results;
     }
 
-    private java.util.List<Metacard> getMetacardList(int amount) {
+    private List<Metacard> getMetacardList(int amount) {
         List<Metacard> metacards = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {

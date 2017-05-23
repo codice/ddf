@@ -84,9 +84,6 @@ public class IdentityNodeInitializationTest {
 
     private RegistryTransformer registryTransformer;
 
-    @Mock
-    private Subject subject;
-
     private XmlParser parser;
 
     private MetacardMarshaller metacardMarshaller;

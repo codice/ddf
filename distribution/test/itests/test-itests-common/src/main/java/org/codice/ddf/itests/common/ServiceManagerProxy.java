@@ -30,8 +30,6 @@ public class ServiceManagerProxy implements InvocationHandler {
 
     private ServiceManager serviceManager;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManagerProxy.class);
-
     public ServiceManagerProxy(ServiceManager serviceManager) {
         this.serviceManager = serviceManager;
     }

@@ -31,8 +31,6 @@ public class Status {
 
     private final boolean successful;
 
-    private final ArrayList<String> messages;
-
     public Status(QueryResponse response, String source, long elapsedTime) {
         elapsed = elapsedTime;
         id = source;
@@ -41,7 +39,6 @@ public class Status {
                 .size();
         hits = response.getHits();
         successful = isSuccessful(response.getProcessingDetails());
-        messages = getMessages(response.getProcessingDetails());
     }
 
     private ArrayList<String> getMessages(final Set<ProcessingDetails> details) {

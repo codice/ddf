@@ -141,7 +141,7 @@ public class TestGeoJsonMetacardTransformer {
 
         GeoJsonMetacardTransformer transformer = new GeoJsonMetacardTransformer();
 
-        BinaryContent content = transformer.transform(metacard, null);
+        transformer.transform(metacard, null);
 
     }
 

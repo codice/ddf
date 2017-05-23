@@ -93,7 +93,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
             final Map<Source, Future<SourceResponse>> futures,
             final QueryResponseImpl returnResults, final Query query) {
 
-        return new SortedQueryMonitor(pool, futures, returnResults, query);
+        return new SortedQueryMonitor(futures, returnResults, query);
     }
 
     private static class SortedQueryMonitor implements Runnable {
@@ -106,8 +106,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
 
         private long deadline;
 
-        public SortedQueryMonitor(ExecutorService pool,
-                Map<Source, Future<SourceResponse>> futuress, QueryResponseImpl returnResults,
+        public SortedQueryMonitor(Map<Source, Future<SourceResponse>> futuress, QueryResponseImpl returnResults,
                 Query query) {
 
             this.returnResults = returnResults;
@@ -120,7 +119,6 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
         @SuppressWarnings({"rawtypes", "unchecked"})
         @Override
         public void run() {
-            String methodName = "run";
 
             SortBy sortBy = query.getSortBy();
             // Prepare the Comparators that we will use

@@ -174,7 +174,7 @@ public class TestXmlParser {
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 
         thrown.expect(ClassCastException.class);
-        ChildElement unmarshal = parser.unmarshal(configurator, ChildElement.class, is);
+        parser.unmarshal(configurator, ChildElement.class, is);
     }
 
     @Test

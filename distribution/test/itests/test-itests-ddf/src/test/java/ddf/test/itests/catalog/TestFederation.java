@@ -14,6 +14,7 @@
 package ddf.test.itests.catalog;
 
 import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
@@ -49,7 +50,9 @@ import static com.xebialabs.restito.semantics.Action.contentType;
 import static com.xebialabs.restito.semantics.Action.header;
 import static com.xebialabs.restito.semantics.Action.ok;
 import static com.xebialabs.restito.semantics.Action.success;
+import static com.xebialabs.restito.semantics.Condition.delete;
 import static com.xebialabs.restito.semantics.Condition.post;
+import static com.xebialabs.restito.semantics.Condition.put;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 
 import java.io.File;
@@ -1009,13 +1012,13 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswSubscriptionByWildCardSearchPhrase() throws Exception {
-        whenHttp(server).match(Condition.post(SUBSCRIBER))
+        whenHttp(server).match(post(SUBSCRIBER))
                 .then(success());
         whenHttp(server).match(Condition.get(SUBSCRIBER))
                 .then(success());
-        whenHttp(server).match(Condition.delete(SUBSCRIBER))
+        whenHttp(server).match(delete(SUBSCRIBER))
                 .then(success());
-        whenHttp(server).match(Condition.put(SUBSCRIBER))
+        whenHttp(server).match(put(SUBSCRIBER))
                 .then(success());
 
         String wildcardQuery = getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
@@ -1081,9 +1084,9 @@ public class TestFederation extends AbstractIntegrationTest {
                 .then(success());
         whenHttp(server).match(Condition.get(SUBSCRIBER))
                 .then(success());
-        whenHttp(server).match(Condition.delete(SUBSCRIBER))
+        whenHttp(server).match(delete(SUBSCRIBER))
                 .then(success());
-        whenHttp(server).match(Condition.put(SUBSCRIBER))
+        whenHttp(server).match(put(SUBSCRIBER))
                 .then(success());
 
         String wildcardQuery = getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
@@ -1158,13 +1161,13 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testCswCreateEventEndpoint() throws Exception {
-        whenHttp(server).match(Condition.post(SUBSCRIBER))
+        whenHttp(server).match(post(SUBSCRIBER))
                 .then(success());
         whenHttp(server).match(Condition.get(SUBSCRIBER))
                 .then(success());
-        whenHttp(server).match(Condition.delete(SUBSCRIBER))
+        whenHttp(server).match(delete(SUBSCRIBER))
                 .then(success());
-        whenHttp(server).match(Condition.put(SUBSCRIBER))
+        whenHttp(server).match(put(SUBSCRIBER))
                 .then(success());
 
         String wildcardQuery = getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
@@ -1595,8 +1598,8 @@ public class TestFederation extends AbstractIntegrationTest {
         String srcRequest = "{\"src\":\"" + OPENSEARCH_SOURCE_ID
                 + "\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sort\":\"modified:desc\"}";
 
-        expect("Waiting for metacard cache to clear").checkEvery(1, TimeUnit.SECONDS)
-                .within(20, TimeUnit.SECONDS)
+        expect("Waiting for metacard cache to clear").checkEvery(1, SECONDS)
+                .within(20, SECONDS)
                 .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) == 0);
 
         //This query will put the ingested metacards from the BeforeExam method into the cache
@@ -1610,8 +1613,8 @@ public class TestFederation extends AbstractIntegrationTest {
                 .statusCode(200);
 
         //CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
-        expect("Waiting for metacards to be written to cache").checkEvery(1, TimeUnit.SECONDS)
-                .within(20, TimeUnit.SECONDS)
+        expect("Waiting for metacards to be written to cache").checkEvery(1, SECONDS)
+                .within(20, SECONDS)
                 .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) > 0);
     }
 
@@ -2542,7 +2545,7 @@ public class TestFederation extends AbstractIntegrationTest {
         boolean isUnexpectedEventReceived = false;
 
         while (!isAllEventsReceived && !isUnexpectedEventReceived
-                && millis < TimeUnit.MINUTES.toMillis(2)) {
+                && millis < MINUTES.toMillis(2)) {
 
             Set<String> foundIds;
 

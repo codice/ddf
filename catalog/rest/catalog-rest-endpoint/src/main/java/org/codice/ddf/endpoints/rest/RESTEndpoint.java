@@ -610,7 +610,6 @@ public class RESTEndpoint implements RESTService {
         LOGGER.debug("contentUri = {}", contentUri);
 
         InputStream stream = null;
-        String filename = null;
         String contentType = null;
         Response response = null;
 
@@ -1003,7 +1002,6 @@ public class RESTEndpoint implements RESTService {
     CreateInfo parseAttachment(Attachment contentPart) {
         CreateInfo createInfo = new CreateInfo();
         InputStream stream = null;
-        FileBackedOutputStream fbos = null;
         String filename = null;
         String contentType = null;
 

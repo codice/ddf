@@ -78,8 +78,6 @@ public class EndpointUtil {
 
     private final AttributeRegistry attributeRegistry;
 
-    private static final int DEFAULT_PAGE_SIZE = 10;
-
     private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     public EndpointUtil(List<MetacardType> metacardTypes, CatalogFramework catalogFramework,

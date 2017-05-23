@@ -122,7 +122,7 @@ public class XPathHelper {
         dbf.setNamespaceAware(true);
 
         DocumentBuilder builder;
-        org.w3c.dom.Document doc = null;
+        Document doc = null;
         try {
             Thread thread = Thread.currentThread();
             ClassLoader loader = thread.getContextClassLoader();

@@ -58,7 +58,7 @@ public class TestPlatform extends AbstractIntegrationTest {
     @Test
     public void testDeployment() throws Exception {
 
-        Response res = given().auth()
+        given().auth()
                 .preemptive()
                 .basic("admin", "admin")
                 .expect()

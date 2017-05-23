@@ -140,7 +140,6 @@ public class ImportCommand extends CatalogCommands {
                 switch (type) {
                 case "metacard": {
                     metacards++;
-                    String metacardName = pathParts[NAME];
                     Metacard metacard = null;
                     try {
                         metacard = transformer.transform(new UncloseableBufferedInputStreamWrapper(
@@ -266,7 +265,6 @@ public class ImportCommand extends CatalogCommands {
             byte[] buffer;
             while ((buffer = buf) != null) {
                 if (BUF_UPDATER.compareAndSet(this, buffer, null)) {
-                    InputStream input = in;
                     in = null;
                     // Purposely do not close `input`
                     return;

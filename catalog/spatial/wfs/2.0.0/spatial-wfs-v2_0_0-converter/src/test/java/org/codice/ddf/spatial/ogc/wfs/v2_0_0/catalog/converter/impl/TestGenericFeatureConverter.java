@@ -311,7 +311,7 @@ public class TestGenericFeatureConverter {
         InputStream is =
                 TestGenericFeatureConverter.class.getResourceAsStream("/video_data_set.xml");
         try {
-            Wfs20FeatureCollection wfs = (Wfs20FeatureCollection) xstream.fromXML(is);
+            xstream.fromXML(is);
         } catch (Exception e) {
             throw e.getCause();
         }

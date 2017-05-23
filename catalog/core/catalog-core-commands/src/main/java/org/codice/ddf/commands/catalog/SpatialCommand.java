@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.commands.catalog;
 
-import java.io.PrintStream;
-
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
@@ -26,18 +24,6 @@ import org.codice.ddf.commands.util.SpatialOperations;
 @Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "spatial", description = "Searches spatially the Catalog Provider.")
 public class SpatialCommand extends CatalogCommands {
-
-    private static final String ID = "ID ";
-
-    private static final String TITLE = "Title ";
-
-    private static final String DATE = "Date ";
-
-    private static final int MAX_LENGTH = 30;
-
-    private static final String FORMAT = "%1$-33s %2$-26s %3$-" + MAX_LENGTH + "s %4$-50s%n";
-
-    private static final Object WKT = "WKT";
 
     @Argument(name = "Operation", description = "An operation from the set {CONTAINS,INTERSECTS,EQUALS,DISJOINT,TOUCHES,CROSSES,WITHIN,OVERLAPS,RADIUS,NN}", index = 0, multiValued = false, required = true)
     String operation = null;
@@ -62,27 +48,27 @@ public class SpatialCommand extends CatalogCommands {
 
         switch (SpatialOperations.valueOf(operation.toUpperCase())) {
         case RADIUS:
-            doRadiusQuery(console, catalogProvider);
+            doRadiusQuery();
             break;
 
         case NN:
-            doNNQuery(console, catalogProvider);
+            doNNQuery();
             break;
 
         default:
-            doOperationsQuery(console, catalogProvider);
+            doOperationsQuery();
         }
 
         return null;
     }
 
-    protected void doRadiusQuery(PrintStream console, CatalogFacade catalogFacade) {
+    protected void doRadiusQuery() {
     }
 
-    protected void doNNQuery(PrintStream console, CatalogFacade catalogFacade) {
+    protected void doNNQuery() {
     }
 
-    private void doOperationsQuery(PrintStream console, CatalogFacade catalogFacade) {
+    private void doOperationsQuery() {
     }
 
 }

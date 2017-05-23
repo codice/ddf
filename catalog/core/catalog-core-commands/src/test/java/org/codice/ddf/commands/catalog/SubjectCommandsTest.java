@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import ddf.security.Subject;
@@ -69,7 +68,7 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
 
     @Test
     public void execute() throws Exception {
-        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::executeCommand);
+        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(invocationOnMock -> executeCommand());
 
         Object result = subjectCommands.execute();
 
@@ -82,7 +81,7 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
 
         when(session.getKeyboard()).thenReturn(new ByteArrayInputStream(PASSWORD.getBytes()));
         when(security.getSubject(USERNAME, PASSWORD)).thenReturn(subject);
-        when(subject.execute(any(Callable.class))).thenAnswer(this::executeCommand);
+        when(subject.execute(any(Callable.class))).thenAnswer(invocationOnMock -> executeCommand());
 
         Object result = subjectCommands.execute();
 
@@ -154,7 +153,7 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
         assertThat(consoleOutput.getOutput(), containsString(ERROR));
     }
 
-    private Object executeCommand(InvocationOnMock invocationOnMock) throws Exception {
+    private Object executeCommand() throws Exception {
         return subjectCommands.executeWithSubject();
     }
 

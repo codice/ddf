@@ -44,8 +44,6 @@ import ddf.catalog.transform.InputTransformer;
 
 public class WorkspaceTransformer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceTransformer.class);
-
     private final CatalogFramework catalogFramework;
 
     private final InputTransformer inputTransformer;

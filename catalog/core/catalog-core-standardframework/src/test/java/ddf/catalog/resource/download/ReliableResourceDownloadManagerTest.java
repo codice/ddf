@@ -905,8 +905,6 @@ public class ReliableResourceDownloadManagerTest {
             }
         });
 
-        ArgumentCaptor<Long> bytesReadArg = ArgumentCaptor.forClass(Long.class);
-
         // Mocking to support re-retrieval of product when error encountered
         // during caching. This resource retriever supports skipping.
         when(retriever.retrieveResource(anyLong())).thenAnswer(new Answer<Object>() {

@@ -69,13 +69,9 @@ public class ConfluenceSource extends MaskableImpl implements FederatedSource, C
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfluenceSource.class);
 
-    private static final ObjectMapper MAPPER = JsonFactory.create();
-
     private static final String USERNAME = "username";
 
     private static final String PASSWORD = "password";
-
-    private static final String BASE_URL = "baseUrl";
 
     private String endpointUrl;
 

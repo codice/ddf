@@ -34,21 +34,12 @@ public class MockSubscription extends MockQuery implements Subscription {
 
     /**
      * Create a Federated Subscription
-     *
-     * @param user
-     * @param compoundCriteria
-     * @param dm
+     *  @param dm
      * @param siteNames        , null if you want to query the whole Enteprise
      */
-    public MockSubscription(Subject user, DeliveryMethod dm, Set<String> siteNames) {
+    public MockSubscription(DeliveryMethod dm, Set<String> siteNames) {
         super();
         setDeliveryMethod(dm);
-        if (siteNames == null) {
-            super.setIsEnterprise(true);
-        } else {
-            super.setIsEnterprise(false);
-            super.setSiteIds(siteNames);
-        }
     }
 
     @Override

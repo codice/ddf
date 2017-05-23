@@ -95,10 +95,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     private static final String B_USER = "tchalla";
 
-    private static final String C_USER = "nromanova";
-
-    private static final String D_USER = "srogers";
-
     private static final String ACCESS_GROUP_REPLACE_TOKEN = "ACCESS_GROUP_REPLACE_TOKEN";
 
     protected static final String TRUST_STORE_PATH = System.getProperty("javax.net.ssl.trustStore");
@@ -1334,7 +1330,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                     XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml")));
             testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "guest");
 
-            String id = CatalogTestCommons.ingest(testData, MediaType.TEXT_XML);
+            String id = ingest(testData, MediaType.TEXT_XML);
 
             metacardAttributeSecurityFilterProperties = configureMetacardAttributeSecurityFiltering(
                     attr,

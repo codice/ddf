@@ -19,7 +19,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -28,7 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
@@ -74,17 +72,11 @@ public class SendEvent implements DeliveryMethod, Pingable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendEvent.class);
 
-    private static final List<String> XML_MIME_TYPES = Collections.unmodifiableList(Arrays.asList(
-            MediaType.APPLICATION_XML,
-            MediaType.TEXT_XML));
-
     private static final int MAX_RETRY_COUNT = 16;
 
     public static final double JITTER_PERCENT = 0.25;
 
     public static final long DEFAULT_PING_PERIOD = TimeUnit.MINUTES.toMillis(30L);
-
-    private final TransformerManager transformerManager;
 
     private final URL callbackUrl;
 
@@ -140,7 +132,6 @@ public class SendEvent implements DeliveryMethod, Pingable {
             LOGGER.debug(msg);
             throw new CswException(msg);
         }
-        this.transformerManager = transformerManager;
         this.query = query;
         this.callbackUrl = deliveryMethodUrl;
         this.request = request;
@@ -175,8 +166,8 @@ public class SendEvent implements DeliveryMethod, Pingable {
         ping();
     }
 
-    public SendEvent(TransformerManager transformerManager, GetRecordsType request,
-            QueryRequest query, SecureCxfClientFactory<CswSubscribe> cxfClientFactory) throws CswException {
+    public SendEvent(GetRecordsType request, QueryRequest query,
+            SecureCxfClientFactory<CswSubscribe> cxfClientFactory) throws CswException {
 
         URL deliveryMethodUrl;
         if (request.getResponseHandler() != null && !request.getResponseHandler()
@@ -199,7 +190,6 @@ public class SendEvent implements DeliveryMethod, Pingable {
             LOGGER.debug(msg);
             throw new CswException(msg);
         }
-        this.transformerManager = transformerManager;
         this.query = query;
         this.callbackUrl = deliveryMethodUrl;
         this.request = request;

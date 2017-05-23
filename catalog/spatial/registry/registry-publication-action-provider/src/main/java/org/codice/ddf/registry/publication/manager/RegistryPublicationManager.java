@@ -46,8 +46,6 @@ public class RegistryPublicationManager implements EventHandler {
 
     private static final String DELETED_TOPIC = "ddf/catalog/event/DELETED";
 
-    private static final java.lang.String KARAF_LOCAL_ROLES = "karaf.local.roles";
-
     private Map<String, List<String>> publications = new ConcurrentHashMap<>();
 
     private FederationAdminService federationAdminService;

@@ -62,10 +62,6 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
         super(RandomNumberGenerator.create());
     }
 
-    public HashSessionIdManager(Random random) {
-        super(RandomNumberGenerator.create());
-    }
-
     /**
      * @return Collection of String session IDs
      */

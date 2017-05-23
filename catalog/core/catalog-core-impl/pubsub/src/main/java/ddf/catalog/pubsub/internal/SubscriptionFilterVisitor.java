@@ -485,7 +485,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         String searchPhrase = likeFilter.getLiteral();
         LOGGER.debug("raw searchPhrase = [{}]", searchPhrase);
 
-        String sterilizedSearchPhrase = sterilize(searchPhrase, wildcard, escape, single);
+        String sterilizedSearchPhrase = sterilize(searchPhrase, wildcard, escape);
         LOGGER.debug("sterilizedSearchPhrase = [{}]", sterilizedSearchPhrase);
 
         ContextualPredicate contextPred = new ContextualPredicate(sterilizedSearchPhrase,
@@ -548,7 +548,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     }
 
     // translate filter contextual criteria to lucene syntax
-    private String sterilize(String searchPhrase, String wildcard, String escape, String single) {
+    private String sterilize(String searchPhrase, String wildcard, String escape) {
 
         // remove any spaces leading or trailing
         String returnSearchPhrase = searchPhrase.trim();

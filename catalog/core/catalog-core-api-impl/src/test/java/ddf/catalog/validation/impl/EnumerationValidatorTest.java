@@ -44,7 +44,7 @@ public class EnumerationValidatorTest {
 
     @Test
     public void testInvalidValue() {
-        validateWithErrors(new AttributeImpl("test", "other"), 1, false);
+        validateWithErrors(new AttributeImpl("test", "other"), 1);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class EnumerationValidatorTest {
 
     @Test
     public void testInvalidValueIgnoreCase() {
-        validateWithErrors(new AttributeImpl("test", "SpAdES"), 1, false);
+        validateWithErrors(new AttributeImpl("test", "SpAdES"), 1);
     }
 
     @Test
@@ -79,8 +79,7 @@ public class EnumerationValidatorTest {
         assertThat(reportOptional.isPresent(), is(false));
     }
 
-    private void validateWithErrors(final Attribute attribute, final int expectedErrors,
-            boolean ignoreCase) {
+    private void validateWithErrors(final Attribute attribute, final int expectedErrors) {
         final Optional<AttributeValidationReport> reportOptional = getReport(false, attribute);
         assertThat(reportOptional.get()
                 .getAttributeValidationViolations(), hasSize(expectedErrors));

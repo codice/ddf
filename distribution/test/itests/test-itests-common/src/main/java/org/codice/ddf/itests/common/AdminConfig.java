@@ -34,10 +34,6 @@ public class AdminConfig {
 
     public static final String TEST_SECURITYLOGLEVEL_PROPERTY = "securityLogLevel";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdminConfig.class);
-
-    public static final int CONFIG_WAIT_POLLING_INTERVAL = 50;
-
     private final ConfigurationAdmin configAdmin;
 
     public AdminConfig(ConfigurationAdmin configAdmin) {

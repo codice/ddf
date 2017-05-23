@@ -150,10 +150,8 @@ public class CatalogFrameworkQueryTest {
         Historian historian = new Historian();
         historian.setHistoryEnabled(false);
 
-        opsStorage.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
-        deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
         framework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
@@ -183,7 +181,6 @@ public class CatalogFrameworkQueryTest {
         newCard2.setId(null);
         newCard2.setExpirationDate(card2Exp.getTime());
         metacards.add(newCard2);
-        String mcId1 = null;
         String mcId2 = null;
 
         CreateResponse createResponse = null;
@@ -193,10 +190,8 @@ public class CatalogFrameworkQueryTest {
         assertEquals(createResponse.getCreatedMetacards()
                 .size(), metacards.size());
         for (Metacard curCard : createResponse.getCreatedMetacards()) {
-            if (curCard.getExpirationDate()
+            if (!curCard.getExpirationDate()
                     .equals(card1Exp.getTime())) {
-                mcId1 = curCard.getId();
-            } else {
                 mcId2 = curCard.getId();
             }
             assertNotNull(curCard.getId());
@@ -272,7 +267,6 @@ public class CatalogFrameworkQueryTest {
         newCard2.setExpirationDate(card2Exp.getTime());
         metacards.add(newCard2);
         String mcId1 = null;
-        String mcId2 = null;
 
         CreateResponse createResponse = null;
         try {
@@ -288,8 +282,6 @@ public class CatalogFrameworkQueryTest {
             if (curCard.getExpirationDate()
                     .equals(card1Exp.getTime())) {
                 mcId1 = curCard.getId();
-            } else {
-                mcId2 = curCard.getId();
             }
             assertNotNull(curCard.getId());
         }

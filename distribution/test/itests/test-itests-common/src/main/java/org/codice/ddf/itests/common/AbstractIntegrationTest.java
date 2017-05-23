@@ -492,7 +492,7 @@ public abstract class AbstractIntegrationTest {
                 installStartupFile(getClass().getClassLoader()
                                 .getResourceAsStream("ddf.security.sts.client.configuration.config"),
                         "/etc/ddf.security.sts.client.configuration.config"),
-                KarafDistributionOption.editConfigurationFilePut(
+                editConfigurationFilePut(
                         "etc/ddf.security.sts.client.configuration.config",
                         "address",
                         "\"" + SECURE_ROOT + HTTPS_PORT.getPort()

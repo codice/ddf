@@ -495,9 +495,7 @@ public class TikaInputTransformer implements InputTransformer {
     private void registerService(BundleContext bundleContext) {
         LOGGER.debug("Registering {} as an osgi service.",
                 TikaInputTransformer.class.getSimpleName());
-        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class,
-                this,
-                getServiceProperties());
+        bundleContext.registerService(InputTransformer.class, this, getServiceProperties());
     }
 
     private Hashtable<String, Object> getServiceProperties() {

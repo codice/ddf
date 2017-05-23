@@ -94,11 +94,6 @@ public class FederationAdminServiceImpl implements FederationAdminService {
 
     private FilterBuilder filterBuilder;
 
-    private SlotTypeHelper slotTypeHelper = new SlotTypeHelper();
-
-    private InternationalStringTypeHelper internationalStringTypeHelper =
-            new InternationalStringTypeHelper();
-
     public FederationAdminServiceImpl() {
         this(Security.getInstance());
     }

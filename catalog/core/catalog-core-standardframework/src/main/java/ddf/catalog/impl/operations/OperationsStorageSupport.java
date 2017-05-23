@@ -1,4 +1,4 @@
-/**
+    /**
  * Copyright (c) Codice Foundation
  * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -53,16 +53,10 @@ public class OperationsStorageSupport {
 
     private final QueryOperations queryOperations;
 
-    private Historian historian;
-
     public OperationsStorageSupport(SourceOperations sourceOperations,
             QueryOperations queryOperations) {
         this.sourceOperations = sourceOperations;
         this.queryOperations = queryOperations;
-    }
-
-    public void setHistorian(Historian historian) {
-        this.historian = historian;
     }
 
     <T extends StorageRequest> T prepareStorageRequest(T storageRequest,

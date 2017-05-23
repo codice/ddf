@@ -147,8 +147,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private String password;
 
-    private long receiveTimeout = 0;
-
     private XMLInputFactory xmlInputFactory;
 
     private ResourceReader resourceReader;

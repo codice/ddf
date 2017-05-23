@@ -34,7 +34,7 @@ $('#el').spin('flower', 'red')
 
 */
 
-;(function(factory) {
+(function(factory) {
 
   if (typeof exports == 'object') {
     // CommonJS

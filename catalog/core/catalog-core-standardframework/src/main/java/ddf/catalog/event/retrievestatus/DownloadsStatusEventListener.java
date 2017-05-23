@@ -130,17 +130,4 @@ public class DownloadsStatusEventListener implements EventHandler {
         }
         LOGGER.debug("EXITING: {}", methodName);
     }
-
-    private String getProperty(ResourceResponse resourceResponse, String property) {
-        String response = "";
-
-        if (resourceResponse.getRequest()
-                .containsPropertyName(property)) {
-            response = (String) resourceResponse.getRequest()
-                    .getPropertyValue(property);
-            LOGGER.debug("resourceResponse {} property: {}", property, response);
-        }
-
-        return response;
-    }
 }

@@ -428,8 +428,7 @@ public class OpenSearchEndpoint implements OpenSearch {
             maxTimeout = Long.parseLong(maxTimeoutStr);
         }
         LOGGER.debug("Retrieved query settings:   sortField: {}   sortOrder: {}", sortField, sortOrder);
-        return new OpenSearchQuery(null,
-                startIndex,
+        return new OpenSearchQuery(startIndex,
                 count,
                 sortField,
                 sortOrder,

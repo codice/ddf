@@ -27,8 +27,6 @@ import org.slf4j.LoggerFactory;
 
 public class CoreProducerConsumerExample extends RouteBuilder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreProducerConsumerExample.class);
-
     private final int period = 1000;
 
     public static void main(String... args) throws Exception {

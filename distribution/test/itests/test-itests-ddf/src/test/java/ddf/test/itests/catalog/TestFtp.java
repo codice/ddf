@@ -444,13 +444,6 @@ public class TestFtp extends AbstractIntegrationTest {
         }
     }
 
-    private String getMetacardIdFromResponse(Response response)
-            throws IOException, XPathExpressionException {
-        return XmlPath.given(response.asString())
-                // gpath to get the single ingested element ID
-                .get("metacards.metacard[0].@gml:id");
-    }
-
     private void showServerReply(FTPClient ftpClient) {
         String[] replies = ftpClient.getReplyStrings();
         if (replies != null && replies.length > 0) {

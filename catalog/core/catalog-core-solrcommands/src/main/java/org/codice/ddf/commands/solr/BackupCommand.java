@@ -306,7 +306,6 @@ public class BackupCommand extends SolrCommands {
                 }
             }
         } catch (Exception e) {
-            String message = e.getMessage() != null ? e.getMessage() : "";
             printErrorMessage(String.format("Backup failed. %s", e.getMessage()));
         }
 

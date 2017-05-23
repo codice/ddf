@@ -717,23 +717,13 @@ public class TestCswFilterDelegate {
 
     private static final String APISO_PREFIX = "apiso:";
 
-    private static final String APISO_SUBJECT = APISO_PREFIX + "subject";
-
     private static final String APISO_TITLE = APISO_PREFIX + "title";
-
-    private static final String APISO_ABSTRACT = APISO_PREFIX + "abstract";
-
-    private static final String APISO_FORMAT = APISO_PREFIX + "format";
 
     private static final String APISO_IDENTIFIER = APISO_PREFIX + "Identifier";
 
     private static final String APISO_MODIFIED = APISO_PREFIX + "modified";
 
     private static final String APISO_TYPE = APISO_PREFIX + "type";
-
-    private static final String APISO_BOUNDING_BOX = APISO_PREFIX + "BoundingBox";
-
-    private static final String APISO_CRS = APISO_PREFIX + "crs";
 
     private static final String APISO_ANYTEXT = APISO_PREFIX + CswConstants.ANY_TEXT;
 
@@ -828,7 +818,7 @@ public class TestCswFilterDelegate {
         comparisonOpsList.add(ComparisonOperatorType.GREATER_THAN_EQUAL_TO);
         comparisonOpsList.add(ComparisonOperatorType.LESS_THAN);
         comparisonOpsList.add(ComparisonOperatorType.LESS_THAN_EQUAL_TO);
-        comparisonOpsList.add(ComparisonOperatorType.BETWEEN);
+        comparisonOpsList.add(BETWEEN);
         comparisonOpsList.add(ComparisonOperatorType.NULL_CHECK);
 
         return comparisonOpsList;
@@ -1404,8 +1394,7 @@ public class TestCswFilterDelegate {
         cswSourceConfiguration.setUsePosList(false);
 
         String contentType = "myContentType";
-        CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration,
-                getCswMetacardType());
+        CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
 
         // Perform Test
         /**
@@ -3184,13 +3173,7 @@ public class TestCswFilterDelegate {
         return outputDate;
     }
 
-    private CswFilterDelegate createCswFilterDelegate(
-            CswSourceConfiguration cswSourceConfiguration) {
-        return createCswFilterDelegate(cswSourceConfiguration, null);
-    }
-
-    private CswFilterDelegate createCswFilterDelegate(CswSourceConfiguration cswSourceConfiguration,
-            MetacardType type) {
+    private CswFilterDelegate createCswFilterDelegate(CswSourceConfiguration cswSourceConfiguration) {
         DomainType outputFormatValues = null;
         DomainType resultTypesValues = null;
 

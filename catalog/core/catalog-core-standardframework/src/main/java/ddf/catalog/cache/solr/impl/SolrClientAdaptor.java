@@ -73,11 +73,7 @@ class SolrClientAdaptor {
 
     private final String coreName;
 
-    private final FilterAdapter filterAdapter;
-
     private final SolrClientFactory solrClientFactory;
-
-    private final SolrFilterDelegateFactory solrFilterDelegateFactory;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrClientAdaptor.class);
 
@@ -97,9 +93,7 @@ class SolrClientAdaptor {
         this.clientAdaptorSupplierFunction = (solrClient) -> new InitializedSolrClientAdaptor(
                 solrClient);
         this.coreName = coreName;
-        this.filterAdapter = filterAdapter;
         this.solrClientFactory = solrClientFactory;
-        this.solrFilterDelegateFactory = solrFilterDelegateFactory;
     }
 
     public void init() {

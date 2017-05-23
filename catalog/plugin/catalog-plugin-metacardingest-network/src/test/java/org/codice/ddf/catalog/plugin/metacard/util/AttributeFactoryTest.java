@@ -90,7 +90,7 @@ public class AttributeFactoryTest {
     @Test(expected = IllegalArgumentException.class)
     public void testCreateAttributeWithIllegalArgument() throws Exception {
         when(mockType.getAttributeFormat()).thenReturn(INTEGER);
-        Attribute attribute = attributeFactory.createAttribute(mockDescriptor, "1874xyz");
+        attributeFactory.createAttribute(mockDescriptor, "1874xyz");
     }
 
     @Test(expected = IllegalArgumentException.class)

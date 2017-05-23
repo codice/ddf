@@ -176,7 +176,7 @@ public class FileSystemStorageProviderTest {
                 Collections.singletonMap(Constants.STORE_REFERENCE_KEY,
                         tempFile.toFile()
                                 .getAbsolutePath()));
-        URI uri = new URI(createResponse.getCreatedContentItems()
+        new URI(createResponse.getCreatedContentItems()
                 .get(0)
                 .getUri());
 
@@ -308,7 +308,7 @@ public class FileSystemStorageProviderTest {
 
         Metacard metacard = mock(Metacard.class);
         when(metacard.getId()).thenReturn(uuid);
-        ContentItem contentItem = new ContentItemImpl(uuid,
+        new ContentItemImpl(uuid,
                 null,
                 null,
                 "application/text",
@@ -434,7 +434,7 @@ public class FileSystemStorageProviderTest {
         CreateStorageResponse createResponse = assertContentItem(TEST_INPUT_CONTENTS,
                 NITF_MIME_TYPE,
                 TEST_INPUT_FILENAME);
-        URI unqualifiedUri = new URI(createResponse.getCreatedContentItems()
+        new URI(createResponse.getCreatedContentItems()
                 .get(0)
                 .getUri());
 
@@ -574,7 +574,7 @@ public class FileSystemStorageProviderTest {
         CreateStorageRequest createRequest = new CreateStorageRequestImpl(Collections.singletonList(
                 contentItem), null);
 
-        CreateStorageResponse createStorageResponse = provider.create(createRequest);
+        provider.create(createRequest);
         provider.rollback(createRequest);
 
         ReadStorageRequest readStorageRequest = new ReadStorageRequestImpl(new URI("content:" + id),

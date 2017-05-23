@@ -314,7 +314,7 @@ public class QueryOperations extends DescribableImpl {
 
         Object requestSubject = request.getProperties()
                 .get(SecurityConstants.SECURITY_SUBJECT);
-        if (requestSubject instanceof ddf.security.Subject) {
+        if (requestSubject instanceof Subject) {
             Subject subject = (Subject) requestSubject;
 
             KeyValueCollectionPermission kvCollection = new KeyValueCollectionPermission(

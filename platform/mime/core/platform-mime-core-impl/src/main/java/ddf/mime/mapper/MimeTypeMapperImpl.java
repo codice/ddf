@@ -49,12 +49,6 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
     private static final String XML_FILE_EXTENSION = "xml";
 
-    private static Comparator<MimeTypeResolver> comparator = new Comparator<MimeTypeResolver>() {
-        public int compare(MimeTypeResolver o1, MimeTypeResolver o2) {
-            return o1.getPriority() - o2.getPriority();
-        }
-    };
-
     /**
      * The {@link List} of {@link MimeTypeResolver}s configured for this mapper and will be searched
      * on mime type/file extension mapping requests.

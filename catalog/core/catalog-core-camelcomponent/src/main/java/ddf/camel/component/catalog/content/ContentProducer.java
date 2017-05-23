@@ -38,8 +38,6 @@ public class ContentProducer extends DefaultProducer {
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(ContentProducer.class);
 
-    private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 1 * MB;
-
     private final FileSystemPersistenceProvider fileIdMap = new FileSystemPersistenceProvider(
             "processed");
 

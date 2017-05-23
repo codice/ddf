@@ -582,7 +582,7 @@ public class FilterBuilderTest {
     public void operatorBeforeNull() {
         FilterBuilder builder = new GeotoolsFilterBuilder();
 
-        Filter filter = builder.attribute("something")
+        builder.attribute("something")
                 .before()
                 .date(null);
     }
@@ -634,11 +634,11 @@ public class FilterBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void likeXPathInvalid() {
-        FilterVisitor visitor = spy(new DefaultFilterVisitor() {
+        spy(new DefaultFilterVisitor() {
         });
         FilterBuilder builder = new GeotoolsFilterBuilder();
 
-        Filter filter = builder.xpath("foo")
+        builder.xpath("foo")
                 .is()
                 .like()
                 .text("bar");
@@ -770,7 +770,7 @@ public class FilterBuilderTest {
     public void test() {
 
         FilterBuilder builder = new GeotoolsFilterBuilder();
-        Filter filter = builder.allOf(
+        builder.allOf(
 
                 builder.allOf(builder.anyOf(builder.attribute(FOO_ATTRIBUTE)
                         .is()

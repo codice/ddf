@@ -27,10 +27,8 @@ define([
             switch(item.type){
                 case 'filter':
                     return this.options['filter-builder'].filterView;
-                    break;
                 case 'filter-builder':
                     return this.options['filter-builder'].constructor;
-                    break;
             }
         },
         tagName: CustomElements.register('filter-collection'),

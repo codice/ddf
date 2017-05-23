@@ -63,13 +63,7 @@ public abstract class SolrProviderTestCase {
 
     private static final int TIME_STEP_10SECONDS = 10 * ONE_SECOND;
 
-    private static final int TIME_STEP_30SECONDS = 30 * ONE_SECOND;
-
     private static final int A_LITTLE_WHILE = TIME_STEP_10SECONDS;
-
-    private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
-
-    private static final String KARAF_ETC = "karaf.etc";
 
     protected static SolrFilterBuilderTest filterBuilder = new SolrFilterBuilderTest();
 

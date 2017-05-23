@@ -98,7 +98,7 @@ public class ReliableResourceDownloaderTest {
         String workingDir = System.getProperty("user.dir");
         productCacheDirectory = workingDir + "/target/tests/product-cache";
         productInputFilename = workingDir + "/src/test/resources/foo_10_lines.txt";
-        File productInputFile = new File(productInputFilename);
+        new File(productInputFilename);
     }
 
     @Before

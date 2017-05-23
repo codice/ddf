@@ -87,42 +87,6 @@ public class TestPlugin {
         // waitForWADL();
     }
 
-    private static void startServer() {
-        LOGGER.info("Starting server.");
-
-        endpoint = mock(MockRestEndpoint.class);
-
-        JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-
-        sf.setResourceClasses(MockRestEndpoint.class);
-
-        sf.setAddress(ENDPOINT_ADDRESS);
-
-        sf.setResourceProvider(MockRestEndpoint.class,
-                new SingletonResourceProvider(endpoint, true));
-
-        LOGGER.info("Creating server.");
-        server = sf.create();
-    }
-
-    // Optional step - may be needed to ensure that by the time individual
-    // tests start running the endpoint has been fully initialized
-    private static void waitForWADL() throws InterruptedException {
-        LOGGER.info("Waiting for wadl");
-        WebClient client = WebClient.create(WADL_ADDRESS);
-        // wait for 20 secs or so
-        for (int i = 0; i < 20; i++) {
-            Thread.currentThread()
-                    .sleep(200);
-            Response response = client.get();
-            if (response.getStatus() == 200) {
-                break;
-            }
-        }
-        // no WADL is available yet - throw an exception or give tests a chance
-        // to run anyway
-    }
-
     @AfterClass
     public static void destroy() {
 

@@ -130,7 +130,7 @@ public class TestXmlMetacardTransformer {
                         1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1};
         mc.setThumbnail(bytes);
 
-        String outputXml = transform(mc);
+        transform(mc);
 
         // TODO add assertions. Use XMLunit?
     }

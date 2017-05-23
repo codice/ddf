@@ -170,7 +170,6 @@ public class FanoutCatalogFrameworkTest {
                 sourceOperations,
                 opsSecurity,
                 null);
-        deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
         framework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
@@ -470,7 +469,6 @@ public class FanoutCatalogFrameworkTest {
                 sourceOperations,
                 opsSecurity,
                 null);
-        deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
         framework = new CatalogFrameworkImpl(null,
                 null,

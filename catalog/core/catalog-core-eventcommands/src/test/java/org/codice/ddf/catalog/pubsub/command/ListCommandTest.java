@@ -297,12 +297,11 @@ public class ListCommandTest {
         List<String> linesWithText = new ArrayList<String>();
         String[] lines = buffer.toString()
                 .split("\n");
-        if (lines != null) {
-            for (String line : lines) {
-                String text = StringUtils.chomp(line);
-                if (!StringUtils.isEmpty(text)) {
-                    linesWithText.add(text);
-                }
+
+        for (String line : lines) {
+            String text = StringUtils.chomp(line);
+            if (!StringUtils.isEmpty(text)) {
+                linesWithText.add(text);
             }
         }
 
