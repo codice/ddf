@@ -15,6 +15,7 @@
 /*global define, setTimeout*/
 define([
     'marionette',
+    'backbone',
     'underscore',
     'jquery',
     './query-settings.hbs',
@@ -23,9 +24,11 @@ define([
     'component/dropdown/dropdown',
     'component/dropdown/query-src/dropdown.query-src.view',
     'component/property/property.view',
-    'component/property/property'
-], function (Marionette, _, $, template, CustomElements, store, DropdownModel,
-            QuerySrcView, PropertyView, Property) {
+    'component/property/property',
+    'component/singletons/user-instance',
+    'component/sort-item/sort-item.view'
+], function (Marionette, Backbone, _, $, template, CustomElements, store, DropdownModel,
+            QuerySrcView, PropertyView, Property, user, SortItemView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -38,17 +41,16 @@ define([
             'click .editor-save': 'save'
         },
         regions: {
-            settingsSort: '.settings-sorting',
+            settingsSortField: '.settings-sorting-field',
             settingsFederation: '.settings-federation',
             settingsSrc: '.settings-src'
         },
         ui: {
         },
         focus: function(){
-            this.regionManager.first().currentView.focus();
         },
         onBeforeShow: function(){
-            this.setupSortDropdown();
+            this.setupSortFieldDropdown();
             this.setupFederationDropdown();
             this.setupSrcDropdown();
             this.listenTo(this.settingsFederation.currentView.model, 'change:value', this.handleFederationValue);
@@ -57,85 +59,17 @@ define([
                 this.turnOnEditing();
             }
         },
-        setupSortDropdown: function(){
-            var defaultValue = {
-                sortField: this.model.get('sortField')
-            };
-            if (defaultValue.sortField !== 'RELEVANCE') {
-                defaultValue.sortOrder = this.model.get('sortOrder');
-            }
-            this.settingsSort.show(new PropertyView({
-                model: new Property({
-                    enum: [
-                        {
-                            label: 'Best Text Match',
-                            value: {
-                                sortField: 'RELEVANCE'
-                            }
-                        },
-                        {
-                            label: 'Shortest Distance',
-                            value: {
-                                sortField: 'DISTANCE',
-                                sortOrder: 'asc'
-                            }
-                        },
-                        {
-                            label: 'Furthest Distance',
-                            value: {
-                                sortField: 'DISTANCE',
-                                sortOrder: 'desc'
-                            }
-                        },
-                        {
-                            label: 'Earliest Modified',
-                            value: {
-                                sortField: 'modified',
-                                sortOrder: 'asc'
-                            }
-                        },
-                        {
-                            label: 'Latest Modified',
-                            value: {
-                                sortField: 'modified',
-                                sortOrder: 'desc'
-                            }
-                        },
-                        {
-                            label: 'Earliest Created',
-                            value: {
-                                sortField: 'created',
-                                sortOrder: 'asc'
-                            }
-                        },
-                        {
-                            label: 'Latest Created',
-                            value: {
-                                sortField: 'created',
-                                sortOrder: 'desc'
-                            }
-                        },
-                        {
-                            label: 'Earliest Effective',
-                            value: {
-                                sortField: 'effective',
-                                sortOrder: 'asc'
-                            }
-                        },
-                        {
-                            label: 'Latest Effective',
-                            value: {
-                                sortField: 'effective',
-                                sortOrder: 'desc'
-                            }
-                        },
-                    ],
-                    value: [defaultValue],
-                    id: 'Sorting'
-                })
+        setupSortFieldDropdown: function() {
+            this.settingsSortField.show(new SortItemView({
+                model: new Backbone.Model({
+                    attribute: this.model.get('sortField'),
+                    direction: this.model.get('sortOrder')
+                }),
+                showBestTextOption: true
+                
             }));
-            this.settingsSort.currentView.turnOffEditing();
-            this.settingsSort.currentView.turnOnLimitedWidth();
+            this.settingsSortField.currentView.turnOffEditing();
+            this.settingsSortField.currentView.turnOnLimitedWidth();
         },
         setupFederationDropdown: function(){
             this.settingsFederation.show(new PropertyView({
@@ -200,7 +134,7 @@ define([
             this.model.set({
                 federation: federation
             });
-            this.model.set(this.settingsSort.currentView.model.getValue()[0]);
+            this.model.set(this.settingsSortField.currentView.getValue());
         },
         save: function(){
             this.$el.removeClass('is-editing');

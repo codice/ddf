@@ -186,16 +186,18 @@ public class CqlRequest {
         }
 
         SortBy sort;
-        switch (sortOrder) {
+        switch (sortOrder.toLowerCase()) {
+        case "ascending":
         case "asc":
             sort = new SortByImpl(sortField, SortOrder.ASCENDING);
             break;
+        case "descending":
         case "desc":
             sort = new SortByImpl(sortField, SortOrder.DESCENDING);
             break;
         default:
             throw new IllegalArgumentException(
-                    "Incorrect sort order received, must be 'asc' or 'desc'");
+                    "Incorrect sort order received, must be 'asc', 'ascending', 'desc', or 'descending'");
         }
 
         return sort;

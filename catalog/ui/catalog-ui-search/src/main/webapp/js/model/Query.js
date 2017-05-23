@@ -94,7 +94,7 @@ define([
                     lon: undefined,
                     federation: 'enterprise',
                     sortField: 'modified',
-                    sortOrder: 'desc',
+                    sortOrder: 'descending',
                     dtstart: undefined,
                     dtend: undefined,
                     result: undefined
@@ -336,7 +336,7 @@ define([
                 }
 
                 var sortField = this.get('sortField');
-                var sortOrder = this.get('sortOrder') === 'desc' ? -1 : 1;
+                var sortOrder = this.get('sortOrder') === 'descending' ? -1 : 1;
 
                 switch (sortField) {
                     case 'RELEVANCE':

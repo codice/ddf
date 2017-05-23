@@ -424,7 +424,6 @@ define([
             if (tabable.length > 0){
                 $(tabable[0]).focus();
             }
-           // this.regionManager.first().currentView.focus();
         },
         cancel: function(){
             if (this.model._cloneOf === undefined){

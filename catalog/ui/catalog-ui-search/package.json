@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "license": "LGPL-3.0",
   "scripts": {
-    "startplus": "webpack-dev-server --config=./webpack/config/dev.js --open",
+    "startplus": "webpack-dev-server --config=./webpack/config/dev.js --open --port 8080 --host 0.0.0.0",
     "start": "webpack-dev-server --config=./webpack/config/dev.js",
     "pretest": "node ./node_modules/phantomjs-prebuilt/install.js && webpack --config webpack/config/ci.js",
     "test": "phantomjs ./node_modules/mocha-phantomjs-core/mocha-phantomjs-core.js ./target/test/index.html",

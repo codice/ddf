@@ -1,48 +1,59 @@
 @{customElementNamespace}sort-item-collection {
   display: block;
   width: 100%;
-  padding: 10px;
   overflow-x: hidden;
 
   @{customElementNamespace}sort-item + @{customElementNamespace}sort-item {
-    margin-top: 10px;
   }
 
-  @{customElementNamespace}sort-item:first-of-type {
+  @{customElementNamespace}sort-item:not(:first-of-type) {
     .sort-remove {
-      display: none;
+      display: inline-block;
+    }
+  }
+
+  @{customElementNamespace}sort-item {
+    .sort-attribute,
+    .sort-direction {
+      width: auto;
     }
   }
 }
 
 @{customElementNamespace}sort-item {
   display: block;
-  cursor: pointer;
   white-space: nowrap;
+  overflow: hidden;
 
   .sort-attribute,
   .sort-direction {
-    margin-right: 20px;
+    width: ~'calc(50%)';
   }
 
   .sort-attribute,
   .sort-direction,
   .sort-remove {
       display: inline-block;
-      vertical-align: top;
+      vertical-align: middle;
   }
 
   .sort-attribute {
-      width: 50%;
-  }
-
-  .sort-direction {
-    width: ~'calc(50% - @{minimumButtonSize} - 40px)';
+      transition: width @coreTransitionTime ease-in-out;
   }
 
   .sort-remove {
     height: @minimumButtonSize;
     width: @minimumButtonSize;
+    display: none;
   }
 
 }
+
+@{customElementNamespace}sort-item.is-non-directional-sort {
+    .sort-attribute {
+      width: 100%;
+    }
+    .sort-direction {
+    }
+}
+  
