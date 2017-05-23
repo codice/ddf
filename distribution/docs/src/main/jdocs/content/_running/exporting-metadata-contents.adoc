@@ -1,0 +1,17 @@
+:title: Exporting Metadata
+:type: dataManagement
+:status: published
+:summary: Exporting metadata out of a catalog provider.
+:order: 03
+
+===== Exporting Metadata Out of a Catalog Provider
+
+. Configure a desired catalog provider.
+. From the command line of ${branding} console, use the command to export all metadata from the catalog provider into serialized data files dump. The following example shows a command for running on Linux and a command for running on Windows.
+
+.${branding-lowercase}${at-symbol}local
+----
+dump "/myDirectory/exportFolder"
+or
+dump "C:/myDirectory/exportFolder"
+----

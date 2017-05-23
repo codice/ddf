@@ -1,0 +1,81 @@
+:title: Command Scheduler
+:type: maintaining
+:status: published
+:summary: Introduction to the Command Scheduler.
+:order: 01
+
+==== Command Scheduler
+
+The Command Scheduler allows administrators to schedule Command Line Commands to be run at specified intervals.
+
+===== Using the Command Scheduler
+
+The Command Scheduler allows administrators to schedule Command Line Shell Commands to be run in a platform-independent way.
+For instance, if an administrator wanted to use the Catalog commands to export all records of a Catalog to a directory, the administrator could write a cron job or a scheduled task to remote into the container and execute the command.
+Writing these types of scripts are specific to the administrator's operating system and also requires extra logic for error handling if the container is up.
+The administrator can also create a Command Schedule, which currently requires only two fields.
+The Command Scheduler only runs when the container is running, so there is no need to verify if the container is up.
+In addition, when the container is restarted, the commands are rescheduled and executed again.
+
+====== Schedule a Command
+
+Configure the Command Scheduler to execute a command at specific intervals.
+
+. Navigate to the ${admin-console} (${secure_url}/admin).
+. Select the *${ddf-platform}* application.
+. Select *Platform Command Scheduler*.
+. Enter the command or commands to be executed in the *Command* text field. Commands can be separated by a semicolon and will execute in order from left to right.
+. Enter an interval in the *Interval* field.  This can either be a Quartz Cron expression or a positive integer (seconds) (e.x. '0 0 0 1/1 * ? *' or '12').
+. Select the interval type in the *Interval Type* drop-down.
+. Select the *Save* button.
+
+[NOTE]
+====
+Scheduled Commands can be updated and deleted.
+To delete, clear the fields and click *Save*.
+To update, modify the fields and click *Save*.
+====
+
+===== Updating a Scheduled Command
+
+Change the timing, order, or execution of scheduled commands.
+
+. Navigate to the *${admin-console}*.
+. Click on the *${ddf-platform}* application.
+. Click on the *Configuration* tab.
+. Under the *Platform Command Scheduler* configuration are all the scheduled commands.
+Scheduled commands have the following syntax `${ddf-branding-lowercase}.platform.scheduler.Command.{GUID}` such as `${ddf-branding-lowercase}.platform.scheduler.Command.4d60c917-003a-42e8-9367-1da0f822ca6e`.
+. Find the desired configuration to modify and update either the *Command* text field, the *Interval* field, or the *Interval Type*.
+. Click *Save changes*.
+Once the Save button has been clicked, the command will be executed immediately.
+Its next scheduled execution happens after the time specified in Interval In Seconds and repeats indefinitely until the container is shutdown or the Scheduled Command is deleted.
+
+====== Command Output
+
+Commands that normally write out to the console will write out to the distribution's log.
+For example, if an `echo "Hello World"` command is set to run every five seconds, the log displays the following:
+
+.Sample Command Output in the Log
+----
+16:01:32,582 | INFO  | heduler_Worker-1 | ${ddf-branding-lowercase}.platform.scheduler.CommandJob          68 | platform-scheduler   | Executing command [echo Hello World]
+16:01:32,583 | INFO  | heduler_Worker-1 | ${ddf-branding-lowercase}.platform.scheduler.CommandJob          70 | platform-scheduler   | Execution Output: Hello World
+16:01:37,581 | INFO  | heduler_Worker-4 | ${ddf-branding-lowercase}.platform.scheduler.CommandJob          68 | platform-scheduler   | Executing command [echo Hello World]
+16:01:37,582 | INFO  | heduler_Worker-4 | ${ddf-branding-lowercase}.platform.scheduler.CommandJob          70 | platform-scheduler   | Execution Output: Hello World
+----
+
+In short, administrators can view the status of a run within the log as long as INFO was set as the status level.
+
+===== CQL Syntax
+
+The CQL syntax used with console commands should follow the OGC CQL format.
+GeoServer provides a description of the grammar and examples at http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html[CQL Tutorial].
+
+.CQL Syntax Examples
+[source]
+----
+Finding all notifications that were sent due to a download:
+${branding-lowercase}${at-symbol}local>store:list --cql "application='Downloads'" --type notification
+
+Deleting a specific notification:
+${branding-lowercase}${at-symbol}local>store:delete --cql "id='fdc150b157754138a997fe7143a98cfa'" --type notification
+----
