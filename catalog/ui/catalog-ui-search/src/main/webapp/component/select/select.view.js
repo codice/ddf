@@ -18,12 +18,23 @@ define([
     'underscore',
     'jquery',
     './select.hbs',
-    'js/CustomElements'
-], function (Marionette, _, $, template, CustomElements) {
+    'js/CustomElements',
+    'js/Common'
+], function (Marionette, _, $, template, CustomElements, Common) {
 
     return Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('select'),
+        className: function(){
+            var className = '';
+            if (this.model.get('hasNoValue')){
+                className+=' hasNoValue';
+            }
+            if(this.model.get('isThumbnail') && !this.model.get('hasNoValue')){
+                className+=' isThumbnail';
+            }
+            return className;
+        },
         attributes: function(){
             return {
                 'data-hits': this.model.get('hits'),
@@ -34,6 +45,9 @@ define([
             var modelJSON = this.model.toJSON();
             if (modelJSON.label.constructor === Array){
                 modelJSON.label = modelJSON.label.join(' | ');
+            }
+            if (modelJSON.isThumbnail && !modelJSON.hasNoValue){
+                modelJSON.img = Common.getImageSrc(modelJSON.value[0]);
             }
             return modelJSON;
         }

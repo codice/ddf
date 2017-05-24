@@ -17,18 +17,14 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    '../editor.view',
-    'js/store',
-    'component/input/metacard/input-metacard.collection.view',
-    'component/input/metacard/input-metacard.collection'
-], function (Marionette, _, $, EditorView, store, InputMetacardCollectionView, InputMetacardCollection) {
+    '../dropdown.view',
+    './dropdown.hide-attribute.hbs',
+    'component/hide-attribute/hide-attribute.view'
+], function (Marionette, _, $, DropdownView, template, HideAttributeView) {
 
-    return EditorView.extend({
-        onBeforeShow: function(){
-            this.editorProperties.show(new InputMetacardCollectionView({
-                collection: InputMetacardCollection.createWorkspaceAdvanced(this.model)
-            }));
-            this.editorProperties.currentView.$el.addClass("is-list");
-        }
+    return DropdownView.extend({
+        template: template,
+        className: 'is-hideAttribute',
+        componentToShow: HideAttributeView
     });
 });

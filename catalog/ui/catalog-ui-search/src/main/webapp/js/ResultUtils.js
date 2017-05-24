@@ -12,6 +12,8 @@
 /*global require*/
 var store = require('js/store');
 var alert = require('component/alert/alert');
+var _ = require('underscore');
+var metacardDefinitions = require('component/singletons/metacard-definitions');
 
 module.exports = {
     refreshResult: function(result) {
@@ -34,7 +36,23 @@ module.exports = {
             }
         });
     },
-    updateResults: function(results, attributeMap){
+    updateResults: function(results, response){
+        var attributeMap = response.reduce(function(attributeMap, changes){
+            return changes.attributes.reduce(function(attrMap, chnges){
+                attrMap[chnges.attribute] = metacardDefinitions.metacardTypes[chnges.attribute].multivalued ? chnges.values : chnges.values[0];
+                if (attrMap[chnges.attribute] && attrMap[chnges.attribute].constructor === Array && attrMap[chnges.attribute].length === 0){
+                    attrMap[chnges.attribute] = undefined;
+                }
+                return attrMap;
+            }, attributeMap);
+        }, {});
+        var unsetAttributes = [];
+        _.forEach(attributeMap, function(value, key){
+            if (value === undefined || (value.constructor === Array && value.length === 0)){
+               unsetAttributes.push(key);
+               delete attributeMap[key];
+            }
+        });
         if (results.length === undefined) {
             results = [results];
         }
@@ -43,6 +61,9 @@ module.exports = {
         });
         results.forEach(function(metacard){
             metacard.get('metacard').get('properties').set(attributeMap);
+            unsetAttributes.forEach(function(attribute){
+                metacard.get('metacard').get('properties').unset(attribute);
+            });
         });
         store.get('workspaces').forEach(function(workspace){
             workspace.get('queries').forEach(function(query){
@@ -50,6 +71,9 @@ module.exports = {
                     query.get('result').get('results').forEach(function(result){
                         if (ids.indexOf(result.get('metacard').get('properties').get('id')) !== -1){
                             result.get('metacard').get('properties').set(attributeMap);
+                            unsetAttributes.forEach(function(attribute){
+                                result.get('metacard').get('properties').unset(attribute);
+                            });
                         }
                     });
                 }
@@ -58,6 +82,9 @@ module.exports = {
         alert.get('currentResult').get('results').forEach(function(result){
             if (ids.indexOf(result.get('metacard').get('properties').get('id')) !== -1){
                 result.get('metacard').get('properties').set(attributeMap);
+                unsetAttributes.forEach(function(attribute){
+                    result.get('metacard').get('properties').unset(attribute);
+                });
             }
         });
     }

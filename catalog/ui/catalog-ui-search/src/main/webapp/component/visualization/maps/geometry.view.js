@@ -47,6 +47,9 @@ var GeometryView = Marionette.ItemView.extend({
             this.stopListening(this.options.clusterCollection);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.updateSelected);
             this.listenTo(this.options.clusterCollection, 'add remove update', this.checkIfClustered);
+        } else {
+            this.stopListening(this.options.selectionInterface.getSelectedResults());
+            this.stopListening(this.options.clusterCollection);
         }
     },
     handleGeometry: function(geometry) {

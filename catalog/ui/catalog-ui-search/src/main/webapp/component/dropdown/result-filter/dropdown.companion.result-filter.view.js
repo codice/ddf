@@ -28,8 +28,13 @@ define([
     return DropdownCompanionView.extend({
         listenForOutsideClick: function () {
             $('body').on('mousedown.' + this.cid, function (event) {
-                if (!drawing(event) && this.$el.find(event.target).length === 0) {
-                    this.close();
+                if (!drawing(event)){
+                    if (this.$el.find(event.target).length === 0 && $(this.tagName).find(event.target).length === 0) {
+                        this.close();
+                    }
+                    if (this.$el.prevAll(this.tagName).find(event.target).length > 0){
+                        this.close();
+                    }
                 }
             }.bind(this));
         },

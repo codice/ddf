@@ -8,7 +8,15 @@
     width: 100%;
     overflow: auto;
     padding: 10px 10px;
-    max-height: ~"calc(100% - 2*@{minimumButtonSize})";
+    max-height: ~"calc(100% - 3*@{minimumButtonSize})";
+  }
+
+  > .editor-header {
+    text-align: center;
+    > div {
+      display: inline-block;
+      padding: 0px @minimumSpacing;
+    }
   }
 
   .editor-footer {
@@ -48,6 +56,38 @@
       }
     }
   }
+
+  @{customElementNamespace}property.scheduled-for-add {
+    border-left: 1px solid @positive-color;
+    border-right: 1px solid @positive-color;
+  }
+
+  @{customElementNamespace}property.scheduled-for-add::after {
+    content: 'New';
+    display: block;
+    text-align: center;
+    font-size: @largeFontSize;
+    min-height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+  }
+
+  @{customElementNamespace}property.scheduled-for-removal > .property-value {
+    display: none;
+  }
+
+  @{customElementNamespace}property.scheduled-for-removal {
+    border-left: 1px solid @negative-color;
+    border-right: 1px solid @negative-color;
+  }
+
+  @{customElementNamespace}property.scheduled-for-removal::after {
+    content: 'Deleted';
+    display: block;
+    text-align: center;
+    font-size: @largeFontSize;
+    min-height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+  }
 }
 
 .is-editing-restricted @{customElementNamespace}editor,
@@ -60,11 +100,4 @@
 }
 
 .is-medium-screen, .is-small-screen, .is-mobile-screen {
-  @{customElementNamespace}editor {
-    overflow: auto;
-
-    .editor-properties {
-      max-height: none;
-    }
-  }
 }

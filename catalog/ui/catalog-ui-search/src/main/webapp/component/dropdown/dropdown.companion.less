@@ -3,19 +3,18 @@
   transform: scale(0);
   opacity: 0;
   z-index: @zIndexDropdown;
-  overflow: visible;
+  overflow: auto;
   background: @dropdown-background-color;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: @minimumSpacing;
+  padding-bottom: @minimumSpacing;
   border-radius: 2px;
   .dropshadow;
-  margin: 3px 0px;
   max-width: 90vw;
   max-height: 90vh;
 
   > input {
     width: ~'calc(100% - 20px)';
-    margin: 0px 10px 10px 10px;
+    margin: 0px @minimumSpacing @minimumSpacing @minimumSpacing;
     height: @minimumButtonSize;
     display: none;
   }
@@ -25,6 +24,11 @@
     overflow: auto;
     max-height: 50vh;
     z-index: 100;
+  }
+
+  > button {
+    display: none;
+    width: 100%;
   }
 
 }
@@ -37,9 +41,11 @@
   > input {
     display: block;
   }
+}
 
-  > .dropdown-companion-component {
-    max-height: ~'calc(50vh - @{minimumButtonSize})';
+@{customElementNamespace}dropdown-companion.is-multiselect {
+  > button {
+    display: block;
   }
 }
 

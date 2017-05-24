@@ -16,33 +16,49 @@
 
 module.exports = {
     events: {
-        'mouseenter > *': 'handleMouseEnter'
+        'mouseenter > *': 'handleMouseEnter',
+        'focusin > *': 'handleFocusIn'
+    },
+    focus: function(){
+        this.handleTabIndexes();
+        this.$el.find('> *').first().focus();
     },
     handleEnter: function() {
         this.$el.children('.is-active').click();
     },
     handleUpArrow: function() {
+        this.handleTabIndexes();
         var currentActive = this.$el.children('.is-active');
         var potentialNext = currentActive.prevAll().filter(function(index, element) {
             return element.offsetParent !== null;
-        }).first()
+        }).first();
         if (potentialNext.length > 0) {
             currentActive.removeClass('is-active');
-            potentialNext.addClass('is-active');
+            potentialNext.addClass('is-active').focus();
         }
     },
     handleDownArrow: function() {
+        this.handleTabIndexes();
         var currentActive = this.$el.children('.is-active');
         var potentialNext = currentActive.nextAll().filter(function(index, element) {
             return element.offsetParent !== null;
-        }).first()
+        }).first();
         if (potentialNext.length > 0) {
             currentActive.removeClass('is-active');
-            potentialNext.addClass('is-active');
+            potentialNext.addClass('is-active').focus();
         }
     },
-    handleMouseEnter: function(e) {
+    handleFocusIn: function(e){
+        this.handleTabIndexes();
         this.$el.children('.is-active').removeClass('is-active');
         this.$el.find(e.currentTarget).toggleClass('is-active');
+    },
+    handleMouseEnter: function(e) {
+        this.handleTabIndexes();
+        this.$el.children('.is-active').removeClass('is-active');
+        this.$el.find(e.currentTarget).toggleClass('is-active').focus();
+    },
+    handleTabIndexes: function(){
+        this.$el.children(':not([tabindex])').attr('tabindex', 0);
     }
 }

@@ -131,6 +131,10 @@ define([
                 resultPreview: ['modified'],
                 resultFilter: undefined,
                 resultSort: undefined,
+                'inspector-summaryShown': [],
+                'inspector-summaryOrder': [],
+                'inspector-detailsOrder': ['title', 'created', 'modified', 'thumbnail'],
+                'inspector-detailsHidden': [],
                 homeFilter: 'Owned by anyone',
                 homeSort: 'Last modified',
                 homeDisplay: 'Grid',
@@ -243,6 +247,9 @@ define([
             });
             this.get('uploads').remove(expiredUploads);
         },
+        getSummaryShown: function(){
+            return this.get('inspector-summaryShown');
+        },
         parse: function(data, options){
             if (options && options.drop) {
                 return {};
@@ -270,6 +277,9 @@ define([
         ],
         isGuestUser: function () {
             return this.get('isGuest');
+        },
+        getSummaryShown: function(){
+            return this.get('preferences').getSummaryShown();
         }
     });
 
@@ -300,6 +310,9 @@ define([
             } catch (e) {
                 return {};
             }
+        },
+        getSummaryShown: function(){
+            return this.get('user').getSummaryShown();
         },
         parse: function (body) {
             if (body.isGuest) {
