@@ -114,7 +114,7 @@ public class SubscriptionPersistor {
      * @throws SubscriptionStoreException if a problem occurs during delete.
      */
     public void delete(String subscriptionId) {
-        LOGGER.debug("Deleting [{}] from persistence store. ", subscriptionId);
+        LOGGER.debug("Deleting [{}] from persistence store", subscriptionId);
         try {
             persistentStore.delete(PersistentStore.EVENT_SUBSCRIPTIONS_TYPE,
                     getEcqlStringForId(subscriptionId));

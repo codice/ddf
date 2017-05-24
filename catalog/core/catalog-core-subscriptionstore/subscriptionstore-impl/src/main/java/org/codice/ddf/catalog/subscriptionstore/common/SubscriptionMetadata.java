@@ -35,26 +35,29 @@ public class SubscriptionMetadata implements SubscriptionIdentifier, MarshalledS
 
     private final String id;
 
-    private final String type;
+    private final String typeName;
 
     private final String filter;
 
     private final String callbackAddress;
 
-    public SubscriptionMetadata(String type, String filter, String callbackAddress) {
-        this(type,
-                filter, callbackAddress,
+    public SubscriptionMetadata(String typeName, String filter, String callbackAddress) {
+        this(typeName,
+                filter,
+                callbackAddress,
                 URN_UUID + UUID.randomUUID()
                         .toString());
     }
 
-    public SubscriptionMetadata(String type, String filter, String callbackAddress, String id) {
-        this.type = type;
+    public SubscriptionMetadata(String typeName, String filter, String callbackAddress, String id) {
+        this.typeName = typeName;
         this.filter = filter;
         this.callbackAddress = callbackAddress;
         this.id = id;
 
-        LOGGER.trace("Created subscription metadata object: {} | {} | {}", id, type,
+        LOGGER.trace("Created subscription metadata object: {} | {} | {}",
+                id,
+                typeName,
                 callbackAddress);
     }
 
@@ -65,7 +68,7 @@ public class SubscriptionMetadata implements SubscriptionIdentifier, MarshalledS
 
     @Override
     public String getTypeName() {
-        return type;
+        return typeName;
     }
 
     @Override

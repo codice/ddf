@@ -14,29 +14,31 @@
 package org.codice.ddf.catalog.subscriptionstore.internal;
 
 /**
- * Describes the pieces of a {@link ddf.catalog.event.Subscription} that can be immediately serialized
- * without any special factory logic.
+ * Exception specific to subscription registration with OSGi, where the registration process either
+ * did not succeed or was invoked incorrectly.
  * <p>
  * <b>This interface is for internal use only and should not be implemented by a third party. </b>
  * <i>This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library.</i>
  */
-public interface MarshalledSubscription {
+public class SubscriptionRegistrationException extends RuntimeException {
+    public SubscriptionRegistrationException() {
+    }
 
-    /**
-     * Get the subscription filter as a marshalled string. This can be JSON, XML with any schema, etc.
-     * No guarantees are made to the format of this String, only that providing it to the correct
-     * {@link SubscriptionFactory} will yield a valid instance of {@code Subscription}.
-     *
-     * @return the marshalled subscription filter.
-     */
-    String getFilter();
+    public SubscriptionRegistrationException(String message) {
+        super(message);
+    }
 
-    /**
-     * Get the subscription callback address. While current endpoints conform to using a {@link java.net.URL}
-     * for their {@link ddf.catalog.event.DeliveryMethod}, this is <b>not</b> a guarantee.
-     *
-     * @return the callback address to send events to for this {@code Subscription}.
-     */
-    String getCallbackAddress();
+    public SubscriptionRegistrationException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public SubscriptionRegistrationException(Throwable cause) {
+        super(cause);
+    }
+
+    public SubscriptionRegistrationException(String message, Throwable cause,
+            boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }
