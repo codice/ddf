@@ -79,7 +79,7 @@ public class TestFtp extends AbstractIntegrationTest {
 
     private static final String SAMPLE_DATA_TITLE = "test.bin";
 
-    private static final String METACARD_TITLE = "Metacard-1.bin";
+    private static final String METACARD_TITLE = "Metacard-1";
 
     private static final String METACARD_FILE = "metacard1.xml";
 

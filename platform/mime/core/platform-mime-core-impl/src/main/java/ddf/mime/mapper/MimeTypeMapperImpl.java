@@ -20,16 +20,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.tika.detect.DefaultDetector;
+import org.apache.tika.detect.Detector;
+import org.apache.tika.io.IOUtils;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
@@ -42,7 +42,6 @@ import ddf.mime.MimeTypeResolver;
  * remaining {@link MimeTypeResolver}s and returns.
  *
  * @since 2.1.0
- *
  */
 public class MimeTypeMapperImpl implements MimeTypeMapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(MimeTypeMapperImpl.class);
@@ -66,8 +65,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
     /**
      * Constructs the MimeTypeMapper with a list of {@link MimeTypeResolver}s.
      *
-     * @param mimeTypeResolvers
-     *            the {@link List} of {@link MimeTypeResolver}s
+     * @param mimeTypeResolvers the {@link List} of {@link MimeTypeResolver}s
      */
     public MimeTypeMapperImpl(List<MimeTypeResolver> mimeTypeResolvers) {
         LOGGER.debug("INSIDE: MimeTypeMapperImpl constructor");
@@ -126,7 +124,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
         LOGGER.debug("Looping through {} MimeTypeResolvers", mimeTypeResolvers.size());
 
-        // TODO: This is to force the TikaMimeTypeResolver to be called
+        // This is to force the TikaMimeTypeResolver to be called
         // after the CustomMimeTypeResolvers to prevent Tika default mapping
         // from being used when a CustomMimeTypeResolver may be more appropriate.
         List<MimeTypeResolver> sortedResolvers = sortResolvers(mimeTypeResolvers);
@@ -175,11 +173,35 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
         // from being used when a CustomMimeTypeResolver may be more appropriate.
         List<MimeTypeResolver> sortedResolvers = sortResolvers(mimeTypeResolvers);
 
+        if (StringUtils.isEmpty(fileExtension)) {
+            try (TemporaryFileBackedOutputStream tfbos = new TemporaryFileBackedOutputStream()) {
+                IOUtils.copy(is, tfbos);
+                try (InputStream inputStream = tfbos.asByteSource()
+                        .openStream()) {
+                    Detector detector = new DefaultDetector();
+                    MediaType mediaType = detector.detect(inputStream, new Metadata());
+
+                    fileExtension = getFileExtensionForMimeType(mediaType.toString()).replace(".",
+                            "");
+                } finally {
+                    is = tfbos.asByteSource()
+                            .openStream();
+                }
+
+            } catch (Exception e) {
+                LOGGER.debug("Failed to guess mimeType for file without extension.");
+            }
+        }
+
         // If file has XML extension, then read root element namespace once so
         // each MimeTypeResolver does not have to open the stream and read the namespace
         String namespace = null;
         if (fileExtension.equals(XML_FILE_EXTENSION)) {
-            namespace = getRootElementNamespace(is);
+            try {
+                namespace = XMLUtils.getRootNamespace(IOUtils.toString(is));
+            } catch (IOException ioe) {
+                LOGGER.debug("Could not read namespace from input stream.", ioe);
+            }
             LOGGER.debug("namespace = {}", namespace);
         }
 
@@ -227,43 +249,11 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
         return mimeType;
     }
 
-    private String getRootElementNamespace(InputStream is) {
-        LOGGER.trace("ENTERING: getRootElementNamespace()");
-
-        if (is == null) {
-            return null;
-        }
-
-        String namespace = null;
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        try {
-            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        } catch (ParserConfigurationException e) {
-            LOGGER.debug("Unable to configure features on document builder.", e);
-        }
-
-        try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document document = db.parse(is);
-            Node node = document.getDocumentElement();
-            namespace = node.getNamespaceURI();
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            LOGGER.debug("Unable to get root element namespace");
-        }
-
-        LOGGER.trace("ENXITING: getRootElementNamespace() - namespace = {}", namespace);
-
-        return namespace;
-    }
-
     /**
      * Sort the list of {@link MimeTypeResolver}s by their descending priority, i.e., the lower the
      * priority the later the {@link MimeTypeResolver} is invoked.
      *
-     * @param resolvers
-     *            the {@link List} of {@link MimeTypeResolver}s
+     * @param resolvers the {@link List} of {@link MimeTypeResolver}s
      * @return the sorted list of {@link MimeTypeResolver}s by descending priority
      */
     private List<MimeTypeResolver> sortResolvers(List<MimeTypeResolver> resolvers) {

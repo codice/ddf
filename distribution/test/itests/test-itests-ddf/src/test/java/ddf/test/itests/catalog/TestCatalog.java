@@ -134,7 +134,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static final String METACARD_BACKUP_DIRECTORY = "data/tmp/backup";
 
-    private static final String METACARD_BACKUP_FILE_STORAGE_FEATURE = "catalog-metacard-backup-filestorage";
+    private static final String METACARD_BACKUP_FILE_STORAGE_FEATURE =
+            "catalog-metacard-backup-filestorage";
 
     private static final String METACARD_BACKUP_PLUGIN_FEATURE = "catalog-metacard-backup";
 
@@ -1307,12 +1308,14 @@ public class TestCatalog extends AbstractIntegrationTest {
         Used for validation */
         final Matcher<Node> hasInitialDescription = hasMetacardAttributeXPath("description",
                 "Lombardi");
-        final Matcher<Node> hasInitialDerivedUrls = hasMetacardAttributeXPath("resource.derived-download-url",
+        final Matcher<Node> hasInitialDerivedUrls = hasMetacardAttributeXPath(
+                "resource.derived-download-url",
                 "http://example.com/1",
                 "http://example.com/2",
                 "http://example.com/3");
         final Matcher<Node> hasNewDescription = hasMetacardAttributeXPath("description", "None");
-        final Matcher<Node> hasNewDerivedUrls = hasMetacardAttributeXPath("resource.derived-download-url",
+        final Matcher<Node> hasNewDerivedUrls = hasMetacardAttributeXPath(
+                "resource.derived-download-url",
                 "http://example.com/4",
                 "http://example.com/5");
         final Matcher<Node> hasNewSecurityAccessGroups = hasMetacardAttributeXPath(
@@ -1617,13 +1620,53 @@ public class TestCatalog extends AbstractIntegrationTest {
                 break;
             }
             try {
-                TimeUnit.MILLISECONDS.sleep(50);
+                TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
             }
         } while (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime)
-                < TimeUnit.MINUTES.toMillis(1));
+                < TimeUnit.MINUTES.toMillis(3));
         response.body("metacards.metacard.size()", equalTo(numResults));
         return response;
+    }
+
+    @Test
+    public void testIngestXmlNoExtension() throws Exception {
+        final String TMP_PREFIX = "tcdm_";
+        Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
+        tmpDir.toFile()
+                .deleteOnExit();
+        Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp");
+        tmpFile.toFile()
+                .deleteOnExit();
+        Files.copy(getFileContentAsStream("metacard5.xml"),
+                tmpFile,
+                StandardCopyOption.REPLACE_EXISTING);
+
+        Map<String, Object> cdmProperties = new HashMap<>();
+        cdmProperties.putAll(getServiceManager().getMetatypeDefaults("content-core-directorymonitor",
+                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
+        cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
+        cdmProperties.put("processingMechanism", ContentDirectoryMonitor.IN_PLACE);
+        Configuration managedService = getServiceManager().createManagedService(
+                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor",
+                cdmProperties);
+
+        ValidatableResponse response = assertIngestedDirectoryMonitor("SysAdmin", 1);
+        response.extract()
+                .xmlPath()
+                .getString("metacards.metacard.type")
+                .equals("ddf.metacard");
+
+        getServiceManager().stopManagedService(managedService.getPid());
+
+        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswCqlDeleteRequest",
+                        ImmutableMap.of("title", "Metacard-5")))
+                .post(CSW_PATH.getUrl())
+                .then()
+                .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
     }
 
     @Test
