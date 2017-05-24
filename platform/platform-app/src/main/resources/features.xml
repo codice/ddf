@@ -45,6 +45,8 @@
         - added camel as feature prerequisite in camel-http to keep things ordered
         - added cxf as feature prerequisite in camel to keep things ordered
         - removed features that are not needed
+        - updated versions of qpid and proton versions and added netty bundles in camel-amqp
+        - replaced bundles in camel-jms
 
     DO NOT EDIT
     -->
@@ -94,16 +96,25 @@
         <feature version="${camel.version}">camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-spring/${camel.version}</bundle>
     </feature>
+
+    <!--
+        The following two bulleted changes were made to allow camel-amqp to start without resolution conflicts
+        -Changed netty version property from netty40-version to netty41-version
+        -added <bundle dependency="true">mvn:io.netty/netty-resolver/${netty41-version}</bundle>
+               <bundle dependency="true">mvn:io.netty/netty-transport-native-epoll/${netty41-version}</bundle>
+    -->
     <feature name="camel-amqp" install="manual" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-jms</feature>
         <bundle dependency="true">mvn:org.apache.qpid/qpid-jms-client/${qpid-jms-client-version}</bundle>
         <bundle dependency="true">mvn:org.apache.qpid/proton-j/${qpid-proton-j-bundle-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-buffer/${netty40-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-common/${netty40-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-handler/${netty40-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-codec/${netty40-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-transport/${netty40-version}</bundle>
-        <bundle dependency="true">mvn:io.netty/netty-codec-http/${netty40-version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-buffer/${netty41-version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-common/${netty41-version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-handler/${netty41-version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-codec/${netty41-version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-transport/${netty41-version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-codec-http/${netty41-version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-resolver/${netty41-version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-transport-native-epoll/${netty41-version}</bundle>
         <bundle>mvn:org.apache.camel/camel-amqp/${camel.version}</bundle>
     </feature>
     <!-- the following features are sorted A..Z -->
@@ -163,13 +174,23 @@
         <bundle>mvn:org.apache.camel/camel-jetty-common/${camel.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-jetty9/${camel.version}</bundle>
     </feature>
+    <!--
+        In order to get camel-jms to work with upgraded versions of camel-amqp replaced:
+        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta-spec-version}</bundle>
+        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms-spec-version}</bundle>
+        with:
+        <feature>transaction</feature>
+        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms2-spec-version}</bundle>
+    -->
     <feature name="camel-jms" install="manual" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
         <feature version="${spring-version-range}">spring</feature>
         <feature version="${spring-version-range}">spring-jms</feature>
-        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta-spec-version}</bundle>
+        <!-- Use version 1.2 of javax transaction, DDF update to the camel feature file -->
+        <feature>transaction</feature>
+        <!-- Use version 2.0 of javax jms, DDF update to the camel feature file -->
+        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms2-spec-version}</bundle>
         <bundle dependency="true">mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms-spec-version}</bundle>
         <bundle>mvn:org.apache.camel/camel-jms/${camel.version}</bundle>
     </feature>
     <feature name="camel-protobuf" install="manual" version="${camel.version}" start-level="50">

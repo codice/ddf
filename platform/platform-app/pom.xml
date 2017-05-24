@@ -339,7 +339,10 @@
 
         DDF changes made
         - Duplicated some properties in the root pom so that they may be used elsewhere in DDF
-        - removed properties that are not used-->
+        - removed properties that are not used
+        - replaced the value of "geronimo-jms2-spec-version" with "${geronimo-jms_2_spec.version}" to keep it in line with the rest of the project
+        - Added netty41 version and removed netty40 version
+        - Updated qpid-proton-j-bundle-version and qpid-jms-client-version to 0.19.0 and 0.23.0 respectively-->
         <commons-codec-version>1.10</commons-codec-version>
         <commons-httpclient-bundle-version>3.1_7</commons-httpclient-bundle-version>
         <commons-io.version>2.4</commons-io.version>
@@ -348,16 +351,16 @@
         <freemarker-bundle-version>2.3.23_1</freemarker-bundle-version>
         <geronimo-jms-spec-version>1.1.1</geronimo-jms-spec-version>
         <geronimo-jta-spec-version>1.1.1</geronimo-jta-spec-version>
-        <geronimo-jms2-spec-version>1.0-alpha-2</geronimo-jms2-spec-version>
+        <geronimo-jms2-spec-version>${geronimo-jms_2_spec.version}</geronimo-jms2-spec-version>
         <gson-version>2.7</gson-version>
         <jackson2-version>2.8.8</jackson2-version>
         <javax.servlet-api-version>3.1.0</javax.servlet-api-version>
         <junit-bundle-version>4.11_1</junit-bundle-version>
-        <netty40-version>4.0.45.Final</netty40-version>
+        <netty41-version>4.1.9.Final</netty41-version>
         <protobuf-version>3.1.0</protobuf-version>
         <protobuf-guava-version>18.0</protobuf-guava-version>
-        <qpid-proton-j-bundle-version>0.14.0</qpid-proton-j-bundle-version>
-        <qpid-jms-client-version>0.11.1</qpid-jms-client-version>
+        <qpid-proton-j-bundle-version>0.19.0</qpid-proton-j-bundle-version>
+        <qpid-jms-client-version>0.23.0</qpid-jms-client-version>
         <spring-version-range>[4.1,5)</spring-version-range>
         <!--END versions for camel features in platform-app-->
 

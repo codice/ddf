@@ -126,11 +126,11 @@
         <jaxb.version>2.2.11</jaxb.version>
         <dom4j.bundle.version>1.6.1_5</dom4j.bundle.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
+        <geronimo-jms_2_spec.version>1.0-alpha-2</geronimo-jms_2_spec.version>
         <!--END versions that MUST exactly match the versions used by the CXF and Camel features-->
         <!-- Artemis dependencies -->
         <artemis.version>1.5.1</artemis.version>
         <proton.version>0.15.0</proton.version>
-        <geronimo-jms_2_spec.version>1.0-alpha-2</geronimo-jms_2_spec.version>
         <jboss-logging.version>3.3.0.Final</jboss-logging.version>
         <jgroups.version>3.6.9.Final</jgroups.version>
         <commons-beanutils.version>1.9.2</commons-beanutils.version>
