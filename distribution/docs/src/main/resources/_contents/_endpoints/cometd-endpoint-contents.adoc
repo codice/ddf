@@ -133,7 +133,7 @@ This would return any results matching the text `foo` on the `/3b19bc9c-2155-4ca
 
 The query responses are returned on the `/<id>` channel, which should be subscribed to in order to retrieve the results.
 Replace `<id>` with the id that was used in the request.
-The <<_asynchronous_search_subscribing, Subscribing to Notifications>> section details how to subscribe to a CometD channel.
+The <<_cometd_notifications, Subscribing to Notifications>> section details how to subscribe to a CometD channel.
 
 The response is returned as a data map that contains an internal map with the following keys:
 
@@ -401,7 +401,7 @@ If a client publishes with the `remove` action, it dismisses the notification an
 
 ====== Activity Events Channel
 
-To receive all activity updates, follow the instructions at <<asynchronous_search_subscribing, Subscribing to Notifications>> and subscribe to `/ddf/activities/**`
+To receive all activity updates, follow the instructions at <<_cometd_notifications, Subscribing to Notifications>> and subscribe to `/ddf/activities/**`
 
 Activity update messages follow a specific format when they are published to the activities channel.
 These messages contain a data map that encapsulates the activity information.
