@@ -15,6 +15,7 @@ package ddf.camel.component.catalog;
 
 import org.apache.camel.Consumer;
 import org.apache.camel.ExchangePattern;
+import org.apache.camel.MultipleConsumersSupport;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
@@ -22,8 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.camel.component.catalog.framework.FrameworkProducer;
+import ddf.camel.component.catalog.ingest.PostIngestConsumer;
 import ddf.camel.component.catalog.inputtransformer.InputTransformerConsumer;
 import ddf.camel.component.catalog.inputtransformer.InputTransformerProducer;
+import ddf.camel.component.catalog.metacardtransformer.MetacardTransformerProducer;
 import ddf.camel.component.catalog.queryresponsetransformer.QueryResponseTransformerConsumer;
 import ddf.camel.component.catalog.queryresponsetransformer.QueryResponseTransformerProducer;
 import ddf.catalog.CatalogFramework;
@@ -35,12 +38,16 @@ import ddf.catalog.CatalogFramework;
  * @author William Miller, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */
-public class CatalogEndpoint extends DefaultEndpoint {
+public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumersSupport {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(CatalogEndpoint.class);
 
     private static final String INPUT_TRANSFORMER = "inputtransformer";
 
     private static final String QUERYRESPONSE_TRANSFORMER = "queryresponsetransformer";
+
+    private static final String METACARD_TRANSFORMER = "metacardtransformer";
+
+    private static final String POST_INGEST_CONSUMER = "postingest";
 
     private static final String FRAMEWORK = "framework";
 
@@ -122,6 +129,8 @@ public class CatalogEndpoint extends DefaultEndpoint {
             producer = new QueryResponseTransformerProducer(this);
         } else if (contextPath.equals(FRAMEWORK)) {
             producer = new FrameworkProducer(this, catalogFramework);
+        } else if (contextPath.equals(METACARD_TRANSFORMER)) {
+            producer = new MetacardTransformerProducer(this);
         } else {
             LOGGER.debug("Unable to create producer for context path [{}]", contextPath);
             throw new IllegalArgumentException(
@@ -151,6 +160,8 @@ public class CatalogEndpoint extends DefaultEndpoint {
             consumer = new InputTransformerConsumer(this, processor);
         } else if (contextPath.equals(QUERYRESPONSE_TRANSFORMER)) {
             consumer = new QueryResponseTransformerConsumer(this, processor);
+        } else if (contextPath.equals(POST_INGEST_CONSUMER)) {
+            consumer = new PostIngestConsumer(this, processor);
         } else {
             LOGGER.debug("Unable to create consumer for context path [{}]", contextPath);
             throw new IllegalArgumentException(
@@ -177,6 +188,11 @@ public class CatalogEndpoint extends DefaultEndpoint {
      * @see org.apache.camel.IsSingleton#isSingleton()
      */
     public boolean isSingleton() {
+        return true;
+    }
+
+    @Override
+    public boolean isMultipleConsumersSupported() {
         return true;
     }
 }

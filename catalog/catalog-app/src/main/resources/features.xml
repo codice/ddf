@@ -457,25 +457,25 @@
     </feature>
 
     <feature name="catalog-metacard-backup-storage-api" install="manual" version="${project.version"
-             description="API for the metacard backup storage provider">
+             description="API for the metacard backup storage">
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardbackup-storage-api/${project.version}
         </bundle>
     </feature>
 
-    <feature name="catalog-metacard-backup" install="manual" version="${project.version}"
-             description="Backup Metacards on Ingest">
-        <feature prerequisite="true">catalog-app</feature>
-        <feature prerequisite="true">catalog-async-inmemory</feature>
-        <feature prerequisite="true">catalog-transformer-metadata</feature>
+    <feature name="catalog-metacard-backup-filestorage" install="manual" version="${project.version"
+             description="File system storage for metacard backup">
+        <feature prerequisite="true">catalog-core</feature>
         <feature prerequisite="true">catalog-metacard-backup-storage-api</feature>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardbackup/${project.version}
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardbackup-filestorage/${project.version}
         </bundle>
     </feature>
 
-    <feature name="catalog-metacard-backup-filestorage" install="manual" version="${project.version"
-             description="File system storage provider for metacard backup">
+    <feature name="catalog-metacard-backup-s3storage" install="manual" version="${project.version"
+             description="S3 storage for metacard backup">
+        <feature prerequisite="true">catalog-core</feature>
         <feature prerequisite="true">catalog-metacard-backup-storage-api</feature>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardbackup-filestorage/${project.version}
+        <feature prerequisite="true">camel-aws</feature>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardbackup-s3storage/${project.version}
         </bundle>
     </feature>
 

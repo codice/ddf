@@ -119,6 +119,11 @@
         <saxon.version>9.6.0-4</saxon.version>
         <org.ops4j.pax.swissbox.version>1.8.0</org.ops4j.pax.swissbox.version>
         <abdera.osgi.version>1.1.3_2</abdera.osgi.version>
+        <protobuf.version>3.1.0</protobuf.version>
+        <servicemix.bundles.junit.version>4.11_2</servicemix.bundles.junit.version>
+        <jodatime2-bundle.version>2.9.9</jodatime2-bundle.version>
+        <aws-java-sdk-bundle.version>1.11.125_1</aws-java-sdk-bundle.version>
+        <javax-mail.version>1.4.7</javax-mail.version>
         <!--START If these bundles are used elsewhere in DDF, the versions MUST exactly match the versions used by the CXF and Camel features.-->
         <woodstox.core.version>4.4.1</woodstox.core.version>
         <woodstox.stax2-api.version>3.1.4</woodstox.stax2-api.version>
