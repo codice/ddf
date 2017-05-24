@@ -39,7 +39,7 @@ public class GeoCoderPlugin implements PreIngestPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoCoderPlugin.class);
 
-    private static final String RADIUS_IN_KM = "radiusInKm";
+    public static final String RADIUS_IN_KM = "radiusInKm";
 
     private ServiceSelector<GeoCoder> geoCoderFactory;
 
@@ -93,7 +93,7 @@ public class GeoCoderPlugin implements PreIngestPlugin {
     public void updateConfiguration(Map<String, Object> properties) {
         LOGGER.trace("Updating GeoCoderPlugin search radius");
 
-        Optional.of(properties)
+        Optional.ofNullable(properties)
                 .map(p -> p.get(RADIUS_IN_KM))
                 .filter(Integer.class::isInstance)
                 .map(Integer.class::cast)
