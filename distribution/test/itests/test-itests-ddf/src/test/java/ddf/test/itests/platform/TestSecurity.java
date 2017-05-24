@@ -24,6 +24,7 @@ import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPEN
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.not;
@@ -39,10 +40,12 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -546,13 +549,27 @@ public class TestSecurity extends AbstractIntegrationTest {
                         "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
                         "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"};
 
+        List<String> systemCipherSuites = Arrays.asList(System.getProperty("https.cipherSuites")
+                .split(","));
+        assertThat("Missing a supported cipher suite",
+                systemCipherSuites,
+                equalTo(Arrays.asList(supportedCipherSuites)));
+
+        // Used to filter out cipher's that don't use our current key algorithm
+        KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keystore.load(new FileInputStream(KEY_STORE_PATH), "changeit".toCharArray());
+        String keyAlgorithm = keystore.getKey("localhost", "changeit".toCharArray())
+                .getAlgorithm();
+
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
         CredentialsProvider credentialsProvider = createBasicAuth("admin", "admin");
         for (String cipher : supportedCipherSuites) {
-            HttpClient client = createHttpClient("TLSv1.2",
-                    new String[] {cipher},
-                    credentialsProvider);
-            assertBasicAuth(client, url, 200);
+            if (cipher.contains("_" + keyAlgorithm + "_")) {
+                HttpClient client = createHttpClient("TLSv1.2",
+                        new String[] {cipher},
+                        credentialsProvider);
+                assertBasicAuth(client, url, 200);
+            }
         }
     }
 
@@ -575,17 +592,24 @@ public class TestSecurity extends AbstractIntegrationTest {
                 "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
                 "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
                 "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
-                "TLS_ECDHE_RSA_WITH_RC4_128_SHA", "SSL_RSA_WITH_RC4_128_SHA",
-                "TLS_ECDH_ECDSA_WITH_RC4_128_SHA", "TLS_ECDH_RSA_WITH_RC4_128_SHA",
-                "TLS_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256",
-                "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256", "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+                "SSL_RSA_WITH_RC4_128_SHA", "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+                "TLS_ECDH_RSA_WITH_RC4_128_SHA", "TLS_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256",
                 "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
                 "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
                 "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
                 "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
                 "SSL_RSA_WITH_RC4_128_MD5", "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"};
+
+        List<String> systemCipherSuites = Arrays.asList(System.getProperty("https.cipherSuites")
+                .split(","));
+        List<String> intersection = new ArrayList<>(Arrays.asList(disallowedCipherSuites));
+        intersection.retainAll(systemCipherSuites);
+        assertThat("Supported cipher suite in disallowed ciphers",
+                intersection,
+                emptyCollectionOf(String.class));
 
         String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
         CredentialsProvider credentialsProvider = createBasicAuth("admin", "admin");
