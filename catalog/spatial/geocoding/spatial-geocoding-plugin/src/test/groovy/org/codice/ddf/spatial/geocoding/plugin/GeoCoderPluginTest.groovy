@@ -212,6 +212,20 @@ class GeoCoderPluginTest extends Specification {
         geoCoderPlugin.getRadius() == 15
     }
 
+    def 'test update with null configuration'() {
+        setup:
+        def map = new HashMap<String, Object>()
+        map.put("radiusInKm", 15)
+
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, false);
+
+        geoCoderPlugin.updateConfiguration(map)
+        geoCoderPlugin.updateConfiguration(null)
+
+        expect:
+        geoCoderPlugin.getRadius() == 15
+    }
+
     def initGeoCoderPlugin(Optional<String> countryCode, boolean overrideDefaultGeocoder) {
         GeoCoder geocoder = (overrideDefaultGeocoder == true) ? null : Mock(GeoCoder) {
             getCountryCode(_ as String, _ as Integer) >> countryCode

@@ -93,7 +93,7 @@ public class GeoCoderPlugin implements PreIngestPlugin {
     public void updateConfiguration(Map<String, Object> properties) {
         LOGGER.trace("Updating GeoCoderPlugin search radius");
 
-        Optional.of(properties)
+        Optional.ofNullable(properties)
                 .map(p -> p.get(RADIUS_IN_KM))
                 .filter(Integer.class::isInstance)
                 .map(Integer.class::cast)
