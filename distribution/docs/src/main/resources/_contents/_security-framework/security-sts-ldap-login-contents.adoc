@@ -12,7 +12,7 @@ This bundle is not installed by default but can be added by installing the `sec
 Configure the Security STS LDAP Login from the ${admin-console}:
 
 . Navigate to the ${admin-console}.
-. Select *${ddf-security} Application*.
+. Select *${ddf-security}* Application.
 . Select *Configuration* tab
 . Select *Security STS LDAP Login*.
 
@@ -53,11 +53,3 @@ Configure the Security STS LDAP Login from the ${admin-console}:
 |
 
 |===
-
-===== Implementation Details
-
-====== Imported Services
-None.
-
-====== Exported Services
-None.
