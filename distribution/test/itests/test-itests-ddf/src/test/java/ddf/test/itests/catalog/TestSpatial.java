@@ -15,9 +15,8 @@ package ddf.test.itests.catalog;
 
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestCswRecord;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasXPath;
 import static org.junit.Assert.assertTrue;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
@@ -31,8 +30,12 @@ import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
+import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
+import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -41,13 +44,16 @@ import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.framework.FrameworkUtil;
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.path.xml.XmlPath;
-import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
+
+import ddf.catalog.data.types.Location;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
 public class TestSpatial extends AbstractIntegrationTest {
+
+    @Rule
+    public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
 
     private static final String CSW_RESPONSE_COUNTRY_CODE = "GBR";
 
@@ -318,19 +324,22 @@ public class TestSpatial extends AbstractIntegrationTest {
     }
 
     @Test
+    @ConditionalIgnore(condition = SkipUnstableTest.class) //DDF-3032
     public void testGeoCoderPlugin() throws Exception {
-        ingestCswRecord(getFileContent(CSW_RECORD_RESOURCE_PATH + "/CswRecord2"));
+        getServiceManager().startFeature(true, "webservice-gazetteer");
+        String id = ingestCswRecord(getFileContent(CSW_RECORD_RESOURCE_PATH + "/CswRecord2"));
 
-        StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH.getUrl()).append("?")
-                .append("format=")
-                .append("xml")
-                .append("&")
-                .append("q=*");
+        String queryUrl = REST_PATH.getUrl() + "sources/ddf.distribution/" + id + "?format=xml";
 
-        final Response response = when().get(buffer.toString());
-        String countryCode = XmlPath.given(response.asString()).getString(
-                "metacards.metacard[0].string.find { it.@name == 'location.country-code' }");
-        assertThat(countryCode, is(CSW_RESPONSE_COUNTRY_CODE));
+        when().get(queryUrl)
+                .then()
+                .log()
+                .all()
+                .and()
+                .assertThat()
+                .body(hasXPath(
+                        "/metacard/string[@name='" + Location.COUNTRY_CODE + "']/value/text()",
+                        equalTo(CSW_RESPONSE_COUNTRY_CODE)));
     }
 
     /**
