@@ -156,7 +156,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Karaf-Commands>*</Karaf-Commands>
+                        <Karaf-Commands>org.codice.ddf.commands.solr</Karaf-Commands>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             solr-core,
