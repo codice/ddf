@@ -495,8 +495,7 @@ public abstract class AbstractIntegrationTest {
                 KarafDistributionOption.editConfigurationFilePut(
                         "etc/ddf.security.sts.client.configuration.config",
                         "address",
-                        "\"" + SECURE_ROOT + HTTPS_PORT.getPort()
-                                + "/services/SecurityTokenService?wsdl" + "\""),
+                        SECURE_ROOT + HTTPS_PORT.getPort() + "/services/SecurityTokenService?wsdl"),
                 installStartupFile(getClass().getClassLoader()
                                 .getResourceAsStream(
                                         "ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
