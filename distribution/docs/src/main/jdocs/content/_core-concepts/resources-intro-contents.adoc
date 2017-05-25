@@ -1,0 +1,15 @@
+:type: coreConcept
+:status: published
+:title: Introduction to Resources
+:order: 04
+
+The Catalog Framework can interface with <<_storage_providers,Storage Providers>> to provide storage of resources to specific types of storage, e.g., file system, relational database, XML database.
+A default file system implementation is provided by default.
+
+Storage providers act as a proxy between the Catalog Framework and the mechanism storing the content.
+Storage providers expose the storage mechanism to the Catalog Framework.
+Storage plugins provide pluggable functionality that can be executed either immediately before or immediately after content has been stored or updated.
+
+Storage providers provide the capability to the Catalog Framework to create, read, update, and delete resources in the content repository.
+
+See <<_data_management,Data Management>> for more information on specific file types supported by ${branding}.

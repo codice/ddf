@@ -1,0 +1,19 @@
+:type: coreConcept
+:status: published
+:title: Introduction to Federation
+:order: 06
+
+Federation is the ability of the ${branding} to query other data sources, including other ${branding}s.
+By default, the ${branding} is able to federate using http://www.opensearch.org/Home[OpenSearch] and http://www.opengeospatial.org/standards/cat[CSW] protocols.
+The minimum configuration necessary to configure those federations is a query address.
+
+Federation enables constructing dynamic networks of data sources that can be queried individually, or aggregated into specific configuration to enable a wider range of accessibility for data and data products.
+
+Federation provides the capability to extend the ${branding} enterprise to include <<_sources,Remote Sources>>, which may include other instances of ${branding}. 
+The Catalog handles all aspects of federated queries as they are sent to the Catalog Provider and Remote Sources, as they are processed, and as the query results are returned.
+Queries can be scoped to include only the local Catalog Provider (and any Connected Sources), only specific Federated Sources, or the entire enterprise (which includes all local and Remote Sources).
+If the query is federated, the Catalog Framework passes the query to a Federation Strategy, which is responsible for querying each federated source that is specified.
+The Catalog Framework is also responsible for receiving the query results from each federated source and returning them to the client in the order specified by the particular federation strategy used.
+After the federation strategy handles the results, the Catalog returns them to the client through the Endpoint.
+Query results are returned from a federated query as a list of metacards.
+The source ID in each metacard identifies the Source from which the metacard originated.

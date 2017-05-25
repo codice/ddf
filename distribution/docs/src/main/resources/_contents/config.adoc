@@ -1,6 +1,7 @@
 Version ${project.version}. Copyright (c) Codice Foundation
 :imagesdir: ${project.build.directory}/doc-contents/images
 :toc: left
+:toclevels: 6
 :example-caption:
 :source-highlighter: coderay
 :sectlinks:
@@ -18,10 +19,13 @@ This page last updated:
 
 ifdef::backend-pdf[]
 [colophon]
+:sectnums!:
 == License
+:sectnums:
 Copyright (c) Codice Foundation. +
 This work is licensed under a http://creativecommons.org/licenses/by/4.0[Creative Commons Attribution 4.0 International License].
-This page last updated:
+
+This document last updated: ${timestamp}.
 
 <<<
 endif::[]

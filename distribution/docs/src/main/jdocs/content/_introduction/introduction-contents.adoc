@@ -1,0 +1,17 @@
+:type: introduction
+:status: published
+:title: Introduction
+:priority: 1
+
+=== Introducing ${ddf-branding}
+
+*${ddf-branding-expanded}* (*${ddf-branding}*) is a free and open-source common data layer that abstracts services and business logic from underlying data structures to enable rapid integration of new data sources.
+
+Licensed under http://www.gnu.org/licenses/gpl.html[LGPL], ${ddf-branding} is an interoperability platform that provides secure and scalable discovery and retrieval from a wide array of disparate sources.
+
+${ddf-branding} is:
+
+* a flexible and modular integration framework.
+* built to "unzip and run" even when scaled to large enterprise systems.
+* primarily focused on data integration, enabling clients to insert, query, and transform information from disparate data sources via the ${ddf-branding} Catalog.
+

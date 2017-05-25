@@ -24,6 +24,8 @@
     <properties>
         <skipTests>true</skipTests>
         <ddf.version>${project.version}</ddf.version>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
         <packaging>pom</packaging>
         <module>docs</module>
         <skipTests>false</skipTests>

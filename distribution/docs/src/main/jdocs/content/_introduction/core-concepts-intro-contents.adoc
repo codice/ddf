@@ -1,0 +1,6 @@
+:type: introduction
+:status: published
+:title: Core Concepts Introduction
+:priority: 1
+
+This introduction section is intended to give a high level overview of the concepts and capabilities of ${branding}.

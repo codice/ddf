@@ -1,0 +1,31 @@
+:type: coreConcept
+:status: published
+:title: Introduction to Search
+:order: 00
+
+${branding} provides the capability to search the Catalog for metadata.
+There are a number of different types of searches that can be performed on the Catalog, and these searches are accessed using one of several interfaces.
+This section provides a very high level overview of introductory concepts of searching with ${branding}.
+These concepts are expanded upon in later sections.
+
+===== Search Types
+
+There are four basic types of metadata search.
+Additionally, any of the types can be combined to create a compound search.
+
+Text Search:: A text search is used when searching for textual information.
+It searches all textual fields by default, although it is possible to refine searches to a text search on a single metadata attribute.
+Text searches may use wildcards, logical operators, and approximate matches.
+
+Spatial Search:: A spatial search is used for Area of Interest (AOI) searches.
+Polygon and point radius searches are supported.
+
+Temporal Search:: A temporal search finds information from a specific time range.
+Two types of temporal searches are supported: _relative_ and _absolute_.
+Relative searches contain an offset from the current time, while absolute searches contain a start and an end timestamp.
+Temporal searches can use the `created` or `modified` date attributes.
+
+Datatype Search:: A datatype search is used to search for metadata based on the datatype of the resource.
+Wildcards (*) can be used in both the datatype and version fields.
+Metadata that matches any of the datatypes (and associated versions if specified) will be returned.
+If a version is not specified, then all metadata records for the specified datatype(s) regardless of version will be returned.

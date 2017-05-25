@@ -1,0 +1,32 @@
+:type: introduction
+:status: published
+:title: Applications
+:priority: 1
+
+${branding} is comprised of several modular applications, to be installed or uninstalled as needed.
+
+${ddf-admin} Application::
+Enhances administrative capabilities when installing and managing ${branding}. It contains various services and interfaces that allow administrators more control over their systems.
+
+${ddf-catalog} Application::
+Provides a framework for storing, searching, processing, and transforming information.
+Clients typically perform local and/or federated query, create, read, update, and delete (QCRUD) operations against the Catalog.
+At the core of the Catalog functionality is the *Catalog Framework*, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+
+${ddf-platform} Application::
+The Core application of the distribution.
+The Platform application contains the fundamental building blocks to run the distribution.
+
+${ddf-security} Application::
+Provides authentication, authorization, and auditing services for the ${branding}.
+It is both a framework that developers and integrators can extend and a reference implementation that meets security requirements.
+
+${ddf-solr} Application::
+Includes the Solr Catalog Provider, an implementation of the Catalog Provider using http://lucene.apache.org/solr/[Apache Solr] as a data store.
+
+${ddf-spatial} Application::
+Provides OGC services, such as http://www.opengeospatial.org/standards/cat[CSW], http://www.opengeospatial.org/standards/wcs[WCS], http://www.opengeospatial.org/standards/wfs[WFS], and http://www.opengeospatial.org/standards/kml[KML].
+
+${ddf-ui}::
+Allows a user to search for records in the local Catalog (provider) and federated sources.
+Results of the search are returned and displayed on a globe or map, providing a visual representation of where the records were found.

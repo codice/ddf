@@ -1,0 +1,12 @@
+:type: coreConcept
+:status: published
+:title: Introduction to Metadata
+:order: 02
+
+In ${branding}, <<_introduction_to_resources,resources>> are the data products, files, reports, or documents of interest to users of the system.
+
+Metadata is information about those resources, organized into a schema to make search possible.
+The ${ddf-catalog} stores this metadata and allows access to it.
+Metacards are single instances of metadata, representing a single resource, in the Catalog.
+Metacards follow one of several schemas to ensure reliable, accurate, and complete metadata.
+Essentially, Metacards function as containers of metadata.

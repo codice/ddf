@@ -1,0 +1,54 @@
+:type: introduction
+:status: published
+:title: Documentation Guide
+:priority: 1
+
+The ${branding} documentation is organized by audience.
+
+<<_core_concepts,Core Concepts>>::
+This introduction section is intended to give a high level overview of the concepts and capabilities of ${branding}.
+
+Administrators::
+<<_managing,Managing>> |
+Administrators will be installing, maintaining, and supporting existing applications.
+Use this section to <<_installation_prerequisites,prepare>>, <<_installing,install>>, <<_configuring,configure>>, <<_running,run>>, and <<_monitoring,monitor>> a ${branding}.
+
+Users::
+<<_using,Using>> |
+Users interact with the system to search data stores.
+Use this section to navigate the various user interfaces available in ${branding}.
+
+Integrators::
+<<_integrating,Integrating>> |
+Integrators will use the existing applications to support their external frameworks. This section will provide details for finding, accessing and using the components of ${branding}.
+
+Developers::
+<<_developing,Developing>> |
+Developers will build or extend the functionality of the applications. 
+
+==== Documentation Conventions
+
+The following conventions are used within this documentation:
+
+===== Customizable Values
+
+Many values used in descriptions are customizable and should be changed for specific use cases.
+These values are denoted by `< >`, and by `[[ ]]` when within XML syntax. When using a real value, the placeholder characters should be omitted.
+
+===== Code Values
+
+Java objects, lines of code, or file properties are denoted with the `Monospace` font style.
+Example: `ddf.catalog.CatalogFramework`
+
+===== Hyperlinks
+
+Some hyperlinks (e.g., `/admin`) within the documentation assume a locally running installation of ${ddf-branding}. 
+Simply change the hostname if accessing a remote host.
+
+==== Support
+
+Questions about ${ddf-branding} should be posted to the https://groups.google.com/d/forum/ddf-users[ddf-users forum] or https://groups.google.com/d/forum/ddf-developers[ddf-developers forum], where they will be responded to quickly by a member of the ${ddf-branding} team.
+
+=====  Documentation Updates
+
+The most current ${ddf-branding} documentation is available at http://codice.org/ddf/Documentation-versions.html[${ddf-branding} Documentation].

@@ -1,5 +1,11 @@
 = ${branding-expanded} Documentation
-include::${project.build.directory}/doc-contents/_contents/jconfig.adoc[]
+include::${project.build.directory}/doc-contents/_contents/config.adoc[]
+
+:sectnums!:
+== Introduction
+:sectnums:
+
+<#include "introduction.ftl">
 
 :sectnums!:
 == Integrating
