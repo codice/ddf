@@ -74,9 +74,7 @@ Configure the Security STS LDAP Claims Handler from the ${admin-console}:
 
 |===
 
-===== Implementation Details
-
-====== Imported Services
+.Security STS LDAP Claims Handler Imported Services
 
 [cols="3" options="header"]
 |===
@@ -91,7 +89,7 @@ Configure the Security STS LDAP Claims Handler from the ${admin-console}:
 
 |===
 
-====== Exported Services
+.Security STS LDAP Claims Handler Exported Services
 
 [cols="3" options="header"]
 |===
