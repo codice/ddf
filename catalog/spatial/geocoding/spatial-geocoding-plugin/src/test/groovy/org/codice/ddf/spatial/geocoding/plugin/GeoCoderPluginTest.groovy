@@ -224,7 +224,7 @@ class GeoCoderPluginTest extends Specification {
         geoCoderPlugin.updateConfiguration(map)
         geoCoderPlugin.updateConfiguration(null)
 
-        then: "the null configuraiton is ignored"
+        then: "the null configuration is ignored"
         geoCoderPlugin.getRadius() == 15
     }
 
