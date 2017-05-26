@@ -32,6 +32,7 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.LocalizedStringType;
  */
 public class InternationalStringTypeHelper {
     private Locale locale;
+
     private static final String DEFAULT_LANG = "en-US";
 
     public InternationalStringTypeHelper() {
@@ -73,7 +74,8 @@ public class InternationalStringTypeHelper {
             LocalizedStringType lst = RIM_FACTORY.createLocalizedStringType();
             lst.setValue(internationalizeThis);
             // The LocalizedStringType handles the default languageTag so don't need to set it
-            if (!locale.toLanguageTag().equals(DEFAULT_LANG)) {
+            if (!locale.toLanguageTag()
+                    .equals(DEFAULT_LANG)) {
                 lst.setLang(locale.toLanguageTag());
             }
             ist.setLocalizedString(Collections.singletonList(lst));
@@ -92,6 +94,14 @@ public class InternationalStringTypeHelper {
                         .equals(localizedString.getLang()))
                 .findFirst()
                 .map(LocalizedStringType::getValue);
+
+        // Default to the the first string in the list if one matching the locale wasn't found
+        if (!optionalLocalString.isPresent()) {
+            optionalLocalString = localizedStrings.stream()
+                    .findFirst()
+                    .map(LocalizedStringType::getValue);
+        }
+
         return optionalLocalString;
     }
 }

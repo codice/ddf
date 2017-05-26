@@ -51,7 +51,7 @@ public class InternationalStringTypeHelperTest {
                     ITALY);
 
     private static final String DEF_LOCALE_NAME = "deflocale";
-    
+
     private static final String TAIWAN = "taiwan";
 
     private static final String EMPTY_STRING = "";
@@ -107,7 +107,8 @@ public class InternationalStringTypeHelperTest {
         }
 
         String istString = istHelper.getString(ist);
-        assertThat(istString, is(equalTo(EMPTY_STRING)));
+        // If unknown locale isn't matched, the first in the list of localized strings will be returned. US, in this case.
+        assertThat(istString, is(equalTo(US)));
     }
 
     @Test
@@ -161,32 +162,34 @@ public class InternationalStringTypeHelperTest {
 
     private InternationalStringType getTestInternationalStringType() {
         InternationalStringType ist = RIM_FACTORY.createInternationalStringType();
-        
+
         for (Map.Entry<String, String> row : LOCALE_MAP.entrySet()) {
             LocalizedStringType localizedStringType = RIM_FACTORY.createLocalizedStringType();
             localizedStringType.setLang(row.getKey());
             localizedStringType.setValue(row.getValue());
-            ist.getLocalizedString().add(localizedStringType);
+            ist.getLocalizedString()
+                    .add(localizedStringType);
         }
 
         return ist;
     }
-    
-    private InternationalStringType getTestInternationalStringWithDefault(){
+
+    private InternationalStringType getTestInternationalStringWithDefault() {
         InternationalStringType ist = RIM_FACTORY.createInternationalStringType();
-        
+
         LocalizedStringType lstLocale = RIM_FACTORY.createLocalizedStringType();
-        lstLocale.setLang(Locale.getDefault().toLanguageTag());
+        lstLocale.setLang(Locale.getDefault()
+                .toLanguageTag());
         lstLocale.setValue(DEF_LOCALE_NAME);
         ist.getLocalizedString()
                 .add(lstLocale);
-        
-        LocalizedStringType lstTaiwan = RIM_FACTORY.createLocalizedStringType(); 
-        lstTaiwan.setLang(Locale.TAIWAN.toLanguageTag()); 
-        lstTaiwan.setValue(TAIWAN); 
+
+        LocalizedStringType lstTaiwan = RIM_FACTORY.createLocalizedStringType();
+        lstTaiwan.setLang(Locale.TAIWAN.toLanguageTag());
+        lstTaiwan.setValue(TAIWAN);
         ist.getLocalizedString()
-            .add(lstTaiwan);
-        
+                .add(lstTaiwan);
+
         return ist;
     }
 
