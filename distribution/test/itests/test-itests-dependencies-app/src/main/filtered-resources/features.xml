@@ -47,7 +47,7 @@
         </bundle>
         <bundle>wrap:mvn:commons-logging/commons-logging/1.2</bundle>
         <bundle>wrap:mvn:commons-net/commons-net/3.5</bundle>
-
+        <bundle>wrap:mvn:org.awaitility/awaitility/${awaitility.version}</bundle>
         <bundle>
         wrap:mvn:org.cometd.java/cometd-java-client/${cometd.version}$Export-Package=*;version=${cometd.version}
         </bundle>
