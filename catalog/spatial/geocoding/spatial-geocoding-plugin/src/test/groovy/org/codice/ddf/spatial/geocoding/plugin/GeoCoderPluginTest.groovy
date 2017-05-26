@@ -202,13 +202,29 @@ class GeoCoderPluginTest extends Specification {
     def 'test update configuration'() {
         setup:
         def map = new HashMap<String, Object>()
-        map.put("radiusInKm", 15)
+        map.put(GeoCoderPlugin.RADIUS_IN_KM, 15)
 
         geoCoderPlugin = initGeoCoderPlugin(countryCode, false);
 
         geoCoderPlugin.updateConfiguration(map)
 
         expect:
+        geoCoderPlugin.getRadius() == 15
+    }
+
+    def 'test update with null configuration'() {
+        setup:
+        def map = new HashMap<String, Object>()
+
+        when: "geocoderplugin is provided a null configuration"
+        map.put(GeoCoderPlugin.RADIUS_IN_KM, 15)
+
+        geoCoderPlugin = initGeoCoderPlugin(countryCode, false);
+
+        geoCoderPlugin.updateConfiguration(map)
+        geoCoderPlugin.updateConfiguration(null)
+
+        then: "the null configuration is ignored"
         geoCoderPlugin.getRadius() == 15
     }
 
