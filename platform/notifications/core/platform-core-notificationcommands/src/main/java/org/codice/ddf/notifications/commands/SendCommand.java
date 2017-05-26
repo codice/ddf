@@ -15,19 +15,23 @@ package org.codice.ddf.notifications.commands;
 
 import java.util.UUID;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.notifications.Notification;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Service
 @Command(scope = "notifications", name = "send", description = "Send notification(s).")
-public class SendCommand extends OsgiCommandSupport {
+public class SendCommand implements Action {
 
     public static final String SERVICE_PID = "org.osgi.service.event.EventAdmin";
 
@@ -43,8 +47,10 @@ public class SendCommand extends OsgiCommandSupport {
 
     private static final int DEFAULT_WAIT_TIME_BETWEEN_NOTIFICATIONS = 0;
 
-    @Argument(name = "User ID", description = "User ID to send notifications to. ",
-            index = 0, multiValued = false, required = true)
+    @Reference
+    BundleContext bundleContext;
+
+    @Argument(name = "User ID", description = "User ID to send notifications to. ", index = 0, multiValued = false, required = true)
     String userId = null;
 
     @Argument(name = "NUMBER_OF_ITEMS", description = "Number of notifications to send.", index = 1, multiValued = false, required = false)
@@ -67,7 +73,7 @@ public class SendCommand extends OsgiCommandSupport {
     int waitTime = DEFAULT_WAIT_TIME_BETWEEN_NOTIFICATIONS;
 
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() throws Exception {
 
         for (int i = 0; i < numberOfNotifications; i++) {
             sendNotification();
@@ -103,7 +109,7 @@ public class SendCommand extends OsgiCommandSupport {
         Event event = new Event(Notification.NOTIFICATION_TOPIC_DOWNLOADS, notification);
 
         // Get OSGi Event Admin service
-        EventAdmin eventAdmin = null;
+        EventAdmin eventAdmin;
         @SuppressWarnings("rawtypes")
         ServiceReference[] serviceReferences = bundleContext.getServiceReferences(SERVICE_PID,
                 null);
@@ -120,4 +126,5 @@ public class SendCommand extends OsgiCommandSupport {
             }
         }
     }
+
 }

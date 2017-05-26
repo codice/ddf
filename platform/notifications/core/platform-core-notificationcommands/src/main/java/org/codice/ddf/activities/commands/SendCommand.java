@@ -19,32 +19,37 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.activities.ActivityEvent.ActivityStatus;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Service
 @Command(scope = "activities", name = "send", description = "Send activities.")
-public class SendCommand extends OsgiCommandSupport {
+public class SendCommand implements Action {
     public static final String SERVICE_PID = "org.osgi.service.event.EventAdmin";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendCommand.class);
 
     private static final int UNKNOWN_PROGRESS = -1;
 
-    @Argument(name = "User ID", description = "User ID to send notifications to. ", index = 0,
-            multiValued = false, required = true)
-
+    @Argument(name = "User ID", description = "User ID to send notifications to. ", index = 0, multiValued = false, required = true)
     String userId = null;
 
+    @Reference
+    BundleContext bundleContext;
+
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() throws Exception {
 
         sendActivity();
         return null;
@@ -55,7 +60,7 @@ public class SendCommand extends OsgiCommandSupport {
                 .toString()
                 .replaceAll("-", "");
         String sessionId = "mockSessionId";
-        Map<String, String> operations = new HashMap<String, String>();
+        Map<String, String> operations = new HashMap<>();
         operations.put("cancel", "true");
         ActivityEvent eventProperties = new ActivityEvent(id,
                 sessionId,
@@ -71,7 +76,7 @@ public class SendCommand extends OsgiCommandSupport {
         Event event = new Event(ActivityEvent.EVENT_TOPIC, eventProperties);
 
         // Get OSGi Event Admin service
-        EventAdmin eventAdmin = null;
+        EventAdmin eventAdmin;
         @SuppressWarnings("rawtypes")
 
         ServiceReference[] serviceReferences = bundleContext.getServiceReferences(SERVICE_PID,
@@ -90,4 +95,5 @@ public class SendCommand extends OsgiCommandSupport {
             }
         }
     }
+
 }

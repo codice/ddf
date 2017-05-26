@@ -15,15 +15,16 @@ package org.codice.ddf.notifications.commands;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
@@ -32,13 +33,15 @@ import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Service
 @Command(scope = "notifications", name = "list", description = "Allows users to view notifications.")
-public class ListCommand extends OsgiCommandSupport {
+public class ListCommand implements Action {
 
     public static final String SERVICE_PID = "org.codice.ddf.persistence.PersistentStore";
 
@@ -74,16 +77,18 @@ public class ListCommand extends OsgiCommandSupport {
     private static final String MESSAGE = "Message ";
 
     @Argument(name = "User ID", description = "User ID to search for notifications. "
-            + "If an id is not provided, then all of the notifications for all users are displayed.",
-            index = 0, multiValued = false, required = false)
+            + "If an id is not provided, then all of the notifications for all users are displayed.", index = 0, multiValued = false, required = false)
     String userId = null;
 
     @Option(name = "CQL", required = false, aliases = {
             "-cql"}, multiValued = false, description = "OGC CQL query to get notifications.")
     String cql = null;
 
+    @Reference
+    BundleContext bundleContext;
+
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() throws Exception {
 
         PrintStream console = System.out;
 
@@ -103,9 +108,7 @@ public class ListCommand extends OsgiCommandSupport {
             console.print(DEFAULT_CONSOLE_COLOR);
 
             for (Map<String, Object> notification : notifications) {
-                Long timestamp =
-                        Long.valueOf((String) notification.get(Notification.NOTIFICATION_KEY_TIMESTAMP));
-                String dateTime = new DateTime(new Date(timestamp)).toString(DATETIME_FORMATTER);
+                String dateTime = new DateTime(notification.get(Notification.NOTIFICATION_KEY_TIMESTAMP)).toString(DATETIME_FORMATTER);
                 String message = (String) notification.get(Notification.NOTIFICATION_KEY_MESSAGE);
                 LOGGER.debug(
                         "id = {}, userId = {}, timestamp = {}, application = {},  title = {},  message = {}",
@@ -132,7 +135,7 @@ public class ListCommand extends OsgiCommandSupport {
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> getNotifications(String userId)
             throws InvalidSyntaxException {
-        List<Map<String, Object>> notifications = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> notifications = new ArrayList<>();
 
         // Get Notification service
         @SuppressWarnings("rawtypes")
@@ -149,7 +152,7 @@ public class ListCommand extends OsgiCommandSupport {
                     serviceReferences[0]);
             if (persistentStore != null) {
                 try {
-                    List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+                    List<Map<String, Object>> results;
                     if (StringUtils.isNotBlank(cql)) {
                         results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, cql);
                     } else if (StringUtils.isNotBlank(userId)) {

@@ -16,19 +16,23 @@ package org.codice.ddf.notifications.commands;
 import java.io.PrintStream;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
 import org.fusesource.jansi.Ansi;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Service
 @Command(scope = "notifications", name = "delete", description = "Allows users to delete notifications for a specified user.")
-public class DeleteCommand extends OsgiCommandSupport {
+public class DeleteCommand implements Action {
 
     public static final String SERVICE_PID = "org.codice.ddf.persistence.PersistentStore";
 
@@ -50,8 +54,11 @@ public class DeleteCommand extends OsgiCommandSupport {
             "-id"}, multiValued = false, description = "The id to delete notification for.")
     String id = null;
 
+    @Reference
+    BundleContext bundleContext;
+
     @Override
-    protected Object doExecute() throws Exception {
+    public Object execute() throws Exception {
 
         PrintStream console = System.out;
 
