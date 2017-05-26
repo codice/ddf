@@ -82,7 +82,6 @@ import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor;
 import org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardFileStorageRoute;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.WaitCondition;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;

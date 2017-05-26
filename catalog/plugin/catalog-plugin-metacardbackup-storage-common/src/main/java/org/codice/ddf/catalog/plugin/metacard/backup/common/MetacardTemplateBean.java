@@ -40,8 +40,7 @@ public class MetacardTemplateBean {
 
     public MetacardTemplateBean(String template) throws IOException {
         Handlebars handleBars = new Handlebars();
-        handleBars.registerHelper(StringHelpers.substring.name(), StringHelpers.substring);
-        handleBars.registerHelper(StringHelpers.dateFormat.name(), StringHelpers.dateFormat);
+        handleBars.registerHelpers(StringHelpers.class);
         this.template = handleBars.compileInline(template);
     }
 
@@ -72,8 +71,7 @@ public class MetacardTemplateBean {
             String attributeName = attributeDescriptor.getName();
             Attribute attribute = metacard.getAttribute(attributeName);
             if (attribute != null && attribute.getValue() != null) {
-                metacardValueMap.put(attributeName,
-                        attribute.getValue());
+                metacardValueMap.put(attributeName, attribute.getValue());
             }
         }
 

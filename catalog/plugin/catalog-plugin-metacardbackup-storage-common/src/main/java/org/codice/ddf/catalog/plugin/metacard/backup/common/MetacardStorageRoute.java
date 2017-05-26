@@ -18,6 +18,8 @@ import java.util.Map;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.RoutesDefinition;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +68,12 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
 
     public void stop(int code) {
         try {
-            getContext().removeRouteDefinitions(getRouteCollection().getRoutes());
+            CamelContext context = getContext();
+            for (RouteDefinition routeDefinition : context.getRouteDefinitions()) {
+                context.stopRoute(routeDefinition.getId());
+                context.removeRouteDefinition(routeDefinition);
+                setRouteCollection(new RoutesDefinition());
+            }
         } catch (Exception e) {
             LOGGER.error("Could not stop route: {}", toString(), e);
         }

@@ -48,7 +48,10 @@
             name="S3 Endpoint" id="s3Endpoint" required="true" type="String"
             default=""/>
 
-        <AD description="The template to apply to naming of S3 objects within the bucket."
+        <AD description="The template to apply to naming of S3 objects within the bucket.
+                         The template uses handlebars syntax.
+                         Use [] to reference dotted attributes e.g. {{[attribute.name]}}.
+                         If you wish to include date, you would use {{dateFormat created yyyy-MM-dd}}"
             name="S3 Object Template" id="objectTemplate" required="true" type="String"
             default="data/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml"/>
     </OCD>

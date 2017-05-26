@@ -32,7 +32,10 @@
             type="Boolean"
             default="true"/>
 
-        <AD description="Output path to place backup files."
+        <AD description="Output path to place backup files.
+                         The template uses handlebars syntax.
+                         Use [] to reference dotted attributes e.g. {{[attribute.name]}}.
+                         If you wish to include date, you would use {{dateFormat created yyyy-MM-dd}}"
             name="Output Path Template" id="outputPathTemplate" required="true" type="String"
             default="data/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml"/>
     </OCD>
