@@ -39,7 +39,7 @@ public class GeoCoderPlugin implements PreIngestPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoCoderPlugin.class);
 
-    private static final String RADIUS_IN_KM = "radiusInKm";
+    public static final String RADIUS_IN_KM = "radiusInKm";
 
     private ServiceSelector<GeoCoder> geoCoderFactory;
 
