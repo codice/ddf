@@ -462,6 +462,13 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testCswIngestWithMetadataBackup() throws Exception {
+        int startingPostIngestServices = 0;
+        Collection<ServiceReference<PostIngestPlugin>> serviceRefs =
+                getServiceManager().getServiceReferences(PostIngestPlugin.class, null);
+        if (CollectionUtils.isNotEmpty(serviceRefs)) {
+            startingPostIngestServices = serviceRefs.size();
+        }
+        
         getServiceManager().startFeature(true, METACARD_BACKUP_FILE_STORAGE_FEATURE);
         Map<String, Object> storageProps = new HashMap<>();
         storageProps.put("outputPathTemplate", METACARD_BACKUP_PATH_TEMPLATE);
@@ -469,13 +476,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         storageProps.put("keepDeletedMetacards", true);
         storageProps.put("backupInvalidMetacards", true);
         getServiceManager().createManagedService("Metacard_File_Storage_Route", storageProps);
-
-        int startingPostIngestServices = 0;
-        Collection<ServiceReference<PostIngestPlugin>> serviceRefs =
-                getServiceManager().getServiceReferences(PostIngestPlugin.class, null);
-        if (CollectionUtils.isNotEmpty(serviceRefs)) {
-            startingPostIngestServices = serviceRefs.size();
-        }
 
         expect("Service to be available: " + MetacardFileStorageRoute.class.getName()).within(30,
                 TimeUnit.SECONDS)

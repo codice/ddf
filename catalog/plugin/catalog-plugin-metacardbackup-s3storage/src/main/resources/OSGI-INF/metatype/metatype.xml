@@ -48,6 +48,10 @@
             name="S3 Endpoint" id="s3Endpoint" required="true" type="String"
             default=""/>
 
+        <AD description="One of the pre-defined Amazon S3 ACL names."
+            name="S3 Canned ACL" id="s3CannedAclName" required="true" type="String"
+            default="BucketOwnerFullControl"/>
+
         <AD description="The template to apply to naming of S3 objects within the bucket.
                          The template uses handlebars syntax.
                          Use [] to reference dotted attributes e.g. {{[attribute.name]}}.

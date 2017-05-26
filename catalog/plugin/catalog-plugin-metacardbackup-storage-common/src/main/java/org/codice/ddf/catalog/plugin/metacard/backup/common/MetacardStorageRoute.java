@@ -46,6 +46,8 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
 
     private static final String INVALID_TAG = "INVALID";
 
+    private static final String RESOURCE_TAG = "resource";
+
     protected boolean backupInvalidMetacards;
 
     protected boolean keepDeletedMetacards;
@@ -125,6 +127,9 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
     }
 
     public static boolean shouldBackupMetacard(Metacard metacard, boolean backupInvalid) {
+        if (!isResourceCard(metacard)) {
+            return false;
+        }
         if (backupInvalid) {
             return true;
         } else {
@@ -169,5 +174,18 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
             }
             return shouldContinueRoute;
         };
+    }
+
+    private static boolean isResourceCard(Metacard metacard) {
+        Attribute metacardTagsAttr = metacard.getAttribute(Core.METACARD_TAGS);
+        if (metacardTagsAttr != null) {
+            return metacardTagsAttr.getValues()
+                    .stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                    .anyMatch(RESOURCE_TAG::equalsIgnoreCase);
+        } else {
+            return false;
+        }
     }
 }

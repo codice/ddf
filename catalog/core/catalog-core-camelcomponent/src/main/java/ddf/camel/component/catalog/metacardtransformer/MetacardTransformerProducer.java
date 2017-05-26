@@ -42,7 +42,7 @@ public class MetacardTransformerProducer extends DefaultProducer {
 
     public static final String TRANSFORMER_ID = "transformerId";
 
-    private static final transient Logger LOGGER =
+    private static final Logger LOGGER =
             LoggerFactory.getLogger(MetacardTransformerProducer.class);
 
     public MetacardTransformerProducer(Endpoint endpoint) {

@@ -36,6 +36,7 @@
             <property name="s3SecretKey" value="" />
             <property name="s3Endpoint" value="" />
             <property name="s3Bucket" value=""/>
+            <property name="s3CannedAclName" value="BucketOwnerFullControl"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 

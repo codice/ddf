@@ -38,6 +38,8 @@ public class MetacardBackupS3StorageTest {
 
     private static final String SECRET_KEY = "secret_key";
 
+    private static final String CANNED_ACL = "Private";
+
     private CamelContext camelContext = new DefaultCamelContext();
 
     private MetacardS3StorageRoute s3StorageProvider = new MetacardS3StorageRoute(camelContext);
@@ -49,6 +51,7 @@ public class MetacardBackupS3StorageTest {
         s3StorageProvider.setS3Endpoint(ENDPOINT);
         s3StorageProvider.setS3AccessKey(ACCESS_KEY);
         s3StorageProvider.setS3SecretKey(SECRET_KEY);
+        s3StorageProvider.setS3CannedAclName(CANNED_ACL);
     }
 
     @Test
@@ -66,6 +69,7 @@ public class MetacardBackupS3StorageTest {
         String secretKey = "newSecretKey";
         String bucket = "new-bucket";
         String endpoint = "endpoint.amazonaws.com";
+        String cannedAcl = "PublicRead";
 
         Map<String, Object> properties = new HashMap<>();
         properties.put("objectTemplate", newObjectTemplate);
@@ -76,6 +80,7 @@ public class MetacardBackupS3StorageTest {
         properties.put("s3SecretKey", secretKey);
         properties.put("s3Bucket", bucket);
         properties.put("s3Endpoint", endpoint);
+        properties.put("s3CannedAclName", cannedAcl);
 
         s3StorageProvider.refresh(properties);
         assertThat(s3StorageProvider.getObjectTemplate(), is(newObjectTemplate));
@@ -86,6 +91,7 @@ public class MetacardBackupS3StorageTest {
         assertThat(s3StorageProvider.getS3SecretKey(), is(secretKey));
         assertThat(s3StorageProvider.getS3Bucket(), is(bucket));
         assertThat(s3StorageProvider.getS3Endpoint(), is(endpoint));
+        assertThat(s3StorageProvider.getS3CannedAclName(), is(cannedAcl));
     }
 
     @Test
@@ -96,6 +102,7 @@ public class MetacardBackupS3StorageTest {
         properties.put("s3SecretKey", 2.1);
         properties.put("s3Bucket", 5);
         properties.put("s3Endpoint", 4);
+        properties.put("s3CannedAclName", 7);
 
         s3StorageProvider.refresh(properties);
         assertThat(s3StorageProvider.getObjectTemplate(), is(OBJECT_TEMPLATE));
@@ -103,6 +110,7 @@ public class MetacardBackupS3StorageTest {
         assertThat(s3StorageProvider.getS3SecretKey(), is(SECRET_KEY));
         assertThat(s3StorageProvider.getS3Bucket(), is(BUCKET));
         assertThat(s3StorageProvider.getS3Endpoint(), is(ENDPOINT));
+        assertThat(s3StorageProvider.getS3CannedAclName(), is(CANNED_ACL));
     }
 
     @Test

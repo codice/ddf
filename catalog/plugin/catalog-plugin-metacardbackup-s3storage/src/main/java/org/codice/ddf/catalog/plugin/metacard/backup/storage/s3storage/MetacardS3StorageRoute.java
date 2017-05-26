@@ -47,6 +47,8 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
 
     public static final String S3_BUCKET_PROP = "s3Bucket";
 
+    public static final String S3_CANNED_ACL_NAME_PROP = "s3CannedAclName";
+
     public static final String AWS_S3_ACCESS_KEY_PROP = "accessKey";
 
     public static final String AWS_S3_SECRET_KEY_PROP = "secretKey";
@@ -66,6 +68,8 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
     protected String s3SecretKey = "";
 
     protected String s3Endpoint;
+
+    protected String s3CannedAclName;
 
     private final org.apache.camel.impl.SimpleRegistry registry;
 
@@ -120,6 +124,14 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
         this.s3Endpoint = s3Endpoint;
     }
 
+    public String getS3CannedAclName() {
+        return s3CannedAclName;
+    }
+
+    public void setS3CannedAclName(String s3CannedAclName) {
+        this.s3CannedAclName = s3CannedAclName;
+    }
+
     @Override
     public void configure() throws Exception {
         StringBuilder options = new StringBuilder();
@@ -169,6 +181,7 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
                 .setHeader(S3Constants.KEY,
                         method(new MetacardTemplateBean(objectTemplate), "applyTemplate(${body})"))
                 .to("catalog:metacardtransformer")
+                .setHeader(S3Constants.CANNED_ACL, simple(s3CannedAclName))
                 .setHeader(S3Constants.CONTENT_LENGTH, simple("${body.length}"))
                 .to(s3Uri);
 
@@ -200,6 +213,11 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
         Object s3BucketValue = properties.get(S3_BUCKET_PROP);
         if (s3BucketValue instanceof String) {
             setS3Bucket((String) s3BucketValue);
+        }
+
+        Object s3CannedAclValue = properties.get(S3_CANNED_ACL_NAME_PROP);
+        if (s3CannedAclValue instanceof String) {
+            setS3CannedAclName((String) s3CannedAclValue);
         }
 
         super.refresh(properties);

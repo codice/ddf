@@ -13,6 +13,7 @@
  */
 package ddf.camel.component.catalog.ingest;
 
+import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -99,7 +100,7 @@ public class PostIngestConsumer extends DefaultConsumer implements PostIngestPlu
     protected void doStart() throws Exception {
         super.doStart();
 
-        Hashtable<String, String> props = new Hashtable<String, String>();
+        Dictionary<String, String> props = new Hashtable<>();
 
         registration = endpoint.getComponent()
                 .getBundleContext()
