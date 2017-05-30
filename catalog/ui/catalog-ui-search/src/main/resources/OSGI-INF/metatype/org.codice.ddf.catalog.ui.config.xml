@@ -126,6 +126,7 @@
             description="List of metacard attributes to display in the summary view."
             type="String"
             cardinality="10000"
+            default="created,modified,thumbnail"
             required="false"/>
 
         <AD id="resultShow"
