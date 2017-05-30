@@ -1,0 +1,7 @@
+:title: Using Intro
+:type: usingIntro
+:status: published
+:summary: Introduction to user interfaces.
+
+These user interfaces are available in ${branding}.
+

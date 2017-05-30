@@ -1,4 +1,9 @@
-
+:title: Using Standard Search UI
+:type: using
+:status: published
+:summary: Using Standard Search UI.
+:link: _using_catalog_ui
+:order: 02
 ////
  Copyright (c) Codice Foundation
 
