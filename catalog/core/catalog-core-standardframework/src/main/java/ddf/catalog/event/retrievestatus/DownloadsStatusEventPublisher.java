@@ -153,7 +153,11 @@ public class DownloadsStatusEventPublisher {
                     APPLICATION_NAME,
                     resourceResponse.getResource()
                             .getName(),
-                    generateMessage(status, bytes,
+                    generateMessage(status,
+                            resourceResponse.getResource()
+                                    .getName(),
+                            bytes,
+                            sysTimeMillis,
                             detail),
                     sysTimeMillis,
                     user);
@@ -232,7 +236,11 @@ public class DownloadsStatusEventPublisher {
                     "Product Retrieval",
                     resourceResponse.getResource()
                             .getName(),
-                    generateMessage(status, bytes,
+                    generateMessage(status,
+                            resourceResponse.getResource()
+                                    .getName(),
+                            bytes,
+                            sysTimeMillis,
                             detail),
                     progress,
                     operations,
@@ -262,7 +270,8 @@ public class DownloadsStatusEventPublisher {
         return response;
     }
 
-    private String generateMessage(ProductRetrievalStatus status, Long bytes, String detail) {
+    private String generateMessage(ProductRetrievalStatus status, String title, Long bytes,
+            Long sysTimeMillis, String detail) {
         StringBuilder response = new StringBuilder("Resource retrieval");
 
         // There may not be any detail to report, if not, send it along
