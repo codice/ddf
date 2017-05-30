@@ -153,11 +153,7 @@ public class DownloadsStatusEventPublisher {
                     APPLICATION_NAME,
                     resourceResponse.getResource()
                             .getName(),
-                    generateMessage(status,
-                            resourceResponse.getResource()
-                                    .getName(),
-                            bytes,
-                            sysTimeMillis,
+                    generateMessage(status, bytes,
                             detail),
                     sysTimeMillis,
                     user);
@@ -236,11 +232,7 @@ public class DownloadsStatusEventPublisher {
                     "Product Retrieval",
                     resourceResponse.getResource()
                             .getName(),
-                    generateMessage(status,
-                            resourceResponse.getResource()
-                                    .getName(),
-                            bytes,
-                            sysTimeMillis,
+                    generateMessage(status, bytes,
                             detail),
                     progress,
                     operations,
@@ -270,8 +262,7 @@ public class DownloadsStatusEventPublisher {
         return response;
     }
 
-    private String generateMessage(ProductRetrievalStatus status, String title, Long bytes,
-            Long sysTimeMillis, String detail) {
+    private String generateMessage(ProductRetrievalStatus status, Long bytes, String detail) {
         StringBuilder response = new StringBuilder("Resource retrieval");
 
         // There may not be any detail to report, if not, send it along
@@ -308,6 +299,7 @@ public class DownloadsStatusEventPublisher {
 
         case IN_PROGRESS:
             response.append(" downloading ");
+            break;
 
         default:
             break;
@@ -328,7 +320,7 @@ public class DownloadsStatusEventPublisher {
         this.activityEnabled = enabled;
     }
 
-    public static enum ProductRetrievalStatus {
+    public enum ProductRetrievalStatus {
         STARTED, IN_PROGRESS, RETRYING, CANCELLED, FAILED, COMPLETE;
     }
 }
