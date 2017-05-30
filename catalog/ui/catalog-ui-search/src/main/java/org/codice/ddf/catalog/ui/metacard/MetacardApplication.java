@@ -27,6 +27,7 @@ import static spark.Spark.put;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,17 +46,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
 
 import javax.ws.rs.NotFoundException;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.ExecutionException;
 import org.boon.json.JsonFactory;
+import org.boon.json.JsonParserFactory;
+import org.boon.json.JsonSerializerFactory;
+import org.boon.json.ObjectMapper;
 import org.codice.ddf.catalog.ui.enumeration.ExperimentalEnumerationExtractor;
 import org.codice.ddf.catalog.ui.metacard.associations.Associated;
 import org.codice.ddf.catalog.ui.metacard.edit.AttributeChange;
 import org.codice.ddf.catalog.ui.metacard.edit.MetacardChanges;
 import org.codice.ddf.catalog.ui.metacard.history.HistoryResponse;
+import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
@@ -81,11 +90,14 @@ import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.core.versioning.MetacardVersion.Action;
 import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.DeleteResponse;
@@ -97,12 +109,14 @@ import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.ResourceRequestById;
+import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
@@ -121,6 +135,13 @@ public class MetacardApplication implements SparkApplication {
             Action.DELETED_CONTENT);
 
     private static final Security SECURITY = Security.getInstance();
+
+    private final ObjectMapper mapper =
+            JsonFactory.create(new JsonParserFactory().usePropertyOnly(),
+                    new JsonSerializerFactory().includeEmpty()
+                            .includeNulls()
+                            .includeDefaultValues()
+                            .setJsonFormatForDates(false));
 
     private final CatalogFramework catalogFramework;
 
@@ -142,11 +163,16 @@ public class MetacardApplication implements SparkApplication {
 
     private static int pageSize = 250;
 
+    private final QueryResponseTransformer csvQueryResponseTransformer;
+
+    private final AttributeRegistry attributeRegistry;
+
     public MetacardApplication(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
             EndpointUtil endpointUtil, Validator validator, WorkspaceTransformer transformer,
             ExperimentalEnumerationExtractor enumExtractor,
             SubscriptionsPersistentStore subscriptions, List<MetacardType> types,
-            Associated associated) {
+            Associated associated, QueryResponseTransformer csvQueryResponseTransformer,
+            AttributeRegistry attributeRegistry) {
         this.catalogFramework = catalogFramework;
         this.filterBuilder = filterBuilder;
         this.util = endpointUtil;
@@ -156,6 +182,8 @@ public class MetacardApplication implements SparkApplication {
         this.subscriptions = subscriptions;
         this.types = types;
         this.associated = associated;
+        this.csvQueryResponseTransformer = csvQueryResponseTransformer;
+        this.attributeRegistry = attributeRegistry;
     }
 
     private String getSubjectEmail() {
@@ -416,6 +444,64 @@ public class MetacardApplication implements SparkApplication {
 
         get("/localcatalogid", (req, res) -> {
             return String.format("{\"%s\":\"%s\"}", "local-catalog-id", catalogFramework.getId());
+        });
+
+        post("/transform/csv", APPLICATION_JSON, (req, res) -> {
+            CsvTransform queryTransform = mapper.readValue(req.body(), CsvTransform.class);
+            Map<String, Object> transformMap = mapper.parser()
+                    .parseMap(req.body());
+            queryTransform.setMetacards((List<Map<String, Object>>) transformMap.get("metacards"));
+
+            List<Result> metacards = queryTransform.getTransformedMetacards(types,
+                    attributeRegistry)
+                    .stream()
+                    .map(ResultImpl::new)
+                    .collect(Collectors.toList());
+
+            SourceResponseImpl response = new SourceResponseImpl(null,
+                    metacards,
+                    Long.valueOf(metacards.size()));
+
+            Map<String, Serializable> arguments = ImmutableMap.<String, Serializable>builder().put(
+                    "hiddenFields",
+                    new HashSet<>(queryTransform.getHiddenFields()))
+                    .put("columnOrder", new ArrayList<>(queryTransform.getColumnOrder()))
+                    .put("aliases", new HashMap<>(queryTransform.getColumnAliasMap()))
+                    .build();
+
+            BinaryContent content = csvQueryResponseTransformer.transform(response, arguments);
+
+            String acceptEncoding = req.headers("Accept-Encoding");
+            // Very naive way to handle accept encoding, does not respect full spec
+            boolean shouldGzip =
+                    StringUtils.isNotBlank(acceptEncoding) && acceptEncoding.toLowerCase()
+                            .contains("gzip");
+
+            // Respond with content
+            res.type("text/csv");
+            String attachment = String.format("attachment;filename=export-%s.csv",
+                    Instant.now()
+                            .toString());
+            res.header("Content-Disposition", attachment);
+            if (shouldGzip) {
+                res.raw()
+                        .addHeader("Content-Encoding", "gzip");
+            }
+
+            try (//
+                    OutputStream servletOutputStream = res.raw()
+                            .getOutputStream();
+                    InputStream resultStream = content.getInputStream()) {
+                if (shouldGzip) {
+                    try (OutputStream gzipServletOutputStream = new GZIPOutputStream(
+                            servletOutputStream)) {
+                        IOUtils.copy(resultStream, gzipServletOutputStream);
+                    }
+                } else {
+                    IOUtils.copy(resultStream, servletOutputStream);
+                }
+            }
+            return null;
         });
 
         after((req, res) -> {
