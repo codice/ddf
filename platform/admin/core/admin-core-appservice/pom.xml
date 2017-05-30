@@ -83,6 +83,16 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.fastjson</groupId>
+            <artifactId>boon</artifactId>
+            <version>0.33</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -108,17 +118,21 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             platform-util,
-                            ddf-security-common
+                            ddf-security-common,
+                            boon
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util.http,
+                            !com.sun.management,
                             *
                         </Import-Package>
                         <Export-Package>
                             org.codice.ddf.admin.application.service;version=${admin.core.appservice.api.version},
                             org.codice.ddf.admin.application.plugin;version=${admin.core.appservice.api.version},
                             org.codice.ddf.admin.application.service.command;version=${admin.core.appservice.api.version},
-                            org.codice.ddf.admin.application.service.command.completers;version=${admin.core.appservice.api.version}
+                            org.codice.ddf.admin.application.service.command.completers;version=${admin.core.appservice.api.version},
+                            org.codice.ddf.ui.admin.api.impl;version=${admin.core.appservice.api.version},
+                            org.apache.felix.utils.properties
                         </Export-Package>
                         <Private-Package>
                             org.codice.ddf.admin.application.rest,
@@ -151,14 +165,13 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.70</minimum>
+                                            <minimum>0.71</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.70</minimum>
+                                            <minimum>0.72</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>

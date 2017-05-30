@@ -1,0 +1,7 @@
+{
+  "start-apps": [
+    "app1",
+    "badApp",
+    "app2"
+  ]
+}
