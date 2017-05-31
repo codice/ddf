@@ -24,5 +24,6 @@
     <name>DDF :: Catalog :: Admin :: Module</name>
     <modules>
         <module>catalog-admin-module-sources</module>
+        <module>catalog-admin-module-maplayers</module>
     </modules>
 </project>
