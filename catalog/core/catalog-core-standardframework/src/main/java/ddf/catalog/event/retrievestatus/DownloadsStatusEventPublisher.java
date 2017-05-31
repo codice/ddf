@@ -273,6 +273,7 @@ public class DownloadsStatusEventPublisher {
     private String generateMessage(ProductRetrievalStatus status, String title, Long bytes,
             Long sysTimeMillis, String detail) {
         StringBuilder response = new StringBuilder("Resource retrieval");
+        String unusedString = null;
 
         // There may not be any detail to report, if not, send it along
         if (detail == null) {
