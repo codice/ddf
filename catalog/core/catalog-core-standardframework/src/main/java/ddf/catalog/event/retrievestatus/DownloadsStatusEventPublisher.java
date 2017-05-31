@@ -187,7 +187,7 @@ public class DownloadsStatusEventPublisher {
             // send activity event
             // progress for downloads
             int progress = UNKNOWN_PROGRESS;
-            Map<String, String> operations = new HashMap<String, String>();
+            Map<String, String> operations = new HashMap<>();
             ActivityStatus type;
             switch (status) {
             case STARTED:
@@ -273,7 +273,6 @@ public class DownloadsStatusEventPublisher {
     private String generateMessage(ProductRetrievalStatus status, String title, Long bytes,
             Long sysTimeMillis, String detail) {
         StringBuilder response = new StringBuilder("Resource retrieval");
-        String unusedString = null;
 
         // There may not be any detail to report, if not, send it along
         if (detail == null) {
