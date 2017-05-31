@@ -74,13 +74,12 @@
         <bouncy.version>1.55</bouncy.version>
         <xmlsec.version>2.0.8</xmlsec.version>
         <jts.bundle.version>1.12_1</jts.bundle.version>
-        <karaf.version>4.0.7</karaf.version>
+        <karaf.version>4.1.1</karaf.version>
         <lux.version>1.2</lux.version>
         <opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
         <org.geotools.bundle.version>${org.geotools.version}_2</org.geotools.bundle.version>
         <org.geotools.version>8.4</org.geotools.version>
         <org.slf4j.version>1.7.1</org.slf4j.version>
-        <jline.version>2.14.2</jline.version>
         <groovy.version>2.4.7</groovy.version>
         <powermock.version>1.6.4</powermock.version>
         <mockito.version>1.10.19</mockito.version>
@@ -99,7 +98,7 @@
         <guava.version>18.0</guava.version>
         <findbugs.version>3.0.1</findbugs.version>
         <commons-codec.version>1.10</commons-codec.version>
-        <spring.version>4.2.5.RELEASE</spring.version>
+        <spring.version>4.3.5.RELEASE</spring.version>
         <jetty.version>9.2.19.v20160908</jetty.version>
         <pax.cdi.version>0.12.0</pax.cdi.version>
         <validation.version>1.1.0.Final</validation.version>
@@ -202,6 +201,7 @@
         <gib.baseBranch>HEAD</gib.baseBranch>
         <gib.enabled>false</gib.enabled>
         <commons-lang3.version>3.4</commons-lang3.version>
+        <xerces.version>2.11.0</xerces.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
@@ -315,7 +315,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.3.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <!-- Disabled OBR to increase build speed -->

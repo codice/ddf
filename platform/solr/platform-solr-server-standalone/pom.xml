@@ -213,7 +213,6 @@
                             javax.xml.transform.sax,
                             javax.xml.transform.stream,
                             javax.xml.xpath,
-                            jline,
                             org.apache.commons.logging,
                             org.apache.commons.logging.impl,
                             org.apache.xerces.parsers,

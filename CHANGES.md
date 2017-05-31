@@ -185,6 +185,10 @@ _This is a preview of a pending release and is subject to change._
     
 <h3>Dependency Upgrade</h3>
 <ul>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2132'>DDF-2132</a> - Upgraded Karaf to 4.1.1
+    </li>
+</ul>
+<ul>
     <li><a href='https://codice.atlassian.net/browse/DDF-2818'>DDF-2818</a> - Upgrade to Solr version 6.4.1
     </li>
 </ul>

@@ -326,6 +326,11 @@
                 <artifactId>jts</artifactId>
                 <version>1.12</version>
             </dependency>
+            <dependency>
+                <groupId>xerces</groupId>
+                <artifactId>xercesImpl</artifactId>
+                <version>${xerces.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
