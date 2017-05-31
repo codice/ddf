@@ -13,28 +13,36 @@
  */
 package org.codice.ddf.itests.common.catalog;
 
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.with;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.CSW_PATH;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.REST_PATH;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.getFileContent;
+import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getMetacardIdFromCswInsertResponse;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.xml.HasXPath.hasXPath;
 import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.given;
+
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Map;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
-
 
 public class CatalogTestCommons {
 
@@ -104,6 +112,65 @@ public class CatalogTestCommons {
                 .getHeader("id");
     }
 
+    /**
+     * Ingests an xml resource by name. Does not return until resource has been verified to be in
+     * the catalog
+     *
+     * @param resourceName - The relative path of the resource file
+     * @return metacard id
+     * @throws IOException
+     */
+    public static String ingestXmlFromResourceAndWait(String resourceName) throws IOException {
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
+        String[] id = new String[1];
+        //ingest might not succeed the first time due to the async nature of some configurations
+        //Will try several times before considering it failed.
+        with().pollInterval(1, SECONDS)
+                .await()
+                .atMost(30, SECONDS)
+                .ignoreExceptions()
+                .until(() -> {
+                    id[0] = ingest(writer.toString(), "text/xml", true);
+                    return true;
+                });
+        with().pollInterval(1, SECONDS)
+                .await()
+                .atMost(10, SECONDS)
+                .ignoreExceptions()
+                .until(() -> doesMetacardExist(id[0]));
+        return id[0];
+    }
+
+    /**
+     * Does a wildcard search and verifies that one of the results is a metacard with the given id.
+     * This doesn't query directly on the metacard id because that query can return the metacard
+     * before it has been committed to the catalog. Metacards that have not been committed to the
+     * catalog will not be returned in queries unless that query is a metacard id query.
+     *
+     * @param id The metacard id to look up
+     * @return returns true if the metacard is in the catalog, false otherwise.
+     */
+    public static boolean doesMetacardExist(String id) {
+        try {
+            String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
+                    "AnyText",
+                    "*")
+                    .getQuery();
+            ValidatableResponse response = given().header(HttpHeaders.CONTENT_TYPE,
+                    MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+            response.body(hasXPath(format(
+                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                    id)));
+            return true;
+        } catch (AssertionError e) {
+            return false;
+        }
+    }
+
     public static String ingestGeoJson(String json) {
         return ingest(json, "application/json");
     }
@@ -115,10 +182,10 @@ public class CatalogTestCommons {
         metacardsIds.put(CSW_METACARD, cswRecordId);
 
         //ingest xml
-        String plainXmlNearId = ingest(getFileContent(
-                CSW_RESOURCE_ROOT + "xml/PlainXmlNear.xml"), MediaType.TEXT_XML);
-        String plainXmlFarId = ingest(getFileContent(
-                CSW_RESOURCE_ROOT + "xml/PlainXmlFar.xml"), MediaType.TEXT_XML);
+        String plainXmlNearId = ingest(getFileContent(CSW_RESOURCE_ROOT + "xml/PlainXmlNear.xml"),
+                MediaType.TEXT_XML);
+        String plainXmlFarId = ingest(getFileContent(CSW_RESOURCE_ROOT + "xml/PlainXmlFar.xml"),
+                MediaType.TEXT_XML);
         metacardsIds.put(PLAINXML_NEAR_METACARD, plainXmlNearId);
         metacardsIds.put(PLAINXML_FAR_METACARD, plainXmlFarId);
 
@@ -137,8 +204,7 @@ public class CatalogTestCommons {
 
         String transactionRequest = getCswInsertRequest("csw:Record", cswRecord);
 
-        ValidatableResponse response = given()
-                .body(transactionRequest)
+        ValidatableResponse response = given().body(transactionRequest)
                 .header("Content-Type", MediaType.APPLICATION_XML)
                 .when()
                 .post(CSW_PATH.getUrl())
@@ -186,6 +252,21 @@ public class CatalogTestCommons {
     }
 
     /**
+     * Deletes a metacard by id and then waits until it has been removed from the catalog before
+     * returning.
+     *
+     * @param id metacard id to delete
+     */
+    public static void deleteMetacardAndWait(String id) {
+        deleteMetacard(id);
+        with().pollInterval(1, SECONDS)
+                .await()
+                .atMost(30, SECONDS)
+                .ignoreExceptions()
+                .until(() -> !doesMetacardExist(id));
+    }
+
+    /**
      * Performs a delete request on the given metacard id
      * @param id - id of metacard to delete
      */
@@ -220,8 +301,8 @@ public class CatalogTestCommons {
      * Uses ids within the responses to delete
      * @param response - response with ids of metacards to delete
      */
-    public static void deleteMetacardUsingCswResponseId(Response response) throws IOException,
-            XPathExpressionException {
+    public static void deleteMetacardUsingCswResponseId(Response response)
+            throws IOException, XPathExpressionException {
         String id = getMetacardIdFromCswInsertResponse(response);
         CatalogTestCommons.deleteMetacard(id);
     }

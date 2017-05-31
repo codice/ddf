@@ -13,10 +13,15 @@
  */
 package org.codice.ddf.itests.common.opensearch;
 
+import static org.codice.ddf.itests.common.AbstractIntegrationTest.OPENSEARCH_PATH;
+import static com.jayway.restassured.RestAssured.when;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.codice.ddf.itests.common.ServiceManager;
+
+import com.jayway.restassured.response.ValidatableResponse;
 
 public class OpenSearchTestCommons {
 
@@ -30,5 +35,21 @@ public class OpenSearchTestCommons {
         openSearchSourcePropertes.put("shortname", sourceId);
         openSearchSourcePropertes.put("endpointUrl", openSearchUrl);
         return openSearchSourcePropertes;
+    }
+
+    public static ValidatableResponse executeOpenSearch(String format, String... query) {
+        StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH.getUrl()).append("?")
+                .append("format=")
+                .append(format);
+
+        for (String term : query) {
+            buffer.append("&")
+                    .append(term);
+        }
+
+        String url = buffer.toString();
+
+        return when().get(url)
+                .then();
     }
 }

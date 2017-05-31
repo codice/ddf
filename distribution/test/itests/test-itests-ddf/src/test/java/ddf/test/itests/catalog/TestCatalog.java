@@ -25,6 +25,7 @@ import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configure
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getMetacardIdFromCswInsertResponse;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.executeOpenSearch;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -2163,23 +2164,6 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .put(REST_PATH.getUrl() + id);
 
         deleteMetacard(id);
-    }
-
-    private ValidatableResponse executeOpenSearch(String format, String... query) {
-        StringBuilder buffer = new StringBuilder(OPENSEARCH_PATH.getUrl()).append("?")
-                .append("format=")
-                .append(format);
-
-        for (String term : query) {
-            buffer.append("&")
-                    .append(term);
-        }
-
-        String url = buffer.toString();
-        LOGGER.info("Getting response to {}", url);
-
-        return when().get(url)
-                .then();
     }
 
     private ValidatableResponse executeAdminOpenSearch(String format, String... query) {
