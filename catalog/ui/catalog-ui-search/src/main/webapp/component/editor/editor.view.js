@@ -205,7 +205,7 @@ define([
             filter = this.editorFilter.currentView.model.get('value');
             this.editorProperties.currentView.children.forEach((propertyView) => {
                 var identifier = propertyView.model.get('label') || propertyView.model.id;
-                if (identifier.indexOf(filter) >= 0 && this.isSupposedToBeShown(propertyView.model.id)){
+                if (identifier.toLowerCase().indexOf(filter.toLowerCase()) >= 0 && this.isSupposedToBeShown(propertyView.model.id)){
                     propertyView.show();
                 } else {
                     propertyView.hide();
