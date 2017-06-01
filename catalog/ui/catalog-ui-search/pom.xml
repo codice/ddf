@@ -31,6 +31,7 @@
         <dependency>
             <groupId>org.apache.karaf.webconsole</groupId>
             <artifactId>org.apache.karaf.webconsole.console</artifactId>
+            <version>${karaf.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.distribution</groupId>

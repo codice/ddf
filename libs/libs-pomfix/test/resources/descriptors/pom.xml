@@ -25,6 +25,7 @@
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
                 <artifactId>features-maven-plugin</artifactId>
+                <version>${karaf.version}</version>
                 <executions>
                     <execution>
                         <id>add-features-to-repo</id>

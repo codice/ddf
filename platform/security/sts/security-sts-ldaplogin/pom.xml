@@ -108,10 +108,12 @@
         <dependency>
             <groupId>org.apache.karaf.jaas</groupId>
             <artifactId>org.apache.karaf.jaas.modules</artifactId>
+            <version>${karaf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.karaf.jaas</groupId>
             <artifactId>org.apache.karaf.jaas.boot</artifactId>
+            <version>${karaf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -185,10 +187,12 @@
         <dependency>
             <groupId>org.apache.karaf.jaas</groupId>
             <artifactId>org.apache.karaf.jaas.config</artifactId>
+            <version>${karaf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.karaf</groupId>
             <artifactId>org.apache.karaf.util</artifactId>
+            <version>${karaf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
