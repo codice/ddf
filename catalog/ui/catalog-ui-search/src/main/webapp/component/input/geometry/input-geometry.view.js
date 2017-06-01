@@ -22,8 +22,11 @@ var _ = require('underscore');
 function convertUserValueToWKT(val){
     val = val.split(' (').join('(').split(', ').join(',');
     val = val.split('MULTIPOINT').map(function(value, index){
-        if (index % 2 === 1 && value.indexOf('((') !== -1) {
-            return value.split('((').join('(').split('),(').join(',').split('))').join(')');
+        if (value.indexOf('((') === 0) {
+            var endOfMultiPoint = value.indexOf('))') + 2;
+            var multipointStr = value.substring(0, endOfMultiPoint);
+            multipointStr = multipointStr.split('((').join('(').split('),(').join(',').split('))').join(')')
+            return multipointStr + value.substring(endOfMultiPoint);
         } else {
             return value;
         }
