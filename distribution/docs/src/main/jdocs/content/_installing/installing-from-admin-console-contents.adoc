@@ -1,0 +1,28 @@
+:title: Installing from ${admin-console}
+:type: installing
+:status: published
+:summary: Installing from ${admin-console}.
+:project: ${branding}
+:order: 03
+
+==== Completing Installation from the ${admin-console}
+
+Upon startup, complete installation by navigating to the ${admin-console} at ${secure_url}/admin.
+
+.Internet Explorer 10 TLS Warning
+[WARNING]
+====
+Internet Exlorer 10 users may need to enable TLS 1.2 to access the ${admin-console} in the browser.
+
+.Enabling TLS1.2 in IE10
+. Go to *Tools* -> Internet Options -> Advanced -> Settings -> Security.
+. Enable TLS1.2.
+
+====
+
+* Default user/password: `admin`/`admin`.
+
+On the initial startup of the ${admin-console}, a series of prompts walks through essential configurations.
+These configurations can be changed later, if needed.
+
+* Click *Start* to begin.

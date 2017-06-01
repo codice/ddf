@@ -6,6 +6,15 @@ include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 :sectnums:
 
 <#include "introduction.ftl">
+include::${project.build.directory}/doc-contents/_contents/config.adoc[]
+
+:sectnums!:
+== Managing
+:sectnums:
+
+<#-- <#include "quickstart.ftl"> -->
+
+<#include "managing.ftl">
 
 :sectnums!:
 == Integrating
