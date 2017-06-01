@@ -55,7 +55,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
     private static final String WORKSPACE_QUERIES = "queries";
 
-    public static final String PATH = "/search/catalog/internal/workspaces";
+    public static final String PATH = "/intrigue/internal/workspaces";
 
     public static final DynamicUrl API_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT, PATH);
 

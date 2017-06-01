@@ -10,7 +10,7 @@ To exit this mode, click the `?` again or press `escape`.
 
 === Accessing ${catalog-ui}
 
-The default location for ${catalog-ui} is ${secure_url}/search/catalog
+The default location for ${catalog-ui} is ${secure_url}/intrigue
 
 .${catalog-ui} Guest Users
 [NOTE]

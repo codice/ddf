@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <bean id="workspaceMetacardType"
+          class="org.codice.ddf.intrigue.metacard.workspace.WorkspaceMetacardType"/>
+
+    <service ref="workspaceMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="workspace"/>
+        </service-properties>
+    </service>
+
+    <reference id="webBranding" interface="org.codice.ddf.branding.BrandingPlugin"/>
+
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="uiCamelContext"/>
+
+    <bean id="servlet" class="org.codice.proxy.http.HttpProxyCamelHttpTransportServlet"
+          init-method="init" destroy-method="destroy">
+        <argument ref="uiCamelContext"/>
+    </bean>
+
+    <service interface="javax.servlet.Servlet">
+        <service-properties>
+            <entry key="alias" value="/intrigue/proxy"/>
+            <entry key="servlet-name" value="uiProxyServlet"/>
+        </service-properties>
+        <ref component-id="servlet"/>
+    </service>
+
+    <bean id="httpProxyService" class="org.codice.proxy.http.HttpProxyServiceImpl"
+          destroy-method="destroy">
+        <argument ref="uiCamelContext"/>
+    </bean>
+
+    <bean id="configurationApplication"
+          class="org.codice.ddf.intrigue.config.ConfigurationApplication"
+          destroy-method="destroy">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.intrigue.config"
+                update-strategy="container-managed"/>
+        <property name="branding" ref="webBranding"/>
+        <property name="httpProxy" ref="httpProxyService"/>
+    </bean>
+
+    <service interface="ddf.catalog.data.MetacardType">
+        <bean class="org.codice.ddf.intrigue.metacard.workspace.QueryMetacardTypeImpl"/>
+    </service>
+
+    <service interface="ddf.catalog.plugin.PreIngestPlugin">
+        <bean class="org.codice.ddf.intrigue.security.WorkspacePreIngestPlugin"/>
+    </service>
+
+    <bean id="workspaceAccessPlugin"
+          class="org.codice.ddf.intrigue.security.WorkspaceAccessPlugin">
+    </bean>
+
+    <service interface="ddf.catalog.plugin.AccessPlugin">
+        <ref component-id="workspaceAccessPlugin"/>
+    </service>
+
+    <service interface="ddf.catalog.plugin.PolicyPlugin">
+        <bean class="org.codice.ddf.intrigue.security.WorkspaceSharingPolicyPlugin">
+            <argument ref="workspaceTransformer"/>
+        </bean>
+    </service>
+
+    <bean id="workspacePolicyExtension"
+          class="org.codice.ddf.intrigue.security.WorkspacePolicyExtension">
+
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.intrigue.security"
+                update-strategy="container-managed"/>
+    </bean>
+
+
+    <service interface="ddf.security.policy.extension.PolicyExtension">
+        <ref component-id="workspacePolicyExtension"/>
+    </service>
+
+    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+    <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"
+               filter="(id=xml)"/>
+
+    <reference-list id="metacardActionProviders" interface="ddf.action.ActionProvider"
+                    filter="(id=catalog.data.metacard.*)"/>
+
+    <reference-list id="metacardMultiActionProviders" interface="ddf.action.MultiActionProvider"
+                    filter="(id=catalog.data.metacard.*)"/>
+
+    <reference-list id="injectableAttributes" interface="ddf.catalog.data.InjectableAttribute"
+                    availability="optional"/>
+
+    <bean id="metacardActionRegistry" class="org.codice.ddf.intrigue.MetacardActionRegistry">
+        <argument ref="metacardActionProviders"/>
+        <argument ref="metacardMultiActionProviders"/>
+    </bean>
+
+    <bean id="endpointUtil" class="org.codice.ddf.intrigue.util.EndpointUtil">
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument>
+            <reference-list interface="ddf.catalog.data.MetacardType"/>
+        </argument>
+        <argument ref="injectableAttributes"/>
+        <argument>
+            <reference interface="ddf.catalog.data.AttributeRegistry" availability="optional"/>
+        </argument>
+    </bean>
+
+    <bean id="workspaceTransformer"
+          class="org.codice.ddf.intrigue.metacard.workspace.WorkspaceTransformer">
+        <argument ref="catalogFramework"/>
+        <argument ref="inputTransformer"/>
+        <argument ref="endpointUtil"/>
+    </bean>
+
+
+    <bean id="validator" class="org.codice.ddf.intrigue.metacard.validation.Validator">
+        <argument>
+            <reference-list interface="ddf.catalog.validation.ReportingMetacardValidator"
+                            availability="optional"/>
+        </argument>
+        <argument>
+            <reference-list interface="ddf.catalog.validation.AttributeValidatorRegistry"
+                            availability="optional"/>
+        </argument>
+    </bean>
+
+    <jaxrs:server id="workspaceService" address="/intrigue">
+        <jaxrs:serviceBeans>
+            <bean class="org.codice.ddf.intrigue.searchui.standard.endpoints.MetacardEditEndpoint">
+                <argument ref="catalogFramework"/>
+                <argument>
+                    <reference interface="ddf.catalog.data.AttributeRegistry"
+                               availability="optional"/>
+                </argument>
+                <argument ref="endpointUtil"/>
+            </bean>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="org.codice.ddf.intrigue.searchui.standard.endpoints.WorkspaceBodyReader"/>
+            <bean class="org.codice.ddf.intrigue.searchui.standard.endpoints.WorkspaceBodyWriter"/>
+        </jaxrs:providers>
+    </jaxrs:server>
+
+    <bean id="enumerationExtractor"
+          class="org.codice.ddf.intrigue.metacard.enumerations.ExperimentalEnumerationExtractor">
+        <argument>
+            <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"
+                       availability="optional"/>
+        </argument>
+        <argument>
+            <reference-list interface="ddf.catalog.data.MetacardType"/>
+        </argument>
+    </bean>
+
+    <bean id="associated" class="org.codice.ddf.intrigue.metacard.associations.Associated">
+        <argument ref="endpointUtil"/>
+        <argument ref="catalogFramework"/>
+    </bean>
+
+    <bean id="metacardApplication" class="org.codice.ddf.intrigue.metacard.MetacardApplication">
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="endpointUtil"/>
+        <argument ref="validator"/>
+        <argument ref="workspaceTransformer"/>
+        <argument ref="enumerationExtractor"/>
+        <argument ref="workspacePersistentStore"/>
+        <argument>
+            <reference-list interface="ddf.catalog.data.MetacardType"/>
+        </argument>
+        <argument ref="associated"/>
+    </bean>
+
+    <bean id="queryApplication" class="org.codice.ddf.intrigue.query.QueryApplication">
+        <property name="catalogFramework" ref="catalogFramework"/>
+        <property name="filterBuilder" ref="filterBuilder"/>
+        <property name="filterAdapter" ref="filterAdapter"/>
+        <property name="actionRegistry" ref="metacardActionRegistry"/>
+    </bean>
+
+    <bean id="feedbackApplication" class="org.codice.ddf.intrigue.query.FeedbackApplication">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.intrigue.config"
+                update-strategy="component-managed"
+                update-method="refresh"/>
+
+        <property name="configurationApplication" ref="configurationApplication"/>
+        <property name="smtpClient" ref="smtpClient"/>
+    </bean>
+
+    <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>
+
+    <bean id="userApplication" class="org.codice.ddf.intrigue.security.UserApplication">
+        <argument ref="persistentStore"/>
+        <argument ref="endpointUtil"/>
+    </bean>
+
+    <bean id="rootReqSupplier" class="org.codice.ddf.intrigue.RootContextRequestSupplier"/>
+    <bean id="sparkServlet" class="org.codice.ddf.intrigue.SparkServlet">
+        <property name="sparkApplications">
+            <list>
+                <ref component-id="queryApplication"/>
+                <ref component-id="metacardApplication"/>
+                <ref component-id="userApplication"/>
+                <ref component-id="configurationApplication"/>
+                <ref component-id="feedbackApplication"/>
+            </list>
+        </property>
+        <property name="requestSupplier" ref="rootReqSupplier"/>
+        <property name="filterMappingPattern" value="/intrigue/internal/*"/>
+    </bean>
+
+    <service ref="sparkServlet" interface="javax.servlet.Servlet">
+        <service-properties>
+            <entry key="urlPatterns" value="/intrigue/internal/*"/>
+        </service-properties>
+    </service>
+
+    <bean id="securityService"
+          class="org.codice.ddf.intrigue.query.monitor.impl.SecurityServiceImpl"/>
+
+    <bean id="queryWorkspaceService"
+          class="org.codice.ddf.intrigue.query.monitor.impl.WorkspaceServiceImpl">
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="workspaceTransformer"/>
+        <argument>
+            <bean class="org.codice.ddf.intrigue.query.monitor.impl.FilterServiceImpl">
+                <argument ref="filterBuilder"/>
+            </bean>
+        </argument>
+        <argument ref="securityService"/>
+    </bean>
+
+    <service interface="org.codice.ddf.intrigue.query.monitor.api.SubscriptionsPersistentStore">
+        <bean class="org.codice.ddf.intrigue.query.monitor.impl.SubscriptionsPersistentStoreImpl">
+            <argument ref="persistentStore"/>
+        </bean>
+    </service>
+
+    <reference id="workspacePersistentStore" availability="optional"
+               interface="org.codice.ddf.intrigue.query.monitor.api.SubscriptionsPersistentStore"/>
+
+    <reference id="smtpClient" availability="mandatory"
+               interface="org.codice.ddf.platform.email.SmtpClient"/>
+
+    <bean id="emailNotifierService"
+          class="org.codice.ddf.intrigue.query.monitor.email.EmailNotifier">
+
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.intrigue.query.monitor.email.EmailNotifier"
+                update-strategy="container-managed"/>
+
+        <argument
+                value="The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/intrigue/#workspaces/%[attribute=id]."/>
+        <argument value="Workspace '%[attribute=title]' notification"/>
+        <argument value="donotreply@example.com"/>
+        <argument>
+            <bean class="org.codice.ddf.intrigue.query.monitor.impl.ListMetacardFormatter">
+                <argument>
+                    <list>
+                        <bean class="org.codice.ddf.intrigue.query.monitor.impl.AttributeMetacardFormatter">
+                            <argument value="N/A"/>
+                        </bean>
+                        <bean class="org.codice.ddf.intrigue.query.monitor.impl.HitCountFormatter"/>
+                    </list>
+                </argument>
+            </bean>
+        </argument>
+        <argument ref="workspacePersistentStore"/>
+        <argument ref="smtpClient"/>
+    </bean>
+
+    <bean id="workspaceQueryService"
+          class="org.codice.ddf.intrigue.query.monitor.impl.WorkspaceQueryServiceImpl"
+          destroy-method="destroy">
+
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.intrigue.query.monitor.impl.WorkspaceQueryService"
+                update-strategy="container-managed"/>
+        <property name="queryTimeoutMinutes" value="5"/>
+        <property name="cronString" value="0 0 0 * * ?"/>
+        <property name="queryTimeInterval" value="1440"/>
+        <argument>
+            <bean class="org.codice.ddf.intrigue.query.monitor.impl.QueryUpdateSubscriberList">
+                <argument>
+                    <list>
+                        <ref component-id="emailNotifierService"/>
+                    </list>
+                </argument>
+            </bean>
+        </argument>
+        <argument ref="queryWorkspaceService"/>
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument>
+            <bean class="org.codice.ddf.intrigue.query.monitor.impl.quartz.DefaultScheduler"/>
+        </argument>
+        <argument ref="securityService"/>
+        <argument>
+            <bean class="org.codice.ddf.intrigue.query.monitor.impl.FilterServiceImpl">
+                <argument ref="filterBuilder"/>
+            </bean>
+        </argument>
+    </bean>
+
+    <service ref="workspaceQueryService"
+             interface="org.codice.ddf.intrigue.query.monitor.api.WorkspaceQueryService"/>
+
+</blueprint>

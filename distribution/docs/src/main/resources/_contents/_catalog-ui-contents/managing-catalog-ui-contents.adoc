@@ -23,17 +23,17 @@ From the ${admin-console}, the following configurations are available from a sta
 |Configuration ID
 |Description
 
-include::{adoc-include}/_tables/conf-org.codice.ddf.catalog.ui.config-table-contents.adoc[]
-include::{adoc-include}/_tables/conf-org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier-table-contents.adoc[]
-include::{adoc-include}/_tables/conf-org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService-table-contents.adoc[]
-include::{adoc-include}/_tables/conf-org.codice.ddf.catalog.ui.security-table-contents.adoc[]
+include::{adoc-include}/_tables/conf-org.codice.ddf.intrigue.config-table-contents.adoc[]
+include::{adoc-include}/_tables/conf-org.codice.ddf.intrigue.query.monitor.email.EmailNotifier-table-contents.adoc[]
+include::{adoc-include}/_tables/conf-org.codice.ddf.intrigue.query.monitor.impl.WorkspaceQueryService-table-contents.adoc[]
+include::{adoc-include}/_tables/conf-org.codice.ddf.intrigue.security-table-contents.adoc[]
 
 |===
 
-include::{adoc-include}/_tables/org.codice.ddf.catalog.ui.config-table-contents.adoc[]
+include::{adoc-include}/_tables/org.codice.ddf.intrigue.config-table-contents.adoc[]
 
-include::{adoc-include}/_tables/org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier-table-contents.adoc[]
+include::{adoc-include}/_tables/org.codice.ddf.intrigue.query.monitor.email.EmailNotifier-table-contents.adoc[]
 
-include::{adoc-include}/_tables/org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService-table-contents.adoc[]
+include::{adoc-include}/_tables/org.codice.ddf.intrigue.query.monitor.impl.WorkspaceQueryService-table-contents.adoc[]
 
-include::{adoc-include}/_tables/org.codice.ddf.catalog.ui.security-table-contents.adoc[]
+include::{adoc-include}/_tables/org.codice.ddf.intrigue.security-table-contents.adoc[]
