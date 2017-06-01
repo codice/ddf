@@ -49,6 +49,38 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributesType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 
 public class XacmlPdpTest {
+
+    private static final String ROLE_CLAIM =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+
+    private static final String STRING_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#string";
+
+    private static final String BOOLEAN_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#boolean";
+
+    private static final String INTEGER_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#integer";
+
+    private static final String DOUBLE_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#double";
+
+    private static final String TIME_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#time";
+
+    private static final String DATE_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#date";
+
+    private static final String DATE_TIME_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#dateTime";
+
+    private static final String URI_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#anyURI";
+
+    private static final String RFC822_NAME_DATA_TYPE =
+            "urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name";
+
+    private static final String IP_ADDRESS_DATA_TYPE =
+            "urn:oasis:names:tc:xacml:2.0:data-type:ipAddress";
+
+    private static final String X500_NAME_DATA_TYPE =
+            "urn:oasis:names:tc:xacml:1.0:data-type:x500Name";
+
+    private static final String ENVIRONMENT_CATEGORY =
+            "urn:oasis:names:tc:xacml:3.0:attribute-category:environment";
+
     private static final String USER_NAME = "Test User";
 
     private static final String QUERY_ACTION = "query";
@@ -203,77 +235,77 @@ public class XacmlPdpTest {
 
     @Test
     public void testParseAttributeTypeBoolean() {
-        assertTrue(XACMLConstants.BOOLEAN_DATA_TYPE.equals(testRealm.getXacmlDataType("true")));
+        assertTrue(BOOLEAN_DATA_TYPE.equals(testRealm.getXacmlDataType("true")));
     }
 
     @Test
     public void testParseAttributeTypeInteger() {
-        assertTrue(XACMLConstants.INTEGER_DATA_TYPE.equals(testRealm.getXacmlDataType("42")));
+        assertTrue(INTEGER_DATA_TYPE.equals(testRealm.getXacmlDataType("42")));
     }
 
     @Test
     public void testParseAttributeTypeDouble() {
 
-        assertTrue(XACMLConstants.DOUBLE_DATA_TYPE.equals(testRealm.getXacmlDataType("42.42")));
+        assertTrue(DOUBLE_DATA_TYPE.equals(testRealm.getXacmlDataType("42.42")));
     }
 
     @Test
     public void testParseAttributeTypeTime() {
 
-        assertTrue(XACMLConstants.TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+        assertTrue(TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
                 "09:00:52.545-05:00")));
-        assertTrue(XACMLConstants.TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52.545")));
-        assertTrue(XACMLConstants.TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52-05:00")));
-        assertTrue(XACMLConstants.TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52")));
+        assertTrue(TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52.545")));
+        assertTrue(TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52-05:00")));
+        assertTrue(TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52")));
 
     }
 
     @Test
     public void testParseAttributeTypeDate() {
-        assertTrue(XACMLConstants.DATE_DATA_TYPE.equals(testRealm.getXacmlDataType("1984-11-06")));
-        assertTrue(XACMLConstants.DATE_DATA_TYPE.equals(testRealm.getXacmlDataType(
+        assertTrue(DATE_DATA_TYPE.equals(testRealm.getXacmlDataType("1984-11-06")));
+        assertTrue(DATE_DATA_TYPE.equals(testRealm.getXacmlDataType(
                 "1984-11-06-05:00")));
 
     }
 
     @Test
     public void testParseAttributeTypeDateTime() {
-        assertTrue(XACMLConstants.DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+        assertTrue(DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
                 "2002-05-30T09:30:10Z")));
-        assertTrue(XACMLConstants.DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+        assertTrue(DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
                 "2002-05-30T09:30:10")));
-        assertTrue(XACMLConstants.DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+        assertTrue(DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
                 "2002-05-30T09:30:10-05:00")));
-        assertTrue(XACMLConstants.DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+        assertTrue(DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
                 "2002-05-30T09:30:10.525")));
     }
 
     @Test
     public void testParseAttributeTypeUri() {
-        assertTrue(XACMLConstants.URI_DATA_TYPE.equals(testRealm.getXacmlDataType(
+        assertTrue(URI_DATA_TYPE.equals(testRealm.getXacmlDataType(
                 "http://www.codice.org")));
     }
 
     @Test
     public void testParseAttributeTypeString() {
-        assertTrue(XACMLConstants.STRING_DATA_TYPE.equals(testRealm.getXacmlDataType(
+        assertTrue(STRING_DATA_TYPE.equals(testRealm.getXacmlDataType(
                 "Simple string with 1 integer.")));
     }
 
     @Test
     public void testParseAttributeTypeRfc822Name() {
-        assertTrue(XACMLConstants.RFC822_NAME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+        assertTrue(RFC822_NAME_DATA_TYPE.equals(testRealm.getXacmlDataType(
                 "dev@codice.com")));
     }
 
     @Test
     public void testParseAttributeTypeIpAddress() {
-        assertTrue(XACMLConstants.IP_ADDRESS_DATA_TYPE.equals(testRealm.getXacmlDataType("8.8.8.8")));
+        assertTrue(IP_ADDRESS_DATA_TYPE.equals(testRealm.getXacmlDataType("8.8.8.8")));
     }
 
     @Test
     public void testParseAttributeTypeX500Name() {
-        assertTrue(XACMLConstants.X500_NAME_DATA_TYPE.equals(testRealm.getXacmlDataType(
+        assertTrue(X500_NAME_DATA_TYPE.equals(testRealm.getXacmlDataType(
                 "c=UK,l=London,o=Tardis,o=police box,cn=john.smith")));
     }
 
@@ -288,7 +320,7 @@ public class XacmlPdpTest {
         AttributesType environmentAttributes = null;
         for (AttributesType attribute : attributes) {
             if (attribute.getCategory()
-                    .equals(XACMLConstants.ENVIRONMENT_CATEGORY)) {
+                    .equals(ENVIRONMENT_CATEGORY)) {
                 environmentAttributes = attribute;
             }
         }
