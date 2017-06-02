@@ -49,7 +49,8 @@ define([
     Installer.Model = Backbone.Model.extend({
         installUrl: '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/',
         uninstallUrl: '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/uninstallFeature(java.lang.String,boolean)/',
-        shutdownUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/halt()',
+        propertiesUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/setProperty(java.lang.String,java.lang.String,boolean)/karaf.restart.jvm/true/false',
+        restartUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/reboot()',
         defaults: function () {
             return {
                 hasNext: true,
@@ -123,7 +124,7 @@ define([
         previousStep: function() {
             this.set(_step.call(this, -1));
         },
-        save: function(shutdown) {
+        save: function(restart) {
             var that = this;
             wreqr.vent.trigger('modulePoller:stop');
             return $.ajax({
@@ -136,15 +137,21 @@ define([
                     url: that.installUrl + 'admin-post-install-modules/true',
                     dataType: 'JSON'
                 }).then(function(){
-                    if (shutdown) {
+                    if (restart) {
                         $.ajax({
                             type: 'GET',
-                            url: that.shutdownUrl,
+                            url: that.propertiesUrl,
                             dataType: 'JSON'
                         }).done(function () {
-                            window.setTimeout(function () {
-                              window.location.href = that.get("redirectUrl");
-                            }, 30000);
+                            $.ajax({
+                                type: 'GET',
+                                url: that.restartUrl,
+                                dataType: 'JSON'
+                            }).done(function () {
+                                window.setTimeout(function () {
+                                    window.location.href = that.get("redirectUrl");
+                                }, 60000);
+                            });
                         });
                     } else {
                         location.reload();
