@@ -37,6 +37,7 @@
             pluginTabContentItemView:'templates/application/application-detail/PluginTabContent.item.view.handlebars',
             pluginTabContentCollectionView:'templates/application/application-detail/PluginTabContent.collection.view.handlebars',
             iframeView:'templates/application/iframeView.handlebars',
+            waitForVisible: 'templates/application/waitForVisible.handlebars',
 
             // installer module templates
             applicationWrapperTemplate: 'templates/installer/application.handlebars',
