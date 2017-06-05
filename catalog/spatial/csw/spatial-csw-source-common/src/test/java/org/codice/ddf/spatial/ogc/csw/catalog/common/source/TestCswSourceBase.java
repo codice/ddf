@@ -496,7 +496,7 @@ public class TestCswSourceBase {
         doReturn(mockRegisteredMetacardType).when(mockContext)
                 .registerService(eq(MetacardType.class.getName()),
                         any(MetacardType.class),
-                        Matchers.any());
+                        any());
         ServiceReference<?> mockServiceReference =
                 (ServiceReference<?>) mock(ServiceReference.class);
         doReturn(mockServiceReference).when(mockRegisteredMetacardType)

@@ -147,15 +147,4 @@ public class QueryForm extends HttpServlet {
         return request.getParameter(TICKET_PARAM);
     }
 
-    /**
-     * Retrieves the url request of the service so that the ticket can be validated later on.
-     *
-     * @param request
-     *            The Http servlet request.
-     * @return Returns the service that the ticket was created for.
-     */
-    private String getService(HttpServletRequest request) {
-        return request.getRequestURL()
-                .toString();
-    }
 }

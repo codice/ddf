@@ -138,7 +138,7 @@ public class ResourceDownloadActionEndpointTest {
         ResourceDownloadActionEndpoint resourceDownloadEndpoint = createResourceDownloadActionEndpoint();
 
         // Perform Test
-        Response response = resourceDownloadEndpoint.copyToLocalSite(SOURCE_ID, METACARD_ID);
+        resourceDownloadEndpoint.copyToLocalSite(SOURCE_ID, METACARD_ID);
 
         verify(mockResourceDownloadMBeanProxy).copyToLocalSite(SOURCE_ID, METACARD_ID);
     }
@@ -149,7 +149,7 @@ public class ResourceDownloadActionEndpointTest {
         setupMockTemplate(null, SUCCESS_MESSAGE);
         setupMockHandlebars(IOException.class);
 
-        ResourceDownloadActionEndpoint resourceDownloadEndpoint = createResourceDownloadActionEndpoint();
+        createResourceDownloadActionEndpoint();
     }
 
     private ResourceDownloadActionEndpoint createResourceDownloadActionEndpoint() {

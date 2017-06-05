@@ -74,7 +74,7 @@ public class ValidationQueryFactoryTest {
                 .is()
                 .equalTo()
                 .text("sample"));
-        ValidationQueryDelegate delegate = new ValidationQueryDelegate();
+        new ValidationQueryDelegate();
         assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(true));
         QueryRequest returnQuery =
                 validationQueryFactory.getQueryRequestWithValidationFilter(new QueryRequestImpl(

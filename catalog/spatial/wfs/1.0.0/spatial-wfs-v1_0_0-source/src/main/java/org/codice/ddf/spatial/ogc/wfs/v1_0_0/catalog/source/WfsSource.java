@@ -372,14 +372,6 @@ public class WfsSource extends MaskableImpl
         return !StringUtils.equals(getId(), id);
     }
 
-    private boolean hasPasswordChanged(String password) {
-        return !StringUtils.equals(this.password, password);
-    }
-
-    private boolean hasUsernameChanged(String username) {
-        return !StringUtils.equals(this.username, username);
-    }
-
     @SuppressFBWarnings("RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN")
     private boolean hasDisableCnCheck(Boolean disableCnCheck) {
         return this.disableCnCheck != disableCnCheck;
@@ -599,7 +591,6 @@ public class WfsSource extends MaskableImpl
         unregisterAllMetacardTypes();
         this.featureTypeFilters.clear();
         if (!mcTypeRegs.isEmpty()) {
-            Set<Entry<String, MetacardTypeRegistration>> entries = mcTypeRegs.entrySet();
 
             for (Map.Entry<String, MetacardTypeRegistration> entry : mcTypeRegs.entrySet()) {
                 MetacardTypeRegistration mcTypeReg = entry.getValue();

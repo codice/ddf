@@ -131,8 +131,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static final String SAMPLE_IMAGE = "/9466484_b06f26d579_o.jpg";
 
-    private static final String SAMPLE_MP4 = "/sample.mp4";
-
     private static final String METACARD_BACKUP_DIRECTORY = "data/tmp/backup";
 
     private static final String METACARD_BACKUP_FILE_STORAGE_FEATURE =
@@ -1436,7 +1434,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         try (InputStream inputStream = IOUtils.toInputStream(getFileContent("sample.mp4"))) {
             final byte[] fileBytes = IOUtils.toByteArray(inputStream);
 
-            final ValidatableResponse response = given().multiPart("file",
+            given().multiPart("file",
                     "sample.mp4",
                     fileBytes,
                     "video/mp4")

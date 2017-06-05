@@ -62,10 +62,6 @@ public class MockQuery implements Query {
 
     private long maxTimeout;
 
-    private boolean isEnterprise;
-
-    private Set<String> siteIds;
-
     private SortBy sortBy;
 
     private List<Filter> filters;
@@ -229,14 +225,6 @@ public class MockQuery implements Query {
     @Override
     public long getTimeoutMillis() {
         return maxTimeout;
-    }
-
-    public void setSiteIds(Set<String> siteIds) {
-        this.siteIds = siteIds;
-    }
-
-    public void setIsEnterprise(boolean isEnterprise) {
-        this.isEnterprise = isEnterprise;
     }
 
     @Override

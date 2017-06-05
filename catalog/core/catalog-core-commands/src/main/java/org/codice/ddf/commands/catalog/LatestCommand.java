@@ -58,8 +58,6 @@ public class LatestCommand extends CatalogCommands {
         console.printf(formatString, "", "", "", "");
         printHeaderMessage(String.format(formatString, NUMBER, ID, DATE, TITLE));
 
-        CatalogFacade catalogProvider = getCatalog();
-
         Filter filter = filterBuilder.attribute(Metacard.MODIFIED)
                 .before()
                 .date(new Date());

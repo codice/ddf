@@ -71,8 +71,6 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     private static final String STOP_COMMAND = COMMAND_PREFIX + "stop ";
 
-    private static final String LIST_COMMAND = COMMAND_PREFIX + "list";
-
     private static final String ADD_COMMAND = COMMAND_PREFIX + "add ";
 
     private static final String REMOVE_COMMAND = COMMAND_PREFIX + "remove ";
@@ -89,8 +87,6 @@ public class TestApplicationService extends AbstractIntegrationTest {
     private static final String REGISTRY_APP = "registry-app";
 
     private static final String SDK_APP = "sdk-app";
-
-    private static final String INACTIVE_SDK = "[INACTIVE] " + SDK_APP;
 
     private static final String APP_LIST_PROPERTIES_FILE =
             "/org.codice.ddf.admin.applicationlist.properties";

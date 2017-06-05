@@ -34,9 +34,8 @@ public class WorkspaceServiceTest {
         JSONContext.Client jsonContext = new Jackson1JSONContextClient();
         String json =
                 "{\"id\":\"16\",\"data\":{\"workspaces\":[{\"name\":\"admin_ws\",\"searches\":[{\"radiusUnits\":\"meters\",\"result\":{},\"startIndex\":1,\"count\":250,\"federation\":\"enterprise\",\"q\":\"admin_phrase\",\"name\":\"admin_search\",\"radiusValue\":0,\"radius\":0,\"offsetTimeUnits\":\"hours\",\"src\":\"ddf.distribution\",\"format\":\"geojson\",\"timeType\":\"modified\"}],\"metacards\":[]}],\"successful\":true},\"channel\":\"/service/workspaces\"}";
-        Map map2 = jsonContext.getParser()
-                .parse(new StringReader(json), Map.class);
-        int x = 1;
+        //        Map map2 = jsonContext.getParser()
+        //              .parse(new StringReader(json), Map.class);
         //        Data data2 = (Data)map2.get("data");
         //        Extra extra2 = (Extra)map2.get("extra");
         //        Assert.assertEquals(data1.content, data2.content);

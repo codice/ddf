@@ -48,7 +48,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Path("/edit")
 public class MetacardEditEndpoint {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardEditEndpoint.class);
 
     private final CatalogFramework catalogFramework;
 
@@ -178,7 +177,7 @@ public class MetacardEditEndpoint {
         }
 
         catalogFramework.update(new UpdateRequestImpl(id, metacard));
-        Map<String, Object> responseMap = getResponseMap(attribute,
+        getResponseMap(attribute,
                 metacard.getAttribute(attribute),
                 descriptor);
         return Response.ok(endpointUtil.getJson(response), MediaType.APPLICATION_JSON)

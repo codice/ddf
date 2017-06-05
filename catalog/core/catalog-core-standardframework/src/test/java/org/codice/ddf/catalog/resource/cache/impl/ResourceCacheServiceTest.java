@@ -62,9 +62,6 @@ public class ResourceCacheServiceTest {
     private ResourceCache mockResourceCache;
 
     @Mock
-    private ResourceCacheServiceMBean mockResourceCacheServiceMBean;
-
-    @Mock
     private MBeanServer mockMBeanServer;
 
     @Mock

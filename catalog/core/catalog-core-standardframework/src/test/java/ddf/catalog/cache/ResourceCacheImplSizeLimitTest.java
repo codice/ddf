@@ -1,4 +1,4 @@
-/**
+    /**
  * Copyright (c) Codice Foundation
  * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -288,7 +288,7 @@ public class ResourceCacheImplSizeLimitTest {
     private HazelcastInstance initializeTestHazelcastInstance() {
         HazelcastInstance instance = hcInstanceFactory.newHazelcastInstance();
 
-        IMap<Object, Object> cacheMap1 = instance.getMap(PRODUCT_CACHE_NAME);
+        instance.getMap(PRODUCT_CACHE_NAME);
         //        ProductCacheDirListener<Object, Object> listener = new ProductCacheDirListener<Object, Object>(maxDirSizeBytes);
         //        listener.setHazelcastInstance(instance);
         //        cacheMap1.addEntryListener(listener, true);

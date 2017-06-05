@@ -201,7 +201,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
 
             //Parse XML into a Geometry object
             Configuration configurationG = new org.geotools.gml3.v3_2.GMLConfiguration();
-            Parser parser = new org.geotools.xml.Parser(configurationG);
+            Parser parser = new Parser(configurationG);
             parser.setStrict(false);
             parser.setValidating(false);
             parser.setFailOnValidationError(false);

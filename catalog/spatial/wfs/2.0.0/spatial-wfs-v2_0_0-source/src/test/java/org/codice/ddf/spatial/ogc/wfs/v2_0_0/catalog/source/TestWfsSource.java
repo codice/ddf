@@ -99,8 +99,6 @@ public class TestWfsSource {
 
     private static final String SAMPLE_FEATURE_NAME = "SampleFeature";
 
-    private static final Integer MAX_FEATURES = 10;
-
     private static final Integer NULL_NUM_RETURNED = 9889;
 
     private static final String LITERAL = "literal";
@@ -559,7 +557,7 @@ public class TestWfsSource {
         Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
         //Execute
-        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+        source.buildGetFeatureRequest(query);
     }
 
     /**
@@ -590,7 +588,7 @@ public class TestWfsSource {
         Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
         //Execute
-        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+        source.buildGetFeatureRequest(query);
     }
 
     @Test
@@ -620,7 +618,7 @@ public class TestWfsSource {
         QueryRequestImpl queryReq = new QueryRequestImpl(query);
 
         // Perform test
-        SourceResponse resp = source.query(queryReq);
+        source.query(queryReq);
 
     }
 
@@ -1049,7 +1047,6 @@ public class TestWfsSource {
     @Test
     public void testSearchByType() throws Exception {
         //Setup
-        int startIndex = 0;
         int pageSize = 10;
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(),

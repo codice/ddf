@@ -26,7 +26,6 @@ THE SOFTWARE.
 var Handlebars = {};
 
 (function(Handlebars, undefined) {
-;
 // lib/handlebars/base.js
 
 Handlebars.VERSION = "1.0.0";
@@ -195,8 +194,7 @@ performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 
 var $0 = $$.length - 1;
 switch (yystate) {
-case 1: return $$[$0-1]; 
-break;
+case 1: return $$[$0-1];
 case 2: this.$ = new yy.ProgramNode([], $$[$0]); 
 break;
 case 3: this.$ = new yy.ProgramNode($$[$0-2], $$[$0]); 

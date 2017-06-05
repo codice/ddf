@@ -36,8 +36,6 @@ public class ProductDownloadClient implements Callable<ByteArrayOutputStream> {
 
     private int simulateFbosExceptionChunkCount;
 
-    private ReliableResourceDownloadManager downloadMgr;
-
     public ProductDownloadClient(InputStream inputStream, int chunkSize) {
         this(inputStream, chunkSize, -1);
     }
@@ -52,13 +50,11 @@ public class ProductDownloadClient implements Callable<ByteArrayOutputStream> {
     public void setSimulateCacheFileException(int chunkCount,
             ReliableResourceDownloadManager downloadMgr) {
         this.simulateCacheFileExceptionChunkCount = chunkCount;
-        this.downloadMgr = downloadMgr;
     }
 
     public void setSimulateFbosException(int chunkCount,
             ReliableResourceDownloadManager downloadMgr) {
         this.simulateFbosExceptionChunkCount = chunkCount;
-        this.downloadMgr = downloadMgr;
     }
 
     @Override

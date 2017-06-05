@@ -597,7 +597,7 @@ public class TestRestEndpoint {
      */
     @Test
     public void testGetMetacardAsXml() throws Exception {
-        String filename = "src/test/resources/ValidGeojson.json";
+
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String metacardXml = "<metacard ns2:id=\"assigned-when-ingested\">\r\n" +
                 "<type>type.metacard</type>\r\n" +
@@ -618,8 +618,7 @@ public class TestRestEndpoint {
                 new Answer<BinaryContent>() {
                     @Override
                     public BinaryContent answer(InvocationOnMock invocation) throws Throwable {
-                        Object[] args = invocation.getArguments();
-                        Metacard metacard = (Metacard) args[0];
+                        invocation.getArguments();
                         return content;
                     }
                 });
@@ -1001,13 +1000,6 @@ public class TestRestEndpoint {
         rest.setMimeTypeToTransformerMapper(matchingService);
 
         return matchingService;
-    }
-
-    private HttpServletRequest createServletRequest(String bytesToSkip) {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getHeader(HEADER_RANGE)).thenReturn("bytes=" + bytesToSkip + "-");
-
-        return request;
     }
 
     private HttpHeaders createHeaders(List<String> mimeTypeList) {

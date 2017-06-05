@@ -89,7 +89,7 @@ public class PptxInputTransformer implements InputTransformer {
             throw new CatalogTransformerException("Cannot transform null input.");
         }
 
-        return transformLogic(input, id);
+        return transformLogic(input);
     }
 
     /**
@@ -99,12 +99,11 @@ public class PptxInputTransformer implements InputTransformer {
      * to create the thumbnail.
      *
      * @param input
-     * @param id
      * @return
      * @throws IOException
      * @throws CatalogTransformerException
      */
-    private Metacard transformLogic(InputStream input, String id)
+    private Metacard transformLogic(InputStream input)
             throws IOException, CatalogTransformerException {
 
         try (TemporaryFileBackedOutputStream fileBackedOutputStream = new TemporaryFileBackedOutputStream()) {

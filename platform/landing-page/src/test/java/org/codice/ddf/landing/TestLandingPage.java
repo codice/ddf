@@ -46,10 +46,6 @@ public class TestLandingPage {
 
     private static String version = productName + " " + "10.4.GOOD-BUDDY";
 
-    private static String imgPath = "/img";
-
-    private static String faviconPath = "/favicon";
-
     private static String fakeImg = "fake.png";
 
     private static LandingPage landingPage;

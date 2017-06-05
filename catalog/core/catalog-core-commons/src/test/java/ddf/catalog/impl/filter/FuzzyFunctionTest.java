@@ -27,7 +27,7 @@ public class FuzzyFunctionTest {
     @Test(expected = NullPointerException.class)
     public void testVerifyFuzzyFunctionCannotBeCalledWithNull() {
         // When: I try to create a Fuzzy Function with null parameters
-        FuzzyFunction func = new FuzzyFunction(null, null);
+        new FuzzyFunction(null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -36,7 +36,7 @@ public class FuzzyFunctionTest {
         exprs.add(Expression.NIL);
         exprs.add(Expression.NIL);
         // When: I try to create a Fuzzy Function with null parameters
-        FuzzyFunction func = new FuzzyFunction(exprs, null);
+        new FuzzyFunction(exprs, null);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class FuzzyFunctionTest {
         List<Expression> exprs = new ArrayList<Expression>();
         exprs.add(Expression.NIL);
         // When: I try to create a Fuzzy Function with null parameters
-        FuzzyFunction func = new FuzzyFunction(exprs, null);
+        new FuzzyFunction(exprs, null);
         assertEquals("fuzzy", FuzzyFunction.NAME.getName());
     }
 

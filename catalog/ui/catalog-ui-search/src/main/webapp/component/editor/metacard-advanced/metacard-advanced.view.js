@@ -56,10 +56,6 @@ define([
                     if (!self.isDestroyed && self.editorProperties.currentView){
                         self.editorProperties.currentView.updateValidation(response);
                     }
-                }).always(function(){
-                    if (!self.isDestroyed){
-
-                    }
                 });
             }
         },

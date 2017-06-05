@@ -473,9 +473,9 @@ public class SolrFilterDelegateTest {
         String combinedExpectedFilter =
                 "{!xpath}xpath:\"(" + xpath + "[contains(lower-case(.), 'example1')] or " + xpath
                         + "[contains(lower-case(.), 'example2')])\"";
-        String expectedIndex =
-                "{!xpath}(xpath_index:\"" + xpath + "[contains(lower-case(.), 'example1')]\") OR "
-                        + "(xpath_index:\"" + xpath + "[contains(lower-case(.), 'example2')]\")";
+        //        String expectedIndex =
+        //                "{!xpath}(xpath_index:\"" + xpath + "[contains(lower-case(.), 'example1')]\") OR "
+        //                        + "(xpath_index:\"" + xpath + "[contains(lower-case(.), 'example2')]\")";
         // TODO DDF-1882 support xpath pre-filtering
         //        assertThat(combinedQuery.getFilterQueries().length, is(2));
         assertThat(combinedQuery.getFilterQueries()[0], is(combinedExpectedFilter));

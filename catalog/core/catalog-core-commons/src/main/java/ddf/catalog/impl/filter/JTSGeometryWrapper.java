@@ -22,7 +22,7 @@ public class JTSGeometryWrapper extends GeometryImpl {
 
     private Geometry geo;
 
-    public JTSGeometryWrapper(com.vividsolutions.jts.geom.Geometry geo) {
+    public JTSGeometryWrapper(Geometry geo) {
         this.geo = geo;
     }
 

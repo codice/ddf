@@ -484,9 +484,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         // Mock catalog framework
         final CreateRequest createRequest = new CreateRequestImpl(metacards);
-        final CreateResponse createResponse = new CreateResponseImpl(createRequest,
-                new HashMap(),
-                metacards);
+        new CreateResponseImpl(createRequest, new HashMap(), metacards);
         when(catalogFramework.create(any(CreateRequest.class))).thenThrow(new IngestException());
 
         // Exercise the route with a CREATE operation
@@ -688,9 +686,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         }
 
         UpdateRequest updateRequest = new UpdateRequestImpl(metacardIds, metacards);
-        UpdateResponse updateResponse = new UpdateResponseImpl(updateRequest,
-                new HashMap(),
-                updates);
+        new UpdateResponseImpl(updateRequest, new HashMap(), updates);
         when(catalogFramework.update(any(UpdateRequest.class))).thenThrow(new IngestException());
 
         // Exercise the route with a UPDATE operation
@@ -815,7 +811,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         }
 
         DeleteRequest deleteRequest = new DeleteRequestImpl(metacardIds);
-        DeleteResponse deleteResponse = new DeleteResponseImpl(deleteRequest,
+        new DeleteResponseImpl(deleteRequest,
                 new HashMap(),
                 metacards);
         when(catalogFramework.delete(any(DeleteRequest.class))).thenThrow(new IngestException());

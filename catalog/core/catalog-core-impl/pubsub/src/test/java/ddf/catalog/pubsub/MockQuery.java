@@ -72,10 +72,6 @@ public class MockQuery implements FederatedSource, Query {
 
     private long maxTimeout;
 
-    private boolean isEnterprise;
-
-    private Set<String> siteIds;
-
     private SortBy sortBy;
 
     private Filter filter;
@@ -331,14 +327,6 @@ public class MockQuery implements FederatedSource, Query {
     @Override
     public long getTimeoutMillis() {
         return maxTimeout;
-    }
-
-    public void setSiteIds(Set<String> siteIds) {
-        this.siteIds = siteIds;
-    }
-
-    public void setIsEnterprise(boolean isEnterprise) {
-        this.isEnterprise = isEnterprise;
     }
 
     @Override

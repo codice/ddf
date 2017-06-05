@@ -394,7 +394,7 @@ public class TestCswRecordConverter {
         StringWriter stringWriter = new StringWriter();
         PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
         MarshallingContext context = new TreeMarshaller(writer, null, null);
-        context.put(CswConstants.ELEMENT_SET_TYPE, ElementSetType.BRIEF);
+        context.put(CswConstants.ELEMENT_SET_TYPE, BRIEF);
 
         converter.marshal(metacard, writer, context);
 
@@ -411,7 +411,7 @@ public class TestCswRecordConverter {
         StringWriter stringWriter = new StringWriter();
         PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
         MarshallingContext context = new TreeMarshaller(writer, null, null);
-        context.put(CswConstants.ELEMENT_SET_TYPE, ElementSetType.SUMMARY);
+        context.put(CswConstants.ELEMENT_SET_TYPE, SUMMARY);
 
         converter.marshal(metacard, writer, context);
 

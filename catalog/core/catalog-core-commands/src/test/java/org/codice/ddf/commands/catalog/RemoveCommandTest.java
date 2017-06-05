@@ -114,7 +114,7 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
         assertThat(consoleOutput.getOutput(), containsString("Nothing to remove."));
     }
 
-    private java.util.List<Metacard> getMetacardList(int amount) {
+    private List<Metacard> getMetacardList(int amount) {
         List<Metacard> metacards = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {

@@ -417,7 +417,6 @@ public class CatalogFrameworkImplTest {
                 opsMetacard);
         OperationsStorageSupport opsStorage = new OperationsStorageSupport(sourceOperations,
                 queryOperations);
-        opsStorage.setHistorian(historian);
 
         OperationsCatalogStoreSupport opsCatStore = new OperationsCatalogStoreSupport(
                 frameworkProperties,
@@ -441,8 +440,6 @@ public class CatalogFrameworkImplTest {
                 sourceOperations,
                 opsSecurity,
                 opsMetacard);
-
-        deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
         ResourceOperations resOps = new ResourceOperations(frameworkProperties,
                 queryOperations,
@@ -576,28 +573,28 @@ public class CatalogFrameworkImplTest {
     private List<Metacard> getMetacards(String title, Date expiration) {
         List<Metacard> metacards = new ArrayList<>();
 
-        MetacardImpl basicMetacardHasBoth = new MetacardImpl(BasicTypes.BASIC_METACARD);
+        MetacardImpl basicMetacardHasBoth = new MetacardImpl(BASIC_METACARD);
         basicMetacardHasBoth.setId("1");
         basicMetacardHasBoth.setTitle(title);
         basicMetacardHasBoth.setExpirationDate(expiration);
         metacards.add(basicMetacardHasBoth);
 
-        MetacardImpl basicMetacardHasTitle = new MetacardImpl(BasicTypes.BASIC_METACARD);
+        MetacardImpl basicMetacardHasTitle = new MetacardImpl(BASIC_METACARD);
         basicMetacardHasTitle.setId("2");
         basicMetacardHasTitle.setTitle(title);
         metacards.add(basicMetacardHasTitle);
 
-        MetacardImpl basicMetacardHasExpiration = new MetacardImpl(BasicTypes.BASIC_METACARD);
+        MetacardImpl basicMetacardHasExpiration = new MetacardImpl(BASIC_METACARD);
         basicMetacardHasExpiration.setId("3");
         basicMetacardHasExpiration.setExpirationDate(expiration);
         metacards.add(basicMetacardHasExpiration);
 
-        MetacardImpl basicMetacardHasNeither = new MetacardImpl(BasicTypes.BASIC_METACARD);
+        MetacardImpl basicMetacardHasNeither = new MetacardImpl(BASIC_METACARD);
         basicMetacardHasNeither.setId("4");
         metacards.add(basicMetacardHasNeither);
 
         MetacardType customMetacardType = new MetacardTypeImpl(CUSTOM_METACARD_TYPE_NAME,
-                BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+                BASIC_METACARD.getAttributeDescriptors());
         MetacardImpl customMetacardHasNeither = new MetacardImpl(customMetacardType);
         customMetacardHasNeither.setId("5");
         metacards.add(customMetacardHasNeither);
@@ -1446,10 +1443,8 @@ public class CatalogFrameworkImplTest {
         Historian historian = new Historian();
         historian.setHistoryEnabled(false);
 
-        opsStorage.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
-        deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
         CatalogFrameworkImpl catalogFramework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
@@ -3020,7 +3015,7 @@ public class CatalogFrameworkImplTest {
         ResourceResponse response = catalogFramework.getResource(mockResourceRequest, DDF);
 
         // Verify that the Response is as expected
-        org.junit.Assert.assertEquals(EXPECTED,
+        assertEquals(EXPECTED,
                 response.getResource()
                         .getName());
 

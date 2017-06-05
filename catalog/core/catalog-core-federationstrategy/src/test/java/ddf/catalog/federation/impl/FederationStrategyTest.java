@@ -207,10 +207,8 @@ public class FederationStrategyTest {
                 opsSecurity,
                 opsMetacard);
 
-        opsStorage.setHistorian(historian);
         updateOperations.setHistorian(historian);
         deleteOperations.setHistorian(historian);
-        deleteOperations.setOpsCatStoreSupport(opsCatStore);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(createOperations,
                 updateOperations,
@@ -408,12 +406,12 @@ public class FederationStrategyTest {
 
         QueryResponseImpl mockOriginalResults = Mockito.mock(QueryResponseImpl.class);
         // Return true for the number of mockSortedResults
-        Mockito.when(mockOriginalResults.hasMoreResults())
+        when(mockOriginalResults.hasMoreResults())
                 .thenReturn(true, true, true, true, true, true, true, true, false);
-        Mockito.when(mockOriginalResults.getResults())
+        when(mockOriginalResults.getResults())
                 .thenReturn(mockSortedResults);
         // Returns the sorted results from both sources (4 + 4 = 8)
-        Mockito.when(mockOriginalResults.take())
+        when(mockOriginalResults.take())
                 .thenReturn(mockSortedResult1,
                         mockSortedResult2,
                         mockSortedResult3,
@@ -592,16 +590,16 @@ public class FederationStrategyTest {
          * into account.
          */
         Result mockSource1Result1 = mock(Result.class);
-        Mockito.when(mockSource1Result1.getRelevanceScore())
+        when(mockSource1Result1.getRelevanceScore())
                 .thenReturn(0.7);
         Result mockSource1Result2 = mock(Result.class);
-        Mockito.when(mockSource1Result2.getRelevanceScore())
+        when(mockSource1Result2.getRelevanceScore())
                 .thenReturn(0.5);
         Result mockSource1Result3 = mock(Result.class);
-        Mockito.when(mockSource1Result3.getRelevanceScore())
+        when(mockSource1Result3.getRelevanceScore())
                 .thenReturn(0.3);
         Result mockSource1Result4 = mock(Result.class);
-        Mockito.when(mockSource1Result4.getRelevanceScore())
+        when(mockSource1Result4.getRelevanceScore())
                 .thenReturn(0.1);
 
         SourceResponse mockSource1Response = mock(SourceResponse.class);
@@ -616,16 +614,16 @@ public class FederationStrategyTest {
         when(mockSource1.getId()).thenReturn("####### MOCK SOURCE 1.4 #######");
 
         Result mockSource2Result1 = mock(Result.class);
-        Mockito.when(mockSource2Result1.getRelevanceScore())
+        when(mockSource2Result1.getRelevanceScore())
                 .thenReturn(0.8);
         Result mockSource2Result2 = mock(Result.class);
-        Mockito.when(mockSource2Result2.getRelevanceScore())
+        when(mockSource2Result2.getRelevanceScore())
                 .thenReturn(0.6);
         Result mockSource2Result3 = mock(Result.class);
-        Mockito.when(mockSource2Result3.getRelevanceScore())
+        when(mockSource2Result3.getRelevanceScore())
                 .thenReturn(0.4);
         Result mockSource2Result4 = mock(Result.class);
-        Mockito.when(mockSource2Result4.getRelevanceScore())
+        when(mockSource2Result4.getRelevanceScore())
                 .thenReturn(0.2);
 
         SourceResponse mockSource2Response = mock(SourceResponse.class);

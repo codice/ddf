@@ -403,12 +403,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         return result;
     }
 
-    private Double degreesToMeters(double distance) {
-        return new Distance(DistanceUtils.degrees2Dist(distance,
-                DistanceUtils.EARTH_MEAN_RADIUS_KM),
-                Distance.LinearUnit.KILOMETER).getAs(Distance.LinearUnit.METER);
-    }
-
     public MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
         MetacardType metacardType = resolver.getMetacardType(doc);
         MetacardImpl metacard = new MetacardImpl(metacardType);

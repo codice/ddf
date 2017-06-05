@@ -1,4 +1,4 @@
-/**
+    /**
  * Copyright (c) Codice Foundation
  * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -83,7 +83,7 @@ public class TestGeoJsonQueryResponseTransformer {
     @Test
     public void testNullResults() throws CatalogTransformerException, IOException, ParseException {
         SourceResponse sourceResponse = new SourceResponseImpl(null, null, 0L);
-        JSONObject obj = transform(sourceResponse, 0, 0);
+        JSONObject obj = transform(sourceResponse);
         verifyResponse(obj, 0, 0);
     }
 
@@ -116,13 +116,14 @@ public class TestGeoJsonQueryResponseTransformer {
         final int resultCount = 3;
         final int hitCount = 12;
         SourceResponse sourceResponse = setupResponse(resultCount, hitCount);
-        JSONObject obj = transform(sourceResponse, resultCount, hitCount);
+        JSONObject obj = transform(sourceResponse);
 
         verifyResponse(obj, resultCount, hitCount);
     }
 
-    private JSONObject transform(SourceResponse sourceResponse, final int resultCount,
-            final int hitCount) throws CatalogTransformerException, IOException, ParseException {
+    private JSONObject transform(SourceResponse sourceResponse)
+            throws CatalogTransformerException, IOException, ParseException {
+
         BinaryContent content = new GeoJsonQueryResponseTransformer().transform(sourceResponse,
                 null);
 

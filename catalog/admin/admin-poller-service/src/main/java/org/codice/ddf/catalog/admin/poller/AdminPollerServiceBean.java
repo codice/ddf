@@ -299,7 +299,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
             return null;
         }
 
-        protected List<Source> getSources() throws org.osgi.framework.InvalidSyntaxException {
+        protected List<Source> getSources() throws InvalidSyntaxException {
             List<Source> sources = new ArrayList<>();
             List<ServiceReference<? extends Source>> refs = new ArrayList<>();
             refs.addAll(helper.getBundleContext()

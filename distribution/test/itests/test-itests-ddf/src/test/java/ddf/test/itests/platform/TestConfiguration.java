@@ -76,8 +76,6 @@ import com.jayway.restassured.response.Response;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestConfiguration extends AbstractIntegrationTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestConfiguration.class);
-
     private static final String EXPORT_COMMAND = "migration:export";
 
     private static final String STATUS_COMMAND = "migration:status";
@@ -806,10 +804,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private Path getPathToFailedDirectory() {
         return getPathToConfigDirectory().resolve("failed");
-    }
-
-    private InputStream getResourceAsStream(String resource) {
-        return getClass().getResourceAsStream("/" + resource);
     }
 
     /**

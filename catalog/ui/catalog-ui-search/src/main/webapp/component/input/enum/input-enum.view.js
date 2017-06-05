@@ -111,7 +111,6 @@ define([
                     } else {
                         return null;
                     }
-                    break;
                 default:
                     return currentValue;
             }

@@ -182,7 +182,7 @@ public class TestCswSource extends TestCswSourceBase {
         doReturn(mockRegisteredMetacardType).when(mockContext)
                 .registerService(eq(MetacardType.class.getName()),
                         any(MetacardType.class),
-                        Matchers.any());
+                        any());
         ServiceReference<?> mockServiceReference =
                 (ServiceReference<?>) mock(ServiceReference.class);
         doReturn(mockServiceReference).when(mockRegisteredMetacardType)
@@ -1506,13 +1506,11 @@ public class TestCswSource extends TestCswSourceBase {
                 mockProvider,
                 mockFactory,
                 encryptionService);
-        setMetacardType(cswSource);
         cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
         cswSource.setFilterBuilder(builder);
         cswSource.setContext(context);
         cswSource.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         cswSource.setAvailabilityTask(mockAvailabilityTask);
-        cswSource.setMetacardTypes(mockRegistry);
         cswSource.configureCswSource();
 
         return cswSource;
@@ -1597,15 +1595,5 @@ public class TestCswSource extends TestCswSourceBase {
         configuration.put(cswSource.CSWURL_PROPERTY, URL);
         configuration.put(cswSource.IS_CQL_FORCED_PROPERTY, false);
         return configuration;
-    }
-
-    private void setMetacardType(CswSourceStub cswSourceStub) {
-        cswSourceStub.setMetacardTypes(Arrays.asList(new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
-                Arrays.asList(new ContactAttributes(),
-                        new LocationAttributes(),
-                        new MediaAttributes(),
-                        new TopicAttributes(),
-                        new AssociationsAttributes()))));
-
     }
 }

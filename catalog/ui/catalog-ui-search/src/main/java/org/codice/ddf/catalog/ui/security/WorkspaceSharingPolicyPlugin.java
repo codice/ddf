@@ -46,12 +46,6 @@ import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
 public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
 
-    private final WorkspaceTransformer transformer;
-
-    public WorkspaceSharingPolicyPlugin(WorkspaceTransformer transformer) {
-        this.transformer = transformer;
-    }
-
     private static Map<String, Set<String>> getOwnerPermission(String owner) {
         return ImmutableMap.of(Core.METACARD_OWNER, ImmutableSet.of(owner));
     }

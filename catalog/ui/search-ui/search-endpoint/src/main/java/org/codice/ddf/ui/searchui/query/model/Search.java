@@ -107,8 +107,6 @@ public class Search {
 
     private static final String IS_RESOURCE_LOCAL = "is-resource-local";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
-
     private static final DateTimeFormatter ISO_8601_DATE_FORMAT = DateTimeFormat.forPattern(
             "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
             .withZoneUTC();

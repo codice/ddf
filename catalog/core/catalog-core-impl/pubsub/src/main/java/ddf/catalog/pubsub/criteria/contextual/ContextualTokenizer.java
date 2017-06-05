@@ -31,8 +31,6 @@ public class ContextualTokenizer extends CharTokenizer {
 
     public static final Set<Character> SPECIAL_CHARACTERS_SET;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContextualTokenizer.class);
-
     static {
         final List<Character> specialChars = Arrays.asList('-',
                 '_',

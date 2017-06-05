@@ -113,7 +113,7 @@ public class TestPubSubOgcFilter {
         metacard.setModifiedDate(new Date(1319075867L));
         metacard.setId("ABC123");
         metacard.setContentTypeName("MetacardType");
-        Feature feature = convertMetacardToFeature(metacard);
+        convertMetacardToFeature(metacard);
 
         assertTrue(true); // TODO: test this feature metacard against an OGC Filter
     }
@@ -136,7 +136,7 @@ public class TestPubSubOgcFilter {
 
         com.vividsolutions.jts.geom.GeometryFactory geoFactory =
                 JTSFactoryFinder.getGeometryFactory(null);
-        com.vividsolutions.jts.geom.Point point = geoFactory.createPoint(new Coordinate(-112, 28));
+        Point point = geoFactory.createPoint(new Coordinate(-112, 28));
         featureBuilder.set(Metacard.GEOGRAPHY, point);
         return featureBuilder.buildFeature("KTF1");
 

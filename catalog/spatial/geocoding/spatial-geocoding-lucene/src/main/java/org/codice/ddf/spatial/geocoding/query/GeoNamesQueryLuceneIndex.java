@@ -66,7 +66,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesQueryLuceneIndex.class);
 
     private static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
 

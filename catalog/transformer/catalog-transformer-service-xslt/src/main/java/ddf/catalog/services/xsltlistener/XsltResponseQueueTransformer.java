@@ -73,7 +73,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
     }
 
     @Override
-    public ddf.catalog.data.BinaryContent transform(SourceResponse upstreamResponse,
+    public BinaryContent transform(SourceResponse upstreamResponse,
             Map<String, Serializable> arguments) throws CatalogTransformerException {
 
         LOGGER.debug("Transforming ResponseQueue with XSLT tranformer");

@@ -37,8 +37,6 @@ import ddf.catalog.source.SourceMetrics;
 
 public class SourceMetricsImplTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImplTest.class);
-
     private SourceMetricsImpl sourceMetrics;
 
     private CatalogProvider catalogProvider;

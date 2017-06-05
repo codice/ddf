@@ -173,8 +173,7 @@ public class WorkspaceAccessPluginTest {
 
         UpdateRequest update = mockUpdateRequest(ImmutableMap.of(id, after));
 
-        ArgumentCaptor<KeyValueCollectionPermission> args = ArgumentCaptor.forClass(
-                KeyValueCollectionPermission.class);
+        ArgumentCaptor.forClass(KeyValueCollectionPermission.class);
 
         doReturn(true).when(subject)
                 .isPermitted(any(Permission.class));

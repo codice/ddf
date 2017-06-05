@@ -44,7 +44,7 @@ public class WorkspaceSharingPolicyPluginTest {
     public void setUp() {
         properties = mock(Map.class);
         transformer = mock(WorkspaceTransformer.class);
-        plugin = new WorkspaceSharingPolicyPlugin(transformer);
+        plugin = new WorkspaceSharingPolicyPlugin();
     }
 
     @Test

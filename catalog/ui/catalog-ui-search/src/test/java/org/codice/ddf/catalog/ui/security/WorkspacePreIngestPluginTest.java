@@ -52,19 +52,6 @@ public class WorkspacePreIngestPluginTest {
         return makePlugin("admin@localhost", "admin");
     }
 
-    private static UpdateRequest update(Metacard original, Metacard updated) {
-        UpdateRequestImpl request = new UpdateRequestImpl(original.getId(), updated);
-
-        OperationTransaction transaction =
-                new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
-                        Arrays.asList(original));
-
-        request.setProperties(Collections.singletonMap(Constants.OPERATION_TRANSACTION_KEY,
-                transaction));
-
-        return request;
-    }
-
     @Test
     public void testSuccessfulIngest() throws Exception {
         WorkspacePreIngestPlugin wpip = makePlugin();

@@ -296,8 +296,7 @@ public class OpenSearchQueryTest {
     }
 
     private void testKeywordFiler(String inputKeywordPhrase, Filter expectedFilter) {
-        OpenSearchQuery osq = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery osq = new OpenSearchQuery(0,
                 0,
                 "relevance",
                 "asc",
@@ -316,8 +315,7 @@ public class OpenSearchQueryTest {
         String searchTerm = "cat";
         String selector = null;
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -349,8 +347,7 @@ public class OpenSearchQueryTest {
         String searchTerm = "cat";
         String selector = "//fileTitle";
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -382,8 +379,7 @@ public class OpenSearchQueryTest {
         String searchTerm = "cat";
         String selectors = "//fileTitle,//nitf";
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -417,8 +413,7 @@ public class OpenSearchQueryTest {
         TemporalFilter temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
         LOGGER.debug(temporalFilter.toString());
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -456,8 +451,7 @@ public class OpenSearchQueryTest {
         TemporalFilter temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
         LOGGER.debug(temporalFilter.toString());
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -494,8 +488,7 @@ public class OpenSearchQueryTest {
         TemporalFilter temporalFilter = new TemporalFilter(startDate, endDate);
         LOGGER.debug(temporalFilter.toString());
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -528,8 +521,7 @@ public class OpenSearchQueryTest {
         TemporalFilter temporalFilter = new TemporalFilter(startDate, endDate);
         LOGGER.debug(temporalFilter.toString());
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -558,8 +550,7 @@ public class OpenSearchQueryTest {
         String searchTerm = "cat";
         String selector = null;
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -626,8 +617,7 @@ public class OpenSearchQueryTest {
     public void testBboxSpatialFilter() throws Exception {
         String bboxCorners = "0,10,20,30";
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -686,8 +676,7 @@ public class OpenSearchQueryTest {
         String lat = "20";
         String radius = "5000";
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -732,8 +721,7 @@ public class OpenSearchQueryTest {
         String latLon = "0,10,0,30,20,30,20,10,0,10";
         String lonLat = "10,0,30,0,30,20,10,20,10,0";
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -788,8 +776,7 @@ public class OpenSearchQueryTest {
         String type = "nitf";
         String versions = "";
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -818,8 +805,7 @@ public class OpenSearchQueryTest {
         String type = "*";
         String versions = "collectorPosition";
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -862,8 +848,7 @@ public class OpenSearchQueryTest {
         String type = "*";
         String versions = "v20,invalid_version,*";
 
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",
@@ -1060,8 +1045,7 @@ public class OpenSearchQueryTest {
     public void testCompoundFilter() throws Exception {
         String searchTerm = "cat";
         String selectors = "//fileTitle,//nitf";
-        OpenSearchQuery query = new OpenSearchQuery(null,
-                0,
+        OpenSearchQuery query = new OpenSearchQuery(0,
                 10,
                 "relevance",
                 "desc",

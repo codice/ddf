@@ -46,8 +46,6 @@ import ddf.catalog.plugin.StopProcessingException;
 @RunWith(MockitoJUnitRunner.class)
 public class TestExpirationDatePlugin {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestExpirationDatePlugin.class);
-
     private static final String DATE_FORMAT = "MM-dd-yyyy HH:mm:ss.SSS";
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat

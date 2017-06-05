@@ -97,8 +97,6 @@ public class TestOpenSearchSource {
 
     private static final String SAMPLE_SEARCH_PHRASE = "foobar";
 
-    private static final String BYTES_TO_SKIP = "BytesToSkip";
-
     private EncryptionService encryptionService = mock(EncryptionService.class);
 
     private static final List<String> DEFAULT_PARAMETERS = Arrays.asList("q",
@@ -344,14 +342,14 @@ public class TestOpenSearchSource {
         // given
         FirstArgumentCapture answer = new FirstArgumentCapture(getSampleAtomStream());
 
-        OpenSearchSource source = givenSource(answer);
+        OpenSearchSource source = givenSource();
 
         Filter filter = filterBuilder.attribute(Metacard.CONTENT_TYPE)
                 .equalTo()
                 .text(SAMPLE_ID);
 
         // when
-        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+        source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
         // then
         List<NameValuePair> pairs = extractQueryParams(answer);
@@ -616,7 +614,7 @@ public class TestOpenSearchSource {
         // given
         FirstArgumentCapture answer = new FirstArgumentCapture(getBinaryData());
 
-        OpenSearchSource source = givenSource(answer);
+        OpenSearchSource source = givenSource();
 
         Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
 
@@ -807,7 +805,7 @@ public class TestOpenSearchSource {
         return map;
     }
 
-    private OpenSearchSource givenSource(Answer<BinaryContent> answer)
+    private OpenSearchSource givenSource()
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         WebClient client = mock(WebClient.class);
         ResourceReader mockReader = mock(ResourceReader.class);

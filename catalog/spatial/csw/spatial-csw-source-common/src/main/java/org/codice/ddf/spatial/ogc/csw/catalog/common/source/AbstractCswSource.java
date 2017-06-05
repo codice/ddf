@@ -267,8 +267,6 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     private String cswVersion;
 
-    private SpatialCapabilitiesType spatialCapabilities;
-
     private ScheduledExecutorService scheduler;
 
     private AvailabilityTask availabilityTask;
@@ -286,8 +284,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     protected Map<String, String> jaxbElementClassMap = new HashMap<>();
 
     protected String filterlessSubscriptionId = null;
-
-    private List<MetacardType> metacardTypes;
 
     /**
      * Instantiates a CswSource. This constructor is for unit tests
@@ -482,31 +478,6 @@ public abstract class AbstractCswSource extends MaskableImpl
                 cswSourceConfiguration.getId(),
                 cswSourceConfiguration.getOutputSchema());
         LOGGER.debug("{}: old output schema: {}", cswSourceConfiguration.getId(), oldOutputSchema);
-    }
-
-    /**
-     * Consumer function that sets the cswSourceConfiguration ContentType if it is changed.
-     */
-    private void setConsumerContentTypeMapping(String newContentTypeMapping) {
-        String previousContentTypeMapping =
-                cswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE);
-        LOGGER.debug("{}: Previous content type mapping: {}.",
-                cswSourceConfiguration.getId(),
-                previousContentTypeMapping);
-        newContentTypeMapping = newContentTypeMapping.trim();
-        if (!newContentTypeMapping.equals(previousContentTypeMapping)) {
-            LOGGER.debug("{}: The content type has been updated from {} to {}.",
-                    cswSourceConfiguration.getId(),
-                    previousContentTypeMapping,
-                    newContentTypeMapping);
-            contentTypes.clear();
-        }
-
-        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, newContentTypeMapping);
-
-        LOGGER.debug("{}: Current content type mapping: {}.",
-                cswSourceConfiguration.getId(),
-                newContentTypeMapping);
     }
 
     /**
@@ -1500,9 +1471,6 @@ public abstract class AbstractCswSource extends MaskableImpl
                     resultTypesValues,
                     cswSourceConfiguration);
 
-            spatialCapabilities = capabilitiesType.getFilterCapabilities()
-                    .getSpatialCapabilities();
-
             if (!NO_FORCE_SPATIAL_FILTER.equals(forceSpatialFilter)) {
                 SpatialOperatorType sot = new SpatialOperatorType();
                 SpatialOperatorNameType sont =
@@ -1716,10 +1684,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     @Override
     public Map<String, Set<String>> getSecurityAttributes() {
         return this.cswSourceConfiguration.getSecurityAttributes();
-    }
-
-    public void setMetacardTypes(List<MetacardType> types) {
-        this.metacardTypes = types;
     }
 
     /**

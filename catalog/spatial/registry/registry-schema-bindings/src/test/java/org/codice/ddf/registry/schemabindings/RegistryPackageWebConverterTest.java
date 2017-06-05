@@ -684,17 +684,4 @@ public class RegistryPackageWebConverterTest {
         return versionInfoType;
     }
 
-    private RegistryObjectType getRegistryObjectFromResource(String path) throws ParserException {
-        RegistryObjectType registryObject = null;
-        JAXBElement<RegistryObjectType> jaxbRegistryObject = parser.unmarshal(configurator,
-                JAXBElement.class,
-                getClass().getResourceAsStream(path));
-
-        if (jaxbRegistryObject != null) {
-            registryObject = jaxbRegistryObject.getValue();
-        }
-
-        return registryObject;
-    }
-
 }

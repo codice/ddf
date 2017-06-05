@@ -226,7 +226,7 @@ public class SendEventTest {
         public SendEventExtension(TransformerManager transformerManager, GetRecordsType request,
                 QueryRequest query, SecureCxfClientFactory<CswSubscribe> mockCxfClientFactory)
                 throws CswException {
-            super(transformerManager, request, query, mockCxfClientFactory);
+            super(request, query, mockCxfClientFactory);
             super.security = mockSecurity;
         }
 

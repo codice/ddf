@@ -411,7 +411,7 @@ public class ValidationParser implements ArtifactInstaller {
                     requiredAttributes = requiredAttrObjList.stream()
                             .filter(String.class::isInstance)
                             .map(String.class::cast)
-                            .collect(Collectors.toSet());
+                            .collect(toSet());
                 }
 
                 if (CollectionUtils.isNotEmpty(requiredAttributes)) {
