@@ -550,6 +550,7 @@ public class CswEndpoint implements Csw {
                 numInserted += createResponse.getCreatedMetacards()
                         .size();
             } catch (IngestException | SourceUnavailableException e) {
+                LOGGER.debug("Unable to insert record(s)", e);
                 throw new CswException("Unable to insert record(s).",
                         CswConstants.TRANSACTION_FAILED,
                         insertAction.getHandle());
@@ -565,6 +566,7 @@ public class CswEndpoint implements Csw {
                 numUpdated += updateRecords(updateAction);
             } catch (CswException | FederationException | IngestException |
                     SourceUnavailableException | UnsupportedQueryException e) {
+                LOGGER.debug("Unable to update record(s)", e);
                 throw new CswException("Unable to update record(s).",
                         CswConstants.TRANSACTION_FAILED,
                         updateAction.getHandle());
@@ -580,6 +582,7 @@ public class CswEndpoint implements Csw {
                 numDeleted += deleteRecords(deleteAction);
             } catch (CswException | FederationException | IngestException |
                     SourceUnavailableException | UnsupportedQueryException e) {
+                LOGGER.debug("Unable to delete record(s)", e);
                 throw new CswException("Unable to delete record(s).",
                         CswConstants.TRANSACTION_FAILED,
                         deleteAction.getHandle());
