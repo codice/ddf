@@ -29,11 +29,11 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public interface OperationBase {
-    Logger LOGGER = LoggerFactory.getLogger(OperationBase.class);
+class OsgiUtils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OsgiUtils.class);
 
-    default BundleContext getBundleContext() throws ConfiguratorException {
-        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+    static BundleContext getBundleContext() throws ConfiguratorException {
+        Bundle bundle = FrameworkUtil.getBundle(OsgiUtils.class);
         if (bundle == null) {
             LOGGER.info("Unable to access bundle context");
             throw new ConfiguratorException("Internal error");
@@ -42,19 +42,26 @@ public interface OperationBase {
         return bundle.getBundleContext();
     }
 
-    default ConfigurationAdmin getConfigAdmin() {
+    static ConfigurationAdmin getConfigAdmin() {
         BundleContext context = getBundleContext();
         ServiceReference<org.osgi.service.cm.ConfigurationAdmin> serviceReference =
                 context.getServiceReference(org.osgi.service.cm.ConfigurationAdmin.class);
         return new ConfigurationAdmin(context.getService(serviceReference));
     }
 
-    default ConfigurationAdminMBean getConfigAdminMBean() throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName(ConfigurationAdminMBean.OBJECTNAME);
+    static ConfigurationAdminMBean getConfigAdminMBean() throws ConfiguratorException {
+        ObjectName objectName = null;
+        try {
+            objectName = new ObjectName(ConfigurationAdminMBean.OBJECTNAME);
+        } catch (MalformedObjectNameException e) {
+            LOGGER.info("Unable to access config admin mbean");
+            throw new ConfiguratorException("Internal error");
+        }
 
         return MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(),
                 objectName,
                 ConfigurationAdminMBean.class,
                 false);
     }
+
 }

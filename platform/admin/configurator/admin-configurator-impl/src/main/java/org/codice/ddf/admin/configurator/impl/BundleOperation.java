@@ -13,11 +13,17 @@
  **/
 package org.codice.ddf.admin.configurator.impl;
 
+import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateString;
+import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getBundleContext;
+
 import java.util.Arrays;
 
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
 import org.codice.ddf.admin.configurator.ConfiguratorException;
+import org.codice.ddf.admin.configurator.Operation;
+import org.codice.ddf.admin.configurator.Result;
+import org.codice.ddf.internal.admin.configurator.actions.BundleActions;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -28,7 +34,26 @@ import org.slf4j.LoggerFactory;
 /**
  * Transactional handler for starting and stopping bundles.
  */
-public class BundleOperation implements OperationBase, Operation<Void, Boolean> {
+public class BundleOperation implements Operation<Void> {
+    public static class Actions implements BundleActions {
+        @Override
+        public BundleOperation start(String bundleSymName) throws ConfiguratorException {
+            validateString(bundleSymName, "Missing bundle name");
+            return new BundleOperation(bundleSymName, true, getBundleContext());
+        }
+
+        @Override
+        public BundleOperation stop(String bundleSymName) throws ConfiguratorException {
+            validateString(bundleSymName, "Missing bundle name");
+            return new BundleOperation(bundleSymName, false, getBundleContext());
+        }
+
+        @Override
+        public boolean isStarted(String bundleSymName) throws ConfiguratorException {
+            return start(bundleSymName).readState();
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BundleOperation.class);
 
     private final boolean newState;
@@ -53,30 +78,8 @@ public class BundleOperation implements OperationBase, Operation<Void, Boolean> 
         initActivationState = lookupBundleState();
     }
 
-    /**
-     * Creates a handler that will start a bundle as part of a transaction.
-     *
-     * @param bundleSymName the name of the bundle to start
-     * @param bundleContext context needed for OSGi interaction
-     * @return instance of this class
-     */
-    public static BundleOperation forStart(String bundleSymName, BundleContext bundleContext) {
-        return new BundleOperation(bundleSymName, true, bundleContext);
-    }
-
-    /**
-     * Creates a handler that will stop a bundle as part of a transaction.
-     *
-     * @param bundleSymName the name of the bundle to stop
-     * @param bundleContext context needed for OSGi interaction
-     * @return instance of this class
-     */
-    public static BundleOperation forStop(String bundleSymName, BundleContext bundleContext) {
-        return new BundleOperation(bundleSymName, false, bundleContext);
-    }
-
     @Override
-    public Void commit() throws ConfiguratorException {
+    public Result<Void> commit() throws ConfiguratorException {
         try {
             if (initActivationState != newState) {
                 if (newState) {
@@ -90,11 +93,11 @@ public class BundleOperation implements OperationBase, Operation<Void, Boolean> 
             throw new ConfiguratorException("Internal error");
         }
 
-        return null;
+        return ResultImpl.pass();
     }
 
     @Override
-    public Void rollback() throws ConfiguratorException {
+    public Result<Void> rollback() throws ConfiguratorException {
         try {
             if (initActivationState != lookupBundleState()) {
                 if (initActivationState) {
@@ -108,11 +111,10 @@ public class BundleOperation implements OperationBase, Operation<Void, Boolean> 
             throw new ConfiguratorException("Internal error");
         }
 
-        return null;
+        return ResultImpl.rollback();
     }
 
-    @Override
-    public Boolean readState() throws ConfiguratorException {
+    Boolean readState() throws ConfiguratorException {
         return lookupBundleState();
     }
 

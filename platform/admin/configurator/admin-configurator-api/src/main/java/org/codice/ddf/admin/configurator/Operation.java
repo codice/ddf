@@ -11,18 +11,14 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.admin.configurator.impl;
-
-import org.codice.ddf.admin.configurator.ConfiguratorException;
+package org.codice.ddf.admin.configurator;
 
 /**
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
-interface Operation<T, S> {
-    T commit() throws ConfiguratorException;
+public interface Operation<T> {
+    Result<T> commit() throws ConfiguratorException;
 
-    T rollback() throws ConfiguratorException;
-
-    S readState() throws ConfiguratorException;
+    Result<T> rollback() throws ConfiguratorException;
 }

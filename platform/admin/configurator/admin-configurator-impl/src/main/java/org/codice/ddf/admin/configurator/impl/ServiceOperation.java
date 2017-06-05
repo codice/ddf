@@ -13,8 +13,13 @@
  **/
 package org.codice.ddf.admin.configurator.impl;
 
+import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateMap;
+import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateString;
+import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getConfigAdminMBean;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +29,9 @@ import java.util.stream.Collectors;
 import javax.management.MalformedObjectNameException;
 
 import org.codice.ddf.admin.configurator.ConfiguratorException;
+import org.codice.ddf.admin.configurator.Operation;
+import org.codice.ddf.admin.configurator.Result;
+import org.codice.ddf.internal.admin.configurator.actions.ServiceActions;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +39,30 @@ import org.slf4j.LoggerFactory;
 /**
  * Transactional handler for persisting bundle configuration file changes.
  */
-public class AdminOperation implements OperationBase, Operation<Void, Map<String, Object>> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdminOperation.class);
+public class ServiceOperation implements Operation<Void> {
+    public static class Actions implements ServiceActions {
+        @Override
+        public ServiceOperation build(String serviceId, Map<String, Object> configs,
+                boolean keepIfNotPresent) throws ConfiguratorException {
+            validateString(serviceId, "Missing config id");
+            validateMap(configs, "Missing configuration properties");
+            return new ServiceOperation(serviceId,
+                    configs,
+                    keepIfNotPresent,
+                    getConfigAdminMBean());
+        }
+
+        @Override
+        public Map<String, Object> read(String serviceId) throws ConfiguratorException {
+            validateString(serviceId, "Missing config id");
+            return new ServiceOperation(serviceId,
+                    Collections.emptyMap(),
+                    true,
+                    getConfigAdminMBean()).readState();
+        }
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceOperation.class);
 
     private final String pid;
 
@@ -44,7 +74,7 @@ public class AdminOperation implements OperationBase, Operation<Void, Map<String
 
     private final Map<String, Object> currentProperties;
 
-    private AdminOperation(String pid, Map<String, Object> configs, boolean keepIgnored,
+    private ServiceOperation(String pid, Map<String, Object> configs, boolean keepIgnored,
             ConfigurationAdminMBean cfgAdmMbean) {
         this.pid = pid;
         this.configs = new HashMap<>(configs);
@@ -52,31 +82,15 @@ public class AdminOperation implements OperationBase, Operation<Void, Map<String
         this.cfgAdmMbean = cfgAdmMbean;
 
         try {
-            currentProperties = cfgAdmMbean.getProperties(pid);
-        } catch (IOException e) {
+            currentProperties = readState(this.pid, this.cfgAdmMbean);
+        } catch (ConfiguratorException e) {
             LOGGER.debug("Error getting current configuration for pid {}", pid, e);
             throw new ConfiguratorException("Internal error");
         }
     }
 
-    /**
-     * Creates a handler for persisting changes to a bundle configuration.
-     *
-     * @param pid                     the configPid of the bundle configuration to be updated
-     * @param configs                 map of key:value pairs to be written to the configuration
-     * @param keepIgnored             if true, any keys in the current config file that are not in the
-     *                                {@code configs} map will be left with their initial values; if false, they
-     *                                will be removed from the file
-     * @param configurationAdminMBean mbean used for updating configuration
-     * @return instance of this class
-     */
-    public static AdminOperation instance(String pid, Map<String, Object> configs,
-            boolean keepIgnored, ConfigurationAdminMBean configurationAdminMBean) {
-        return new AdminOperation(pid, configs, keepIgnored, configurationAdminMBean);
-    }
-
     @Override
-    public Void commit() throws ConfiguratorException {
+    public Result<Void> commit() throws ConfiguratorException {
         Map<String, Object> properties;
         if (keepIgnored) {
             properties = new HashMap<>(currentProperties);
@@ -92,11 +106,11 @@ public class AdminOperation implements OperationBase, Operation<Void, Map<String
                     pid));
         }
 
-        return null;
+        return ResultImpl.pass();
     }
 
     @Override
-    public Void rollback() throws ConfiguratorException {
+    public Result<Void> rollback() throws ConfiguratorException {
         try {
             saveConfigs(currentProperties);
         } catch (IOException | MalformedObjectNameException e) {
@@ -104,20 +118,28 @@ public class AdminOperation implements OperationBase, Operation<Void, Map<String
                     pid));
         }
 
-        return null;
+        return ResultImpl.rollback();
     }
 
-    @Override
-    public Map<String, Object> readState() throws ConfiguratorException {
+    Map<String, Object> readState() throws ConfiguratorException {
+        return readState(pid, cfgAdmMbean);
+    }
+
+    private void saveConfigs(Map<String, Object> properties)
+            throws MalformedObjectNameException, IOException {
+        cfgAdmMbean.update(pid, properties);
+    }
+
+    private static Map<String, Object> readState(String pid, ConfigurationAdminMBean cfgAdmMbean)
+            throws ConfiguratorException {
         try {
-            Map<String, Object> configResults = getConfigAdminMBean().getProperties(pid);
+            Map<String, Object> configResults = cfgAdmMbean.getProperties(pid);
             if (configResults.isEmpty()) {
-                Optional<Map<String, Object>> defaultMetatypeValues =
-                        getConfigAdminMBean().listServices()
-                                .stream()
-                                .filter(service -> service.get("id") != null && service.get("id")
-                                        .equals(pid))
-                                .findFirst();
+                Optional<Map<String, Object>> defaultMetatypeValues = cfgAdmMbean.listServices()
+                        .stream()
+                        .filter(service -> service.get("id") != null && service.get("id")
+                                .equals(pid))
+                        .findFirst();
 
                 List<Map<String, Object>> metatypes = new ArrayList<>();
                 if (defaultMetatypeValues.isPresent()) {
@@ -132,14 +154,9 @@ public class AdminOperation implements OperationBase, Operation<Void, Map<String
                 return configResults;
             }
             // return getConfigAdminMBean().getProperties(pid);
-        } catch (IOException | MalformedObjectNameException e) {
+        } catch (IOException e) {
             throw new ConfiguratorException(String.format("Unable to find configuration for pid, %s",
                     pid), e);
         }
-    }
-
-    private void saveConfigs(Map<String, Object> properties)
-            throws MalformedObjectNameException, IOException {
-        cfgAdmMbean.update(pid, properties);
     }
 }

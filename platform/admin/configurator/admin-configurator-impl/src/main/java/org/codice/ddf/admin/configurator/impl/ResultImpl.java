@@ -15,49 +15,53 @@ package org.codice.ddf.admin.configurator.impl;
 
 import java.util.Optional;
 
+import org.codice.ddf.admin.configurator.ConfiguratorException;
 import org.codice.ddf.admin.configurator.Result;
 import org.codice.ddf.admin.configurator.Status;
 
-public class ResultImpl implements Result {
-
+public class ResultImpl<T> implements Result<T> {
     private final Status status;
 
-    private final Throwable badOutcome;
+    private final ConfiguratorException error;
 
-    private final String configId;
+    private final T data;
 
-    private ResultImpl(Status status, Throwable badOutcome, String configId) {
+    private ResultImpl(Status status, ConfiguratorException error, T data) {
         this.status = status;
-        this.badOutcome = badOutcome;
-        this.configId = configId;
+        this.error = error;
+        this.data = data;
     }
 
-    static Result pass() {
-        return new ResultImpl(Status.COMMIT_PASSED, null, null);
+    static Result<Void> pass() {
+        return new ResultImpl<>(Status.COMMIT_PASSED, null, null);
     }
 
-    static Result passManagedService(String configId) {
-        return new ResultImpl(Status.COMMIT_PASSED, null, configId);
+    static <S> Result<S> passWithData(S data) {
+        return new ResultImpl<>(Status.COMMIT_PASSED, null, data);
     }
 
-    static Result fail(Throwable throwable) {
-        return new ResultImpl(Status.COMMIT_FAILED, throwable, null);
+    static Result<Void> fail(ConfiguratorException error) {
+        return new ResultImpl<>(Status.COMMIT_FAILED, error, null);
     }
 
-    static Result rollback() {
-        return new ResultImpl(Status.ROLLBACK_PASSED, null, null);
+    static Result<Void> rollback() {
+        return new ResultImpl<>(Status.ROLLBACK_PASSED, null, null);
     }
 
-    static Result rollbackFail(Throwable throwable) {
-        return new ResultImpl(Status.ROLLBACK_FAILED, throwable, null);
+    static <S> Result<S> rollbackWithData(S data) {
+        return new ResultImpl<>(Status.ROLLBACK_PASSED, null, data);
     }
 
-    static Result rollbackFailManagedService(Throwable throwable, String configId) {
-        return new ResultImpl(Status.ROLLBACK_FAILED, throwable, configId);
+    static Result<Void> rollbackFail(ConfiguratorException error) {
+        return new ResultImpl<>(Status.ROLLBACK_FAILED, error, null);
     }
 
-    static Result skip() {
-        return new ResultImpl(Status.SKIPPED, null, null);
+    static <S> Result<S> rollbackFailWithData(ConfiguratorException error, S data) {
+        return new ResultImpl<>(Status.ROLLBACK_FAILED, error, data);
+    }
+
+    static Result<Void> skip() {
+        return new ResultImpl<>(Status.SKIPPED, null, null);
     }
 
     @Override
@@ -71,12 +75,12 @@ public class ResultImpl implements Result {
     }
 
     @Override
-    public Optional<Throwable> getBadOutcome() {
-        return Optional.ofNullable(badOutcome);
+    public Optional<ConfiguratorException> getError() {
+        return Optional.ofNullable(error);
     }
 
     @Override
-    public String getConfigId() {
-        return configId;
+    public Optional<T> getOperationData() {
+        return Optional.ofNullable(data);
     }
 }

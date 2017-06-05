@@ -31,7 +31,7 @@ class AdminOperationTest extends Specification {
         def newProps = [key1: 'newVal1', key4: 'val4', key5: 'val5']
 
         when:
-        def handler = AdminOperation.instance('xxx', newProps, false, cfgMbean)
+        def handler = new ServiceOperation('xxx', newProps, false, cfgMbean)
 
         then:
         thrown(ConfiguratorException)
@@ -44,7 +44,7 @@ class AdminOperationTest extends Specification {
         def combinedProps = initProps << newProps
 
         when:
-        def handler = AdminOperation.instance('xxx', newProps, true, cfgMbean)
+        def handler = new ServiceOperation('xxx', newProps, true, cfgMbean)
 
         then:
         1 * cfgMbean.getProperties('xxx') >> initProps
@@ -62,7 +62,7 @@ class AdminOperationTest extends Specification {
         def newProps = [key1: 'newVal1', key4: 'val4', key5: 'val5']
 
         when:
-        def handler = AdminOperation.instance('xxx', newProps, false, cfgMbean)
+        def handler = new ServiceOperation('xxx', newProps, false, cfgMbean)
 
         then:
         1 * cfgMbean.getProperties('xxx') >> initProps
@@ -80,7 +80,7 @@ class AdminOperationTest extends Specification {
         def newProps = [key1: 'newVal1', key4: 'val4', key5: 'val5']
 
         when:
-        def handler = AdminOperation.instance('xxx', newProps, false, cfgMbean)
+        def handler = new ServiceOperation('xxx', newProps, false, cfgMbean)
 
         then:
         1 * cfgMbean.getProperties('xxx') >> initProps

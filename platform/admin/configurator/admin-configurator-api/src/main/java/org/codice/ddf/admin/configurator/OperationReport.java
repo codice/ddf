@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Summary report for a {@link Configurator#commit()}.
+ * Summary report for a {@link Configurator#commit(String, String...)}.
  * <p>
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>

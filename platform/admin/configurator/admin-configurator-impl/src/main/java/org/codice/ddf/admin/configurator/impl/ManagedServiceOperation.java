@@ -14,15 +14,20 @@
 
 package org.codice.ddf.admin.configurator.impl;
 
+import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateMap;
+import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateString;
+import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getConfigAdmin;
+import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getConfigAdminMBean;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.management.MalformedObjectNameException;
-import javax.validation.constraints.NotNull;
-
 import org.codice.ddf.admin.configurator.ConfiguratorException;
+import org.codice.ddf.admin.configurator.Operation;
+import org.codice.ddf.admin.configurator.Result;
+import org.codice.ddf.internal.admin.configurator.actions.ManagedServiceActions;
 import org.codice.ddf.ui.admin.api.ConfigurationAdmin;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.slf4j.Logger;
@@ -34,8 +39,32 @@ import org.slf4j.LoggerFactory;
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
-public abstract class ManagedServiceOperation
-        implements OperationBase, Operation<String, Map<String, Map<String, Object>>> {
+public abstract class ManagedServiceOperation implements Operation<String> {
+    public static class Actions implements ManagedServiceActions {
+        @Override
+        public ManagedServiceOperation create(String factoryPid, Map<String, Object> configs)
+                throws ConfiguratorException {
+            validateString(factoryPid, "Missing factory id");
+            validateMap(configs, "Missing configuration properties");
+            return new CreateHandler(factoryPid, configs, getConfigAdmin(), getConfigAdminMBean());
+        }
+
+        @Override
+        public ManagedServiceOperation delete(String pid) throws ConfiguratorException {
+            validateString(pid, "Missing config id");
+            return new DeleteHandler(pid, getConfigAdmin(), getConfigAdminMBean());
+        }
+
+        @Override
+        public Map<String, Map<String, Object>> read(String factoryPid)
+                throws ConfiguratorException {
+            return new CreateHandler(factoryPid,
+                    Collections.emptyMap(),
+                    getConfigAdmin(),
+                    getConfigAdminMBean()).readState();
+        }
+    }
+
     /**
      * Transactional handler for deleting managed services.
      */
@@ -55,6 +84,7 @@ public abstract class ManagedServiceOperation
                 throw new ConfiguratorException("Internal error");
             }
         }
+
         private DeleteHandler(String configPid, ConfigurationAdmin configAdmin,
                 ConfigurationAdminMBean cfgAdmMbean) {
             super(getFactoryPid(configPid, cfgAdmMbean), configAdmin, cfgAdmMbean);
@@ -73,14 +103,17 @@ public abstract class ManagedServiceOperation
         }
 
         @Override
-        public String commit() throws ConfiguratorException {
+        public Result<String> commit() throws ConfiguratorException {
             deleteByPid(configPid);
-            return null;
+
+            return ResultImpl.passWithData(configPid);
         }
 
         @Override
-        public String rollback() throws ConfiguratorException {
-            return createManagedService(currentProperties);
+        public Result<String> rollback() throws ConfiguratorException {
+            String configPid = createManagedService(currentProperties);
+
+            return ResultImpl.rollbackWithData(configPid);
         }
     }
 
@@ -100,15 +133,17 @@ public abstract class ManagedServiceOperation
         }
 
         @Override
-        public String commit() throws ConfiguratorException {
+        public Result<String> commit() throws ConfiguratorException {
             newConfigPid = createManagedService(configs);
-            return newConfigPid;
+
+            return ResultImpl.passWithData(newConfigPid);
         }
 
         @Override
-        public String rollback() throws ConfiguratorException {
+        public Result<String> rollback() throws ConfiguratorException {
             deleteByPid(newConfigPid);
-            return null;
+
+            return ResultImpl.rollbackWithData(null);
         }
     }
 
@@ -127,36 +162,7 @@ public abstract class ManagedServiceOperation
         this.factoryPid = factoryPid;
     }
 
-    /**
-     * Creates a handler that will create a managed service as part of a transaction.
-     *
-     * @param factoryPid  the PID of the service factory
-     * @param configs     the configuration properties to apply to the service
-     * @param configAdmin service wrapper needed for OSGi interaction
-     * @param cfgAdmMbean mbean needed for saving configuration data
-     * @return a service operation object
-     */
-    public static ManagedServiceOperation forCreate(String factoryPid,
-            @NotNull Map<String, Object> configs, ConfigurationAdmin configAdmin,
-            ConfigurationAdminMBean cfgAdmMbean) {
-        return new CreateHandler(factoryPid, configs, configAdmin, cfgAdmMbean);
-    }
-
-    /**
-     * Creates a handler that will delete a managed service as part of a transaction.
-     *
-     * @param pid         the PID of the instance to be deleted
-     * @param configAdmin service wrapper needed for OSGi interaction
-     * @param cfgAdmMbean mbean needed for saving configuration data
-     * @return a service operation object
-     */
-    public static ManagedServiceOperation forDelete(String pid, ConfigurationAdmin configAdmin,
-            ConfigurationAdminMBean cfgAdmMbean) {
-        return new DeleteHandler(pid, configAdmin, cfgAdmMbean);
-    }
-
-    @Override
-    public Map<String, Map<String, Object>> readState() throws ConfiguratorException {
+    Map<String, Map<String, Object>> readState() throws ConfiguratorException {
         try {
             String[][] configurations = getConfigAdmin().getConfigurations(String.format(
                     "(service.factoryPid=%s)",
@@ -174,7 +180,7 @@ public abstract class ManagedServiceOperation
             }
 
             return retVal;
-        } catch (IOException | MalformedObjectNameException e) {
+        } catch (IOException e) {
             LOGGER.debug("Error retrieving configurations for factoryPid, {}", factoryPid, e);
             throw new ConfiguratorException("Error retrieving configurations");
         }

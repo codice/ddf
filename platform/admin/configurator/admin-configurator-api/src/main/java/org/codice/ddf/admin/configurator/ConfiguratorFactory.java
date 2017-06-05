@@ -19,6 +19,4 @@ package org.codice.ddf.admin.configurator;
  */
 public interface ConfiguratorFactory {
     Configurator getConfigurator();
-
-    ConfigReader getConfigReader();
 }

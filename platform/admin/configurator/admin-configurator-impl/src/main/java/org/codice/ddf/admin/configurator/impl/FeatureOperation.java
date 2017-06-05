@@ -14,6 +14,8 @@
 package org.codice.ddf.admin.configurator.impl;
 
 import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles;
+import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateString;
+import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getBundleContext;
 
 import java.util.EnumSet;
 
@@ -21,6 +23,9 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.admin.configurator.ConfiguratorException;
+import org.codice.ddf.admin.configurator.Operation;
+import org.codice.ddf.admin.configurator.Result;
+import org.codice.ddf.internal.admin.configurator.actions.FeatureActions;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -29,7 +34,26 @@ import org.slf4j.LoggerFactory;
 /**
  * Transactional handler for starting and stopping features.
  */
-public class FeatureOperation implements OperationBase, Operation<Void, Boolean> {
+public class FeatureOperation implements Operation<Void> {
+    public static class Actions implements FeatureActions {
+        @Override
+        public FeatureOperation start(String featureName) throws ConfiguratorException {
+            validateString(featureName, "Missing feature name");
+            return new FeatureOperation(featureName, true, getBundleContext());
+        }
+
+        @Override
+        public FeatureOperation stop(String featureName) throws ConfiguratorException {
+            validateString(featureName, "Missing feature name");
+            return new FeatureOperation(featureName, false, getBundleContext());
+        }
+
+        @Override
+        public boolean isFeatureStarted(String featureName) throws ConfiguratorException {
+            return start(featureName).readState();
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureOperation.class);
 
     private final String featureName;
@@ -48,30 +72,8 @@ public class FeatureOperation implements OperationBase, Operation<Void, Boolean>
         initActivationState = lookupFeatureStatus(getFeaturesService(), featureName);
     }
 
-    /**
-     * Creates a handler that will start a feature as part of a transaction.
-     *
-     * @param featureName   the name of the feature to start
-     * @param bundleContext context needed for OSGi interaction
-     * @return instance of this class
-     */
-    public static FeatureOperation forStart(String featureName, BundleContext bundleContext) {
-        return new FeatureOperation(featureName, true, bundleContext);
-    }
-
-    /**
-     * Creates a handler that will stop a feature as part of a transaction.
-     *
-     * @param featureName   the name of the feature to stop
-     * @param bundleContext context needed for OSGi interaction
-     * @return instance of this class
-     */
-    public static FeatureOperation forStop(String featureName, BundleContext bundleContext) {
-        return new FeatureOperation(featureName, false, bundleContext);
-    }
-
     @Override
-    public Void commit() throws ConfiguratorException {
+    public Result<Void> commit() throws ConfiguratorException {
         FeaturesService featuresService = getFeaturesService();
         try {
             if (initActivationState != newState) {
@@ -86,11 +88,11 @@ public class FeatureOperation implements OperationBase, Operation<Void, Boolean>
             throw new ConfiguratorException("Internal error");
         }
 
-        return null;
+        return ResultImpl.pass();
     }
 
     @Override
-    public Void rollback() throws ConfiguratorException {
+    public Result<Void> rollback() throws ConfiguratorException {
         FeaturesService featuresService = getFeaturesService();
         try {
             if (initActivationState != lookupFeatureStatus(featuresService, featureName)) {
@@ -105,11 +107,10 @@ public class FeatureOperation implements OperationBase, Operation<Void, Boolean>
             throw new ConfiguratorException("Internal error");
         }
 
-        return null;
+        return ResultImpl.rollback();
     }
 
-    @Override
-    public Boolean readState() throws ConfiguratorException {
+    Boolean readState() throws ConfiguratorException {
         return lookupFeatureStatus(getFeaturesService(), featureName);
     }
 

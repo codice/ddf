@@ -32,7 +32,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test start feature that was stopped and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >>> [FeatureState.Installed, FeatureState.Started]
-        def handler = FeatureOperation.forStart('xxx', bundleContext)
+        def handler = new FeatureOperation('xxx', true, bundleContext)
 
         when:
         handler.commit()
@@ -50,7 +50,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test stop feature that was started and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >>> [FeatureState.Started, FeatureState.Installed]
-        def handler = FeatureOperation.forStop('xxx', bundleContext)
+        def handler = new FeatureOperation('xxx', false, bundleContext)
 
         when:
         handler.commit()
@@ -68,7 +68,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test start feature that was already started and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >> FeatureState.Started
-        def handler = FeatureOperation.forStart('xxx', bundleContext)
+        def handler = new FeatureOperation('xxx', true, bundleContext)
 
         when:
         handler.commit()
@@ -88,7 +88,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test stop feature that was already stopped and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >> FeatureState.Installed
-        def handler = FeatureOperation.forStop('xxx', bundleContext)
+        def handler = new FeatureOperation('xxx', false, bundleContext)
 
         when:
         handler.commit()

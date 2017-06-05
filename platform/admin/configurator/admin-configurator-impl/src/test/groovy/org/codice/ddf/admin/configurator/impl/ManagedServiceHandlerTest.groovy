@@ -17,7 +17,7 @@ class ManagedServiceHandlerTest extends Specification {
     def 'test create managed service and rollback'() {
         def configs = [k1: 'v1', k2: 'v2']
         setup:
-        def handler = ManagedServiceOperation.forCreate('xxx', configs, configAdmin, cfgAdmMbean)
+        def handler = new ManagedServiceOperation.CreateHandler('xxx', configs, configAdmin, cfgAdmMbean)
 
         when:
         def key = handler.commit()
@@ -25,7 +25,8 @@ class ManagedServiceHandlerTest extends Specification {
         then:
         1 * configAdmin.createFactoryConfiguration('xxx') >> 'newPid'
         1 * cfgAdmMbean.update('newPid', configs)
-        key == 'newPid'
+        key.operationData.isPresent()
+        key.operationData.get() == 'newPid'
 
         when:
         handler.rollback()
@@ -39,7 +40,7 @@ class ManagedServiceHandlerTest extends Specification {
         def configs = [k1: 'v1', k2: 'v2']
         cfgAdmMbean.getFactoryPid('xxx') >> 'factoryPid'
         cfgAdmMbean.getProperties('xxx') >> configs
-        def handler = ManagedServiceOperation.forDelete('xxx', configAdmin, cfgAdmMbean)
+        def handler = new ManagedServiceOperation.DeleteHandler('xxx', configAdmin, cfgAdmMbean)
 
         when:
         handler.commit()
@@ -53,7 +54,8 @@ class ManagedServiceHandlerTest extends Specification {
         then:
         1 * configAdmin.createFactoryConfiguration('factoryPid') >> 'newPid'
         1 * cfgAdmMbean.update('newPid', configs)
-        key == 'newPid'
+        key.operationData.isPresent()
+        key.operationData.get() == 'newPid'
     }
 
     def 'test delete of pid with unknown factory pid fails'() {
@@ -61,7 +63,7 @@ class ManagedServiceHandlerTest extends Specification {
         def configs = [k1: 'v1', k2: 'v2']
         cfgAdmMbean.getFactoryPid('xxx') >> null
         cfgAdmMbean.getProperties('xxx') >> configs
-        def handler = ManagedServiceOperation.forDelete('xxx', configAdmin, cfgAdmMbean)
+        def handler = new ManagedServiceOperation.DeleteHandler('xxx', configAdmin, cfgAdmMbean)
 
         when:
         handler.commit()

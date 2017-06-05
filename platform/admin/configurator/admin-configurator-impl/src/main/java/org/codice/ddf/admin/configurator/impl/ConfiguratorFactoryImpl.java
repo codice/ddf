@@ -13,18 +13,12 @@
  **/
 package org.codice.ddf.admin.configurator.impl;
 
-import org.codice.ddf.admin.configurator.ConfigReader;
 import org.codice.ddf.admin.configurator.Configurator;
 import org.codice.ddf.admin.configurator.ConfiguratorFactory;
 
 public class ConfiguratorFactoryImpl implements ConfiguratorFactory {
     @Override
     public Configurator getConfigurator() {
-        return new ConfiguratorImpl();
-    }
-
-    @Override
-    public ConfigReader getConfigReader() {
         return new ConfiguratorImpl();
     }
 }

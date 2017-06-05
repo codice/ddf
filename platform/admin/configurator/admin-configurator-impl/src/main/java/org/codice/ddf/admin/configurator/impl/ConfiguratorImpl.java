@@ -13,36 +13,18 @@
  **/
 package org.codice.ddf.admin.configurator.impl;
 
-import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateMap;
-import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validatePropertiesPath;
-import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateString;
-
-import java.lang.management.ManagementFactory;
-import java.nio.file.Path;
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import javax.management.MBeanServerInvocationHandler;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
-import org.codice.ddf.admin.configurator.ConfigReader;
 import org.codice.ddf.admin.configurator.Configurator;
 import org.codice.ddf.admin.configurator.ConfiguratorException;
+import org.codice.ddf.admin.configurator.Operation;
 import org.codice.ddf.admin.configurator.OperationReport;
-import org.codice.ddf.ui.admin.api.ConfigurationAdmin;
-import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.codice.ddf.admin.configurator.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +48,7 @@ import ddf.security.common.audit.SecurityLogger;
  * {@link #commit()} method to write the changes to the system. The resulting {@link OperationReport}
  * will have the outcome.
  */
-public class ConfiguratorImpl implements Configurator, ConfigReader {
+public class ConfiguratorImpl implements Configurator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfiguratorImpl.class);
 
     private final Map<UUID, Operation> configHandlers = new LinkedHashMap<>();
@@ -94,6 +76,11 @@ public class ConfiguratorImpl implements Configurator, ConfigReader {
         return report;
     }
 
+    @Override
+    public UUID add(Operation operation) {
+        return registerHandler(operation);
+    }
+
     /**
      * Sequentially invokes all the {@link Operation}s, committing their changes. If a failure
      * occurs during the processing, a rollback is attempted of those handlers that had already been
@@ -102,18 +89,13 @@ public class ConfiguratorImpl implements Configurator, ConfigReader {
      * @return report of the commit status, whether successful, successfully rolled back, or partially
      * rolled back with errors
      */
-    public OperationReport commit() {
+    private OperationReport commit() {
         OperationReport configReport = new OperationReportImpl();
         for (Map.Entry<UUID, Operation> row : configHandlers.entrySet()) {
             try {
-                Object commitResult = row.getValue()
+                Result result = row.getValue()
                         .commit();
-                if (commitResult instanceof String) {
-                    configReport.putResult(row.getKey(),
-                            ResultImpl.passManagedService((String) commitResult));
-                } else {
-                    configReport.putResult(row.getKey(), ResultImpl.pass());
-                }
+                configReport.putResult(row.getKey(), result);
             } catch (ConfiguratorException e) {
                 LOGGER.debug("Error committing configuration change", e);
 
@@ -125,250 +107,6 @@ public class ConfiguratorImpl implements Configurator, ConfigReader {
         }
 
         return configReport;
-    }
-
-    /**
-     * Starts the bundle with the given name.
-     *
-     * @param bundleSymName the symbolic name of the bundle
-     * @return a lookup key that can be used to correlate this operation in the
-     * final {@link OperationReport}
-     */
-    public UUID startBundle(String bundleSymName) {
-        validateString(bundleSymName, "Missing bundle name");
-        return registerHandler(BundleOperation.forStart(bundleSymName, getBundleContext()));
-    }
-
-    /**
-     * Stops the bundle with the given name.
-     *
-     * @param bundleSymName the symbolic name of the bundle
-     * @return a lookup key that can be used to correlate this operation in the
-     * final {@link OperationReport}
-     */
-    public UUID stopBundle(String bundleSymName) {
-        validateString(bundleSymName, "Missing bundle name");
-        return registerHandler(BundleOperation.forStop(bundleSymName, getBundleContext()));
-    }
-
-    /**
-     * Determines if the bundle with the given name is started.
-     *
-     * @param bundleSymName the symbolic name of the bundle
-     * @return true if started; else, false
-     */
-    public boolean isBundleStarted(String bundleSymName) {
-        validateString(bundleSymName, "Missing bundle name");
-        try {
-            return BundleOperation.forStart(bundleSymName, getBundleContext())
-                    .readState();
-        } catch (ConfiguratorException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Installs and starts the feature with the given name.
-     *
-     * @param featureName the name of the feature
-     * @return a lookup key that can be used to correlate this operation in the
-     * final {@link OperationReport}
-     */
-    public UUID startFeature(String featureName) {
-        validateString(featureName, "Missing feature name");
-        return registerHandler(FeatureOperation.forStart(featureName, getBundleContext()));
-    }
-
-    /**
-     * Stops the feature with the given name.
-     *
-     * @param featureName the name of the feature
-     * @return a lookup key that can be used to correlate this operation in the
-     * final {@link OperationReport}
-     */
-    public UUID stopFeature(String featureName) {
-        validateString(featureName, "Missing feature name");
-        return registerHandler(FeatureOperation.forStop(featureName, getBundleContext()));
-    }
-
-    /**
-     * Determines if the feature with the given name is started.
-     *
-     * @param featureName the name of the feature
-     * @return true if started; else, false
-     */
-    public boolean isFeatureStarted(String featureName) {
-        validateString(featureName, "Missing feature name");
-        return FeatureOperation.forStart(featureName, getBundleContext())
-                .readState();
-    }
-
-    /**
-     * Creates a property file in the system with the given set of new key:value pairs.
-     *
-     * @param propFile   the property file to create
-     * @param properties the set of key:value pairs to save to the property file
-     * @return a lookup key that can be used to correlate this operation in the
-     * final {@link OperationReport}
-     */
-    public UUID createPropertyFile(Path propFile, Map<String, String> properties) {
-        validatePropertiesPath(propFile);
-        validateMap(properties, "Missing properties");
-        return registerHandler(PropertyOperation.forCreate(propFile, properties));
-    }
-
-    /**
-     * Deletes a property file in the system.
-     *
-     * @param propFile the property file to delete
-     * @return a lookup key that can be used to correlate this operation in the
-     * final {@link OperationReport}
-     */
-    public UUID deletePropertyFile(Path propFile) {
-        validatePropertiesPath(propFile);
-        return registerHandler(PropertyOperation.forDelete(propFile));
-    }
-
-    /**
-     * Updates a property file in the system with the given set of new key:value pairs.
-     *
-     * @param propFile    the property file to update
-     * @param properties  the set of key:value pairs to save to the property file
-     * @param keepIgnored if true, then any keys already in the property file will retain their
-     *                    initial values if they are excluded from the {@code properties} param; if
-     *                    false, then the only properties that will be in the updated file are those
-     *                    provided by the {@code properties} param
-     * @return a lookup key that can be used to correlate this operation in the
-     * final {@link OperationReport}
-     */
-    public UUID updatePropertyFile(Path propFile, Map<String, String> properties,
-            boolean keepIgnored) {
-        validatePropertiesPath(propFile);
-        validateMap(properties, "Missing properties");
-        return registerHandler(PropertyOperation.forUpdate(propFile, properties, keepIgnored));
-    }
-
-    /**
-     * Gets the current key:value pairs set in the given property file.
-     *
-     * @param propFile the property file to query
-     * @return the current set of key:value pairs
-     */
-    public Map<String, String> getProperties(Path propFile) {
-        validatePropertiesPath(propFile);
-        return PropertyOperation.forUpdate(propFile, Collections.emptyMap(), true)
-                .readState();
-    }
-
-    /**
-     * Updates a bundle configuration file in the system with the given set of new key:value pairs.
-     *
-     * @param configPid   the configId of the bundle configuration file to update
-     * @param configs     the set of key:value pairs to save in the configuration
-     * @param keepIgnored if true, then any keys already in the config file will retain their
-     *                    initial values if they are excluded from the {@code properties} param; if
-     *                    false, then the only config entires that will be in the updated file are those
-     *                    provided by the {@code properties} param
-     * @return a lookup key that can be used to correlate this operation in the
-     * final {@link OperationReport}
-     */
-    public UUID updateConfigFile(String configPid, Map<String, Object> configs,
-            boolean keepIgnored) {
-        validateString(configPid, "Missing config id");
-        validateMap(configs, "Missing configuration properties");
-        return registerHandler(AdminOperation.instance(configPid,
-                configs,
-                keepIgnored,
-                getConfigAdminMBean()));
-    }
-
-    /**
-     * Gets the current key:value pairs set in the given configuration file.
-     *
-     * @param configPid the configId of the bundle configuration file to query
-     * @return the current set of key:value pairs
-     */
-    public Map<String, Object> getConfig(String configPid) {
-        validateString(configPid, "Missing config id");
-        return AdminOperation.instance(configPid,
-                Collections.emptyMap(),
-                true,
-                getConfigAdminMBean())
-                .readState();
-    }
-
-    /**
-     * Creates a new managed service for the given factory.
-     *
-     * @param factoryPid the factoryPid of the service to create
-     * @param configs    the set of key:value pairs to save in the new managed service's configuration
-     * @return a lookup key that can be used to correlate this operation in the
-     * final {@link OperationReport}
-     */
-    public UUID createManagedService(String factoryPid, Map<String, Object> configs) {
-        validateString(factoryPid, "Missing factory id");
-        validateMap(configs, "Missing configuration properties");
-        return registerHandler(ManagedServiceOperation.forCreate(factoryPid,
-                configs,
-                getConfigAdmin(),
-                getConfigAdminMBean()));
-    }
-
-    /**
-     * Deletes a managed service.
-     *
-     * @param configPid the configPid of the instance of the service to delete
-     * @return a lookup key that can be used to correlate this operation in the
-     * final {@link OperationReport}
-     */
-    public UUID deleteManagedService(String configPid) {
-        validateString(configPid, "Missing config id");
-        return registerHandler(ManagedServiceOperation.forDelete(configPid,
-                getConfigAdmin(),
-                getConfigAdminMBean()));
-    }
-
-    public Map<String, Map<String, Object>> getManagedServiceConfigs(String factoryPid) {
-        validateString(factoryPid, "Missing factory id");
-        return ManagedServiceOperation.forCreate(factoryPid,
-                Collections.emptyMap(),
-                getConfigAdmin(),
-                getConfigAdminMBean())
-                .readState();
-    }
-
-    /**
-     * Retrieves the service reference. The reference should only be used for reading purposes,
-     * any changes should be done through a commit
-     *
-     * @param serviceClass - Class of service to retrieve
-     * @param <S>          type to be returned
-     * @return first found service reference of serviceClass
-     * @throws ConfiguratorException if any errors occur
-     */
-    public <S> S getServiceReference(Class<S> serviceClass) throws ConfiguratorException {
-        BundleContext context = getBundleContext();
-        ServiceReference<S> ref = context.getServiceReference(serviceClass);
-        if (ref == null) {
-            return null;
-        }
-
-        return context.getService(ref);
-    }
-
-    @Override
-    public <S> Set<S> getServices(Class<S> serviceClass, String filter)
-            throws ConfiguratorException {
-        BundleContext context = getBundleContext();
-        try {
-            return context.getServiceReferences(serviceClass, filter)
-                    .stream()
-                    .map(context::getService)
-                    .collect(Collectors.toSet());
-        } catch (InvalidSyntaxException e) {
-            LOGGER.debug("Invalid filter [{}].", filter, e);
-            throw new ConfiguratorException(String.format("Received invalid filter [%s]", filter));
-        }
     }
 
     private UUID registerHandler(Operation handler) {
@@ -398,68 +136,20 @@ public class ConfiguratorImpl implements Configurator, ConfigReader {
 
         for (Map.Entry<UUID, Operation> row : undoStack) {
             try {
-                row.getValue()
+                Result result = row.getValue()
                         .rollback();
 
-                configReport.putResult(row.getKey(), ResultImpl.rollback());
+                configReport.putResult(row.getKey(), result);
             } catch (ConfiguratorException e) {
-                String configId = configReport.getResult(row.getKey())
-                        .getConfigId();
-                if (configId == null) {
-                    configReport.putResult(row.getKey(), ResultImpl.rollbackFail(e));
-                } else {
+                Optional operationData = configReport.getResult(row.getKey())
+                        .getOperationData();
+                if (operationData.isPresent()) {
                     configReport.putResult(row.getKey(),
-                            ResultImpl.rollbackFailManagedService(e, configId));
+                            ResultImpl.rollbackFailWithData(e, operationData.get()));
+                } else {
+                    configReport.putResult(row.getKey(), ResultImpl.rollbackFail(e));
                 }
             }
-        }
-    }
-
-    /**
-     * Gets the OSGi bundle context.
-     *
-     * @return the bundle context
-     * @throws ConfiguratorException if this bundle cannot be found
-     */
-    private BundleContext getBundleContext() throws ConfiguratorException {
-        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-        if (bundle == null) {
-            LOGGER.info("Unable to access bundle context");
-            throw new ConfiguratorException("Internal error");
-        }
-
-        return bundle.getBundleContext();
-    }
-
-    /**
-     * Gets the config admin for working with OSGi features and bundles.
-     *
-     * @return the service wrapper to use for working with features and bundles
-     * @throws ConfiguratorException if there is an error accessing the config admin
-     */
-    private ConfigurationAdmin getConfigAdmin() throws ConfiguratorException {
-        BundleContext context = getBundleContext();
-        ServiceReference<org.osgi.service.cm.ConfigurationAdmin> serviceReference =
-                context.getServiceReference(org.osgi.service.cm.ConfigurationAdmin.class);
-        return new ConfigurationAdmin(context.getService(serviceReference));
-    }
-
-    /**
-     * Gets the config admin mbean for working with OSGi bundle configurations.
-     *
-     * @return the mbean to use for updating bundle configurations
-     * @throws ConfiguratorException if there is an error accessing the mbean
-     */
-    private ConfigurationAdminMBean getConfigAdminMBean() throws ConfiguratorException {
-        try {
-            ObjectName objectName = new ObjectName(ConfigurationAdminMBean.OBJECTNAME);
-            return MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(),
-                    objectName,
-                    ConfigurationAdminMBean.class,
-                    false);
-        } catch (MalformedObjectNameException e) {
-            LOGGER.debug("Unexpected error finding ConfigurationAdminMBean", e);
-            throw new ConfiguratorException("Internal error");
         }
     }
 }

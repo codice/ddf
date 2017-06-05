@@ -29,6 +29,7 @@
 
     <modules>
         <module>admin-configurator-api</module>
+        <module>admin-configurator-actions-api</module>
         <module>admin-configurator-impl</module>
     </modules>
 </project>

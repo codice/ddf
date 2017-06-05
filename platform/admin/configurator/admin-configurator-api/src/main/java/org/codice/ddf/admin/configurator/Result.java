@@ -21,7 +21,7 @@ import java.util.Optional;
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
-public interface Result {
+public interface Result<T> {
     /**
      * Returns the success or failure of a particular operation.
      *
@@ -41,12 +41,12 @@ public interface Result {
      *
      * @return Optional failure exception
      */
-    Optional<Throwable> getBadOutcome();
+    Optional<ConfiguratorException> getError();
 
     /**
-     * For operations against Managed Services, this field will be populated with the associated {@code configId}.
+     * Gets any operation-specific output data.
      *
-     * @return the configId of a specific managed service instance or null for other operations
+     * @return the Optional output data of the associated operation; may be empty
      */
-    String getConfigId();
+    Optional<T> getOperationData();
 }

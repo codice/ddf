@@ -30,7 +30,7 @@ class BundleConfigHandlerTest extends Specification {
 
     def 'test start bundle that does not exist'() {
         when:
-        BundleOperation.forStart('doesnotexist', bundleContext)
+        new BundleOperation('doesnotexist', true, bundleContext)
 
         then:
         thrown(ConfiguratorException)
@@ -39,7 +39,7 @@ class BundleConfigHandlerTest extends Specification {
     def 'test start bundle that was stopped and rollback'() {
         setup:
         bundleStateService.getState(bundle) >>> [BundleState.Installed, BundleState.Active]
-        def handler = BundleOperation.forStart('xxx', bundleContext)
+        def handler = new BundleOperation('xxx', true, bundleContext)
 
         when:
         handler.commit()
@@ -57,7 +57,7 @@ class BundleConfigHandlerTest extends Specification {
     def 'test stop bundle that was started and rollback'() {
         setup:
         bundleStateService.getState(bundle) >>> [BundleState.Active, BundleState.Installed]
-        def handler = BundleOperation.forStop('xxx', bundleContext)
+        def handler = new BundleOperation('xxx', false, bundleContext)
 
         when:
         handler.commit()
@@ -75,7 +75,7 @@ class BundleConfigHandlerTest extends Specification {
     def 'test start bundle that was already started and rollback'() {
         setup:
         bundleStateService.getState(bundle) >> BundleState.Active
-        def handler = BundleOperation.forStart('xxx', bundleContext)
+        def handler = new BundleOperation('xxx', true, bundleContext)
 
         when:
         handler.commit()
@@ -95,7 +95,7 @@ class BundleConfigHandlerTest extends Specification {
     def 'test stop bundle that was already stopped and rollback'() {
         setup:
         bundleStateService.getState(bundle) >> BundleState.Installed
-        def handler = BundleOperation.forStop('xxx', bundleContext)
+        def handler = new BundleOperation('xxx', false, bundleContext)
 
         when:
         handler.commit()

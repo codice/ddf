@@ -37,7 +37,7 @@ class PropertyConfigHandlerTest extends Specification {
         initProps.put('key1', 'val1')
         initProps.put('key2', 'val2')
         initProps.put('key3', 'val3')
-        file.newWriter().with {
+        file.newWriter().withWriter {
             initProps.store(it, null)
         }
     }
@@ -47,7 +47,7 @@ class PropertyConfigHandlerTest extends Specification {
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
         def newFile = new File(workFolder, "doesnotexistyet.properties")
         def props = new Properties()
-        def handler = PropertyOperation.forCreate(newFile.toPath(), configs)
+        def handler = new PropertyOperation.CreateHandler(newFile.toPath(), configs)
 
         when:
         handler.commit()
@@ -65,7 +65,7 @@ class PropertyConfigHandlerTest extends Specification {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
         def newFile = new File(workFolder, "doesnotexistyet.properties")
-        def handler = PropertyOperation.forCreate(newFile.toPath(), configs)
+        def handler = new PropertyOperation.CreateHandler(newFile.toPath(), configs)
 
         when:
         handler.commit()
@@ -77,7 +77,7 @@ class PropertyConfigHandlerTest extends Specification {
 
     def 'test delete and rollback'() {
         setup:
-        def handler = PropertyOperation.forDelete(file.toPath())
+        def handler = new PropertyOperation.DeleteHandler(file.toPath())
         def props = new Properties()
 
         when:
@@ -105,7 +105,7 @@ class PropertyConfigHandlerTest extends Specification {
         def badFile = new File(workFolder, "doesnotexist")
 
         when:
-        def handler = PropertyOperation.forUpdate(badFile.toPath(), configs, true)
+        def handler = new PropertyOperation.UpdateHandler(badFile.toPath(), configs, true)
 
         then:
         thrown(ConfiguratorException)
@@ -114,7 +114,7 @@ class PropertyConfigHandlerTest extends Specification {
     def 'test write new properties and keep old properties'() {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
-        def handler = PropertyOperation.forUpdate(file.toPath(), configs, true)
+        def handler = new PropertyOperation.UpdateHandler(file.toPath(), configs, true)
         def props = new Properties()
 
         when:
@@ -134,7 +134,7 @@ class PropertyConfigHandlerTest extends Specification {
     def 'test write new properties and remove old properties'() {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
-        def handler = PropertyOperation.forUpdate(file.toPath(), configs, false)
+        def handler = new PropertyOperation.UpdateHandler(file.toPath(), configs, false)
         def props = new Properties()
 
         when:
@@ -152,7 +152,7 @@ class PropertyConfigHandlerTest extends Specification {
     def 'test rollback'() {
         setup:
         def configs = [key1: 'newVal1', key4: 'val4', key5: 'val5']
-        def handler = PropertyOperation.forUpdate(file.toPath(), configs, false)
+        def handler = new PropertyOperation.UpdateHandler(file.toPath(), configs, false)
         def props = new Properties()
 
         when:

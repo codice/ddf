@@ -91,6 +91,7 @@
     <feature name="admin-configurator" install="manual" version="${project.version}"
              description="High-level configurator service for orchestrated configurations.">
         <bundle>mvn:ddf.admin/admin-configurator-api/${project.version}</bundle>
+        <bundle>mvn:ddf.admin/admin-configurator-actions-api/${project.version}</bundle>
         <bundle>mvn:ddf.admin/admin-configurator-impl/${project.version}</bundle>
     </feature>
 

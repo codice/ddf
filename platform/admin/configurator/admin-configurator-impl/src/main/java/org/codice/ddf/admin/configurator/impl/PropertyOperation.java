@@ -13,6 +13,9 @@
  **/
 package org.codice.ddf.admin.configurator.impl;
 
+import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateMap;
+import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validatePropertiesPath;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,6 +27,11 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.codice.ddf.admin.configurator.ConfiguratorException;
+import org.codice.ddf.admin.configurator.Operation;
+import org.codice.ddf.admin.configurator.Result;
+import org.codice.ddf.internal.admin.configurator.actions.PropertyActions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Transactional handler for persisting property file changes.
@@ -31,8 +39,41 @@ import org.codice.ddf.admin.configurator.ConfiguratorException;
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
-public abstract class PropertyOperation
-        implements OperationBase, Operation<Void, Map<String, String>> {
+public abstract class PropertyOperation implements Operation<Void> {
+    public static class Actions implements PropertyActions {
+        @Override
+        public PropertyOperation create(Path propFile, Map<String, String> configs)
+                throws ConfiguratorException {
+            validatePropertiesPath(propFile);
+            validateMap(configs, "Missing properties");
+            return new PropertyOperation.CreateHandler(propFile, configs);
+        }
+
+        @Override
+        public PropertyOperation delete(Path propFile) throws ConfiguratorException {
+            validatePropertiesPath(propFile);
+            return new PropertyOperation.DeleteHandler(propFile);
+        }
+
+        @Override
+        public PropertyOperation update(Path propFile, Map<String, String> configs,
+                boolean keepIfNotPresent) throws ConfiguratorException {
+            validatePropertiesPath(propFile);
+            validateMap(configs, "Missing properties");
+            return new PropertyOperation.UpdateHandler(propFile, configs, keepIfNotPresent);
+        }
+
+        @Override
+        public Map<String, String> getProperties(Path propFile) throws ConfiguratorException {
+            validatePropertiesPath(propFile);
+            return new PropertyOperation.UpdateHandler(propFile,
+                    Collections.emptyMap(),
+                    true).readState();
+        }
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PropertyOperation.class);
+
     /**
      * Transactional handler for creating property files
      */
@@ -42,22 +83,22 @@ public abstract class PropertyOperation
         }
 
         @Override
-        public Void commit() throws ConfiguratorException {
+        public Result<Void> commit() throws ConfiguratorException {
             Map<String, String> propertyMap = new HashMap<>();
             propertyMap.putAll(configs);
             saveProperties(propertyMap);
 
-            return null;
+            return ResultImpl.pass();
         }
 
         @Override
-        public Void rollback() throws ConfiguratorException {
+        public Result<Void> rollback() throws ConfiguratorException {
             boolean delete = configFile.delete();
             if (!delete) {
                 LOGGER.debug("Problem deleting properties file {} for rollback", configFile);
             }
 
-            return null;
+            return ResultImpl.rollback();
         }
     }
 
@@ -70,13 +111,13 @@ public abstract class PropertyOperation
         }
 
         @Override
-        public Void commit() throws ConfiguratorException {
+        public Result<Void> commit() throws ConfiguratorException {
             boolean delete = configFile.delete();
             if (!delete) {
-                LOGGER.debug("Problem deleting properties file {} for rollback", configFile);
+                LOGGER.debug("Problem deleting properties file {}", configFile);
             }
 
-            return null;
+            return ResultImpl.pass();
         }
     }
 
@@ -93,7 +134,7 @@ public abstract class PropertyOperation
         }
 
         @Override
-        public Void commit() throws ConfiguratorException {
+        public Result<Void> commit() throws ConfiguratorException {
             Map<String, String> propertyMap = new HashMap<>();
 
             if (keepIgnored) {
@@ -102,7 +143,7 @@ public abstract class PropertyOperation
             propertyMap.putAll(configs);
             saveProperties(propertyMap);
 
-            return null;
+            return ResultImpl.pass();
         }
     }
 
@@ -141,51 +182,14 @@ public abstract class PropertyOperation
         }
     }
 
-    /**
-     * Creates a handler for persisting property file changes to a new property file.
-     *
-     * @param configFile the property file to be created
-     * @param configs    map of key:value pairs to be written to the property file
-     * @return instance of this class
-     */
-    public static PropertyOperation forCreate(Path configFile, Map<String, String> configs) {
-        return new PropertyOperation.CreateHandler(configFile, configs);
-    }
-
-    /**
-     * Creates a handler for deleting a property file.
-     *
-     * @param configFile the property file to be deleted
-     * @return instance of this class
-     */
-    public static Operation forDelete(Path configFile) {
-        return new PropertyOperation.DeleteHandler(configFile);
-    }
-
-    /**
-     * Creates a handler for persisting property file changes to an existing property file.
-     *
-     * @param configFile  the property file to be updated
-     * @param configs     map of key:value pairs to be written to the property file
-     * @param keepIgnored if true, any keys in the current property file that are not in the
-     *                    {@code configs} map will be left with their initial values; if false, they
-     *                    will be removed from the file
-     * @return instance of this class
-     */
-    public static PropertyOperation forUpdate(Path configFile, Map<String, String> configs,
-            boolean keepIgnored) {
-        return new PropertyOperation.UpdateHandler(configFile, configs, keepIgnored);
-    }
-
     @Override
-    public Void rollback() throws ConfiguratorException {
+    public Result<Void> rollback() throws ConfiguratorException {
         saveProperties(currentProperties);
 
-        return null;
+        return ResultImpl.rollback();
     }
 
-    @Override
-    public Map<String, String> readState() throws ConfiguratorException {
+    Map<String, String> readState() throws ConfiguratorException {
         return Collections.unmodifiableMap(currentProperties);
     }
 

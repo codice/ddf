@@ -52,7 +52,7 @@ class ConfigValidator {
 
         Path ddfHomePath = Paths.get(ddfHomeProp);
         if (!propFile.startsWith(ddfHomePath)) {
-            throw new IllegalArgumentException(String.format("%s is not beneath the %s root",
+            throw new IllegalArgumentException(String.format("File [%s] is not beneath ddf home directory [%s]",
                     propFile.toString(),
                     ddfHomePath.toString()));
         }
