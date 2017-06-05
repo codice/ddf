@@ -50,9 +50,6 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 
 public class XacmlPdpTest {
 
-    private static final String ROLE_CLAIM =
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
-
     private static final String STRING_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#string";
 
     private static final String BOOLEAN_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#boolean";
