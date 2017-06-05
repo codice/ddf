@@ -23,11 +23,8 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.api.console.Session;
 import org.codice.ddf.persistence.PersistenceException;
 
-import jline.console.ConsoleReader;
-
 @Service
-@Command(scope = "store", name = "delete",
-        description = "Deletes entries from the persistence store.")
+@Command(scope = "store", name = "delete", description = "Deletes entries from the persistence store.")
 public class StoreDeleteCommand extends AbstractStoreCommand {
 
     @Reference
@@ -40,10 +37,9 @@ public class StoreDeleteCommand extends AbstractStoreCommand {
         if (!results.isEmpty()) {
             console.println(results.size() + " results matched cql.");
             String message = "\nAre you sure you want to delete? (yes/no): ";
-            ConsoleReader reader = (ConsoleReader) session.get(".jline.reader");
             while (true) {
                 try {
-                    String confirmation = reader.readLine(message);
+                    String confirmation = session.readLine(message, null);
                     if ("yes".equalsIgnoreCase(confirmation.toLowerCase())) {
                         int numDeleted = persistentStore.delete(type, cql);
                         console.println("Successfully deleted " + numDeleted + " items.");
