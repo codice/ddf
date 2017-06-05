@@ -13,6 +13,8 @@
  */
 package ddf.catalog.transformer.input.tika;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -209,6 +211,13 @@ public class TikaInputTransformer implements InputTransformer {
         this.fallbackPowerpointMetacardType = metacardType;
     }
 
+<<<<<<< HEAD
+=======
+    private Map<String, MetacardType> mimeTypeToMetacardTypeMap = new HashMap<>();
+
+    private boolean useResourceTitleAsTitle;
+
+>>>>>>> 16f3179b34... DDF-3048 Add TikaInputTransformer option to use filename for title
     /**
      * Populates the mimeTypeToMetacardMap for use in determining the {@link MetacardType} that
      * corresponds to an ingested product's mimeType.
@@ -497,12 +506,63 @@ public class TikaInputTransformer implements InputTransformer {
         if (StringUtils.startsWith(metacardContentType, "image")) {
             try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource()
                     .openStream()) {
+<<<<<<< HEAD
                 createThumbnail(inputStreamCopy, metacard);
+=======
+                metadata = tikaMetadataExtractor.parseMetadata(inputStreamCopy, new ParseContext());
+            }
+
+            String metadataText = xmlContentHandler.toString();
+            if (templates != null) {
+                metadataText = transformToXml(metadataText);
+            }
+            String metacardContentType = metadata.get(Metadata.CONTENT_TYPE);
+            MetacardType metacardType = getMetacardTypeFromMimeType(metacardContentType);
+            if (metacardType == null) {
+                metacardType = commonTikaMetacardType;
+            }
+            Metacard metacard;
+            if (textContentHandler != null) {
+                String plainText = textContentHandler.toString();
+
+                Set<AttributeDescriptor> attributes = contentMetadataExtractors.values()
+                        .stream()
+                        .map(ContentMetadataExtractor::getMetacardAttributes)
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toSet());
+                MetacardTypeImpl extendedMetacardType = new MetacardTypeImpl(metacardType.getName(),
+                        metacardType,
+                        attributes);
+
+                metacard = MetacardCreator.createMetacard(metadata,
+                        id,
+                        metadataText,
+                        extendedMetacardType,
+                        useResourceTitleAsTitle);
+
+                for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
+                    contentMetadataExtractor.process(plainText, metacard);
+                }
+            } else {
+                metacard = MetacardCreator.createMetacard(metadata,
+                        id,
+                        metadataText,
+                        metacardType,
+                        useResourceTitleAsTitle);
+>>>>>>> 16f3179b34... DDF-3048 Add TikaInputTransformer option to use filename for title
             }
         }
 
         metacard.setAttribute(new AttributeImpl(Core.RESOURCE_SIZE, String.valueOf(bytes)));
 
+    }
+
+    /**
+     * @param useResourceTitleAsTitle must be non-null
+     */
+    public void setUseResourceTitleAsTitle(Boolean useResourceTitleAsTitle) {
+        notNull(useResourceTitleAsTitle, "useResourceTitleAsTitle must be non-null");
+        this.useResourceTitleAsTitle = useResourceTitleAsTitle;
     }
 
     @Nullable
