@@ -374,8 +374,7 @@ public class TikaInputTransformer implements InputTransformer {
             }
 
             String contentType = metadata.get(Metadata.CONTENT_TYPE);
-            MetacardType metacardType = getMetacardType(contentType);
-            metacardType = mergeAttributes(metacardType);
+            MetacardType metacardType = mergeAttributes(getMetacardType(contentType));
             Metacard metacard = MetacardCreator.createMetacard(metadata,
                     id,
                     metadataText,
@@ -462,7 +461,7 @@ public class TikaInputTransformer implements InputTransformer {
     private MetacardType getMetacardType(String contentType) {
         return metadataExtractors.values()
                 .stream()
-                .filter((e) -> e.canProcess(contentType))
+                .filter(e -> e.canProcess(contentType))
                 .findFirst()
                 .map(e -> e.getMetacardType(contentType))
                 .orElse(getMetacardTypeFromMimeType(contentType).orElse(commonTikaMetacardType));
