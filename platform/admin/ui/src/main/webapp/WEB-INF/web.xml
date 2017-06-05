@@ -15,8 +15,8 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
 
-    <description>Admin UI</description>
-    <display-name>Admin UI</display-name>
+    <description>Admin Console</description>
+    <display-name>Admin Console</display-name>
 
     <!-- Default page to serve -->
     <welcome-file-list>
@@ -35,7 +35,7 @@
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>Admin UI</web-resource-name>
+            <web-resource-name>Admin Console</web-resource-name>
             <url-pattern>/*</url-pattern>
         </web-resource-collection>
         <user-data-constraint>
