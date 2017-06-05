@@ -28,8 +28,6 @@ import org.codice.ddf.ui.searchui.query.model.QueryStatus.State;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -106,8 +104,6 @@ public class Search {
     private static final String INTERNAL_LOCAL_RESOURCE = "internal.local-resource";
 
     private static final String IS_RESOURCE_LOCAL = "is-resource-local";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
 
     private static final DateTimeFormatter ISO_8601_DATE_FORMAT = DateTimeFormat.forPattern(
             "yyyy-MM-dd'T'HH:mm:ss.SSSZ")

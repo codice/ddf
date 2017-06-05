@@ -18,20 +18,12 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 
 public class HandlebarsHelperTest {
-
-    private HandlebarsHelper handlebarsHelper;
-
-    @Before
-    public void setup() {
-        handlebarsHelper = new HandlebarsHelper();
-    }
 
     @Test
     public void testHelperSameValue() throws IOException {

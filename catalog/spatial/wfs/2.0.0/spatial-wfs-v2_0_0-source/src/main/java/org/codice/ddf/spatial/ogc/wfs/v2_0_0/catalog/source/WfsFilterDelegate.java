@@ -1210,7 +1210,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                 filterObjectFactory.createBinaryTemporalOpType();
         binaryTemporalOpType.setValueReference(property);
         binaryTemporalOpType.setExpression(gml320ObjectFactory.createTimePeriod(createTimePeriodType(
-                property,
                 type,
                 startDate,
                 endDate)));
@@ -1224,7 +1223,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                 filterObjectFactory.createBinaryTemporalOpType();
         binaryTemporalOpType.setValueReference(property);
         binaryTemporalOpType.setExpression(gml320ObjectFactory.createTimeInstant(
-                createTimeInstantType(property, type, date)));
+                createTimeInstantType(type, date)));
 
         return binaryTemporalOpType;
     }
@@ -1237,8 +1236,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         return timePosition;
     }
 
-    private TimePeriodType createTimePeriodType(String property, String type, String startDate,
-            String endDate) {
+    private TimePeriodType createTimePeriodType(String type, String startDate, String endDate) {
 
         TimePeriodType timePeriodType = gml320ObjectFactory.createTimePeriodType();
         timePeriodType.setBeginPosition(createTimePositionType(startDate));
@@ -1247,7 +1245,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         return timePeriodType;
     }
 
-    private TimeInstantType createTimeInstantType(String property, String type, String date) {
+    private TimeInstantType createTimeInstantType(String type, String date) {
         TimeInstantType timeInstantType = gml320ObjectFactory.createTimeInstantType();
         timeInstantType.setTimePosition(createTimePositionType(date));
         timeInstantType.setId(type + "." + System.currentTimeMillis());

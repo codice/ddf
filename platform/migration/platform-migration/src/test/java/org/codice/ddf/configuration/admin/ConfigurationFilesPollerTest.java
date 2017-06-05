@@ -41,8 +41,6 @@ public class ConfigurationFilesPollerTest {
 
     private static final String FILE_EXT = ".config";
 
-    private static final String INVALID_FILE_EXT = ".invalid";
-
     private static final String PID = "my.pid";
 
     @Mock

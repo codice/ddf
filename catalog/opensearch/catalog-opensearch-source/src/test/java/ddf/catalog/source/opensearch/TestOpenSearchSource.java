@@ -49,7 +49,6 @@ import org.apache.commons.httpclient.util.ParameterParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -96,8 +95,6 @@ public class TestOpenSearchSource {
     private static final String SAMPLE_ID = "abcdef12345678900987654321fedcba";
 
     private static final String SAMPLE_SEARCH_PHRASE = "foobar";
-
-    private static final String BYTES_TO_SKIP = "BytesToSkip";
 
     private EncryptionService encryptionService = mock(EncryptionService.class);
 
@@ -332,32 +329,6 @@ public class TestOpenSearchSource {
 
         // then
         Assert.assertEquals(1, response.getHits());
-    }
-
-    @Test
-    @Ignore
-    // Ignored because Content Type support has yet to be added.
-    public void testQueryByContentType()
-            throws UnsupportedQueryException, IOException, URISyntaxException,
-            ResourceNotFoundException, ResourceNotSupportedException {
-
-        // given
-        FirstArgumentCapture answer = new FirstArgumentCapture(getSampleAtomStream());
-
-        OpenSearchSource source = givenSource(answer);
-
-        Filter filter = filterBuilder.attribute(Metacard.CONTENT_TYPE)
-                .equalTo()
-                .text(SAMPLE_ID);
-
-        // when
-        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
-
-        // then
-        List<NameValuePair> pairs = extractQueryParams(answer);
-
-        verifyOpenSearchUrl(pairs, pair("type", SAMPLE_ID));
-
     }
 
     @Test
@@ -616,7 +587,7 @@ public class TestOpenSearchSource {
         // given
         FirstArgumentCapture answer = new FirstArgumentCapture(getBinaryData());
 
-        OpenSearchSource source = givenSource(answer);
+        OpenSearchSource source = givenSource();
 
         Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
 
@@ -807,7 +778,7 @@ public class TestOpenSearchSource {
         return map;
     }
 
-    private OpenSearchSource givenSource(Answer<BinaryContent> answer)
+    private OpenSearchSource givenSource()
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         WebClient client = mock(WebClient.class);
         ResourceReader mockReader = mock(ResourceReader.class);

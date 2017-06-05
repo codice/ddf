@@ -28,7 +28,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -98,7 +97,6 @@ public class ReliableResourceDownloaderTest {
         String workingDir = System.getProperty("user.dir");
         productCacheDirectory = workingDir + "/target/tests/product-cache";
         productInputFilename = workingDir + "/src/test/resources/foo_10_lines.txt";
-        File productInputFile = new File(productInputFilename);
     }
 
     @Before

@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -53,7 +52,6 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.service.cm.Configuration;
 
-import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.response.Response;
 
 /**
@@ -442,13 +440,6 @@ public class TestFtp extends AbstractIntegrationTest {
         } else {
             LOGGER.error("Failed to upload file.");
         }
-    }
-
-    private String getMetacardIdFromResponse(Response response)
-            throws IOException, XPathExpressionException {
-        return XmlPath.given(response.asString())
-                // gpath to get the single ingested element ID
-                .get("metacards.metacard[0].@gml:id");
     }
 
     private void showServerReply(FTPClient ftpClient) {

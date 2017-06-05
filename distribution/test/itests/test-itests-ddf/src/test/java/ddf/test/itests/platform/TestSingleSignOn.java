@@ -101,8 +101,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     public static final String BROWSER_USER_AGENT =
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
 
-    private static String metacardId;
-
     private enum Binding {
         REDIRECT {
             @Override
@@ -145,7 +143,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                     "spMetadata",
                     new String[] {ddfSpMetadata});
 
-            metacardId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
+            ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
                     "application/json");
 
             getSecurityPolicy().configureWebContextPolicy(null, IDP_AUTH_TYPES, null, null);

@@ -135,7 +135,7 @@ public class TestOpenSearchSiteUtil {
      */
     @Test
     public void populateNullTemporal() {
-        StringBuilder resultStr = new StringBuilder(url);
+
         WebClient webClient = WebClient.create(url.toString());
         OpenSearchSiteUtil.populateTemporal(webClient,
                 null,

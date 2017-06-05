@@ -22,12 +22,8 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.sjms.SjmsComponent;
 import org.apache.camel.component.sjms.jms.ConnectionFactoryResource;
 import org.apache.camel.main.Main;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CoreProducerConsumerExample extends RouteBuilder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreProducerConsumerExample.class);
 
     private final int period = 1000;
 

@@ -21,8 +21,6 @@ import java.lang.reflect.Method;
 
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.common.Security;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.security.service.SecurityManager;
 
@@ -34,8 +32,6 @@ public class ServiceManagerProxy implements InvocationHandler {
     private static final Security SECURITY = Security.getInstance();
 
     private ServiceManager serviceManager;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManagerProxy.class);
 
     public ServiceManagerProxy(ServiceManager serviceManager) {
         this.serviceManager = serviceManager;

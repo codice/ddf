@@ -20,8 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 public class NamespaceResolver implements PrefixResolver {
-    private static final Logger LOGGER =
-             LoggerFactory.getLogger(NamespaceResolver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NamespaceResolver.class);
 
     private static final String DEFAULT_NAMESPACE = "http://www.opengis.net/ogc";
 

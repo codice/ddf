@@ -83,7 +83,7 @@ public class TestDescriptionTemplateHelper {
                         .getAttributeDescriptor(Metacard.EFFECTIVE)
                         .getType()
                         .getAttributeFormat());
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
         assertNotNull(effectiveTime);
     }
 

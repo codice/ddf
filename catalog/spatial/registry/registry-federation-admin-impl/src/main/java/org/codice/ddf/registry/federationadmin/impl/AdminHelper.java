@@ -56,7 +56,7 @@ public class AdminHelper {
         return null;
     }
 
-    public List<Source> getRegistrySources() throws org.osgi.framework.InvalidSyntaxException {
+    public List<Source> getRegistrySources() throws InvalidSyntaxException {
         List<ServiceReference<? extends Source>> refs = new ArrayList<>();
         refs.addAll(getBundleContext().getServiceReferences(RegistryStore.class, null));
         return refs.stream()

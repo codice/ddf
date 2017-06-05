@@ -62,11 +62,8 @@ import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.impl.PointImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesQueryLuceneIndex.class);
 
     private static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
 

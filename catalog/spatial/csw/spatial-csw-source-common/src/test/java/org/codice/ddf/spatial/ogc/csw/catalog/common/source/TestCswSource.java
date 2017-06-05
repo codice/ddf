@@ -68,7 +68,6 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
@@ -87,12 +86,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.catalog.data.impl.types.AssociationsAttributes;
-import ddf.catalog.data.impl.types.ContactAttributes;
-import ddf.catalog.data.impl.types.LocationAttributes;
-import ddf.catalog.data.impl.types.MediaAttributes;
-import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
@@ -182,7 +175,7 @@ public class TestCswSource extends TestCswSourceBase {
         doReturn(mockRegisteredMetacardType).when(mockContext)
                 .registerService(eq(MetacardType.class.getName()),
                         any(MetacardType.class),
-                        Matchers.any());
+                        any());
         ServiceReference<?> mockServiceReference =
                 (ServiceReference<?>) mock(ServiceReference.class);
         doReturn(mockServiceReference).when(mockRegisteredMetacardType)
@@ -1506,13 +1499,11 @@ public class TestCswSource extends TestCswSourceBase {
                 mockProvider,
                 mockFactory,
                 encryptionService);
-        setMetacardType(cswSource);
         cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
         cswSource.setFilterBuilder(builder);
         cswSource.setContext(context);
         cswSource.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         cswSource.setAvailabilityTask(mockAvailabilityTask);
-        cswSource.setMetacardTypes(mockRegistry);
         cswSource.configureCswSource();
 
         return cswSource;
@@ -1597,15 +1588,5 @@ public class TestCswSource extends TestCswSourceBase {
         configuration.put(cswSource.CSWURL_PROPERTY, URL);
         configuration.put(cswSource.IS_CQL_FORCED_PROPERTY, false);
         return configuration;
-    }
-
-    private void setMetacardType(CswSourceStub cswSourceStub) {
-        cswSourceStub.setMetacardTypes(Arrays.asList(new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
-                Arrays.asList(new ContactAttributes(),
-                        new LocationAttributes(),
-                        new MediaAttributes(),
-                        new TopicAttributes(),
-                        new AssociationsAttributes()))));
-
     }
 }

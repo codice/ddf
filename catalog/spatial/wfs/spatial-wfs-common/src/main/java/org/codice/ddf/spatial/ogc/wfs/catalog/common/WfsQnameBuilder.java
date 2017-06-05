@@ -16,12 +16,8 @@ package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WfsQnameBuilder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WfsQnameBuilder.class);
 
     public static QName buildQName(String metacardTypeName, String contentTypeName) {
         if (StringUtils.isEmpty(metacardTypeName) || StringUtils.isEmpty(contentTypeName)) {

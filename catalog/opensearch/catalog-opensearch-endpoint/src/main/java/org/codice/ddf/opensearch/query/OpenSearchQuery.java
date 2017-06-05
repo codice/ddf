@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.security.auth.Subject;
-
 import org.codice.ddf.endpoints.ASTNode;
 import org.codice.ddf.endpoints.KeywordFilterGenerator;
 import org.codice.ddf.endpoints.KeywordTextParser;
@@ -64,12 +62,9 @@ public class OpenSearchQuery implements Query {
     // TODO remove this and only use filterbuilder
     public static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 
-    private static final Logger LOGGER =
-             LoggerFactory.getLogger(OpenSearchQuery.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchQuery.class);
 
     private final FilterBuilder filterBuilder;
-
-    private Subject user;
 
     private Integer startIndex;
 
@@ -89,8 +84,6 @@ public class OpenSearchQuery implements Query {
      * Creates an Implementation of a DDF Query interface. This object is passed from the endpoint
      * to DDF and will be used by sites to perform queries on their respective systems.
      *
-     * @param user
-     *            Credentials of the user performing the query
      * @param startIndex
      *            Offset of the returned results.
      * @param count
@@ -104,11 +97,9 @@ public class OpenSearchQuery implements Query {
      * @param filterBuilder
      *            FilterBuilder object to use for filter creation.
      */
-    public OpenSearchQuery(Subject user, Integer startIndex, Integer count, String sortField,
-            String sortOrderIn, long maxTimeout, FilterBuilder filterBuilder) {
-        String methodName = "OpenSearchQuery constructor";
+    public OpenSearchQuery(Integer startIndex, Integer count, String sortField, String sortOrderIn,
+            long maxTimeout, FilterBuilder filterBuilder) {
 
-        this.user = user;
         this.startIndex = startIndex;
         this.count = count;
         this.filterBuilder = filterBuilder;
@@ -144,7 +135,6 @@ public class OpenSearchQuery implements Query {
     }
 
     public void addContextualFilter(String searchTerm, String selectors) throws ParsingException {
-        String methodName = "addContextualFilter";
         Filter filter = null;
         KeywordFilterGenerator keywordFilterGenerator = new KeywordFilterGenerator(filterBuilder);
 
@@ -265,7 +255,6 @@ public class OpenSearchQuery implements Query {
     }
 
     public void addTemporalFilter(String dateStart, String dateEnd, String dateOffset) {
-        String methodName = "addTemporalFilter";
 
         TemporalFilter temporalFilter = null;
 
@@ -284,7 +273,6 @@ public class OpenSearchQuery implements Query {
     }
 
     public void addTemporalFilter(TemporalFilter temporalFilter) {
-        String methodName = "addTemporalFilter";
 
         if (temporalFilter != null) {
             // t1.start < timeType instance < t1.end

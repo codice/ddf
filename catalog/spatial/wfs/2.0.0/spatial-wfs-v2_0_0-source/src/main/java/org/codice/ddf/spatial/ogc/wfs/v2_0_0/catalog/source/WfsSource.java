@@ -225,8 +225,6 @@ public class WfsSource extends MaskableImpl
 
     private String forceSpatialFilter = NO_FORCED_SPATIAL_FILTER;
 
-    private SpatialOperatorsType supportedSpatialOperators;
-
     private ScheduledExecutorService scheduler;
 
     private ScheduledFuture<?> availabilityPollFuture;
@@ -470,8 +468,6 @@ public class WfsSource extends MaskableImpl
         if (spatialOperatorsType == null) {
             return;
         }
-
-        supportedSpatialOperators = spatialOperatorsType;
 
         if (NO_FORCED_SPATIAL_FILTER.equals(forceSpatialFilter)) {
             return;

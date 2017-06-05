@@ -59,6 +59,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
@@ -135,8 +136,6 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     public void stopManagedService(String servicePid) throws IOException {
         Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
-        ServiceManagerImpl.ServiceConfigurationListener listener =
-                new ServiceManagerImpl.ServiceConfigurationListener(sourceConfig.getPid());
 
         adminConfig.getDdfConfigAdmin()
                 .delete(sourceConfig.getPid());
@@ -156,7 +155,10 @@ public class ServiceManagerImpl implements ServiceManager {
             return;
         }
 
-        bundleContext.registerService(ConfigurationListener.class.getName(), listener, null);
+        ServiceRegistration<?> serviceRegistration = bundleContext.registerService(
+                ConfigurationListener.class.getName(),
+                listener,
+                null);
 
         waitForService(sourceConfig);
 
@@ -174,6 +176,8 @@ public class ServiceManagerImpl implements ServiceManager {
             }
             LOGGER.info("Waiting for configuration to be updated...{}ms", millis);
         }
+
+        serviceRegistration.unregister();
 
         if (!listener.isUpdated()) {
             throw new RuntimeException(String.format(

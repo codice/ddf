@@ -401,7 +401,7 @@ public class TestGeoJsonExtensible {
             throws IOException, CatalogTransformerException {
         ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
                 sampleJsonExtensibleAUnregisteredMetacardType().getBytes());
-        Metacard metacard = transformer.transform(geoJsonInput);
+        transformer.transform(geoJsonInput);
     }
 
     @Test

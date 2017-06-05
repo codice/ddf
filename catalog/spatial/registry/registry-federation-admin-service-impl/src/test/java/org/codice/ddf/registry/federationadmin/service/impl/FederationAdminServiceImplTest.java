@@ -423,7 +423,6 @@ public class FederationAdminServiceImplTest {
     @Test(expected = FederationAdminException.class)
     public void testUpdateRegistryEntrySourceUnavailale() throws Exception {
         Metacard metacard = testMetacard;
-        Metacard existingMetacard = testMetacard;
         Set<String> destinations = new HashSet<>();
         destinations.add(TEST_DESTINATION);
         when(catalogFramework.query(any(QueryRequest.class))).thenThrow(SourceUnavailableException.class);
@@ -1156,10 +1155,4 @@ public class FederationAdminServiceImplTest {
         return registryMetacard;
     }
 
-    private Metacard getPopulatedRemoteTestRegistryMetacard() {
-        Metacard mcard = getPopulatedTestRegistryMetacard();
-        mcard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REMOTE_REGISTRY_ID,
-                "RemoteRegId"));
-        return mcard;
-    }
 }

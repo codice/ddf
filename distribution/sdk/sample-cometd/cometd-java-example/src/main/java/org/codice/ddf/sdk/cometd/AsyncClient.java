@@ -62,8 +62,6 @@ public class AsyncClient {
 
     private static final String DOWNLOAD_TRANSFORM = "?transform=resource";
 
-    private static final long DEFAULT_QUERY_TIMEOUT = 60000;
-
     private final String url;
 
     private final BayeuxClient client;

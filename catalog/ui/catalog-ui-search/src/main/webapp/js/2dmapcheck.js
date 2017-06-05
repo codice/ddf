@@ -30,7 +30,9 @@ define([
                         if (twoD) {
                             this.is2dAvailable = true;
                         }
-                    } catch(e) {}
+                    } catch(e) {
+                        // canvas not supported by browser
+                    }
                 }
                 return this.is2dAvailable;
             }

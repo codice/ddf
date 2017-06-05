@@ -14,38 +14,39 @@
 -->
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-    xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
 
-    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter" />
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
     <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
-        filter="(shortname=URLResourceReader)" />
+               filter="(shortname=URLResourceReader)"/>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <cm:managed-service-factory id="DDFfederationPrototypeServiceFactory"
-        factory-pid="OpenSearchSource" interface="ddf.catalog.source.FederatedSource">
+                                factory-pid="OpenSearchSource"
+                                interface="ddf.catalog.source.FederatedSource">
 
         <cm:managed-component
-            class="ddf.catalog.source.opensearch.OpenSearchSource"
-            init-method="init" destroy-method="destroy">
+                class="ddf.catalog.source.opensearch.OpenSearchSource"
+                init-method="init" destroy-method="destroy">
             <!-- Defines the methods to be invoked when the OpenSearch Source 
                 instance is created and when it is deleted. The init method is called after 
                 all of the setter methods have been called. -->
-            <argument ref="filterAdapter" />
-            <property name="shortname" value="DDF-OS" />
+            <argument ref="filterAdapter"/>
+            <property name="shortname" value="DDF-OS"/>
             <property name="endpointUrl"
-                value="https://localhost:8993/services/query" />
-            <property name="username" value="" />
-            <property name="password" value="" />
-            <property name="localQueryOnly" value="false" />
-            <property name="shouldConvertToBBox" value="true" />
+                      value="https://localhost:8993/services/query"/>
+            <property name="username" value=""/>
+            <property name="password" value=""/>
+            <property name="localQueryOnly" value="false"/>
+            <property name="shouldConvertToBBox" value="true"/>
             <property name="parameters">
                 <list>
                     <value>q</value>
@@ -67,10 +68,10 @@
                     <value>sort</value>
                 </list>
             </property>
-            <property name="resourceReader" ref="resourceReader" />
+            <property name="resourceReader" ref="resourceReader"/>
             <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id=""
-                update-strategy="container-managed" />
+                                   update-strategy="container-managed"/>
         </cm:managed-component>
 
 

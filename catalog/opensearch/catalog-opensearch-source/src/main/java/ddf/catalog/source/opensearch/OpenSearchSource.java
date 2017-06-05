@@ -147,8 +147,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private String password;
 
-    private long receiveTimeout = 0;
-
     private XMLInputFactory xmlInputFactory;
 
     private ResourceReader resourceReader;
@@ -187,7 +185,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         xmlInputFactory = XMLInputFactory2.newInstance();
         xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
         xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
+        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD,
+                Boolean.FALSE); // This disables DTDs entirely for that factory
         xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
 
     }

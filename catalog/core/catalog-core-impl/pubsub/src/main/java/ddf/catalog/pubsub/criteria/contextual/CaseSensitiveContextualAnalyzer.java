@@ -174,8 +174,7 @@ public class CaseSensitiveContextualAnalyzer extends Analyzer {
             streams.tokenStream = new ContextualTokenizer(reader);
             streams.filteredTokenStream = new StandardFilter(streams.tokenStream);
             streams.filteredTokenStream = new StopFilter(enableStopPositionIncrements,
-                    streams.filteredTokenStream,
-                    stopSet);
+                    streams.filteredTokenStream, stopSet);
         } else {
             streams.tokenStream.reset(reader);
         }

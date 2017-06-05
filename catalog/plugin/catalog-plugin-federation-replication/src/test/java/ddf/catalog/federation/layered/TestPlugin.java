@@ -29,21 +29,13 @@ import java.util.Arrays;
 import java.util.Map;
 
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -64,12 +56,8 @@ import ddf.catalog.transform.MetacardTransformer;
 
 public class TestPlugin {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestPlugin.class);
-
     // I changed the port so that it would not conflict in testing with other services
     private static final String ENDPOINT_ADDRESS = "http://localhost:8282/services/catalog";
-
-    private static final String WADL_ADDRESS = ENDPOINT_ADDRESS + "?_wadl";
 
     private static MockRestEndpoint endpoint;
 
@@ -80,58 +68,6 @@ public class TestPlugin {
     private static MetacardTransformer transformer;
 
     private static Metacard metacard;
-
-    @BeforeClass
-    public static void initialize() throws InterruptedException {
-        // startServer();
-        // waitForWADL();
-    }
-
-    private static void startServer() {
-        LOGGER.info("Starting server.");
-
-        endpoint = mock(MockRestEndpoint.class);
-
-        JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-
-        sf.setResourceClasses(MockRestEndpoint.class);
-
-        sf.setAddress(ENDPOINT_ADDRESS);
-
-        sf.setResourceProvider(MockRestEndpoint.class,
-                new SingletonResourceProvider(endpoint, true));
-
-        LOGGER.info("Creating server.");
-        server = sf.create();
-    }
-
-    // Optional step - may be needed to ensure that by the time individual
-    // tests start running the endpoint has been fully initialized
-    private static void waitForWADL() throws InterruptedException {
-        LOGGER.info("Waiting for wadl");
-        WebClient client = WebClient.create(WADL_ADDRESS);
-        // wait for 20 secs or so
-        for (int i = 0; i < 20; i++) {
-            Thread.currentThread()
-                    .sleep(200);
-            Response response = client.get();
-            if (response.getStatus() == 200) {
-                break;
-            }
-        }
-        // no WADL is available yet - throw an exception or give tests a chance
-        // to run anyway
-    }
-
-    @AfterClass
-    public static void destroy() {
-
-        if (server != null) {
-            server.stop();
-            server.destroy();
-        }
-
-    }
 
     @Before
     public void setup() {

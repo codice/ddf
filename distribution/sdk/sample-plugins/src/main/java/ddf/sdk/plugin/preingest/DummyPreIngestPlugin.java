@@ -161,28 +161,4 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
         return results;
     }
 
-    private List<Metacard> filterOutIds(List<Metacard> cards) {
-        String methodName = "filterOutMetacards";
-        LOGGER.debug(ENTERING, methodName);
-
-        List<Metacard> results = new ArrayList<Metacard>();
-        if (cards != null) {
-            int size = cards.size();
-
-            // In this example, we demonstrate filtering out every other
-            // metacard in the list
-            for (int i = 0; i < size; i++) {
-                if (i % 2 == 0) {
-                    results.add(cards.get(i));
-                }
-            }
-
-            LOGGER.debug("Original size of Metacard list: {}", size);
-            LOGGER.debug("Filtered size of Metacard list: {}", results.size());
-        }
-
-        LOGGER.debug(EXITING, methodName);
-
-        return results;
-    }
 }

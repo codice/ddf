@@ -135,7 +135,7 @@ public class ActiveSearch {
         this.source = source;
         startTime = new Date();
         if (uniqueID == null) {
-            this.uniqueID = java.util.UUID.randomUUID();
+            this.uniqueID = UUID.randomUUID();
             LOGGER.debug("uniqueID for new ActiveSearch is null. Setting the ID as {}", uniqueID);
         } else {
             this.uniqueID = uniqueID;

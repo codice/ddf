@@ -75,16 +75,12 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
 
     private static final String RRD_FILE_EXTENSION = ".rrd";
 
-    private static final long ONE_DAY_IN_SECONDS = 24 * 60 * 60;
-
     private static final long START_TIME = 900000000L;
 
     private static final int RRD_STEP = 60;
 
     private static final String MONTHS[] =
             {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
-    private RrdDb rrdDb;
 
     @After
     public void tearDown() throws Exception {
@@ -520,7 +516,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         SlideShow ppt = new SlideShow(is);
         Slide[] slides = ppt.getSlides();
         assertThat(slides.length, equalTo(1));
-        verifySlide(slides[0], "queryCount", true);
+        verifySlide(slides[0], true);
     }
 
     @Test
@@ -541,7 +537,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         SlideShow ppt = new SlideShow(is);
         Slide[] slides = ppt.getSlides();
         assertThat(slides.length, equalTo(1));
-        verifySlide(slides[0], "queryCount", false);
+        verifySlide(slides[0], false);
     }
 
     @Test
@@ -571,8 +567,8 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         Slide[] slides = ppt.getSlides();
         assertThat(slides.length, equalTo(2));
 
-        verifySlide(slides[0], "queryCount_Counter", true);
-        verifySlide(slides[1], "queryCount_Gauge", false);
+        verifySlide(slides[0], true);
+        verifySlide(slides[1], false);
     }
 
     @Test
@@ -654,7 +650,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         }
     }
 
-    private void verifySlide(Slide slide, String metricName, boolean hasTotalCount) {
+    private void verifySlide(Slide slide, boolean hasTotalCount) {
         assertThat(slide, not(nullValue()));
 
         Shape[] shapes = slide.getShapes();

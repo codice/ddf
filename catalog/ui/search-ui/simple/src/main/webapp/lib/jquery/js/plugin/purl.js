@@ -5,7 +5,7 @@
  * Licensed under an MIT-style license. See https://github.com/allmarkedup/jQuery-URL-Parser/blob/master/LICENSE for details.
  */ 
 
-;(function(factory) {
+(function(factory) {
 	if (typeof define === 'function' && define.amd) {
 		// AMD available; use anonymous module
 		if ( typeof jQuery !== 'undefined' ) {
@@ -68,7 +68,7 @@
 		uri.attr['base'] = uri.attr.host ? (uri.attr.protocol ?  uri.attr.protocol+'://'+uri.attr.host : uri.attr.host) + (uri.attr.port ? ':'+uri.attr.port : '') : '';      
 		  
 		return uri;
-	};
+	}
 	
 	function getAttrName( elm ) {
 		var tn = elm.tagName;
