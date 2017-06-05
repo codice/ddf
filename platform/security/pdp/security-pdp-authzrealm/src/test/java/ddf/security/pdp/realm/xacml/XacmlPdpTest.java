@@ -13,11 +13,10 @@
  */
 package ddf.security.pdp.realm.xacml;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -145,7 +144,7 @@ public class XacmlPdpTest {
                 generateSubjectInfo(TEST_COUNTRY),
                 new KeyValueCollectionPermission(QUERY_ACTION));
 
-        assertTrue(testRealm.isPermitted(request));
+        assertThat(testRealm.isPermitted(request), equalTo(true));
     }
 
     @Test
@@ -154,7 +153,7 @@ public class XacmlPdpTest {
                 generateSubjectInfo("CAN"),
                 new KeyValueCollectionPermission(QUERY_ACTION));
 
-        assertFalse(testRealm.isPermitted(request));
+        assertThat(testRealm.isPermitted(request), equalTo(false));
     }
 
     @Test
@@ -165,7 +164,7 @@ public class XacmlPdpTest {
                 blankUserInfo,
                 new KeyValueCollectionPermission(SITE_NAME_ACTION));
 
-        assertTrue(testRealm.isPermitted(request));
+        assertThat(testRealm.isPermitted(request), equalTo(true));
     }
 
     @Test
@@ -175,7 +174,7 @@ public class XacmlPdpTest {
                 generateSubjectInfo(TEST_COUNTRY),
                 new KeyValueCollectionPermission("bad"));
 
-        assertFalse(testRealm.isPermitted(request));
+        assertThat(testRealm.isPermitted(request), equalTo(false));
     }
 
     @Test
@@ -192,7 +191,7 @@ public class XacmlPdpTest {
                 generateSubjectInfo(TEST_COUNTRY),
                 resourcePermissions);
 
-        assertTrue(testRealm.isPermitted(request));
+        assertThat(testRealm.isPermitted(request), equalTo(true));
 
     }
 
@@ -209,7 +208,7 @@ public class XacmlPdpTest {
                 generateSubjectInfo(TEST_COUNTRY),
                 resourcePermissions);
 
-        assertTrue(testRealm.isPermitted(request));
+        assertThat(testRealm.isPermitted(request), equalTo(true));
 
     }
 
@@ -226,84 +225,76 @@ public class XacmlPdpTest {
                 generateSubjectInfo(TEST_COUNTRY),
                 resourcePermissions);
 
-        assertFalse(testRealm.isPermitted(request));
+        assertThat(testRealm.isPermitted(request), equalTo(false));
 
     }
 
     @Test
     public void testParseAttributeTypeBoolean() {
-        assertTrue(BOOLEAN_DATA_TYPE.equals(testRealm.getXacmlDataType("true")));
+        assertThat(testRealm.getXacmlDataType("true"), is(BOOLEAN_DATA_TYPE));
     }
 
     @Test
     public void testParseAttributeTypeInteger() {
-        assertTrue(INTEGER_DATA_TYPE.equals(testRealm.getXacmlDataType("42")));
+        assertThat(testRealm.getXacmlDataType("42"), is(INTEGER_DATA_TYPE));
     }
 
     @Test
     public void testParseAttributeTypeDouble() {
 
-        assertTrue(DOUBLE_DATA_TYPE.equals(testRealm.getXacmlDataType("42.42")));
+        assertThat(testRealm.getXacmlDataType("42.42"), is(DOUBLE_DATA_TYPE));
     }
 
     @Test
     public void testParseAttributeTypeTime() {
 
-        assertTrue(TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
-                "09:00:52.545-05:00")));
-        assertTrue(TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52.545")));
-        assertTrue(TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52-05:00")));
-        assertTrue(TIME_DATA_TYPE.equals(testRealm.getXacmlDataType("09:00:52")));
+        assertThat(testRealm.getXacmlDataType("09:00:52.545-05:00"), is(TIME_DATA_TYPE));
+        assertThat(testRealm.getXacmlDataType("09:00:52.545"), is(TIME_DATA_TYPE));
+        assertThat(testRealm.getXacmlDataType("09:00:52-05:00"), is(TIME_DATA_TYPE));
+        assertThat(testRealm.getXacmlDataType("09:00:52"), is(TIME_DATA_TYPE));
 
     }
 
     @Test
     public void testParseAttributeTypeDate() {
-        assertTrue(DATE_DATA_TYPE.equals(testRealm.getXacmlDataType("1984-11-06")));
-        assertTrue(DATE_DATA_TYPE.equals(testRealm.getXacmlDataType(
-                "1984-11-06-05:00")));
-
+        assertThat(testRealm.getXacmlDataType("1984-11-06"), is(DATE_DATA_TYPE));
+        assertThat(testRealm.getXacmlDataType("1984-11-06-05:00"), is(DATE_DATA_TYPE));
     }
 
     @Test
     public void testParseAttributeTypeDateTime() {
-        assertTrue(DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
-                "2002-05-30T09:30:10Z")));
-        assertTrue(DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
-                "2002-05-30T09:30:10")));
-        assertTrue(DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
-                "2002-05-30T09:30:10-05:00")));
-        assertTrue(DATE_TIME_DATA_TYPE.equals(testRealm.getXacmlDataType(
-                "2002-05-30T09:30:10.525")));
+        assertThat(testRealm.getXacmlDataType("2002-05-30T09:30:10Z"), is(DATE_TIME_DATA_TYPE));
+        assertThat(testRealm.getXacmlDataType("2002-05-30T09:30:10"), is(DATE_TIME_DATA_TYPE));
+        assertThat(testRealm.getXacmlDataType("2002-05-30T09:30:10-05:00"),
+                is(DATE_TIME_DATA_TYPE));
+        assertThat(testRealm.getXacmlDataType("2002-05-30T09:30:10.525"), is(DATE_TIME_DATA_TYPE));
     }
 
     @Test
     public void testParseAttributeTypeUri() {
-        assertTrue(URI_DATA_TYPE.equals(testRealm.getXacmlDataType(
-                "http://www.codice.org")));
+        assertThat(testRealm.getXacmlDataType("http://www.codice.org"), is(URI_DATA_TYPE));
     }
 
     @Test
     public void testParseAttributeTypeString() {
-        assertTrue(STRING_DATA_TYPE.equals(testRealm.getXacmlDataType(
-                "Simple string with 1 integer.")));
+        assertThat(testRealm.getXacmlDataType("Simple string with 1 integer."),
+                is(STRING_DATA_TYPE));
     }
 
     @Test
     public void testParseAttributeTypeRfc822Name() {
-        assertTrue(RFC822_NAME_DATA_TYPE.equals(testRealm.getXacmlDataType(
-                "dev@codice.com")));
+        assertThat(testRealm.getXacmlDataType("dev@codice.com"), is(RFC822_NAME_DATA_TYPE));
     }
 
     @Test
     public void testParseAttributeTypeIpAddress() {
-        assertTrue(IP_ADDRESS_DATA_TYPE.equals(testRealm.getXacmlDataType("8.8.8.8")));
+        assertThat(testRealm.getXacmlDataType("8.8.8.8"), is(IP_ADDRESS_DATA_TYPE));
     }
 
     @Test
     public void testParseAttributeTypeX500Name() {
-        assertTrue(X500_NAME_DATA_TYPE.equals(testRealm.getXacmlDataType(
-                "c=UK,l=London,o=Tardis,o=police box,cn=john.smith")));
+        assertThat(testRealm.getXacmlDataType("c=UK,l=London,o=Tardis,o=police box,cn=john.smith"),
+                is(X500_NAME_DATA_TYPE));
     }
 
     @Test
