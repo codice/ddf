@@ -37,13 +37,14 @@ fi
 if [[ $1 && $2 ]]; then
     PARAM1="$1"
     PARAM2="$2"
+    shift
+    shift
 else
     PARAM1="-cn"
     PARAM2="$(hostname -f)"
 fi
-
 echo "--IGNORE SLF4J ERRORS"--
-$(java -Djavax.net.ssl.keyStore="$KEYFILE" -Djavax.net.ssl.keyStorePassword="$PASSWORD" -Djavax.net.ssl.keyStoreType="$KEYTYPE" -jar "$JARFILE" "$PARAM1" "$PARAM2")
+$(java -Djavax.net.ssl.keyStore="$KEYFILE" -Djavax.net.ssl.keyStorePassword="$PASSWORD" -Djavax.net.ssl.keyStoreType="$KEYTYPE" -jar "$JARFILE" "$PARAM1" "$PARAM2" "$@")
 
 
 if [[ $? == 0 ]]; then

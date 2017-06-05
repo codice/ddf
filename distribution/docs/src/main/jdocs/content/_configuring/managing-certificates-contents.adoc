@@ -83,28 +83,47 @@ To use the scripts, run them out of the `<INSTALL_HOME>/etc/certs` directory.
 
 For *NIX, use the `CertNew.sh` script.
 
-`sh CertNew.sh <FQDN>`
+`sh CertNew.sh <FQDN> [-san <tag:name,tag:name,...>]`
+
+where `<subject tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate. The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+
+* `email`
+* `URI` - uniformed resource identifier
+* `RID` - registered id
+* `DNS`
+* `IP` - ip address (V4 or V6)
+* `dirName` - directory name
 
 Alternatively, a distinguished name can be provided to the script with a comma-delimited string.
 
-`sh CertNew.sh -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
+`sh CertNew.sh -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>" [-san <tag:name,tag:name,...>]`
 ****
 
 .Windows Demo CA Script
 ****
 For Windows, use the `CertNew.cmd` script.
 
-`CertNew -cn <FQDN>`
+`CertNew -cn <FQDN> [-san <tag:name,tag:name,...>]`
+
+where `<subject tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate. The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+
+* `email`
+* `URI` - uniformed resource identifier
+* `RID` - registered id
+* `DNS`
+* `IP` - ip address (V4 or V6)
+* `dirName` - directory name
 
 Alternatively, a distinguished name can be provided to the script with a comma-delimited string.
 
-`CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
+`CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>" [-san <subject tag:name,tag:name,...>]`
 ****
 
 The `CertNew` scripts:
 
 * Create a new entry in the server keystore.
 * Use the hostname as the fully qualified domain name (FQDN) when creating the certificate.
+* Adds the specified subject alternative names if any
 * Use the Demo Certificate Authority to sign the certificate so that it will be trusted by the default configuration.
 
 To install a certificate signed by a different Certificate Authority, see <<_managing_keystores,Managing Keystores>>.

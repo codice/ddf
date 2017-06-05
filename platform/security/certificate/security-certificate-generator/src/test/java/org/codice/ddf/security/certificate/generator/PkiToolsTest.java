@@ -29,6 +29,7 @@ import java.security.cert.X509Certificate;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.GeneralName;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,13 +39,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class PkiToolsTest {
 
-    private PkiTools tools;
-
     @Mock
     X509Certificate mockCert;
 
     @Mock
     PrivateKey mockKey;
+
+    private PkiTools tools;
 
     @Test(expected = CertificateGeneratorException.class)
     public void testDerToPrivateKey() {
@@ -92,8 +93,11 @@ public class PkiToolsTest {
 
     @Test
     public void dnIsValidFormat() throws CertificateEncodingException {
-        X500Name name = PkiTools.convertDistinguishedName("cn=john.smith", "o=police box",
-                "o = Tardis", "l= London", "c=UK");
+        X500Name name = PkiTools.convertDistinguishedName("cn=john.smith",
+                "o=police box",
+                "o = Tardis",
+                "l= London",
+                "c=UK");
         assertThat(name.getRDNs(BCStyle.CN)[0].getFirst()
                 .getValue()
                 .toString(), equalTo("john.smith"));
@@ -130,11 +134,13 @@ public class PkiToolsTest {
     @Test
     public void testFormatPassword() throws Exception {
         Assert.assertThat("formatPassword() failed to return empty character array",
-                PkiTools.formatPassword(null), instanceOf(char[].class));
+                PkiTools.formatPassword(null),
+                instanceOf(char[].class));
 
         char[] pw = "password".toCharArray();
         Assert.assertThat("formatPassword() should not modify the password",
-                new String(PkiTools.formatPassword(pw)), equalTo("password"));
+                new String(PkiTools.formatPassword(pw)),
+                equalTo("password"));
     }
 
     //Null path to keyStore file.
@@ -160,7 +166,8 @@ public class PkiToolsTest {
     public void realFile() throws IOException {
         assertThat(
                 "Should have returned a new File object. Is the file in the test resources directory?",
-                PkiTools.createFileObject(getPathTo("not_keystore.jks")), instanceOf(File.class));
+                PkiTools.createFileObject(getPathTo("not_keystore.jks")),
+                instanceOf(File.class));
     }
 
     @Test(expected = CertificateGeneratorException.class)
@@ -225,5 +232,118 @@ public class PkiToolsTest {
     @Test(expected = CertificateGeneratorException.class)
     public void testDerToCert() {
         PkiTools.derToCertificate(new byte[] {0});
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMakeGeneralNameNullName() {
+        PkiTools.makeGeneralName(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMakeGeneralNameMissingSeparator() {
+        final String name = "A";
+
+        PkiTools.makeGeneralName(name);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMakeGeneralNameEmptyValue() {
+        final String name = "A:";
+
+        PkiTools.makeGeneralName(name);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMakeGeneralNameUnkownTag() {
+        final String name = "A:A";
+
+        PkiTools.makeGeneralName(name);
+    }
+
+    @Test
+    public void testMakeGeneralNameForEmail() {
+        final String value = "a@host.com";
+
+        final GeneralName gname = PkiTools.makeGeneralName("email:" + value);
+
+        assertThat(gname.getTagNo(), equalTo(GeneralName.rfc822Name));
+        assertThat(gname.getName()
+                .toString(), equalTo(value));
+    }
+
+    @Test
+    public void testMakeGeneralNameForURI() {
+        final String value = "http://ocsp.my.host/";
+
+        final GeneralName gname = PkiTools.makeGeneralName("URI:" + value);
+
+        assertThat(gname.getTagNo(), equalTo(GeneralName.uniformResourceIdentifier));
+        assertThat(gname.getName()
+                .toString(), equalTo(value));
+    }
+
+    @Test
+    public void testMakeGeneralNameForRID() {
+        final String value = "0.2.1.4";
+
+        final GeneralName gname = PkiTools.makeGeneralName("RID:" + value);
+
+        assertThat(gname.getTagNo(), equalTo(GeneralName.registeredID));
+        assertThat(gname.getName()
+                .toString(), equalTo(value));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMakeGeneralNameForRIDWithInvalidID() {
+        final String value = "3.2.1.4";
+
+        PkiTools.makeGeneralName("RID:" + value);
+    }
+
+    @Test
+    public void testMakeGeneralNameForDNS() {
+        final String value = "A";
+
+        final GeneralName gname = PkiTools.makeGeneralName("DNS:" + value);
+
+        assertThat(gname.getTagNo(), equalTo(GeneralName.dNSName));
+        assertThat(gname.getName()
+                .toString(), equalTo(value));
+    }
+
+    @Test
+    public void testMakeGeneralNameForIP() {
+        final String value = "1.2.3.4";
+
+        final GeneralName gname = PkiTools.makeGeneralName("IP:" + value);
+
+        assertThat(gname.getTagNo(), equalTo(GeneralName.iPAddress));
+        assertThat(gname.getName()
+                .toString(), equalTo("#01020304"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMakeGeneralNameForIPWithInvalidIP() {
+        final String value = "1.2.3";
+
+        PkiTools.makeGeneralName("IP:" + value);
+    }
+
+    @Test
+    public void testMakeGeneralNameForDirName() {
+        final String value = "C=UK+CN=My Name+OU=My Unit+O=My Organization";
+
+        final GeneralName gname = PkiTools.makeGeneralName("dirName:" + value);
+
+        assertThat(gname.getTagNo(), equalTo(GeneralName.directoryName));
+        assertThat(gname.getName()
+                .toString(), equalTo(value));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMakeGeneralNameForDirNameWithInvalidName() {
+        final String value = "A";
+
+        PkiTools.makeGeneralName("dirName:" + value);
     }
 }

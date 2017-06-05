@@ -19,9 +19,15 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.X509Certificate;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
+import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.joda.time.DateTime;
@@ -61,6 +67,8 @@ public class CertificateSigningRequest {
     protected BigInteger serialNumber;
 
     private X500Name subjectName;
+
+    private Set<GeneralName> subjectAltNames = new LinkedHashSet<>(8); // to preserve order
 
     public CertificateSigningRequest() {
         initialize();
@@ -114,9 +122,21 @@ public class CertificateSigningRequest {
         subjectKeyPair = keyPair;
     }
 
-    JcaX509v3CertificateBuilder newCertificateBuilder(X509Certificate certificate) {
-        return new JcaX509v3CertificateBuilder(certificate, serialNumber, notBefore.toDate(),
-                notAfter.toDate(), subjectName, getSubjectPublicKey());
+    JcaX509v3CertificateBuilder newCertificateBuilder(X509Certificate certificate)
+            throws CertIOException {
+        final JcaX509v3CertificateBuilder cbuilder = new JcaX509v3CertificateBuilder(certificate,
+                serialNumber,
+                notBefore.toDate(),
+                notAfter.toDate(),
+                subjectName,
+                getSubjectPublicKey());
+
+        if (!subjectAltNames.isEmpty()) {
+            cbuilder.addExtension(Extension.subjectAlternativeName,
+                    false,
+                    new GeneralNames(subjectAltNames.toArray(new GeneralName[subjectAltNames.size()])));
+        }
+        return cbuilder;
     }
 
     //Set reasonable defaults
@@ -175,5 +195,30 @@ public class CertificateSigningRequest {
 
     public void setSerialNumber(BigInteger serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    /**
+     * Adds subject alternative names.
+     *
+     * @param names a set of alternative names to add in a format similar to OpenSSL X509 configuration
+     * @throws IllegalArgumentException if the list or any elements are <code>null</code> or again if any elements failed to be properly parsed
+     */
+    public void addSubjectAlternativeNames(String... names) {
+        Validate.notNull(names,
+                "Subject alternative names of certificate signing request cannot be null");
+        Validate.noNullElements(names,
+                "Subject alternative names of certificate signing request cannot be null");
+        for (final String n : names) {
+            subjectAltNames.add(PkiTools.makeGeneralName(n));
+        }
+    }
+
+    /**
+     * Gets the subject alternative names.
+     *
+     * @return a set of all subject alternative names in the order they were added
+     */
+    public Set<GeneralName> getSubjectAlternativeNames() {
+        return subjectAltNames;
     }
 }

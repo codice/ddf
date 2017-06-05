@@ -54,7 +54,7 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
      * @return the string used as the common name in the new certificate
      */
     public String configureDemoCert(String commonName) {
-        return CertificateCommand.configureDemoCert(commonName);
+        return CertificateCommand.configureDemoCert(commonName, null);
     }
 
     public KeyStoreFile getKeyStoreFile() {

@@ -22,8 +22,10 @@ import static org.mockito.Mockito.when;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
@@ -90,6 +92,34 @@ public class CertificateAuthorityTest {
         assertThat("Expected instance of a different class",
                 newObject,
                 instanceOf(KeyStore.PrivateKeyEntry.class));
+    }
+
+    @Test(expected = CertificateGeneratorException.class)
+    public void testSignWithCertificateException() throws Exception {
+        DemoCertificateAuthority demoCa = new DemoCertificateAuthority() {
+            JcaX509CertificateConverter newCertConverter() {
+                return mockConverter;
+            }
+        };
+
+        when(csr.newCertificateBuilder(any(X509Certificate.class))).thenReturn(mockBuilder);
+        when(mockBuilder.build(any(ContentSigner.class))).thenThrow(CertificateException.class);
+
+        demoCa.sign(csr);
+    }
+
+    @Test(expected = CertificateGeneratorException.class)
+    public void testSignWithCertIOException() throws Exception {
+        DemoCertificateAuthority demoCa = new DemoCertificateAuthority() {
+            JcaX509CertificateConverter newCertConverter() {
+                return mockConverter;
+            }
+        };
+
+        when(csr.newCertificateBuilder(any(X509Certificate.class))).thenReturn(mockBuilder);
+        when(mockBuilder.build(any(ContentSigner.class))).thenThrow(CertIOException.class);
+
+        demoCa.sign(csr);
     }
 
     @Test

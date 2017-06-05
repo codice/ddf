@@ -39,6 +39,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.RFC4519Style;
+import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
@@ -120,7 +121,8 @@ public abstract class PkiTools {
             return derToPem(cert.getEncoded());
         } catch (RuntimeException | CertificateEncodingException e) {
             throw new CertificateGeneratorException(
-                    "Unable to convert the certificate to a PEM object", e);
+                    "Unable to convert the certificate to a PEM object",
+                    e);
         }
     }
 
@@ -178,7 +180,8 @@ public abstract class PkiTools {
             return keyGen.generateKeyPair();
         } catch (Exception e) {
             throw new CertificateGeneratorException(
-                    "Failed to generate new public/private key pair.", e);
+                    "Failed to generate new public/private key pair.",
+                    e);
         }
     }
 
@@ -260,6 +263,55 @@ public abstract class PkiTools {
     }
 
     /**
+     * Create an X509 general name based on the specified string which supports a format similar to
+     * OpenSSL X509 configuration as: {@code tag:name} where tag can be one of:
+     * <ul>
+     * <li>email</li>
+     * <li>URI - uniformed resource identifier</li>
+     * <li>RID - registered id</li>
+     * <li>DNS</li>
+     * <li>IP - ip address (V4 or V6)</li>
+     * <li>dirName - directory name</li>
+     * </ul>
+     *
+     * @param name a string representing an X509 general name in an openssl format
+     * @return the corresponding parsed X509 general name
+     * @throws IllegalArgumentException if the string is <code>null</code>, empty or cannot be parsed properly
+     * @see <a href="https://www.openssl.org/docs/man1.0.2/apps/x509v3_config.html">OpenSSL X509 V3 Configuration</a>
+     * @see <a href="https://en.wikipedia.org/wiki/SubjectAltName">Subject Alternative Names on Wikipedia'</a>
+     */
+    public static GeneralName makeGeneralName(String name) {
+        Validate.isTrue(name != null, "Certificate general name cannot be null");
+
+        assert name != null;
+        final int i = name.indexOf(':');
+
+        Validate.isTrue(i != -1, "General name components must be in the format tag:value");
+        final String tag = name.substring(0, i)
+                .trim();
+        final String gname = name.substring(i + 1)
+                .trim();
+
+        Validate.isTrue(!gname.isEmpty(), "General name cannot be empty");
+        switch (tag) {
+        case "email":
+            return new GeneralName(GeneralName.rfc822Name, gname);
+        case "URI":
+            return new GeneralName(GeneralName.uniformResourceIdentifier, gname);
+        case "RID":
+            return new GeneralName(GeneralName.registeredID, gname);
+        case "DNS":
+            return new GeneralName(GeneralName.dNSName, gname);
+        case "IP":
+            return new GeneralName(GeneralName.iPAddress, gname);
+        case "dirName":
+            return new GeneralName(GeneralName.directoryName, gname);
+        default:
+            throw new IllegalArgumentException("unknown general name tag: " + tag);
+        }
+    }
+
+    /**
      * Given a PEM encoded X509 certificate, return an object representation of the certificate
      *
      * @param certString PEM encoded X509 certificate
@@ -273,7 +325,8 @@ public abstract class PkiTools {
             cert = (X509Certificate) cf.engineGenerateCertificate(in);
         } catch (CertificateException e) {
             throw new CertificateGeneratorException(
-                    "Cannot convert this PEM object to X509 certificate", e);
+                    "Cannot convert this PEM object to X509 certificate",
+                    e);
         }
         if (cert == null) {
             throw new CertificateGeneratorException(

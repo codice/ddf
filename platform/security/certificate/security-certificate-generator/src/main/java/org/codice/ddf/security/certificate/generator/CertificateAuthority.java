@@ -20,6 +20,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import org.apache.commons.lang.Validate;
+import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
@@ -58,13 +59,17 @@ public class CertificateAuthority {
     }
 
     public KeyStore.PrivateKeyEntry sign(CertificateSigningRequest csr) {
-        //Converters, holders, and builders! Oh my!
-        JcaX509v3CertificateBuilder builder = csr.newCertificateBuilder(getCertificate());
-        X509CertificateHolder holder = builder.build(getContentSigner());
-        JcaX509CertificateConverter converter = newCertConverter();
         X509Certificate signedCert;
+
         try {
+            //Converters, holders, and builders! Oh my!
+            JcaX509v3CertificateBuilder builder = csr.newCertificateBuilder(getCertificate());
+            X509CertificateHolder holder = builder.build(getContentSigner());
+            JcaX509CertificateConverter converter = newCertConverter();
+
             signedCert = converter.getCertificate(holder);
+        } catch (CertIOException e) {
+            throw new CertificateGeneratorException("Could not create signed certificate.", e);
         } catch (CertificateException e) {
             throw new CertificateGeneratorException("Could not create signed certificate.",
                     e.getCause());
