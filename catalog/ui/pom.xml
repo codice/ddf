@@ -28,7 +28,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>search-ui</module>
-        <module>catalog-ui-search</module>
+        <module>intrigue-ui</module>
         <module>search-ui-app</module>
     </modules>
     <properties>

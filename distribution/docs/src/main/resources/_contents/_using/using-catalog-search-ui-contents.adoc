@@ -4,15 +4,15 @@ It provides a metadata search and discovery, resource retrieval, and workspace m
 
 [NOTE]
 ====
-For more detail on any feature or button within the Catalog UI, click the `?` button in the upper right of the screen; then, hover over any item on the screen and a contextual tooltip will to define its purpose.
+For more detail on any feature or button within ${catalog-ui}, click the `?` button in the upper right of the screen; then, hover over any item on the screen and a contextual tooltip will to define its purpose.
 To exit this mode, click the `?` again or press `escape`.
 ====
 
 === Accessing ${catalog-ui}
 
-The default location for ${catalog-ui} is ${secure_url}/search/catalog
+The default location for ${catalog-ui} is ${secure_url}/intrigue
 
-.Catalog UI Guest Users
+.${catalog-ui} Guest Users
 [NOTE]
 ====
 If Guest access has been enabled, users not signed in to ${branding} (guest users) will have access to search functions, but all workspace configuration and settings will only exist locally and not be available for sharing.

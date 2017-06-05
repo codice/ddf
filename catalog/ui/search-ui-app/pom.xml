@@ -90,7 +90,7 @@
                                     <classifier>redirect</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.config
+                                    <file>src/main/resources/etc/org.codice.ddf.intrigue.config
                                     </file>
                                     <type>properties</type>
                                     <classifier>catalog-ui-config</classifier>
@@ -110,7 +110,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.ui</groupId>
-            <artifactId>catalog-ui-search</artifactId>
+            <artifactId>intrigue-ui-search</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -1,4 +1,4 @@
-.[[org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier]]Email Notifier
+.[[org.codice.ddf.intrigue.query.monitor.email.EmailNotifier]]Email Notifier
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 
@@ -20,7 +20,7 @@
 |bodyTemplate
 |String
 |Set the body template.
-|The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/search/catalog/#workspaces/% [attribute=id].
+|The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/intrigue/#workspaces/% [attribute=id].
 |true
 
 |Mail Server

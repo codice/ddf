@@ -1,4 +1,4 @@
-|<<org.codice.ddf.catalog.ui.config,${catalog-ui} Search>>
-|org.codice.ddf.catalog.ui.config
+|<<org.codice.ddf.intrigue.config,${catalog-ui} Search>>
+|org.codice.ddf.intrigue.config
 |${catalog-ui} Search
 

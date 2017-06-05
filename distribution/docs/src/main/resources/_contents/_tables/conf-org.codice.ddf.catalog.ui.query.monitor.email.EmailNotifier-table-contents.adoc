@@ -1,4 +1,4 @@
-|<<org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier,Email Notifier>>
-|org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier
+|<<org.codice.ddf.intrigue.query.monitor.email.EmailNotifier,Email Notifier>>
+|org.codice.ddf.intrigue.query.monitor.email.EmailNotifier
 |Email Notifier
 

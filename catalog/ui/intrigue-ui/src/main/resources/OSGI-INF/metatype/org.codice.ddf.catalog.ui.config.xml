@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Catalog UI Search" id="org.codice.ddf.intrigue.config">
+        <AD id="resultCount"
+            name="Result Count"
+            description="Specifies the number of results to request from each source"
+            type="Integer"
+            default="250"
+            required="true"/>
+
+        <AD id="imageryProviders"
+            name="Imagery Providers"
+            description='List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: {"type": "WMS", "url": "http://example.com", "layers": ["layer1", "layer2"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "alpha": 0.5}'
+            type="String"
+            default=''
+            required="false"/>
+
+        <AD id="terrainProvider"
+            name="Terrain Provider"
+            description='Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: {"type": "CT", "url": "http://example.com"}'
+            type="String"
+            default='{ "type": "CT"\, "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles" }'
+            required="false"/>
+
+        <AD id="projection"
+            name="Map Projection"
+            description="Projection of imagery providers (e.g. EPSG:3857, EPSG:4326)"
+            type="String"
+            default="EPSG:4326"
+            required="false"/>
+
+        <AD id="bingKey"
+            name="Bing Maps Key"
+            description="Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers."
+            type="String"
+            default=""
+            required="false"/>
+
+        <AD id="timeout"
+            name="Connection Timeout"
+            description="Specifies the client-side connection timeout in milliseconds."
+            type="Integer"
+            default="300000"
+            required="false"/>
+
+        <AD id="sourcePollInterval"
+            name="Source Poll Interval"
+            description="Specifies the interval to poll for sources in milliseconds."
+            type="Integer"
+            default="60000"
+            required="true"/>
+
+        <AD id="signIn"
+            name="Show Sign In"
+            description="Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected."
+            type="Boolean"
+            default="true"
+            required="false"/>
+
+        <AD id="task"
+            name="Show Tasks"
+            description="Show task menu area for long running actions."
+            type="Boolean"
+            default="false"
+            required="false"/>
+
+        <AD id="gazetteer"
+            name="Show Gazetteer"
+            description="Show gazetteer for searching place names."
+            type="Boolean"
+            default="true"
+            required="false"/>
+
+        <AD id="ingest"
+            name="Show Uploader"
+            description="Show upload menu for adding new record."
+            type="Boolean"
+            default="true"
+            required="false"/>
+
+        <AD id="externalAuthentication"
+            name="Use External Authentication"
+            description="Use an external authentication point, such as IdP"
+            type="Boolean"
+            default="false"
+            required="false"/>
+
+        <AD id="cacheDisabled"
+            name="Disable Cache"
+            description="Locally cached results will not be returned in search results."
+            type="Boolean"
+            default="false"
+            required="false"/>
+
+        <AD id="typeNameMapping"
+            name="Type Name Mapping"
+            description="Mapping of display names to content types in the form name=type."
+            type="String"
+            cardinality="10000"
+            required="false"/>
+
+        <AD id="readOnly"
+            name="Read Only Metacard Attributes"
+            description="List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
+            type="String"
+            cardinality="10000"
+            default="^checksum$,^checksum-algorithm$,^id$,^metadata$,^metacard-type$,^source-id$,^point-of-contact$, ^metacard\\.,^version\\.,^validation\\."
+            required="false"/>
+
+        <AD id="summaryShow"
+            name="Summary Metacard Attributes"
+            description="List of metacard attributes to display in the summary view."
+            type="String"
+            cardinality="10000"
+            required="false"/>
+
+        <AD id="resultShow"
+            name="Result Preview Metacard Attributes"
+            description="List of metacard attributes to display in the result preview."
+            type="String"
+            cardinality="10000"
+            required="false"/>
+
+        <AD id="attributeAliases"
+            name="Attribute Aliases"
+            description="List of attribute aliases. Example 'title=Title'"
+            type="String"
+            cardinality="10000"
+            required="false"/>
+
+        <AD id="hiddenAttributes"
+            name="Hidden Attributes"
+            description="List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
+            type="String"
+            cardinality="10000"
+            default="^sortOrder$,^sortField$,^cql$,^polling$,^cached$"
+            required="false"/>
+
+        <AD id="scheduleFrequencyList"
+            name="Query Schedule Frequencies"
+            description="Custom list of schedule frequencies in seconds.  This will override the frequency list in the query schedule tab.  Leave this empty to use the frequency list on the Catalog UI."
+            type="Long"
+            cardinality="10000"
+            default="1800,3600,7200,14400,28800,57600,86400"
+            required="true"/>
+
+        <AD id="isEditingAllowed"
+            name="Allow Editing"
+            description="Allow editing capability to be visible in the UI"
+            type="Boolean"
+            default="true"
+            required="true"/>
+
+        <AD id="resultPageSize"
+            name="Result Page Size"
+            description="Specifies the number of results allowed per page on the client-side."
+            type="Integer"
+            default="25"
+            required="true"/>
+
+        <AD id="queryFeedbackEnabled"
+            name="Enable Query Feedback"
+            description="Enable the query comments option."
+            type="Boolean"
+            default="true"
+            required="true"/>
+
+        <AD id="queryFeedbackEmailSubjectTemplate"
+            name="Feedback Email Subject Template"
+            description="Query Feedback template for the email subject."
+            type="String"
+            default="Query Feedback from {{username}}"
+            required="true"/>
+
+        <AD id="queryFeedbackEmailBodyTemplate"
+            name="Feedback Email Body Template"
+            description="Query Feedback template for the email body."
+            type="String"
+            default="<h2>Query Feedback</h2><p><br><b>Authenticated User</b>: {{{auth_username}}}<br><br><b>User</b>: {{{username}}}<br><br><b>Email</b>: {{{email}}}<br><br><b>Workspace</b>: {{{workspace_name}}} ({{{workspace_id}}})<br><br><b>Query</b>: {{{query}}}<br><br><b>Query time</b>: {{{query_initiated_time}}}<br><br><b>Query status</b>: {{{query_status}}}<br><br><b>Comments</b>: {{{comments}}}<br><br><b>Query_results</b>: <pre>{{{query_results}}}</pre></p>"
+            required="true"/>
+
+        <AD id="queryFeedbackEmailDestination"
+            name="Feedback Email Destination"
+            description="Email destination to send Query Feedback results."
+            type="String"
+            default=""
+            required="true"/>
+
+    </OCD>
+
+    <Designate pid="org.codice.ddf.intrigue.config">
+        <Object ocdref="org.codice.ddf.intrigue.config"/>
+    </Designate>
+
+</metatype:MetaData>
