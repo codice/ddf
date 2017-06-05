@@ -27,11 +27,8 @@ import java.io.File;
 import org.ops4j.pax.exam.ConfigurationManager;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class KarafConfigurator {
-    private static final Logger LOG = LoggerFactory.getLogger(KarafConfigurator.class);
 
     public static Option karafConfiguration() {
         return composite(karafDistributionConfiguration().frameworkUrl(maven().groupId(

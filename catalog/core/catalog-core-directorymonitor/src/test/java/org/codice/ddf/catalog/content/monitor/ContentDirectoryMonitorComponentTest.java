@@ -56,7 +56,6 @@ import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
-import org.apache.karaf.features.BootFinished;
 import org.codice.ddf.catalog.content.monitor.configurators.KeystoreTruststoreConfigurator;
 import org.junit.After;
 import org.junit.Before;
@@ -73,8 +72,6 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 
@@ -89,18 +86,12 @@ import ddf.security.service.SecurityManager;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class ContentDirectoryMonitorComponentTest {
-    private static final Logger LOG =
-            LoggerFactory.getLogger(ContentDirectoryMonitorComponentTest.class);
-
     private static final int TIMEOUT_IN_SECONDS = 10;
 
     @Inject
     private BundleContext bundleContext;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
-
-    @Inject
-    private BootFinished bootFinished;
 
     @Inject
     private CamelContext camelContext;
