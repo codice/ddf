@@ -468,6 +468,7 @@ public class TikaInputTransformer implements InputTransformer {
     }
 
     protected MetacardType mergeAttributes(MetacardType metacardType) {
+        MetacardType returnObject = metacardType;
         Set<AttributeDescriptor> additionalAttributes = contentExtractors.values()
                 .stream()
                 .map(ContentMetadataExtractor::getMetacardAttributes)
@@ -477,12 +478,12 @@ public class TikaInputTransformer implements InputTransformer {
         // Guard against empty collection. If the collection is empty,
         // the MetacardTypeImpl constructor throws an exception.
         if (!additionalAttributes.isEmpty()) {
-            metacardType = new MetacardTypeImpl(metacardType.getName(),
+            returnObject = new MetacardTypeImpl(metacardType.getName(),
                     metacardType,
                     additionalAttributes);
         }
 
-        return metacardType;
+        return returnObject;
     }
 
     protected void enrichMetacard(TemporaryFileBackedOutputStream fileBackedOutputStream,
