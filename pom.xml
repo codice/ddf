@@ -309,6 +309,7 @@
                     <version>3.2.0</version>
                     <extensions>true</extensions>
                     <configuration>
+                        <!-- Disabled OBR to increase build speed -->
                         <obrRepository>NONE</obrRepository>
                         <instructions>
                             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
