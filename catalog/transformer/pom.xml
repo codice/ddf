@@ -81,6 +81,7 @@
         </dependencies>
     </dependencyManagement>
     <modules>
+        <module>catalog-transformer-csv</module>
         <module>catalog-transformer-attribute</module>
         <module>catalog-transformer-service-xslt</module>
         <module>catalog-transformer-resource</module>
