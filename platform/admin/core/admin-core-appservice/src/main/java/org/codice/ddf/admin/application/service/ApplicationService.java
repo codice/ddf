@@ -57,7 +57,10 @@ public interface ApplicationService {
 
     /**
      * Starts an application, including any defined dependencies in the
-     * application.
+     * application. The main feature of the application is started before other auto-install
+     * features.
+     *
+     * TODO DDF-3076 Re-evaluate the implementation of the ApplicationService
      *
      * @param application
      *            Application instance to start.
@@ -69,7 +72,10 @@ public interface ApplicationService {
 
     /**
      * Starts an application, including any defined dependencies in the
-     * application.
+     * application. The main feature of the application is started before other auto-install
+     * features.
+     *
+     * TODO DDF-3076 Re-evaluate the implementation of the ApplicationService
      *
      * @param application
      *            Name of the application to start.
