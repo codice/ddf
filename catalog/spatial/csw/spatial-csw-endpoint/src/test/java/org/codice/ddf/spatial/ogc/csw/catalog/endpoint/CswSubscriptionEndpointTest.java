@@ -169,7 +169,7 @@ public class CswSubscriptionEndpointTest {
         serviceRegistration = mock(ServiceRegistration.class);
         subscriptionReference = mock(ServiceReference.class);
         bundle = mock(Bundle.class);
-        osgiFilter = mock(org.osgi.framework.Filter.class);
+        osgiFilter = mock(Filter.class);
         configAdminRef = mock(ServiceReference.class);
         configAdmin = mock(ConfigurationAdmin.class);
         config = mock(Configuration.class);

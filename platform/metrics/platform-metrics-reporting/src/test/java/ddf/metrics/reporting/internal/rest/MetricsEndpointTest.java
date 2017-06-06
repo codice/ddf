@@ -639,7 +639,7 @@ public class MetricsEndpointTest extends XMLTestCase {
             MetricsEndpoint endpoint = getEndpoint();
             endpoint.setMetricsDir(TEST_DIR);
 
-            Response response = endpoint.getMetricsReport("ppt",
+            endpoint.getMetricsReport("ppt",
                     null,
                     null,
                     "3600",
@@ -806,7 +806,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         endpoint.setMetricsRetriever(metricsRetriever);
 
         try {
-            Response response = endpoint.getMetricsData("uptime",
+            endpoint.getMetricsData("uptime",
                     format,
                     null,
                     null,

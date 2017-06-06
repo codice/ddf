@@ -20,8 +20,6 @@ import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AdminConfig {
     public static final String LOG_CONFIG_PID = "org.ops4j.pax.logging";
@@ -33,8 +31,6 @@ public class AdminConfig {
     public static final String TEST_LOGLEVEL_PROPERTY = "itestLogLevel";
 
     public static final String TEST_SECURITYLOGLEVEL_PROPERTY = "securityLogLevel";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdminConfig.class);
 
     public static final int CONFIG_WAIT_POLLING_INTERVAL = 50;
 

@@ -38,9 +38,7 @@ import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
-import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelper;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
-import org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper;
 import org.codice.ddf.security.common.Security;
 import org.geotools.filter.SortByImpl;
 import org.opengis.filter.Filter;
@@ -93,11 +91,6 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     private MetacardMarshaller metacardMarshaller;
 
     private FilterBuilder filterBuilder;
-
-    private SlotTypeHelper slotTypeHelper = new SlotTypeHelper();
-
-    private InternationalStringTypeHelper internationalStringTypeHelper =
-            new InternationalStringTypeHelper();
 
     public FederationAdminServiceImpl() {
         this(Security.getInstance());

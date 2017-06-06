@@ -123,20 +123,6 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
                 .when();
     }
 
-    private static Map<String, String> makePermission(String attribute, String action,
-            String value) {
-        return ImmutableMap.of("attribute", attribute, "action", action, "value", value);
-    }
-
-    private static void delete(String id) {
-        asAdmin().expect()
-                .log()
-                .all()
-                .statusCode(200)
-                .when()
-                .delete(api() + "/" + id);
-    }
-
     @Test
     public void testGuestCantCreateWorkspace() throws Exception {
         Map<String, String> workspace = ImmutableMap.of("title", "my workspace");

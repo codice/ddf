@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright (c) Codice Foundation
  * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -88,11 +88,11 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
 
         if (null != ltr) {
             ltr.endHandling();
-            increaseCounter(ex, ltr);
+            increaseCounter(ltr);
         }
     }
 
-    private void increaseCounter(Exchange ex, LatencyTimeRecorder ltr) {
+    private void increaseCounter(LatencyTimeRecorder ltr) {
         MESSAGE_LATENCY.update(ltr.getLatencyTime());
     }
 

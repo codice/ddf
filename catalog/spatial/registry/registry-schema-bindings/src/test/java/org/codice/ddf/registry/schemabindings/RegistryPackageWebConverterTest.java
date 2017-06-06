@@ -29,11 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.xml.bind.JAXBElement;
-
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
-import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.schemabindings.converter.type.RegistryPackageTypeConverter;
@@ -682,19 +679,6 @@ public class RegistryPackageWebConverterTest {
         versionInfoType.setVersionName(version);
 
         return versionInfoType;
-    }
-
-    private RegistryObjectType getRegistryObjectFromResource(String path) throws ParserException {
-        RegistryObjectType registryObject = null;
-        JAXBElement<RegistryObjectType> jaxbRegistryObject = parser.unmarshal(configurator,
-                JAXBElement.class,
-                getClass().getResourceAsStream(path));
-
-        if (jaxbRegistryObject != null) {
-            registryObject = jaxbRegistryObject.getValue();
-        }
-
-        return registryObject;
     }
 
 }

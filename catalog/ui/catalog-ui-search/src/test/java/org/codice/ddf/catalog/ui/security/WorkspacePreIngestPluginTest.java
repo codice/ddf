@@ -16,19 +16,10 @@ package org.codice.ddf.catalog.ui.security;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.junit.Test;
 
-import ddf.catalog.Constants;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.OperationTransaction;
-import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.operation.impl.OperationTransactionImpl;
-import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.StopProcessingException;
 
 public class WorkspacePreIngestPluginTest {
@@ -50,19 +41,6 @@ public class WorkspacePreIngestPluginTest {
 
     private static WorkspacePreIngestPlugin makePlugin() {
         return makePlugin("admin@localhost", "admin");
-    }
-
-    private static UpdateRequest update(Metacard original, Metacard updated) {
-        UpdateRequestImpl request = new UpdateRequestImpl(original.getId(), updated);
-
-        OperationTransaction transaction =
-                new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
-                        Arrays.asList(original));
-
-        request.setProperties(Collections.singletonMap(Constants.OPERATION_TRANSACTION_KEY,
-                transaction));
-
-        return request;
     }
 
     @Test

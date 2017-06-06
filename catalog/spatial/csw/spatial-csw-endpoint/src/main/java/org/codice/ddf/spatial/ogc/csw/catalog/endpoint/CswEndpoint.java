@@ -337,7 +337,7 @@ public class CswEndpoint implements Csw {
 
         List<QName> types = typeStringToQNames(request.getTypeName(), namespacePrefixToUriMappings);
 
-        return buildDescribeRecordResponseFromTypes(types, request.getVersion());
+        return buildDescribeRecordResponseFromTypes(types);
     }
 
     @Override
@@ -353,8 +353,7 @@ public class CswEndpoint implements Csw {
         validator.validateOutputFormat(request.getOutputFormat(), mimeTypeTransformerManager);
         validator.validateSchemaLanguage(request.getSchemaLanguage());
 
-        return buildDescribeRecordResponseFromTypes(request.getTypeName(),
-                CswConstants.VERSION_2_0_2);
+        return buildDescribeRecordResponseFromTypes(request.getTypeName());
     }
 
     @Override
@@ -853,8 +852,7 @@ public class CswEndpoint implements Csw {
         return namespaceUri;
     }
 
-    private DescribeRecordResponseType buildDescribeRecordResponseFromTypes(List<QName> types,
-            String version) throws CswException {
+    private DescribeRecordResponseType buildDescribeRecordResponseFromTypes(List<QName> types) throws CswException {
 
         validator.validateFullyQualifiedTypes(types);
 

@@ -20,8 +20,6 @@ package org.codice.ddf.spatial.ogc.wcs.catalog;
  */
 public class GetCapabilitiesRequest {
 
-    private String request = WcsConstants.GET_CAPABILITIES;
-
     private String service = WcsConstants.WCS;
 
     // The following parameters are optional for the GetCapabilities Request

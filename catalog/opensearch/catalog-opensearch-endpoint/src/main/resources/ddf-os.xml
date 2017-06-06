@@ -14,26 +14,27 @@
 
  -->
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
-        >
-  <ShortName>DDF</ShortName>
-  <Description>Query the Metadata Catalog via OpenSearch
-    specifications for query searches.</Description>
-  <Tags>ddf opensearch query</Tags>
-  <Contact>ddf.isgs@lmco.com</Contact>
+>
+    <ShortName>DDF</ShortName>
+    <Description>Query the Metadata Catalog via OpenSearch
+        specifications for query searches.
+    </Description>
+    <Tags>ddf opensearch query</Tags>
+    <Contact>ddf.isgs@lmco.com</Contact>
 
     <!-- TODO replace ddf-url and port with real values -->
     <Url type="application/atom+xml"
          indexOffset="1"
          template="http://ddf-url:8181/services/catalog/query?q={searchTerms?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dtoffset={:offset?}&amp;selector={ddf:selector?}&amp;sort={fs:sort?}&amp;format=atom&amp;type={type?}&amp;version={version?}"/>
-  <Url type="application/atom+xml"
-       indexOffset="1"
-       template="http://ddf-url:8181/services/catalog/query?q={searchTerms?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;bbox={geo:box?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dtoffset={ddf:offset?}&amp;selector={ddf:selector?}&amp;sort={fs:sort?}&amp;format=atom&amp;type={type?}&amp;version={version?}"/>
-  <Url type="application/atom+xml"
-       indexOffset="1"
-       template="http://ddf-url:8181/services/catalog/query?q={searchTerms?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;polygon={geo:polygon?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dtoffset={ddf:offset?}&amp;selector={ddf:selector?}&amp;sort={fs:sort?}&amp;format=atom&amp;type={type?}&amp;version={version?}"/>
-  <Url type="application/atom+xml"
-       indexOffset="1"
-       template="http://ddf-url:8181/services/catalog/query?q={searchTerms?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;geometry={geo:geometry?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dtoffset={ddf:offset?}&amp;selector={ddf:selector?}&amp;sort={fs:sort?}&amp;format=atom&amp;type={type?}&amp;version={version?}"/>
+    <Url type="application/atom+xml"
+         indexOffset="1"
+         template="http://ddf-url:8181/services/catalog/query?q={searchTerms?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;bbox={geo:box?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dtoffset={ddf:offset?}&amp;selector={ddf:selector?}&amp;sort={fs:sort?}&amp;format=atom&amp;type={type?}&amp;version={version?}"/>
+    <Url type="application/atom+xml"
+         indexOffset="1"
+         template="http://ddf-url:8181/services/catalog/query?q={searchTerms?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;polygon={geo:polygon?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dtoffset={ddf:offset?}&amp;selector={ddf:selector?}&amp;sort={fs:sort?}&amp;format=atom&amp;type={type?}&amp;version={version?}"/>
+    <Url type="application/atom+xml"
+         indexOffset="1"
+         template="http://ddf-url:8181/services/catalog/query?q={searchTerms?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;geometry={geo:geometry?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dtoffset={ddf:offset?}&amp;selector={ddf:selector?}&amp;sort={fs:sort?}&amp;format=atom&amp;type={type?}&amp;version={version?}"/>
 
     <!--
       (q) searchTerms - Space delimited list of search terms.
@@ -95,12 +96,12 @@
     -->
     <LongName>DDF OpenSearch Query</LongName>
 
-  <Query role="example" searchTerms="iraq"/>
-  <Developer>DDF Team</Developer>
-  <SyndicationRight>open</SyndicationRight>
-  <AdultContent>false</AdultContent>
-  <Language>en-us</Language>
-  <OutputEncoding>UTF-8</OutputEncoding>
+    <Query role="example" searchTerms="iraq"/>
+    <Developer>DDF Team</Developer>
+    <SyndicationRight>open</SyndicationRight>
+    <AdultContent>false</AdultContent>
+    <Language>en-us</Language>
+    <OutputEncoding>UTF-8</OutputEncoding>
 
-  <InputEncoding>UTF-8</InputEncoding>
+    <InputEncoding>UTF-8</InputEncoding>
 </OpenSearchDescription>

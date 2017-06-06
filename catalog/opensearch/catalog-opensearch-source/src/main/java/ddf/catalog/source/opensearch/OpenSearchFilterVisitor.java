@@ -54,7 +54,8 @@ import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 
 public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
-    private static final String ONLY_AND_MSG = "Opensearch only supports AND operations for non-contextual criteria.";
+    private static final String ONLY_AND_MSG =
+            "Opensearch only supports AND operations for non-contextual criteria.";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchFilterVisitor.class);
 
@@ -341,7 +342,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
             LikeFilterImpl likeFilter = (LikeFilterImpl) filter;
 
-            AttributeExpressionImpl expression = (AttributeExpressionImpl) likeFilter.getExpression();
+            AttributeExpressionImpl expression =
+                    (AttributeExpressionImpl) likeFilter.getExpression();
             String selectors = expression.getPropertyName();
             LOGGER.debug("selectors = {}", selectors);
 
@@ -352,7 +354,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
                         contextualSearch.getSearchPhrase() + " " + currentNest.toString() + " "
                                 + searchPhrase);
             } else {
-                contextualSearch = new ContextualSearch(selectors, searchPhrase,
+                contextualSearch = new ContextualSearch(selectors,
+                        searchPhrase,
                         likeFilter.isMatchingCase());
             }
         }

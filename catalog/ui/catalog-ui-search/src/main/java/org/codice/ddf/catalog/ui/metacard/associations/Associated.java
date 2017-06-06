@@ -55,8 +55,6 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public class Associated {
 
-    private static final String ASSOCIATION_PREFIX = "metacard.associations.";
-
     private static final Set<String> ASSOCIATION_TYPES = ImmutableSet.of(Metacard.DERIVED,
             Metacard.RELATED);
 

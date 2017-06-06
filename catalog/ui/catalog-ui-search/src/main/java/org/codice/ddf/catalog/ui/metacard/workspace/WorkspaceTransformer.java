@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeDescriptor;
@@ -43,8 +41,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
 public class WorkspaceTransformer {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceTransformer.class);
 
     private final CatalogFramework catalogFramework;
 

@@ -59,7 +59,6 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.security.Subject;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 
@@ -83,9 +82,6 @@ public class IdentityNodeInitializationTest {
     private Metacard testMetacard;
 
     private RegistryTransformer registryTransformer;
-
-    @Mock
-    private Subject subject;
 
     private XmlParser parser;
 

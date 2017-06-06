@@ -161,7 +161,8 @@ public class OpenSearchEndpoint implements OpenSearch {
                 // Since local is a magic word, not in any specification, we need to
                 // eventually remove support for it.
                 if (siteSet.remove(LOCAL)) {
-                    LOGGER.debug("Found 'local' alias, replacing with {}.", SystemInfo.getSiteName());
+                    LOGGER.debug("Found 'local' alias, replacing with {}.",
+                            SystemInfo.getSiteName());
                     siteSet.add(SystemInfo.getSiteName());
                 }
 
@@ -376,7 +377,8 @@ public class OpenSearchEndpoint implements OpenSearch {
         } catch (SourceUnavailableException e) {
             LOGGER.info("Error executing query because the underlying source was unavailable.", e);
             response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags("Error executing query because the underlying source was unavailable."))
+                    .entity(wrapStringInPreformattedTags(
+                            "Error executing query because the underlying source was unavailable."))
                     .build();
         } catch (RuntimeException e) {
             // Account for any runtime exceptions and send back a server error
@@ -427,9 +429,10 @@ public class OpenSearchEndpoint implements OpenSearch {
         if (!(StringUtils.isEmpty(maxTimeoutStr))) {
             maxTimeout = Long.parseLong(maxTimeoutStr);
         }
-        LOGGER.debug("Retrieved query settings:   sortField: {}   sortOrder: {}", sortField, sortOrder);
-        return new OpenSearchQuery(null,
-                startIndex,
+        LOGGER.debug("Retrieved query settings:   sortField: {}   sortOrder: {}",
+                sortField,
+                sortOrder);
+        return new OpenSearchQuery(startIndex,
                 count,
                 sortField,
                 sortOrder,

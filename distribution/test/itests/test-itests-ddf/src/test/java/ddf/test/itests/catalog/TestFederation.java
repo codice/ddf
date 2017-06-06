@@ -14,6 +14,7 @@
 package ddf.test.itests.catalog;
 
 import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
@@ -49,7 +50,6 @@ import static com.xebialabs.restito.semantics.Action.contentType;
 import static com.xebialabs.restito.semantics.Action.header;
 import static com.xebialabs.restito.semantics.Action.ok;
 import static com.xebialabs.restito.semantics.Action.success;
-import static com.xebialabs.restito.semantics.Condition.post;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 
 import java.io.File;
@@ -73,7 +73,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -1247,7 +1246,7 @@ public class TestFederation extends AbstractIntegrationTest {
         Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -1323,7 +1322,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -1447,7 +1446,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -1499,7 +1498,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -1595,8 +1594,8 @@ public class TestFederation extends AbstractIntegrationTest {
         String srcRequest = "{\"src\":\"" + OPENSEARCH_SOURCE_ID
                 + "\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sort\":\"modified:desc\"}";
 
-        expect("Waiting for metacard cache to clear").checkEvery(1, TimeUnit.SECONDS)
-                .within(20, TimeUnit.SECONDS)
+        expect("Waiting for metacard cache to clear").checkEvery(1, SECONDS)
+                .within(20, SECONDS)
                 .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) == 0);
 
         //This query will put the ingested metacards from the BeforeExam method into the cache
@@ -1610,8 +1609,8 @@ public class TestFederation extends AbstractIntegrationTest {
                 .statusCode(200);
 
         //CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
-        expect("Waiting for metacards to be written to cache").checkEvery(1, TimeUnit.SECONDS)
-                .within(20, TimeUnit.SECONDS)
+        expect("Waiting for metacards to be written to cache").checkEvery(1, SECONDS)
+                .within(20, SECONDS)
                 .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) > 0);
     }
 
@@ -1648,7 +1647,7 @@ public class TestFederation extends AbstractIntegrationTest {
         Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -1725,7 +1724,7 @@ public class TestFederation extends AbstractIntegrationTest {
         Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -1748,7 +1747,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .contentType("text/plain")
                 .body(is(resourceData));
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -1789,7 +1788,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -1877,7 +1876,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -2025,7 +2024,7 @@ public class TestFederation extends AbstractIntegrationTest {
         Action response1 = new ChunkedContent.ChunkedContentBuilder(resourceData1).build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId1))
                 .then(ok(),
@@ -2044,7 +2043,7 @@ public class TestFederation extends AbstractIntegrationTest {
         Action response2 = new ChunkedContent.ChunkedContentBuilder(resourceData2).build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId2))
                 .then(ok(),
@@ -2274,7 +2273,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .fail(NO_RETRIES)
                 .build();
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -2419,7 +2418,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -2463,7 +2462,7 @@ public class TestFederation extends AbstractIntegrationTest {
                 .build();
 
         cswServer.whenHttp()
-                .match(post("/services/csw"),
+                .match(Condition.post("/services/csw"),
                         withPostBodyContaining("GetRecords"),
                         withPostBodyContaining(metacardId))
                 .then(ok(),
@@ -2542,7 +2541,7 @@ public class TestFederation extends AbstractIntegrationTest {
         boolean isUnexpectedEventReceived = false;
 
         while (!isAllEventsReceived && !isUnexpectedEventReceived
-                && millis < TimeUnit.MINUTES.toMillis(2)) {
+                && millis < MINUTES.toMillis(2)) {
 
             Set<String> foundIds;
 

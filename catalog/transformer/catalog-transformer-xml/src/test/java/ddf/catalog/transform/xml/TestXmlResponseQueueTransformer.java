@@ -175,7 +175,7 @@ public class TestXmlResponseQueueTransformer {
         transformer.setThreshold(2);
 
         // when
-        BinaryContent binaryContent = transformer.transform(null, null);
+        transformer.transform(null, null);
 
         // then
         // failure should occur
@@ -502,7 +502,7 @@ public class TestXmlResponseQueueTransformer {
                 mockMimeType);
         xrqt.setThreshold(2);
 
-        BinaryContent bc = xrqt.transform(response, null);
+        xrqt.transform(response, null);
 
         // then exception
     }
@@ -526,7 +526,7 @@ public class TestXmlResponseQueueTransformer {
                 getMimeType());
         xrqt.setThreshold(2);
 
-        BinaryContent bc = xrqt.transform(response, null);
+        xrqt.transform(response, null);
 
         // then exception
     }

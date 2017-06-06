@@ -53,7 +53,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -496,7 +495,7 @@ public class TestCswSourceBase {
         doReturn(mockRegisteredMetacardType).when(mockContext)
                 .registerService(eq(MetacardType.class.getName()),
                         any(MetacardType.class),
-                        Matchers.any());
+                        any());
         ServiceReference<?> mockServiceReference =
                 (ServiceReference<?>) mock(ServiceReference.class);
         doReturn(mockServiceReference).when(mockRegisteredMetacardType)

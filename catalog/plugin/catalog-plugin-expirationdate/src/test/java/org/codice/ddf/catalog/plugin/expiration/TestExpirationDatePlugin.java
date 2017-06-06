@@ -31,8 +31,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -45,8 +43,6 @@ import ddf.catalog.plugin.StopProcessingException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestExpirationDatePlugin {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestExpirationDatePlugin.class);
 
     private static final String DATE_FORMAT = "MM-dd-yyyy HH:mm:ss.SSS";
 

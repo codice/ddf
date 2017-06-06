@@ -37,7 +37,6 @@ import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminS
 import org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceEvent;
@@ -113,10 +112,10 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
     @Test
     public void testBindRegistryStoreNoContext() {
-        registryStorePublisher = Mockito.spy(new RegistryStorePublisher());
+        registryStorePublisher = spy(new RegistryStorePublisher());
         registryStorePublisher.bindRegistryStore(serviceReference);
 
-        verify(registryStorePublisher, Mockito.times(0)).registryPublish(any(), anyString());
+        verify(registryStorePublisher, times(0)).registryPublish(any(), anyString());
     }
 
     @Test
@@ -131,15 +130,15 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
         registryStorePublisher.unbindRegistryStore(serviceReference);
 
-        verify(registryStorePublisher, Mockito.times(1)).registryPublish(any(), eq(PUBLISH));
+        verify(registryStorePublisher, times(1)).registryPublish(any(), eq(PUBLISH));
     }
 
     @Test
     public void testUnbindRegistryStoreNoContext() {
-        registryStorePublisher = Mockito.spy(new RegistryStorePublisher());
+        registryStorePublisher = spy(new RegistryStorePublisher());
         registryStorePublisher.unbindRegistryStore(serviceReference);
 
-        verify(registryStorePublisher, Mockito.times(0)).registryPublish(any(), eq(UNPUBLISH));
+        verify(registryStorePublisher, times(0)).registryPublish(any(), eq(UNPUBLISH));
     }
 
     @Test
@@ -150,7 +149,7 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
         registryStorePublisher.registryPublish(mockRegistryStoreImpl, PUBLISH);
 
-        verify(mockRegPubService, Mockito.times(0)).publish(any(), any());
+        verify(mockRegPubService, times(0)).publish(any(), any());
     }
 
     @Test
@@ -164,7 +163,7 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
         registryStorePublisher.registryPublish(mockRegistryStore, PUBLISH);
 
-        verify(mockRegPubService, Mockito.times(1)).publish(any(), any());
+        verify(mockRegPubService, times(1)).publish(any(), any());
     }
 
     @Test
@@ -175,7 +174,7 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
         registryStorePublisher.registryPublish(mockRegistryStoreImpl, UNPUBLISH);
 
-        verify(mockRegPubService, Mockito.times(0)).unpublish(any(), any());
+        verify(mockRegPubService, times(0)).unpublish(any(), any());
     }
 
     @Test
@@ -189,7 +188,7 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
         registryStorePublisher.registryPublish(mockRegistryStore, UNPUBLISH);
 
-        verify(mockRegPubService, Mockito.times(1)).unpublish(any(), any());
+        verify(mockRegPubService, times(1)).unpublish(any(), any());
     }
 
     @Test
@@ -198,7 +197,7 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
         registryStorePublisher.registryPublish(mockRegistryStore, UNPUBLISH);
 
-        verify(mockRegPubService, Mockito.times(0)).unpublish(any(), any());
+        verify(mockRegPubService, times(0)).unpublish(any(), any());
     }
 
     @Test
@@ -207,7 +206,7 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
         registryStorePublisher.handleEvent(event);
 
-        verify(mockRegPubService, Mockito.times(0)).publish(any(), any());
+        verify(mockRegPubService, times(0)).publish(any(), any());
     }
 
     @Test
@@ -215,8 +214,8 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
         when(mockServiceEvent.getType()).thenReturn(ServiceEvent.MODIFIED);
         registryStorePublisher.handleEvent(event);
 
-        verify(mockRegPubService, Mockito.times(0)).publish(any(), any());
-        verify(mockRegPubService, Mockito.times(0)).unpublish(any(), any());
+        verify(mockRegPubService, times(0)).publish(any(), any());
+        verify(mockRegPubService, times(0)).unpublish(any(), any());
     }
 
     @Test
@@ -234,7 +233,7 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
         registryStorePublisher.handleEvent(event);
 
-        verify(registryStorePublisher, Mockito.times(1)).registryPublish(any(), eq(PUBLISH));
+        verify(registryStorePublisher, times(1)).registryPublish(any(), eq(PUBLISH));
     }
 
     @Test
@@ -252,8 +251,8 @@ public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
         registryStorePublisher.handleEvent(event);
 
-        verify(registryStorePublisher, Mockito.times(1)).registryPublish(any(), eq(PUBLISH));
-        verify(registryStorePublisher, Mockito.times(1)).registryPublish(any(), eq(UNPUBLISH));
+        verify(registryStorePublisher, times(1)).registryPublish(any(), eq(PUBLISH));
+        verify(registryStorePublisher, times(1)).registryPublish(any(), eq(UNPUBLISH));
     }
 
     @Test

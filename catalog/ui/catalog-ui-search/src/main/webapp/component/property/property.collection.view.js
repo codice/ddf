@@ -95,7 +95,7 @@ define([
         generateSummaryPropertyCollectionView: function(metacards) {
             var propertyArray = [];
             this.summaryWhiteList.forEach(function(property) {
-                if (Boolean(metacardDefinitions.metacardTypes[property])) {
+                if (metacardDefinitions.metacardTypes[property] !== undefined) {
                     propertyArray.push({
                         enumFiltering: true,
                         enum: metacardDefinitions.enums[property],

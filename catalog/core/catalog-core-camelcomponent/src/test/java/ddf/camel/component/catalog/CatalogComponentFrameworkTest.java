@@ -483,10 +483,6 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         metacards.add(metacard1);
 
         // Mock catalog framework
-        final CreateRequest createRequest = new CreateRequestImpl(metacards);
-        final CreateResponse createResponse = new CreateResponseImpl(createRequest,
-                new HashMap(),
-                metacards);
         when(catalogFramework.create(any(CreateRequest.class))).thenThrow(new IngestException());
 
         // Exercise the route with a CREATE operation

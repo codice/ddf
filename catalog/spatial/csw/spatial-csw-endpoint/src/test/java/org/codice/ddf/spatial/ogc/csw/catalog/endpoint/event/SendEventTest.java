@@ -140,8 +140,7 @@ public class SendEventTest {
         when(response.getHeaders()).thenReturn(headers);
         when(accessPlugin.processPostQuery(any(QueryResponse.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
 
-        sendEvent = new SendEventExtension(transformerManager,
-                request,
+        sendEvent = new SendEventExtension(request,
                 query,
                 mockCxfClientFactory);
         sendEvent.setSubject(subject);
@@ -223,10 +222,10 @@ public class SendEventTest {
 
     private class SendEventExtension extends SendEvent {
 
-        public SendEventExtension(TransformerManager transformerManager, GetRecordsType request,
-                QueryRequest query, SecureCxfClientFactory<CswSubscribe> mockCxfClientFactory)
+        public SendEventExtension(GetRecordsType request, QueryRequest query,
+                SecureCxfClientFactory<CswSubscribe> mockCxfClientFactory)
                 throws CswException {
-            super(transformerManager, request, query, mockCxfClientFactory);
+            super(request, query, mockCxfClientFactory);
             super.security = mockSecurity;
         }
 

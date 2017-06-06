@@ -24,7 +24,6 @@ import javax.xml.namespace.NamespaceContext;
 
 /**
  * Contains a set of all namespaces used during the processing of atom messages.
- *
  */
 public class OsNamespaceContext implements NamespaceContext {
 

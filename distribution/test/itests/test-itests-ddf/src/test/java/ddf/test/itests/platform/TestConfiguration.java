@@ -60,8 +60,6 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.path.xml.element.NodeChildren;
@@ -75,8 +73,6 @@ import com.jayway.restassured.response.Response;
 @ExamReactorStrategy(PerSuite.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestConfiguration extends AbstractIntegrationTest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestConfiguration.class);
 
     private static final String EXPORT_COMMAND = "migration:export";
 

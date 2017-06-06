@@ -49,7 +49,7 @@ public class TestGeoNamesCreator extends TestBase {
     @Test(expected = ArrayIndexOutOfBoundsException.class)
     public void testNotEnoughFields() {
         final String wrongFormat = "5288858\tCave Creek\tCave Creek\tAlternate names\t33.83333";
-        final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(wrongFormat);
+        GEONAMES_CREATOR.createGeoEntry(wrongFormat);
     }
 
     @Test(expected = NumberFormatException.class)
@@ -61,7 +61,7 @@ public class TestGeoNamesCreator extends TestBase {
         final String wrongFormat = "5289282\t33.30616\t-111.84125\t" +
                 "Candler,Candleris,Chandler,Chandlur\tChandler\tChandler\tP\tPPL\tUS\tUS\tAZ\t" +
                 "013\t012\t011\t236123\t370\t368\tAmerica/Phoenix\t2011-05-14";
-        final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(wrongFormat);
+        GEONAMES_CREATOR.createGeoEntry(wrongFormat);
     }
 
     @Test(expected = ArrayIndexOutOfBoundsException.class)
@@ -69,11 +69,11 @@ public class TestGeoNamesCreator extends TestBase {
         final String wrongFormat = "5289282,Chandler,Chandler," +
                 "Candler,Candleris,Chandler,Chandlu,33.30616,-111.84125,P,PPL,US,US,AZ," +
                 "013,012,011,236123,370,368,America/Phoenix,2011-05-14";
-        final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(wrongFormat);
+        GEONAMES_CREATOR.createGeoEntry(wrongFormat);
     }
 
     @Test(expected = ArrayIndexOutOfBoundsException.class)
     public void testEmptyLine() {
-        final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry("");
+        GEONAMES_CREATOR.createGeoEntry("");
     }
 }

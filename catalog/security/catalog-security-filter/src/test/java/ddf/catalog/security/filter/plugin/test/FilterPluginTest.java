@@ -15,6 +15,7 @@ package ddf.catalog.security.filter.plugin.test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -50,8 +51,6 @@ import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import junit.framework.Assert;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -63,7 +62,6 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -219,18 +217,18 @@ public class FilterPluginTest {
 
     @Test
     public void testPluginFilterResourceGood() throws StopProcessingException {
-        ResourceResponse response = plugin.processPostResource(resourceResponse, getExactRolesMetacard());
+        plugin.processPostResource(resourceResponse, getExactRolesMetacard());
     }
 
     @Test
     public void testPluginFilterResourceNoStrategiesGood() throws StopProcessingException {
         plugin = new FilterPlugin();
-        ResourceResponse response = plugin.processPostResource(resourceResponse, getExactRolesMetacard());
+        plugin.processPostResource(resourceResponse, getExactRolesMetacard());
     }
 
     @Test(expected = StopProcessingException.class)
     public void testPluginFilterResourceBad() throws StopProcessingException {
-        ResourceResponse response = plugin.processPostResource(resourceResponse, getMoreRolesMetacard());
+        plugin.processPostResource(resourceResponse, getMoreRolesMetacard());
     }
 
     @Test
@@ -241,18 +239,18 @@ public class FilterPluginTest {
 
     @Test(expected = StopProcessingException.class)
     public void testPluginFilterDeleteNoRequest() throws StopProcessingException {
-        DeleteResponse response = plugin.processPostDelete(mock(DeleteResponse.class));
+        plugin.processPostDelete(mock(DeleteResponse.class));
     }
 
     @Test
     public void testPluginFilterDeleteGood() throws StopProcessingException {
-        DeleteResponse response = plugin.processPostDelete(deleteResponse);
+        plugin.processPostDelete(deleteResponse);
     }
 
     @Test(expected = StopProcessingException.class)
     public void testPluginFilterResourceNoStrategiesBad() throws StopProcessingException {
         plugin = new FilterPlugin();
-        ResourceResponse response = plugin.processPostResource(resourceResponse,
+        plugin.processPostResource(resourceResponse,
                 getMoreRolesMetacard());
     }
 
@@ -315,18 +313,18 @@ public class FilterPluginTest {
 
     @Test
     public void testUnusedMethods() throws StopProcessingException {
-        QueryRequest queryRequest = plugin.processPreQuery(mock(QueryRequest.class));
+        plugin.processPreQuery(mock(QueryRequest.class));
 
-        DeleteRequest deleteRequest = plugin.processPreDelete(mock(DeleteRequest.class));
+        plugin.processPreDelete(mock(DeleteRequest.class));
 
-        ResourceRequest resourceRequest = plugin.processPreResource(mock(ResourceRequest.class));
+        plugin.processPreResource(mock(ResourceRequest.class));
     }
 
     private void verifyFilterResponse(QueryResponse response) {
         LOGGER.info("Filtered with {}", response.getResults()
                 .size() + " out of 5 original.");
         LOGGER.info("Checking Results");
-        Assert.assertEquals(4,
+        assertEquals(4,
                 response.getResults()
                         .size());
         LOGGER.info("Filtering succeeded.");

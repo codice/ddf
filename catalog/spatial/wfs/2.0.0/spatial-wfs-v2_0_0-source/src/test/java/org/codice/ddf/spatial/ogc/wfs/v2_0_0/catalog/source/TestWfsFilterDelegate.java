@@ -1068,7 +1068,7 @@ public class TestWfsFilterDelegate {
         filtersToBeOred.add(compFilter2);
 
         //Perform Test
-        FilterType filter = delegate.or(filtersToBeOred);
+        delegate.or(filtersToBeOred);
     }
 
     @Test(expected = UnsupportedOperationException.class)

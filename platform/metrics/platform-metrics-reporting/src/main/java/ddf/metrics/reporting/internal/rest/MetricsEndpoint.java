@@ -87,10 +87,6 @@ public class MetricsEndpoint {
 
     private static final String PNG_MIME_TYPE = "image/png";
 
-    private static final String START_DATE_QUERY = "?startDate=";
-
-    private static final String END_DATE_QUERY = "&endDate=";
-
     private static final String DATE_OFFSET_QUERY = "?dateOffset=";
 
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -113,8 +109,6 @@ public class MetricsEndpoint {
 
     private static final String PNG_FORMAT = "png";
 
-    private static final String CSV_FORMAT = "csv";
-
     static {
         TIME_RANGES.put("15m", FIFTEEN_MINUTES_IN_SECONDS);
         TIME_RANGES.put("1h", ONE_HOUR_IN_SECONDS);
@@ -131,8 +125,6 @@ public class MetricsEndpoint {
     private String metricsDir = DEFAULT_METRICS_DIR;
 
     private MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-
-    private double metricsMaxThreshold;
 
     /**
      * Retrieve data for the specified metric over the given time range. The URL to access this
@@ -680,7 +672,6 @@ public class MetricsEndpoint {
     public void setMetricsMaxThreshold(double metricsMaxThreshold) {
         LOGGER.debug("Creating new RrdMetricsRetriever with metricsMaxThreshold = {}",
                 metricsMaxThreshold);
-        this.metricsMaxThreshold = metricsMaxThreshold;
         metricsRetriever = new RrdMetricsRetriever(metricsMaxThreshold);
     }
 

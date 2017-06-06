@@ -33,8 +33,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
@@ -48,7 +46,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Path("/edit")
 public class MetacardEditEndpoint {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardEditEndpoint.class);
 
     private final CatalogFramework catalogFramework;
 
@@ -181,7 +178,7 @@ public class MetacardEditEndpoint {
         Map<String, Object> responseMap = getResponseMap(attribute,
                 metacard.getAttribute(attribute),
                 descriptor);
-        return Response.ok(endpointUtil.getJson(response), MediaType.APPLICATION_JSON)
+        return Response.ok(endpointUtil.getJson(responseMap), MediaType.APPLICATION_JSON)
                 .build();
 
     }
