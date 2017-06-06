@@ -23,6 +23,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.management.NotCompliantMBeanException;
+
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
@@ -70,7 +72,8 @@ public class CatalogBundle {
 
         while (!available) {
             if (provider == null) {
-                ServiceReference<CatalogFramework> frameworkRef = serviceManager.getServiceReference(CatalogFramework.class);
+                ServiceReference<CatalogFramework> frameworkRef =
+                        serviceManager.getServiceReference(CatalogFramework.class);
                 ServiceReference<CatalogProvider> providerRef = serviceManager.getServiceReference(
                         CatalogProvider.class);
                 if (providerRef != null) {
@@ -86,10 +89,12 @@ public class CatalogBundle {
                         new SourceInfoRequestLocal(true);
 
                 try {
-                    SourceInfoResponse sources = framework.getSourceInfo(sourceInfoRequestEnterprise);
+                    SourceInfoResponse sources =
+                            framework.getSourceInfo(sourceInfoRequestEnterprise);
                     Set<SourceDescriptor> sourceInfo = sources.getSourceInfo();
                     for (SourceDescriptor sourceDescriptor : sourceInfo) {
-                        if (sourceDescriptor.getSourceId().equals(provider.getId())) {
+                        if (sourceDescriptor.getSourceId()
+                                .equals(provider.getId())) {
                             available = sourceDescriptor.isAvailable() && provider.isAvailable();
                             LOGGER.info("CatalogProvider.isAvailable = {}", available);
                         }
@@ -133,7 +138,8 @@ public class CatalogBundle {
         boolean available = false;
 
         while (!available) {
-            ServiceReference<CatalogFramework> frameworkRef = serviceManager.getServiceReference(CatalogFramework.class);
+            ServiceReference<CatalogFramework> frameworkRef = serviceManager.getServiceReference(
+                    CatalogFramework.class);
             CatalogFramework framework = null;
             if (frameworkRef != null) {
                 framework = serviceManager.getService(frameworkRef);
@@ -151,10 +157,12 @@ public class CatalogBundle {
                         new SourceInfoRequestEnterprise(true);
 
                 try {
-                    SourceInfoResponse sources = framework.getSourceInfo(sourceInfoRequestEnterprise);
+                    SourceInfoResponse sources =
+                            framework.getSourceInfo(sourceInfoRequestEnterprise);
                     Set<SourceDescriptor> sourceInfo = sources.getSourceInfo();
                     for (SourceDescriptor sourceDescriptor : sourceInfo) {
-                        if (sourceDescriptor.getSourceId().equals(source.getId())) {
+                        if (sourceDescriptor.getSourceId()
+                                .equals(source.getId())) {
                             available = sourceDescriptor.isAvailable() && source.isAvailable();
                             LOGGER.info("Source.isAvailable = {} Framework.isAvailable = {}",
                                     source.isAvailable(),
@@ -195,11 +203,15 @@ public class CatalogBundle {
     }
 
     public void setFanout(boolean fanoutEnabled) throws IOException {
-        Map<String, Object> properties = adminConfig.getDdfConfigAdmin()
-                .getProperties(CATALOG_FRAMEWORK_PID);
-        if (properties == null) {
+        Map<String, Object> properties = null;
+        try {
+            properties = Optional.ofNullable(adminConfig.getAdminConsoleService()
+                    .getProperties(CATALOG_FRAMEWORK_PID))
+                    .orElse(new Hashtable<>());
+        } catch (NotCompliantMBeanException e) {
             properties = new Hashtable<>();
         }
+
         if (fanoutEnabled) {
             properties.put("fanoutEnabled", "True");
         } else {
@@ -210,14 +222,16 @@ public class CatalogBundle {
     }
 
     public void setFanoutTagBlacklist(List<String> blacklist) throws IOException {
-        Map<String, Object> properties = adminConfig.getDdfConfigAdmin()
-                .getProperties(CATALOG_FRAMEWORK_PID);
+        Map<String, Object> properties = null;
+        try {
+            properties = Optional.ofNullable(adminConfig.getAdminConsoleService()
+                    .getProperties(CATALOG_FRAMEWORK_PID))
+                    .orElse(new Hashtable<>());
+        } catch (NotCompliantMBeanException e) {
+            properties = new Hashtable<>();
+        }
 
         if (blacklist != null) {
-            if (properties == null) {
-                properties = new Hashtable<>();
-            }
-
             properties.put("fanoutTagBlacklist", String.join(",", blacklist));
 
             serviceManager.startManagedService(CATALOG_FRAMEWORK_PID, properties);
@@ -242,9 +256,14 @@ public class CatalogBundle {
 
     private void setConfigProperty(String pid, String propertyName, Object propertyValue)
             throws IOException {
-        Map<String, Object> existingProperties = Optional.ofNullable(adminConfig.getDdfConfigAdmin()
-                .getProperties(pid))
-                .orElse(new Hashtable<>());
+        Map<String, Object> existingProperties = null;
+        try {
+            existingProperties = Optional.ofNullable(adminConfig.getAdminConsoleService()
+                    .getProperties(pid))
+                    .orElse(new Hashtable<>());
+        } catch (NotCompliantMBeanException e) {
+            existingProperties = new Hashtable<>();
+        }
         Hashtable<String, Object> updatedProperties = new Hashtable<>();
         updatedProperties.putAll(existingProperties);
 

@@ -13,7 +13,8 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
-import java.lang.management.ManagementFactory;
+import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -38,12 +39,12 @@ import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
-import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
+import org.codice.ddf.admin.core.api.ConfigurationAdmin;
+import org.codice.ddf.admin.core.api.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.util.tracker.ServiceTracker;
@@ -89,7 +90,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
 
-    private final ConfigurationAdminExt configAdminExt;
+    private final ConfigurationAdmin configAdmin;
 
     private ObjectName objectName;
 
@@ -119,15 +120,14 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
      *                                     objects.
      */
     public ApplicationServiceBean(ApplicationService appService,
-            ConfigurationAdminExt configAdminExt, MBeanServer mBeanServer)
+            ConfigurationAdmin configAdmin, MBeanServer mBeanServer)
             throws ApplicationServiceException {
         this.appService = appService;
-        this.configAdminExt = configAdminExt;
+        this.configAdmin = configAdmin;
         this.mBeanServer = mBeanServer;
         try {
             objectName = new ObjectName(
                     ApplicationService.class.getName() + ":service=application-service");
-            mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException mone) {
             throw new ApplicationServiceException("Could not create objectname.", mone);
         }
@@ -370,8 +370,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     @SuppressWarnings("unchecked")
     @Override
     public List<Map<String, Object>> getServices(String applicationID) {
-        List<Map<String, Object>> services =
-                configAdminExt.listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
+        List<Service> services =
+                configAdmin.listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
         List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
         BundleContext context = getContext();
 
@@ -474,7 +474,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
             for (String fpid : filterList) {
                 ldapFilter.append("(");
-                ldapFilter.append(ConfigurationAdmin.SERVICE_FACTORYPID);
+                ldapFilter.append(SERVICE_FACTORYPID);
                 ldapFilter.append("=");
                 ldapFilter.append(fpid);
                 ldapFilter.append(")");
@@ -484,7 +484,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
             return ldapFilter.toString();
         }
-        return "(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + "*)";
+        return "(" + SERVICE_FACTORYPID + "=" + "*)";
     }
 
     private String getDefaultLdapFilter() {

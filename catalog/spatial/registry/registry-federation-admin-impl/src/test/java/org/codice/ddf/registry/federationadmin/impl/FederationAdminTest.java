@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
@@ -559,7 +560,7 @@ public class FederationAdminTest {
 
     @Test
     public void testAllRegistryInfoNoMetatypes() throws Exception {
-        List<Map<String, Object>> metatypes = new ArrayList<>();
+        List<Service> metatypes = new ArrayList<>();
         when(helper.getMetatypes()).thenReturn(metatypes);
         assertThat(federationAdmin.allRegistryInfo()
                 .size(), is(0));
@@ -567,12 +568,12 @@ public class FederationAdminTest {
 
     @Test
     public void testAllRegistryInfo() throws Exception {
-        List<Map<String, Object>> metatypes = new ArrayList<>();
+        List<Service> metatypes = new ArrayList<>();
         List<Configuration> configurations = new ArrayList<>();
         Dictionary<String, Object> props = new Hashtable<>();
         Dictionary<String, Object> propsDisabled = new Hashtable<>();
 
-        metatypes.add(new HashMap<>());
+        metatypes.add(new ServiceImpl());
 
         props.put("key1", "value1");
         propsDisabled.put("key2", "value2");
@@ -590,12 +591,12 @@ public class FederationAdminTest {
         when(configDisabled.getProperties()).thenReturn(propsDisabled);
 
         when(helper.getMetatypes()).thenReturn(metatypes);
-        when(helper.getConfigurations(any(Map.class))).thenReturn(configurations);
+        when(helper.getConfigurations(any(Service.class))).thenReturn(configurations);
         when(helper.getName(any(Configuration.class))).thenReturn("name");
         when(helper.getBundleName(any(Configuration.class))).thenReturn("bundleName");
         when(helper.getBundleId(any(Configuration.class))).thenReturn(1234L);
 
-        List<Map<String, Object>> updatedMetatypes = federationAdmin.allRegistryInfo();
+        List<Service> updatedMetatypes = federationAdmin.allRegistryInfo();
         assertThat(updatedMetatypes.size(), is(1));
         ArrayList<Map<String, Object>> configs =
                 (ArrayList<Map<String, Object>>) updatedMetatypes.get(0)
@@ -1002,5 +1003,9 @@ public class FederationAdminTest {
 
     private Metacard getTestMetacard() {
         return new MetacardImpl(new RegistryObjectMetacardType());
+    }
+
+    private static class ServiceImpl extends HashMap<String, Object> implements Service {
+
     }
 }

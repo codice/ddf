@@ -17,6 +17,10 @@ import java.net.URI;
 
 /**
  * Defines a module to be plugged into the admin ui
+ * <p>
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ * </p>
  */
 public interface AdminModule {
 
@@ -25,30 +29,30 @@ public interface AdminModule {
      * as well as the text of the module's tab. This must not contain spaces.
      * @return String
      */
-    public String getName();
+    String getName();
 
     /**
      * Returns the id that will be injected into the DOM. If using Marionette, one can call App.<this id> within the
      * module to return the region where the module should be rendered.
      * @return String
      */
-    public String getId();
+    String getId();
 
     /**
      * Absolute path to the module JS file. This file can require in additional requirejs modules as needed.
      * @return URI
      */
-    public URI getJSLocation();
+    URI getJSLocation();
 
     /**
      * Absolute path to any CSS that accompanies this module. The CSS will be included globally.
      * @return URI
      */
-    public URI getCSSLocation();
+    URI getCSSLocation();
 
     /**
      * Absolute path to an IFrame to embed. JSLocation and CSSLocation will be ignored if this call returns a valid URI.
      * @return URI
      */
-    public URI getIframeLocation();
+    URI getIframeLocation();
 }

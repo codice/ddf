@@ -14,9 +14,15 @@
 package org.codice.ddf.itests.common;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Dictionary;
 
+import javax.management.NotCompliantMBeanException;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.subject.Subject;
+import org.codice.ddf.admin.core.impl.AdminConsoleService;
+import org.codice.ddf.admin.core.impl.ConfigurationAdminImpl;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -40,8 +46,19 @@ public class AdminConfig {
         this.configAdmin = configAdmin;
     }
 
-    public org.codice.ddf.ui.admin.api.ConfigurationAdmin getDdfConfigAdmin() {
-        return new org.codice.ddf.ui.admin.api.ConfigurationAdmin(configAdmin) {
+    public AdminConsoleService getAdminConsoleService() throws NotCompliantMBeanException {
+        return new AdminConsoleService(configAdmin,
+                new ConfigurationAdminImpl(configAdmin, new ArrayList<>()) {
+                    @Override
+                    public boolean isPermittedToViewService(String servicePid) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean isPermittedToViewService(String servicePid, Subject subject) {
+                        return true;
+                    }
+                }) {
             @Override
             public boolean isPermittedToViewService(String servicePid) {
                 return true;

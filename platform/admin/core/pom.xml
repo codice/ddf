@@ -27,6 +27,7 @@
     <name>DDF :: Admin :: Core</name>
     <modules>
         <module>admin-core-api</module>
+        <module>admin-core-impl</module>
         <module>admin-core-configpidplugin</module>
         <module>admin-core-appservice</module>
         <module>admin-core-jolokia</module>

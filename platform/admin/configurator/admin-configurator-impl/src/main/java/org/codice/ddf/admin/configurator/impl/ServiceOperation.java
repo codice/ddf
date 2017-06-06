@@ -31,8 +31,10 @@ import javax.management.MalformedObjectNameException;
 import org.codice.ddf.admin.configurator.ConfiguratorException;
 import org.codice.ddf.admin.configurator.Operation;
 import org.codice.ddf.admin.configurator.Result;
+import org.codice.ddf.admin.core.api.MetatypeAttribute;
+import org.codice.ddf.admin.core.api.Service;
+import org.codice.ddf.admin.core.api.jmx.AdminConsoleServiceMBean;
 import org.codice.ddf.internal.admin.configurator.actions.ServiceActions;
-import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,19 +72,19 @@ public class ServiceOperation implements Operation<Void> {
 
     private final boolean keepIgnored;
 
-    private final ConfigurationAdminMBean cfgAdmMbean;
+    private final AdminConsoleServiceMBean adminConsoleServiceMBean;
 
     private final Map<String, Object> currentProperties;
 
     private ServiceOperation(String pid, Map<String, Object> configs, boolean keepIgnored,
-            ConfigurationAdminMBean cfgAdmMbean) {
+            AdminConsoleServiceMBean adminConsoleServiceMBean) {
         this.pid = pid;
         this.configs = new HashMap<>(configs);
         this.keepIgnored = keepIgnored;
-        this.cfgAdmMbean = cfgAdmMbean;
+        this.adminConsoleServiceMBean = adminConsoleServiceMBean;
 
         try {
-            currentProperties = readState(this.pid, this.cfgAdmMbean);
+            currentProperties = readState(this.pid, this.adminConsoleServiceMBean);
         } catch (ConfiguratorException e) {
             LOGGER.debug("Error getting current configuration for pid {}", pid, e);
             throw new ConfiguratorException("Internal error");
@@ -122,34 +124,34 @@ public class ServiceOperation implements Operation<Void> {
     }
 
     Map<String, Object> readState() throws ConfiguratorException {
-        return readState(pid, cfgAdmMbean);
+        return readState(pid, adminConsoleServiceMBean);
     }
 
     private void saveConfigs(Map<String, Object> properties)
             throws MalformedObjectNameException, IOException {
-        cfgAdmMbean.update(pid, properties);
+        adminConsoleServiceMBean.update(pid, properties);
     }
 
-    private static Map<String, Object> readState(String pid, ConfigurationAdminMBean cfgAdmMbean)
-            throws ConfiguratorException {
+    private static Map<String, Object> readState(String pid,
+            AdminConsoleServiceMBean adminConsoleServiceMBean) throws ConfiguratorException {
         try {
-            Map<String, Object> configResults = cfgAdmMbean.getProperties(pid);
+            Map<String, Object> configResults = adminConsoleServiceMBean.getProperties(pid);
             if (configResults.isEmpty()) {
-                Optional<Map<String, Object>> defaultMetatypeValues = cfgAdmMbean.listServices()
+                Optional<Service> defaultMetatypeValues = adminConsoleServiceMBean.listServices()
                         .stream()
-                        .filter(service -> service.get("id") != null && service.get("id")
+                        .filter(service -> service.getId() != null && service.getId()
                                 .equals(pid))
                         .findFirst();
 
-                List<Map<String, Object>> metatypes = new ArrayList<>();
+                List<MetatypeAttribute> metatypes = new ArrayList<>();
                 if (defaultMetatypeValues.isPresent()) {
-                    metatypes = (List) defaultMetatypeValues.get()
-                            .get("metatype");
+                    metatypes = defaultMetatypeValues.get()
+                            .getAttributeDefinitions();
                 }
 
                 return metatypes.stream()
-                        .collect(Collectors.toMap(field -> (String) field.get("id"),
-                                field -> field.get("defaultValue")));
+                        .collect(Collectors.toMap(MetatypeAttribute::getId,
+                                MetatypeAttribute::getDefaultValue));
             } else {
                 return configResults;
             }

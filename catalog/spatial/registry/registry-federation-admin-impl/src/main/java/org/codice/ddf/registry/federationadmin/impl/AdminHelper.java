@@ -15,12 +15,12 @@ package org.codice.ddf.registry.federationadmin.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.registry.api.internal.RegistryStore;
-import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -28,7 +28,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.metatype.ObjectClassDefinition;
 
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.Source;
@@ -36,7 +35,8 @@ import ddf.catalog.source.Source;
 public class AdminHelper {
     private static final String REGISTRY_FILTER = String.format(
             "(|(%s=*Registry*Store*)(%s=*registry*store*))",
-            ConfigurationAdmin.SERVICE_FACTORYPID, ConfigurationAdmin.SERVICE_FACTORYPID);
+            ConfigurationAdmin.SERVICE_FACTORYPID,
+            ConfigurationAdmin.SERVICE_FACTORYPID);
 
     private static final String MAP_ENTRY_ID = "id";
 
@@ -44,8 +44,12 @@ public class AdminHelper {
 
     private final ConfigurationAdmin configurationAdmin;
 
-    public AdminHelper(ConfigurationAdmin configurationAdmin) {
+    private final org.codice.ddf.admin.core.api.ConfigurationAdmin configAdmin;
+
+    public AdminHelper(org.codice.ddf.admin.core.api.ConfigurationAdmin configAdmin,
+            ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
+        this.configAdmin = configAdmin;
     }
 
     private BundleContext getBundleContext() {
@@ -64,21 +68,18 @@ public class AdminHelper {
                 .collect(Collectors.toList());
     }
 
-    public List<Map<String, Object>> getMetatypes() {
-        ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(configurationAdmin);
-        return configAdminExt.addMetaTypeNamesToMap(configAdminExt.getFactoryPidObjectClasses(),
-                REGISTRY_FILTER,
-                ConfigurationAdmin.SERVICE_FACTORYPID);
+    public List<Service> getMetatypes() {
+        return configAdmin.listServices(REGISTRY_FILTER, REGISTRY_FILTER);
     }
 
-    public List getConfigurations(Map<String, Object> metatype)
+    public List<Configuration> getConfigurations(Service metatype)
             throws InvalidSyntaxException, IOException {
-        return org.apache.shiro.util.CollectionUtils.asList(configurationAdmin.listConfigurations(
+        return Arrays.asList(configurationAdmin.listConfigurations(
                 String.format("(|(%s=%s)(%s=%s%s))",
                         ConfigurationAdmin.SERVICE_FACTORYPID,
-                        metatype.get(MAP_ENTRY_ID),
+                        metatype.getId(),
                         ConfigurationAdmin.SERVICE_FACTORYPID,
-                        metatype.get(MAP_ENTRY_ID),
+                        metatype.getId(),
                         DISABLED)));
     }
 
@@ -87,8 +88,7 @@ public class AdminHelper {
     }
 
     public String getBundleName(Configuration config) {
-        ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(configurationAdmin);
-        return configAdminExt.getName(getBundleContext().getBundle(config.getBundleLocation()));
+        return configAdmin.getName(getBundleContext().getBundle(config.getBundleLocation()));
     }
 
     public long getBundleId(Configuration config) {
@@ -97,8 +97,7 @@ public class AdminHelper {
     }
 
     public String getName(Configuration config) {
-        ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(configurationAdmin);
-        return ((ObjectClassDefinition) configAdminExt.getFactoryPidObjectClasses()
-                .get(config.getFactoryPid())).getName();
+        return configAdmin.getObjectClassDefinition(config)
+                .getName();
     }
 }

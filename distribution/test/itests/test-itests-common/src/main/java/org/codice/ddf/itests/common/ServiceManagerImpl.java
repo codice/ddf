@@ -42,6 +42,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.management.NotCompliantMBeanException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleInfo;
 import org.apache.karaf.bundle.core.BundleService;
@@ -51,7 +53,7 @@ import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
-import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
+import org.codice.ddf.admin.core.api.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -137,8 +139,12 @@ public class ServiceManagerImpl implements ServiceManager {
     public void stopManagedService(String servicePid) throws IOException {
         Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
 
-        adminConfig.getDdfConfigAdmin()
-                .delete(sourceConfig.getPid());
+        try {
+            adminConfig.getAdminConsoleService()
+                    .delete(sourceConfig.getPid());
+        } catch (NotCompliantMBeanException e) {
+            //ignore
+        }
     }
 
     private void startManagedService(Configuration sourceConfig, Map<String, Object> properties)
@@ -160,10 +166,18 @@ public class ServiceManagerImpl implements ServiceManager {
                 listener,
                 null);
 
-        waitForService(sourceConfig);
+        try {
+            waitForService(sourceConfig);
+        } catch (NotCompliantMBeanException e) {
+            //ignore
+        }
 
-        adminConfig.getDdfConfigAdmin()
-                .update(sourceConfig.getPid(), properties);
+        try {
+            adminConfig.getAdminConsoleService()
+                    .update(sourceConfig.getPid(), properties);
+        } catch (NotCompliantMBeanException e) {
+            //ignore
+        }
 
         long millis = 0;
         while (!listener.isUpdated() && millis < MANAGED_SERVICE_TIMEOUT) {
@@ -202,10 +216,10 @@ public class ServiceManagerImpl implements ServiceManager {
         return bundleContext;
     }
 
-    private void waitForService(Configuration sourceConfig) {
+    private void waitForService(Configuration sourceConfig) throws NotCompliantMBeanException {
         long waitForService = 0;
         boolean serviceStarted = false;
-        List<Map<String, Object>> servicesList;
+        List<Service> servicesList;
         do {
             try {
                 Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL_MILLIS);
@@ -222,10 +236,10 @@ public class ServiceManagerImpl implements ServiceManager {
                         TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
             }
 
-            servicesList = adminConfig.getDdfConfigAdmin()
+            servicesList = adminConfig.getAdminConsoleService()
                     .listServices();
-            for (Map<String, Object> service : servicesList) {
-                String id = String.valueOf(service.get(ConfigurationAdminExt.MAP_ENTRY_ID));
+            for (Service service : servicesList) {
+                String id = String.valueOf(service.getId());
                 if (id.equals(sourceConfig.getPid()) || id.equals(sourceConfig.getFactoryPid())) {
                     serviceStarted = true;
                     break;

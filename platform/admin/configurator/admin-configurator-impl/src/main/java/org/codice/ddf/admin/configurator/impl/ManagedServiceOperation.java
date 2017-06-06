@@ -16,7 +16,6 @@ package org.codice.ddf.admin.configurator.impl;
 
 import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateMap;
 import static org.codice.ddf.admin.configurator.impl.ConfigValidator.validateString;
-import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getConfigAdmin;
 import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getConfigAdminMBean;
 
 import java.io.IOException;
@@ -27,9 +26,8 @@ import java.util.Map;
 import org.codice.ddf.admin.configurator.ConfiguratorException;
 import org.codice.ddf.admin.configurator.Operation;
 import org.codice.ddf.admin.configurator.Result;
+import org.codice.ddf.admin.core.api.jmx.AdminConsoleServiceMBean;
 import org.codice.ddf.internal.admin.configurator.actions.ManagedServiceActions;
-import org.codice.ddf.ui.admin.api.ConfigurationAdmin;
-import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +46,13 @@ public abstract class ManagedServiceOperation implements Operation<String> {
                 throws ConfiguratorException {
             validateString(factoryPid, "Missing factory id");
             validateMap(configs, "Missing configuration properties");
-            return new CreateHandler(factoryPid, configs, getConfigAdmin(), getConfigAdminMBean());
+            return new CreateHandler(factoryPid, configs, getConfigAdminMBean());
         }
 
         @Override
         public ManagedServiceOperation delete(String pid) throws ConfiguratorException {
             validateString(pid, "Missing config id");
-            return new DeleteHandler(pid, getConfigAdmin(), getConfigAdminMBean());
+            return new DeleteHandler(pid, getConfigAdminMBean());
         }
 
         @Override
@@ -62,7 +60,6 @@ public abstract class ManagedServiceOperation implements Operation<String> {
                 throws ConfiguratorException {
             return new CreateHandler(factoryPid,
                     Collections.emptyMap(),
-                    getConfigAdmin(),
                     getConfigAdminMBean()).readState();
         }
     }
@@ -75,9 +72,10 @@ public abstract class ManagedServiceOperation implements Operation<String> {
 
         private final Map<String, Object> currentProperties;
 
-        private static String getFactoryPid(String configPid, ConfigurationAdminMBean cfgAdmMbean) {
+        private static String getFactoryPid(String configPid,
+                AdminConsoleServiceMBean adminConsoleServiceMBean) {
             try {
-                return cfgAdmMbean.getFactoryPid(configPid);
+                return adminConsoleServiceMBean.getFactoryPid(configPid);
             } catch (IOException e) {
                 ManagedServiceOperation.LOGGER.debug(
                         "Error getting current configuration for pid {}",
@@ -87,9 +85,8 @@ public abstract class ManagedServiceOperation implements Operation<String> {
             }
         }
 
-        private DeleteHandler(String configPid, ConfigurationAdmin configAdmin,
-                ConfigurationAdminMBean cfgAdmMbean) {
-            super(getFactoryPid(configPid, cfgAdmMbean), configAdmin, cfgAdmMbean);
+        private DeleteHandler(String configPid, AdminConsoleServiceMBean cfgAdmMbean) {
+            super(getFactoryPid(configPid, cfgAdmMbean), cfgAdmMbean);
 
             this.configPid = configPid;
 
@@ -126,8 +123,8 @@ public abstract class ManagedServiceOperation implements Operation<String> {
         private String newConfigPid;
 
         private CreateHandler(String factoryPid, Map<String, Object> configs,
-                ConfigurationAdmin configAdmin, ConfigurationAdminMBean cfgAdmMbean) {
-            super(factoryPid, configAdmin, cfgAdmMbean);
+                AdminConsoleServiceMBean adminConsoleServiceMBean) {
+            super(factoryPid, adminConsoleServiceMBean);
 
             this.configs = new HashMap<>(configs);
         }
@@ -151,20 +148,17 @@ public abstract class ManagedServiceOperation implements Operation<String> {
 
     private final String factoryPid;
 
-    private final ConfigurationAdmin configAdmin;
+    private final AdminConsoleServiceMBean adminConsoleServiceMBean;
 
-    private final ConfigurationAdminMBean cfgAdmMbean;
-
-    private ManagedServiceOperation(String factoryPid, ConfigurationAdmin configAdmin,
-            ConfigurationAdminMBean cfgAdmMbean) {
-        this.configAdmin = configAdmin;
-        this.cfgAdmMbean = cfgAdmMbean;
+    private ManagedServiceOperation(String factoryPid,
+            AdminConsoleServiceMBean adminConsoleServiceMBean) {
+        this.adminConsoleServiceMBean = adminConsoleServiceMBean;
         this.factoryPid = factoryPid;
     }
 
     Map<String, Map<String, Object>> readState() throws ConfiguratorException {
         try {
-            String[][] configurations = getConfigAdmin().getConfigurations(String.format(
+            String[][] configurations = getConfigAdminMBean().getConfigurations(String.format(
                     "(service.factoryPid=%s)",
                     factoryPid));
             if (configurations == null || configurations.length == 0) {
@@ -172,7 +166,7 @@ public abstract class ManagedServiceOperation implements Operation<String> {
             }
 
             HashMap<String, Map<String, Object>> retVal = new HashMap<>();
-            ConfigurationAdminMBean configAdminMBean = getConfigAdminMBean();
+            AdminConsoleServiceMBean configAdminMBean = getConfigAdminMBean();
 
             for (String[] configuration : configurations) {
                 String configPid = configuration[0];
@@ -192,7 +186,7 @@ public abstract class ManagedServiceOperation implements Operation<String> {
                 ManagedServiceOperation.LOGGER.debug("Error getting factory for pid {}", configPid);
                 throw new ConfiguratorException(INTERNAL_ERROR);
             }
-            cfgAdmMbean.delete(configPid);
+            adminConsoleServiceMBean.delete(configPid);
         } catch (IOException e) {
             LOGGER.debug("Error deleting managed service with pid {}", configPid, e);
             throw new ConfiguratorException(INTERNAL_ERROR);
@@ -201,8 +195,8 @@ public abstract class ManagedServiceOperation implements Operation<String> {
 
     String createManagedService(Map<String, Object> properties) {
         try {
-            String configPid = configAdmin.createFactoryConfiguration(factoryPid);
-            cfgAdmMbean.update(configPid, properties);
+            String configPid = adminConsoleServiceMBean.createFactoryConfiguration(factoryPid);
+            adminConsoleServiceMBean.update(configPid, properties);
             return configPid;
         } catch (IOException e) {
             LOGGER.debug("Error creating managed service for factoryPid {}", factoryPid, e);
