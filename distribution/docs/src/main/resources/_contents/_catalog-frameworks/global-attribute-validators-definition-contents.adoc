@@ -48,6 +48,7 @@ The `validator` key must have a value of one of the following:
 ====
  - `size` (validates the size of Strings, Arrays, Collections, and Maps)
  * `arguments`: (2) [integer: lower bound (inclusive), integer: upper bound (inclusive)]
+ ** lower bound must be greater than or equal to zero and the upper bound must be greater than or equal to the lower bound
  - `pattern`
  * `arguments`: (1) [regular expression]
  - `pastdate`
