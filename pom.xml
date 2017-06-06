@@ -631,6 +631,13 @@
                                 </execution>
                             </executions>
                         </plugin>
+                        <plugin>
+                            <groupId>org.apache.felix</groupId>
+                            <artifactId>maven-bundle-plugin</artifactId>
+                            <configuration>
+                                <obrRepository>NONE</obrRepository>
+                            </configuration>
+                        </plugin>
                     </plugins>
                 </pluginManagement>
                 <plugins>
