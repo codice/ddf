@@ -141,7 +141,7 @@
 
     <feature name="ldap-embedded-default-claimshandler-config" install="manual" version="${project.version}" description="Installs a default embedded ldap login config">
         <configfile
-                finalname="/etc/ddf.security.sts.claimsHandler.ClaimsHandlerManager.config"
+                finalname="/etc/Claims_Handler_Manager-ddf.security.sts.claimsHandler.ClaimsHandlerManager.config"
                 override="false">
             mvn:ddf.security/security-services-app/${project.version}/config/ddf.security.sts.claimsHandler.ClaimsHandlerManager
         </configfile>
@@ -149,7 +149,7 @@
 
     <feature name="ldap-embedded-default-stslogin-config" install="manual" version="${project.version}" description="Installs a default embedded ldap claims handler config">
         <configfile
-                finalname="/etc/ddf.ldap.ldaplogin.LdapLoginConfig.config"
+                finalname="/etc/Ldap_Login_Config-ddf.ldap.ldaplogin.LdapLoginConfig.config"
                 override="false">
             mvn:ddf.security/security-services-app/${project.version}/config/ddf.ldap.ldaplogin.LdapLoginConfig
         </configfile>

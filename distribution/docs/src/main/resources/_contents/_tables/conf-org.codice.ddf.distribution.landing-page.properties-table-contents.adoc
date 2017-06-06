@@ -1,4 +1,0 @@
-|<<org.codice.ddf.distribution.landing-page.properties,Landing Page>>
-|org.codice.ddf.distribution.landing-page.properties
-|Starting page for users to interact with ${branding}.
-

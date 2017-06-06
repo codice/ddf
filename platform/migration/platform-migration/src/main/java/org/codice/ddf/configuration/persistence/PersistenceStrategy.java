@@ -15,29 +15,15 @@
 package org.codice.ddf.configuration.persistence;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Dictionary;
 
 import javax.validation.constraints.NotNull;
 
-import org.codice.ddf.configuration.status.ConfigurationFileException;
-
 /**
  * Interface implemented by classes that can read and write configuration properties.
  */
 public interface PersistenceStrategy {
-    /**
-     * Reads the configuration properties from an {@link InputStream}.
-     *
-     * @param inputStream input stream to read the properties from
-     * @return {@link Dictionary} of properties
-     * @throws ConfigurationFileException thrown if there was a problem with the property format
-     * @throws IOException                thrown if the properties couldn't be read
-     */
-    @NotNull
-    Dictionary<String, Object> read(@NotNull InputStream inputStream)
-            throws ConfigurationFileException, IOException;
 
     /**
      * Writes the configuration properties to an {@link OutputStream}.

@@ -15,7 +15,6 @@
 package org.codice.ddf.configuration.admin;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Dictionary;
 
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
@@ -34,10 +33,9 @@ public class ManagedServiceFactoryConfigurationFile extends ConfigurationFile {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ManagedServiceFactoryConfigurationFile.class);
 
-    ManagedServiceFactoryConfigurationFile(Path configFilePath,
-            Dictionary<String, Object> properties, ConfigurationAdmin configAdmin,
+    ManagedServiceFactoryConfigurationFile(Dictionary<String, Object> properties, ConfigurationAdmin configAdmin,
             PersistenceStrategy persistenceStrategy) {
-        super(configFilePath, properties, configAdmin, persistenceStrategy);
+        super(properties, configAdmin, persistenceStrategy);
     }
 
     @Override
@@ -71,8 +69,7 @@ public class ManagedServiceFactoryConfigurationFile extends ConfigurationFile {
 
         @Override
         public ConfigurationFile build() {
-            return new ManagedServiceFactoryConfigurationFile(configFilePath,
-                    properties,
+            return new ManagedServiceFactoryConfigurationFile(properties,
                     configAdmin,
                     persistenceStrategy);
         }

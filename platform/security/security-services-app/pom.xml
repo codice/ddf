@@ -85,14 +85,14 @@
                                 </artifact>
                                 <artifact>
                                     <file>
-                                        target/classes/etc/ddf.ldap.ldaplogin.LdapLoginConfig.config
+                                        target/classes/etc/Ldap_Login_Config-ddf.ldap.ldaplogin.LdapLoginConfig.config
                                     </file>
                                     <type>config</type>
                                     <classifier>ddf.ldap.ldaplogin.LdapLoginConfig</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>
-                                        target/classes/etc/ddf.security.sts.claimsHandler.ClaimsHandlerManager.config
+                                        target/classes/etc/Claims_Handler_Manager-ddf.security.sts.claimsHandler.ClaimsHandlerManager.config
                                     </file>
                                     <type>config</type>
                                     <classifier>

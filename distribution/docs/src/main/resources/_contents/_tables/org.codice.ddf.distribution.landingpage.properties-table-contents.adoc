@@ -1,4 +1,4 @@
-.[[org.codice.ddf.distribution.landing-page.properties]]Landing Page
+.[[org.codice.ddf.distribution.landingpage.properties]]Landing Page
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

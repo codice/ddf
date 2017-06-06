@@ -17,4 +17,4 @@ Configure the Landing Page from the ${admin-console}:
 . Select *Configuration* tab.
 . Select *Landing Page*.
 
-include::{adoc-include}/_tables/org.codice.ddf.distribution.landing-page.properties-table-contents.adoc[]
+include::{adoc-include}/_tables/org.codice.ddf.distribution.landingpage.properties-table-contents.adoc[]

@@ -19,7 +19,6 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Dictionary;
 
 import javax.validation.constraints.NotNull;
@@ -34,38 +33,24 @@ import org.osgi.service.cm.ConfigurationAdmin;
  */
 public abstract class ConfigurationFile {
 
-    protected final Dictionary<String, Object> properties;
+    final Dictionary<String, Object> properties;
 
-    protected final ConfigurationAdmin configAdmin;
+    final ConfigurationAdmin configAdmin;
 
-    protected final Path configFilePath;
-
-    protected final PersistenceStrategy persistenceStrategy;
+    private final PersistenceStrategy persistenceStrategy;
 
     /**
      * Constructor called by {@link ConfigurationFileFactory}. Assumes that none of the parameters
      * are {@code null}.
-     *
-     * @param configFilePath      path to the configuration file
-     * @param properties          properties associated with the configuration file
+     *  @param properties          properties associated with the configuration file
      * @param configAdmin         reference to OSGi's {@link ConfigurationAdmin}
      * @param persistenceStrategy how to write out the file {@link PersistenceStrategy}
      */
-    ConfigurationFile(Path configFilePath, Dictionary<String, Object> properties,
-            ConfigurationAdmin configAdmin, PersistenceStrategy persistenceStrategy) {
+    ConfigurationFile(Dictionary<String, Object> properties, ConfigurationAdmin configAdmin,
+            PersistenceStrategy persistenceStrategy) {
         this.configAdmin = configAdmin;
         this.properties = properties;
-        this.configFilePath = configFilePath;
         this.persistenceStrategy = persistenceStrategy;
-    }
-
-    /**
-     * Gets the configuration file location
-     *
-     * @return configuration file location
-     */
-    public Path getConfigFilePath() {
-        return configFilePath;
     }
 
     public abstract void createConfig() throws ConfigurationFileException;
@@ -85,13 +70,11 @@ public abstract class ConfigurationFile {
      * Provides a convenient way to construct {@link ConfigurationFile}.
      */
     protected abstract static class ConfigurationFileBuilder {
-        protected ConfigurationAdmin configAdmin;
+        final ConfigurationAdmin configAdmin;
 
-        protected Dictionary<String, Object> properties = null;
+        Dictionary<String, Object> properties = null;
 
-        protected Path configFilePath = null;
-
-        protected PersistenceStrategy persistenceStrategy;
+        final PersistenceStrategy persistenceStrategy;
 
         /**
          * Constructs a ConfigurationFileBuilder.
@@ -107,11 +90,6 @@ public abstract class ConfigurationFile {
 
         public ConfigurationFileBuilder properties(Dictionary<String, Object> properties) {
             this.properties = properties;
-            return this;
-        }
-
-        public ConfigurationFileBuilder configFilePath(Path configFilePath) {
-            this.configFilePath = configFilePath;
             return this;
         }
 

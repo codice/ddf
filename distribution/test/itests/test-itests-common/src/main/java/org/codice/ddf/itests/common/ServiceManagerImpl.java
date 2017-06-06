@@ -18,11 +18,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.get;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -593,35 +589,6 @@ public class ServiceManagerImpl implements ServiceManager {
         }
 
         LOGGER.info("Sources at {} ready.", path);
-    }
-
-    @Override
-    public void waitForAllConfigurations() throws InterruptedException {
-        long timeoutLimit = System.currentTimeMillis() + HTTP_ENDPOINT_TIMEOUT;
-        String ddfHome = System.getProperty("ddf.home");
-        Path etc = Paths.get(ddfHome, "etc");
-        if (Files.isDirectory(etc)) {
-            boolean available = false;
-            while (!available) {
-                File file = etc.toFile();
-                File[] files = file.listFiles((dir, name) -> name.endsWith(".config"));
-                if (files.length == 0) {
-                    available = true;
-                } else {
-                    if (System.currentTimeMillis() > timeoutLimit) {
-                        String remainingFiles = Arrays.stream(files)
-                                .map(File::getName)
-                                .collect(Collectors.joining("\n\t"));
-                        LOGGER.error(
-                                "Failed waiting for configurations. The following files remain:\n\t{}",
-                                remainingFiles);
-                        printInactiveBundles();
-                        fail("Configurations were not read in time.");
-                    }
-                    Thread.sleep(2000);
-                }
-            }
-        }
     }
 
     @Override

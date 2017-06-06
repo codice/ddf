@@ -591,16 +591,6 @@ public abstract class AbstractIntegrationTest {
                             "/etc/users.properties"),
                     installStartupFile(getClass().getResourceAsStream("/etc/test-users.attributes"),
                             "/etc/users.attributes"),
-                    // extra config options for TestConfiguration
-                    installStartupFile(getClass().getResourceAsStream(
-                            "/ddf.test.itests.platform.TestPlatform.startup.config"),
-                            "/etc/ddf.test.itests.platform.TestPlatform.startup.config"),
-                    installStartupFile(getClass().getResourceAsStream(
-                            "/ddf.test.itests.platform.TestPlatform.msf.1.config"),
-                            "/etc/ddf.test.itests.platform.TestPlatform.msf.1.config"),
-                    installStartupFile(getClass().getResourceAsStream(
-                            "/ddf.test.itests.platform.TestPlatform.startup.invalid.config"),
-                            "/etc/ddf.test.itests.platform.TestPlatform.startup.invalid.config"),
                     installStartupFile(getClass().getResourceAsStream("/injections.json"),
                             "/etc/definitions/injections.json"));
         } catch (IOException e) {

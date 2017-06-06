@@ -2,16 +2,15 @@
 ==== Configuring Managed Service Factory Bundles
 
 Services that are created using a Managed Service Factory can be configured using `.config` files as well.
-These configuration files, however, follow a different naming convention.
-The files must start with the Managed Service Factory PID, be followed by a unique identifier and have a `.config` extension.
-For instance, assuming that the Managed Service Factory PID is `org.codice.ddf.factory.pid` and two instances of the service need to be configured, files `org.codice.ddf.factory.pid.<UNIQUE ID 1>.config` and `org.codice.ddf.factory.pid.<UNIQUE ID 2>.config` should be created and added to `<${branding}_HOME>/etc`.
+These configuration files, however, follow a different naming convention than `.cfg` files.
+The filenames must start with the Managed Service Factory PID, be followed by a dash and a unique identifier, and have a `.config` extension.
+For instance, assuming that the Managed Service Factory PID is `org.codice.ddf.factory.pid` and two instances of the service need to be configured, files `org.codice.ddf.factory.pid-<UNIQUE ID 1>.config` and `org.codice.ddf.factory.pid-<UNIQUE ID 2>.config` should be created and added to `<${branding}_HOME>/etc`.
 
 The unique identifiers used in the file names have no impact on the order in which the configuration files are processed.
 No specific processing order should be assumed.
 Also, a new service will be created and configured every time a configuration file matching the Managed Service Factory PID is added to the directory, regardless of the _unique id_ used.
 
-These configuration files must also contain a `service.factoryPid` property set to the factory PID (without the sequential number).
-They should not however contain the `service.pid` property.
+Any `service.factoryPid` and `service.pid` values in these `.config` files will be overridden by the values parsed from the file name, so `.config` files should not contain these properties.
 
 ===== File Format
 
@@ -27,65 +26,92 @@ The following table shows the format to use for each property type supported.
 |Format
 |Example
 
-|Service PID
-|service.pid = "servicePid"
-|service.pid = "org.codice.ddf.security.policy.context.impl.PolicyManager"
-
-|Factory PID
-|service.factoryPid = "serviceFactoryPid"
-|service.factoryPid = "Csw_Federated_Source"
-
 |Strings
-|name = "value"
-|name = "john"
+|name="value"
+|`name="john"`
 
 |Booleans
-|name = B"true\|false"
-|authorized = B"true"
+|name=B"true\|false"
+|`authorized=B"true"`
 
 |Integers
-|name = I"value"
-|timeout=I"60"
+|name=I"value"
+|`timeout=I"60"`
 
 |Longs
-|name = L"value"
-|diameter = L"10000"
+|name=L"value"
+|`diameter=L"10000"`
 
 |Floats
-|name = F"value"
-|cost = F"10.50"
+|name=F"value"
+|`cost=F"0x41280000"`
 
 |Doubles
-|name = D"value"
-|latitude = D"45.0234"
+|name=D"value"
+|`latitude=D"0x423417f6"`
 
 |Lists of Strings
-|name = [ "value1", "value2", …​ ]
-|`complexStringArray = [
-    "{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\
-    \"VERSION\"\ \"1.1\|1.2\"\ \"image/png\"}\ \"beta\"\ 1}",	"{\"url\"\ \"http://test.sample.com"\ 0.5}",
-	"/solr\=SAML\|PKI\|basic", "/security-config\=SAML\|basic"
-]`
+|name=["value1","value2",…​]
+|`complexStringArray=["{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\ \"VERSION\"\ \"1.1\|1.2\"\ \"image/png\"}\ \"beta\"\ 1}","{\"url\"\ \"http://test.sample.com"\ 0.5}","/solr\=SAML\|PKI\|basic","/security-config\=SAML\|basic"]`
+
+|Lists of Booleans
+|name=B["true\|false","true\|false",…​]
+|`authorizedList=B["true","false"]`
 
 |Lists of Integers
-|name = I[ "value1", "value1", …​ ]
-|sizes = I[ "10", "20", "30" ]
+|name=I["value1","value2",…​]
+|`sizes=I["10","20","30"]`
+
+|Lists of Longs
+|name=L["value1","value2",…​]
+|`sizes=L["100","200","300"]`
+
+|Lists of Floats
+|name=F["value1","value2",…​]
+|`sizes=F["0x3f8ccccd","0x400ccccd","0x40533333"]`
+
+|Lists of Doubles
+|name=D["value1","value2",…​]
+|`sizes=D["0x3f8fbe77","0x400ef9db","0x4056147b"]`
+
+|Vectors of Strings
+|name=("value1","value2",…​)
+|`names=("A","B","C")`
+
+|Vectors of Booleans
+|name=B("true\|false","true\|false",…​)
+|`authorizedVector=B("true","false")`
+
+|Vectors of Integers
+|name=I("value1","value2",…​)
+|`sizes=I("10","20","30")`
+
+|Vectors of Longs
+|name=L("value1","value2",…​)
+|`sizes=L("100","200","300")`
+
+|Vectors of Floats
+|name=F("value1","value2",…​)
+|`sizes=F("0x3f8ccccd","0x400ccccd","0x40533333")`
+
+|Vectors of Doubles
+|name=D("value1","value2",…​)
+|`sizes=D("0x3f8fbe77","0x400ef9db","0x4056147b")`
 
 |===
 
 [NOTE]
 ====
-* Lists of values can be prefixed with any of the supported types (B, I, L, F or D).
-* To prevent any configuration issues, the = signs used in values should be escaped using a backslash (\).
-* Boolean values will default to false if any value other than true is provided.
-* Escape character in values must be used for double quotes (") and spaces, but cannot be used with { } or [ ] pairings.
+* Lists and Vectors of values can be prefixed with any of the supported types (`B`, `I`, `L`, `F` or `D`).
+* To prevent any configuration issues, the `=` signs used in values should be escaped using a backslash (`\`).
+* Boolean values will default to `false` if any value other than `true` is provided.
+* Escape character in values must be used for double quotes (`"`) and spaces, but cannot be used with `{` `}` or `[` `]` pairings.
+* Floats and Longs must be written in the IEEE 754 format. For example, the example for the Floats and Doubles in the table above correspond to 10.50 and 45.0234, respectively.
 ====
 
 .Sample configuration file
-[source,java,linenums]
+[source,linenums]
 ----
-service.pid="org.codice.ddf.security.policy.context.impl.PolicyManager"
-
 authenticationTypes=["/\=SAML|GUEST","/admin\=SAML|basic","/system\=basic","/solr\=SAML|PKI|basic","/sources\=SAML|basic","/security-config\=SAML|basic","/search\=basic"]
 
 realms=["/\=karaf"]

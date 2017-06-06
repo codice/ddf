@@ -53,7 +53,6 @@ import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.platform.services.common.Describable;
-import org.codice.ddf.platform.util.SortedServiceList;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -91,11 +90,11 @@ public class ConfigurationMigrationManagerTest {
     private DataMigratable dataMigratable;
 
     @Mock
-    Path exportDirectory;
+    private Path exportDirectory;
 
-    private MigrationMetadata noWarnings = new MigrationMetadata(ImmutableList.of());
+    private final MigrationMetadata noWarnings = new MigrationMetadata(ImmutableList.of());
 
-    private Path exportPath = Paths.get("export", "dir");
+    private final Path exportPath = Paths.get("export", "dir");
 
     @BeforeClass
     public static void setupClass() throws MalformedObjectNameException {
@@ -151,16 +150,16 @@ public class ConfigurationMigrationManagerTest {
     public void constructorWithNullConfigurationAdminMigrator() {
         new ConfigurationMigrationManager(null,
                 mBeanServer,
-                new SortedServiceList<>(),
-                new SortedServiceList<>());
+                new ArrayList<>(),
+                new ArrayList<>());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullMBeanServer() {
         new ConfigurationMigrationManager(configurationAdminMigration,
                 null,
-                new SortedServiceList<>(),
-                new SortedServiceList<>());
+                new ArrayList<>(),
+                new ArrayList<>());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -168,14 +167,14 @@ public class ConfigurationMigrationManagerTest {
         new ConfigurationMigrationManager(configurationAdminMigration,
                 mBeanServer,
                 null,
-                new SortedServiceList<>());
+                new ArrayList<>());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullDataMigratablesList() {
         new ConfigurationMigrationManager(configurationAdminMigration,
                 mBeanServer,
-                new SortedServiceList<>(),
+                new ArrayList<>(),
                 null);
     }
 
@@ -441,11 +440,9 @@ public class ConfigurationMigrationManagerTest {
 }
 
 class TestMigratable extends DescribableBean implements DataMigratable {
-    private int wrappedNumber;
 
     public TestMigratable(DescribableBean info, int wrappedNumber) {
         super(info);
-        this.wrappedNumber = wrappedNumber;
     }
 
     @Override
@@ -453,7 +450,4 @@ class TestMigratable extends DescribableBean implements DataMigratable {
         return null;
     }
 
-    public int getWrappedNumber() {
-        return wrappedNumber;
-    }
 }

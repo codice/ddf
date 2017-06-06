@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.configuration.admin;
 
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.atLeastOnce;
@@ -56,7 +54,7 @@ public class ConfigurationFileTest {
         public ConfigurationFileUnderTest(Path configFilePath,
                 Dictionary<String, Object> properties, ConfigurationAdmin configAdmin,
                 PersistenceStrategy persistenceStrategy) {
-            super(configFilePath, properties, configAdmin, persistenceStrategy);
+            super(properties, configAdmin, persistenceStrategy);
         }
 
         @Override
@@ -71,11 +69,10 @@ public class ConfigurationFileTest {
 
     @Test
     public void constructor() {
-        ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
+        new ConfigurationFileUnderTest(path,
                 properties,
                 configAdmin,
                 persistenceStrategy);
-        assertThat(configurationFile.getConfigFilePath(), sameInstance(path));
     }
 
     @Test

@@ -758,7 +758,7 @@
     </feature>
 
     <feature name ="platform-migration" install="manual" version="${project.version}"
-             description="Listens for new configuration files and updates configuration admin with the new configurations.">
+             description="Provides ability to export configurations.">
         <bundle>mvn:ddf.platform.migration/platform-migration/${project.version}</bundle>
     </feature>
 
@@ -854,10 +854,10 @@
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/tika-bundle/${tika.thirdparty.bundle.version}</bundle>
-        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver.csw.config">mvn:ddf.platform/platform-app/${project.version}/config/csw</configfile>
-        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver.geojson.config">mvn:ddf.platform/platform-app/${project.version}/config/geojson</configfile>
-        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver.nitf.config">mvn:ddf.platform/platform-app/${project.version}/config/nitf</configfile>
-        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver.xml.config">mvn:ddf.platform/platform-app/${project.version}/config/xml</configfile>
+        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver-csw.config">mvn:ddf.platform/platform-app/${project.version}/config/csw</configfile>
+        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver-geojson.config">mvn:ddf.platform/platform-app/${project.version}/config/geojson</configfile>
+        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver-nitf.config">mvn:ddf.platform/platform-app/${project.version}/config/nitf</configfile>
+        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver-xml.config">mvn:ddf.platform/platform-app/${project.version}/config/xml</configfile>
     </feature>
 
     <feature name="mime-tika-resolver" install="manual" version="${project.version}"

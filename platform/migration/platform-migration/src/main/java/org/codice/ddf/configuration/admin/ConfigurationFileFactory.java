@@ -19,11 +19,6 @@ import static org.codice.ddf.configuration.admin.ConfigurationFile.Configuration
 import static org.codice.ddf.configuration.admin.ManagedServiceConfigurationFile.ManagedServiceConfigurationFileBuilder;
 import static org.codice.ddf.configuration.admin.ManagedServiceFactoryConfigurationFile.ManagedServiceFactoryConfigurationFileBuilder;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.Dictionary;
 
 import javax.validation.constraints.NotNull;
@@ -61,26 +56,6 @@ public class ConfigurationFileFactory {
 
         this.persistenceStrategy = persistenceStrategy;
         this.configAdmin = configAdmin;
-    }
-
-    /**
-     * Instantiates a new {@link ConfigurationFile} sub-class based on the content of the
-     * configuration file provided.
-     *
-     * @param configurationFile path to the configuration file that will be used to create the new
-     *                          {@link ConfigurationFile} object
-     * @return new {@link ConfigurationFile} object of the proper type. Never {@code null},
-     * @throws ConfigurationFileException thrown if the {@link ConfigurationFile} object couldn't
-     *                                    be created because the type could not be determined or
-     *                                    the configuration file couldn't be read
-     * @throws IllegalArgumentException   thrown if the path provided is {@code null}
-     */
-    public ConfigurationFile createConfigurationFile(@NotNull Path configurationFile)
-            throws ConfigurationFileException {
-        notNull(configurationFile, "configurationFile cannot be null");
-
-        return getConfigurationFileBuilder(read(configurationFile)).configFilePath(configurationFile)
-                .build();
     }
 
     /**
@@ -127,19 +102,4 @@ public class ConfigurationFileFactory {
         return properties.get(Constants.SERVICE_PID) != null;
     }
 
-    private Dictionary<String, Object> read(Path configurationFile)
-            throws ConfigurationFileException {
-        try (InputStream inputStream = getInputStream(configurationFile)) {
-            return persistenceStrategy.read(inputStream);
-        } catch (ConfigurationFileException | IOException e) {
-            String message = String.format("Unable to read configuration file [%s].",
-                    configurationFile.toString());
-            LOGGER.info(message, e);
-            throw new ConfigurationFileException(message, e);
-        }
-    }
-
-    InputStream getInputStream(Path path) throws FileNotFoundException {
-        return new FileInputStream(path.toFile());
-    }
 }

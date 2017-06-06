@@ -14,7 +14,7 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Landing Page" id="org.codice.ddf.distribution.landing-page.properties">
+    <OCD name="Landing Page" id="org.codice.ddf.distribution.landingpage.properties">
         <AD
                 description="Specifies the description to display on the landing page."
                 name="Description" id="description" required="true" type="String"
@@ -67,8 +67,8 @@
                 />
     </OCD>
 
-    <Designate pid="org.codice.ddf.distribution.landing-page.properties">
-        <Object ocdref="org.codice.ddf.distribution.landing-page.properties"/>
+    <Designate pid="org.codice.ddf.distribution.landingpage.properties">
+        <Object ocdref="org.codice.ddf.distribution.landingpage.properties"/>
     </Designate>
 
 </metatype:MetaData>

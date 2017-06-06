@@ -2,15 +2,16 @@
 ==== Configuring with .config Files
 
 The ${branding} is configured using `.config` files.
-Like the Karaf `.cfg` files, these configuration files must be located in the `<${branding}_HOME>/etc/` directory, have a name that matches the _configuration persistence ID_ (PID) they represent, and have a `service.pid` property set to the configuration PID.
-
-As opposed to `.cfg` however, this type of configuration file supports lists within configuration values (metatype `cardinality` attribute greater than 1).
+Like the Karaf `.cfg` files, these configuration files must be located in the `<${branding}_HOME>/etc/` directory.
+Unlike the Karaf `.cfg` files, `.config` files must follow the naming convention that includes the _configuration persistence ID_ (PID) that they represent.
+The filenames must be the pid with a `.config` extension.
+This type of configuration file also supports lists and vectors within configuration values (metatype `cardinality` attribute greater than 1) and booleans, floats, and double values.
 
 [IMPORTANT]
 ====
 This new configuration file format *must* be used for any configuration that makes use of lists.
-Examples include Web Context Policy Manager (PID: `org.codice.ddf.security.policy.context.impl.PolicyManager`)
-and Security STS Guest Claims Handler (PID: `ddf.security.sts.guestclaims`).
+Examples include Web Context Policy Manager (`org.codice.ddf.security.policy.context.impl.PolicyManager.config`)
+and Security STS Guest Claims Handler (`ddf.security.sts.guestclaims.config`).
 ====
 
 [WARNING]
@@ -23,8 +24,6 @@ The main purpose of the configuration files is to allow administrators to pre-co
 In order to do so, the configuration files need to be copied to the `<${branding}_HOME>/etc` directory after ${branding} zip has been extracted.
 
 Upon start up, all the `.config` files located in `<${branding}_HOME>/etc` are automatically read and processed.
-Files that have been processed successfully are moved to `<${branding}_HOME>/etc/processed` so they will not be processed again when the system is restarted.
-Files that could not be processed are moved to the `<${branding}_HOME>/etc/failed` directory.
-
-${branding} also monitors the `<${branding}_HOME>/etc` directory for any new `.config` file that gets added.
-As soon as a new file is detected, it is read, processed and moved to the appropriate directory based on whether it was successfully processed or not.
+${branding} monitors the `<${branding}_HOME>/etc` directory for any new `.config` file that gets added.
+As soon as a new file is detected, it is read and processed.
+Changes to these configurations from the ${admin-console} or otherwise are persisted in the original configuration file in the `<${branding}_HOME>/etc` directory.
