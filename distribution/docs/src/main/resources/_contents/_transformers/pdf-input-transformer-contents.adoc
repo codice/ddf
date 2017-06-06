@@ -9,4 +9,7 @@ The PDF Transformer is installed by default with a standard installation in the 
 
 ===== Configuring the PDF Input Transformer
 
-The PDF Input Transformer has no configurable properties.
+The properties below describe how to configure the pdf input transformer.
+
+include::{adoc-include}/_tables/ddf.catalog.transformer.input.pdf.PdfInputTransformer-table-contents.adoc[]
+

@@ -1,0 +1,22 @@
+:type: documentation
+:status: published
+
+.[[ddf.catalog.transformer.input.tika.TikaInputTransformer]]Tika Input Transformer
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Use Resource Title
+|useResourceTitleAsTitle
+|Boolean
+|Use the resource's metadata to determine the metacard title. If this is not enabled, the metacard title will be the file name.
+|false
+|true
+
+|===
