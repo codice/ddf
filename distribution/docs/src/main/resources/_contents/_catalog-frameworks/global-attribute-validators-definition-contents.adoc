@@ -40,6 +40,7 @@ Each object in the list of validators is the validator name and list of argument
 [WARNING]
 ====
 The value of the `arguments` key must always be an array of strings, even for numeric arguments, e.g. `["1", "10"]`
+
 ====
 
 The `validator` key must have a value of one of the following:
@@ -60,6 +61,8 @@ The `validator` key must have a value of one of the following:
  ** (3) [number (decimal or integer): inclusive lower bound, number (decimal or integer): inclusive upper bound, decimal number: epsilon (the maximum tolerable error on either side of the range)]
  - `enumeration`
  * `arguments`: (unlimited) [list of strings: each argument is one case-sensitive, valid enumeration value]
+ - `match_any`
+ * `validators`: (unlimited) [list of previously defined validators: valid if any validator succeeds]
 ====
 
 .Example Validator Definition
@@ -105,6 +108,21 @@ The `validator` key must have a value of one of the following:
             {
                 "validator": "enumeration",
                 "arguments": ["1080p", "1080i", "720p"]
+            }
+        ],
+        "datatype": [
+            {
+                "validator": "match_any",
+                "validators": [
+                    {
+                        "validator": "range",
+                        "arguments": ["1", "25"]
+                    },
+                    {
+                        "validator": "enumeration",
+                        "arguments": ["Collection", "Dataset", "Event"]
+                    }
+                ]
             }
         ]
     }
