@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import static org.awaitility.Awaitility.await;
-import static org.codice.ddf.catalog.content.monitor.configurators.KarafConfigurator.karafConfiguration;
 import static org.codice.ddf.catalog.content.monitor.features.CamelFeatures.CamelFeature.CAMEL;
 import static org.codice.ddf.catalog.content.monitor.features.CamelFeatures.camelFeatures;
 import static org.codice.ddf.catalog.content.monitor.features.CxfFeatures.CxfFeature.CXF_BINDINGS_SOAP;
@@ -26,8 +25,6 @@ import static org.codice.ddf.catalog.content.monitor.features.CxfFeatures.CxfFea
 import static org.codice.ddf.catalog.content.monitor.features.CxfFeatures.cxfFeatures;
 import static org.codice.ddf.catalog.content.monitor.features.KarafSpringFeatures.SpringFeature.SPRING;
 import static org.codice.ddf.catalog.content.monitor.features.KarafSpringFeatures.karafSpringFeatures;
-import static org.codice.ddf.catalog.content.monitor.features.KarafStandardFeatures.StandardFeature.STANDARD;
-import static org.codice.ddf.catalog.content.monitor.features.KarafStandardFeatures.karafStandardFeatures;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,8 +33,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.ops4j.pax.exam.CoreOptions.composite;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 import java.io.File;
@@ -46,6 +41,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +53,7 @@ import javax.inject.Inject;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
 import org.codice.ddf.catalog.content.monitor.configurators.KeystoreTruststoreConfigurator;
-import org.junit.After;
+import org.codice.ddf.catalog.content.monitor.util.BundleInfo;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,13 +61,10 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
-import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
 import com.google.common.io.Files;
 
@@ -85,13 +78,7 @@ import ddf.security.service.SecurityManager;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
-public class ContentDirectoryMonitorComponentTest {
-    private static final int TIMEOUT_IN_SECONDS = 10;
-
-    @Inject
-    private BundleContext bundleContext;
-
-    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+public class ContentDirectoryMonitorComponentTest extends AbstractComponentTest {
 
     @Inject
     private CamelContext camelContext;
@@ -106,13 +93,9 @@ public class ContentDirectoryMonitorComponentTest {
 
     private CatalogFramework catalogFramework;
 
-    @Configuration
-    public Option[] config() throws IOException {
-
-        return options(testDependencies(),
-                karafConfiguration(),
-                karafStandardFeatures(STANDARD),
-                karafSpringFeatures(SPRING),
+    @Override
+    protected Option setupDistribution() {
+        return composite(karafSpringFeatures(SPRING),
                 camelFeatures(CAMEL),
                 cxfFeatures(CXF_RT_SECURITY_SAML,
                         CXF_BINDINGS_SOAP,
@@ -121,14 +104,21 @@ public class ContentDirectoryMonitorComponentTest {
                         CXF_FRONTEND_JAVASCRIPT,
                         CXF_JAXRS),
                 keystoreAndTruststoreConfig(),
-                contentDirectoryMonitorDependencies(),
                 initContentDirectoryMonitorConfig());
     }
 
-    private Option testDependencies() {
-        return composite(startBundle("org.awaitility", "awaitility"),
-                startBundle("org.mockito", "mockito-core"),
-                startBundle("org.objenesis", "objenesis"));
+    @Override
+    protected List<BundleInfo> bundlesToStart() {
+        List<BundleInfo> bundles = new ArrayList<>();
+        bundles.addAll(testDependencies());
+        bundles.addAll(contentDirectoryMonitorDependencies());
+        return bundles;
+    }
+
+    private List<BundleInfo> testDependencies() {
+        return Arrays.asList(new BundleInfo("org.awaitility", "awaitility"),
+                new BundleInfo("org.mockito", "mockito-core"),
+                new BundleInfo("org.objenesis", "objenesis"));
     }
 
     private Option keystoreAndTruststoreConfig() {
@@ -140,52 +130,47 @@ public class ContentDirectoryMonitorComponentTest {
         return KeystoreTruststoreConfigurator.createKeystoreAndTruststore(keystore, truststore);
     }
 
-    private Option initContentDirectoryMonitorConfig() throws IOException {
+    private Option initContentDirectoryMonitorConfig() {
         return editConfigurationFilePut(
                 "etc/org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor-test.cfg",
                 "monitoredDirectoryPath",
                 "");
     }
 
-    private Option contentDirectoryMonitorDependencies() {
-        return composite(startBundle("org.apache.commons", "commons-lang3"),
-                startBundle("commons-lang", "commons-lang"),
-                startBundle("commons-io", "commons-io"),
-                startBundle("commons-collections", "commons-collections"),
-                startBundle("commons-configuration", "commons-configuration"),
+    private List<BundleInfo> contentDirectoryMonitorDependencies() {
+        return Arrays.asList(new BundleInfo("org.apache.commons", "commons-lang3"),
+                new BundleInfo("commons-lang", "commons-lang"),
+                new BundleInfo("commons-io", "commons-io"),
+                new BundleInfo("commons-collections", "commons-collections"),
+                new BundleInfo("commons-configuration", "commons-configuration"),
 
-                startBundle("com.google.guava", "guava"),
-                startBundle("org.apache.tika", "tika-core"),
+                new BundleInfo("com.google.guava", "guava"),
+                new BundleInfo("org.apache.tika", "tika-core"),
 
-                startBundle("org.apache.shiro", "shiro-core"),
-                startBundle("javax.servlet", "javax.servlet-api"),
-                startBundle("javax.validation", "validation-api"),
-                startBundle("org.bouncycastle", "bcprov-jdk15on"),
+                new BundleInfo("org.apache.shiro", "shiro-core"),
+                new BundleInfo("javax.servlet", "javax.servlet-api"),
+                new BundleInfo("javax.validation", "validation-api"),
+                new BundleInfo("org.bouncycastle", "bcprov-jdk15on"),
 
-                startBundle("ddf.platform.util", "util-uuidgenerator-api"),
-                startBundle("ddf.platform.util", "util-uuidgenerator-impl"),
-                startBundle("ddf.catalog.core", "catalog-core-camelcontext"),
-                startBundle("ddf.platform.api", "platform-api"),
-                startBundle("org.codice.thirdparty", "gt-opengis"),
-                startBundle("ddf.catalog.core", "catalog-core-api"),
-                startBundle("ddf.security.core", "security-core-api"),
-                startBundle("ddf.security.expansion", "security-expansion-api"),
-                startBundle("ddf.security.expansion", "security-expansion-impl"),
-                startBundle("ddf.distribution", "branding-api"),
-                startBundle("ddf.distribution", "ddf-branding-plugin"),
-                startBundle("ddf.platform", "platform-configuration"),
-                startBundle("ddf.security.handler", "security-handler-api"),
+                new BundleInfo("ddf.platform.util", "util-uuidgenerator-api"),
+                new BundleInfo("ddf.platform.util", "util-uuidgenerator-impl"),
+                new BundleInfo("ddf.catalog.core", "catalog-core-camelcontext"),
+                new BundleInfo("ddf.platform.api", "platform-api"),
+                new BundleInfo("org.codice.thirdparty", "gt-opengis"),
+                new BundleInfo("ddf.catalog.core", "catalog-core-api"),
+                new BundleInfo("ddf.security.core", "security-core-api"),
+                new BundleInfo("ddf.security.expansion", "security-expansion-api"),
+                new BundleInfo("ddf.security.expansion", "security-expansion-impl"),
+                new BundleInfo("ddf.distribution", "branding-api"),
+                new BundleInfo("ddf.distribution", "ddf-branding-plugin"),
+                new BundleInfo("ddf.platform", "platform-configuration"),
+                new BundleInfo("ddf.security.handler", "security-handler-api"),
 
-                startBundle("ddf.mime.core", "mime-core-api"),
-                startBundle("ddf.mime.core", "mime-core-impl"),
-                startBundle("ddf.catalog.core", "catalog-core-camelcomponent"),
+                new BundleInfo("ddf.mime.core", "mime-core-api"),
+                new BundleInfo("ddf.mime.core", "mime-core-impl"),
+                new BundleInfo("ddf.catalog.core", "catalog-core-camelcomponent"),
 
-                startBundle("ddf.catalog.core", "catalog-core-directorymonitor"));
-    }
-
-    private Option startBundle(String groupId, String artifactId) {
-        return mavenBundle(groupId, artifactId).versionAsInProject()
-                .start();
+                new BundleInfo("ddf.catalog.core", "catalog-core-directorymonitor"));
     }
 
     @Before
@@ -198,22 +183,6 @@ public class ContentDirectoryMonitorComponentTest {
 
         catalogFramework = mock(CatalogFramework.class);
         registerService(catalogFramework, CatalogFramework.class);
-    }
-
-    @After
-    public void teardown() {
-        for (ServiceRegistration registration : serviceRegistrations) {
-            registration.unregister();
-        }
-    }
-
-    private <T> void registerService(T service, Class<T> registerClass) {
-        ServiceRegistration<T> registration = bundleContext.registerService(registerClass,
-                service,
-                null);
-        serviceRegistrations.add(registration);
-        await("service registration").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
-                .until(() -> bundleContext.getServiceReference(registerClass) != null);
     }
 
     @Test
@@ -290,16 +259,11 @@ public class ContentDirectoryMonitorComponentTest {
     }
 
     private void updateContentDirectoryMonitor(String directoryPath, String processingMechanism) {
-        updateContentDirectoryMonitor(directoryPath, 1, 500, processingMechanism);
-    }
-
-    private void updateContentDirectoryMonitor(String directoryPath, int numThreads,
-            int readLockInterval, String processingMechanism) {
         Map<String, Object> properties = new HashMap<>();
 
         properties.put("monitoredDirectoryPath", directoryPath);
-        properties.put("numThreads", numThreads);
-        properties.put("readLockIntervalMilliseconds", readLockInterval);
+        properties.put("numThreads", 1);
+        properties.put("readLockIntervalMilliseconds", 500);
         properties.put("processingMechanism", processingMechanism);
 
         contentDirectoryMonitor.updateCallback(properties);

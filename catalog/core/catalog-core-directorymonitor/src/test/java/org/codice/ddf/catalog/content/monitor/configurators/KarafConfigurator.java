@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.content.monitor.configurators;
 
+import static org.codice.ddf.catalog.content.monitor.features.KarafStandardFeatures.StandardFeature.STANDARD;
+import static org.codice.ddf.catalog.content.monitor.features.KarafStandardFeatures.karafStandardFeatures;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
@@ -41,7 +43,8 @@ public class KarafConfigurator {
                 configureConsole().ignoreLocalConsole(),
                 logLevel().logLevel(LogLevelOption.LogLevel.WARN),
                 setSystemProperties(),
-                when(Boolean.getBoolean("isDebugEnabled")).useOptions(debugConfiguration()));
+                when(Boolean.getBoolean("isDebugEnabled")).useOptions(debugConfiguration()),
+                karafStandardFeatures(STANDARD));
     }
 
     private static Option setSystemProperties() {
