@@ -32,6 +32,10 @@ import org.slf4j.LoggerFactory;
 class OsgiUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(OsgiUtils.class);
 
+    private OsgiUtils() {
+        // Disable instantiation
+    }
+
     static BundleContext getBundleContext() throws ConfiguratorException {
         Bundle bundle = FrameworkUtil.getBundle(OsgiUtils.class);
         if (bundle == null) {
@@ -63,5 +67,4 @@ class OsgiUtils {
                 ConfigurationAdminMBean.class,
                 false);
     }
-
 }

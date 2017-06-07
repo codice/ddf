@@ -111,9 +111,7 @@ public abstract class ManagedServiceOperation implements Operation<String> {
 
         @Override
         public Result<String> rollback() throws ConfiguratorException {
-            String configPid = createManagedService(currentProperties);
-
-            return ResultImpl.rollbackWithData(configPid);
+            return ResultImpl.rollbackWithData(createManagedService(currentProperties));
         }
     }
 
