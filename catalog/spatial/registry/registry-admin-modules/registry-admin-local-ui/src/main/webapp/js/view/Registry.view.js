@@ -283,9 +283,18 @@ define([
             template: 'regenerateSourcesModal',
             className: 'modal',
             events: {
+                'click .select-all-group' : 'selectAllSources',
                 'click .submit-button' : 'regenerateSources',
                 'click .cancel-button' : 'cancel',
                 'click .close': 'cancel'
+            },
+            selectAllSources: function () {
+                // Select All box will set all source checkboxes to the same state as Select All
+                var checkboxes = $('.regenerate-source-check');
+                var selectAll = $('.regenerate-source-check-all')[0].checked;
+                _.each(checkboxes, function(input) {
+                    input.checked = selectAll;
+                });
             },
             regenerateUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/regenerateRegistrySources',
             regenerateSources: function() {
