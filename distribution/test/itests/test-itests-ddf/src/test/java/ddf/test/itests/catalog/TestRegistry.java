@@ -39,7 +39,6 @@ import java.util.concurrent.TimeUnit;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
-import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.csw.mock.FederatedCswMockServer;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.registry.common.RegistryConstants;
@@ -48,7 +47,6 @@ import org.codice.ddf.security.common.Security;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -90,9 +88,6 @@ public class TestRegistry extends AbstractIntegrationTest {
     private static String storeId;
 
     private static FederatedCswMockServer cswServer;
-
-    @Rule
-    public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
 
     private Set<String> destinations;
 
