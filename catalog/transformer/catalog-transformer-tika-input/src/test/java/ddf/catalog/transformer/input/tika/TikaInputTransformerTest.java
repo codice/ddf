@@ -13,14 +13,21 @@
  */
 package ddf.catalog.transformer.input.tika;
 
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static junit.framework.Assert.assertNotNull;
@@ -31,6 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.junit.Before;
@@ -44,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 
 import ddf.catalog.content.operation.ContentMetadataExtractor;
+import ddf.catalog.content.operation.MetadataExtractor;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -60,6 +69,11 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
 public class TikaInputTransformerTest {
+
+    static final String TEST_NAME = "TEST_NAME";
+
+    static final String PDF_CONTENT_TYPE = "application/pdf";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformerTest.class);
 
     private static final String COMMON_METACARDTYPE_NAME = "fallback.common";
@@ -90,20 +104,6 @@ public class TikaInputTransformerTest {
 
     private static final String POWERPOINT_METACARDTYPE_NAME = "fallback.powerpoint";
 
-    Bundle bundleMock = mock(Bundle.class);
-
-    BundleContext bundleCtx = mock(BundleContext.class);
-
-    ServiceReference serviceRef = mock(ServiceReference.class);
-
-    TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(bundleCtx,
-            getMetacardType(COMMON_METACARDTYPE_NAME)) {
-        @Override
-        Bundle getBundle() {
-            return bundleMock;
-        }
-    };
-
     ImmutableSet<AttributeDescriptor> attributeDescriptors =
             ImmutableSet.of(new AttributeDescriptorImpl("attr1",
                             false,
@@ -118,12 +118,48 @@ public class TikaInputTransformerTest {
                             false,
                             BasicTypes.OBJECT_TYPE));
 
+    private Bundle bundleMock = mock(Bundle.class);
+
+    private BundleContext bundleCtx = mock(BundleContext.class);
+
+    private ServiceReference serviceRefCme = mock(ServiceReference.class);
+
+    private ServiceReference serviceRefMe = mock(ServiceReference.class);
+
+    private ContentMetadataExtractor cme = mock(ContentMetadataExtractor.class);
+
+    private MetadataExtractor me = mock(MetadataExtractor.class);
+
+    private MetacardType mockMetacardType = mock(MetacardType.class);
+
+    private TikaInputTransformer tikaInputTransformer;
+
+    private static MetacardType getMetacardType(String typeName) {
+        return new MetacardTypeImpl(typeName,
+                Arrays.asList(new ValidationAttributes(),
+                        new ContactAttributes(),
+                        new LocationAttributes(),
+                        new MediaAttributes(),
+                        new AssociationsAttributes()));
+    }
+
     @Before
     public void setup() {
-        ContentMetadataExtractor cme = mock(ContentMetadataExtractor.class);
+        tikaInputTransformer = new TikaInputTransformer(bundleCtx,
+                getMetacardType(COMMON_METACARDTYPE_NAME)) {
+            @Override
+            Bundle getBundle() {
+                return bundleMock;
+            }
+        };
+
+        when(me.canProcess(PDF_CONTENT_TYPE)).thenReturn(true);
+        when(me.getMetacardType(PDF_CONTENT_TYPE)).thenReturn(mockMetacardType);
+        when(mockMetacardType.getName()).thenReturn(TEST_NAME);
 
         when(bundleMock.getBundleContext()).thenReturn(bundleCtx);
-        when(bundleCtx.getService(any())).thenReturn(cme);
+        when(bundleCtx.getService(eq(serviceRefCme))).thenReturn(cme);
+        when(bundleCtx.getService(eq(serviceRefMe))).thenReturn(me);
 
         when(cme.getMetacardAttributes()).thenReturn(attributeDescriptors);
 
@@ -144,49 +180,61 @@ public class TikaInputTransformerTest {
         BundleContext mockBundleContext = mock(BundleContext.class);
         TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(mockBundleContext,
                 getMetacardType(COMMON_METACARDTYPE_NAME));
-        verify(mockBundleContext).registerService(eq(InputTransformer.class), eq(
-                tikaInputTransformer), any(Hashtable.class));
+        verify(mockBundleContext).registerService(eq(InputTransformer.class),
+                eq(tikaInputTransformer),
+                any(Hashtable.class));
     }
 
     @Test
-    public void testTransformWithContentExtractor() throws Exception {
+    public void testContentExtractors() throws Exception {
         InputStream stream = Thread.currentThread()
                 .getContextClassLoader()
                 .getResourceAsStream("testPDF.pdf");
-        tikaInputTransformer.addContentMetadataExtractors(serviceRef);
+        tikaInputTransformer.addContentMetadataExtractor(serviceRefCme);
         Metacard metacard = tikaInputTransformer.transform(stream);
-
+        verify(cme).process(anyString(), anyObject());
+        verify(cme).getMetacardAttributes();
         assertThat(metacard.getMetacardType()
                 .getName(), is(PDF_METACARDTYPE_NAME));
-        int matchedAttrs = (int) metacard.getMetacardType()
+        List<String> actualNames = metacard.getMetacardType()
                 .getAttributeDescriptors()
                 .stream()
-                .filter(attributeDescriptors::contains)
-                .count();
-
-        assertThat(matchedAttrs, is(attributeDescriptors.size()));
-        tikaInputTransformer.removeContentMetadataExtractor(serviceRef);
+                .map(AttributeDescriptor::getName)
+                .collect(toList());
+        assertThat("Missing an attribute descriptor",
+                actualNames,
+                allOf(hasItem(equalTo("attr1")), hasItem(equalTo("attr2"))));
     }
 
     @Test
-    public void testContentExtractorRemoval() throws Exception {
+    public void testMetadataExtractor() throws Exception {
         InputStream stream = Thread.currentThread()
                 .getContextClassLoader()
                 .getResourceAsStream("testPDF.pdf");
-
-        tikaInputTransformer.addContentMetadataExtractors(serviceRef);
-        tikaInputTransformer.removeContentMetadataExtractor(serviceRef);
+        tikaInputTransformer.addMetadataExtractor(serviceRefMe);
         Metacard metacard = tikaInputTransformer.transform(stream);
+        verify(me).canProcess(PDF_CONTENT_TYPE);
+        verify(me).getMetacardType(PDF_CONTENT_TYPE);
+        verify(me).process(anyString(), any(Metacard.class));
+        assertThat("Wrong metacardname",
+                metacard.getMetacardType()
+                        .getName(),
+                is(TEST_NAME));
+    }
 
-        assertThat(metacard.getMetacardType()
-                .getName(), is(PDF_METACARDTYPE_NAME));
-        int matchedAttrs = (int) metacard.getMetacardType()
-                .getAttributeDescriptors()
-                .stream()
-                .filter(attributeDescriptors::contains)
-                .count();
-
-        assertThat(matchedAttrs, is(0));
+    @Test
+    public void testRemoveExtractors() throws Exception {
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("testPDF.pdf");
+        tikaInputTransformer.addContentMetadataExtractor(serviceRefCme);
+        tikaInputTransformer.addMetadataExtractor(serviceRefMe);
+        tikaInputTransformer.removeContentMetadataExtractor(serviceRefCme);
+        tikaInputTransformer.removeMetadataExtractor(serviceRefMe);
+        tikaInputTransformer.transform(stream);
+        verify(cme, never()).process(anyString(), anyObject());
+        verify(me, never()).process(anyString(), anyObject());
+        verify(cme, never()).getMetacardAttributes();
     }
 
     @Test(expected = CatalogTransformerException.class)
@@ -423,8 +471,8 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString(
-                "<meta name=\"Compression Lossless\" content=\"true\"/>"));
+        assertThat(metacard.getMetadata(),
+                containsString("<meta name=\"Compression Lossless\" content=\"true\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/png"));
         assertThat(metacard.getAttribute(Core.DATATYPE)
                 .getValue(), is(IMAGE));
@@ -642,8 +690,8 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 11:06:08 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2013-02-13 06:52:10 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString(
-                "This is a sample Open Office document, written in NeoOffice 2.2.1"));
+        assertThat(metacard.getMetadata(),
+                containsString("This is a sample Open Office document, written in NeoOffice 2.2.1"));
         assertThat(metacard.getContentTypeName(), is("application/vnd.oasis.opendocument.text"));
 
         // Reset timezone back to local time zone.
@@ -661,9 +709,11 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getModifiedDate()), is("2015-08-16 23:37:46 UTC"));
         assertThat(convertDate(metacard.getCreatedDate()), is("2015-08-16 23:13:05 UTC"));
         assertThat(metacard.getMetadata(), notNullValue());
-        assertThat(metacard.getMetadata(), containsString(
-                "<meta name=\"Content-Type\" content=\"application/vnd.ms-visio.drawing\"/>"));
-        assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+        assertThat(metacard.getMetadata(),
+                containsString(
+                        "<meta name=\"Content-Type\" content=\"application/vnd.ms-visio.drawing\"/>"));
+        assertThat(metacard.getAttribute(Core.DATATYPE)
+                .getValue(), is(DOCUMENT));
     }
 
     private String convertDate(Date date) {
@@ -674,17 +724,7 @@ public class TikaInputTransformerTest {
     }
 
     private Metacard transform(InputStream stream) throws Exception {
-        Metacard metacard = tikaInputTransformer.transform(stream);
-        return metacard;
-    }
-
-    private static MetacardType getMetacardType(String typeName) {
-        return new MetacardTypeImpl(typeName,
-                Arrays.asList(new ValidationAttributes(),
-                        new ContactAttributes(),
-                        new LocationAttributes(),
-                        new MediaAttributes(),
-                        new AssociationsAttributes()));
+        return tikaInputTransformer.transform(stream);
     }
 
 }
