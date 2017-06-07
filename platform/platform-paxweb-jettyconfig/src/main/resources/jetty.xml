@@ -37,7 +37,7 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
 
     <Call name="setSessionIdManager">
         <Arg>
-            <New class="org.codice.ddf.security.session.HashSessionIdManager">
+            <New class="org.codice.ddf.security.session.AttributeSharingHashSessionIdManager">
             </New>
         </Arg>
     </Call>
