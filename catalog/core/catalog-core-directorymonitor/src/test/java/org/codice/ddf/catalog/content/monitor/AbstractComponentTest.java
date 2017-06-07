@@ -29,7 +29,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 public abstract class AbstractComponentTest {
-    static final int TIMEOUT_IN_SECONDS = 10;
+    protected static final int TIMEOUT_IN_SECONDS = 10;
 
     @Inject
     private BundleContext bundleContext;
@@ -54,7 +54,7 @@ public abstract class AbstractComponentTest {
                 .start();
     }
 
-    <T> void registerService(T service, Class<T> registerClass) {
+    protected <T> void registerService(T service, Class<T> registerClass) {
         ServiceRegistration<T> registration = bundleContext.registerService(registerClass,
                 service,
                 null);
