@@ -46,15 +46,15 @@ public class SizeValidator implements AttributeValidator {
     /**
      * Creates a {@code SizeValidator} with an <strong>inclusive</strong> range (i.e., [min, max]).
      * <p>
-     * The minimum must be non-negative and the maximum must be greater than the minimum.
+     * The minimum must be non-negative and the maximum must be greater than or equal to the minimum.
      *
      * @param min the minimum allowable size (inclusive), must be non-negative
-     * @param max the maximum allowable size (inclusive), must be greater than {@code min}
-     * @throws IllegalArgumentException if 0 <= min < max does not hold
+     * @param max the maximum allowable size (inclusive), must be greater than or equal to {@code min}
+     * @throws IllegalArgumentException if 0 <= min <= max does not hold
      */
     public SizeValidator(final long min, final long max) {
-        Preconditions.checkArgument(0 <= min && min < max,
-                "The minimum must be non-negative and the maximum must be greater than the minimum.");
+        Preconditions.checkArgument(0 <= min && min <= max,
+                "The minimum must be non-negative and the maximum must be greater than or equal to the minimum.");
 
         this.min = min;
         this.max = max;

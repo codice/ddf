@@ -32,6 +32,17 @@ import ddf.catalog.validation.impl.validator.SizeValidator;
 import ddf.catalog.validation.report.AttributeValidationReport;
 
 public class SizeValidatorTest {
+
+    @Test
+    public void testValidStringValueOfEqualMinMax() {
+        validateNoErrors(new AttributeImpl("test", StringUtils.repeat("a", 33)), 33, 33);
+    }
+
+    @Test
+    public void testInvalidStringValueOfEqualMinMax() {
+        validateWithErrors(new AttributeImpl("test", StringUtils.repeat("a", 32)), 33, 33, 1);
+    }
+
     @Test
     public void testValidStringValue() {
         validateNoErrors(new AttributeImpl("test", StringUtils.repeat("a", 33)), 0, 36);
