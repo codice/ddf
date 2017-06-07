@@ -187,7 +187,7 @@ public class DownloadsStatusEventPublisher {
             // send activity event
             // progress for downloads
             int progress = UNKNOWN_PROGRESS;
-            Map<String, String> operations = new HashMap<String, String>();
+            Map<String, String> operations = new HashMap<>();
             ActivityStatus type;
             switch (status) {
             case STARTED:
@@ -308,6 +308,7 @@ public class DownloadsStatusEventPublisher {
 
         case IN_PROGRESS:
             response.append(" downloading ");
+            break;
 
         default:
             break;
@@ -328,7 +329,7 @@ public class DownloadsStatusEventPublisher {
         this.activityEnabled = enabled;
     }
 
-    public static enum ProductRetrievalStatus {
+    public enum ProductRetrievalStatus {
         STARTED, IN_PROGRESS, RETRYING, CANCELLED, FAILED, COMPLETE;
     }
 }
