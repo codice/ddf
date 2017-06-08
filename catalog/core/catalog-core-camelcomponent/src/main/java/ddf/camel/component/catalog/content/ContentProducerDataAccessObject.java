@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
@@ -49,6 +50,7 @@ import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.SourceInfoRequestLocal;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.mime.MimeTypeMapper;
@@ -148,9 +150,11 @@ public class ContentProducerDataAccessObject {
 
             processHeaders(headers, createRequest, ingestedFile);
 
-            CreateResponse createResponse = endpoint.getComponent()
-                    .getCatalogFramework()
-                    .create(createRequest);
+            CatalogFramework catalogFramework = endpoint.getComponent()
+                    .getCatalogFramework();
+            waitForAvailableSource(catalogFramework);
+            CreateResponse createResponse = catalogFramework.create(createRequest);
+
             if (createResponse != null) {
                 List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
 
@@ -212,5 +216,28 @@ public class ContentProducerDataAccessObject {
             storageRequest.getProperties()
                     .put(Constants.STORE_REFERENCE_KEY, ingestedFile.getAbsolutePath());
         }
+    }
+
+    private void waitForAvailableSource(CatalogFramework catalogFramework)
+            throws SourceUnavailableException {
+        long startTime = System.currentTimeMillis();
+        boolean ready;
+        do {
+            if (timeoutHasBeenExceeded(startTime, 3 * 60 * 1000)) {
+                throw new SourceUnavailableException(
+                        "failed to find an available source within 3 minutes");
+            }
+
+            ready = catalogFramework.getSourceInfo(new SourceInfoRequestLocal(false))
+                    .getSourceInfo()
+                    .stream()
+                    .findFirst()
+                    .get()
+                    .isAvailable();
+        } while (!ready);
+    }
+
+    private boolean timeoutHasBeenExceeded(long startTimeInMs, long timeoutInMs) {
+        return System.currentTimeMillis() - startTimeInMs > timeoutInMs;
     }
 }
