@@ -47,22 +47,23 @@ import javax.servlet.http.HttpSession;
 
 import org.codice.ddf.platform.util.RandomNumberGenerator;
 import org.eclipse.jetty.server.session.AbstractSession;
-import org.eclipse.jetty.server.session.AbstractSessionIdManager;
+import org.eclipse.jetty.server.session.HashSessionIdManager;
 
 /**
  * Custom implementation of the {@link org.eclipse.jetty.server.SessionIdManager} that shares session
  * data between sessions in a cluster.
  */
-public class HashSessionIdManager extends AbstractSessionIdManager {
+public class AttributeSharingHashSessionIdManager extends HashSessionIdManager {
+    //changed this to extend Jetty's impl instead of the abstract class because of a hack in pax web
 
     private final Map<String, Set<WeakReference<HttpSession>>> sessions =
             new ConcurrentHashMap<>();
 
-    public HashSessionIdManager() {
+    public AttributeSharingHashSessionIdManager() {
         super(RandomNumberGenerator.create());
     }
 
-    public HashSessionIdManager(Random random) {
+    public AttributeSharingHashSessionIdManager(Random random) {
         super(RandomNumberGenerator.create());
     }
 
