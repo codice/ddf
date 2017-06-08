@@ -94,7 +94,6 @@ import org.hamcrest.Matchers;
 import org.json.simple.JSONObject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -1986,7 +1985,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("Ignored until DDF-1571 is addressed")
     @Test
     public void persistLargeObjectToWorkspace() throws Exception {
         persistToWorkspace(40000);
