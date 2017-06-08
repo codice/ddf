@@ -31,11 +31,12 @@ import org.eclipse.jetty.server.session.HashedSession;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class TestHashSessionIdManager {
+public class TestAttributeSharingHashSessionIdManager {
 
     @Test
     public void testAddSessionAndInvalidate() {
-        HashSessionIdManager hashSessionIdManager = new HashSessionIdManager();
+        AttributeSharingHashSessionIdManager
+                hashSessionIdManager = new AttributeSharingHashSessionIdManager();
         //create a mock session
         HashedSession session = mock(HashedSession.class);
         when(session.getId()).thenReturn("1234");
@@ -103,7 +104,8 @@ public class TestHashSessionIdManager {
 
     @Test
     public void testRemoveSession() {
-        HashSessionIdManager hashSessionIdManager = new HashSessionIdManager();
+        AttributeSharingHashSessionIdManager
+                hashSessionIdManager = new AttributeSharingHashSessionIdManager();
         HashedSession session2 = mock(HashedSession.class);
         when(session2.getId()).thenReturn("4321");
         hashSessionIdManager.addSession(session2);
