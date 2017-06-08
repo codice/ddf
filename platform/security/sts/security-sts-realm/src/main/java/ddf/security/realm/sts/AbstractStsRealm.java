@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -56,6 +57,8 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
 import com.google.common.base.Splitter;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import ddf.security.PropertiesLoader;
 import ddf.security.assertion.SecurityAssertion;
@@ -109,6 +112,10 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     private String keySize = null;
 
     private Boolean useKey = null;
+
+    private Cache<Element, SecurityToken> cache = CacheBuilder.newBuilder()
+            .expireAfterAccess(1, TimeUnit.MINUTES)
+            .build();
 
     public AbstractStsRealm() {
         this.bus = getBus();
@@ -237,32 +244,39 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
      * @param securityToken The token being renewed.
      * @return security token (SAML assertion)
      */
-    protected SecurityToken renewSecurityToken(SecurityToken securityToken) {
-        SecurityToken token = null;
+    protected SecurityToken renewSecurityToken(final SecurityToken securityToken) {
         String stsAddress = getAddress();
 
         try {
             LOGGER.debug("Renewing security token from STS at: {}.", stsAddress);
 
             if (securityToken != null) {
-                LOGGER.debug("Telling the STS to renew a security token on behalf of the auth token");
-                STSClient stsClient = configureStsClient();
+                synchronized (securityToken.getToken()) {
+                    return cache.get(securityToken.getToken(), () -> {
+                        LOGGER.debug(
+                                "Telling the STS to renew a security token on behalf of the auth token");
+                        STSClient stsClient = configureStsClient();
 
-                stsClient.setWsdlLocation(stsAddress);
-                stsClient.setTokenType(getAssertionType());
-                stsClient.setKeyType(getKeyType());
-                stsClient.setKeySize(Integer.parseInt(getKeySize()));
-                stsClient.setAllowRenewing(true);
-                token = stsClient.renewSecurityToken(securityToken);
-                LOGGER.debug("Finished renewing security token.");
+                        stsClient.setWsdlLocation(stsAddress);
+                        stsClient.setTokenType(getAssertionType());
+                        stsClient.setKeyType(getKeyType());
+                        stsClient.setKeySize(Integer.parseInt(getKeySize()));
+                        stsClient.setAllowRenewing(true);
+                        SecurityToken token = stsClient.renewSecurityToken(securityToken);
+                        cache.put(securityToken.getToken(), token);
+                        LOGGER.debug("Finished renewing security token.");
+
+                        return token;
+                    });
+                }
+            } else {
+                return null;
             }
         } catch (Exception e) {
             String msg = "Error renewing the security token from STS at: " + stsAddress + ".";
             LOGGER.debug(msg, e);
             throw new AuthenticationException(msg, e);
         }
-
-        return token;
     }
 
     /**
@@ -281,7 +295,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         Map<String, Object> map = stsClient.getProperties();
         Set<Map.Entry<String, Object>> entries = map.entrySet();
         builder.append("\nSTS Client properties:\n");
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
+        for (Map.Entry<String, Object> entry : entries) {
             builder.append("key: " + entry.getKey() + "; value: " + entry.getValue() + "\n");
         }
 
@@ -684,10 +698,9 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         @Override
         public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
             if (token instanceof SAMLAuthenticationToken) {
-                SecurityToken oldToken = (SecurityToken) token.getCredentials();
-                SecurityToken newToken = (SecurityToken) info.getCredentials();
-                return oldToken.getId()
-                        .equals(newToken.getId());
+                Object oldToken = token.getCredentials();
+                Object newToken = info.getCredentials();
+                return oldToken.equals(newToken);
             } else if (token instanceof BaseAuthenticationToken) {
                 String xmlCreds = ((BaseAuthenticationToken) token).getCredentialsAsXMLString();
                 if (xmlCreds != null && info.getCredentials() != null) {
