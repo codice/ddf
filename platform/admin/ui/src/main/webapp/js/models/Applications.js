@@ -132,7 +132,7 @@ define([
             changeObj.displayName = this.get('name');
             if (this.get('version') === '0.0.0') {
                 var matches = this.get('name').match(versionRegex);
-                if (matches.length === 3) {
+                if (matches !== null) {
                     changeObj.displayName = matches[1];
                     changeObj.version = matches[2];
                 }
