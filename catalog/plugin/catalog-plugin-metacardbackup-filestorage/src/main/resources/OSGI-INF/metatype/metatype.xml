@@ -32,6 +32,12 @@
             type="Boolean"
             default="true"/>
 
+        <AD description="Backup only metacards with one of the tags specified."
+            name="Metacard Tags" id="backupMetacardTags" required="true"
+            type="String"
+            default="resource"
+            cardinality="100"/>
+
         <AD description="Output path to place backup files.
                          The template uses handlebars syntax.
                          Use [] to reference dotted attributes e.g. {{[attribute.name]}}.

@@ -24,7 +24,7 @@ import org.apache.camel.impl.CompositeRegistry;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.catalog.plugin.metacard.backup.common.MetacardStorageRoute;
-import org.codice.ddf.catalog.plugin.metacard.backup.common.MetacardTemplateBean;
+import org.codice.ddf.catalog.plugin.metacard.backup.common.MetacardTemplate;
 import org.codice.ddf.catalog.plugin.metacard.backup.common.ResponseMetacardActionSplitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,13 +179,13 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
                 .stop()
                 .otherwise()
                 .setHeader(S3Constants.KEY,
-                        method(new MetacardTemplateBean(objectTemplate), "applyTemplate(${body})"))
+                        method(new MetacardTemplate(objectTemplate), "applyTemplate(${body})"))
                 .to("catalog:metacardtransformer")
                 .setHeader(S3Constants.CANNED_ACL, simple(s3CannedAclName))
                 .setHeader(S3Constants.CONTENT_LENGTH, simple("${body.length}"))
                 .to(s3Uri);
 
-        LOGGER.trace("Starting metacard S3 storage route: {}", toString());
+        LOGGER.trace("Starting metacard S3 storage route: {}", this);
     }
 
     @Override

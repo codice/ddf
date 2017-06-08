@@ -14,7 +14,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="metacardBackupCamelContext" trace="true"/>
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="metacardBackupCamelContext"/>
 
     <cm:managed-service-factory
             id="org.codice.ddf.catalog.plugin.metacard.backup.storage.s3storage.MetacardS3StorageRoute.id"
@@ -37,6 +37,11 @@
             <property name="s3Endpoint" value="" />
             <property name="s3Bucket" value=""/>
             <property name="s3CannedAclName" value="BucketOwnerFullControl"/>
+            <property name="backupMetacardTags">
+                <list>
+                    <value>resource</value>
+                </list>
+            </property>
         </cm:managed-component>
     </cm:managed-service-factory>
 

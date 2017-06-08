@@ -33,12 +33,12 @@ import ddf.catalog.data.Metacard;
 /**
  * Applies Metacard attributes to a provided template.
  */
-public class MetacardTemplateBean {
+public class MetacardTemplate {
     private Template template;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTemplateBean.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTemplate.class);
 
-    public MetacardTemplateBean(String template) throws IOException {
+    public MetacardTemplate(String template) throws IOException {
         Handlebars handleBars = new Handlebars();
         handleBars.registerHelpers(StringHelpers.class);
         this.template = handleBars.compileInline(template);

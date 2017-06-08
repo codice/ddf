@@ -13,7 +13,10 @@
  */
 package org.codice.ddf.catalog.plugin.metacard.backup.common;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Predicate;
@@ -23,6 +26,7 @@ import org.apache.camel.model.RoutesDefinition;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import ddf.camel.component.catalog.ingest.PostIngestConsumer;
 import ddf.catalog.data.Attribute;
@@ -44,15 +48,17 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
 
     public static final String TRANSFORMER_ID_PROPERTY = "metacardTransformerId";
 
-    private static final String INVALID_TAG = "INVALID";
+    public static final String METACARD_BACKUP_TAGS_PROPERTY = "backupMetacardTags";
 
-    private static final String RESOURCE_TAG = "resource";
+    private static final String INVALID_TAG = "INVALID";
 
     protected boolean backupInvalidMetacards;
 
     protected boolean keepDeletedMetacards;
 
     protected String metacardTransformerId;
+
+    protected List<String> backupMetacardTags;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardStorageRoute.class);
 
@@ -70,11 +76,16 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
 
     public void stop(int code) {
         try {
+            List<RouteDefinition> routesToRemove = new ArrayList<>();
             CamelContext context = getContext();
             for (RouteDefinition routeDefinition : context.getRouteDefinitions()) {
                 context.stopRoute(routeDefinition.getId());
-                context.removeRouteDefinition(routeDefinition);
+                routesToRemove.add(routeDefinition);
                 setRouteCollection(new RoutesDefinition());
+            }
+
+            for (RouteDefinition routeDefinition : routesToRemove) {
+                context.removeRouteDefinition(routeDefinition);
             }
         } catch (Exception e) {
             LOGGER.error("Could not stop route: {}", toString(), e);
@@ -105,6 +116,14 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
         this.metacardTransformerId = metacardTransformerId;
     }
 
+    public List<String> getBackupMetacardTags() {
+        return backupMetacardTags;
+    }
+
+    public void setBackupMetacardTags(List<String> backupMetacardTags) {
+        this.backupMetacardTags = backupMetacardTags;
+    }
+
     public void refresh(Map<String, Object> properties) throws Exception {
         Object backupInvalidProp = properties.get(BACKUP_INVALID_PROPERTY);
         if (backupInvalidProp instanceof Boolean) {
@@ -121,13 +140,18 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
             this.metacardTransformerId = (String) metacardTransformerIdProp;
         }
 
+        Object metacardTagsProp = properties.get(METACARD_BACKUP_TAGS_PROPERTY);
+        if (metacardTagsProp instanceof List) {
+            this.backupMetacardTags = (List<String>) metacardTagsProp;
+        }
+
         stop(0);
         configure();
         start();
     }
 
-    public static boolean shouldBackupMetacard(Metacard metacard, boolean backupInvalid) {
-        if (!isResourceCard(metacard)) {
+    public boolean shouldBackupMetacard(Metacard metacard, boolean backupInvalid) {
+        if (!isTagAllowed(metacard)) {
             return false;
         }
         if (backupInvalid) {
@@ -152,7 +176,7 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
                     .getBody();
             if (bodyObj instanceof Metacard) {
                 Metacard metacard = (Metacard) bodyObj;
-                return MetacardStorageRoute.shouldBackupMetacard(metacard,
+                return shouldBackupMetacard(metacard,
                         exchange.getIn()
                                 .getHeader(METACARD_BACKUP_INVALID_RTE_PROP, Boolean.class));
             }
@@ -176,14 +200,18 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
         };
     }
 
-    private static boolean isResourceCard(Metacard metacard) {
+    private boolean isTagAllowed(Metacard metacard) {
+        if (CollectionUtils.isEmpty(backupMetacardTags)) {
+            return true;
+        }
+
         Attribute metacardTagsAttr = metacard.getAttribute(Core.METACARD_TAGS);
         if (metacardTagsAttr != null) {
-            return metacardTagsAttr.getValues()
-                    .stream()
+            List<String> metacardTagValues = metacardTagsAttr.getValues().stream()
                     .filter(String.class::isInstance)
-                    .map(String.class::cast)
-                    .anyMatch(RESOURCE_TAG::equalsIgnoreCase);
+                    .map(String.class::cast).collect(Collectors.toList());
+
+            return CollectionUtils.containsAny(metacardTagValues, backupMetacardTags);
         } else {
             return false;
         }

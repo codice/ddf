@@ -22,7 +22,7 @@ import java.util.UUID;
 import org.apache.camel.CamelContext;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.catalog.plugin.metacard.backup.common.MetacardStorageRoute;
-import org.codice.ddf.catalog.plugin.metacard.backup.common.MetacardTemplateBean;
+import org.codice.ddf.catalog.plugin.metacard.backup.common.MetacardTemplate;
 import org.codice.ddf.catalog.plugin.metacard.backup.common.ResponseMetacardActionSplitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,13 +73,13 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
                 .stop()
                 .otherwise()
                 .setHeader(TEMPLATED_STRING_HEADER_RTE_PROP,
-                        method(new MetacardTemplateBean(outputPathTemplate),
+                        method(new MetacardTemplate(outputPathTemplate),
                                 "applyTemplate(${body})"))
                 .to("catalog:metacardtransformer")
                 .to("file://" + getStartingDir() + "?fileName=${in.headers."
                         + TEMPLATED_STRING_HEADER_RTE_PROP + "}");
 
-        LOGGER.trace("Starting metacard file storage route: {}", toString());
+        LOGGER.trace("Starting metacard file storage route: {}", this);
     }
 
     @Override

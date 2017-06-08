@@ -32,6 +32,12 @@
             type="Boolean"
             default="true"/>
 
+        <AD description="Backup only metacards with one of the tags specified."
+            name="Metacard Tags" id="backupMetacardTags" required="true"
+            type="String"
+            default="resource"
+            cardinality="100"/>
+
         <AD description="The access key to use for S3. Leave blank if on an EC2 host with roles assigned."
             name="S3 Access Key" id="s3AccessKey" required="true" type="String"
             default=""/>

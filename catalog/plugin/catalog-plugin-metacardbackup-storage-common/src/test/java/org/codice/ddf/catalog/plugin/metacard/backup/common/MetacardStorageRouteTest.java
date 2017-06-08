@@ -15,20 +15,21 @@ package org.codice.ddf.catalog.plugin.metacard.backup.common;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Predicate;
 import org.apache.camel.model.RoutesDefinition;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -44,11 +45,14 @@ public class MetacardStorageRouteTest {
     private MetacardStorageRoute storageRoute = mock(MetacardStorageRoute.class,
             Mockito.CALLS_REAL_METHODS);
 
+    private static final List<String> DEFAULT_TAGS = Arrays.asList("resource");
+
     @Before
     public void setUp() {
         RoutesDefinition mockRoutesDefinition = mock(RoutesDefinition.class);
         when(storageRoute.getRouteCollection()).thenReturn(mockRoutesDefinition);
         when(mockRoutesDefinition.toString()).thenReturn("test");
+        storageRoute.setBackupMetacardTags(DEFAULT_TAGS);
     }
 
     @Test
@@ -56,19 +60,23 @@ public class MetacardStorageRouteTest {
         boolean backupInvalidCards = false;
         boolean keepDeletedMetacards = false;
         String metacardTransformerId = "testTransformer";
+        List<String> tags = Arrays.asList("resource");
 
         Map<String, Object> properties = new HashMap<>();
         properties.put("backupInvalidMetacards", backupInvalidCards);
         properties.put("keepDeletedMetacards", keepDeletedMetacards);
         properties.put("metacardTransformerId", metacardTransformerId);
+        properties.put("backupMetacardTags", tags);
 
         storageRoute.refresh(properties);
         assertThat(storageRoute.isBackupInvalidMetacards(),
-                Matchers.is(backupInvalidCards));
+                is(backupInvalidCards));
         assertThat(storageRoute.isKeepDeletedMetacards(),
-                Matchers.is(keepDeletedMetacards));
+                is(keepDeletedMetacards));
         assertThat(storageRoute.getMetacardTransformerId(),
-                Matchers.is(metacardTransformerId));
+                is(metacardTransformerId));
+        assertThat(storageRoute.getBackupMetacardTags(),
+                containsInAnyOrder(tags.toArray(new String[0])));
     }
 
     @Test
@@ -77,10 +85,12 @@ public class MetacardStorageRouteTest {
         properties.put("backupInvalidMetacards", 2);
         properties.put("keepDeletedMetacards", 15);
         properties.put("metacardTransformerId", 5);
+        properties.put("backupMetacardTags", "test");
         storageRoute.refresh(properties);
         assertThat(storageRoute.isBackupInvalidMetacards(), is(false));
         assertThat(storageRoute.isKeepDeletedMetacards(), is(false));
         assertThat(storageRoute.getMetacardTransformerId(), is(nullValue()));
+        assertThat(storageRoute.getBackupMetacardTags(), containsInAnyOrder(DEFAULT_TAGS.toArray(new String[0])));
     }
 
     @Test
@@ -191,32 +201,32 @@ public class MetacardStorageRouteTest {
 
     @Test
     public void testBackupTrueTagInvalid() {
-        boolean shouldBackup = MetacardStorageRoute.shouldBackupMetacard(getTestInvalidMetacard(), true);
-        assertThat(shouldBackup, Matchers.is(true));
+        boolean shouldBackup = storageRoute.shouldBackupMetacard(getTestInvalidMetacard(), true);
+        assertThat(shouldBackup, is(true));
     }
 
     @Test
     public void testBackupFalseTagInvalid() {
-        boolean shouldBackup = MetacardStorageRoute.shouldBackupMetacard(getTestInvalidMetacard(), false);
-        assertThat(shouldBackup, Matchers.is(false));
+        boolean shouldBackup = storageRoute.shouldBackupMetacard(getTestInvalidMetacard(), false);
+        assertThat(shouldBackup, is(false));
     }
 
     @Test
     public void testBackupFalseTagValid() {
-        boolean shouldBackup = MetacardStorageRoute.shouldBackupMetacard(getTestValidMetacard(), false);
-        assertThat(shouldBackup, Matchers.is(true));
+        boolean shouldBackup = storageRoute.shouldBackupMetacard(getTestValidMetacard(), false);
+        assertThat(shouldBackup, is(true));
     }
 
     @Test
     public void testNoTagsValid() {
-        boolean shouldBackup = MetacardStorageRoute.shouldBackupMetacard(getTestNoTagsMetacard(), false);
-        assertThat(shouldBackup, Matchers.is(false));
+        boolean shouldBackup = storageRoute.shouldBackupMetacard(getTestNoTagsMetacard(), false);
+        assertThat(shouldBackup, is(false));
     }
 
     @Test
     public void testBackupNonResourceCard() {
-        boolean shouldBackup = MetacardStorageRoute.shouldBackupMetacard(getTestNonResourceMetacard(), false);
-        assertThat(shouldBackup, Matchers.is(false));
+        boolean shouldBackup = storageRoute.shouldBackupMetacard(getTestNonResourceMetacard(), false);
+        assertThat(shouldBackup, is(false));
     }
 
     private Metacard getTestInvalidMetacard() {

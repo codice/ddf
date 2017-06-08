@@ -75,6 +75,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.camel.CamelContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -105,6 +106,8 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.w3c.dom.Node;
@@ -475,19 +478,45 @@ public class TestCatalog extends AbstractIntegrationTest {
         storageProps.put("metacardTransformerId", "metadata");
         storageProps.put("keepDeletedMetacards", true);
         storageProps.put("backupInvalidMetacards", true);
-        getServiceManager().createManagedService("Metacard_File_Storage_Route", storageProps);
+        storageProps.put("backupMetacardTags", Arrays.asList("resource"));
+        Configuration storageRouteConfiguration =
+                getServiceManager().createManagedService("Metacard_File_Storage_Route", storageProps);
 
         expect("Service to be available: " + MetacardFileStorageRoute.class.getName()).within(30,
                 TimeUnit.SECONDS)
-                .checkEvery(1, TimeUnit.SECONDS)
+                .checkEvery(5, TimeUnit.SECONDS)
                 .until(() -> getServiceManager().getServiceReferences(PostIngestPlugin.class, null)
                         .size(), greaterThan(startingPostIngestServices));
 
-        //Wait for the camel route to come online after the service is created
-        try {
-            TimeUnit.SECONDS.sleep(30);
-        } catch (InterruptedException e) {
+        expect("Camel Context to be available").within(30, TimeUnit.SECONDS)
+                .checkEvery(5, TimeUnit.SECONDS)
+                .until(() -> getServiceManager().getServiceReferences(CamelContext.class,
+                        "(camel.context.name=metacardBackupCamelContext)"), not(empty()));
+
+        BundleContext bundleContext = FrameworkUtil.getBundle(TestCatalog.class).getBundleContext();
+        Collection<ServiceReference<CamelContext>> camelContextServiceRefs =
+                getServiceManager().getServiceReferences(CamelContext.class,
+                "(camel.context.name=metacardBackupCamelContext)");
+        CamelContext fileStorageRouteCamelContext = null;
+        for (ServiceReference<CamelContext> camelContextServiceReference : camelContextServiceRefs) {
+            fileStorageRouteCamelContext = bundleContext.getService(camelContextServiceReference);
+
+            if (fileStorageRouteCamelContext != null) {
+                break;
+            }
         }
+
+        final CamelContext camelContext = fileStorageRouteCamelContext;
+        assertThat(camelContext, notNullValue());
+        expect("Camel route definitions were not found").within(30, TimeUnit.SECONDS)
+                .checkEvery(5, TimeUnit.SECONDS)
+                .until(() -> camelContext.getRouteDefinitions(), hasSize(2));
+
+        camelContext.startAllRoutes();
+
+        expect("Camel routes are started").within(30, TimeUnit.SECONDS)
+                .checkEvery(5, TimeUnit.SECONDS)
+                .until(() -> camelContext.isStartingRoutes(), is(false));
 
         Response response = ingestCswRecord();
         ValidatableResponse validatableResponse = response.then();
@@ -500,6 +529,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                         is("Aliquam fermentum purus quis arcu")),
                 hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
         verifyMetadataBackup();
+        getServiceManager().stopManagedService(storageRouteConfiguration.getPid());
         getServiceManager().stopFeature(true, METACARD_BACKUP_FILE_STORAGE_FEATURE);
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -2305,12 +2335,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 id.substring(3, 6),
                 id + ".xml");
 
-        long timeout = 180;
-        long pollingInterval = 1;
-
-        expect("The metacard backup file is not found: " + path.toAbsolutePath()).within(timeout,
+        expect("The metacard backup file is not found: " + path.toAbsolutePath()).within(60,
                 TimeUnit.SECONDS)
-                .checkEvery(pollingInterval, TimeUnit.SECONDS)
+                .checkEvery(1, TimeUnit.SECONDS)
                 .until(() -> path.toFile()
                         .exists());
 

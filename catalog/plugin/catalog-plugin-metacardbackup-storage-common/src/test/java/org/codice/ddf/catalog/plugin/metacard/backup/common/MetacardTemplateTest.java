@@ -25,7 +25,7 @@ import org.junit.Test;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
-public class MetacardTemplateBeanTest {
+public class MetacardTemplateTest {
 
     private static final String ID = "testId";
 
@@ -33,7 +33,7 @@ public class MetacardTemplateBeanTest {
 
     @Test
     public void testSimpleExpression() throws IOException {
-        MetacardTemplateBean templateBean = new MetacardTemplateBean("/test/{{id}}.xml");
+        MetacardTemplate templateBean = new MetacardTemplate("/test/{{id}}.xml");
         Metacard metacard = getTestMetacard();
         String str = templateBean.applyTemplate(metacard);
         assertThat(str, is("/test/" + ID + ".xml"));
@@ -41,7 +41,7 @@ public class MetacardTemplateBeanTest {
 
     @Test
     public void testSubstringExpression() throws IOException {
-        MetacardTemplateBean templateBean = new MetacardTemplateBean(
+        MetacardTemplate templateBean = new MetacardTemplate(
                 "/test/{{substring id 0 3}}/{{id}}.xml");
         Metacard metacard = getTestMetacard();
         String str = templateBean.applyTemplate(metacard);
@@ -54,7 +54,7 @@ public class MetacardTemplateBeanTest {
         SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MM-dd");
         String dateStr = dateFormatGmt.format(cardDate);
 
-        MetacardTemplateBean templateBean = new MetacardTemplateBean("/test/{{dateFormat created \"yyyy-MM-dd\"}}/{{id}}.xml");
+        MetacardTemplate templateBean = new MetacardTemplate("/test/{{dateFormat created \"yyyy-MM-dd\"}}/{{id}}.xml");
         Metacard metacard = getTestMetacard();
         String str = templateBean.applyTemplate(metacard);
         assertThat(str, is("/test/" + dateStr + "/" + ID + ".xml"));

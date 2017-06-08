@@ -30,6 +30,13 @@
 |true
 |true
 
+|Metacard Tags
+|backupMetacardTags
+|String
+|Backup only metacards with one of the tags specified.
+|resource
+|true
+
 |S3 Access Key
 |s3AccessKey
 |String
