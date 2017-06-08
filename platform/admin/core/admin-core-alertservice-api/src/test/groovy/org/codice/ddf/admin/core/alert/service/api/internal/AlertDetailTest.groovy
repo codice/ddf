@@ -1,53 +1,41 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.insecure.defaults.service;
+package org.codice.ddf.admin.core.alert.service.api.internal
 
-public class Alert {
+import spock.lang.Specification
 
-    private String message;
+class AlertDetailTest extends Specification {
 
-    private Level level;
+    def 'test construct Alert'() {
+        given:
+            final message = _ as String
 
-    public Alert(Level level, String msg) {
-        this.message = msg;
-        this.level = level;
+        when:
+            def alertDetail = new AlertDetail(message)
 
+        then:
+            alertDetail.getMessage() == message
     }
 
-    public String getMessage() {
-        return this.message;
-    }
+    def 'test construct AlertDetail with an invalid message'() {
+        when:
+            new AlertDetail(message)
 
-    public void setMessage(String msg) {
-        this.message = msg;
-    }
+        then:
+            thrown(IllegalArgumentException)
 
-    public Level getLevel() {
-        return this.level;
+        where:
+            message << [null, ""]
     }
-
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-
-    /**
-     * @deprecated TODO DDF-2897 Remove Level enum because it is not necessary
-     */
-    @Deprecated
-    public enum Level {
-        WARN,
-        ERROR
-    }
-
 }

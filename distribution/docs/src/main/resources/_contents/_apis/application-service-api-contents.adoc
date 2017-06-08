@@ -1,21 +1,19 @@
 
-=== Application Service API
+The Application service has multiple interfaces that are available as OSGi services.
+For more information on these interfaces, see <<_application_service_interfaces,Application Service Interfaces>>.
 
-The Application service has multiple interfaces which are exposed on top of the OSGi runtime for other applications to use.
-For more information on these interfaces, see <<_application_service_api,Application Service Interfaces>>.
-
-==== JMX Managed Bean
+=== JMX Managed Bean
 
 Some of the Application service API is exposed via JMX.
 It can either be accessed using the JMX API or from a REST-based interface created by http://jolokia.org[Jolokia] that comes with ${branding}.
-Here are the interfaces that are exposed in the Managed Bean:
+Here are the methods that are exposed in the Managed Bean:
 
 getApplicationTree:: Creates an application hierarchy tree that shows relationships between applications.
 startApplication:: Starts an application with the given name.
 stopApplication:: Stops an application with the given name.
 addApplications:: Adds a list of applications that are specified by their URL.
 
-==== Initial Application Installation
+=== Initial Application Installation
 
 In ${branding}, an *application* is a collection of one or more *features*.
 
@@ -48,12 +46,12 @@ opendj-embedded=file:/location/to/opendj-embedded-app-1.0.1-SNAPSHOT.kar
 Applications will be started in the order they are listed in the file.
 If an application is listed, ${branding} will also attempt to install all dependencies for that application.
 
-==== Application Service Interfaces
+=== Application Service Interfaces
 
 The interfaces used by that application service subsystem are `ApplicationService`, `Application`, `ApplicationStatus`, and `ApplicationNode`.
 The purpose of these interfaces and their public methods are explained below.
 
-===== ApplicationService Interface
+==== ApplicationService Interface
 
 The ApplicationService interface is the main class that is used to operate on applications.
 
@@ -68,20 +66,20 @@ The ApplicationService interface is the main class that is used to operate on ap
 `getApplicationTree()`:: Creates a hierarchy tree of application nodes that show the relationship between applications.
 `findFeature(Feature feature)`:: Determine which application contains a certain feature.
 
-===== Application Interface
+==== Application Interface
 
 `getName()`:: Returns the name of the application, which should be unique among applications.
 `getFeatures()`:: Returns all of the features that this application contains regardless if they are required.
 `getBundles()`:: Returns all of the bundles that are defined by the features and included in this application.
 
-===== ApplicationStatus Interface
+==== ApplicationStatus Interface
 
 `getApplication`:: Returns the application that is associated with this status.
 `getState`:: Returns the application's state as defined by ApplicationState.
 `getErrorFeatures`:: Returns a set of Features that were required for this application but did not start correctly.
 `getErrorBundles`:: Returns a set of Bundles that were required for this application but did not start correctly.
 
-===== ApplicationNode Interface
+==== ApplicationNode Interface
 
 `getApplication()`:: Returns the application for a node reference.
 `getStatus()`:: Returns the status for the referenced application.
