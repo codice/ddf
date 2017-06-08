@@ -45,7 +45,7 @@ public class OperationReportImpl implements OperationReport {
     }
 
     public boolean containsFailedResults() {
-        return getFailedResults().size() != 0;
+        return !getFailedResults().isEmpty();
     }
 
     @Override

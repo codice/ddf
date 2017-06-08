@@ -23,6 +23,10 @@ import org.apache.commons.lang.StringUtils;
 import com.google.common.io.Files;
 
 class ConfigValidator {
+    private ConfigValidator() {
+        // Disable instantiation
+    }
+
     static void validateString(String bundleSymName, String msg) {
         if (StringUtils.isBlank(bundleSymName)) {
             throw new IllegalArgumentException(msg);

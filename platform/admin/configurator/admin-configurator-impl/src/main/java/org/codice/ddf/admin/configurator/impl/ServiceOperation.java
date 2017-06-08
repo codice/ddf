@@ -153,7 +153,6 @@ public class ServiceOperation implements Operation<Void> {
             } else {
                 return configResults;
             }
-            // return getConfigAdminMBean().getProperties(pid);
         } catch (IOException e) {
             throw new ConfiguratorException(String.format("Unable to find configuration for pid, %s",
                     pid), e);
