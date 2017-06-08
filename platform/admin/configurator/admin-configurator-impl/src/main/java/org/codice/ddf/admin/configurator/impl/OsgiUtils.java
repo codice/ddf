@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 class OsgiUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(OsgiUtils.class);
 
+    private static final String INTERNAL_ERROR = "Internal error";
+
     private OsgiUtils() {
         // Disable instantiation
     }
@@ -40,7 +42,7 @@ class OsgiUtils {
         Bundle bundle = FrameworkUtil.getBundle(OsgiUtils.class);
         if (bundle == null) {
             LOGGER.info("Unable to access bundle context");
-            throw new ConfiguratorException("Internal error");
+            throw new ConfiguratorException(INTERNAL_ERROR);
         }
 
         return bundle.getBundleContext();
@@ -59,7 +61,7 @@ class OsgiUtils {
             objectName = new ObjectName(ConfigurationAdminMBean.OBJECTNAME);
         } catch (MalformedObjectNameException e) {
             LOGGER.info("Unable to access config admin mbean");
-            throw new ConfiguratorException("Internal error");
+            throw new ConfiguratorException(INTERNAL_ERROR);
         }
 
         return MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(),

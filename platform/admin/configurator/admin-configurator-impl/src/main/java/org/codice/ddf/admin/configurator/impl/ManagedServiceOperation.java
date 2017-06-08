@@ -40,6 +40,8 @@ import org.slf4j.LoggerFactory;
  * removed in a future version of the library. </b>
  */
 public abstract class ManagedServiceOperation implements Operation<String> {
+    private static final String INTERNAL_ERROR = "Internal error";
+
     public static class Actions implements ManagedServiceActions {
         @Override
         public ManagedServiceOperation create(String factoryPid, Map<String, Object> configs)
@@ -81,7 +83,7 @@ public abstract class ManagedServiceOperation implements Operation<String> {
                         "Error getting current configuration for pid {}",
                         configPid,
                         e);
-                throw new ConfiguratorException("Internal error");
+                throw new ConfiguratorException(INTERNAL_ERROR);
             }
         }
 
@@ -98,7 +100,7 @@ public abstract class ManagedServiceOperation implements Operation<String> {
                         "Error getting current configuration for pid {}",
                         configPid,
                         e);
-                throw new ConfiguratorException("Internal error");
+                throw new ConfiguratorException(INTERNAL_ERROR);
             }
         }
 
@@ -188,12 +190,12 @@ public abstract class ManagedServiceOperation implements Operation<String> {
         try {
             if (factoryPid == null) {
                 ManagedServiceOperation.LOGGER.debug("Error getting factory for pid {}", configPid);
-                throw new ConfiguratorException("Internal error");
+                throw new ConfiguratorException(INTERNAL_ERROR);
             }
             cfgAdmMbean.delete(configPid);
         } catch (IOException e) {
             LOGGER.debug("Error deleting managed service with pid {}", configPid, e);
-            throw new ConfiguratorException("Internal error");
+            throw new ConfiguratorException(INTERNAL_ERROR);
         }
     }
 
@@ -204,7 +206,7 @@ public abstract class ManagedServiceOperation implements Operation<String> {
             return configPid;
         } catch (IOException e) {
             LOGGER.debug("Error creating managed service for factoryPid {}", factoryPid, e);
-            throw new ConfiguratorException("Internal error");
+            throw new ConfiguratorException(INTERNAL_ERROR);
         }
     }
 }

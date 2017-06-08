@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
  * Transactional handler for starting and stopping features.
  */
 public class FeatureOperation implements Operation<Void> {
+    private static final String INTERNAL_ERROR = "Internal error";
+
     public static class Actions implements FeatureActions {
         @Override
         public FeatureOperation start(String featureName) throws ConfiguratorException {
@@ -85,7 +87,7 @@ public class FeatureOperation implements Operation<Void> {
             }
         } catch (Exception e) {
             LOGGER.debug("Error installing/uninstalling feature", e);
-            throw new ConfiguratorException("Internal error");
+            throw new ConfiguratorException(INTERNAL_ERROR);
         }
 
         return ResultImpl.pass();
@@ -104,7 +106,7 @@ public class FeatureOperation implements Operation<Void> {
             }
         } catch (Exception e) {
             LOGGER.debug("Error installing/uninstalling feature", e);
-            throw new ConfiguratorException("Internal error");
+            throw new ConfiguratorException(INTERNAL_ERROR);
         }
 
         return ResultImpl.rollback();

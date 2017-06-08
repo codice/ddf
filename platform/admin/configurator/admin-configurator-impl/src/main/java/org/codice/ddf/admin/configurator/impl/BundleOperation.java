@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
  * Transactional handler for starting and stopping bundles.
  */
 public class BundleOperation implements Operation<Void> {
+    private static final String INTERNAL_ERROR = "Internal error";
+
     public static class Actions implements BundleActions {
         @Override
         public BundleOperation start(String bundleSymName) throws ConfiguratorException {
@@ -90,7 +92,7 @@ public class BundleOperation implements Operation<Void> {
             }
         } catch (BundleException e) {
             LOGGER.debug("Error starting/stopping bundle", e);
-            throw new ConfiguratorException("Internal error");
+            throw new ConfiguratorException(INTERNAL_ERROR);
         }
 
         return ResultImpl.pass();
@@ -108,7 +110,7 @@ public class BundleOperation implements Operation<Void> {
             }
         } catch (BundleException e) {
             LOGGER.debug("Error starting/stopping bundle", e);
-            throw new ConfiguratorException("Internal error");
+            throw new ConfiguratorException(INTERNAL_ERROR);
         }
 
         return ResultImpl.rollback();
