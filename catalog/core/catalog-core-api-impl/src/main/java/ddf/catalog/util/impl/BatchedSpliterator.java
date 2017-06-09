@@ -22,16 +22,27 @@ import ddf.catalog.data.Result;
 public class BatchedSpliterator implements Spliterator<Result> {
     private int suggestedPageSize = 64;
 
+    /**
+     * Default constructor
+     */
     public BatchedSpliterator() {
 
     }
 
+    /**
+     * Overloaded constructor for taking in suggested page size
+     * @param suggestedPageSize
+     */
     public BatchedSpliterator(int suggestedPageSize) {
+
+        // TODO: 6/9/17 Determine if this matches ideals for implementation
         this.suggestedPageSize = suggestedPageSize;
     }
 
     @Override
     public void forEachRemaining(Consumer<? super Result> action) {
+
+        // TODO: 6/9/17 Potentially use this method to determine how many results remain after batches made?
 
     }
 
@@ -55,8 +66,6 @@ public class BatchedSpliterator implements Spliterator<Result> {
         return false;
     }
 
-    // TODO: 6/9/17 Want to change this to fit pageSize constraints
-
     /**
      * By default the spliterator would split the batch into halves, but
      * we want to split by pageSize
@@ -64,6 +73,7 @@ public class BatchedSpliterator implements Spliterator<Result> {
      */
     @Override
     public Spliterator<Result> trySplit() {
+        // TODO: 6/9/17 Want to change this to fit pageSize constraints
 
 
 

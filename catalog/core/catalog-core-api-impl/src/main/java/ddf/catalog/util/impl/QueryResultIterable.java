@@ -63,7 +63,7 @@ public class QueryResultIterable implements Iterable<Result> {
         return new ResultQueryIterator();
     }
 
-    // TODO: 6/7/17 Use Spliterator to implement paging design
+    // TODO: 6/9/17 Determine where this is called and if already implicitly called
     @Override
     public Spliterator<Result> spliterator() {
 //        int characteristics = Spliterator.DISTINCT;
@@ -71,6 +71,17 @@ public class QueryResultIterable implements Iterable<Result> {
 
         // TODO: 6/9/17 Add bean to avoid 'new' keyword
         BatchedSpliterator batchedSpliterator = new BatchedSpliterator();
+
+        return batchedSpliterator;
+    }
+
+    public Spliterator<Result> spliterator(int size) {
+//        int characteristics = Spliterator.DISTINCT;
+//        return Spliterators.spliteratorUnknownSize(this.iterator(), characteristics);
+
+        // TODO: 6/9/17 Add bean to avoid 'new' keyword
+        BatchedSpliterator batchedSpliterator = new BatchedSpliterator();
+
         return batchedSpliterator;
     }
 
