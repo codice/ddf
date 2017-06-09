@@ -1,0 +1,23 @@
+:title: Configuring Intro
+:type: configuringIntro
+:status: published
+:summary: Introduction to system configuration.
+:order: 01
+
+.Configuration Requirements
+[NOTE]
+====
+Because components can easily be installed and uninstalled, it's important to remember that for proper ${branding} functionality, at least the Catalog API, one Endpoint, and one Catalog Framework implementation must be active.
+====
+
+${branding} can be configured in several ways, depending on need:
+
+[NOTE]
+====
+While there are multiple ways to configure ${branding} for use, the recommended method is to use the ${admin-console}.
+====
+
+* RECOMMENDED: Using the browser and the ${admin-console}. <<_configuring_from_the_admin_console, Configuring From the ${admin-console}>>
+* Using a terminal and the ${command-console}. <<_configuring_from_the_command_console, Configuring From the ${command-console}>>
+* Editing configuration files. <<_configuring_from_configuration_files, Configuring From Configuration Files>>
+* Importing the configurations from an existing ${branding} instance. <<_importing_configurations, Importing Configurations>>

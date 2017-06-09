@@ -1,0 +1,19 @@
+:title: Securing Intro
+:type: configuringIntro
+:status: published
+:summary: Introduction to security configurations.
+:order: 02
+
+Security is an important consideration for ${branding}, so it is imperative to update configurations away from the defaults to unique, secure settings.
+
+.Securing ${branding} Components
+[IMPORTANT]
+====
+${branding} is enabled with an Insecure Defaults Service which will warn users/admins if the system is configured with insecure defaults.
+
+A banner is displayed on the admin console notifying "The system is insecure because default configuration values are in use."
+
+A detailed view is available of the properties to update.
+====
+
+Security concerns will be highlighted in the configuration sections to follow.

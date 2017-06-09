@@ -1,0 +1,9 @@
+:title: Configuring Solr from ${command-console}
+:type: configuringCommandConsole
+:status: published
+:summary: Configuring Solr from ${command-console}.
+:order: 04
+
+==== Configuring Solr from ${command-console}
+
+Solr can only be configured/installed from configuration files. See <<SolrProperties, Solr System Properties>> and <<Configuring Solr Catalog Provider Data Directory, Configuring Solr Catalog Provider Data Directory>>.

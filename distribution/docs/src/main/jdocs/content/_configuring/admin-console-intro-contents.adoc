@@ -1,0 +1,11 @@
+:title: Admin Console Intro
+:type: configuringAdminConsole
+:status: published
+:summary: Introduction to the ${admin-console}.
+:order: 00
+
+The ${admin-console} is the centralized location for administering the system.
+The ${admin-console} allows an administrator to install and remove selected applications and their dependencies and access configuration pages to configure and tailor system services and properties.
+The default address for the ${admin-console} is \${secure_url}/admin.
+
+Use this brief tutorial or start at <<_securing_admin_console, Securing ${admin-console}>>.

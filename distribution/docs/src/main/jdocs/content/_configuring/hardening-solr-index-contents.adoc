@@ -1,0 +1,40 @@
+:title: Hardening Solr Index
+:type: configuringCommandConsole
+:status: published
+:summary: Hardening Solr Index.
+:order: 06
+
+==== Hardening Solr Index
+
+* *{hardening-step}*
+
+The ${branding}'s design includes support for pluggable indexes.
+The default installation contains a Solr index to be used as the Metadata Catalog.
+If desired, this implementation can be replaced with an alternate 3rd party index implementation.
+
+The following sections provide hardening guidance for Solr; however, they are to serve only as reference other an additional security requirements may be added.
+
+===== Solr Admin User Interface Security
+
+The Solr Admin user interface uses basic authentication as part of the server configuration.
+
+===== Configuring Solr Node Security
+
+The Solr server is protected by the built in REST security architecture.
+The configuration can be changed by editing the Web Context Policy Manager
+ configuration for the `/solr` web context.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* application.
+. Select the *Configuration* tab.
+. Select *Web Context Policy Manager*.
+
+By default, the configuration is set to `/solr=SAML|PKI|BASIC`.
+This allows a user or another system to connect to Solr using any of those authentication methods.
+
+===== Configuring Solr Encryption
+
+While it is possible to encrypt the Solr index, it decreases performance significantly.
+An encrypted Solr index also can only perform exact match queries, not relative or contextual queries.
+As this drastically reduces the usefulness of the index, this configuration is not recommended.
+The recommended approach is to encrypt the entire drive through the Operating System of the server on which the index is located.

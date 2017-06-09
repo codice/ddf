@@ -1,0 +1,50 @@
+:title: Updating System Users
+:type: configuringConfigFile
+:status: published
+:summary: Updating system users.
+:order: 02
+
+==== Updating System Users
+
+By default, all system users are located in the `<DDF_INSTALL_DIR>/etc/users.properties` and `<DDF_INSTALL_DIR>/etc/users.attributes` files.
+The default users included in these two files are "admin" and "localhost".
+The `users.properties` file contains username, password, and role information; while the `users.attributes` file is used to mix in additional attributes.
+The `users.properties` file must also contain the user corresponding to the fully qualified domain name (FQDN) of the system where ${branding} is running.
+This FQDN user represents this host system internally when making decisions about what operations the system is capable of performing.
+For example, when performing a ${branding} Catalog Ingest, the system's attributes will be checked against any security attributes present on the metacard, prior to ingest, to determine whether or not the system should be allowed to ingest that metacard.
+
+Additionally, the `users.attributes` file can contain user entries in a regex format.
+This allows an administrator to mix in attributes for external systems that match a particular regex pattern.
+The FQDN user within the `users.attributes` file should be filled out with attributes sufficient to allow the system to ingest the expected data.
+The `users.attributes` file uses a JSON format as shown below:
+
+[source,json,linenums]
+----
+{
+    "admin" : {
+        "test" : "testValue",
+        "test1" : [ "testing1", "testing2", "testing3" ]
+    },
+    "localhost" : {
+
+    },
+    ".*host.*" : {
+        "reg" : "ex"
+    }
+}
+----
+
+For this example, the "admin" user will end up with two additional claims of "test" and "test1" with values of "testValue" and [ "testing1", "testing2", "testing3" ] respectively.
+Also, any host matching the regex ".*host.*" would end up with the claim "reg" with the single value of "ex".
+The "localhost" user would have no additional attributes mixed in.
+
+[WARNING]
+====
+It is possible for a regex in `users.attributes` to match users as well as a system, so verify that the regex pattern's scope will not be too great when using this feature.
+====
+
+[WARNING]
+====
+If your data will contain security markings, and these markings are being parsed out into the METACARD.security attribute via a PolicyPlugin, then the FQDN user *MUST* be updated with attributes that would grant the privileges to ingest that data.
+Failure to update the FQDN user with sufficient attributes will result in an error being returned for any ingest request.
+====

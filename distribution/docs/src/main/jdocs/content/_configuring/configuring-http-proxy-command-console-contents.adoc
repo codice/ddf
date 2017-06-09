@@ -1,0 +1,11 @@
+:title: Configuring HTTP to HTTPS Proxy From the ${command-console}
+:type: configuringCommandConsole
+:status: published
+:summary: Configuring HTTP to HTTPS Proxy From the ${command-console}.
+:order: 03
+
+==== Configuring HTTP to HTTPS Proxy From the ${command-console}
+
+${branding} includes a proxy to transform HTTP to HTTPS for systems unable to use HTTPS.
+
+* Type the command `feature:install platform-http-proxy`

@@ -1,0 +1,56 @@
+:title: Securing the ${admin-console}
+:type: configuringAdminConsole
+:status: published
+:summary: Introduction to the ${admin-console}.
+:order: 02
+
+==== Securing ${admin-console}
+
+If you have integrated ${branding} with your existing security infrastructure, then you may want to limit access to parts of the ${branding} based on user roles/groups.
+
+===== Restricting Access to ${admin-console}
+
+* *{hardening-step}*
+
+Limit access to the ${admin-console} to those users who need access.
+To set access restrictions on the ${admin-console}, consult the organization's security architecture to identify specific realms, authentication methods, and roles required.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* application.
+. Select the *Configuration* tab.
+. Select the *Web Context Policy Manager*.
+.. A dialogue will pop up that allows you to edit ${branding} access restrictions.
+.. Once you have configured your <<org.codice.ddf.security.policy.context.impl.PolicyManager,realms>> in your security infrastructure, you can associate them with ${branding} contexts.
+.. If your infrastructure supports multiple <<org.codice.ddf.security.policy.context.impl.PolicyManager,authentication methods>>, they may be specified on a per-context basis.
+.. Role requirements may be enforced by configuring the <<org.codice.ddf.security.policy.context.impl.PolicyManager,required attributes>> for a given context.
+.. The <<org.codice.ddf.security.policy.context.impl.PolicyManager,white listed contexts>> allows child contexts to be excluded from the authentication constraints of their parents.
+
+===== Restricting Feature, App, Service, and Configuration Access
+
+* *{hardening-step}*
+
+Limit access to the individual applications, features, or services to those users who need access.
+Organizational requirements should dictate which applications are restricted and the extent to which they are restricted.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-admin}* application.
+. Select the *Configuration* tab.
+. Select the *Admin Configuration Policy*.
+. To add a feature or app permission:
+.. Add a new field to "Feature and App Permissions" in the format of:
++
+`<feature name>/<app name> = "attribute name=attribute value","attribute name2=attribute value2", ...`
++
+.. For example, to restrict access of any user without an admin role to the catalog-app:
++
+`catalog-app = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin", ...`
++
+. To add a configuration permission:
+.. Add a new field to "Configuration Permissions" in the format of:
++
+`configuration id = "attribute name=attribute value","attribute name2=attribute value2", ...`
+.. For example, to restrict access of any user without an admin role to the Web Context Policy Manager:
++
+`org.codice.ddf.security.policy.context.impl.PolicyManager="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin"`
+
+If a permission is specified, any user without the required attributes will be unable to see or modify the feature, app, or configuration.

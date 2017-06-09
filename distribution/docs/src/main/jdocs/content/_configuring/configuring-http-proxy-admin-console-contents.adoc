@@ -1,0 +1,26 @@
+:title: Configuring HTTP to HTTPS Proxy From the ${admin-console}
+:type: configuringAdminConsole
+:status: published
+:summary: Configuring HTTP to HTTPS Proxy From the ${admin-console}.
+:order: 06
+
+==== Configuring HTTP to HTTPS Proxy From the ${admin-console}
+
+The `platform-http-proxy` feature proxies https to http for clients that cannot use HTTPS and should not have HTTP enabled for the entire container via the `etc/org.ops4j.pax.web.cfg` file.
+
+. Click the *${ddf-platform}* application tile.
+. Choose the *Features* tab.
+. Select `platform-http-proxy`.
+. Click on the *Play* button to the right of the word “Uninstalled”
+
+.Configuring the proxy:
+[NOTE]
+====
+The hostname should be set by default.
+Only configure the proxy if this is not working.
+====
+
+. Select *Configuration* tab.
+. Select *HTTP to HTTPS Proxy Settings*
+.. Enter the Hostname to use for HTTPS connection in the proxy.
+. Click *Save changes*.

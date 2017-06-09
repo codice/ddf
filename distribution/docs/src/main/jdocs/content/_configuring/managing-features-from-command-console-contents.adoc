@@ -1,0 +1,72 @@
+:title: Managing Features From the ${command-console}
+:type: configuringCommandConsole
+:status: published
+:summary: Managing features from the ${command-console}.
+:order: 02
+
+==== Managing Features From the ${command-console}
+
+Individual features can also be added via the ${command-console}.
+
+. Determine which feature to install by viewing the available features on ${branding}. +
+`${branding-lowercase}${at-symbol}local>feature:list`
+. The console outputs a list of all features available (installed and uninstalled). A snippet of the list output is shown below (the versions may differ):
+
+----
+State         Version            Name                                     Repository                           Description
+[installed  ] [${project.version}  ] security-handler-api                     security-services-app-${project.version} API for authentication handlers for web applications.
+[installed  ] [${project.version}  ] security-core                            security-services-app-${project.version} DDF Security Core
+[uninstalled] [${project.version}  ] security-expansion                       security-services-app-${project.version} DDF Security Expansion
+[uninstalled] [${project.version}  ] security-cas-client                      security-services-app-${project.version} DDF Security CAS Client.
+[uninstalled] [${project.version}  ] security-cas-tokenvalidator              security-services-app-${project.version} DDF Security CAS Validator for the STS.
+[uninstalled] [${project.version}  ] security-cas-cxfservletfilter            security-services-app-${project.version} DDF Security CAS Servlet Filter for CXF.
+[installed  ] [${project.version}  ] security-pdp-authz                       security-services-app-${project.version} DDF Security PDP.
+[uninstalled] [${project.version}  ] security-pep-serviceauthz                security-services-app-${project.version} DDF Security PEP Service AuthZ
+[uninstalled] [${project.version}  ] security-expansion-user-attributes       security-services-app-${project.version} DDF Security Expansion User Attributes Expansion
+[uninstalled] [${project.version}  ] security-expansion-metacard-attributes   security-services-app-${project.version} DDF Security Expansion Metacard Attributes Expansion
+[installed  ] [${project.version}  ] security-sts-server                      security-services-app-${project.version} DDF Security STS.
+[installed  ] [${project.version}  ] security-sts-realm                       security-services-app-${project.version} DDF Security STS Realm.
+[uninstalled] [${project.version}  ] security-sts-ldaplogin                   security-services-app-${project.version} DDF Security STS JAAS LDAP Login.
+[uninstalled] [${project.version}  ] security-sts-ldapclaimshandler           security-services-app-${project.version} Retrieves claims attributes from an LDAP store.
+----
+. Check the bundle status to verify the service is started. +
+`${branding-lowercase}${at-symbol}local>list`
+
+The console output should show an entry similar to the following:
+----
+[ 117] [Active     ] [            ] [Started] [   75] ${ddf-branding} :: Catalog :: Source :: Dummy (<version>)
+----
+
+===== Uninstalling Features from the ${command-console}
+
+. Check the feature list to verify the feature is installed properly. +
+`${branding-lowercase}${at-symbol}local>feature:list`
+
+----
+State         Version          Name                          Repository  		   Description
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-core                      ddf-${project.version}
+[uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-sts                       ddf-${project.version}
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-security-common           ddf-${project.version}
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-resource-impl             ddf-${project.version}
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-source-dummy              ddf-${project.version}
+----
+
+. Uninstall the feature. +
+`${branding-lowercase}${at-symbol}local>feature:uninstall ${branding-lowercase}-source-dummy`
+
+[WARNING]
+====
+Dependencies that were auto-installed by the feature are not automatically uninstalled.
+====
+
+. Verify that the feature has uninstalled properly. +
+`${branding-lowercase}${at-symbol}local>feature:list`
+
+----
+State         Version          Name                          Repository  Description
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-core                      ddf-${project.version}
+[uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-sts                       ddf-${project.version}
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-security-common           ddf-${project.version}
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-resource-impl             ddf-${project.version}
+[uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-source-dummy              ddf-${project.version}
+----

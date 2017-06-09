@@ -1,0 +1,30 @@
+:title: Configuring WSS Using Standalone Servers
+:type: configuringConfigFile
+:status: published
+:summary: Configuring WSS using standalone servers.
+:order: 06
+
+==== Configuring WSS Using Standalone Servers
+
+${branding} can be configured to use SAML 2.0 Web SSO as a single sign-on service and LDAP and STS to keep track of users and user attributes.
+SAML, LDAP, and STS  can be installed on a local ${branding} instance with only a few feature installs.
+Setting up these authentication components to run externally, however, is more nuanced, so this page will provide step-by-step instructions detailing the configuration process.
+
+If using different keystore names, substitute the name provided in this document with the desired name for your setup.
+For this document, the following data is used:
+
+[cols="1,2m,5"]
+|===
+
+|Server
+|Keystore File
+|Comments
+
+|${branding}
+|serverKeystore.jks
+|Keystore used for SSL/TLS connections.
+
+|===
+
+.Login Authentication Scheme
+image::login_authentication_scheme.jpg[Login Authentication Scheme]

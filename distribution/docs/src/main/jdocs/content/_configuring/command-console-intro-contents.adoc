@@ -1,0 +1,7 @@
+:title: ${command-console} Intro
+:type: configuringCommandConsole
+:status: published
+:summary: Introduction to the ${command-console}.
+:order: 00
+
+In environments where access to the ${admin-console} is not possible or not desired, configurations can also be performed through a command line interface, the ${command-console}.

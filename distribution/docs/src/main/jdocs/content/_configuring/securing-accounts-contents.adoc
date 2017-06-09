@@ -1,8 +1,8 @@
 :title: Initial Startup
-:type: configuring
+:type: configuringIntro
 :status: published
 :summary: System state at Initial startup.
-:sortOrder: 08
+:order: 08
 
 ===== Configuring Accounts
 
