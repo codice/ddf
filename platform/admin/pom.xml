@@ -27,6 +27,7 @@
     <modules>
         <module>core</module>
         <module>ui</module>
+        <module>configurator</module>
         <module>modules</module>
         <module>admin-app</module>
     </modules>

@@ -172,5 +172,20 @@
             <artifactId>admin-docs-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-configurator-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-configurator-actions-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-configurator-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
