@@ -128,19 +128,25 @@ define([
             var prevAlpha = 0;
             for (var index=0;index<this.collection.models.length;index++) {
                 if (index !== 0) {
-                    if (this.collection.at(index).get('alpha') > prevAlpha) {
+                    if (this.getAlpha(index) > prevAlpha) {
                         sort = true;
                         break;
                     } else {
-                        prevAlpha = this.collection.at(index).get('alpha');
+                        prevAlpha = this.getAlpha(index);
                     }
                 } else {
-                    prevAlpha = this.collection.at(index).get('alpha');
+                    prevAlpha = this.getAlpha(index);
                 }
             }
             if (sort) {
                 this.collection.sort();
             }
+        },
+        /*
+         * Get the alpha value set for a specific layer in the range [0,1].
+         */
+        getAlpha: function(index) {
+            return this.collection.at(index).get('alpha') / 100.0;
         }
     });
     PrefsModalView.LayerPicker = Marionette.ItemView.extend({
