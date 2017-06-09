@@ -78,7 +78,7 @@ import ddf.security.service.SecurityManager;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
-public class ContentDirectoryMonitorComponentTest extends AbstractComponentTest {
+public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
     @Inject
     private CamelContext camelContext;
@@ -122,9 +122,9 @@ public class ContentDirectoryMonitorComponentTest extends AbstractComponentTest 
     }
 
     private Option keystoreAndTruststoreConfig() {
-        InputStream keystore = ContentDirectoryMonitorComponentTest.class.getResourceAsStream(
+        InputStream keystore = ContentDirectoryMonitorIT.class.getResourceAsStream(
                 "/serverKeystore.jks");
-        InputStream truststore = ContentDirectoryMonitorComponentTest.class.getResourceAsStream(
+        InputStream truststore = ContentDirectoryMonitorIT.class.getResourceAsStream(
                 "/serverTruststore.jks");
 
         return KeystoreTruststoreConfigurator.createKeystoreAndTruststore(keystore, truststore);
