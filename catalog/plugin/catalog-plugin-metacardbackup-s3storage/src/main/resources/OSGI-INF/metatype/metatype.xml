@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Metacard Backup S3 Storage Provider"
+         id="Metacard_S3_Storage_Route">
+        <AD description="Keep the Metacard backup file when Metacards are deleted from the framework."
+            name="Keep Deleted Metacards" id="keepDeletedMetacards" required="true"
+            type="Boolean"
+            default="false"/>
+
+        <AD description="Metacard Transformer ID to use to backup."
+            name="Metacard Transformer ID" id="metacardTransformerId" required="true"
+            type="String"
+            default="metadata"/>
+
+        <AD description="Keep backups for metacards that fail validation with warnings or errors."
+            name="Backup Invalid Metacards" id="backupInvalidMetacards" required="true"
+            type="Boolean"
+            default="true"/>
+
+        <AD description="Backup only metacards with one of the tags specified."
+            name="Metacard Tags" id="backupMetacardTags" required="true"
+            type="String"
+            default="resource"
+            cardinality="100"/>
+
+        <AD description="The access key to use for S3. Leave blank if on an EC2 host with roles assigned."
+            name="S3 Access Key" id="s3AccessKey" required="true" type="String"
+            default=""/>
+
+        <AD description="The secret key to use for S3. Leave blank if on an EC2 host with roles assigned."
+            name="S3 Secret Key" id="s3SecretKey" required="true" type="Password"
+            default=""/>
+
+        <AD description="The S3 Bucket in which to store the backed up metacard data."
+            name="S3 Bucket" id="s3Bucket" required="true" type="String"
+            default=""/>
+
+        <AD description="The endpoint for the region in which the bucket is located."
+            name="S3 Endpoint" id="s3Endpoint" required="true" type="String"
+            default=""/>
+
+        <AD description="One of the pre-defined Amazon S3 ACL names."
+            name="S3 Canned ACL" id="s3CannedAclName" required="true" type="String"
+            default="BucketOwnerFullControl"/>
+
+        <AD description="The template to apply to naming of S3 objects within the bucket.
+                         The template uses handlebars syntax.
+                         Use [] to reference dotted attributes e.g. {{[attribute.name]}}.
+                         If you wish to include date, you would use {{dateFormat created yyyy-MM-dd}}"
+            name="S3 Object Template" id="objectTemplate" required="true" type="String"
+            default="data/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml"/>
+    </OCD>
+
+    <Designate
+            pid="Metacard_S3_Storage_Route"
+            factoryPid="Metacard_S3_Storage_Route">
+        <Object ocdref="Metacard_S3_Storage_Route"/>
+    </Designate>
+
+</metatype:MetaData>

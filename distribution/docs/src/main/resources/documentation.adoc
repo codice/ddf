@@ -619,9 +619,9 @@ include::{adoc-include}/_plugins/catalog-backup-plugin-contents.adoc[]
 
 include::{adoc-include}/_plugins/event-processor-contents.adoc[]
 
-include::{adoc-include}/_plugins/metacard-backup-plugin-contents.adoc[]
-
 include::{adoc-include}/_plugins/metacard-backup-filestorage-contents.adoc[]
+
+include::{adoc-include}/_plugins/metacard-backup-s3storage-contents.adoc[]
 
 //post-query
 include::{adoc-include}/_plugins/post-query-plugin-intro-contents.adoc[]

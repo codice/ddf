@@ -71,6 +71,8 @@ _This is a preview of a pending release and is subject to change._
     </li>
     <li><a href='https://codice.atlassian.net/browse/DDF-2973'>DDF-2973</a> - As an integrator, I want required attributes on Metacards to be enforced so that invalid Metacards don't get ingested
     </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2999'>DDF-2999</a> - As an integrator, I would like to support S3 as a MetacardBackupStorageProvider
+    </li>
 </ul>
     
 <h3>New Feature</h3>

@@ -14,18 +14,30 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="metacardBackupCamelContext"/>
+
     <cm:managed-service-factory
-            id="metacardFileBackup"
-            factory-pid="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage"
-            interface="org.codice.ddf.catalog.plugin.metacard.backup.storage.internal.MetacardBackupStorageProvider">
-        <service-properties>
-            <cm:cm-properties persistent-id="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage" />
-        </service-properties>
-        <cm:managed-component class="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage">
-            <cm:managed-properties persistent-id="" update-strategy="component-managed"
-                                   update-method="refresh"/>
-            <property name="id" value="fileStorageProvider"/>
-            <property name="outputDirectory" value="data/backup/metacard"/>
+            id="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardFileStorageRoute.id"
+            factory-pid="Metacard_File_Storage_Route"
+            interface="org.apache.camel.RoutesBuilder">
+        <cm:managed-component
+                class="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardFileStorageRoute"
+                init-method="start" destroy-method="stop">
+            <argument ref="metacardBackupCamelContext"/>
+            <cm:managed-properties
+                    persistent-id=""
+                    update-strategy="component-managed"
+                    update-method="refresh"/>
+            <property name="metacardTransformerId" value="metadata"/>
+            <property name="keepDeletedMetacards" value="false"/>
+            <property name="backupInvalidMetacards" value="true"/>
+            <property name="backupMetacardTags">
+                <list>
+                    <value>resource</value>
+                </list>
+            </property>
+            <property name="outputPathTemplate"
+                      value="data/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 

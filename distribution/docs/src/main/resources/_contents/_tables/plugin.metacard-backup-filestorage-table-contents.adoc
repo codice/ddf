@@ -9,11 +9,43 @@
 |Default Value
 |Required
 
+|Keep Deleted Metacard
+|keepDeletedMetacards
+|Boolean
+|Should backups for deleted metacards be kept or removed.
+|false
+|true
+
+|Metacard Transformer Id
+|metacardTransformerId
+|String
+|ID of the metacard transformer to use to serialize metacard for backup.
+|metacard
+|true
+
+|Backup Invalid Metacards
+|keepDeletedMetacards
+|Boolean
+|Keep backups for metacards that fail validation with warnings or errors.
+|true
+|true
+
+|Metacard Tags
+|backupMetacardTags
+|String
+|Backup only metacards with one of the tags specified.
+|resource
+|true
+
 |Output Directory
 |outputDirectory
 |String
-|Directory used to store metacard backups
-|data/backup/metacard
+|Directory used to store metacard backups. The template uses handlebars syntax.
+
+Use [] to reference dotted attributes e.g. {{[attribute.name]}}.
+
+If you wish to include date, you would use {{dateFormat created yyyy-MM-dd}}
+|data/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml
 |true
 
 |===

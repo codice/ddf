@@ -33,6 +33,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.junit.Assert.assertThat;
@@ -57,7 +58,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -74,10 +75,13 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.camel.CamelContext;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor;
+import org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardFileStorageRoute;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
@@ -102,6 +106,9 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.w3c.dom.Node;
 
@@ -117,6 +124,7 @@ import ddf.catalog.data.DefaultAttributeValueRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.plugin.PostIngestPlugin;
 
 /**
  * Tests the Catalog framework components. Includes helper methods at the Catalog level.
@@ -133,12 +141,11 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static final String SAMPLE_MP4 = "sample.mp4";
 
-    private static final String METACARD_BACKUP_DIRECTORY = "data/tmp/backup";
+    private static final String METACARD_BACKUP_PATH_TEMPLATE =
+            "data/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml";
 
     private static final String METACARD_BACKUP_FILE_STORAGE_FEATURE =
             "catalog-metacard-backup-filestorage";
-
-    private static final String METACARD_BACKUP_PLUGIN_FEATURE = "catalog-metacard-backup";
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
 
@@ -458,23 +465,59 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testCswIngestWithMetadataBackup() throws Exception {
+        int startingPostIngestServices = 0;
+        Collection<ServiceReference<PostIngestPlugin>> serviceRefs =
+                getServiceManager().getServiceReferences(PostIngestPlugin.class, null);
+        if (CollectionUtils.isNotEmpty(serviceRefs)) {
+            startingPostIngestServices = serviceRefs.size();
+        }
+        
         getServiceManager().startFeature(true, METACARD_BACKUP_FILE_STORAGE_FEATURE);
-        String fileStorageId = "fileStorageProvider";
         Map<String, Object> storageProps = new HashMap<>();
-        storageProps.put("id", fileStorageId);
-        storageProps.put("outputDirectory", METACARD_BACKUP_DIRECTORY);
-        getServiceManager().createManagedService(
-                "org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage",
-                storageProps);
+        storageProps.put("outputPathTemplate", METACARD_BACKUP_PATH_TEMPLATE);
+        storageProps.put("metacardTransformerId", "metadata");
+        storageProps.put("keepDeletedMetacards", true);
+        storageProps.put("backupInvalidMetacards", true);
+        storageProps.put("backupMetacardTags", Arrays.asList("resource"));
+        Configuration storageRouteConfiguration =
+                getServiceManager().createManagedService("Metacard_File_Storage_Route", storageProps);
 
-        getServiceManager().startFeature(true, METACARD_BACKUP_PLUGIN_FEATURE);
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("metacardTransformerId", "metadata");
-        properties.put("keepDeletedMetacards", false);
-        properties.put("metacardOutputProviderIds", Collections.singletonList(fileStorageId));
-        getServiceManager().createManagedService(
-                "org.codice.ddf.catalog.plugin.metacard.backup.MetacardBackupPlugin",
-                properties);
+        expect("Service to be available: " + MetacardFileStorageRoute.class.getName()).within(30,
+                TimeUnit.SECONDS)
+                .checkEvery(5, TimeUnit.SECONDS)
+                .until(() -> getServiceManager().getServiceReferences(PostIngestPlugin.class, null)
+                        .size(), greaterThan(startingPostIngestServices));
+
+        expect("Camel Context to be available").within(30, TimeUnit.SECONDS)
+                .checkEvery(5, TimeUnit.SECONDS)
+                .until(() -> getServiceManager().getServiceReferences(CamelContext.class,
+                        "(camel.context.name=metacardBackupCamelContext)"), not(empty()));
+
+        BundleContext bundleContext = FrameworkUtil.getBundle(TestCatalog.class).getBundleContext();
+        Collection<ServiceReference<CamelContext>> camelContextServiceRefs =
+                getServiceManager().getServiceReferences(CamelContext.class,
+                "(camel.context.name=metacardBackupCamelContext)");
+        CamelContext fileStorageRouteCamelContext = null;
+        for (ServiceReference<CamelContext> camelContextServiceReference : camelContextServiceRefs) {
+            fileStorageRouteCamelContext = bundleContext.getService(camelContextServiceReference);
+
+            if (fileStorageRouteCamelContext != null) {
+                break;
+            }
+        }
+
+        final CamelContext camelContext = fileStorageRouteCamelContext;
+        assertThat(camelContext, notNullValue());
+        expect("Camel route definitions were not found").within(30, TimeUnit.SECONDS)
+                .checkEvery(5, TimeUnit.SECONDS)
+                .until(() -> camelContext.getRouteDefinitions(), hasSize(2));
+
+        camelContext.startAllRoutes();
+
+        expect("Camel routes are started").within(30, TimeUnit.SECONDS)
+                .checkEvery(5, TimeUnit.SECONDS)
+                .until(() -> camelContext.isStartingRoutes(), is(false));
+
         Response response = ingestCswRecord();
         ValidatableResponse validatableResponse = response.then();
 
@@ -486,7 +529,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                         is("Aliquam fermentum purus quis arcu")),
                 hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
         verifyMetadataBackup();
-        getServiceManager().stopFeature(true, METACARD_BACKUP_PLUGIN_FEATURE);
+        getServiceManager().stopManagedService(storageRouteConfiguration.getPid());
         getServiceManager().stopFeature(true, METACARD_BACKUP_FILE_STORAGE_FEATURE);
         try {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
@@ -2287,10 +2330,17 @@ public class TestCatalog extends AbstractIntegrationTest {
         final Response response = when().get(buffer.toString());
         String id = XmlPath.given(response.asString())
                 .get("metacards.metacard[0].@gml:id");
-        Path path = Paths.get(METACARD_BACKUP_DIRECTORY,
+        Path path = Paths.get("data/backup/metacard",
                 id.substring(0, 3),
                 id.substring(3, 6),
-                id);
+                id + ".xml");
+
+        expect("The metacard backup file is not found: " + path.toAbsolutePath()).within(60,
+                TimeUnit.SECONDS)
+                .checkEvery(1, TimeUnit.SECONDS)
+                .until(() -> path.toFile()
+                        .exists());
+
         assertThat(path.toFile()
                 .exists(), is(true));
     }

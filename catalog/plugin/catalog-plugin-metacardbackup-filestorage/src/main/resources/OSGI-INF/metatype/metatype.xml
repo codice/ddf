@@ -16,20 +16,40 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD name="Metacard Backup File Storage Provider"
-         id="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage">
-        <AD description="The unique name of the storage provider" name="Storage Provider ID" id="id"
-            required="true"
-            type="String" default="fileStorageProvider"/>
+         id="Metacard_File_Storage_Route">
+        <AD description="Keep the Metacard backup file when Metacards are deleted from the framework."
+            name="Keep Deleted Metacards" id="keepDeletedMetacards" required="true"
+            type="Boolean"
+            default="false"/>
 
-        <AD description="Output directory to place backup files."
-            name="Output Directory" id="outputDirectory" required="true" type="String"
-            default="data/backup/metacard"/>
+        <AD description="Metacard Transformer ID to use to backup."
+            name="Metacard Transformer ID" id="metacardTransformerId" required="true"
+            type="String"
+            default="metadata"/>
+
+        <AD description="Keep backups for metacards that fail validation with warnings or errors."
+            name="Backup Invalid Metacards" id="backupInvalidMetacards" required="true"
+            type="Boolean"
+            default="true"/>
+
+        <AD description="Backup only metacards with one of the tags specified."
+            name="Metacard Tags" id="backupMetacardTags" required="true"
+            type="String"
+            default="resource"
+            cardinality="100"/>
+
+        <AD description="Output path to place backup files.
+                         The template uses handlebars syntax.
+                         Use [] to reference dotted attributes e.g. {{[attribute.name]}}.
+                         If you wish to include date, you would use {{dateFormat created yyyy-MM-dd}}"
+            name="Output Path Template" id="outputPathTemplate" required="true" type="String"
+            default="data/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml"/>
     </OCD>
 
     <Designate
-            pid="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage"
-            factoryPid="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage">
-        <Object ocdref="org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardBackupFileStorage"/>
+            pid="Metacard_File_Storage_Route"
+            factoryPid="Metacard_File_Storage_Route">
+        <Object ocdref="Metacard_File_Storage_Route"/>
     </Designate>
 
 </metatype:MetaData>

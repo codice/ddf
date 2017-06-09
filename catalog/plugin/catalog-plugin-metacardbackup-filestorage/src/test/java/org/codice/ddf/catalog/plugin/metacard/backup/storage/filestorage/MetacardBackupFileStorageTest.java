@@ -15,176 +15,70 @@ package org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codice.ddf.catalog.plugin.metacard.backup.storage.internal.MetacardBackupException;
-import org.junit.After;
+import org.apache.camel.CamelContext;
+import org.apache.camel.impl.DefaultCamelContext;
 import org.junit.Before;
 import org.junit.Test;
 
 public class MetacardBackupFileStorageTest {
 
-    private static final String PLUGIN_ID = "PluginId";
+    private static final String OUTPUT_PATH_TEMPLATE =
+            File.separator + "tmp" + File.separator + "test-output" + File.separator;
 
-    private static final String OUTPUT_DIRECTORY = "test-output" + File.separator;
+    private CamelContext camelContext = new DefaultCamelContext();
 
-    private static final String TEST_ID = "TestId";
-
-    private static final String TEST_SHORT_ID = "a";
-
-    private static final String TEST_ID_NOT_STORED = "NotStoredId";
-
-    private static final byte[] TEST_BYTES = "Test String".getBytes();
-
-    private MetacardBackupFileStorage fileStorageProvider = new MetacardBackupFileStorage();
+    private MetacardFileStorageRoute fileStorageProvider =
+            new MetacardFileStorageRoute(camelContext);
 
     @Before
     public void setUp() throws Exception {
-        fileStorageProvider.setId(PLUGIN_ID);
-        fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-    }
-
-    @After
-    public void cleanUp() throws Exception {
-        fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        if (fileExists(TEST_ID)) {
-            fileStorageProvider.delete(TEST_ID);
-        }
-
-        if (fileExists(TEST_SHORT_ID)) {
-            fileStorageProvider.delete(TEST_SHORT_ID);
-        }
+        fileStorageProvider.setOutputPathTemplate(OUTPUT_PATH_TEMPLATE);
     }
 
     @Test
-    public void testOutputDirectory() {
-        assertThat(fileStorageProvider.getOutputDirectory(), is(OUTPUT_DIRECTORY));
+    public void testOutputPathTemplate() {
+        assertThat(fileStorageProvider.getOutputPathTemplate(), is(OUTPUT_PATH_TEMPLATE));
     }
 
     @Test
-    public void testRefresh() {
+    public void testRefresh() throws Exception {
         String newBackupDir = "target" + File.separator + "temp";
-        String newId = "test2";
+        boolean backupInvalidCards = false;
+        boolean keepDeletedMetacards = false;
+        String metacardTransformerId = "testTransformer";
+
         Map<String, Object> properties = new HashMap<>();
-        properties.put("outputDirectory", newBackupDir);
-        properties.put("id", newId);
+        properties.put("outputPathTemplate", newBackupDir);
+        properties.put("backupInvalidMetacards", backupInvalidCards);
+        properties.put("keepDeletedMetacards", keepDeletedMetacards);
+        properties.put("metacardTransformerId", metacardTransformerId);
+
         fileStorageProvider.refresh(properties);
-        assertThat(fileStorageProvider.getOutputDirectory(), is(newBackupDir));
-        assertThat(fileStorageProvider.getId(), is(newId));
+        assertThat(fileStorageProvider.getOutputPathTemplate(), is(newBackupDir));
+        assertThat(fileStorageProvider.isBackupInvalidMetacards(), is(backupInvalidCards));
+        assertThat(fileStorageProvider.isKeepDeletedMetacards(), is(keepDeletedMetacards));
+        assertThat(fileStorageProvider.getMetacardTransformerId(), is(metacardTransformerId));
     }
 
     @Test
-    public void testRefreshBadValues() {
+    public void testRefreshBadValues() throws Exception {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("outputDirectory", 2);
+        properties.put("outputPathTemplate", 2);
         properties.put("id", 5);
         fileStorageProvider.refresh(properties);
-        assertThat(fileStorageProvider.getOutputDirectory(), is(OUTPUT_DIRECTORY));
-        assertThat(fileStorageProvider.getId(), is(PLUGIN_ID));
+        assertThat(fileStorageProvider.getOutputPathTemplate(), is(OUTPUT_PATH_TEMPLATE));
     }
 
     @Test
-    public void testRefreshEmptyStrings() {
+    public void testRefreshEmptyStrings() throws Exception {
         Map<String, Object> properties = new HashMap<>();
-        properties.put("outputDirectory", "");
+        properties.put("outputPathTemplate", "");
         fileStorageProvider.refresh(properties);
-        assertThat(fileStorageProvider.getOutputDirectory(), is(OUTPUT_DIRECTORY));
-    }
-
-    @Test(expected = MetacardBackupException.class)
-    public void testDeleteNotStored() throws Exception {
-        fileStorageProvider.delete(TEST_ID_NOT_STORED);
-    }
-
-    @Test(expected = MetacardBackupException.class)
-    public void testStoreWithEmptyOutputDirectory() throws Exception {
-        fileStorageProvider.setOutputDirectory("");
-        fileStorageProvider.store(TEST_ID, TEST_BYTES);
-    }
-
-    @Test(expected = MetacardBackupException.class)
-    public void testDeleteWithEmptyOutputDirectory() throws Exception {
-        fileStorageProvider.setOutputDirectory("");
-        fileStorageProvider.delete(TEST_ID);
-    }
-
-    @Test
-    public void testPath() throws Exception {
-        fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        Path path = fileStorageProvider.getMetacardDirectory(TEST_ID);
-        String testPath = "Tes" + File.separator + "tId" + File.separator + "TestId";
-        assertThat(path.toString(), is(OUTPUT_DIRECTORY + testPath));
-    }
-
-    @Test
-    public void testStoreTwice() throws Exception {
-        fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        fileStorageProvider.store(TEST_ID, TEST_BYTES);
-        fileStorageProvider.store(TEST_ID, TEST_BYTES);
-        assertFile(TEST_ID, true);
-    }
-
-    @Test
-    public void testStoreAndDelete() throws Exception {
-        fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        fileStorageProvider.store(TEST_ID, TEST_BYTES);
-        fileStorageProvider.store(TEST_SHORT_ID, TEST_BYTES);
-        assertFile(TEST_ID, true);
-        assertFile(TEST_SHORT_ID, true);
-
-        fileStorageProvider.delete(TEST_ID);
-        assertFile(TEST_ID, false);
-
-        fileStorageProvider.delete(TEST_SHORT_ID);
-        assertFile(TEST_SHORT_ID, false);
-    }
-
-    @Test
-    public void testStoreShortId() throws Exception {
-        fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        fileStorageProvider.store(TEST_SHORT_ID, TEST_BYTES);
-        assertFile(TEST_SHORT_ID, true);
-    }
-
-    @Test(expected = MetacardBackupException.class)
-    public void testStoreNullId() throws Exception {
-        fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        fileStorageProvider.store(null, TEST_BYTES);
-    }
-
-    @Test(expected = MetacardBackupException.class)
-    public void testStoreNullData() throws Exception {
-        fileStorageProvider.setOutputDirectory(OUTPUT_DIRECTORY);
-        fileStorageProvider.store(TEST_ID, null);
-    }
-
-    @Test
-    public void testId() {
-        String id = "TEST";
-        fileStorageProvider.setId(id);
-        String retrieveId = fileStorageProvider.getId();
-        assertThat(retrieveId, is(id));
-    }
-
-    @Test
-    public void testDescribableProps() {
-        assertThat(fileStorageProvider.getDescription(), notNullValue());
-        assertThat(fileStorageProvider.getTitle(), notNullValue());
-        assertThat(fileStorageProvider.getOrganization(), notNullValue());
-        assertThat(fileStorageProvider.getVersion(), notNullValue());
-    }
-
-    private void assertFile(String id, boolean exists) {
-        assertThat(fileExists(id), is(exists));
-    }
-
-    private boolean fileExists(String id) {
-        Path path  = fileStorageProvider.getMetacardDirectory(id);
-        return path.toFile().exists();
+        assertThat(fileStorageProvider.getOutputPathTemplate(), is(OUTPUT_PATH_TEMPLATE));
     }
 }

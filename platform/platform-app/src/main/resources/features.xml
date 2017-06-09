@@ -118,6 +118,20 @@
         <bundle>mvn:org.apache.camel/camel-amqp/${camel.version}</bundle>
     </feature>
     <!-- the following features are sorted A..Z -->
+    <feature name='camel-aws' version='${project.version}' start-level='50'>
+        <feature version='${camel.version}'>camel-core</feature>
+        <bundle dependency='true'>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
+        <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle.version}</bundle>
+        <bundle dependency='true'>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
+        <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${cxf.servicemix.specs.version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${cxf.jackson.version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${cxf.jackson.version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${cxf.jackson.version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle.version}</bundle>
+        <bundle>mvn:org.apache.camel/camel-aws/${camel.version}</bundle>
+    </feature>
     <feature name="camel-context" install="manual" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-context/${camel.version}</bundle>
