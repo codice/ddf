@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.commands.util;
+package ddf.catalog.util.impl;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -21,55 +21,42 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import org.apache.commons.lang3.Validate;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Effectively a cursor over the results of a filter that automatically pages through all results
  * <br/>
- * Throws a {@link CatalogCommandRuntimeException} if anything goes wrong during iteration or
+ * Throws a {@link CatalogRuntimeException} if anything goes wrong during iteration or
  * querying
  */
 public class QueryResultIterable implements Iterable<Result> {
     private final CatalogFramework catalog;
 
-    private final Function<Integer, QueryRequest> filter;
-
-    private final int pageSize;
+    private final QueryRequestImpl queryRequest;
 
     /**
-     * For paging through a single filter with a default pageSize of 64
+     * For paging through a single filter with a default PAGE_SIZE of 64
      *
-     * @param catalog catalog to query
-     * @param filter  A dynamic supplier of a filter that takes the current index such that
-     *                the caller can control iteration based on their own logic
+     * @param catalog      catalog to query
+     * @param queryRequest A filter to query by
      */
-    public QueryResultIterable(CatalogFramework catalog, Function<Integer, QueryRequest> filter) {
-        this(catalog, filter, 64);
-    }
+    public QueryResultIterable(CatalogFramework catalog, QueryRequestImpl queryRequest) {
+        Validate.notNull(catalog, "Catalog is null");
+        Validate.notNull(queryRequest, "queryRequest is null");
 
-    /**
-     * For paging through a single filter.
-     *
-     * @param catalog  catalog to query
-     * @param filter   A dynamic supplier of a filter that takes the current index such that
-     *                 the caller can control iteration based on their own logic
-     * @param pageSize How many results should each page hold
-     */
-    public QueryResultIterable(CatalogFramework catalog, Function<Integer, QueryRequest> filter,
-            int pageSize) {
         this.catalog = catalog;
-        this.filter = filter;
-        this.pageSize = pageSize;
+        this.queryRequest = queryRequest;
     }
 
     @Override
@@ -77,6 +64,7 @@ public class QueryResultIterable implements Iterable<Result> {
         return new ResultQueryIterator();
     }
 
+    // TODO: 6/7/17 Use Spliterator to implement paging design
     @Override
     public Spliterator<Result> spliterator() {
         int characteristics = Spliterator.DISTINCT;
@@ -87,8 +75,11 @@ public class QueryResultIterable implements Iterable<Result> {
         return StreamSupport.stream(this.spliterator(), false);
     }
 
+    // TODO: 6/5/17 Cover with unit test(s) through public API
     class ResultQueryIterator implements Iterator<Result> {
         private int pageIndex = 1;
+
+        private int missingResults = 0;
 
         private boolean finished = false;
 
@@ -96,11 +87,7 @@ public class QueryResultIterable implements Iterable<Result> {
 
         private Iterator<Result> results = null;
 
-        ResultQueryIterator() {
-            if (pageSize <= 0) {
-                this.finished = true;
-            }
-        }
+        private static final int PAGE_SIZE = 64;
 
         @Override
         public boolean hasNext() {
@@ -112,8 +99,9 @@ public class QueryResultIterable implements Iterable<Result> {
                 return false;
             }
 
-            pageIndex += pageSize;
-            queryNext(pageIndex);
+            pageIndex += (PAGE_SIZE - missingResults);
+            missingResults = 0;
+            queryNext();
             return hasNext();
         }
 
@@ -126,29 +114,34 @@ public class QueryResultIterable implements Iterable<Result> {
             return results.next();
         }
 
-        private void queryNext(int index) {
+        private void queryNext() {
             try {
                 Map<String, Serializable> props = new HashMap<>();
                 // Avoid caching all results while dumping with native query mode
                 props.put("mode", "native");
-                response = catalog.query(filter.apply(index));
+                response = catalog.query(queryRequest);
+                missingResults = PAGE_SIZE - response.getResults()
+                        .size();
+
             } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
-                throw new CatalogCommandRuntimeException(e);
+                throw new CatalogRuntimeException(e);
             }
             List<Result> queryResults = response.getResults();
             this.results = queryResults.iterator();
 
             int size = queryResults.size();
-            if (size == 0 || size < pageSize) {
+            if (size == 0 || size < PAGE_SIZE) {
+                // TODO: 6/5/17 Address edge cases of this size comparison
+
                 finished = true;
             }
         }
 
-        private void ensureInitialized() throws CatalogCommandRuntimeException {
+        private void ensureInitialized() {
             if (response != null || results != null) {
                 return;
             }
-            queryNext(pageIndex);
+            queryNext();
         }
     }
 }
