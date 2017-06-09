@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -67,8 +66,12 @@ public class QueryResultIterable implements Iterable<Result> {
     // TODO: 6/7/17 Use Spliterator to implement paging design
     @Override
     public Spliterator<Result> spliterator() {
-        int characteristics = Spliterator.DISTINCT;
-        return Spliterators.spliteratorUnknownSize(this.iterator(), characteristics);
+//        int characteristics = Spliterator.DISTINCT;
+//        return Spliterators.spliteratorUnknownSize(this.iterator(), characteristics);
+
+        // TODO: 6/9/17 Add bean to avoid 'new' keyword
+        BatchedSpliterator batchedSpliterator = new BatchedSpliterator();
+        return batchedSpliterator;
     }
 
     public Stream<Result> stream() {
