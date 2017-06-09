@@ -26,11 +26,6 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.springframework.osgi</groupId>
-            <artifactId>spring-osgi-core</artifactId>
-            <version>${spring-osgi.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
         </dependency>
@@ -68,11 +63,6 @@
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-blueprint</artifactId>
             <version>${camel.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.osgi</groupId>
-            <artifactId>spring-osgi-mock</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

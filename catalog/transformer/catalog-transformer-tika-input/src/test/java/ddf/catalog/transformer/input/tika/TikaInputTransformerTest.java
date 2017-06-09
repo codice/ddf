@@ -336,7 +336,7 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(), containsString("Hello world example"));
-        assertThat(metacard.getContentTypeName(), containsString("text/plain"));
+        assertThat(metacard.getContentTypeName(), containsString("text/x-csrc"));
         assertThat(metacard.getAttribute(Core.DATATYPE)
                 .getValue(), is(TEXT));
     }
@@ -380,7 +380,7 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
                 containsString("<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\"/>"));
-        assertThat(metacard.getContentTypeName(), is("image/x-ms-bmp"));
+        assertThat(metacard.getContentTypeName(), is("image/bmp"));
         assertThat(metacard.getAttribute(Core.DATATYPE)
                 .getValue(), is(IMAGE));
     }
