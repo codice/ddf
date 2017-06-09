@@ -1,6 +1,6 @@
 :title: Integrating Intro
-:type: documentation
+:type: integratingIntro
 :status: published
-:priority: 1
+:summary: Introduction to Integrating sections.
 
 Integrators will use the existing applications to support their external frameworks. This section will provide details for finding, accessing and using the components of ${branding}.

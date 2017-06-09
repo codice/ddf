@@ -15,6 +15,7 @@ include::${ii.file}[]
 <#-- installation steps have an 'order' property as they need to be performed in a specific order and documented as such. -->
 <#list installings?sort_by("order") as installing>
 <#if (installing.project == "${branding}" && installing.status == "published")>
+
 include::${installing.file}[]
 
 </#if>
