@@ -73,24 +73,20 @@ public class LogoutService {
             if (action != null) {
                 String realm = StringUtils.substringAfterLast(action.getId(), ".");
 
-                //if the user is logged in and isn't a guest, add them
                 if (realmTokenMap.get(realm) != null) {
                     Map<String, String> actionProperties = new HashMap<>();
                     String displayName = SubjectUtils.getName(realmSubjectMap.get(realm),
                             "",
                             true);
 
-                    if (displayName != null
-                            && !displayName.equals(SubjectUtils.GUEST_DISPLAY_NAME)) {
-                        actionProperties.put("title", action.getTitle());
-                        actionProperties.put("realm", realm);
-                        actionProperties.put("auth", displayName);
-                        actionProperties.put("description", action.getDescription());
-                        actionProperties.put("url",
-                                action.getUrl()
-                                        .toString());
-                        realmToPropMaps.add(actionProperties);
-                    }
+                    actionProperties.put("title", action.getTitle());
+                    actionProperties.put("realm", realm);
+                    actionProperties.put("auth", displayName);
+                    actionProperties.put("description", action.getDescription());
+                    actionProperties.put("url",
+                            action.getUrl()
+                                    .toString());
+                    realmToPropMaps.add(actionProperties);
                 }
             }
         }
