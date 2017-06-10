@@ -125,6 +125,12 @@
     }
 
   }
+
+  #keyword-autocomplete {
+    .property-label {
+      display: none;
+    }
+  }
 }
 
 @{customElementNamespace}location-old.is-editing {
@@ -144,7 +150,8 @@
 }
 
 @{customElementNamespace}location-old.is-line,
-@{customElementNamespace}location-old.is-polygon {
+@{customElementNamespace}location-old.is-polygon,
+@{customElementNamespace}location-old.is-keyword {
   .geo-types {
     display: none !important;
   }

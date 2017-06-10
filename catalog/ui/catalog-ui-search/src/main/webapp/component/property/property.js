@@ -184,6 +184,9 @@ define([
                 case 'GEOMETRY':
                     calculatedType = 'geometry';
                     break;
+                case 'AUTOCOMPLETE':
+                    calculatedType = 'autocomplete';
+                    break;
                 case 'STRING':
                 case 'XML':
                 default:

@@ -105,6 +105,7 @@ define([
             line: undefined,
             lineWidth: 1,
             lineUnits: 'meters',
+            hasKeyword: false,
             utmUpperLeftEasting: undefined,
             utmUpperLeftNorthing: undefined,
             utmUpperLeftHemisphere: 'Northern',
