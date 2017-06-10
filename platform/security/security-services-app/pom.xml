@@ -331,6 +331,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.servlet</groupId>
+            <artifactId>security-servlet-whoami</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.idp</groupId>
             <artifactId>security-idp-client</artifactId>
             <version>${project.version}</version>
