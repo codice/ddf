@@ -13,10 +13,46 @@
  */
 package ddf.catalog.util.impl;
 
+import org.junit.Test;
+
+// TODO: 6/12/17 Fix `expects` part of each unit test method name to match eventual assert
 public class QueryResultPaginatorTest {
 
+    @Test
+    /**
+     * Only has 100 remaining items to retrieve, but request size is 500
+     * Assert only returns 100
+     */
+    public void testRequest500Only100RemaingExpectsReturn100() {
 
-    
+    }
 
+    @Test
+    public void testRequest500Get500ExpectSuccess() {
+
+    }
+
+    @Test
+    /**
+     * Assert that more than one call is made to fulfill request
+     */
+    public void testRequest500GetLessExpectAnotherCall() {
+
+    }
+
+    @Test
+    public void testPaginatorStartIndexZeroThrowsException() {
+
+    }
+
+    @Test
+    public void testPaginatorMaxRequestSizeReachedExpectCompleted() {
+
+    }
+
+    @Test
+    public void testPaginatorStartIndexGreaterThanCeilingValueThrowsException() {
+
+    }
 
 }
