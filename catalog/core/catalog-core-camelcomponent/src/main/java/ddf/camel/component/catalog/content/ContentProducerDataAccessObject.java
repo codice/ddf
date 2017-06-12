@@ -227,7 +227,8 @@ public class ContentProducerDataAccessObject {
             throws SourceUnavailableException {
         try {
             WaitCondition.expect("Source should be available")
-                    .checkEvery(3, TimeUnit.MINUTES)
+                    .checkEvery(3, TimeUnit.SECONDS)
+                    .within(3, TimeUnit.MINUTES)
                     .until(() -> catalogFramework.getSourceInfo(new SourceInfoRequestLocal(false))
                             .getSourceInfo()
                             .stream()
