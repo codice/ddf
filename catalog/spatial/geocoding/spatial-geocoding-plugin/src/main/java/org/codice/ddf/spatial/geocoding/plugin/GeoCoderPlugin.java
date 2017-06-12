@@ -61,9 +61,13 @@ public class GeoCoderPlugin implements PreIngestPlugin {
             return input;
         }
 
-        GeoCoder geoCoder = geoCoderFactory.getService();
-        input.getMetacards()
-                .forEach(metacard -> setCountryCode(metacard, geoCoder));
+        try {
+            GeoCoder geoCoder = geoCoderFactory.getService();
+            input.getMetacards()
+                    .forEach(metacard -> setCountryCode(metacard, geoCoder));
+        } catch (Exception e) {
+            throw new PluginExecutionException("Unable to determine country code for data", e);
+        }
 
         return input;
     }
@@ -76,10 +80,14 @@ public class GeoCoderPlugin implements PreIngestPlugin {
         }
 
         GeoCoder geoCoder = geoCoderFactory.getService();
-        input.getUpdates()
-                .stream()
-                .map(Map.Entry::getValue)
-                .forEach(metacard -> setCountryCode(metacard, geoCoder));
+        try {
+            input.getUpdates()
+                    .stream()
+                    .map(Map.Entry::getValue)
+                    .forEach(metacard -> setCountryCode(metacard, geoCoder));
+        } catch (Exception e) {
+            throw new PluginExecutionException("Unable to determine country code for data", e);
+        }
 
         return input;
     }
