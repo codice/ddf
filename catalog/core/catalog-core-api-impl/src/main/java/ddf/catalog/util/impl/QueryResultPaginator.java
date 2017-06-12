@@ -11,22 +11,11 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.commands.util;
+package ddf.catalog.util.impl;
 
-public class CatalogCommandRuntimeException extends RuntimeException {
-    public CatalogCommandRuntimeException() {
-        super();
-    }
+public class QueryResultPaginator {
 
-    public CatalogCommandRuntimeException(String message) {
-        super(message);
-    }
 
-    public CatalogCommandRuntimeException(String message, Throwable cause) {
-        super(message, cause);
-    }
 
-    public CatalogCommandRuntimeException(Throwable cause) {
-        super(cause);
-    }
+
 }
