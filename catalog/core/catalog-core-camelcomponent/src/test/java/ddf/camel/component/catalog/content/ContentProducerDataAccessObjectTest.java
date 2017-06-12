@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,10 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.SourceInfoRequest;
+import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.source.SourceDescriptor;
 import ddf.mime.MimeTypeMapper;
 
 public class ContentProducerDataAccessObjectTest {
@@ -205,6 +209,16 @@ public class ContentProducerDataAccessObjectTest {
                 .create(any(CreateStorageRequest.class));
         doReturn(mockDeleteResponse).when(mockCatalogFramework)
                 .delete(any(DeleteRequest.class));
+
+        //setup mockSourceInfo
+        SourceInfoResponse mockSourceInfoResponse = mock(SourceInfoResponse.class);
+        SourceDescriptor mockSourceDescriptor = mock(SourceDescriptor.class);
+
+        when(mockSourceDescriptor.isAvailable()).thenReturn(true);
+        when(mockSourceInfoResponse.getSourceInfo()).thenReturn(Collections.singleton(
+                mockSourceDescriptor));
+        when(mockCatalogFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(
+                mockSourceInfoResponse);
 
         //setup mockComponent
         ContentComponent mockComponent = mock(ContentComponent.class);
