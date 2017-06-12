@@ -12,7 +12,7 @@ This transformer is installed by default with a standard installation in the ${d
 
 ===== Configuring the PPTX Input Transformer
 
-The properties below describe how to configure the pptx input transformer.
+The PPTX Input Transformer had no configurable properties.
 
 include::{adoc-include}/_tables/ddf.catalog.transformer.input.pptx.PptxInputTransformer-table-contents.adoc[]
 
