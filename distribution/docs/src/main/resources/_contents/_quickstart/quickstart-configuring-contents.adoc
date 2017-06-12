@@ -9,8 +9,9 @@ Set the configurations needed to run ${branding}.
 . Follow the installer prompts for a standard installation.
 .. Click start to begin the setup process.
 .. Configure <<_guest_interceptor,guest claims attributes>> or use defaults.
-... (these attributes represent the minimum authorization for all users)
+... *All users will be automatically granted these authorizations*
 .. Select *Standard Installation*.
+... This step may take several minutes to complete.
 .. On the System Configuration page, configure any port or protocol changes desired and add any keystores/truststores needed.
 ... See <<_configuring_new_certificates,Configuring New Certificates>> for more details.
 .. Click *Next*

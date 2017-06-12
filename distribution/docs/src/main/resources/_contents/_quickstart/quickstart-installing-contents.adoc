@@ -29,7 +29,7 @@ Set up Java to run ${branding}.
 * Install/Upgrade to Java 8 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]
 ** The recommended version is http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html[8u60] or later.
 ** Java Version and Build numbers must contain only number values.
-* Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.
+* Supported platforms are Microsoft Windows, Linux, Solaris, and macOS.
 * http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
 * The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
 
@@ -38,24 +38,18 @@ Set up Java to run ${branding}.
 
 . Determine Java Installation Directory (This varies between operating system versions).
 
-.Find Java Path in *NIX
-----
-which java
-----
-
 .Find Java Path in Windows
 ----
 for %i in (java.exe) do @echo. %~$PATH:i
 ----
 
+.Find Java Path in *nix
+----
+which java
+----
+
 . Copy path to Java installation. (example: `/usr/java/<JAVA_VERSION>`)
 . Set `JAVA_HOME` by replacing <PATH_TO_JAVA> with the copied path in this command:
-
-.Setting `JAVA_HOME` on *NIX
-----
-JAVA_HOME=<PATH_TO_JAVA><JAVA_VERSION>
-export JAVA_HOME
-----
 
 .Setting `JAVA_HOME` on Windows
 ----
@@ -66,9 +60,15 @@ set JAVA_HOME=<PATH_TO_JAVA><JAVA_VERSION> /m
 ----
 setx PATH "%PATH%;%JAVA_HOME%\bin" /m
 ----
+
+.Setting `JAVA_HOME` on *nix
+----
+JAVA_HOME=<PATH_TO_JAVA><JAVA_VERSION>
+export JAVA_HOME
+----
 ====
 
-.*NIX
+.*nix
 [WARNING]
 ====
 Unlink `JAVA_HOME` if it is already linked to a previous version of the JRE:
@@ -79,14 +79,14 @@ Unlink `JAVA_HOME` if it is already linked to a previous version of the JRE:
 [TIP]
 ====
 
-.*NIX
-----
-echo $JAVA_HOME
-----
-
 .Windows
 ----
 echo %JAVA_HOME%
+----
+
+.*nix
+----
+echo $JAVA_HOME
 ----
 ====
 
@@ -102,7 +102,7 @@ fs.file-max = 6815744
 * (This file may need permissions changed to allow write access).
 * For the change to take effect, a restart is required.
 
-. *Nix Restart Command
+. *nix Restart Command
 ----
 init 6
 ----
@@ -116,19 +116,15 @@ Prior to installing ${branding}, ensure the system time is accurate to prevent f
 
 === Quick Install of ${branding}
 
-.Check System Time
-[WARNING]
-====
-Prior to installing ${branding}, ensure the system time is accurate to prevent federation issues.
-====
-
 . Download the ${branding} {download-url}[zip file].
 . Install ${branding} by unzipping the zip file.
 +
 .Windows Zip Utility Warning
 [WARNING]
 ====
-The default Windows zip utility (such as double-clicking file) will not work to unzip the distribution, use Java or a third party utility instead.
+The Windows Zip implementation, which is invoked when a user double-clicks on a zip file in the Windows Explorer, creates a corrupted installation.
+This is a consequence of its inability to process long file paths.
+Instead, use the java jar command line utility to unzip the distribution (see example below) or use a third party utility such as 7-Zip.
 
 .Use Java to Unzip in Windows(Replace `<PATH_TO_JAVA>` with correct path `and <JAVA_VERSION>` with current version.)
 ----
