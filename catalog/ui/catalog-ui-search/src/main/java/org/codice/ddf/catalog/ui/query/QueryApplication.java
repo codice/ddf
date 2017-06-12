@@ -13,7 +13,11 @@
  */
 package org.codice.ddf.catalog.ui.query;
 
-import static spark.Spark.*;
+import static spark.Spark.after;
+import static spark.Spark.before;
+import static spark.Spark.exception;
+import static spark.Spark.get;
+import static spark.Spark.post;
 import static spark.route.RouteOverview.enableRouteOverview;
 
 import java.util.List;
