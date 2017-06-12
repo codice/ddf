@@ -70,9 +70,9 @@ public class QueryResultIterable implements Iterable<Result> {
 //        return Spliterators.spliteratorUnknownSize(this.iterator(), characteristics);
 
         // TODO: 6/9/17 Add bean to avoid 'new' keyword
-        BatchedSpliterator batchedSpliterator = new BatchedSpliterator();
+        QueryResultSpliterator queryResultSpliterator = new QueryResultSpliterator();
 
-        return batchedSpliterator;
+        return queryResultSpliterator;
     }
 
     public Spliterator<Result> spliterator(int size) {
@@ -80,9 +80,9 @@ public class QueryResultIterable implements Iterable<Result> {
 //        return Spliterators.spliteratorUnknownSize(this.iterator(), characteristics);
 
         // TODO: 6/9/17 Add bean to avoid 'new' keyword
-        BatchedSpliterator batchedSpliterator = new BatchedSpliterator();
+        QueryResultSpliterator queryResultSpliterator = new QueryResultSpliterator();
 
-        return batchedSpliterator;
+        return queryResultSpliterator;
     }
 
     public Stream<Result> stream() {

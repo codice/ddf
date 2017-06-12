@@ -19,13 +19,13 @@ import java.util.function.Consumer;
 
 import ddf.catalog.data.Result;
 
-public class BatchedSpliterator implements Spliterator<Result> {
+public class QueryResultSpliterator implements Spliterator<Result> {
     private int suggestedPageSize = 64;
 
     /**
      * Default constructor
      */
-    public BatchedSpliterator() {
+    public QueryResultSpliterator() {
 
     }
 
@@ -33,7 +33,7 @@ public class BatchedSpliterator implements Spliterator<Result> {
      * Overloaded constructor for taking in suggested page size
      * @param suggestedPageSize
      */
-    public BatchedSpliterator(int suggestedPageSize) {
+    public QueryResultSpliterator(int suggestedPageSize) {
 
         // TODO: 6/9/17 Determine if this matches ideals for implementation
         this.suggestedPageSize = suggestedPageSize;
