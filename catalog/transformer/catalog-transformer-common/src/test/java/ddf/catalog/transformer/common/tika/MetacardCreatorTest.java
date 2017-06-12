@@ -18,8 +18,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import static junit.framework.TestCase.assertNull;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -208,7 +206,7 @@ public class MetacardCreatorTest {
                 null,
                 BasicTypes.BASIC_METACARD, false);
 
-        assertNull(metacard.getTitle());
+        assertThat(metacard.getTitle(), nullValue());
     }
 
     private AttributeDescriptorImpl createObjectAttr(String name) {

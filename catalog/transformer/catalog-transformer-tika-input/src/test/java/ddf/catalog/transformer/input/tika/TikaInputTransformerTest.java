@@ -31,7 +31,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.TestCase.assertNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -723,8 +722,8 @@ public class TikaInputTransformerTest {
     public void testTitleConfiguration() throws Exception {
         ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
         Metacard metacard = transform(stream);
-        assertNotNull(metacard);
-        assertNull(metacard.getTitle());
+        assertThat(metacard, notNullValue());
+        assertThat(metacard.getTitle(), nullValue());
     }
 
     private String convertDate(Date date) {
