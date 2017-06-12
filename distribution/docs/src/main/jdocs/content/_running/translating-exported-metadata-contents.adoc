@@ -1,0 +1,12 @@
+:title: Translating Metadata from One Format to Another
+:type: dataManagement
+:status: published
+:summary: Translating metadata from one format to another.
+:order: 05
+
+===== Translating Metadata from One Format to Another
+
+Metadata can be converted from one data format to another format. 
+Only the data format changes, but the content of the metadata does not, as long as `option -p` is used with the ingest command.
+The process for converting metadata is performed by ingesting a data file into a catalog provider in one format and dumping it out into a file in another format. 
+

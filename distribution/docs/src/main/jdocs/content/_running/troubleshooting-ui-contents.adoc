@@ -1,0 +1,34 @@
+:title: Troubleshooting UI
+:type: troubleshooting
+:status: published
+:summary: Troubleshooting UI issues.
+:order: 01
+
+==== Deleted Records Are Being Displayed In The Standard Search UI's Search Results
+
+When queries are issued by the Standard Search UI, the query results that are returned are also cached in an internal Solr database for faster retrieval when the same query may be issued in the future.
+As records are deleted from the catalog provider, this Solr cache is kept in sync by also deleting the same records from the cache if they exist.
+
+Sometimes the cache may get out of sync with the catalog provider such that records that should have been deleted are not.
+When this occurs, users of the Standard Search UI may see stale results since these records that should have been deleted are being returned from the cache.
+Records in the cache can be manually deleted using the URL commands listed below from a browser.
+In these command URLs, `metacard_cache` is the name of the Solr query cache.
+
+* To delete all of the records in the Solr cache:
+
+.Deletion of all records in Solr query cache
+----
+${secure_url}/solr/metacard_cache/update?stream.body=<delete><query>*:*</query></delete>&commit=true
+----
+* To delete a specific record in the Solr cache by ID (specified by the original_id_txt field):
+
+.Deletion of record in Solr query cache by ID
+----
+${secure_url}/solr/metacard_cache/update?stream.body=<delete><query>original_id_txt:50ffd32b21254c8a90c15fccfb98f139</query></delete>&commit=true
+----
+* To delete record(s) in the Solr cache using a query on a field in the record(s) - in this example, the `title_txt` field is being used with wildcards to search for any records with word remote in the title:
+
+.Deletion of records in Solr query cache using search criteria
+----
+${secure_url}/solr/metacard_cache/update?stream.body=<delete><query>title_txt:*remote*</query></delete>&commit=true
+----

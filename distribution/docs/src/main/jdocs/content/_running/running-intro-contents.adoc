@@ -1,0 +1,12 @@
+:title: Running Intro
+:type: runningIntro
+:status: published
+:summary: Introduction to Running.
+:order: 01
+
+Find directions here for running an installation of ${branding}.
+
+<<_starting,Starting>>:: Getting an instance of ${branding} up and running.
+<<_maintaining,Maintaining>>:: Keeping ${branding} running with useful tasks.
+<<_monitoring,Monitoring>>:: Tracking system health and usage.
+<<_troubleshooting,Troubleshooting>>:: Common tips for unexpected behavior.

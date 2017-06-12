@@ -1,0 +1,147 @@
+:title: Monitoring
+:type: monitoring
+:status: published
+:summary: Monitoring an installed instance.
+:order: 00
+
+The ${branding} contains many tools to monitor system functionality, usage, and overall system health.
+
+==== Metrics Reporting
+
+Metrics are available in several formats and levels of detail.
+
+Complete the following procedure now that several queries have been executed.
+
+. Select *${ddf-platform}*
+. Select *Metrics* tab
+. For individual metrics, choose the format desired from the desired timeframe column:
+.. PNG
+.. CSV
+.. XLS
+. For a detailed report of all metrics, at the bottom of the page are selectors to choose time frame and summary level.
+A report is generated in _xls_ format.
+
+==== Managing Logging
+
+The ${branding} supports a dynamic and customizable logging system including log level, log format, log output destinations, roll over, etc.
+
+===== Configuring Logging
+
+Edit the configuration file `<${branding}_HOME>/etc/org.ops4j.pax.logging.cfg]`
+
+===== ${branding} log file
+
+The name and location of the log file can be changed with the following setting:
+
+`log4j.appender.out.file=<KARAF.DATA>/log/${branding-lowercase}.log`
+
+===== Controlling log level
+
+A useful way to debug and detect issues is to change the log level:
+
+`log4j.rootLogger=DEBUG, out, osgi:VmLogAppender`
+
+===== Controlling the size of the log file
+
+Set the maximum size of the log file before it is rolled over by editing the value of this setting:
+
+`log4j.appender.out.maxFileSize=20MB`
+
+===== Number of backup log files to keep
+
+Adjust the number of backup files to keep by editing the value of this setting:
+
+`log4j.appender.out.maxBackupIndex=10`
+
+===== Enabling logging of inbound and outbound SOAP messages for the ${branding} SOAP endpoints
+
+By default, the ${branding} start scripts include a system property enabling logging of inbound and outbound SOAP messages.
+
+`-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true`
+
+In order to see the messages in the log, one must set the logging level for `org.apache.cxf.services` to `INFO`. By default, the logging level for `org.apache.cxf` is set to `WARN`.
+
+`${branding-lowercase}${at-symbol}local>log:set INFO org.apache.cxf.services`
+
+===== Logging External Resources
+
+Other appenders can be selected and configured.
+
+For more detail on configuring the log file and what is logged to the console see: http://karaf.apache.org/manual/latest/#_log[Karaf Documentation: Log].
+
+===== Enabling HTTP Access Logging
+
+To enable access logs for the current ${branding}, do the following:
+
+* Update the `jetty.xml` file located in `etc/` adding the following xml:
+
+[source,xml,linenums]
+----
+<Get name="handler">
+    <Call name="addHandler">
+      <Arg>
+        <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
+          <Set name="requestLog">
+            <New id="RequestLogImpl" class="org.eclipse.jetty.server.NCSARequestLog">
+              <Arg><SystemProperty name="jetty.logs" default="data/log/"/>/yyyy_mm_dd.request.log</Arg>
+              <Set name="retainDays">90</Set>
+              <Set name="append">true</Set>
+              <Set name="extended">false</Set>
+              <Set name="LogTimeZone">GMT</Set>
+            </New>
+          </Set>
+        </New>
+      </Arg>
+    </Call>
+  </Get>
+----
+
+Change the location of the logs to the desired location. In the settings above, location will default to data/log (same place where the log is located).
+
+The log is using _National Center for Supercomputing Association Applications (NCSA)_ or Common format (hence the class 'NCSARequestLog').
+This is the most popular format for access logs and can be parsed by many web server analytics tools. Here is a sample output:
+
+[source]
+----
+127.0.0.1 -  -  [14/Jan/2013:16:21:24 +0000] "GET /favicon.ico HTTP/1.1" 200 0
+127.0.0.1 -  -  [14/Jan/2013:16:21:33 +0000] "GET /services/ HTTP/1.1" 200 0
+127.0.0.1 -  -  [14/Jan/2013:16:21:33 +0000] "GET /services//?stylesheet=1 HTTP/1.1" 200 0
+127.0.0.1 -  -  [14/Jan/2013:16:21:33 +0000] "GET /favicon.ico HTTP/1.1" 200 0
+----
+
+===== Using the LogViewer
+
+Monitor system logs with the *LogViewer*, a convenient "viewing portal" for incoming logs.
+
+* Navigate to the LogViewer at \${secure_url}/admin/logviewer
+
+or
+
+* Navigate to the ${admin-console}
+* Navigate to the *System* tab
+* Select *Logs*
+
+The LogViewer displays the most recent 500 log messages by default, but will grow to a maximum of 5000 messages.
+To view incoming logs, select the *PAUSED* button to toggle it to *LIVE* mode. Switching this back to *PAUSED* will prevent any new logs from being displayed in the LogViewer. Note that this only affects the logs displayed by the LogViewer and does not affect the underlying log.
+
+Log events can be filtered by:
+
+* Log level (`ERROR`, `WARNING`, etc).
+** The LogViewer will display at the currently configured log level for the Karaf logs.
+*** See <<controlling_log_level, Controlling Log Level>> to change log level.
+* Log message text.
+* Bundle generating the message.
+
+[WARNING]
+====
+It is not recommended to use the LogViewer if the system logger is set to a low reporting level such as `TRACE`.
+The volume of messages logged will exceed the polling rate, and incoming logs may be missed.
+
+The actual logs being polled by the LogViewer can still be accessed at `<INSTALL_HOME>/data/log`
+====
+
+[NOTE]
+====
+The LogViewer settings don't change any of the underlying logging settings, only which messages are displayed.
+It does not affect the logs generated or events captured by the system logger.
+====
