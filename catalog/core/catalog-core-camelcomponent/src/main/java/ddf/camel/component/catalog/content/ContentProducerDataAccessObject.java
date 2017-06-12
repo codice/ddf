@@ -24,11 +24,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.camel.Message;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileMessage;
 import org.apache.commons.io.FilenameUtils;
+import org.codice.ddf.platform.util.WaitCondition;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,7 +155,9 @@ public class ContentProducerDataAccessObject {
 
             CatalogFramework catalogFramework = endpoint.getComponent()
                     .getCatalogFramework();
+
             waitForAvailableSource(catalogFramework);
+
             CreateResponse createResponse = catalogFramework.create(createRequest);
 
             if (createResponse != null) {
@@ -220,24 +225,17 @@ public class ContentProducerDataAccessObject {
 
     private void waitForAvailableSource(CatalogFramework catalogFramework)
             throws SourceUnavailableException {
-        long startTime = System.currentTimeMillis();
-        boolean ready;
-        do {
-            if (timeoutHasBeenExceeded(startTime, 3 * 60 * 1000)) {
-                throw new SourceUnavailableException(
-                        "failed to find an available source within 3 minutes");
-            }
-
-            ready = catalogFramework.getSourceInfo(new SourceInfoRequestLocal(false))
-                    .getSourceInfo()
-                    .stream()
-                    .findFirst()
-                    .get()
-                    .isAvailable();
-        } while (!ready);
-    }
-
-    private boolean timeoutHasBeenExceeded(long startTimeInMs, long timeoutInMs) {
-        return System.currentTimeMillis() - startTimeInMs > timeoutInMs;
+        try {
+            WaitCondition.expect("Source should be available")
+                    .checkEvery(3, TimeUnit.MINUTES)
+                    .until(() -> catalogFramework.getSourceInfo(new SourceInfoRequestLocal(false))
+                            .getSourceInfo()
+                            .stream()
+                            .findFirst()
+                            .get()
+                            .isAvailable());
+        } catch (TimeoutException | InterruptedException e) {
+            throw new SourceUnavailableException("Sources are unavailable", e);
+        }
     }
 }
