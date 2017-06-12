@@ -17,10 +17,10 @@ import static org.codice.ddf.catalog.content.monitor.features.KarafStandardFeatu
 import static org.codice.ddf.catalog.content.monitor.features.KarafStandardFeatures.karafStandardFeatures;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.when;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.debugConfiguration;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 
@@ -42,16 +42,12 @@ public class KarafConfigurator {
                         .useDeployFolder(false),
                 configureConsole().ignoreLocalConsole(),
                 logLevel().logLevel(LogLevelOption.LogLevel.WARN),
-                setSystemProperties(),
+                editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
+                editConfigurationFilePut("etc/system.properties",
+                        "org.codice.ddf.system.hostname",
+                        "localhost"),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(debugConfiguration()),
                 karafStandardFeatures(STANDARD));
-    }
-
-    private static Option setSystemProperties() {
-        return composite(systemProperty("ddf.home").value("${karaf.home}"),
-                systemProperty("org.codice.ddf.system.hostname").value("localhost")
-
-        );
     }
 
     public static String karafVersion() {

@@ -49,6 +49,11 @@ public abstract class AbstractComponentTest {
         return options(karafConfiguration(), setupDistribution(), composite(bundleDependencies));
     }
 
+    @After
+    public void teardown() {
+        serviceRegistrations.forEach(ServiceRegistration::unregister);
+    }
+
     protected abstract Option setupDistribution();
 
     protected abstract List<BundleInfo> bundlesToStart();
@@ -65,10 +70,5 @@ public abstract class AbstractComponentTest {
         serviceRegistrations.add(registration);
         await("service registration").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
                 .until(() -> bundleContext.getServiceReference(registerClass) != null);
-    }
-
-    @After
-    public void teardown() {
-        serviceRegistrations.forEach(ServiceRegistration::unregister);
     }
 }

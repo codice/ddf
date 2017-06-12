@@ -93,6 +93,68 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
     private CatalogFramework catalogFramework;
 
+    @Before
+    public void setup() throws IOException {
+        directoryPath = temporaryFolder.getRoot()
+                .getCanonicalPath();
+
+        SecurityManager securityManager = mock(SecurityManager.class);
+        registerService(securityManager, SecurityManager.class);
+
+        catalogFramework = mock(CatalogFramework.class);
+        registerService(catalogFramework, CatalogFramework.class);
+    }
+
+    @Test
+    public void testCamelContext() {
+        Component component = camelContext.getComponent("content");
+        assertThat(component, notNullValue());
+    }
+
+    @Test
+    public void testInPlaceMonitoring()
+            throws IOException, InterruptedException, SourceUnavailableException, IngestException {
+        updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.IN_PLACE);
+
+        File file = createTestFile(directoryPath);
+
+        ArgumentCaptor<CreateStorageRequest> createStorageRequest = ArgumentCaptor.forClass(
+                CreateStorageRequest.class);
+        verify(catalogFramework).create(createStorageRequest.capture());
+        ContentItem result = createStorageRequest.getValue()
+                .getContentItems()
+                .get(0);
+
+        assertThat(result.getFilename(), is(file.getName()));
+        assertThat(file.exists(), is(true));
+    }
+
+    @Test
+    public void testMoveMonitoring()
+            throws IOException, SourceUnavailableException, IngestException {
+        updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.MOVE);
+        File file = createTestFile(directoryPath);
+        File movedFile = Paths.get(directoryPath, ".ingested", file.getName())
+                .toFile();
+        assertThat(file.exists(), is(false));
+        assertThat(movedFile.exists(), is(true));
+    }
+
+    @Test
+    public void testDeleteMonitoring()
+            throws IOException, SourceUnavailableException, IngestException {
+        updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.DELETE);
+
+        File file = createTestFile(directoryPath);
+        File directory = Paths.get(directoryPath)
+                .toFile();
+
+        await("file deleted").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
+                .until(() -> !file.exists());
+
+        assertThat(directory.list().length, is(0));
+    }
+
     @Override
     protected Option setupDistribution() {
         return composite(karafSpringFeatures(SPRING),
@@ -171,68 +233,6 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
                 new BundleInfo("ddf.catalog.core", "catalog-core-camelcomponent"),
 
                 new BundleInfo("ddf.catalog.core", "catalog-core-directorymonitor"));
-    }
-
-    @Before
-    public void setup() throws IOException {
-        directoryPath = temporaryFolder.getRoot()
-                .getCanonicalPath();
-
-        SecurityManager securityManager = mock(SecurityManager.class);
-        registerService(securityManager, SecurityManager.class);
-
-        catalogFramework = mock(CatalogFramework.class);
-        registerService(catalogFramework, CatalogFramework.class);
-    }
-
-    @Test
-    public void testCamelContext() {
-        Component component = camelContext.getComponent("content");
-        assertThat(component, notNullValue());
-    }
-
-    @Test
-    public void testInPlaceMonitoring()
-            throws IOException, InterruptedException, SourceUnavailableException, IngestException {
-        updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.IN_PLACE);
-
-        File file = createTestFile(directoryPath);
-
-        ArgumentCaptor<CreateStorageRequest> createStorageRequest = ArgumentCaptor.forClass(
-                CreateStorageRequest.class);
-        verify(catalogFramework).create(createStorageRequest.capture());
-        ContentItem result = createStorageRequest.getValue()
-                .getContentItems()
-                .get(0);
-
-        assertThat(result.getFilename(), is(file.getName()));
-        assertThat(file.exists(), is(true));
-    }
-
-    @Test
-    public void testMoveMonitoring()
-            throws IOException, SourceUnavailableException, IngestException {
-        updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.MOVE);
-        File file = createTestFile(directoryPath);
-        File movedFile = Paths.get(directoryPath, ".ingested", file.getName())
-                .toFile();
-        assertThat(file.exists(), is(false));
-        assertThat(movedFile.exists(), is(true));
-    }
-
-    @Test
-    public void testDeleteMonitoring()
-            throws IOException, SourceUnavailableException, IngestException {
-        updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.DELETE);
-
-        File file = createTestFile(directoryPath);
-        File directory = Paths.get(directoryPath)
-                .toFile();
-
-        await("file deleted").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
-                .until(() -> !file.exists());
-
-        assertThat(directory.list().length, is(0));
     }
 
     private AtomicBoolean createStorageRequestNotification()
