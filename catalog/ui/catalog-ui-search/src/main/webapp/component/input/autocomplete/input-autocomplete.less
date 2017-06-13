@@ -4,7 +4,21 @@
         color: @button-text-color;
         border: 1px solid @heavily-lighten-inherited-background-color;
         border-radius: @border-radius;
+        height: auto;
+
+        .select2-selection__rendered {
+            line-height: @minimumButtonSize;
+            padding-right: @minimumButtonSize;
+        }
+
+        .select2-selection__arrow {
+            top: 0px;
+            height: 100%;
+            width: @minimumButtonSize;
+        }        
     }
+
+
 }
 
 // can't namespace because gets appended to doc
@@ -16,3 +30,6 @@
     color: @button-text-color;
 }
 
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background: @primary-color;
+}
