@@ -1,3 +1,8 @@
+:title: Installing (Quick Start)
+:type: quickStart
+:status: published
+:summary: Installation of an example instance.
+:order: 00
 
 This quick tutorial will enable install, configuring and using a basic instance of ${branding}.
 

@@ -243,12 +243,13 @@ unzip ${branding-lowercase}-${project.version}.zip
 .Windows Zip Utility Warning
 [WARNING]
 ====
-DO NOT use the windows zip utility bundled with windows to unzip {branding}.
-Unzipping {branding} using the windows zip utility will cause unexpected behavior and errors in {branding}!
+The Windows Zip implementation, which is invoked when a user double-clicks on a zip file in the Windows Explorer, creates a corrupted installation.
+This is a consequence of its inability to process long file paths.
+Instead, use the java jar command line utility to unzip the distribution (see example below) or use a third party utility such as 7-Zip.
 
-.Use Java to Unzip in Windows
+.Use Java to Unzip in Windows(Replace `<PATH_TO_JAVA>` with correct path `and <JAVA_VERSION>` with current version.)
 ----
-"%JAVA_HOME%\bin\jar.exe" xf ${branding-lowercase}-${project.version}.zip
+"<PATH_TO_JAVA>\jdk<JAVA_VERSION>\bin\jar.exe" xf ${branding-lowercase}-${project.version}.zip
 ----
 
 The unzipping process may take time to complete.
