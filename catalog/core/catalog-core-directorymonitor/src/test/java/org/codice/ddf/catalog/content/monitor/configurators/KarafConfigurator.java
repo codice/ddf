@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.catalog.content.monitor.configurators;
 
-import static org.codice.ddf.catalog.content.monitor.features.KarafStandardFeatures.StandardFeature.STANDARD;
-import static org.codice.ddf.catalog.content.monitor.features.KarafStandardFeatures.karafStandardFeatures;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.when;
@@ -26,6 +24,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 
 import java.io.File;
 
+import org.codice.ddf.catalog.content.monitor.features.KarafStandardFeatures;
 import org.ops4j.pax.exam.ConfigurationManager;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
@@ -47,7 +46,7 @@ public class KarafConfigurator {
                         "org.codice.ddf.system.hostname",
                         "localhost"),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(debugConfiguration()),
-                karafStandardFeatures(STANDARD));
+                KarafStandardFeatures.start("standard"));
     }
 
     public static String karafVersion() {

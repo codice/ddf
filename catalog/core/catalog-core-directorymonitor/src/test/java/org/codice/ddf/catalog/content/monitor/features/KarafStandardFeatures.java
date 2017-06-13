@@ -16,39 +16,15 @@ package org.codice.ddf.catalog.content.monitor.features;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 
-import java.util.Arrays;
-
 import org.ops4j.pax.exam.Option;
 
 public class KarafStandardFeatures {
-    public enum StandardFeature {
-        WRAP("wrap"), ARIES_BLUEPRINT("aries-blueprint"), SHELL("shell"), SHELL_COMPAT(
-                "shell-compat"), FEATURE("feature"), JAAS("jaas"), SSH("ssh"), MANAGEMENT(
-                "management"), BUNDLE("bundle"), CONFIG("config"), DEPLOYER("deployer"), DIAGNOSTIC(
-                "diagnostic"), INSTANCE("instance"), KAR("kar"), LOG("log"), PACKAGE("package"), SERVICE(
-                "service"), SYSTEM("system"), STANDARD("standard"), MINIMAL("minimal");
 
-        private String featureName;
-
-        StandardFeature(String featureName) {
-            this.featureName = featureName;
-        }
-
-        @Override
-        public String toString() {
-            return featureName;
-        }
-    }
-
-    public static Option karafStandardFeatures(StandardFeature... features) {
-        String[] featureStrings = Arrays.stream(features)
-                .map(Enum::toString)
-                .toArray(String[]::new);
-
+    public static Option start(String... features) {
         return features(maven().groupId("org.apache.karaf.features")
                 .artifactId("standard")
                 .versionAsInProject()
                 .classifier("features")
-                .type("xml"), featureStrings);
+                .type("xml"), features);
     }
 }

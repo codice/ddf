@@ -14,17 +14,6 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import static org.awaitility.Awaitility.await;
-import static org.codice.ddf.catalog.content.monitor.features.CamelFeatures.CamelFeature.CAMEL;
-import static org.codice.ddf.catalog.content.monitor.features.CamelFeatures.camelFeatures;
-import static org.codice.ddf.catalog.content.monitor.features.CxfFeatures.CxfFeature.CXF_BINDINGS_SOAP;
-import static org.codice.ddf.catalog.content.monitor.features.CxfFeatures.CxfFeature.CXF_FRONTEND_JAVASCRIPT;
-import static org.codice.ddf.catalog.content.monitor.features.CxfFeatures.CxfFeature.CXF_JAXRS;
-import static org.codice.ddf.catalog.content.monitor.features.CxfFeatures.CxfFeature.CXF_RT_SECURITY_SAML;
-import static org.codice.ddf.catalog.content.monitor.features.CxfFeatures.CxfFeature.CXF_WS_POLICY;
-import static org.codice.ddf.catalog.content.monitor.features.CxfFeatures.CxfFeature.CXF_WS_SECURITY;
-import static org.codice.ddf.catalog.content.monitor.features.CxfFeatures.cxfFeatures;
-import static org.codice.ddf.catalog.content.monitor.features.KarafSpringFeatures.SpringFeature.SPRING;
-import static org.codice.ddf.catalog.content.monitor.features.KarafSpringFeatures.karafSpringFeatures;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -53,6 +42,9 @@ import javax.inject.Inject;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
 import org.codice.ddf.catalog.content.monitor.configurators.KeystoreTruststoreConfigurator;
+import org.codice.ddf.catalog.content.monitor.features.CamelFeatures;
+import org.codice.ddf.catalog.content.monitor.features.CxfFeatures;
+import org.codice.ddf.catalog.content.monitor.features.KarafSpringFeatures;
 import org.codice.ddf.catalog.content.monitor.util.BundleInfo;
 import org.junit.Before;
 import org.junit.Rule;
@@ -157,14 +149,14 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
     @Override
     protected Option setupDistribution() {
-        return composite(karafSpringFeatures(SPRING),
-                camelFeatures(CAMEL),
-                cxfFeatures(CXF_RT_SECURITY_SAML,
-                        CXF_BINDINGS_SOAP,
-                        CXF_WS_POLICY,
-                        CXF_WS_SECURITY,
-                        CXF_FRONTEND_JAVASCRIPT,
-                        CXF_JAXRS),
+        return composite(KarafSpringFeatures.start("spring"),
+                CamelFeatures.start("camel"),
+                CxfFeatures.start("cxf-rt-security-saml",
+                        "cxf-bindings-soap",
+                        "cxf-ws-policy",
+                        "cxf-ws-security",
+                        "cxf-frontend-javascript",
+                        "cxf-jaxrs"),
                 keystoreAndTruststoreConfig(),
                 initContentDirectoryMonitorConfig());
     }
