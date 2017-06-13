@@ -1,5 +1,8 @@
 @{customElementNamespace}metacard-title {
   .customElement;
+  line-height: @minimumButtonSize;
+  font-size: @largeFontSize;
+  white-space: nowrap;
 
   > div {
     display: inline-block;
@@ -11,6 +14,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin-right: 30px;
+    white-space: nowrap;
   }
 
   > .metacard-interactions,

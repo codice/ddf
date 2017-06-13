@@ -232,7 +232,7 @@ define([
             this.histogramAttribute.currentView.turnOnLimitedWidth();
             this.listenTo(this.histogramAttribute.currentView.model, 'change:value', this.showHistogram);
         },
-        onBeforeShow: function(){
+        onRender: function(){
             this.showHistogramAttributeSelector();
             this.showHistogram();
             this.handleEmpty();
@@ -317,7 +317,7 @@ define([
             this.removeResizeHandler();
         },
         setupListeners: function(){
-            this.listenTo(this.options.selectionInterface, 'reset:activeSearchResults', this.onBeforeShow);
+            this.listenTo(this.options.selectionInterface, 'reset:activeSearchResults', this.render);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update', this.updateHistogram);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'add', this.updateHistogram);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'remove', this.updateHistogram);

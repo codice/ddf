@@ -1,17 +1,38 @@
-@{customElementNamespace}visualization-selector {
+@{customElementNamespace}visualization-selector,
+@{customElementNamespace}visualization-selector-old {
+
+    > div {
+        padding: @minimumSpacing;
+    }
+
     .visualization-choice {
         display: block;
         padding: @largeSpacing;
         height: auto;
         width: 100%;
         text-align: left;
+        cursor: move; /* fallback if grab cursor is unsupported */
+        cursor: grab;
+        cursor: -moz-grab;
+        cursor: -webkit-grab;
 
         > span + span {
         margin-left: @minimumSpacing;
         }
-    }
 
-    .visualization-choice.is-selected {
-        
+        span {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        > span:nth-of-type(2) {
+            max-width: ~'calc(100% - @{minimumButtonSize})';
+        }
+    }
+}
+
+@{customElementNamespace}visualization-selector-old {
+    .choice-inspector {
+        display: none;
     }
 }
