@@ -142,7 +142,7 @@ Text searches are by default case insensitive, but case sensitive searches are a
 
 [[_type_search_details]]Type Search Details:: Search for specific content types.
 
-[[_sort_search_details]]Sort Parameters:: Specify which Attribute and order to search sort the Query results.
+[[_sort_search_details]]Sort Parameters:: Specify sort attribute(s) and query results ordering.
 
 * *Advanced*: Advanced query builder to create more specific searches.
 +
