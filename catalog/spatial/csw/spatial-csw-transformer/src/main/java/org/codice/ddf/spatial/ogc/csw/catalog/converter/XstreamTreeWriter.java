@@ -80,7 +80,7 @@ public class XstreamTreeWriter {
                 if (value != null) {
 
                     if (currentPath.isAncestor(path) && path.toString()
-                            .endsWith(node)) {
+                            .endsWith("/" + node)) {
 
                         if (!isAttributeNode(node) && !isAttributePath(path)) {
 
