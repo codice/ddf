@@ -456,13 +456,13 @@
         </bundle>
     </feature>
 
-    <feature name="catalog-metacard-backup-storage-api" install="manual" version="${project.version"
+    <feature name="catalog-metacard-backup-storage-api" install="manual" version="${project.version}"
              description="API for the metacard backup storage">
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacardbackup-storage-api/${project.version}
         </bundle>
     </feature>
 
-    <feature name="catalog-metacard-backup-filestorage" install="manual" version="${project.version"
+    <feature name="catalog-metacard-backup-filestorage" install="manual" version="${project.version}"
              description="File system storage for metacard backup">
         <feature prerequisite="true">catalog-core</feature>
         <feature prerequisite="true">catalog-metacard-backup-storage-api</feature>
@@ -470,7 +470,7 @@
         </bundle>
     </feature>
 
-    <feature name="catalog-metacard-backup-s3storage" install="manual" version="${project.version"
+    <feature name="catalog-metacard-backup-s3storage" install="manual" version="${project.version}"
              description="S3 storage for metacard backup">
         <feature prerequisite="true">catalog-core</feature>
         <feature prerequisite="true">catalog-metacard-backup-storage-api</feature>
