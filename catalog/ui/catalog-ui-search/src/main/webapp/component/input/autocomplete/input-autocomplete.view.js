@@ -22,12 +22,12 @@ var _ = require('underscore');
 require('select2js');
 
 module.exports = InputView.extend({
-    template: template,
-    onRender: function () {
+    template,
+    onRender() {
         this.initializeSelect();
         InputView.prototype.onRender.call(this);
     },
-    initializeSelect: function(){
+    initializeSelect(){
         var propertyModel = this.model.get('property');
 
         var url = propertyModel.get('url');
@@ -51,19 +51,19 @@ module.exports = InputView.extend({
                 return items.map(function(item){
                     return { name: item, id: item };
                 });
-            }
+            };
 
         this.$el.find('select').select2({
             placeholder,
             minimumInputLength,
             ajax: {
-                url: url, 
+                url, 
                 dataType: 'json',
                 delay,
-                data: function (params) {
+                data(params) {
                     return getUrlParams(params.term);
                 },
-                processResults: function (data, params) {
+                processResults(data, params) {
                     var results = processResults(data);
                     return {
                         results,
@@ -74,18 +74,18 @@ module.exports = InputView.extend({
                 },
                 cache: false
             },
-            escapeMarkup: function (markup) { return markup; },
-            templateResult: function(result) {
-                if (result.loading) return result.text;
+            escapeMarkup(markup) { return markup; },
+            templateResult(result) {
+                if (result.loading) { return result.text; }
                 return getLabelForResult(result);
             },
-            templateSelection: function(result) {
+            templateSelection(result) {
                 if (!result.id) { return result.text; /* nothing selected */ }
                 return getLabelForSelection(result);
             }            
         });
     },
-    getCurrentValue: function(){
+    getCurrentValue(){
         return this.$el.find('select').val();
     }
 });
