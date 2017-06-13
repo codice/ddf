@@ -107,6 +107,7 @@ View, edit, and add searches from the *Searches* tab.
 * *Duplicate*: Create a copy of this search as a starting point
 * *Search Archived*: Execute the search, but specifically for archived results.
 * *Search Historical*: Execute the search, but specifically for historical results.
+* *Submit Feedback*: Submit Query feedback to a configurable email address
 
 ===== Editing a Search
 
@@ -114,7 +115,7 @@ Existing searches and their settings can be updated by clicking on the search in
 
 The editable components of a search are defined on these tabs:
 
-* *Basic*: Define a <<_text_search_details,Text>>, <<_spatial_search_details,Spatial>>, <<_temporal_search_details,Temporal>>, or <<_type_search_details,Type>> Search.
+* *Basic*: Define <<_text_search_details,Text>>, <<_spatial_search_details,Spatial>>, <<_temporal_search_details,Temporal>>, <<_type_search_details,Type>>, and <<_sort_search_details,Sorting>> Search parameters.
 
 [[_text_search_details]]Text Search Details:: Searches across all textual data of the targeted data source.
 Text search capabilities include:
@@ -137,9 +138,11 @@ Text searches are by default case insensitive, but case sensitive searches are a
 +
 *Between*: set a beginning and end time to search between.
 
-[[_spatial_search_details]]Spatial Search Details:: Search by latitude/longitude or the USNG using a line, polygon, point-radius, or bounding box.
+[[_spatial_search_details]]Spatial Search Details:: Search by latitude/longitude, USNG, or UTM using a line, polygon, point-radius, or bounding box.
 
 [[_type_search_details]]Type Search Details:: Search for specific content types.
+
+[[_sort_search_details]]Sort Parameters:: Specify which Attribute and order to search sort the Query results.
 
 * *Advanced*: Advanced query builder to create more specific searches.
 +
@@ -321,6 +324,10 @@ image::catalog-ui-settings-options.png[]
 * Map: Select options for map layers.
 * Visualization: Select options for viewing data collections
 * Hidden: View or edit a list of records that have been hidden from search results.
+* Query: Select the number of query results per page.
+
+.Setting Number of Query Results
+image::catalog-ui-settings-query-results.png[]
 
 ==== ${catalog-ui} Notifications
 
