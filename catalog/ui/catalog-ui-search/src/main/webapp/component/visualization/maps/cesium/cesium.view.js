@@ -13,11 +13,14 @@
  *
  **/
 /*global require, setTimeout*/
+//You typically don't want to use this view directly.  Instead, use the combined-map component which will handle falling back to openlayers.
+
 var MapView = require('../map.view');
 var template = require('./cesium.hbs');
 var $ = require('jquery');
 var user = require('component/singletons/user-instance');
 var _ = require('underscore');
+var featureDetection = require('component/singletons/feature-detection');
 
 module.exports = MapView.extend({
     template: template,
@@ -49,7 +52,7 @@ module.exports = MapView.extend({
     },
     switchTo2DMap: function(){
         if (!this.isDestroyed){
-            user.get('user').get('preferences').set('visualization', '2dmap');
+            featureDetection.addFailure('cesium');
         }
     }
 });

@@ -18,13 +18,13 @@ define([
     'marionette',
     'js/CustomElements',
     './visualization.hbs',
-    'component/visualization/maps/cesium/cesium.view',
     'component/visualization/maps/openlayers/openlayers.view',
+    'component/visualization/combined-map/combined-map.view',
     'component/visualization/histogram/histogram.view',
     'component/visualization/table/table-viz.view',
     'component/singletons/user-instance',
     'maptype'
-], function (wreqr, Marionette, CustomElements, template, CesiumView, OpenlayersView, HistogramView,
+], function (wreqr, Marionette, CustomElements, template, OpenlayersView, CombinedMapView, HistogramView,
              TableView, user, maptype) {
 
     function getActiveVisualization() {
@@ -68,7 +68,7 @@ define([
             }));
         },
         showCesium: function(){
-            this.activeVisualization.show(new CesiumView({
+            this.activeVisualization.show(new CombinedMapView({
                 selectionInterface: this.options.selectionInterface
             }));
         },

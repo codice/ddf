@@ -21,10 +21,10 @@ var Marionette = require('marionette');
 var CustomElements = require('js/CustomElements');
 var GoldenLayout = require('golden-layout');
 var TableView = require('component/visualization/table/table-viz.view');
-var CesiumView = require('component/visualization/maps/cesium/cesium.view');
 var InspectorView = require('component/visualization/inspector/inspector.view');
 var OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view');
 var HistogramView = require('component/visualization/histogram/histogram.view');
+var CombinedMapView = require('component/visualization/combined-map/combined-map.view');
 var Common = require('js/Common');
 var store = require('js/store');
 var user = require('component/singletons/user-instance');
@@ -189,7 +189,7 @@ module.exports = Marionette.LayoutView.extend({
     registerGoldenLayoutComponents: function(){
         registerComponent(this, 'inspector', InspectorView);
         registerComponent(this, 'table', TableView);
-        registerComponent(this, 'cesium', CesiumView);
+        registerComponent(this, 'cesium', CombinedMapView);
         registerComponent(this, 'histogram', HistogramView);
         registerComponent(this, 'openlayers', OpenlayersView);
     },
