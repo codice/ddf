@@ -32,6 +32,7 @@ module.exports = InputView.extend({
 
         var url = propertyModel.get('url');
         var delay = propertyModel.get('delay') || 250;
+        var cache = propertyModel.get('cache') || false;
         var placeholder = propertyModel.get('placeholder');
         var minimumInputLength = propertyModel.get('minimumInputLength') || 3;
         var getUrlParams = propertyModel.get('getUrlParams') ||
@@ -72,7 +73,7 @@ module.exports = InputView.extend({
                         }
                     };
                 },
-                cache: false
+                cache
             },
             escapeMarkup(markup) { return markup; },
             templateResult(result) {
@@ -87,5 +88,8 @@ module.exports = InputView.extend({
     },
     getCurrentValue(){
         return this.$el.find('select').val();
+    },
+    onDestroy(){
+        this.$el.find('select').select2('destroy');
     }
 });
