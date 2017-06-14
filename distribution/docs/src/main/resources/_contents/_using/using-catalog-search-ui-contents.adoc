@@ -107,7 +107,7 @@ View, edit, and add searches from the *Searches* tab.
 * *Duplicate*: Create a copy of this search as a starting point
 * *Search Archived*: Execute the search, but specifically for archived results.
 * *Search Historical*: Execute the search, but specifically for historical results.
-* *Submit Feedback*: Submit Query feedback to a configurable email address
+* *Submit Feedback*: Submit Query feedback to a configurable email address.
 
 ===== Editing a Search
 
