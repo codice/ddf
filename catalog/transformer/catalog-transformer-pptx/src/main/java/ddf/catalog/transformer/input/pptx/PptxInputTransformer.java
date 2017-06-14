@@ -56,7 +56,13 @@ public class PptxInputTransformer implements InputTransformer {
 
     private final InputTransformer inputTransformer;
 
-
+    /**
+     * The inputTransformer parameter will be used to generate the basic metadata. If the parameter
+     * is null, then a {@link NullPointerException} will be thrown.
+     *
+     * @param inputTransformer must be non-null
+     * @throws NullPointerException
+     */
     public PptxInputTransformer(InputTransformer inputTransformer) {
 
         notNull(inputTransformer, "The inputTransformer parameter must be non-null");

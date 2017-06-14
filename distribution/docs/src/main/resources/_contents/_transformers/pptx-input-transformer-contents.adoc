@@ -14,8 +14,6 @@ This transformer is installed by default with a standard installation in the ${d
 
 The PPTX Input Transformer had no configurable properties.
 
-include::{adoc-include}/_tables/ddf.catalog.transformer.input.pptx.PptxInputTransformer-table-contents.adoc[]
-
 ===== Using the PPTX Input Transformer
 
 Use the PPTX Input Transformer for ingesting Microsoft PowerPoint (OOXML only) documents into the ${branding} Content Repository and/or the Metadata Catalog.

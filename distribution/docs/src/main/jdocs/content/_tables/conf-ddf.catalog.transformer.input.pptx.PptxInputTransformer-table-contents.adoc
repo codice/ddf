@@ -1,6 +1,0 @@
-:type: documentation
-:status: published
-
-|<<ddf.catalog.transformer.input.pptx.PptxInputTransformer,PowerPoint Input Transformer>>
-|ddf.catalog.transformer.input.pptx.PptxInputTransformer
-|PPTX Input Transformer
