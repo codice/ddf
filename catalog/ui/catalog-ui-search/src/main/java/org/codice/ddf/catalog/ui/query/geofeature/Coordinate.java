@@ -13,11 +13,22 @@
  */
 package org.codice.ddf.catalog.ui.query.geofeature;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Simple container for a latitude/longitude pair
+ */
 public class Coordinate {
 
     private double latitude;
 
     private double longitude;
+
+    public Coordinate(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 
     public double getLatitude() {
         return latitude;
@@ -35,9 +46,15 @@ public class Coordinate {
         this.longitude = longitude;
     }
 
-    public Coordinate(double latitude, double longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+    /**
+     * Provides a JSON-serializable representation of the Coordinate
+     * @return  A data object representing the Coordinate
+     */
+    public Map<String, Object> getJsonObject() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("longitude", this.longitude);
+        result.put("latitude", this.latitude);
+        return result;
     }
 
 }

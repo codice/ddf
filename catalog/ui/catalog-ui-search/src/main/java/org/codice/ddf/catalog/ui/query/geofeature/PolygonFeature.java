@@ -14,17 +14,36 @@
 package org.codice.ddf.catalog.ui.query.geofeature;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+/**
+ * A feature with polygonal geometry represented by a list of Coordinates
+ */
 public class PolygonFeature extends Feature {
-    private List<Coordinate> coordinates;
+    private List<Coordinate> coordinates = new ArrayList<>();
 
-    public PolygonFeature() {
-        this.type = "polygon";
-        this.coordinates = new ArrayList<>();
+    @Override
+    public String getType() {
+        return "polygon";
+    }
+
+    @Override
+    public Map<String, Object> getGeometryJsonObject() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("coordinates", this.getCoordinatesJsonObject());
+        return result;
     }
 
     public List<Coordinate> getCoordinates() {
         return coordinates;
+    }
+
+    private List<Object> getCoordinatesJsonObject() {
+        return this.coordinates.stream()
+                .map(c -> c.getJsonObject())
+                .collect(Collectors.toList());
     }
 }

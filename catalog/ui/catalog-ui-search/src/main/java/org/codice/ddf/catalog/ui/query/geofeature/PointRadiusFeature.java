@@ -13,28 +13,40 @@
  */
 package org.codice.ddf.catalog.ui.query.geofeature;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * A feature with circle geometry specified by a center coordinate and a radius.
+ */
 public class PointRadiusFeature extends Feature {
     private Coordinate center;
 
     private double radius;
 
-    public PointRadiusFeature() {
-        this.type = "point-radius";
-    }
-
-    public Coordinate getCenter() {
-        return center;
-    }
-
     public void setCenter(Coordinate center) {
         this.center = center;
     }
 
-    public double getRadius() {
-        return radius;
-    }
-
+    /**
+     * Sets the length of the circle's radius
+     *
+     * @param radius value in meters
+     */
     public void setRadius(double radius) {
         this.radius = radius;
+    }
+
+    @Override
+    public String getType() {
+        return "point-radius";
+    }
+
+    @Override
+    public Map<String, Object> getGeometryJsonObject() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("center", this.center.getJsonObject());
+        result.put("radius", this.radius);
+        return result;
     }
 }

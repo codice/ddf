@@ -18,6 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A stub implementation of FeatureService for testing purposes.
+ * Returns one each of point-radius, bbox, and polygon features.
+ */
 public class StubFeatureService implements FeatureService {
     @Override
     public List<String> getSuggestedFeatureNames(String query, int maxResults) {

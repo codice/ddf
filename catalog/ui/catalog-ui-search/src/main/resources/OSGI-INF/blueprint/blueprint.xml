@@ -328,7 +328,7 @@
     <service ref="workspaceQueryService"
              interface="org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService"/>
 
-    <bean id="featureService" class="org.codice.ddf.catalog.ui.query.geofeature.StubFeatureService"></bean>
+    <bean id="featureService" class="org.codice.ddf.catalog.ui.query.geofeature.StubFeatureService"/>
 
     <service ref="featureService" interface="org.codice.ddf.catalog.ui.query.geofeature.FeatureService"/>
 

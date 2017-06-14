@@ -13,13 +13,14 @@
  */
 package org.codice.ddf.catalog.ui.query.geofeature;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Base class for results returned from the FeatureService.
+ */
 public abstract class Feature {
     private String name;
-
-    // this shouldn't be an instance property (it's constant for the class),
-    // but I haven't seen the right way yet to customize boon's serialization
-    // to get anything but properties...
-    protected String type;
 
     public String getName() {
         return name;
@@ -29,8 +30,23 @@ public abstract class Feature {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
-    }
+    public abstract String getType();
 
+    /**
+     * Subclasses should override with behavior specific to their geometry type
+     * @return  A data object representing the Feature's geometry
+     */
+    public abstract Map<String, Object> getGeometryJsonObject();
+
+    /**
+     * Provides a JSON-serializable representation of the Feature
+     * @return  A data object representing the Feature
+     */
+    public Map<String, Object> getJsonObject() {
+        Map<String, Object> result = new HashMap<>();
+        result.putAll(this.getGeometryJsonObject());
+        result.put("name", this.name);
+        result.put("type", this.getType());
+        return result;
+    }
 }

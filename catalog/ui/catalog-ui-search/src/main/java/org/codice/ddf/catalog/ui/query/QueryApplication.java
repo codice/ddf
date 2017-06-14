@@ -29,6 +29,7 @@ import org.boon.json.ObjectMapper;
 import org.boon.json.implementation.ObjectMapperImpl;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
+import org.codice.ddf.catalog.ui.query.geofeature.Feature;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +95,8 @@ public class QueryApplication implements SparkApplication {
 
         get("/geofeature", (req, res) -> {
             String name = req.queryParams("name");
-            return mapper.toJson(this.featureService.getFeatureByName(name));
+            Feature feature = this.featureService.getFeatureByName(name);
+            return mapper.toJson(feature.getJsonObject());
         });
 
         exception(UnsupportedQueryException.class, (e, request, response) -> {
