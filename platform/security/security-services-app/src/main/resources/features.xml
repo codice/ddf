@@ -18,7 +18,7 @@
 
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
 
-    <feature name="security-rest-authentication" install="manual" version="${project.version"
+    <feature name="security-rest-authentication" install="manual" version="${project.version}"
              description="Authentication endpoint for handling multiple realms">
         <bundle>mvn:ddf.platform.security/security-rest-authentication/${project.version}</bundle>
     </feature>
