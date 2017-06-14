@@ -27,16 +27,18 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfi
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.activation.MimeTypeParseException;
 import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
@@ -58,8 +60,6 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
-
-import com.google.common.io.Files;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.content.data.ContentItem;
@@ -106,45 +106,46 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
     @Test
     public void testInPlaceMonitoring()
-            throws IOException, InterruptedException, SourceUnavailableException, IngestException {
+            throws IOException, InterruptedException, SourceUnavailableException, IngestException,
+            MimeTypeParseException {
         updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.IN_PLACE);
 
         File file = createTestFile(directoryPath);
+        ContentItem result = getContentItem();
 
-        ArgumentCaptor<CreateStorageRequest> createStorageRequest = ArgumentCaptor.forClass(
-                CreateStorageRequest.class);
-        verify(catalogFramework).create(createStorageRequest.capture());
-        ContentItem result = createStorageRequest.getValue()
-                .getContentItems()
-                .get(0);
-
-        assertThat(result.getFilename(), is(file.getName()));
+        assertContentItem(result, file);
         assertThat(file.exists(), is(true));
     }
 
     @Test
     public void testMoveMonitoring()
-            throws IOException, SourceUnavailableException, IngestException {
+            throws IOException, SourceUnavailableException, IngestException,
+            MimeTypeParseException {
         updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.MOVE);
         File file = createTestFile(directoryPath);
         File movedFile = Paths.get(directoryPath, ".ingested", file.getName())
                 .toFile();
+
+        ContentItem result = getContentItem();
+
+        assertContentItem(result, movedFile);
         assertThat(file.exists(), is(false));
         assertThat(movedFile.exists(), is(true));
     }
 
     @Test
     public void testDeleteMonitoring()
-            throws IOException, SourceUnavailableException, IngestException {
+            throws IOException, SourceUnavailableException, IngestException,
+            MimeTypeParseException {
         updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.DELETE);
 
         File file = createTestFile(directoryPath);
         File directory = Paths.get(directoryPath)
                 .toFile();
+        ContentItem result = getContentItem();
 
         await("file deleted").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
                 .until(() -> !file.exists());
-
         assertThat(directory.list().length, is(0));
     }
 
@@ -246,7 +247,7 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         AtomicBoolean created = createStorageRequestNotification();
 
         File file = File.createTempFile("test", ".txt", new File(directoryPath));
-        Files.write("Hello, World", file, Charset.forName("UTF-8"));
+        Files.write(file.toPath(), Collections.singletonList("Hello, World"));
 
         await("create storage request created").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
                 .until(created::get);
@@ -262,6 +263,22 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         properties.put("processingMechanism", processingMechanism);
 
         contentDirectoryMonitor.updateCallback(properties);
+    }
+
+    private ContentItem getContentItem() throws SourceUnavailableException, IngestException {
+        ArgumentCaptor<CreateStorageRequest> createStorageRequest = ArgumentCaptor.forClass(
+                CreateStorageRequest.class);
+        verify(catalogFramework).create(createStorageRequest.capture());
+        return createStorageRequest.getValue()
+                .getContentItems()
+                .get(0);
+    }
+
+    private void assertContentItem(ContentItem item, File file)
+            throws IOException, MimeTypeParseException {
+        assertThat(item.getFilename(), is(file.getName()));
+        assertThat(item.getUri(), is("content:" + item.getId()));
+        assertThat(item.getSize(), is(file.length()));
     }
 }
 

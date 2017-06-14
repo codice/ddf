@@ -143,7 +143,7 @@ public class ContentProducerDataAccessObject {
                             Files.asByteSource(ingestedFile),
                             mimeType,
                             ingestedFile.getName(),
-                            0L,
+                            ingestedFile.length(),
                             null)), null);
 
             processHeaders(headers, createRequest, ingestedFile);
