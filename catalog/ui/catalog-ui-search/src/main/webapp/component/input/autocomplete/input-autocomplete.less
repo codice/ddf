@@ -1,7 +1,6 @@
 @{customElementNamespace}input.is-autocomplete {
     .select2-container--default .select2-selection--single {
         background: @darken-inherited-background-color;
-        color: @text-color;
         border: 1px solid @heavily-lighten-inherited-background-color;
         border-radius: @border-radius;
         height: auto;
@@ -18,7 +17,9 @@
         }        
     }
 
-
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: @text-color;
+    }
 }
 
 // can't namespace because dropdown gets appended to end of document body

@@ -26,8 +26,9 @@ define([
     './location-old',
     'js/CQLUtils',
     'component/property/property',
+    'component/announcement'
 ], function (require, $, Backbone, Marionette, _, properties, MetaCard, wreqr, template, maptype,
-             store, CustomElements, LocationOldModel, CQLUtils, Property) {
+             store, CustomElements, LocationOldModel, CQLUtils, Property, Announcement) {
     var minimumDifference = 0.0001;
     var minimumBuffer = 0.000001;
     var deltaThreshold = 0.0000001;
@@ -195,6 +196,9 @@ define([
             }
         },
         clearLocation: function () {
+            if (this.getFeatureByKeywordXHR){
+                this.getFeatureByKeywordXHR.abort();
+            }
             this.model.set({
                 north: undefined,
                 east: undefined,
@@ -433,6 +437,12 @@ define([
             this.$('#utmZone').multiselect(singleselectOptions);
             this.$('#utmHemisphere').multiselect(singleselectOptions);
 
+            this.showKeywordPropertyView();
+            this.blockMultiselectEvents();
+            this.updateLocationFields();
+            this.handleEdit();
+        },
+        showKeywordPropertyView: function() {
             var keywordProperty = new Property({
                 placeholder: 'Enter a region, country, or city',
                 minimumInputLength: 2,
@@ -444,10 +454,6 @@ define([
             var keywordPropertyView = new PropertyView({ model: keywordProperty });            
             keywordPropertyView.turnOnLimitedWidth();
             this.keyword.show(keywordPropertyView);
-
-            this.blockMultiselectEvents();
-            this.updateLocationFields();
-            this.handleEdit();
         },
         handleGetKeyword: function(model, values) {
             var query = values[0];
@@ -457,13 +463,24 @@ define([
             if (view.getFeatureByKeywordXHR) {
                 view.getFeatureByKeywordXHR.abort();
             }
+            view.$el.toggleClass('is-loading-geometry', true);
             view.getFeatureByKeywordXHR = $.get({
                 url: '/search/catalog/internal/geofeature?name=' + query,
                 contentType: 'application/json',
-                cache: false
+                cache: false,
+                customErrorHandling: true
             }).done(function(data){
                 view.showKeywordResults(data);
+            }).fail(function(jqXHR, statusText){
+                if (statusText !== 'abort') {
+                    Announcement.announce({
+                        title: 'Could Not Retrieve Geometry',
+                        message: 'Could not find geometry for ' + query + '.',
+                        type: 'error'
+                    });
+                }
             }).always(function(){
+                view.$el.toggleClass('is-loading-geometry', false);
                 view.getFeatureByKeywordXHR = null;
             });
         },
@@ -502,6 +519,12 @@ define([
                 this.model.set(attrsToSet);
                 this.render(); // redraw template so appropriate fields appear
                 wreqr.vent.trigger(eventToDrawShape, this.model);      
+            } else {
+                Announcement.announce({
+                    title: 'Invalid feature',
+                    message: 'Unrecognized feature type: ' + data.type,
+                    type: 'error'
+                });
             }
         },
         blockMultiselectEvents: function () {
@@ -600,6 +623,9 @@ define([
         },
         onDestroy: function () {
             wreqr.vent.trigger('search:drawend', this.model);
+            if (this.getFeatureByKeywordXHR){
+                this.getFeatureByKeywordXHR.abort();
+            }            
         }
     });
 });

@@ -131,7 +131,6 @@ module.exports = {
         extensions: ['', '.js', '.jsx'],
         alias: {
             bootstrapDatepicker: 'eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
-            select2js: 'select2/dist/js/select2',
             strapdown: 'strapdown/v/0.2',
             // backbone
             backboneassociations: 'backbone-associations',
