@@ -25,8 +25,8 @@ import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -53,6 +53,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
+import org.ops4j.io.FileUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
@@ -176,12 +177,14 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     }
 
     private Option keystoreAndTruststoreConfig() {
-        InputStream keystore = ContentDirectoryMonitorIT.class.getResourceAsStream(
-                "/serverKeystore.jks");
-        InputStream truststore = ContentDirectoryMonitorIT.class.getResourceAsStream(
-                "/serverTruststore.jks");
+        try {
+            File keystore = FileUtils.getFileFromClasspath("serverKeystore.jks");
+            File truststore = FileUtils.getFileFromClasspath("serverTruststore.jks");
 
-        return KeystoreTruststoreConfigurator.createKeystoreAndTruststore(keystore, truststore);
+            return KeystoreTruststoreConfigurator.createKeystoreAndTruststore(keystore, truststore);
+        } catch (FileNotFoundException e) {
+            return null;
+        }
     }
 
     private Option initContentDirectoryMonitorConfig() {
