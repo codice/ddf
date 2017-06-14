@@ -11,20 +11,39 @@
  *
  **/
  --}}
-
 <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
             <h4 class="modal-title">
-                Delete Registry Node: {{name}}
+                {{#if noNodes}}
+                    There are no {{name}} Nodes
+                {{else}}
+                    {{#if deleteAll}}
+                        Delete All {{name}} Nodes
+                    {{else}}
+                        Delete Registry Node: {{name}}
+                    {{/if}}
+                {{/if}}
             </h4>
         </div>
-        <div class="modal-body">
-            <p>Are you sure you want to delete registry node {{name}}?</p>
-        </div>
+        {{#unless noNodes}}
+            <div class="modal-body">
+                    {{#if deleteAll}}
+                        <p>Are you sure you want to delete all {{name}} Nodes?</p>
+                    {{else}}
+                        <p>Are you sure you want to delete registry node {{name}}?</p>
+                    {{/if}}
+
+                    {{#if remote}}
+                        <p>If the system retains the connection to the remote node, this local representation may be regenerated.</p>
+                    {{/if}}
+            </div>
+        {{/unless}}
         <div class="modal-footer">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary submit-button">Delete</button>
+                {{#unless noNodes}}
+                    <button type="button" class="btn btn-primary submit-button">Delete</button>
+                {{/unless}}
                 <button type="button" class="btn btn-default cancel-button" data-dismiss="modal">Cancel</button>
             </div>
         </div>

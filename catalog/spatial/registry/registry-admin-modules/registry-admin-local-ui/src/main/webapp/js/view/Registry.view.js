@@ -45,6 +45,7 @@ define([
             template: 'registryPage',
             events: {
                 'click .add-node-link': 'showAddNode',
+                'click .remove-all-node-link': 'deleteAllNodes',
                 'click .refresh-button': 'addDeleteNode',
                 'click .regenerate-sources': 'regenerateSources'
             },
@@ -72,8 +73,8 @@ define([
             },
             onRender: function() {
                 this.identityRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getIdentityNode())}));
-                this.additionalRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getSecondaryNodes()), multiValued: true}));
-                this.remoteNodeRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getRemoteNodes()), multiValued:true, readOnly:true}));
+                this.additionalRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getSecondaryNodes()), multiValued: true, region: "additional"}));
+                this.remoteNodeRegion.show(new RegistryView.NodeTable({collection: new NodeCollection(this.model.getRemoteNodes()), multiValued:true, region: "remote", readOnly:true}));
                 if(this.model.models.length <= 1){
                     $('.regenerate-sources').prop("disabled",true);
                 }
@@ -124,6 +125,17 @@ define([
                 $('.refresh-button').prop("disabled",false);
                 view.render();
             },
+            deleteAllNodes: function(table) {
+                var remote, nodes, modal;
+                if (table.currentTarget.id === "additional") {
+                    nodes = this.model.getSecondaryNodes();
+                } else if (table.currentTarget.id === "remote") {
+                    remote = true;
+                    nodes = this.model.getRemoteNodes();
+                }
+                modal = new RegistryView.DeleteAllModal({ model: this.model, remote: remote, nodes: nodes });
+                wreqr.vent.trigger("showModal", modal);
+            },
             deleteNodes: function(model) {
                 if (model) {
                     wreqr.vent.trigger("showModal",
@@ -134,9 +146,9 @@ define([
                 }
             },
             regenerateSources: function() {
-                    wreqr.vent.trigger("showModal",
-                        new RegistryView.RegenerateSourcesModal({nodes: this.model.models})
-                    );
+                wreqr.vent.trigger("showModal",
+                    new RegistryView.RegenerateSourcesModal({nodes: this.model.models})
+                );
             },
             serializeData: function () {
                 var data = {};
@@ -235,6 +247,7 @@ define([
                 }
                 data.multiValued = this.options.multiValued;
                 data.readOnly = this.options.readOnly;
+                data.region = this.options.region;
                 return data;
             },
             buildItemView: function (item, ItemViewType, itemViewOptions) {
@@ -272,6 +285,7 @@ define([
                     data = this.model.toJSON();
                 }
                 data.name = this.getNodeName();
+                data.remote = !this.model.attributes.localNode;
                 return data;
            },
            getNodeName: function() {
@@ -279,13 +293,53 @@ define([
            }
         });
 
+        RegistryView.DeleteAllModal = RegistryView.DeleteModal.extend({
+            deleteNode: function() {
+                var registryIds = this.options.nodes.map(
+                    function (n) {
+                        return n.get('registryId');
+                    }
+                );
+                this.model.deleteNodes(registryIds);
+                this.close();
+            },
+            serializeData: function() {
+                var data = {};
+                if (this.model) {
+                    data = this.model.toJSON();
+                }
+                if (this.options.nodes.length === 0) {
+                    data.noNodes = true;
+                }
+
+                data.remote = this.options.remote;
+                if (data.remote) {
+                    data.name = "Remote";
+                } else {
+                    data.name = "Additional Local";
+                }
+
+                data.deleteAll = true;
+                return data;
+            }
+        });
+
         RegistryView.RegenerateSourcesModal = Marionette.ItemView.extend({
             template: 'regenerateSourcesModal',
             className: 'modal',
             events: {
+                'click .select-all-group' : 'selectAllSources',
                 'click .submit-button' : 'regenerateSources',
                 'click .cancel-button' : 'cancel',
                 'click .close': 'cancel'
+            },
+            selectAllSources: function () {
+                // Select All box will set all source checkboxes to the same state as Select All
+                var checkboxes = $('.regenerate-source-check');
+                var selectAll = $('.regenerate-source-check-all')[0].checked;
+                _.each(checkboxes, function(input) {
+                    input.checked = selectAll;
+                });
             },
             regenerateUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/regenerateRegistrySources',
             regenerateSources: function() {
