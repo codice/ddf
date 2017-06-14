@@ -532,7 +532,7 @@ public class TestFtp extends AbstractIntegrationTest {
                             .size();
 
                     String title = response.xmlPath()
-                            .get("metacards.metacard.string.findAll { it.@name == 'title' }.value");
+                            .getString("metacards.metacard.string.findAll { it.@name == 'title' }.value");
 
                     boolean success =
                             numOfResults == expectedResults && title.equals(expectedTitle);
