@@ -37,9 +37,6 @@ define([
                     }
                 }
             }.bind(this));
-        },
-        handleMousedown: function(e){
-            // override default behavior to close other dropdowns
         }
     });
 });

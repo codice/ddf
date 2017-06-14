@@ -47,7 +47,6 @@ define([
         events: {
             'keydown': 'handleSpecialKeys',
             'keyup .dropdown-companion-filter': 'handleFilterUpdate',
-            'mousedown': 'handleMousedown',
             'click > button': 'triggerToggleAll'
         },
         attributes: {
@@ -299,10 +298,6 @@ define([
             this.stopListeningForOutsideClick();
             this.stopListeningForResize();
             this.stopListeningForReposition();
-        },
-        handleMousedown: function(e){
-            // stop from closing dropdowns higher in the dom
-           // e.stopPropagation();
         }
     }, {
         getNewCompanionView: function (linkedView) {
