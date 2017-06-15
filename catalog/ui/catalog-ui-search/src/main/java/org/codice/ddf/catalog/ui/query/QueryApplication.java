@@ -96,7 +96,12 @@ public class QueryApplication implements SparkApplication {
         get("/geofeature", (req, res) -> {
             String name = req.queryParams("name");
             Feature feature = this.featureService.getFeatureByName(name);
-            return mapper.toJson(feature.getJsonObject());
+            if (feature == null) {
+                res.status(404);
+                return "Feature not found";
+            } else {
+                return mapper.toJson(feature.getJsonObject());
+            }
         });
 
         exception(UnsupportedQueryException.class, (e, request, response) -> {
