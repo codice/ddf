@@ -38,15 +38,15 @@
         All version properties for these Camel features are defined in the platform-app pom.
 
         DDF Changes made:
-        - removed resolver="(obr)" from every feature
-        - added install="manual" to every feature
-        - replaced ${project.version} with ${camel.version}
-        - commented out xml-specs-api feature and replaced xml-specs-api with cxf-specs in camel-core feature
-        - added camel as feature prerequisite in camel-http to keep things ordered
-        - added cxf as feature prerequisite in camel to keep things ordered
-        - removed features that are not needed
-        - updated versions of qpid and proton versions and added netty bundles in camel-amqp
-        - replaced bundles in camel-jms
+        - Removed resolver="(obr)" from every feature
+        - Added install="manual" to every feature
+        - Replaced ${project.version} with ${camel.version}
+        - Commented out xml-specs-api feature and replaced xml-specs-api with cxf-specs in camel-core feature
+        - Added camel as feature prerequisite in camel-http to keep things ordered
+        - Added cxf as feature prerequisite in camel to keep things ordered
+        - Removed features that are not needed
+        - Updated versions of qpid and proton versions and added netty bundles in camel-amqp
+        - Replaced bundles in camel-jms
 
     DO NOT EDIT
     -->
@@ -248,6 +248,59 @@
     </feature>
     <!-- END Camel Features -->
 
+    <!--START Enterprise Features-->
+    <!-- DO NOT EDIT
+         All feature definitions come from 3rd party feature file:
+         <repository>mvn:org.apache.karaf.features/enterprise/4.1.1/xml/features</repository>
+
+         All version properties for these enterprise features are defined in the platform-app pom.
+
+         DDF Changes made:
+         - Removed features that are not needed
+
+     DO NOT EDIT
+     -->
+    <feature name="transaction-api" version="1.2.0">
+        <bundle dependency="true">mvn:javax.interceptor/javax.interceptor-api/1.2</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/1_2</bundle>
+        <bundle dependency="true">mvn:javax.el/javax.el-api/3.0.0</bundle>
+        <bundle dependency="true">mvn:javax.enterprise/cdi-api/1.2</bundle>
+        <bundle>mvn:javax.transaction/javax.transaction-api/1.2</bundle>
+    </feature>
+
+    <feature name="transaction-manager-geronimo" description="Geronimo Transaction Manager" version="${aries.transaction.manager.version}">
+        <details>JTA implementation provided by Apache Aries Transaction</details>
+        <config name="org.apache.aries.transaction">
+            aries.transaction.recoverable = true
+            aries.transaction.timeout = 600
+            aries.transaction.howl.logFileDir = ${karaf.data}/txlog
+            aries.transaction.howl.maxLogFiles = 2
+            aries.transaction.howl.maxBlocksPerFile = 512
+            aries.transaction.howl.bufferSize = 4
+        </config>
+        <feature version="[1.1,2)">transaction-api</feature>
+        <bundle dependency="true">mvn:org.apache.aries/org.apache.aries.util/${aries.util.version}</bundle>
+        <bundle>mvn:org.apache.aries.transaction/org.apache.aries.transaction.manager/${aries.transaction.manager.version}</bundle>
+        <capability>
+            transaction-manager;provider:=geronimo
+        </capability>
+    </feature>
+
+    <feature name="transaction" description="OSGi Transaction Manager" version="2.0">
+        <details>JTA Support</details>
+        <feature dependency="true">transaction-manager-geronimo</feature>
+        <requirement>
+            transaction-manager
+        </requirement>
+        <conditional>
+            <condition>aries-blueprint</condition>
+            <bundle dependency="true">mvn:org.apache.felix/org.apache.felix.coordinator/${felix.coordinator.version}</bundle>
+            <bundle>mvn:org.apache.aries.transaction/org.apache.aries.transaction.blueprint/${aries.transaction.blueprint.version}</bundle>
+            <bundle>mvn:org.apache.aries.transaction/org.apache.aries.transaction.blueprint/${aries.transaction.blueprint.version2}</bundle>
+        </conditional>
+    </feature>
+    <!-- END Enterprise Features -->
+
     <!--START CXF Features-->
     <!-- DO NOT EDIT
          All feature definitions come from 3rd party feature file:
@@ -257,10 +310,10 @@
 
          DDF Changes made:
          - cxf-transports-udp, cxf-ws-discovery-api, cxf-wsn, and cxf-ws-discovery features removed due to dependency on activemq and mina
-         - added install="manual" to all features
-         - removed cxf-rs-security-oauth and cxf-rs-security-oauth2 due to incompatibility with other implementations
-         - changed project.version to cxf.version
-         - removed feature references http-whiteboard (from cxf-http) and jetty (from cxf-http-jetty)to make it easier to directly use the pax features file to upgrade jetty versions.
+         - Added install="manual" to all features
+         - Removed cxf-rs-security-oauth and cxf-rs-security-oauth2 due to incompatibility with other implementations
+         - Changed project.version to cxf.version
+         - Removed feature references http-whiteboard (from cxf-http) and jetty (from cxf-http-jetty)to make it easier to directly use the pax features file to upgrade jetty versions.
 
      DO NOT EDIT
      -->
