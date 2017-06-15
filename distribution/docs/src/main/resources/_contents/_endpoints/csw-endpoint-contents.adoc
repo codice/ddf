@@ -721,6 +721,7 @@ The HTTP POST request `DescribeRecordType` has the `typeName` as a List of QName
                     <xs:enumeration value="health"/>
                     <xs:enumeration value="imageryBaseMapsEarthCover"/>
                     <xs:enumeration value="inlandWaters"/>
+                    <xs:enumeration value="intelligenceMilitary"/>
                     <xs:enumeration value="location"/>
                     <xs:enumeration value="oceans"/>
                     <xs:enumeration value="planningCadastre"/>
@@ -957,8 +958,13 @@ Namespace:: In POST operations, namespaces are defined in the XML. In GET operat
 Service:: The service being used, in this case it is fixed at CSW.
 Version:: The version of the service being used (2.0.2).
 OutputFormat:: The requester wants the response to be in this intended output. Currently, only one format is supported (application/xml). If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
-OutputSchema:: This is the schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
+OutputSchema:: The OutputSchema indicates which schema shall be used to generate the response to the GetRecords operation.  The supported output schemas are listed in the GetCapabilities response.
 ElementSetName:: CodeList with allowed values of “brief”, “summary”, or “full”. The default value is "summary". The predefined set names of “brief”, “summary”, and “full” represent different levels of detail for the source record. "Brief" represents the least amount of detail, and "full" represents all the metadata record elements.
+
+[IMPORTANT]
+====
+ The CSW Endpoint expects all geospatial filters using the EPSG:4326 CRS to use "longitude then latitude" coordinate ordering.  Similarly, unless the output schema explicitly states otherwise, the GetRecordsResponse will use the same coordinate ordering.
+====
 
 .`GetRecords` `HTTP GET`
 The `HTTP GET` request differs from the `POST` request in that it has the "typeNames" as a comma-separated list of namespace prefix qualified types as strings.
@@ -1289,7 +1295,7 @@ Namespace:: In POST operations, namespaces are defined in the XML. In GET operat
 Service:: The service being used, in this case it is fixed at "CSW".
 Version:: The version of the service being used (2.0.2).
 OutputFormat:: The requester wants the response to be in this intended output. Currently, two output formats are supported: `application/xml` for retrieving records, and `application/octet-stream` for retrieving a product. If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
-OutputSchema:: This is the schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema). Additionally the output schema `http://www.iana.org/assignments/media-types/application/octet-stream` is recognized and used to retrieve a product.
+OutputSchema:: The OutputSchema indicates which schema shall be used to generate the response to the GetRecordById operation.  The supported output schemas are listed in the GetCapabilities response.
 ElementSetName:: CodeList with allowed values of “brief”, “summary”, or “full”. The default value is "summary". The predefined set names of “brief”, “summary”, and “full” represent different levels of detail for the source record. "Brief" represents the least amount of detail, and "full" represents all the metadata record elements.
 Id:: The Id parameter is a comma-separated list of record identifiers for the records that CSW returns to the client. In the XML encoding, one or more <Id> elements may be used to specify the record identifier to be retrieved.
 
@@ -2145,15 +2151,14 @@ The following is an example `HTTP GET` Response retrieving an active subscriptio
 ----
 
 ====== Example Responses for CSW Endpoint Error Conditions
-The following are example data and expected errors responses that will be returned for each
-error condition.
+The following are example data and expected errors responses that will be returned for each error condition.
 
 HTTP error codes are also returned. https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_errors
 
 .No Transaction Contents
 This will not generate an error, but the response will tell you that nothing was processed as part of the transaction.
-For security purposes the `ows:ExceptionText` on invalid data is generic. The log file should be consulted
-for more information.
+For security purposes the `ows:ExceptionText` on invalid data is generic.
+The log file should be consulted for more information.
 
 .Example CSW Request with no payload
 [source,xml,linenums]
@@ -2210,8 +2215,8 @@ The follow example sends malformed XML to the CSW Endpoint.
     </csw:Update>
 </csw:Transaction>
 ----
-An HTTP 400 Bad request response is returned. The error is logged in the log file and the following response
-body is returned.
+An HTTP 400 Bad request response is returned.
+The error is logged in the log file and the following response body is returned.
 
 .Malformed XML CSW Response
 [source,xml,linenums]
@@ -2251,9 +2256,8 @@ An HTTP 400 Bad request response is returned, and the following response body is
 ----
 
 .Request with Unknown Schema
-This type of request will succeed and attribute names that match the expected names for the typeName (e.g. csw:Record)
-will get mapped into the metacard. In the example, the `title` attribute will get mapped to the metacard
-`title` attribute since it's the same attribute name as `<dc:title>` that `csw:Record` is configured to parse.
+This type of request will succeed and attribute names that match the expected names for the typeName (e.g. csw:Record) will get mapped into the metacard.
+In the example, the `title` attribute will get mapped to the metacard `title` attribute since it's the same attribute name as `<dc:title>` that `csw:Record` is configured to parse.
 
 .Example Unknown Schema
 [source,xml,linenums]
@@ -2298,8 +2302,8 @@ Metacard is created successfully.
 ----
 
 .Well-formed, but Invalid TypeName
-The `typeName` on the `csw:Insert` specifies the transformer to use when parsing the data. If the name specified
-is not configured, an error response is returned.
+The `typeName` on the `csw:Insert` specifies the transformer to use when parsing the data.
+If the name specified is not configured, an error response is returned.
 
 .Example Invalid `typeName`
 [source,xml,linenums]
@@ -2314,8 +2318,8 @@ is not configured, an error response is returned.
 </csw:Transaction>
 ----
 
-An HTTP 400 Bad request response is returned. The error is logged in the log file and the following response
-body is returned.
+An HTTP 400 Bad request response is returned.
+The error is logged in the log file and the following response body is returned.
 
 .Invalid typeName Response
 [source,xml,linenums]
@@ -2398,8 +2402,8 @@ title: Non-XML title
 id: abc123
 ----
 
-An HTTP 400 Bad request response is returned. The error is logged in the log file and the following response
-body is returned.
+An HTTP 400 Bad request response is returned.
+The error is logged in the log file and the following response body is returned.
 
 .Non-XML Response
 [source,xml,linenums]

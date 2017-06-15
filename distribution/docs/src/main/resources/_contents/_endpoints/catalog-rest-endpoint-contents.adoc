@@ -1,6 +1,9 @@
+
 ==== Catalog REST Endpoint
 
 The Catalog REST Endpoint allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. 
+
+The URL exposing the REST functionality is located at http://${public_endpoint}/services/catalog.
 
 ===== Installing the Catalog REST Endpoint
 
@@ -26,31 +29,45 @@ The Catalog REST Endpoint provides the capability to query, create, update, and 
 |create
 |HTTP POST
 |HTTP request body contains the input to be ingested.
-|\${public_url}/services/catalog
+
+`<input transformer>` is the name of the transformer to use when parsing metadata (optional).
+
+|\${public_url}/services/catalog?transform=<input transformer>
 
 |update
 |HTTP PUT
-|The ID of the Metacard to be updated is appended to the end of the URL. (`<metacardId` is the `Metacard.ID` of the metacard to be updated.)
-
+|The ID of the Metacard to be updated is appended to the end of the URL.
 The updated metadata is contained in the HTTP body.
 
-|\${public_url}/services/catalog/<metacardId>
+`<metacardId>` is the `Metacard.ID` of the metacard to be updated and `<input transformer>` is the name of the transformer to use when parsing an override metadata attribute (optional).
+
+|\${public_url}/services/catalog/<metacardId>?transform=<input transformer>
+
+
 
 |delete
 |HTTP DELETE
-|The ID of the Metacard to be deleted is appended to the end of the URL.(`<metacardId>` is the `Metacard.ID` of the metacard to be deleted.)
+|The ID of the Metacard to be deleted is appended to the end of the URL.
+
+`<metacardId>` is the `Metacard.ID` of the metacard to be deleted.
+
 |\${public_url}/services/catalog/<metacardId>
 
 |read
 |HTTP GET
-|The ID of the Metacard to be retrieved is appended to the end of the URL. +
-By default, the response body will include the XML representation of the Metacard. (`<metacardId>` is the `Metacard.ID` of the metacard to be retrieved)
+|The ID of the Metacard to be retrieved is appended to the end of the URL.
+
+By default, the response body will include the XML representation of the Metacard.
+
+`<metacardId>` is the `Metacard.ID` of the metacard to be retrieved.
 
 |\${public_url}/services/catalog/<metacardId>
 
 |federated read
 |HTTP GET
-|The SOURCE ID of a federated source is appended in the URL before the ID of the Metacard to be retrieved is appended to the end. (`<sourceId>` is the `FEDERATED SOURCE ID` and `<metacardId>` is the `Metacard.ID` of the Metacard to be retrieved.)
+|The SOURCE ID of a federated source is appended to the URL before the ID of the Metacard to be retrieved is appended to the end.
+
+`<sourceId>` is the `FEDERATED SOURCE ID` and `<metacardId>` is the `Metacard.ID` of the Metacard to be retrieved.
 
 |\${public_url}/services/catalog/sources/&lt;sourceId&gt;/&lt;metacardId&gt;
 
@@ -62,9 +79,134 @@ By default, the response body will include the XML representation of the Metacar
 
 |===
 
+|The ID of the Metacard to be updated is appended to the end of the URL.
+The updated metadata is contained in the HTTP body.
+
+`<metacardId>` is the `Metacard.ID` of the metacard to be updated and `<input transformer>` is the name of the transformer to use when parsing an override metadata attribute (optional).
+
+|\${public_url}/services/catalog/<metacardId>?transform=<input transformer>
+
+
+
+|delete
+|HTTP DELETE
+|The ID of the Metacard to be deleted is appended to the end of the URL.
+
+`<metacardId>` is the `Metacard.ID` of the metacard to be deleted.
+
+|\${public_url}/services/catalog/<metacardId>
+
+|read
+|HTTP GET
+|The ID of the Metacard to be retrieved is appended to the end of the URL.
+
+By default, the response body will include the XML representation of the Metacard.
+
+`<metacardId>` is the `Metacard.ID` of the metacard to be retrieved.
+
+|\${public_url}/services/catalog/<metacardId>
+
+|federated read
+|HTTP GET
+|The SOURCE ID of a federated source is appended to the URL before the ID of the Metacard to be retrieved is appended to the end.
+
+`<sourceId>` is the `FEDERATED SOURCE ID` and `<metacardId>` is the `Metacard.ID` of the Metacard to be retrieved.
+
+|\${public_url}/services/catalog/sources/&lt;sourceId&gt;/&lt;metacardId&gt;
+
+|sources
+|HTTP GET
+|Retrieves information about federated sources, including `sourceId`, `availability`, `contentTypes`,and `version`.
+
+|\${public_url}/services/catalog/sources/
+
+|===
+
+====== Sources Operation Example
+
+In the example below there is the local ${branding} distribution and a ${branding} OpenSearch federated source with id "${ddf-branding}-OS".
+
+.Sources Response Example
+[source,javascript,linenums]
+----
+[
+   {
+      "id" : "${ddf-branding}-OS",
+      "available" : true,
+      "contentTypes" :
+         [
+         ],
+      "version" : "2.0"
+   },
+   {
+      "id" : "ddf.distribution",
+      "available" : true,
+      "contentTypes" :
+         [
+         ],
+      "version" : "2.5.0-SNAPSHOT"
+   }
+]
+----
+
+Note that for all RESTful CRUD commands only one metacard ID is supported in the URL, i.e., bulk operations are not supported.
+
+===== Interacting with the REST CRUD Endpoint
+
+Any web browser can be used to perform a REST read.
+Various other tools and libraries can be used to perform the other HTTP operations on the REST endpoint (e.g., soapUI, cURL, etc.)
+
+The REST endpoint can be used to upload resources as attachments.
+The `create` and `update` methods both support the multipart mime format.
+If only a single attachment exists, it will be interpreted as a resource to be parsed, which will result in a metacard and resource being stored in the system.
+
+If multiple attachments exist, then the REST endpoint will assume that 1 attachment is the actual resource (attachment should be named `parse.resource`) and the other attachments are overrides of metacard attributes (attachment names should follow metacard attribute names). In the case of the metadata attribute, it is possible to also have the system transform that metadata and use the results of that to override the metacard that would be generated from the resource (attachment should be named `parse.metadata`).
+
+For example:
+[source,http]
+----
+POST /services/catalog?transform=xml HTTP/1.1
+Host: localhost:8993
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Cache-Control: no-cache
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="parse.resource"; filename=""
+Content-Type:
+
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="parse.metadata"; filename=""
+Content-Type:
+
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+----
+
+===== Metacard Transforms with the REST CRUD Endpoint
+
+The `read` operation can be used to retrieve metadata in different formats.
+
+. Install the appropriate feature for the desired transformer. If desired transformer is already installed such as those that come out of the box (`xml,html,etc`), then skip this step.
+. Make a read request to the REST URL specifying the catalog id.
+. Add a transform query parameter to the end of the URL specifying the shortname of the transformer to be used (e.g., `transform=kml`).
+
+.Example Metacard Transform
+[source,http]
+----
+${public_url}/services/catalog/<metacardId>?transform=<TRANSFORMER_ID>
+----
+
+[TIP]
+====
+Transforms also work on read operations for metacards in federated sources.
+\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/<sourceId>/<metacardId>?transform=<TRANSFORMER_ID>
+====
+
+See <<_metacard_transformers,Metacard Transformers>> for details on metacard transformers.
 
 ====== POST Metadata
-The follow is a successful post of well-formed XML data sent to the Catalog ReST endpoint.
+The following is a successful post of well-formed XML data sent to the Catalog ReST endpoint.
 
 .Example Metacard
 ----
@@ -82,8 +224,7 @@ The follow is a successful post of well-formed XML data sent to the Catalog ReST
 
 
 ====== Example Responses for ReST Endpoint Error Conditions
-The following are example data and expected errors responses that will be returned for each
-error condition.
+The following are example data and expected errors responses that will be returned for each error condition.
 
 HTTP error codes are also returned. https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_errors
 
@@ -104,8 +245,8 @@ The following request with malformed XML data sent to the Catalog ReST endpoint.
 </document>
 ----
 
-A HTTP 400 is returned and the following response body is returned. The specific error is logged
-in the error log.
+A HTTP 400 is returned and the following response body is returned.
+The specific error is logged in the error log.
 
 .Malformed XML Response
 ----
@@ -130,8 +271,7 @@ The following is a malformed XML document sent to the Catalog ReST endpoint.
 </mydoc>
 ----
 
-Creates a generic resource metacard with the provided XML as content for the `metadata` XML field
-in the metacard.
+Creates a generic resource metacard with the provided XML as content for the `metadata` XML field in the metacard.
 
 .Request with Missing XML Prologue
 The following is an example request with a missing XML prologue sent to the Catalog ReST endpoint.
@@ -179,8 +319,8 @@ Testing valid data with an invalid `transform=invalid` appended to the POST URL:
 </metacard>
 ----
 
-A HTTP 400 is returned and the following response body is returned. The specific error is logged
-in the error log.
+A HTTP 400 is returned and the following response body is returned.
+The specific error is logged in the error log.
 
 .Malformed XML Response
 ----
