@@ -131,6 +131,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     exportVisible: function() {
         let data = {
+            applyGlobalHidden: true,
             hiddenFields: user.get('user').get('preferences').get('columnHide'),
             columnOrder: user.get('user').get('preferences').get('columnOrder'),
             columnAliasMap: properties.attributeAliases,

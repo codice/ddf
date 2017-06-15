@@ -40,7 +40,7 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 public class CsvTransform {
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvTransform.class);
 
-    private String transformer = "csv";
+    private boolean applyGlobalHidden = false;
 
     private Set<String> hiddenFields;
 
@@ -81,6 +81,14 @@ public class CsvTransform {
 
     public void setMetacards(List<Map<String, Object>> metacards) {
         this.metacards = metacards;
+    }
+
+    public boolean isApplyGlobalHidden() {
+        return applyGlobalHidden;
+    }
+
+    public void setApplyGlobalHidden(boolean applyGlobalHidden) {
+        this.applyGlobalHidden = applyGlobalHidden;
     }
 
     public List<Metacard> getTransformedMetacards(List<MetacardType> metacardTypes,
@@ -161,9 +169,5 @@ public class CsvTransform {
             metacardType = new MetacardTypeImpl(metacardTypeName, metacardType, missingDescriptors);
         }
         return metacardType;
-    }
-
-    public static class Metacards extends HashMap<String, Object> {
-
     }
 }

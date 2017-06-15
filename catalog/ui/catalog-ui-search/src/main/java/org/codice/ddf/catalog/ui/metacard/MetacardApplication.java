@@ -45,6 +45,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
@@ -58,6 +59,7 @@ import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
+import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.enumeration.ExperimentalEnumerationExtractor;
 import org.codice.ddf.catalog.ui.metacard.associations.Associated;
 import org.codice.ddf.catalog.ui.metacard.edit.AttributeChange;
@@ -77,6 +79,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 
@@ -167,12 +170,14 @@ public class MetacardApplication implements SparkApplication {
 
     private final AttributeRegistry attributeRegistry;
 
+    private final ConfigurationApplication configuration;
+
     public MetacardApplication(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
             EndpointUtil endpointUtil, Validator validator, WorkspaceTransformer transformer,
             ExperimentalEnumerationExtractor enumExtractor,
             SubscriptionsPersistentStore subscriptions, List<MetacardType> types,
             Associated associated, QueryResponseTransformer csvQueryResponseTransformer,
-            AttributeRegistry attributeRegistry) {
+            AttributeRegistry attributeRegistry, ConfigurationApplication configuration) {
         this.catalogFramework = catalogFramework;
         this.filterBuilder = filterBuilder;
         this.util = endpointUtil;
@@ -184,6 +189,7 @@ public class MetacardApplication implements SparkApplication {
         this.associated = associated;
         this.csvQueryResponseTransformer = csvQueryResponseTransformer;
         this.attributeRegistry = attributeRegistry;
+        this.configuration = configuration;
     }
 
     private String getSubjectEmail() {
@@ -458,13 +464,19 @@ public class MetacardApplication implements SparkApplication {
                     .map(ResultImpl::new)
                     .collect(Collectors.toList());
 
+            Set<String> matchedHiddenFields = Collections.emptySet();
+            if (queryTransform.isApplyGlobalHidden()) {
+                matchedHiddenFields = getHiddenFields(metacards);
+            }
+
             SourceResponseImpl response = new SourceResponseImpl(null,
                     metacards,
                     Long.valueOf(metacards.size()));
 
             Map<String, Serializable> arguments = ImmutableMap.<String, Serializable>builder().put(
                     "hiddenFields",
-                    new HashSet<>(queryTransform.getHiddenFields()))
+                    new HashSet<>(Sets.union(matchedHiddenFields,
+                            queryTransform.getHiddenFields())))
                     .put("columnOrder", new ArrayList<>(queryTransform.getColumnOrder()))
                     .put("aliases", new HashMap<>(queryTransform.getColumnAliasMap()))
                     .build();
@@ -501,7 +513,7 @@ public class MetacardApplication implements SparkApplication {
                     IOUtils.copy(resultStream, servletOutputStream);
                 }
             }
-            return null;
+            return "";
         });
 
         after((req, res) -> {
@@ -535,6 +547,25 @@ public class MetacardApplication implements SparkApplication {
             res.body(util.getJson(ImmutableMap.of("message",
                     "Could not find what you were looking for")));
         });
+    }
+
+    private Set<String> getHiddenFields(List<Result> metacards) {
+        Set<String> matchedHiddenFields;
+        List<Pattern> hiddenFieldPatterns = configuration.getHiddenAttributes()
+                .stream()
+                .map(Pattern::compile)
+                .collect(Collectors.toList());
+        matchedHiddenFields = metacards.stream()
+                .map(Result::getMetacard)
+                .map(Metacard::getMetacardType)
+                .map(MetacardType::getAttributeDescriptors)
+                .flatMap(Collection::stream)
+                .map(AttributeDescriptor::getName)
+                .filter(attr -> hiddenFieldPatterns.stream()
+                        .map(Pattern::asPredicate)
+                        .anyMatch(pattern -> pattern.test(attr)))
+                .collect(Collectors.toSet());
+        return matchedHiddenFields;
     }
 
     private void revertMetacard(Metacard versionMetacard, String id, boolean alreadyCreated)
