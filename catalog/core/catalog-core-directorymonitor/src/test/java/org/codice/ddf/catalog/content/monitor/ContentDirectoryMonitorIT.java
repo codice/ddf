@@ -142,7 +142,6 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         File file = createTestFile(directoryPath);
         File directory = Paths.get(directoryPath)
                 .toFile();
-        ContentItem result = getContentItem();
 
         await("file deleted").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
                 .until(() -> !file.exists());
