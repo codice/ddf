@@ -48,4 +48,7 @@
       <argument ref="geoCoderFactory"/>
     </bean>
 
+    <bean id="geoCoder" class="org.codice.ddf.spatial.geocoder.GazetteerGeoCoder"/>
+    <service ref="geoCoder" interface="org.codice.ddf.spatial.geocoder.GeoCoder"/>
+
 </blueprint>
