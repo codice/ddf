@@ -73,7 +73,8 @@ module.exports = InputView.extend({
                         }
                     };
                 },
-                cache
+                cache,
+                customErrorHandling: true, // let select2 abort ajax requests silently               
             },
             escapeMarkup(markup) { return markup; },
             templateResult(result) {
