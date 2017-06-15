@@ -20,12 +20,10 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.codice.ddf.admin.configurator.ConfiguratorException;
-import org.codice.ddf.ui.admin.api.ConfigurationAdmin;
-import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean;
+import org.codice.ddf.admin.core.api.jmx.AdminConsoleServiceMBean;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,17 +46,10 @@ class OsgiUtils {
         return bundle.getBundleContext();
     }
 
-    static ConfigurationAdmin getConfigAdmin() {
-        BundleContext context = getBundleContext();
-        ServiceReference<org.osgi.service.cm.ConfigurationAdmin> serviceReference =
-                context.getServiceReference(org.osgi.service.cm.ConfigurationAdmin.class);
-        return new ConfigurationAdmin(context.getService(serviceReference));
-    }
-
-    static ConfigurationAdminMBean getConfigAdminMBean() throws ConfiguratorException {
+    static AdminConsoleServiceMBean getConfigAdminMBean() throws ConfiguratorException {
         ObjectName objectName = null;
         try {
-            objectName = new ObjectName(ConfigurationAdminMBean.OBJECTNAME);
+            objectName = new ObjectName(AdminConsoleServiceMBean.OBJECTNAME);
         } catch (MalformedObjectNameException e) {
             LOGGER.info("Unable to access config admin mbean");
             throw new ConfiguratorException(INTERNAL_ERROR);
@@ -66,7 +57,7 @@ class OsgiUtils {
 
         return MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(),
                 objectName,
-                ConfigurationAdminMBean.class,
+                AdminConsoleServiceMBean.class,
                 false);
     }
 }

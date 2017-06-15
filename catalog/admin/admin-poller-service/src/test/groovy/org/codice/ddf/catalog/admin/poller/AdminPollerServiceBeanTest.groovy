@@ -19,12 +19,12 @@ class AdminPollerServiceBeanTest extends Specification {
 
     def "test LDAP filter generation"() {
         setup:
-        def apsb = new AdminPollerServiceBean(null)
+        def apsb = new AdminPollerServiceBean(null, null)
         apsb.setIncludeAsSource(includes)
         apsb.setExcludeAsSource(excludes)
 
         expect:
-        apsb.getFilterProperties() == filter
+        apsb.getServiceFactoryFilterProperties() == filter
 
         where:
         includes                | excludes          | filter

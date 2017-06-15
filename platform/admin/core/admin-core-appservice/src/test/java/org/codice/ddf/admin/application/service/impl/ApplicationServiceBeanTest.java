@@ -56,7 +56,9 @@ import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
-import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
+import org.codice.ddf.admin.core.api.ConfigurationAdmin;
+import org.codice.ddf.admin.core.api.Service;
+import org.codice.ddf.admin.core.impl.ServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -108,7 +110,7 @@ public class ApplicationServiceBeanTest {
 
     private ApplicationService testAppService;
 
-    private ConfigurationAdminExt testConfigAdminExt;
+    private ConfigurationAdmin testConfigAdminExt;
 
     private ApplicationNode testNode1;
 
@@ -133,7 +135,7 @@ public class ApplicationServiceBeanTest {
     @Before
     public void setUp() throws Exception {
         testAppService = mock(ApplicationServiceImpl.class);
-        testConfigAdminExt = mock(ConfigurationAdminExt.class);
+        testConfigAdminExt = mock(ConfigurationAdmin.class);
         testApp = mock(ApplicationImpl.class);
 
         when(testApp.getName()).thenReturn(TEST_APP_NAME);
@@ -717,8 +719,8 @@ public class ApplicationServiceBeanTest {
         Bundle[] bundles = {testBundle};
         when(bundleContext.getBundles()).thenReturn(bundles);
 
-        List<Map<String, Object>> services = new ArrayList<>();
-        Map<String, Object> testService1 = new HashMap<>();
+        List<Service> services = new ArrayList<>();
+        Service testService1 = new ServiceImpl();
         List<Map<String, Object>> testService1Configs = new ArrayList<>();
         Map<String, Object> testConfig1 = new HashMap<>();
         testConfig1.put("bundle_location", TEST_LOCATION);
@@ -762,9 +764,9 @@ public class ApplicationServiceBeanTest {
         Bundle[] bundles = {testBundle};
         when(bundleContext.getBundles()).thenReturn(bundles);
 
-        List<Map<String, Object>> services = new ArrayList<>();
-        Map<String, Object> testService2 = mock(HashMap.class);
-        Map<String, Object> testService1 = mock(HashMap.class);
+        List<Service> services = new ArrayList<>();
+        Service testService2 = mock(Service.class);
+        Service testService1 = mock(Service.class);
         services.add(testService1);
         services.add(testService2);
         when(testService1.get("factory")).thenReturn(true);
@@ -819,9 +821,9 @@ public class ApplicationServiceBeanTest {
         when(bundleContext.getBundles()).thenReturn(bundles);
         when(testBundle.getLocation()).thenReturn(TEST_LOCATION);
 
-        List<Map<String, Object>> services = new ArrayList<>();
-        Map<String, Object> testService2 = mock(HashMap.class);
-        Map<String, Object> testService1 = mock(HashMap.class);
+        List<Service> services = new ArrayList<>();
+        Service testService2 = mock(Service.class);
+        Service testService1 = mock(Service.class);
         services.add(testService1);
         services.add(testService2);
 
@@ -886,8 +888,8 @@ public class ApplicationServiceBeanTest {
         Bundle[] bundles = {testBundle};
         when(bundleContext.getBundles()).thenReturn(bundles);
 
-        List<Map<String, Object>> services = new ArrayList<>();
-        Map<String, Object> testService1 = new HashMap<>();
+        List<Service> services = new ArrayList<>();
+        Service testService1 = new ServiceImpl();
         services.add(testService1);
 
         doThrow(new ApplicationServiceException()).when(testApp)

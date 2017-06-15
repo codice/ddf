@@ -28,6 +28,7 @@
         <bundle dependency="true">mvn:org.ops4j.base/ops4j-base-util-property/1.4.0</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-appservice/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}</bundle>
+        <bundle>mvn:ddf.admin.core/admin-core-impl/${project.version}</bundle>
     </feature>
 
     <feature name="admin-ui" install="manual" version="${project.version}"

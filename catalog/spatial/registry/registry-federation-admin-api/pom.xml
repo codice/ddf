@@ -33,6 +33,10 @@
             <artifactId>registry-federation-admin-service</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

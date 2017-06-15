@@ -3,7 +3,6 @@
 
 The following packages have been exported by the ${ddf-admin} application and are approved for use by third parties:
 
-* `org.codice.ddf.ui.admin.api`
 * `org.codice.ddf.ui.admin.api.module`
 * `org.codice.ddf.ui.admin.api.plugin`
 * `org.codice.ddf.admin.configuration.plugin`

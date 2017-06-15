@@ -46,6 +46,9 @@ import javax.xml.bind.JAXBElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.admin.core.api.ConfigurationDetails;
+import org.codice.ddf.admin.core.api.ConfigurationProperties;
+import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
@@ -105,24 +108,6 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
     public static final String SUMMARY_REPORT_ACTION = "reportAction";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FederationAdmin.class);
-
-    private static final String MAP_ENTRY_ID = "id";
-
-    private static final String MAP_ENTRY_ENABLED = "enabled";
-
-    private static final String MAP_ENTRY_FPID = "fpid";
-
-    private static final String MAP_ENTRY_NAME = "name";
-
-    private static final String MAP_ENTRY_BUNDLE_NAME = "bundle_name";
-
-    private static final String MAP_ENTRY_BUNDLE_LOCATION = "bundle_location";
-
-    private static final String MAP_ENTRY_BUNDLE = "bundle";
-
-    private static final String MAP_ENTRY_PROPERTIES = "properties";
-
-    private static final String MAP_ENTRY_CONFIGURATIONS = "configurations";
 
     private static final String DISABLED = "_disabled";
 
@@ -377,44 +362,44 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
     }
 
     @Override
-    public List<Map<String, Object>> allRegistryInfo() {
+    public List<Service> allRegistryInfo() {
 
-        List<Map<String, Object>> metatypes = helper.getMetatypes();
+        List<Service> metatypes = helper.getMetatypes();
 
-        for (Map metatype : metatypes) {
+        for (Service metatype : metatypes) {
             try {
                 List<Configuration> configs = helper.getConfigurations(metatype);
 
-                ArrayList<Map<String, Object>> configurations = new ArrayList<>();
+                List<ConfigurationDetails> configurations = new ArrayList<>();
                 if (configs != null) {
                     for (Configuration config : configs) {
-                        Map<String, Object> registry = new HashMap<>();
+                        ConfigurationDetails registry = new ConfigurationDetailsImpl();
 
                         boolean disabled = config.getPid()
                                 .endsWith(DISABLED);
-                        registry.put(MAP_ENTRY_ID, config.getPid());
-                        registry.put(MAP_ENTRY_ENABLED, !disabled);
-                        registry.put(MAP_ENTRY_FPID, config.getFactoryPid());
+                        registry.setId(config.getPid());
+                        registry.setEnabled(!disabled);
+                        registry.setFactoryPid(config.getFactoryPid());
 
                         if (!disabled) {
-                            registry.put(MAP_ENTRY_NAME, helper.getName(config));
-                            registry.put(MAP_ENTRY_BUNDLE_NAME, helper.getBundleName(config));
-                            registry.put(MAP_ENTRY_BUNDLE_LOCATION, config.getBundleLocation());
-                            registry.put(MAP_ENTRY_BUNDLE, helper.getBundleId(config));
+                            registry.setName(helper.getName(config));
+                            registry.setBundleName(helper.getBundleName(config));
+                            registry.setBundleLocation(config.getBundleLocation());
+                            registry.setBundle(helper.getBundleId(config));
                         } else {
-                            registry.put(MAP_ENTRY_NAME, config.getPid());
+                            registry.setName(config.getPid());
                         }
 
                         Dictionary<String, Object> properties = config.getProperties();
-                        Map<String, Object> plist = new HashMap<>();
+                        ConfigurationProperties plist = new ConfigurationPropertiesImpl();
                         for (String key : Collections.list(properties.keys())) {
                             plist.put(key, properties.get(key));
                         }
-                        registry.put(MAP_ENTRY_PROPERTIES, plist);
+                        registry.setConfigurationProperties(plist);
 
                         configurations.add(registry);
                     }
-                    metatype.put(MAP_ENTRY_CONFIGURATIONS, configurations);
+                    metatype.setConfigurations(configurations);
                 }
             } catch (InvalidSyntaxException | IOException e) {
                 LOGGER.info("Error getting registry info:", e);
@@ -808,5 +793,13 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
 
     public void setRegistryActionProvider(MultiActionProvider provider) {
         this.registryActionProvider = provider;
+    }
+
+    private static class ConfigurationDetailsImpl extends HashMap<String, Object> implements ConfigurationDetails {
+
+    }
+
+    private static class ConfigurationPropertiesImpl extends HashMap<String, Object> implements ConfigurationProperties {
+
     }
 }

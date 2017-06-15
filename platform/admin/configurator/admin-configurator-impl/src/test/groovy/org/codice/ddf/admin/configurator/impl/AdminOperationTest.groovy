@@ -14,7 +14,7 @@
 package org.codice.ddf.admin.configurator.impl
 
 import org.codice.ddf.admin.configurator.ConfiguratorException
-import org.codice.ddf.ui.admin.api.ConfigurationAdminMBean
+import org.codice.ddf.admin.core.api.jmx.AdminConsoleServiceMBean
 import spock.lang.Specification
 
 class AdminOperationTest extends Specification {
@@ -26,7 +26,7 @@ class AdminOperationTest extends Specification {
 
     def 'test write configs to an unknown bundle fails'() {
         setup:
-        def cfgMbean = Mock(ConfigurationAdminMBean)
+        def cfgMbean = Mock(AdminConsoleServiceMBean)
         cfgMbean.getProperties('xxx') >> { throw new IOException('unknown pid') }
         def newProps = [key1: 'newVal1', key4: 'val4', key5: 'val5']
 
@@ -39,7 +39,7 @@ class AdminOperationTest extends Specification {
 
     def 'test write new configs and keep old configs'() {
         setup:
-        def cfgMbean = Mock(ConfigurationAdminMBean)
+        def cfgMbean = Mock(AdminConsoleServiceMBean)
         def newProps = [key1: 'newVal1', key4: 'val4', key5: 'val5']
         def combinedProps = initProps << newProps
 
@@ -58,7 +58,7 @@ class AdminOperationTest extends Specification {
 
     def 'test write new configs and remove old configs'() {
         setup:
-        def cfgMbean = Mock(ConfigurationAdminMBean)
+        def cfgMbean = Mock(AdminConsoleServiceMBean)
         def newProps = [key1: 'newVal1', key4: 'val4', key5: 'val5']
 
         when:
@@ -76,7 +76,7 @@ class AdminOperationTest extends Specification {
 
     def 'test rollback'() {
         setup:
-        def cfgMbean = Mock(ConfigurationAdminMBean)
+        def cfgMbean = Mock(AdminConsoleServiceMBean)
         def newProps = [key1: 'newVal1', key4: 'val4', key5: 'val5']
 
         when:

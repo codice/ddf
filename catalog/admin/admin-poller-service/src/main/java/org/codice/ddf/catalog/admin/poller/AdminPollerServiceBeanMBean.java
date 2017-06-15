@@ -15,10 +15,11 @@
 package org.codice.ddf.catalog.admin.poller;
 
 import java.util.List;
-import java.util.Map;
+
+import org.codice.ddf.admin.core.api.Service;
 
 public interface AdminPollerServiceBeanMBean {
     boolean sourceStatus(String servicePID);
 
-    List<Map<String, Object>> allSourceInfo();
+    List<Service> allSourceInfo();
 }

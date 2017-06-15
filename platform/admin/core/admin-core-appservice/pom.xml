@@ -78,6 +78,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
             <version>${project.version}</version>
@@ -85,6 +91,10 @@
         <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.aries</groupId>
+            <artifactId>org.apache.aries.util</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fastjson</groupId>
@@ -134,7 +144,6 @@
                             org.codice.ddf.admin.application.plugin;version=${admin.core.appservice.api.version},
                             org.codice.ddf.admin.application.service.command;version=${admin.core.appservice.api.version},
                             org.codice.ddf.admin.application.service.command.completers;version=${admin.core.appservice.api.version},
-                            org.codice.ddf.ui.admin.api.impl;version=${admin.core.appservice.api.version},
                             org.apache.felix.utils.properties
                         </Export-Package>
                         <Private-Package>

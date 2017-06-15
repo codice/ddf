@@ -17,6 +17,12 @@ import java.util.Map;
 
 import org.osgi.framework.BundleContext;
 
+/**
+ * <p>
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ * </p>
+ */
 public interface ConfigurationAdminPlugin {
     /**
      * Returns a map of configuration data that should be appended to the configurationDataMap
@@ -31,6 +37,6 @@ public interface ConfigurationAdminPlugin {
      *            used to retrieve list of services
      * @return Map defining additional properties to add to the configuration
      */
-    public Map<String, Object> getConfigurationData(String configurationPid,
+    Map<String, Object> getConfigurationData(String configurationPid,
             Map<String, Object> configurationDataMap, BundleContext bundleContext);
 }

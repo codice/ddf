@@ -924,7 +924,7 @@ public class TestFederation extends AbstractIntegrationTest {
         }
         */
 
-        given().auth()
+        given().auth().preemptive()
                 .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
                 .when()
                 .get(ADMIN_ALL_SOURCES_PATH.getUrl())
@@ -938,7 +938,7 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testFederatedSourceStatus() {
         // Find and test OpenSearch Federated Source
-        String json = given().auth()
+        String json = given().auth().preemptive()
                 .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
                 .when()
                 .get(ADMIN_ALL_SOURCES_PATH.getUrl())

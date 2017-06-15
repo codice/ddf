@@ -50,11 +50,13 @@
 
     <bean id="adminHelper" class="org.codice.ddf.registry.federationadmin.impl.AdminHelper">
         <argument ref="configurationAdmin"/>
+        <argument ref="felixConfigurationAdmin"/>
     </bean>
 
     <reference id="registryActionProvider" interface="ddf.action.MultiActionProvider" filter="(id=catalog.data.metacard.registry)"/>
 
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+    <reference id="felixConfigurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+    <reference id="configurationAdmin" interface="org.codice.ddf.admin.core.api.ConfigurationAdmin"/>
     <reference id="federationAdminService"
                interface="org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService"/>
     <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"

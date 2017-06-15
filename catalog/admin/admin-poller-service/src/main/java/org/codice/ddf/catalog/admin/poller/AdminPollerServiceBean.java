@@ -31,15 +31,18 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.shiro.util.CollectionUtils;
-import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
+import org.codice.ddf.admin.core.api.ConfigurationAdmin;
+import org.codice.ddf.admin.core.api.ConfigurationDetails;
+import org.codice.ddf.admin.core.api.ConfigurationProperties;
+import org.codice.ddf.admin.core.api.ConfigurationStatus;
+import org.codice.ddf.admin.core.api.Metatype;
+import org.codice.ddf.admin.core.api.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,29 +54,8 @@ import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
 
 public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
-    static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminPollerServiceBean.class);
-
-    private static final String MAP_ENTRY_ID = "id";
-
-    private static final String MAP_ENTRY_ENABLED = "enabled";
-
-    private static final String MAP_ENTRY_FPID = "fpid";
-
-    private static final String MAP_ENTRY_NAME = "name";
-
-    private static final String MAP_ENTRY_BUNDLE_NAME = "bundle_name";
-
-    private static final String MAP_ENTRY_BUNDLE_LOCATION = "bundle_location";
-
-    private static final String MAP_ENTRY_BUNDLE = "bundle";
-
-    private static final String MAP_ENTRY_PROPERTIES = "properties";
-
-    private static final String MAP_ENTRY_CONFIGURATIONS = "configurations";
-
-    private static final String DISABLED = "_disabled";
 
     private static final String SERVICE_NAME = ":service=admin-source-poller-service";
 
@@ -103,12 +85,15 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
 
     private List<String> excludeAsSource;
 
-    protected String sourceFilter;
+    protected String serviceFilter;
 
-    public AdminPollerServiceBean(ConfigurationAdmin configurationAdmin) {
+    protected String serviceFactoryFilter;
+
+    public AdminPollerServiceBean(ConfigurationAdmin configurationAdmin, org.osgi.service.cm.ConfigurationAdmin felixConfigAdmin) {
 
         helper = getHelper();
         helper.configurationAdmin = configurationAdmin;
+        helper.felixConfigAdmin = felixConfigAdmin;
 
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
         ObjectName objName = null;
@@ -123,7 +108,8 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     }
 
     public void init() {
-        sourceFilter = getFilterProperties();
+        serviceFactoryFilter = getServiceFactoryFilterProperties();
+        serviceFilter = getServiceFilterProperties();
         try {
             try {
                 mBeanServer.registerMBean(this, objectName);
@@ -187,60 +173,55 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     }
 
     @Override
-    public List<Map<String, Object>> allSourceInfo() {
+    public List<Service> allSourceInfo() {
         // Get list of metatypes
-        List<Map<String, Object>> metatypes = helper.getMetatypes();
+        List<Service> metatypes = helper.getMetatypes();
 
         // Loop through each metatype and find its configurations
-        for (Map metatype : metatypes) {
+        for (Service metatype : metatypes) {
             try {
                 List<Configuration> configs = helper.getConfigurations(metatype);
 
-                ArrayList<Map<String, Object>> configurations = new ArrayList<>();
+                List<ConfigurationDetails> configurations = new ArrayList<>();
                 if (configs != null) {
                     for (Configuration config : configs) {
-                        Map<String, Object> source = new HashMap<>();
+                        ConfigurationDetails source = new ConfigurationDetailsImpl();
 
                         boolean disabled = config.getPid()
-                                .contains(DISABLED);
-                        source.put(MAP_ENTRY_ID, config.getPid());
-                        source.put(MAP_ENTRY_ENABLED, !disabled);
-                        source.put(MAP_ENTRY_FPID, config.getFactoryPid());
+                                .endsWith(ConfigurationStatus.DISABLED_EXTENSION);
+                        source.setId(config.getPid());
+                        source.setEnabled(!disabled);
+                        source.setFactoryPid(config.getFactoryPid());
 
                         if (!disabled) {
-                            source.put(MAP_ENTRY_NAME, helper.getName(config));
-                            source.put(MAP_ENTRY_BUNDLE_NAME, helper.getBundleName(config));
-                            source.put(MAP_ENTRY_BUNDLE_LOCATION, config.getBundleLocation());
-                            source.put(MAP_ENTRY_BUNDLE, helper.getBundleId(config));
+                            source.setName(helper.getName(config));
+                            source.setBundleName(helper.getBundleName(config));
+                            source.setBundleLocation(config.getBundleLocation());
+                            source.setBundle(helper.getBundleId(config));
                         } else {
-                            source.put(MAP_ENTRY_NAME, config.getPid());
+                            source.setName(config.getPid());
                         }
 
                         Dictionary<String, Object> properties = config.getProperties();
-                        Map<String, Object> plist = new HashMap<>();
+                        ConfigurationProperties plist = new ConfigurationPropertiesImpl();
                         for (String key : Collections.list(properties.keys())) {
                             plist.put(key, properties.get(key));
                         }
-                        source.put(MAP_ENTRY_PROPERTIES, plist);
+                        source.setConfigurationProperties(plist);
                         source.put(MAP_ENTRY_REPORT_ACTIONS,
                                 getActions(config, reportActionProviders));
                         source.put(MAP_ENTRY_OPERATION_ACTIONS,
                                 getActions(config, operationActionProviders));
                         configurations.add(source);
                     }
-                    metatype.put(MAP_ENTRY_CONFIGURATIONS, configurations);
+                    metatype.setConfigurations(configurations);
                 }
             } catch (Exception e) {
                 LOGGER.info("Error getting source info: {}", e.getMessage());
             }
         }
 
-        Collections.sort(metatypes, new Comparator<Map<String, Object>>() {
-            @Override
-            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-                return ((String) o1.get("id")).compareToIgnoreCase((String) o2.get("id"));
-            }
-        });
+        metatypes.sort(Comparator.comparing(Service::getId, String.CASE_INSENSITIVE_ORDER));
         return metatypes;
     }
 
@@ -272,17 +253,25 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         return new AdminSourceHelper();
     }
 
-    protected String getFilterProperties() {
+    protected String getServiceFactoryFilterProperties() {
+        return createFilter("service.factoryPid");
+    }
+
+    protected String getServiceFilterProperties() {
+        return createFilter("service.pid");
+    }
+
+    private String createFilter(String pidKey) {
         String includes, excludes;
         includes = (includeAsSource == null || CollectionUtils.isEmpty(includeAsSource)) ?
-                "(service.factoryPid=*)" : includeAsSource.stream()
-                .map(pid -> String.format("(service.factoryPid=%s)", pid))
+                String.format("(%s=*)", pidKey) : includeAsSource.stream()
+                .map(pid -> String.format("(%s=%s)", pidKey, pid))
                 .collect(Collectors.joining());
         if (excludeAsSource == null || CollectionUtils.isEmpty(excludeAsSource)) {
             return String.format("(|%s)", includes);
         } else {
             excludes = excludeAsSource.stream()
-                    .map(pid -> String.format("(!(service.factoryPid=%s))", pid))
+                    .map(pid -> String.format("(!(%s=%s))", pidKey, pid))
                     .collect(Collectors.joining());
             return String.format("(&(|%s)(&%s))", includes, excludes);
         }
@@ -290,6 +279,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
 
     protected class AdminSourceHelper {
         protected ConfigurationAdmin configurationAdmin;
+        org.osgi.service.cm.ConfigurationAdmin felixConfigAdmin;
 
         private BundleContext getBundleContext() {
             Bundle bundle = FrameworkUtil.getBundle(AdminPollerServiceBean.class);
@@ -314,17 +304,14 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
             return sources;
         }
 
-        protected List<Map<String, Object>> getMetatypes() {
-            ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(configurationAdmin);
-            return configAdminExt.addMetaTypeNamesToMap(configAdminExt.getFactoryPidObjectClasses(),
-                    sourceFilter,
-                    "service.factoryPid");
+        protected List<Service> getMetatypes() {
+            return configurationAdmin.listServices(serviceFactoryFilter, serviceFilter);
         }
 
-        protected List getConfigurations(Map metatype) throws InvalidSyntaxException, IOException {
-            return CollectionUtils.asList(configurationAdmin.listConfigurations(
-                    "(|(service.factoryPid=" + metatype.get(MAP_ENTRY_ID) + ")(service.factoryPid="
-                            + metatype.get(MAP_ENTRY_ID) + DISABLED + "))"));
+        protected List<Configuration> getConfigurations(Metatype metatype) throws InvalidSyntaxException, IOException {
+            return CollectionUtils.asList(felixConfigAdmin.listConfigurations(
+                    "(|(service.factoryPid=" + metatype.getId() + ")(service.factoryPid="
+                            + metatype.getId() + ConfigurationStatus.DISABLED_EXTENSION + "))"));
         }
 
         protected Configuration getConfiguration(ConfiguredService cs) throws IOException {
@@ -332,8 +319,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         }
 
         protected String getBundleName(Configuration config) {
-            ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(configurationAdmin);
-            return configAdminExt.getName(helper.getBundleContext()
+            return configurationAdmin.getName(helper.getBundleContext()
                     .getBundle(config.getBundleLocation()));
         }
 
@@ -343,9 +329,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         }
 
         protected String getName(Configuration config) {
-            ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(configurationAdmin);
-            return ((ObjectClassDefinition) configAdminExt.getFactoryPidObjectClasses()
-                    .get(config.getFactoryPid())).getName();
+            return configurationAdmin.getObjectClassDefinition(config).getName();
         }
     }
 
@@ -363,5 +347,13 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
 
     public void setExcludeAsSource(List<String> excludeAsSource) {
         this.excludeAsSource = excludeAsSource;
+    }
+
+    public static class ConfigurationDetailsImpl extends HashMap<String, Object> implements ConfigurationDetails {
+
+    }
+
+    public static class ConfigurationPropertiesImpl extends HashMap<String, Object> implements ConfigurationProperties {
+
     }
 }

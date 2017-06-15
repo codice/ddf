@@ -16,6 +16,7 @@ package org.codice.ddf.registry.federationadmin.internal;
 import java.util.List;
 import java.util.Map;
 
+import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 
 /**
@@ -88,7 +89,7 @@ public interface FederationAdminMBean {
     /**
      * @return the list of registry metatypes
      */
-    List<Map<String, Object>> allRegistryInfo();
+    List<Service> allRegistryInfo();
 
     /**
      * Returns a Map of {@code RegistryPackageType} objects as converted using {@code RegistryPackageWebConverter}

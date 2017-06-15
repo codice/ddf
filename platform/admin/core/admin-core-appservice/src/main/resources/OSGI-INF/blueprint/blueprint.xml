@@ -30,8 +30,6 @@
     <service ref="appService"
              interface="org.codice.ddf.admin.application.service.ApplicationService"/>
 
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
-
     <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
 
     <reference-list id="bundleStateServices"
@@ -46,14 +44,12 @@
           init-method="init"
           destroy-method="destroy">
         <argument ref="appService"/>
-        <argument ref="configurationAdminExt"></argument>
+        <argument ref="configurationAdmin"/>
         <argument ref="mBeanServer"/>
         <property name="applicationPlugins" ref="applicationPluginList"/>
     </bean>
 
-    <bean id="configurationAdminExt" class="org.codice.ddf.ui.admin.api.ConfigurationAdminExt">
-        <argument ref="configurationAdmin"></argument>
-    </bean>
+    <reference id="configurationAdmin" interface="org.codice.ddf.admin.core.api.ConfigurationAdmin" />
 
     <jaxrs:server id="restService" address="/application">
         <jaxrs:serviceBeans>
