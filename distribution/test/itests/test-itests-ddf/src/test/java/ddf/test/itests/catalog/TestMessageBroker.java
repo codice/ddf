@@ -71,7 +71,9 @@ public class TestMessageBroker extends AbstractIntegrationTest {
     private static final String MOCK_UNDELIVERED_TEST_ENDPOINT = String.format("mock:%s.end",
             UNDELIVERED_TEST_QUEUE);
 
-    private static final String DLQ_ADDRESS = "jms.queue.DLQ";
+    private static final String DLQ_ADDRESS_NAME = "DLQ";
+
+    private static final String DLQ_QUEUE_NAME = "DLQ";
 
     private static final String UNDELIVERED_MESSAGES_MBEAN_URL =
             "/admin/jolokia/exec/org.codice.ddf.broker.ui.UndeliveredMessages:service=UndeliveredMessages/";
@@ -85,17 +87,20 @@ public class TestMessageBroker extends AbstractIntegrationTest {
     private static final DynamicUrl GET_UNDELIVERED_MESSAGES_PATH =
             new DynamicUrl(DynamicUrl.SECURE_ROOT,
                     HTTPS_PORT,
-                    UNDELIVERED_MESSAGES_MBEAN_URL + "getMessages/" + DLQ_ADDRESS + "/Core/");
+                    UNDELIVERED_MESSAGES_MBEAN_URL + "getMessages/" + DLQ_ADDRESS_NAME + "/"
+                            + DLQ_QUEUE_NAME + "/");
 
     private static final DynamicUrl DELETE_UNDELIVERED_MESSAGES_PATH =
             new DynamicUrl(DynamicUrl.SECURE_ROOT,
                     HTTPS_PORT,
-                    UNDELIVERED_MESSAGES_MBEAN_URL + "deleteMessages/" + DLQ_ADDRESS + "/Core/");
+                    UNDELIVERED_MESSAGES_MBEAN_URL + "deleteMessages/" + DLQ_ADDRESS_NAME + "/"
+                            + DLQ_QUEUE_NAME + "/");
 
     private static final DynamicUrl RESEND_UNDELIVERED_MESSAGES_PATH =
             new DynamicUrl(DynamicUrl.SECURE_ROOT,
                     HTTPS_PORT,
-                    UNDELIVERED_MESSAGES_MBEAN_URL + "resendMessages/" + DLQ_ADDRESS + "/Core/");
+                    UNDELIVERED_MESSAGES_MBEAN_URL + "resendMessages/" + DLQ_ADDRESS_NAME + "/"
+                            + DLQ_QUEUE_NAME + "/");
 
     private static final String ADMIN_USERNAME = "admin";
 
@@ -257,7 +262,7 @@ public class TestMessageBroker extends AbstractIntegrationTest {
         if (!((List) with(jolokiaGetMessagesResponse).
                 get("value")).isEmpty()) {
             assertThat(extractMessage(jolokiaGetMessagesResponse, 0).get("address"),
-                    is(DLQ_ADDRESS));
+                    is(DLQ_ADDRESS_NAME));
 
         }
     }

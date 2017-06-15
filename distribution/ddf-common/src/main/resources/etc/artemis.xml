@@ -13,12 +13,20 @@
                xmlns="urn:activemq"
                xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
 
-    <jms xmlns="urn:activemq:jms">
-        <queue name="DLQ"/>
-        <queue name="ExpiryQueue"/>
-    </jms>
-
     <core xmlns="urn:activemq:core">
+
+        <addresses>
+            <address name="DLQ">
+                <anycast>
+                    <queue name="DLQ"/>
+                </anycast>
+            </address>
+            <address name="ExpiryQueue">
+                <anycast>
+                    <queue name="ExpiryQueue"/>
+                </anycast>
+            </address>
+        </addresses>
 
         <persistence-enabled>true</persistence-enabled>
 
@@ -139,8 +147,8 @@
         <!-- Other config -->
         <security-invalidation-interval>600000</security-invalidation-interval>
 
-        <!--<password-codec>org.codice.ddf.broker.security.EncryptionCodec</password-codec>-->
-        <!--<mask-password>true</mask-password>-->
+        <!--<password-codec>org.codice.ddf.broker.security.EncryptionCodec</password-codec>
+        <mask-password>true</mask-password>-->
         <cluster-user>${artemis.cluster.user:ACTIVEMQ.CLUSTER.ADMIN.USER}</cluster-user>
         <cluster-password>${artemis.cluster.password:CHANGE ME!!}</cluster-password>
 
@@ -161,14 +169,17 @@
         <address-settings>
             <!--default for catch all-->
             <address-setting match="#">
-                <dead-letter-address>jms.queue.DLQ</dead-letter-address>
-                <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+                <dead-letter-address>DLQ</dead-letter-address>
+                <expiry-address>ExpiryQueue</expiry-address>
                 <redelivery-delay>0</redelivery-delay>
                 <!-- with -1 only the global-max-size is in use for limiting -->
                 <max-size-bytes>-1</max-size-bytes>
                 <message-counter-history-day-limit>10</message-counter-history-day-limit>
                 <address-full-policy>PAGE</address-full-policy>
+                <auto-create-queues>true</auto-create-queues>
+                <auto-create-addresses>true</auto-create-addresses>
                 <auto-create-jms-queues>true</auto-create-jms-queues>
+                <auto-create-jms-topics>true</auto-create-jms-topics>
             </address-setting>
         </address-settings>
     </core>

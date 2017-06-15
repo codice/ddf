@@ -31,17 +31,17 @@ config=file:etc/artemis-backup.xml
 If the ${branding} instances are currently running, stop and restart the backup and then the live server. Making sure the backup starts first ensures that the live server doesn't have any issues establishing the backup due to the backup being busy initializing. See <<Starting ${branding},Starting ${branding}>> for detailed steps.
 
 ==== Verify Cluster Replication
-Once both servers are up and running the following command can be run in curl or a https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:type=Broker,brokerName=%22localhost%22,module=Core,serviceType=Server/ReplicaSync[browser] to verify that the servers have successfully synced.
+Once both servers are up and running the following command can be run in curl or a https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:broker=%22localhost%22/ReplicaSync[browser] to verify that the servers have successfully synced.
 
 ```sh
-curl https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:type=Broker,brokerName=%22localhost%22,module=Core,serviceType=Server/ReplicaSync --user admin:admin --insecure
+curl https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:broker=%22localhost%22/ReplicaSync --user admin:admin --insecure
 ```
 .Example ReplicaSync json response
 [source,json]
 ----
 {
 	"request": {
-		"mbean": "org.apache.activemq.artemis:brokerName=\"localhost\",module=Core,serviceType=Server,type=Broker",
+		"mbean": "org.apache.activemq.artemis:broker=\"localhost\",
 		"attribute": "ReplicaSync",
 		"type": "read"
 	},
@@ -54,10 +54,10 @@ IMPORTANT: If LDAP has been configured then the admin user and password for the 
 
 IMPORTANT: Note the `"value":true` field: if it is false, then the replication is still in progress or the logs should be consulted to see if there was an issue establishing a connection between the live and backup servers.
 
-Additionally, for more details about the health of the cluster the following command can be run in curl or a https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:type=Broker,brokerName=%22localhost%22,module=Core,serviceType=ClusterConnection,name=%22my-cluster%22/Topology[browser].
+Additionally, for more details about the health of the cluster the following command can be run in curl or a https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:broker=%22localhost%22,component=cluster-connections,name=%22my-cluster%22/Topology[browser].
 
 ```sh
-curl https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:type=Broker,brokerName=%22localhost%22,module=Core,serviceType=ClusterConnection,name=%22my-cluster%22/Topology --user admin:admin --insecure
+curl https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:broker=%22localhost%22,component=cluster-connections,name=%22my-cluster%22/Topology --user admin:admin --insecure
 ```
 This endpoint returns diagnostic info about the cluster that can be used for troubleshooting. Values of interest in the response are the `node=2` value which is a count of the nodes in the cluster and the port/host values for each node.
 
@@ -66,7 +66,7 @@ This endpoint returns diagnostic info about the cluster that can be used for tro
 ----
 {
 	"request": {
-		"mbean": "org.apache.activemq.artemis:brokerName=\"localhost\",module=Core,name=\"my-cluster\",serviceType=ClusterConnection,type=Broker",
+		"mbean": "org.apache.activemq.artemis:broker=\"localhost\",component=cluster-connections,name=\"my-cluster\",
 		"attribute": "Topology",
 		"type": "read"
 	},

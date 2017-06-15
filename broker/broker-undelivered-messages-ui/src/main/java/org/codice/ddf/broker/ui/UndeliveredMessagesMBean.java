@@ -28,30 +28,30 @@ public interface UndeliveredMessagesMBean {
      * Gets messages from a queue/topic given its address and module.
      *
      * @param address Address name of the queue/topic
-     * @param module  Module name of the queue/topic
+     * @param queue   Queue name of the queue/topic
      * @return List of messages in the form of CompositeData
      */
-    List<CompositeData> getMessages(String address, String module);
+    List<CompositeData> getMessages(String address, String queue);
 
     /**
      * Resends messages from a queue/topic given its address, module and list of message ids of the
      * messages to resend.
      *
      * @param address    Address name of the queue/topic
-     * @param module     Module name of the queue/topic
+     * @param queue      Queue name of the queue/topic
      * @param messageIds List of message ids of each message to resend
      * @return The number of messages that are resent
      */
-    long resendMessages(String address, String module, List<String> messageIds);
+    long resendMessages(String address, String queue, List<String> messageIds);
 
     /**
      * Deletes messages from a queue/topic given its address, module and list of message ids of the
      * messages to delete.
      *
      * @param address    Address name of the queue/topic
-     * @param module     Module name of the queue/topic
+     * @param queue      Queue name of the queue/topic
      * @param messageIds List of message ids of each message to delete
      * @return The number of messages that are deleted
      */
-    long deleteMessages(String address, String module, List<String> messageIds);
+    long deleteMessages(String address, String queue, List<String> messageIds);
 }
