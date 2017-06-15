@@ -146,9 +146,10 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         try {
             callbackHandler.handle(callbacks);
         } catch (IOException ioException) {
+            LOGGER.debug("Exception while handling login.", ioException);
             throw new LoginException(ioException.getMessage());
         } catch (UnsupportedCallbackException unsupportedCallbackException) {
-            boolean result;
+            LOGGER.debug("Exception while handling login.", unsupportedCallbackException);
             throw new LoginException(unsupportedCallbackException.getMessage()
                     + " not available to obtain information from user.");
         }
@@ -235,6 +236,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                                 connectionPassword);
                         break;
                     }
+                    LOGGER.trace("Attempting LDAP bind for administrator: {}", connectionUsername);
                     BindResult bindResult = connection.bind(request);
 
                     if (!bindResult.isSuccess()) {
@@ -245,7 +247,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                     LOGGER.debug("Unable to bind to LDAP server.", e);
                     return false;
                 }
-
+                LOGGER.trace("LDAP bind successful for administrator: {}", connectionUsername);
                 //--------- SEARCH #1, FIND USER DISTINGUISHED NAME -----------
                 SearchScope scope;
                 if (userSearchSubtree) {
@@ -256,7 +258,12 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 userFilter = userFilter.replaceAll(Pattern.quote("%u"),
                         Matcher.quoteReplacement(user));
                 userFilter = userFilter.replace("\\", "\\\\");
-                ConnectionEntryReader entryReader = connection.search(userBaseDN, scope,
+                LOGGER.trace("Performing LDAP query for user: {} at {} with filter {}",
+                        user,
+                        userBaseDN,
+                        userFilter);
+                ConnectionEntryReader entryReader = connection.search(userBaseDN,
+                        scope,
                         userFilter);
                 try {
                     if (!entryReader.hasNext()) {
@@ -293,6 +300,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             //----- BIND #2 (USER DISTINGUISHED NAME AND PASSWORD) ------------
             // Validate user's credentials.
             try {
+                LOGGER.trace("Attempting LDAP bind for user: {}", userDn);
                 BindResult bindResult = connection.bind(userDn, tmpPassword);
 
                 if (!bindResult.isSuccess()) {
@@ -308,9 +316,12 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 connection.close();
             }
 
+            LOGGER.trace("LDAP bind successful for user: {}", userDn);
+
             //---------- ADD USER AS PRINCIPAL --------------------------------
             principals.add(new UserPrincipal(user));
         } else {
+            LOGGER.trace("No LDAP connection available to attempt bind for user: {}", userDn);
             return false;
         }
 
@@ -326,6 +337,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
                 //----- BIND #3 (CONNECTION USERNAME & PASSWORD) --------------
                 try {
+                    LOGGER.trace("Attempting LDAP bind for administrator: {}", connectionUsername);
                     BindResult bindResult = connection.bind(connectionUsername, connectionPassword);
 
                     if (!bindResult.isSuccess()) {
@@ -336,6 +348,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                     LOGGER.info("Unable to bind to LDAP server.", e);
                     return false;
                 }
+                LOGGER.trace("LDAP bind successful for administrator: {}", connectionUsername);
 
                 //--------- SEARCH #3, GET ROLES ------------------------------
                 SearchScope scope;
@@ -351,7 +364,15 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 roleFilter = roleFilter.replaceAll(Pattern.quote("%fqdn"),
                         Matcher.quoteReplacement(userDn));
                 roleFilter = roleFilter.replace("\\", "\\\\");
-                ConnectionEntryReader entryReader = connection.search(roleBaseDN, scope, roleFilter,
+                LOGGER.trace(
+                        "Performing LDAP query for roles for user: {} at {} with filter {} for role attribute {}",
+                        user,
+                        roleBaseDN,
+                        roleFilter,
+                        roleNameAttribute);
+                ConnectionEntryReader entryReader = connection.search(roleBaseDN,
+                        scope,
+                        roleFilter,
                         roleNameAttribute);
                 SearchResultEntry entry;
 
@@ -365,7 +386,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                         }
                     }
                 } catch (Exception e) {
-                    boolean result;
+                    LOGGER.debug("Exception while getting roles for user.", e);
                     throw new LoginException(
                             "Can't get user " + user + " roles: " + e.getMessage());
                 }
@@ -440,11 +461,10 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     @Override
     public boolean login() throws LoginException {
         boolean isLoggedIn;
-        String message = "";
+        String message = "Username [" + user
+                + "] could not log in successfuly using LDAP authentication due to an exception";
         try {
             isLoggedIn = doLogin();
-            message = "Username [" + user
-                    + "] could not log in successfuly using LDAP authentication due to an exception";
             if (!isLoggedIn) {
                 SecurityLogger.audit("Username [" + user + "] failed LDAP authentication.");
             }
@@ -466,8 +486,11 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
         try {
             if (useSsl || useTls) {
+                LOGGER.trace("Setting up secure LDAP connection.");
                 initializeSslContext();
                 lo.set(LDAPConnectionFactory.SSL_CONTEXT, getSslContext());
+            } else {
+                LOGGER.trace("Setting up insecure LDAP connection.");
             }
         } catch (GeneralSecurityException e) {
             LOGGER.info("Error encountered while configuring SSL. Secure connection will fail.", e);
