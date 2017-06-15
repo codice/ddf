@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
+import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.opengis.geometry.DirectPosition;
@@ -92,5 +93,15 @@ public final class GeoResultCreator {
         geoResult.setBbox(bbox);
         geoResult.setFullName(name);
         return geoResult;
+    }
+
+    public static GeoResult createGeoResult(GeoEntry geoEntry) {
+        final String name = geoEntry.getName();
+        final double latitude = geoEntry.getLatitude();
+        final double longitude = geoEntry.getLongitude();
+        final String featureCode = geoEntry.getFeatureCode();
+        final long population = geoEntry.getPopulation();
+
+        return createGeoResult(name, latitude, longitude, featureCode, population);
     }
 }

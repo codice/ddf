@@ -19,11 +19,18 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static junit.framework.Assert.assertEquals;
 
+import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.opengis.geometry.primitive.Point;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({GeoResultCreator.class})
 public class TestGeoResultCreator {
     private void verifyGeoResult(final String name, final double latitude, final double longitude,
             final String featureCode, final long population, final double expectedLatitudeOffset,
@@ -88,5 +95,26 @@ public class TestGeoResultCreator {
     @Test
     public void testCreateGeoResultOtherFeatureCode() {
         verifyGeoResult("Scottsdale", 0.123, 89.013, "ANCH", 100000, 0.1, 0.1);
+    }
+
+    @Test
+    public void testGeoEntryConstructor() {
+        GeoEntry entry = new GeoEntry.Builder().name("Phoenix")
+                .latitude(5)
+                .longitude(10)
+                .featureCode("ADM1")
+                .population(1000)
+                .build();
+
+        PowerMockito.spy(GeoResultCreator.class);
+
+        GeoResultCreator.createGeoResult(entry);
+
+        PowerMockito.verifyStatic();
+        GeoResultCreator.createGeoResult(entry.getName(),
+                entry.getLatitude(),
+                entry.getLongitude(),
+                entry.getFeatureCode(),
+                entry.getPopulation());
     }
 }
