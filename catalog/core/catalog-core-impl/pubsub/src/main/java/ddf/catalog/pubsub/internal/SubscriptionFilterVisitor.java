@@ -135,12 +135,9 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     /**
      * Asserts whether the value is <b>not</b> <tt>null</tt>
      *
-     * @param value
-     *            the value to test
-     * @param name
-     *            the key that resolved the value
-     * @throws IllegalArgumentException
-     *             is thrown if assertion fails
+     * @param value the value to test
+     * @param name  the key that resolved the value
+     * @throws IllegalArgumentException is thrown if assertion fails
      */
     public static void notNull(Object value, String name) {
         if (value == null) {
@@ -362,14 +359,14 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
             LOGGER.debug("EXITING: (temporal) filter");
 
-            returnPredicate = new TemporalPredicate(start, end, DateType.valueOf(temporalType));
+            returnPredicate = new TemporalPredicate(start, end, DateType.getDateType(temporalType));
             // CREATE RELATIVE
         } else if (literal instanceof PeriodDuration) {
             DefaultPeriodDuration duration = (DefaultPeriodDuration) literal;
 
             long offset = duration.getTimeInMillis();
             LOGGER.debug("EXITING: (temporal) filter");
-            returnPredicate = new TemporalPredicate(offset, DateType.valueOf(temporalType));
+            returnPredicate = new TemporalPredicate(offset, DateType.getDateType(temporalType));
         }
 
         LOGGER.debug("temporalType: " + temporalType);

@@ -47,6 +47,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.pubsub.criteria.contenttype.ContentTypeEvaluationCriteriaImpl;
 import ddf.catalog.pubsub.criteria.contenttype.ContentTypeEvaluator;
 import ddf.catalog.pubsub.criteria.contextual.ContextualEvaluator;
@@ -566,8 +567,37 @@ public class PredicateTest {
     }
 
     @Test
-    public void testTemporal() throws Exception {
-        String methodName = "testTemporal";
+    public void testTemporalEffective() throws Exception {
+        testTemporalAttribute(Metacard.EFFECTIVE);
+    }
+
+    @Test
+    public void testTemporalModified() throws Exception {
+        testTemporalAttribute(Core.MODIFIED);
+    }
+
+    @Test
+    public void testTemporalCreated() throws Exception {
+        testTemporalAttribute(Core.CREATED);
+    }
+
+    @Test
+    public void testTemporalExpiration() throws Exception {
+        testTemporalAttribute(Core.EXPIRATION);
+    }
+
+    @Test
+    public void testTemporalMetacardCreated() throws Exception {
+        testTemporalAttribute(Core.METACARD_CREATED);
+    }
+
+    @Test
+    public void testTemporalMetacardModified() throws Exception {
+        testTemporalAttribute(Core.METACARD_MODIFIED);
+    }
+
+    private void testTemporalAttribute(String temporalAttr) throws Exception {
+        String methodName = "testTemporal: " + temporalAttr;
         LOGGER.debug("***************  START: {}  *****************", methodName);
 
         MockQuery query = new MockQuery();
@@ -575,7 +605,7 @@ public class PredicateTest {
         DatatypeFactory df = DatatypeFactory.newInstance();
         XMLGregorianCalendar start = df.newXMLGregorianCalendarDate(2011, 10, 25, 0);
         XMLGregorianCalendar end = df.newXMLGregorianCalendarDate(2011, 10, 27, 0);
-        query.addTemporalFilter(start, end, Metacard.EFFECTIVE);
+        query.addTemporalFilter(start, end, temporalAttr);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter()
@@ -594,12 +624,14 @@ public class PredicateTest {
         metacard.setCreatedDate(new Date());
         metacard.setExpirationDate(new Date());
         metacard.setModifiedDate(new Date());
+        metacard.setAttribute(Core.METACARD_CREATED, new Date());
+        metacard.setAttribute(Core.METACARD_MODIFIED, new Date());
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
         XMLGregorianCalendar cal = df.newXMLGregorianCalendarDate(2011, 10, 26, 0);
-        Date effectiveDate = cal.toGregorianCalendar()
+        Date dateAttr = cal.toGregorianCalendar()
                 .getTime();
-        metacard.setEffectiveDate(effectiveDate);
+        metacard.setAttribute(temporalAttr, dateAttr);
 
         HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -617,10 +649,10 @@ public class PredicateTest {
         LOGGER.debug("\nfail temporal.  fail content type.\n");
         XMLGregorianCalendar cal1 = df.newXMLGregorianCalendarDate(2012, 10, 30, 0); // time out of
         // range
-        Date effectiveDate1 = cal1.toGregorianCalendar()
+        Date dateAttr1 = cal1.toGregorianCalendar()
                 .getTime();
-        metacard.setEffectiveDate(effectiveDate1);
-        LOGGER.debug("metacard date: {}", metacard.getEffectiveDate());
+        metacard.setAttribute(temporalAttr, dateAttr1);
+        LOGGER.debug("metacard date: {}", metacard.getAttribute(temporalAttr));
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);

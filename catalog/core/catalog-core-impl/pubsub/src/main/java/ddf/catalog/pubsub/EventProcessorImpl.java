@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.event.EventProcessor;
 import ddf.catalog.event.InvalidSubscriptionException;
 import ddf.catalog.event.Subscription;
@@ -435,8 +436,49 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
         return deleteResponse;
     }
 
-    public static enum DateType {
-        modified, effective, expiration, created
+    /**
+     * Enumeration of metacard Date attributes that can be used for subscriptions. In order to use
+     * metacard attribute names for getting DateType values, {@link DateType#getDateType(String)}
+     * should be used. To get the metacard attribute name for a DateType,
+     * {@link DateType#getAttributeName()} should be used, where "dt" is an instance of DateType.
+     * <p>
+     * The standard {@link DateType#valueOf(String)} and {@link DateType#name()} enum methods will
+     * not use the names of the attributes as they appear on the metacard, but as they appear in the
+     * enum class as defined below.
+     */
+    public enum DateType {
+        MODIFIED, EFFECTIVE, EXPIRATION, CREATED, METACARD_CREATED(Core.METACARD_CREATED), METACARD_MODIFIED(
+                Core.METACARD_MODIFIED);
+
+        private final String attributeName;
+
+        DateType() {
+            attributeName = this.name();
+        }
+
+        DateType(String attributeName) {
+            this.attributeName = attributeName;
+        }
+
+        public String getAttributeName() {
+            return attributeName;
+        }
+
+        public static DateType getDateType(String attr) {
+            if (attr == null) {
+                throw new NullPointerException("Provided DateTime attribute was null.");
+            }
+
+            for (DateType dt : DateType.values()) {
+                if (dt.getAttributeName()
+                        .equalsIgnoreCase(attr)) {
+                    return dt;
+                }
+            }
+            throw new IllegalArgumentException(String.format(
+                    "Provided DateTime attribute %s was not found.",
+                    attr));
+        }
     }
 
 }

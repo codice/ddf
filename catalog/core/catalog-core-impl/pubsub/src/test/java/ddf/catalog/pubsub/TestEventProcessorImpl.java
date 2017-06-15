@@ -13,6 +13,8 @@
  */
 package ddf.catalog.pubsub;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import org.junit.After;
@@ -89,4 +91,23 @@ public class TestEventProcessorImpl {
 
     }
 
+    @Test
+    public void testDateType() throws Exception {
+        for (EventProcessorImpl.DateType dt : EventProcessorImpl.DateType.values()) {
+            //for each DateType, verify enum is the same if derived from attribute string or enum name
+            assertThat(EventProcessorImpl.DateType.valueOf(dt.name()),
+                    equalTo(EventProcessorImpl.DateType.getDateType(dt.getAttributeName())));
+        }
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testDateTypeNullAttr() {
+        EventProcessorImpl.DateType.getDateType(null);
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDateTypeInvalidAttr() {
+        EventProcessorImpl.DateType.getDateType("some obviously invalid attribute.");
+    }
 }
