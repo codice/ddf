@@ -60,6 +60,7 @@ import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
+import net.jodah.failsafe.function.Predicate;
 
 public class ContentProducerDataAccessObject {
 
@@ -229,6 +230,7 @@ public class ContentProducerDataAccessObject {
             throws SourceUnavailableException {
         RetryPolicy retryPolicy = new RetryPolicy().withDelay(3, TimeUnit.SECONDS)
                 .withMaxDuration(3, TimeUnit.MINUTES)
+                .retryIf((Predicate<Set>) Set::isEmpty)
                 .retryIf((Set<SourceDescriptor> result) -> !result.stream()
                         .findFirst()
                         .get()
