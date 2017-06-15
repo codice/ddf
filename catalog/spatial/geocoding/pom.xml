@@ -30,7 +30,6 @@
         <module>spatial-geocoding-extract</module>
         <module>spatial-geocoding-geocoder</module>
         <module>spatial-geocoding-lucene</module>
-        <module>spatial-geocoding-localsearch</module>
         <module>spatial-geocoding-websearch</module>
         <module>spatial-geocoding-admin-module</module>
         <module>spatial-geocoding-plugin</module>
