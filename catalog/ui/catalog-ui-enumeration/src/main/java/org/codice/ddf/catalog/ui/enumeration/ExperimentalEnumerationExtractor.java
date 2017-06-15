@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.enumerations;
+package org.codice.ddf.catalog.ui.enumeration;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
