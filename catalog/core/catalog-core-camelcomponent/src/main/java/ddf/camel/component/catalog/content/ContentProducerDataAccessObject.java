@@ -24,14 +24,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.camel.Message;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileMessage;
 import org.apache.commons.io.FilenameUtils;
-import org.codice.ddf.platform.util.WaitCondition;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +54,12 @@ import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.SourceInfoRequestLocal;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 
 public class ContentProducerDataAccessObject {
 
@@ -225,18 +227,15 @@ public class ContentProducerDataAccessObject {
 
     private void waitForAvailableSource(CatalogFramework catalogFramework)
             throws SourceUnavailableException {
-        try {
-            WaitCondition.expect("Source should be available")
-                    .checkEvery(3, TimeUnit.SECONDS)
-                    .within(3, TimeUnit.MINUTES)
-                    .until(() -> catalogFramework.getSourceInfo(new SourceInfoRequestLocal(false))
-                            .getSourceInfo()
-                            .stream()
-                            .findFirst()
-                            .get()
-                            .isAvailable());
-        } catch (TimeoutException | InterruptedException e) {
-            throw new SourceUnavailableException("Sources are unavailable", e);
-        }
+        RetryPolicy retryPolicy = new RetryPolicy().withDelay(3, TimeUnit.SECONDS)
+                .withMaxDuration(3, TimeUnit.MINUTES)
+                .retryIf((Set<SourceDescriptor> result) -> !result.stream()
+                        .findFirst()
+                        .get()
+                        .isAvailable());
+
+        Failsafe.with(retryPolicy)
+                .get(() -> catalogFramework.getSourceInfo(new SourceInfoRequestLocal(false))
+                        .getSourceInfo());
     }
 }
