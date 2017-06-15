@@ -287,14 +287,13 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
                 }
             }
 
-            // If the configuration property is a password, set its value to "password" so that
-            // the real password value will be hidden.
+            // If the configuration property is a password that has been set,
+            // mask its value to "password" so that the real password value will be hidden.
             List<MetatypeAttribute> metatypeList = service.getAttributeDefinitions();
             metatypeList.stream()
                     .filter(metatype -> AttributeDefinition.PASSWORD == metatype.getType())
                     .forEach(metatype -> {
-                        String passwordProperty = metatype.getId();
-                        propertiesTable.put(passwordProperty, "password");
+                        setPasswordMask(metatype, propertiesTable);
                     });
 
             configData.setConfigurationProperties(propertiesTable);
@@ -322,6 +321,15 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
                 configData.setEnabled(true);
             }
             service.setConfigurations(configurationDetails);
+        }
+    }
+
+    private void setPasswordMask(MetatypeAttribute metatype, ConfigurationProperties propertiesTable) {
+        String passwordProperty = metatype.getId();
+        if (propertiesTable.get(passwordProperty) == null) {
+            propertiesTable.put(passwordProperty, "");
+        } else if (!(propertiesTable.get(passwordProperty).toString().equals(""))) {
+            propertiesTable.put(passwordProperty, "password");
         }
     }
 
