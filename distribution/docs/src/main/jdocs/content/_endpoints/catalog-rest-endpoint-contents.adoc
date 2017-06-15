@@ -66,3 +66,128 @@ By default, the response body will include the XML representation of the Metacar
 |\${public_url}/services/catalog/sources/
 
 |===
+
+
+====== POST ReST Endpoint Metadata
+The follow is a successful post of well-formed XML data sent to the Catalog ReST endpoint.
+
+.Example Metacard
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
+  <type>ddf.metacard</type>
+  <string name="title">
+    <value>Test REST Metacard</value>
+  </string>
+  <string name="description">
+    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
+  </string>
+</metacard>
+----
+
+
+====== Example Responses for ReST Endpoint Error Conditions
+The following are example data and expected errors responses that will be returned for each
+error condition.
+
+HTTP error codes are also returned. https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_errors
+
+.Malformed XML
+The following request with malformed XML data sent to the Catalog ReST endpoint.
+
+.Malformed XML Example
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
+  <type>ddf.metacard</type>
+  <string name="title">
+    <value>Test REST Metacard</value>
+  </string>
+  <string name="description">
+    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
+  </string>
+</document>
+----
+
+A HTTP 400 is returned and the following response body is returned. The specific error is logged
+in the error log.
+
+.Malformed XML Response
+----
+<pre>Error while storing entry in catalog: </pre>
+----
+
+
+.Request with Unknown Schema
+The following is a malformed XML document sent to the Catalog ReST endpoint.
+
+.Malformed XML Example
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<mydoc xmlns="http://example.com/unknown" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
+  <type>ddf.metacard</type>
+  <string name="title">
+    <value>Test REST Metacard</value>
+  </string>
+  <string name="description">
+    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
+  </string>
+</mydoc>
+----
+
+Creates a generic resource metacard with the provided XML as content for the `metadata` XML field
+in the metacard.
+
+.Request with Missing XML Prologue
+The following is an example request with a missing XML prologue sent to the Catalog ReST endpoint.
+
+.Missing XML Tag Example
+----
+<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
+  <type>ddf.metacard</type>
+  <string name="title">
+    <value>Test REST Metacard</value>
+  </string>
+  <string name="description">
+    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
+  </string>
+</metacard>
+----
+
+Metacard is created successfully
+
+.Request with Non-XML Data
+The following is an example request with non-XML data sent to the Catalog ReST endpoint.
+
+.Non-XML data Example
+----
+title: Non-XML title
+id: abc123
+----
+
+Metacard will be created and the content will stored in the `metadata` field.
+
+.Request with Invalid Transform
+Testing valid data with an invalid `transform=invalid` appended to the POST URL: `{public_url}/services/catalog?transform=blah`
+
+.Valid data with an invalid `?transform=invalid`
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="3a59483ba44e403a9f0044580343007e">
+  <type>ddf.metacard</type>
+  <string name="title">
+    <value>Test REST Metacard</value>
+  </string>
+  <string name="description">
+    <value>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</value>
+  </string>
+</metacard>
+----
+
+A HTTP 400 is returned and the following response body is returned. The specific error is logged
+in the error log.
+
+.Malformed XML Response
+----
+<pre>Error while storing entry in catalog: </pre>
+----
