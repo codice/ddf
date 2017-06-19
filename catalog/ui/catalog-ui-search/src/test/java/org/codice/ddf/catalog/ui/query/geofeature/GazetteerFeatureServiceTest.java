@@ -18,13 +18,11 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.codice.ddf.spatial.geocoder.GeoResult;
-import org.codice.ddf.spatial.geocoder.GeoResultCreator;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
@@ -32,15 +30,8 @@ import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.opengis.geometry.DirectPosition;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({GeoResultCreator.class})
 public class GazetteerFeatureServiceTest {
     private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder().name("Philadelphia")
             .latitude(40)
@@ -68,8 +59,8 @@ public class GazetteerFeatureServiceTest {
 
     @Before
     public void setUp() {
-        gazetteerFeatureService = new GazetteerFeatureService();
         geoEntryQueryable = mock(GeoEntryQueryable.class);
+        gazetteerFeatureService = new GazetteerFeatureService();
         gazetteerFeatureService.setGeoEntryQueryable(geoEntryQueryable);
     }
 
@@ -88,18 +79,22 @@ public class GazetteerFeatureServiceTest {
     @Test
     public void testGetFeatureByName() throws GeoEntryQueryException {
         final double north = 1, south = -2, east = 3, west = -4;
-
-        doReturn(QUERYABLE_RESULTS).when(geoEntryQueryable)
-                .query(TEST_QUERY, 1);
-
         GeoResult geoResult = new GeoResult();
         geoResult.setFullName(GEO_ENTRY_1.getName());
         final DirectPosition northWest = new DirectPositionImpl(west, north);
         final DirectPosition southEast = new DirectPositionImpl(east, south);
         geoResult.setBbox(Arrays.asList(new PointImpl(northWest), new PointImpl(southEast)));
 
-        PowerMockito.mockStatic(GeoResultCreator.class);
-        when(GeoResultCreator.createGeoResult(Mockito.any(GeoEntry.class))).thenReturn(geoResult);
+        gazetteerFeatureService = new GazetteerFeatureService() {
+            @Override
+            protected GeoResult getGeoResultFromGeoEntry(GeoEntry entry) {
+                return geoResult;
+            }
+        };
+        gazetteerFeatureService.setGeoEntryQueryable(geoEntryQueryable);
+
+        doReturn(QUERYABLE_RESULTS).when(geoEntryQueryable)
+                .query(TEST_QUERY, 1);
 
         BoundingBoxFeature feature = (BoundingBoxFeature) gazetteerFeatureService.getFeatureByName(
                 TEST_QUERY);

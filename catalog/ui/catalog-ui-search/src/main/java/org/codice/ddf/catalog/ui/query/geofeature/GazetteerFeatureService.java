@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 public class GazetteerFeatureService implements FeatureService {
     private static final Logger LOGGER = LoggerFactory.getLogger(GazetteerFeatureService.class);
 
-    GeoEntryQueryable geoEntryQueryable;
+    private GeoEntryQueryable geoEntryQueryable;
 
     public void setGeoEntryQueryable(GeoEntryQueryable geoEntryQueryable) {
         this.geoEntryQueryable = geoEntryQueryable;
@@ -57,7 +57,8 @@ public class GazetteerFeatureService implements FeatureService {
         try {
             List<GeoEntry> entries = this.geoEntryQueryable.query(name, 1);
             if (entries.size() > 0) {
-                return getFeatureFromGeoEntry(entries.get(0));
+                GeoResult geoResult = getGeoResultFromGeoEntry(entries.get(0));
+                return getFeatureFromGeoResult(geoResult);
             }
         } catch (GeoEntryQueryException e) {
             LOGGER.debug("Error while making feature service request.", e);
@@ -65,8 +66,12 @@ public class GazetteerFeatureService implements FeatureService {
         return null;
     }
 
-    private Feature getFeatureFromGeoEntry(GeoEntry entry) {
-        GeoResult geoResult = GeoResultCreator.createGeoResult(entry);
+    protected GeoResult getGeoResultFromGeoEntry(GeoEntry entry) {
+        return GeoResultCreator.createGeoResult(entry);
+    }
+
+    private Feature getFeatureFromGeoResult(GeoResult geoResult) {
+
         BoundingBoxFeature boundingBoxFeature = new BoundingBoxFeature();
         boundingBoxFeature.setName(geoResult.getFullName());
 
@@ -86,4 +91,5 @@ public class GazetteerFeatureService implements FeatureService {
 
         return boundingBoxFeature;
     }
+
 }

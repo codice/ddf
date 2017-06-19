@@ -23,14 +23,8 @@ import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.opengis.geometry.primitive.Point;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({GeoResultCreator.class})
 public class TestGeoResultCreator {
     private void verifyGeoResult(final String name, final double latitude, final double longitude,
             final String featureCode, final long population, final double expectedLatitudeOffset,
@@ -40,6 +34,17 @@ public class TestGeoResultCreator {
                 longitude,
                 featureCode,
                 population);
+        this.verifyGeoResult(name,
+                latitude,
+                longitude,
+                expectedLatitudeOffset,
+                expectedLongitudeOffset,
+                geoResult);
+    }
+
+    private void verifyGeoResult(final String name, final double latitude, final double longitude,
+            final double expectedLatitudeOffset, final double expectedLongitudeOffset,
+            final GeoResult geoResult) {
 
         assertThat(geoResult.fullName, is(equalTo(name)));
 
@@ -99,22 +104,13 @@ public class TestGeoResultCreator {
 
     @Test
     public void testGeoEntryConstructor() {
-        GeoEntry entry = new GeoEntry.Builder().name("Phoenix")
+        final GeoResult geoResult = GeoResultCreator.createGeoResult(new GeoEntry.Builder().name(
+                "Phoenix")
                 .latitude(5)
                 .longitude(10)
                 .featureCode("ADM1")
                 .population(1000)
-                .build();
-
-        PowerMockito.spy(GeoResultCreator.class);
-
-        GeoResultCreator.createGeoResult(entry);
-
-        PowerMockito.verifyStatic();
-        GeoResultCreator.createGeoResult(entry.getName(),
-                entry.getLatitude(),
-                entry.getLongitude(),
-                entry.getFeatureCode(),
-                entry.getPopulation());
+                .build());
+        verifyGeoResult("Phoenix", 5, 10, 5, 5, geoResult);
     }
 }
