@@ -52,9 +52,6 @@ import ddf.catalog.data.types.Location;
 @ExamReactorStrategy(PerSuite.class)
 public class TestSpatial extends AbstractIntegrationTest {
 
-    @Rule
-    public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
-
     private static final String CSW_RESPONSE_COUNTRY_CODE = "GBR";
 
     private static final String CSW_RESOURCE_ROOT = "/TestSpatial/";
@@ -157,6 +154,37 @@ public class TestSpatial extends AbstractIntegrationTest {
                             new ExpectedResultPair[] {
                                     new ExpectedResultPair(ResultType.COUNT, "0")})
                     .build();
+
+    @Rule
+    public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
+
+    /**
+     * Loads the resource queries into memory.
+     */
+    public static Map<String, String> loadResourceQueries(String resourcesPath,
+            Map<String, String> savedQueries) {
+
+        //gets a list of resources available within the resource bundle
+        Enumeration<URL> queryResourcePaths = FrameworkUtil.getBundle(AbstractIntegrationTest.class)
+                .getBundleContext()
+                .getBundle()
+                .findEntries(resourcesPath, "*", false);
+
+        while (queryResourcePaths.hasMoreElements()) {
+            String queryResourcePath = queryResourcePaths.nextElement()
+                    .getPath();
+            if (!queryResourcePath.endsWith("/")) {
+                String queryName = queryResourcePath.substring(
+                        queryResourcePath.lastIndexOf("/") + 1);
+                savedQueries.put(removeFileExtension(queryName), getFileContent(queryResourcePath));
+            }
+        }
+        return savedQueries;
+    }
+
+    private static String removeFileExtension(String file) {
+        return file.contains(".") ? file.substring(0, file.lastIndexOf(".")) : file;
+    }
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -356,34 +384,6 @@ public class TestSpatial extends AbstractIntegrationTest {
         String cswResponse = sendCswQuery(cswQuery);
 
         hasExpectedResults(cswResponse, cswExpectedResults.get(queryType));
-    }
-
-    /**
-     * Loads the resource queries into memory.
-     */
-    public static Map<String, String> loadResourceQueries(String resourcesPath,
-            Map<String, String> savedQueries) {
-
-        //gets a list of resources available within the resource bundle
-        Enumeration<URL> queryResourcePaths = FrameworkUtil.getBundle(AbstractIntegrationTest.class)
-                .getBundleContext()
-                .getBundle()
-                .findEntries(resourcesPath, "*", false);
-
-        while (queryResourcePaths.hasMoreElements()) {
-            String queryResourcePath = queryResourcePaths.nextElement()
-                    .getPath();
-            if (!queryResourcePath.endsWith("/")) {
-                String queryName = queryResourcePath.substring(
-                        queryResourcePath.lastIndexOf("/") + 1);
-                savedQueries.put(removeFileExtension(queryName), getFileContent(queryResourcePath));
-            }
-        }
-        return savedQueries;
-    }
-
-    private static String removeFileExtension(String file) {
-        return file.contains(".") ? file.substring(0, file.lastIndexOf(".")) : file;
     }
 
     private String sendCswQuery(String query) {

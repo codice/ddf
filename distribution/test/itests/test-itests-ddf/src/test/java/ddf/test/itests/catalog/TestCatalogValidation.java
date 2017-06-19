@@ -28,7 +28,7 @@ import static org.codice.ddf.itests.common.csw.CswQueryBuilder.NOT;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.OR;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
-import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.executeOpenSearch;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearch;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -83,6 +83,20 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
     @Rule
     public TestName testName = new TestName();
+
+    public static String getGetRecordByIdProductRetrievalUrl() {
+        return "?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="
+                + "http://www.opengis.net/cat/csw/2.0.2&"
+                + "outputFormat=application/octet-stream&outputSchema="
+                + "http://www.iana.org/assignments/media-types/application/octet-stream&"
+                + "id=placeholder_id";
+    }
+
+    public static String getSimpleXml(String uri) {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + getFileContent(
+                XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard",
+                ImmutableMap.of("uri", uri));
+    }
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -626,7 +640,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
         String metacard1Path = format(METACARD_X_PATH, id1);
         String metacard2Path = format(METACARD_X_PATH, id2);
 
-        executeOpenSearch("xml", "q=*").log()
+        getOpenSearch("xml", null, null, "q=*").log()
                 .all()
                 .assertThat()
                 .body(hasXPath(metacard1Path))
@@ -670,7 +684,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
         String metacard1Path = format(METACARD_X_PATH, id1);
         String metacard2Path = format(METACARD_X_PATH, id2);
 
-        executeOpenSearch("xml", "q=*").log()
+        getOpenSearch("xml", null, null, "q=*").log()
                 .all()
                 .assertThat()
                 .body(hasXPath(metacard1Path))
@@ -868,6 +882,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     /**
      * This method tries to ingest the given resource until it fails. This is needed because of the
      * async nature of setting configurations that would restrict/reject an ingest request.
+     *
      * @param resourceName
      * @return
      * @throws IOException
@@ -893,6 +908,27 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
         return null;
     }
 
+    /**
+     * Setting configurations is performed asynchronously and there is no way to check if the configured
+     * bean has received a configuration update. This method provides a best effort workaround by retrying
+     * the test/assertions with a slight delay in between tries in an attempt to let the configuration
+     * thread catch up. The Runnable.run() method will be called in each attempt and all exceptions
+     * including AssertionErrors will be treated as a failed run and retried.
+     *
+     * @param runnable
+     */
+    private void testWithRetry(Runnable runnable) {
+
+        with().pollInterval(1, SECONDS)
+                .await()
+                .atMost(30, SECONDS)
+                .ignoreExceptions()
+                .until(() -> {
+                    runnable.run();
+                    return true;
+                });
+    }
+
     public class PdpProperties extends HashMap<String, Object> {
 
         public static final String SYMBOLIC_NAME = "security-pdp-authzrealm";
@@ -913,41 +949,6 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
         public CatalogPolicyProperties() {
             this.putAll(getServiceManager().getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
         }
-    }
-
-    public static String getGetRecordByIdProductRetrievalUrl() {
-        return "?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="
-                + "http://www.opengis.net/cat/csw/2.0.2&"
-                + "outputFormat=application/octet-stream&outputSchema="
-                + "http://www.iana.org/assignments/media-types/application/octet-stream&"
-                + "id=placeholder_id";
-    }
-
-    public static String getSimpleXml(String uri) {
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" + getFileContent(
-                XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard",
-                ImmutableMap.of("uri", uri));
-    }
-
-    /**
-     * Setting configurations is performed asynchronously and there is no way to check if the configured
-     * bean has received a configuration update. This method provides a best effort workaround by retrying
-     * the test/assertions with a slight delay in between tries in an attempt to let the configuration
-     * thread catch up. The Runnable.run() method will be called in each attempt and all exceptions
-     * including AssertionErrors will be treated as a failed run and retried.
-     *
-     * @param runnable
-     */
-    private void testWithRetry(Runnable runnable) {
-
-        with().pollInterval(1, SECONDS)
-                .await()
-                .atMost(30, SECONDS)
-                .ignoreExceptions()
-                .until(() -> {
-                    runnable.run();
-                    return true;
-                });
     }
 
 }
