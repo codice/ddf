@@ -30,21 +30,7 @@ var store = require('js/store');
 var user = require('component/singletons/user-instance');
 var VisualizationDropdown = require('component/dropdown/visualization-selector/dropdown.visualization-selector.view');
 var DropdownModel = require('component/dropdown/dropdown');
-var fontSize = parseInt(user.get('user').get('preferences').get('fontSize'));
-
-var goldenLayoutSettings = {
-    settings: {
-        showPopoutIcon: false,
-    },
-    dimensions: {
-        borderWidth: 0.5 * 0.625 * fontSize,
-        minItemHeight: 20 * fontSize,
-        minItemWidth: 20 * fontSize,
-        headerHeight: 2.75 * fontSize,
-        dragProxyWidth: 300,
-        dragProxyHeight: 200
-    }
-};
+var lessVariables = require('js/LessVariables');
 
 var defaultGoldenLayoutContent = {
     content: [{
@@ -61,6 +47,23 @@ var defaultGoldenLayoutContent = {
     }]
 };
 
+function getGoldenLayoutSettings(){
+    var minimumScreenSize = parseFloat(lessVariables.get('@minimumScreenSize'));
+    var fontSize = parseInt(user.get('user').get('preferences').get('fontSize'));
+    return {
+        settings: {
+            showPopoutIcon: false,
+        },
+        dimensions: {
+            borderWidth: 0.5 * parseFloat(lessVariables.get('@minimumSpacing')) * fontSize,
+            minItemHeight: minimumScreenSize * fontSize,
+            minItemWidth: minimumScreenSize * fontSize,
+            headerHeight: parseFloat(lessVariables.get('@minimumButtonSize')) * fontSize,
+            dragProxyWidth: 300,
+            dragProxyHeight: 200
+        }
+    };
+}
 
 // see https://github.com/deepstreamIO/golden-layout/issues/239 for details on why the setTimeout is necessary
 // The short answer is it mostly has to do with making sure these ComponentViews are able to function normally (set up events, etc.)
@@ -152,11 +155,11 @@ module.exports = Marionette.LayoutView.extend({
         this.options.selectionInterface = options.selectionInterface || store;
     },
     updateFontSize: function () {
-        fontSize = parseInt(user.get('user').get('preferences').get('fontSize'));
-        this.goldenLayout.config.dimensions.borderWidth = 0.5 * 0.625 * fontSize;
-        this.goldenLayout.config.dimensions.minItemHeight = 2.75 * fontSize;
-        this.goldenLayout.config.dimensions.minItemWidth = 2.75 * fontSize;
-        this.goldenLayout.config.dimensions.headerHeight = 2.75 * fontSize;
+        var goldenLayoutSettings = getGoldenLayoutSettings();
+        this.goldenLayout.config.dimensions.borderWidth = goldenLayoutSettings.dimensions.borderWidth;
+        this.goldenLayout.config.dimensions.minItemHeight = goldenLayoutSettings.dimensions.minItemHeight;
+        this.goldenLayout.config.dimensions.minItemWidth = goldenLayoutSettings.dimensions.minItemWidth;
+        this.goldenLayout.config.dimensions.headerHeight = goldenLayoutSettings.dimensions.headerHeight;
         Common.repaintForTimeframe(2000, () => {
             this.goldenLayout.updateSize();
         });
@@ -183,7 +186,7 @@ module.exports = Marionette.LayoutView.extend({
         if (currentConfig === undefined){
             currentConfig = defaultGoldenLayoutContent;
         }
-        _.merge(currentConfig, goldenLayoutSettings);
+        _.merge(currentConfig, getGoldenLayoutSettings());
         return currentConfig;
     },
     registerGoldenLayoutComponents: function(){
@@ -224,6 +227,7 @@ module.exports = Marionette.LayoutView.extend({
         }
     },
     setupListeners: function () {
+        this.listenTo(lessVariables, 'change:initialized', this.updateFontSize);
         this.listenTo(user.get('user').get('preferences'), 'change:fontSize', this.updateFontSize);
         this.listenForResize();
     },

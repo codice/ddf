@@ -25,6 +25,11 @@ module.exports = merge.smart(base, {
                 target: 'https://localhost:8993',
                 secure: false,
                 changeOrigin: true
+            },
+            '/styles/**': {
+                target: 'https://localhost:8993/search/catalog',
+                secure: false,
+                changeOrigin: true
             }
         }
     },

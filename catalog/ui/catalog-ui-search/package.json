@@ -86,6 +86,7 @@
     "handlebars": "4.0.5",
     "jquery": "1.12.4",
     "jquery-ui": "1.10.4",
+    "less-vars-to-js": "1.1.2",
     "lodash": "2.4.1",
     "lodash.get": "4.4.2",
     "moment": "2.13.0",

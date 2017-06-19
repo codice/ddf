@@ -5444,6 +5444,10 @@ less-plugin-clean-css@1.5.1:
   dependencies:
     clean-css "^3.0.1"
 
+less-vars-to-js@1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/less-vars-to-js/-/less-vars-to-js-1.1.2.tgz#eef3e48e0ab8d0fb9a8b515753a2d7b502a9ab0c"
+
 less@2.7.2:
   version "2.7.2"
   resolved "https://registry.yarnpkg.com/less/-/less-2.7.2.tgz#368d6cc73e1fb03981183280918743c5dcf9b3df"
