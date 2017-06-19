@@ -1,0 +1,121 @@
+:title: Certificates Quickstart
+:type: quickStart
+:status: published
+:summary: Keystore and certificate instructions.
+:order: 01
+
+=== Certificates (Quick Start)
+
+${branding} comes with a default keystore that contains certificates.
+This allows the distribution to be unzipped and run immediately.
+If these certificates are sufficient for testing purposes, proceed to <<_configuring_quick_start,Configuring (Quick Start)>>.
+
+To test federation using 2-way TLS, the default keystore certificates will need to be replaced, using either the included <<_demo_certificate_authority_ca,Demo Certificate Authority>> or by <<_creating_self_signed_certificates,Creating Self-signed Certificates>>.
+
+If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.
+
+If the hostname is `localhost` or, if the hostname was changed _after_ installation, the default certificates will not allow access to the ${branding} instance from another machine over HTTPS (now the default for many services).
+The Demo Certificate Authority will need to be replaced with certificates that use the fully-qualified hostname of the server running the ${branding} instance.
+
+==== Demo Certificate Authority (CA)
+
+${branding} comes with a populated truststore containing entries for many public certificate authorities, such as Go Daddy and Verisign.
+It also includes an entry for the ${ddf-branding} Demo Root CA.
+This entry is a self-signed certificate used for testing.
+It enables ${branding} to run immediately after unzipping the distribution.
+The keys and certificates for the ${ddf-branding} Demo Root CA are included as part of the ${branding} distribution.
+This entry must be removed from the truststore before ${branding} can operate securely.
+
+===== Creating New Server Keystore Entry with the CertNew Scripts
+
+To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
+To use the scripts, run them out of the `<INSTALL_HOME>/etc/certs` directory.
+
+.*NIX Demo CA Script
+****
+
+For *NIX, use the `CertNew.sh` script.
+
+`sh CertNew.sh <FQDN>`
+
+Alternatively, a distinguished name can be provided to the script with a comma-delimited string.
+
+`sh CertNew.sh -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
+****
+
+.Windows Demo CA Script
+****
+For Windows, use the `CertNew.cmd` script.
+
+`CertNew -cn <FQDN>`
+
+Alternatively, a distinguished name can be provided to the script with a comma-delimited string.
+
+`CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
+****
+
+The `CertNew` scripts:
+
+* Create a new entry in the server keystore.
+* Use the hostname as the fully qualified domain name (FQDN) when creating the certificate.
+* Use the Demo Certificate Authority to sign the certificate so that it will be trusted by the default configuration.
+
+To install a certificate signed by a different Certificate Authority, see <<_managing_keystores,Managing Keystores>>.
+
+Finally, restart the ${branding} instance.
+Browse the ${admin-console} at \https://<FQDN>:8993/admin to test changes.
+
+[WARNING]
+====
+If the server's fully qualified domain name is not recognized, the name may need to be added to the network's DNS server.
+====
+
+[TIP]
+====
+The ${branding} instance can be tested even if there is no entry for the FQDN in the DNS.
+First, test if the FQDN is already recognized.
+Execute this command:
+
+`ping <FQDN>`
+
+If the command responds with an error message such as unknown host, then modify the system's `hosts` file to point the server's FQDN to the loopback address.
+For example:
+
+`127.0.0.1 <FQDN>`
+====
+
+==== Creating Self-Signed Certificates
+
+If using the Demo CA is not desired, ${branding} supports creating self-signed certificates with a self-signed certificate authority.
+This is considered an advanced configuration.
+
+Creating self-signed certificates involves creating and configuring the files that contain the certificates.
+In ${branding}, these files are generally Java Keystores (`jks`) and Certificate Revocation Lists (`crl`).
+This includes commands and tools that can be used to perform these operations.
+
+For this example, the following tools are used:
+
+* openssl
+** Windows users can use: https://code.google.com/p/openssl-for-windows/downloads/detail?name=openssl-0.9.8k_X64.zip&can=2&q=[openssl] for windows.
+* The standard Java http://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html[keytool] certificate management utility.
+* http://portecle.sourceforge.net/[Portecle] can be used for *keytool* operations if a GUI if preferred over a command line interface.
+
+===== Creating a custom CA Key and Certificate
+
+The following steps demonstrate creating a root CA to sign certificates.
+
+. Create a key pair. +
+`$> openssl genrsa -aes128 -out root-ca.key 1024` +
+. Use the key to sign the CA certificate. +
+`$> openssl req -new -x509 -days 3650 -key root-ca.key -out root-ca.crt`
+
+===== Sign Certificates Using the custom CA
+
+The following steps demonstrate signing a certificate for the `tokenissuer` user by a CA.
+
+. Generate a private key and a Certificate Signing Request (CSR). +
+`$> openssl req -newkey rsa:1024 -keyout tokenissuer.key -out tokenissuer.req`
+. Sign the certificate by the CA. +
+`$> openssl ca -out tokenissuer.crt -infiles tokenissuer.req`
+
+These certificates will be used during system configuration to replace the default certificates.
