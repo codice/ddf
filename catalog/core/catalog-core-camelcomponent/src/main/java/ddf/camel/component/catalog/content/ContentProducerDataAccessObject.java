@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.Message;
 import org.apache.camel.component.file.GenericFile;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
@@ -49,10 +52,15 @@ import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.SourceInfoRequestLocal;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
+import net.jodah.failsafe.function.Predicate;
 
 public class ContentProducerDataAccessObject {
 
@@ -148,9 +156,13 @@ public class ContentProducerDataAccessObject {
 
             processHeaders(headers, createRequest, ingestedFile);
 
-            CreateResponse createResponse = endpoint.getComponent()
-                    .getCatalogFramework()
-                    .create(createRequest);
+            CatalogFramework catalogFramework = endpoint.getComponent()
+                    .getCatalogFramework();
+
+            waitForAvailableSource(catalogFramework);
+
+            CreateResponse createResponse = catalogFramework.create(createRequest);
+
             if (createResponse != null) {
                 List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
 
@@ -212,5 +224,20 @@ public class ContentProducerDataAccessObject {
             storageRequest.getProperties()
                     .put(Constants.STORE_REFERENCE_KEY, ingestedFile.getAbsolutePath());
         }
+    }
+
+    private void waitForAvailableSource(CatalogFramework catalogFramework)
+            throws SourceUnavailableException {
+        RetryPolicy retryPolicy = new RetryPolicy().withDelay(3, TimeUnit.SECONDS)
+                .withMaxDuration(3, TimeUnit.MINUTES)
+                .retryIf((Predicate<Set>) Set::isEmpty)
+                .retryIf((Set<SourceDescriptor> result) -> !result.stream()
+                        .findFirst()
+                        .get()
+                        .isAvailable());
+
+        Failsafe.with(retryPolicy)
+                .get(() -> catalogFramework.getSourceInfo(new SourceInfoRequestLocal(false))
+                        .getSourceInfo());
     }
 }
