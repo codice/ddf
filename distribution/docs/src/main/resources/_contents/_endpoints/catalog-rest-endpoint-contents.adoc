@@ -43,51 +43,6 @@ The updated metadata is contained in the HTTP body.
 
 |\${public_url}/services/catalog/<metacardId>?transform=<input transformer>
 
-
-
-|delete
-|HTTP DELETE
-|The ID of the Metacard to be deleted is appended to the end of the URL.
-
-`<metacardId>` is the `Metacard.ID` of the metacard to be deleted.
-
-|\${public_url}/services/catalog/<metacardId>
-
-|read
-|HTTP GET
-|The ID of the Metacard to be retrieved is appended to the end of the URL.
-
-By default, the response body will include the XML representation of the Metacard.
-
-`<metacardId>` is the `Metacard.ID` of the metacard to be retrieved.
-
-|\${public_url}/services/catalog/<metacardId>
-
-|federated read
-|HTTP GET
-|The SOURCE ID of a federated source is appended to the URL before the ID of the Metacard to be retrieved is appended to the end.
-
-`<sourceId>` is the `FEDERATED SOURCE ID` and `<metacardId>` is the `Metacard.ID` of the Metacard to be retrieved.
-
-|\${public_url}/services/catalog/sources/&lt;sourceId&gt;/&lt;metacardId&gt;
-
-|sources
-|HTTP GET
-|Retrieves information about federated sources, including `sourceId`, `availability`, `contentTypes`,and `version`.
-
-|\${public_url}/services/catalog/sources/
-
-|===
-
-|The ID of the Metacard to be updated is appended to the end of the URL.
-The updated metadata is contained in the HTTP body.
-
-`<metacardId>` is the `Metacard.ID` of the metacard to be updated and `<input transformer>` is the name of the transformer to use when parsing an override metadata attribute (optional).
-
-|\${public_url}/services/catalog/<metacardId>?transform=<input transformer>
-
-
-
 |delete
 |HTTP DELETE
 |The ID of the Metacard to be deleted is appended to the end of the URL.
