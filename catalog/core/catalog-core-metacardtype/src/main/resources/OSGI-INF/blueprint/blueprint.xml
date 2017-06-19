@@ -18,7 +18,6 @@
         <argument value="common"/>
         <argument>
             <list>
-                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.LocationAttributes"/>

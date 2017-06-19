@@ -30,7 +30,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
 import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 
 /**
@@ -123,6 +125,8 @@ public class MetacardTypeImpl implements MetacardType {
         List<String> attributeNames = new ArrayList<>();
         addAttributeDescriptors(attributeNames, new CoreAttributes().getAttributeDescriptors());
         addAttributeDescriptors(attributeNames, new SecurityAttributes().getAttributeDescriptors());
+        addAttributeDescriptors(attributeNames, new AssociationsAttributes().getAttributeDescriptors());
+        addAttributeDescriptors(attributeNames, new LocationAttributes().getAttributeDescriptors());
 
         if (metacardTypes != null) {
             metacardTypes.forEach(metacardType -> addAttributeDescriptors(attributeNames,
