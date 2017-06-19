@@ -73,8 +73,8 @@
             <version>1.10</version>
         </dependency>
         <dependency>
-            <groupId>ddf.distribution</groupId>
-            <artifactId>branding-api</artifactId>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-branding-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
