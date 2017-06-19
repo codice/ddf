@@ -31,70 +31,15 @@
         <param-value>/</param-value>
     </context-param>
 
-    <servlet>
-        <servlet-name>ErrorServlet</servlet-name>
-        <servlet-class>org.codice.ddf.platform.error.servlet.ErrorServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>ErrorServlet</servlet-name>
-        <url-pattern>/ErrorServlet</url-pattern>
-    </servlet-mapping>
-
-    <error-page>
-        <error-code>400</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
-
-    <error-page>
-        <error-code>401</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
-
-    <error-page>
-        <error-code>403</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
-
-    <error-page>
-        <error-code>404</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
-
-    <error-page>
-        <error-code>405</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
-
-    <error-page>
-        <error-code>406</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
-
-    <error-page>
-        <error-code>500</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
-
-    <error-page>
-        <error-code>501</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
-
-    <error-page>
-        <error-code>502</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
-
-    <error-page>
-        <error-code>503</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
-
-    <error-page>
-        <error-code>504</error-code>
-        <location>/ErrorServlet</location>
-    </error-page>
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Map Layer Editor</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
 
     <filter>
         <filter-name>GzipFilter</filter-name>
