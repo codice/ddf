@@ -14,10 +14,13 @@
 package org.codice.ddf.catalog.ui.query;
 
 import static spark.Spark.after;
+import static spark.Spark.before;
 import static spark.Spark.exception;
+import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.route.RouteOverview.enableRouteOverview;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.boon.json.JsonParserFactory;
@@ -26,6 +29,8 @@ import org.boon.json.ObjectMapper;
 import org.boon.json.implementation.ObjectMapperImpl;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
+import org.codice.ddf.catalog.ui.query.geofeature.Feature;
+import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +61,8 @@ public class QueryApplication implements SparkApplication {
 
     private ActionRegistry actionRegistry;
 
+    private FeatureService featureService;
+
     private ObjectMapper mapper = new ObjectMapperImpl(new JsonParserFactory().usePropertyOnly(),
             new JsonSerializerFactory().includeEmpty()
                     .includeNulls()
@@ -64,6 +71,9 @@ public class QueryApplication implements SparkApplication {
 
     @Override
     public void init() {
+        before((req, res) -> {
+            res.type(APPLICATION_JSON);
+        });
 
         post("/cql", APPLICATION_JSON, (req, res) -> {
             CqlRequest cqlRequest = mapper.readValue(req.body(), CqlRequest.class);
@@ -74,8 +84,19 @@ public class QueryApplication implements SparkApplication {
         });
 
         after("/cql", (req, res) -> {
-            res.type(APPLICATION_JSON);
             res.header("Content-Encoding", "gzip");
+        });
+
+        get("/geofeature/suggestions", (req, res) -> {
+            String query = req.queryParams("q");
+            List<String> results = this.featureService.getSuggestedFeatureNames(query, 10);
+            return mapper.toJson(results);
+        });
+
+        get("/geofeature", (req, res) -> {
+            String name = req.queryParams("name");
+            Feature feature = this.featureService.getFeatureByName(name);
+            return mapper.toJson(feature.getJsonObject());
         });
 
         exception(UnsupportedQueryException.class, (e, request, response) -> {
@@ -127,5 +148,9 @@ public class QueryApplication implements SparkApplication {
 
     public void setActionRegistry(ActionRegistry actionRegistry) {
         this.actionRegistry = actionRegistry;
+    }
+
+    public void setFeatureService(FeatureService featureService) {
+        this.featureService = featureService;
     }
 }

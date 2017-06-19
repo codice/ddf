@@ -12,31 +12,38 @@
  **/
  --}}
 <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
-    <label id="locationLine" class="btn location {{#if line}}active{{/if}}" data-target="#lineTab{{cid}}" data-toggle="tab">
+    <label id="locationLine" class="btn location {{#if line}}{{#unless hasKeyword}}active{{/unless}}{{/if}}" data-target="#lineTab{{cid}}" data-toggle="tab">
         <input type="radio" name="lineButton">
         <i class="fa fa-circle"></i>
         <i class="fa fa-circle-o"></i>
         Line
     </label>
-    <label id="locationPolygon" class="btn location {{#if polygon}}active{{/if}}" data-target="#polygonTab{{cid}}" data-toggle="tab">
+    <label id="locationPolygon" class="btn location {{#if polygon}}{{#unless hasKeyword}}active{{/unless}}{{/if}}" data-target="#polygonTab{{cid}}" data-toggle="tab">
         <input type="radio" name="polygonButton">
         <i class="fa fa-circle"></i>
         <i class="fa fa-circle-o"></i>
         Polygon
     </label>
-    <label id="locationPoint" class="btn location {{#if lat includeZero=true}}active{{/if}}" data-target="#pointradius{{cid}}" data-toggle="tab">
+    <label id="locationPoint" class="btn location {{#if lat includeZero=true}}{{#unless hasKeyword}}active{{/unless}}{{/if}}" data-target="#pointradius{{cid}}" data-toggle="tab">
         <input type="radio" name="pointRadiusButton">
         <i class="fa fa-circle"></i>
         <i class="fa fa-circle-o"></i>
         Point-Radius
     </label>
 
-    <label id="locationBbox" class="btn location {{#if bbox}}active{{/if}}" data-target="#boundingbox{{cid}}" data-toggle="tab">
+    <label id="locationBbox" class="btn location {{#if bbox}}{{#unless hasKeyword}}active{{/unless}}{{/if}}" data-target="#boundingbox{{cid}}" data-toggle="tab">
         <input type="radio" name="bboxButton">
         <i class="fa fa-circle"></i>
         <i class="fa fa-circle-o"></i>
         Bounding Box
     </label>
+
+    <label id="locationKeyword" class="btn location {{#if hasKeyword}}active{{/if}}" data-target="#keyword{{cid}}" data-toggle="tab">
+        <input type="radio" name="keywordButton">
+        <i class="fa fa-circle"></i>
+        <i class="fa fa-circle-o"></i>
+        Keyword
+    </label>    
 </div>
 <div class="tab-content form-group clearfix">
     <div id="nogeo" class="tab-pane {{#ifNotOr line radius bbox polygon}}active{{/ifNotOr}}"></div>
@@ -62,6 +69,13 @@
             </label>
         </div>
     </div>
+
+    <div id="keyword{{cid}}" class="tab-pane {{#if hasKeyword}}active{{/if}}">
+        <div class="col-lg-10">
+            <div id="keyword-autocomplete"></div>
+            <div class="is-loading-geometry-spinner">Loading geometry...<span class="fa fa-refresh fa-spin"></span></div>
+        </div>
+    </div>       
 
     <div id="lineTab{{cid}}" class="tab-pane {{#if line}}active{{/if}}">
         <input type="hidden" name="line" value="">

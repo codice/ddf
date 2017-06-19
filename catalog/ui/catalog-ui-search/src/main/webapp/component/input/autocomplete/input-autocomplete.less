@@ -1,0 +1,45 @@
+@{customElementNamespace}input.is-autocomplete {
+    .select2-container--default .select2-selection--single {
+        background: @darken-inherited-background-color;
+        border: 1px solid @heavily-lighten-inherited-background-color;
+        border-radius: @border-radius;
+        height: auto;
+
+        .select2-selection__rendered {
+            line-height: @minimumButtonSize;
+            padding-right: @minimumButtonSize;
+        }
+
+        .select2-selection__arrow {
+            top: 0px;
+            height: 100%;
+            width: @minimumButtonSize;
+        }        
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: @text-color;
+    }
+}
+
+// can't namespace because dropdown gets appended to end of document body
+.select2-dropdown {
+    z-index: @zIndexDropdown;
+    background-color: @dropdown-background-color;
+    border-radius: @border-radius;
+    border-color: @heavily-lighten-inherited-background-color;
+    color: @text-color;
+}
+
+.select2-results__option {
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0px @minimumSpacing;
+    white-space: nowrap;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background: @lighten-inherited-background-color;
+}

@@ -386,9 +386,16 @@ define([
                     if (existingView) {
                         existingView.stop();
                         existingView.destroyPrimitive();
+                        existingView.updatePrimitive(model);
+                    } else {
+                        var view = new Draw.BboxView({
+                            map: this.options.map,
+                            model: bboxModel
+                        });
+                        view.updatePrimitive(model);
+                        this.addView(view);
                     }
-                    existingView.updatePrimitive(model);
-
+                    
                     return bboxModel;
                 }
             },

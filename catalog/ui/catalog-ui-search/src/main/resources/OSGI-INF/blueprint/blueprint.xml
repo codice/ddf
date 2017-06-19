@@ -196,6 +196,7 @@
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="filterAdapter" ref="filterAdapter"/>
         <property name="actionRegistry" ref="metacardActionRegistry"/>
+        <property name="featureService" ref="featureService"/>
     </bean>
 
     <bean id="feedbackApplication" class="org.codice.ddf.catalog.ui.query.FeedbackApplication">
@@ -326,5 +327,9 @@
 
     <service ref="workspaceQueryService"
              interface="org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService"/>
+
+    <bean id="featureService" class="org.codice.ddf.catalog.ui.query.geofeature.StubFeatureService"/>
+
+    <service ref="featureService" interface="org.codice.ddf.catalog.ui.query.geofeature.FeatureService"/>
 
 </blueprint>

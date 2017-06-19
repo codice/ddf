@@ -11,6 +11,7 @@
  **/
 /*global define*/
 define([
+    'require',
     'jquery',
     'backbone',
     'marionette',
@@ -23,10 +24,11 @@ define([
     'js/store',
     'js/CustomElements',
     './location-old',
-    'js/CQLUtils'
-], function ($, Backbone, Marionette, _, properties, MetaCard, wreqr, template, maptype,
-             store, CustomElements, LocationOldModel, CQLUtils) {
-
+    'js/CQLUtils',
+    'component/property/property',
+    'component/announcement'
+], function (require, $, Backbone, Marionette, _, properties, MetaCard, wreqr, template, maptype,
+             store, CustomElements, LocationOldModel, CQLUtils, Property, Announcement) {
     var minimumDifference = 0.0001;
     var minimumBuffer = 0.000001;
     var deltaThreshold = 0.0000001;
@@ -44,7 +46,7 @@ define([
                                     return '';
                                 }
                             };
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('location-old'),
         events: {
@@ -52,12 +54,16 @@ define([
             'click #locationPolygon': 'drawPolygon',
             'click #locationBbox': 'drawBbox',
             'click #locationLine': 'drawLine',
+            'click #locationKeyword': 'searchByKeyword',
             'click #latlon': 'swapLocationTypeLatLon',
             'click #latlon': 'swapLocationTypeLatLon',
             'click #usng': 'swapLocationTypeUsng',
             'click #utm': 'swapLocationTypeUtm',
             'change #radiusUnits': 'onRadiusUnitsChanged',
             'change #lineUnits': 'onLineUnitsChanged'
+        },
+        regions: {
+            keyword: "#keyword-autocomplete"
         },
         initialize: function (options) {
             this.propertyModel = this.model;
@@ -79,6 +85,7 @@ define([
             this.$el.toggleClass('is-polygon', mode === "polygon");
             this.$el.toggleClass('is-circle', mode === "circle");
             this.$el.toggleClass('is-bbox', mode === "bbox");
+            this.$el.toggleClass('is-keyword', mode === "keyword");
         },
         setupListeners: function () {
             this.listenTo(this.propertyModel.get('property'), 'change:isEditing', this.handleEdit);
@@ -189,6 +196,9 @@ define([
             }
         },
         clearLocation: function () {
+            if (this.getFeatureByKeywordXHR){
+                this.getFeatureByKeywordXHR.abort();
+            }
             this.model.set({
                 north: undefined,
                 east: undefined,
@@ -199,6 +209,7 @@ define([
                 radius: 1,
                 bbox: undefined,
                 polygon: undefined,
+                hasKeyword: false,                
                 usng: undefined,
                 usngbb: undefined,
                 utmEasting: undefined,
@@ -426,9 +437,95 @@ define([
             this.$('#utmZone').multiselect(singleselectOptions);
             this.$('#utmHemisphere').multiselect(singleselectOptions);
 
+            this.showKeywordPropertyView();
             this.blockMultiselectEvents();
             this.updateLocationFields();
             this.handleEdit();
+        },
+        showKeywordPropertyView: function() {
+            var keywordProperty = new Property({
+                placeholder: 'Enter a region, country, or city',
+                minimumInputLength: 2,
+                url: '/search/catalog/internal/geofeature/suggestions',
+                type: 'AUTOCOMPLETE'
+            });
+            this.listenTo(keywordProperty, 'change:value', this.handleGetKeyword);            
+            var PropertyView = require('component/property/property.view');
+            var keywordPropertyView = new PropertyView({ model: keywordProperty });            
+            keywordPropertyView.turnOnLimitedWidth();
+            this.keyword.show(keywordPropertyView);
+        },
+        handleGetKeyword: function(model, values) {
+            var query = values[0];
+            if (!query) return;
+
+            var view = this;
+            if (view.getFeatureByKeywordXHR) {
+                view.getFeatureByKeywordXHR.abort();
+            }
+            view.$el.toggleClass('is-loading-geometry', true);
+            view.getFeatureByKeywordXHR = $.get({
+                url: '/search/catalog/internal/geofeature?name=' + query,
+                contentType: 'application/json',
+                cache: false,
+                customErrorHandling: true
+            }).done(function(data){
+                view.showKeywordResults(data);
+            }).fail(function(jqXHR, statusText){
+                if (statusText !== 'abort') {
+                    Announcement.announce({
+                        title: 'Could Not Retrieve Geometry',
+                        message: 'Could not find geometry for ' + query + '.',
+                        type: 'error'
+                    });
+                }
+            }).always(function(){
+                view.$el.toggleClass('is-loading-geometry', false);
+                view.getFeatureByKeywordXHR = null;
+            });
+        },
+        showKeywordResults: function(data) {
+            var eventToDrawShape = null;
+            var attrsToSet = null;
+
+            switch(data.type) {
+                case "bbox": {
+                    var { north, south, west, east } = data;
+                    attrsToSet = { north, south, west, east };
+                    eventToDrawShape = 'search:bboxdisplay';                    
+                    break;
+                }
+                case "polygon": {
+                    var polygon = data.coordinates.map(function(coord){
+                        return [coord.latitude, coord.longitude];
+                    });
+                    attrsToSet = { polygon, bbox: undefined };
+                    eventToDrawShape = 'search:polydisplay';
+                    break;
+                }
+                case "point-radius": {
+                    var lat = data.center.latitude;
+                    var lon = data.center.longitude;
+                    var radius = data.radius;
+                    attrsToSet = { lat, lon, radius, bbox: undefined };
+                    eventToDrawShape = 'search:circledisplay';                    
+                    break;
+                }
+            }
+
+            if (attrsToSet && eventToDrawShape) {
+                _.extend(attrsToSet, { locationType: "latlon", hasKeyword: true });
+                this.clearLocation();                 
+                this.model.set(attrsToSet);
+                this.render(); // redraw template so appropriate fields appear
+                wreqr.vent.trigger(eventToDrawShape, this.model);      
+            } else {
+                Announcement.announce({
+                    title: 'Invalid feature',
+                    message: 'Unrecognized feature type: ' + data.type,
+                    type: 'error'
+                });
+            }
         },
         blockMultiselectEvents: function () {
             $('.ui-multiselect-menu').on('mousedown', function (e) {
@@ -454,6 +551,11 @@ define([
             this.clearLocation();
             wreqr.vent.trigger('search:drawbbox', this.model);
             this.changeMode("bbox");
+        },
+        searchByKeyword: function () {
+            this.clearLocation();
+            this.model.set({hasKeyword: true});            
+            this.changeMode("keyword");
         },
         onLineUnitsChanged: function () {
             this.$('#lineWidthValue').val(this.getDistanceFromMeters(this.model.get('lineWidth'), this.$('#lineUnits').val()));
@@ -521,6 +623,9 @@ define([
         },
         onDestroy: function () {
             wreqr.vent.trigger('search:drawend', this.model);
+            if (this.getFeatureByKeywordXHR){
+                this.getFeatureByKeywordXHR.abort();
+            }            
         }
     });
 });

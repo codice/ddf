@@ -21,6 +21,19 @@
     font-size: @minimumFontSize;
   }
 
+  .is-loading-geometry-spinner {
+    display: none;
+  }
+
+  &.is-loading-geometry {
+    .is-loading-geometry-spinner {
+      .fa-refresh {
+        margin-left: @minimumSpacing;
+      }
+      display: inline;
+    }    
+  }
+
   .btn-group {
     position: relative;
     margin-bottom: 10px !important;
@@ -125,6 +138,12 @@
     }
 
   }
+
+  #keyword-autocomplete {
+    .property-label {
+      display: none;
+    }
+  }
 }
 
 @{customElementNamespace}location-old.is-editing {
@@ -144,7 +163,8 @@
 }
 
 @{customElementNamespace}location-old.is-line,
-@{customElementNamespace}location-old.is-polygon {
+@{customElementNamespace}location-old.is-polygon,
+@{customElementNamespace}location-old.is-keyword {
   .geo-types {
     display: none !important;
   }

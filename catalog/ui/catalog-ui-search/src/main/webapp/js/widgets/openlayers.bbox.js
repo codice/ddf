@@ -242,18 +242,21 @@ define([
             showBox: function(model) {
                 if (this.enabled) {
                     var bboxModel = model || new Draw.BboxModel();
-                        /*view = new Draw.BboxView(
-                            {
-                                map: this.map,
-                                model: bboxModel
-                            });*/
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
                         existingView.stop();
                         existingView.destroyPrimitive();
+                        existingView.updatePrimitive(model);
+                    } else {
+                        var view = new Draw.BboxView(
+                            {
+                                map: this.map,
+                                model: bboxModel
+                            });
+                        view.updatePrimitive(model);
+                        this.addView(view);
                     }
-                    existingView.updatePrimitive(model);
 
                     return bboxModel;
                 }
