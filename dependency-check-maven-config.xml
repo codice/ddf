@@ -1,244 +1,158 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://www.owasp.org/index.php/OWASP_Dependency_Check_Suppression">
-
+    <!-- Remove this suppression CVE-2017-5644 once DDF-3064 has been resolved-->
     <suppress>
-        <notes><![CDATA[
-                CVE-2004-0009 is an issue with Apache not-yet-commons-ssl.
-        This jar has been stripped from the distribution, the suppression
-        is to prevent OWASP from complaining.
+        <notes>
+            This is not an issue since the vulnerability is in reading untrusted documents and
+            platform-metrics-reporting only creates them. The issue is resolved in version 3.16 but
+            will require code refactoring.
+            poi-3.12.jar (cpe:/a:apache:poi:3.12, org.apache.poi:poi:3.12) : CVE-2017-5644
+        </notes>
+        <cve>CVE-2017-5644</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            CVE-2004-0009 is an issue with Apache not-yet-commons-ssl. This jar has been stripped
+            from the distribution, the suppression is to prevent OWASP from complaining.
 
-        file name: apache-karaf-4.0.4.zip: org.apache.servicemix.bundles.not-yet-commons-ssl-0.3.11_1.jar
-        ]]></notes>
+            apache-karaf-4.0.7.tar.gz: apache-karaf-4.0.7.tar:
+            org.apache.servicemix.bundles.not-yet-commons-ssl-0.3.11_1.jar:
+        </notes>
         <cve>CVE-2004-0009</cve>
     </suppress>
-
-
     <suppress>
-        <notes><![CDATA[
-                CVE-2015-5344 is an issue with Camel version before 2.16.1
-        OWASP appears to have confused the internal proxy-camel-servlet
-        version with the overall Camel version - marking as false positive.
-
-        file name: proxy-camel-servlet-2.10.0-SNAPSHOT.jar]]></notes>
-        <cve>CVE-2015-5344</cve>
+        <notes>
+            this CVE is generating a lot of false positives it should only include
+            jackson-dataformat-xml jar but it is catching all jackson dependencies unfortunately I
+            can't fix it so if we start depending on a vulnerable version of jackson-dataformat-xml
+            this will still suppress it.
+        </notes>
+        <cve>CVE-2016-3720</cve>
     </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-            CVE-2014-1939 is an Android specific issue, and does not apply here
-            file name: google-http-client-1.22.0.jar]]></notes>
-        <cve>CVE-2014-1939</cve>
-    </suppress>
-
     <suppress>
         <notes>
             CVE-2008-0660 is a stack based buffer overflow vulnerability related to ActiveX and
-            several image uploaders. This is unrelated to presto-parser, so marking as a false positive.
+            several image uploaders. This is unrelated to presto-parser, so marking as a false
+            positive.
         </notes>
         <cve>CVE-2008-0660</cve>
     </suppress>
-
     <suppress>
         <notes>
-            CVE-2007-1085 is a cross-site scripting (XSS) vulnerability related to Google Desktop
-            which does not apply here.
-        </notes>
-        <cve>CVE-2007-1085</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
-            CVE-2007-3150 is a JavaScript injection vulnerability related to Google Desktop which does
-            not apply here.
-        </notes>
-        <cve>CVE-2007-3150</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
-            CVE-2010-1807 is related to a client side/browser vulnerability in WebKit. Marking the
-            vulnerability as a false positive since the vulnerable code is not currently used and
-            the code is executed server-side.
-        </notes>
-        <cve>CVE-2010-1807</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
-            CVE-2011-2730 is related to a vulnerability in the VMware SpringSource Spring
-            Framework, where OWASP flags jars that are unrelated or have no dependency on
-            Spring, so marking it as a false positive.
-        </notes>
-        <cve>CVE-2011-2730</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
-            CVE-2011-5034: Applies to
-            org.apache.servicemix.specs.activation-api-1.1-2.5.0.jar/META-INF/maven/org.apache.geronimo.specs/geronimo-activation_1.1_spec/pom.xml
-            ServiceMix embeds some Specs provided by Geronimo but does not use any of the effected libraries.
-        </notes>
-        <cve>CVE-2011-5034</cve>
-    </suppress>
-
-
-    <suppress>
-        <notes><![CDATA[
-                Suppressing vulnerabilities CVE-2013-4221 and CVE-2013-4221 as the offending jar file (org.restlet-2.1.1.jar)
-        is being manually removed from the Solr War and replaced with the fixed version. These should be removed when
-        Solr is updated (DDF-1110). See pom file for details.
-   file name: solr-4.7.2.war: org.restlet-2.1.1.jar
-   ]]></notes>
-        <sha1>E12C23B962C925F2681729AFA1E40066A350AD27</sha1>
-        <cve>CVE-2013-4221</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: solr-4.7.2.war: org.restlet-2.1.1.jar
-   ]]></notes>
-        <sha1>E12C23B962C925F2681729AFA1E40066A350AD27</sha1>
-        <cve>CVE-2013-4271</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: solr-*.jar
-   OWASP is getting confused by our version number being on a jar with solr in the name we are on solr 6.0+ which is not affected by this issue.
-   ]]></notes>
-        <cve>CVE-2012-6612</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
-            CVE-2014-0050: Applies to commons-fileupload-1.2.1, suppressing due to replacing jar when packaging war
-        </notes>
-        <cve>CVE-2014-0050</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
-            CVE-2016-1000031: Applies to commons-fileupload-1.2.1, suppressing because the vulnerable class DiskFileItem is not used in the project
+            CVE-2016-1000031: Applies to commons-fileupload-1.2.1, suppressing because the
+            vulnerable class DiskFileItem is not used in the project
         </notes>
         <cve>CVE-2016-1000031</cve>
     </suppress>
-
     <suppress>
-        <notes><![CDATA[
-        false positive the effected camel version is 2.12 this uses a later version and does use the XSLT component
-      file name: proxy-camel-servlet-2.9.0-SNAPSHOT.jar
-      ]]></notes>
-        <cve>CVE-2014-0002</cve>
+        <notes>
+            False positive. This cve is not related to pax-url-aether.
+            pax-url-aether-2.4.7.jar
+        </notes>
+        <cve>CVE-2016-0749</cve>
     </suppress>
     <suppress>
-        <notes><![CDATA[
-        false positive the effected camel version is 2.12 this uses a later version and does use the XSLT component
-   file name: proxy-camel-servlet-2.9.0-SNAPSHOT.jar
-   ]]></notes>
-        <cve>CVE-2014-0003</cve>
+        <notes>
+            file name: solr-*.jar
+            OWASP is getting confused by our version number being on a jar with solr in the name we
+            are on solr 6.0+ which is not affected by this issue.
+        </notes>
+        <cve>CVE-2012-6612</cve>
     </suppress>
-
     <suppress>
-        <notes><![CDATA[
-        this CVE is generating a lot of false positives it should only include jackson-dataformat-xml jar
-         but it is catching all jackson dependencies unfortunately I can't fix it so if we start depending
-          on a vulnerable version of jackson-dataformat-xml this will still suppress it.
-   ]]></notes>
-        <cve>CVE-2016-3720</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-   file name: commons-beanutils-1.8.3.jar
-   shiro-core has a dependency on this but it doesn’t expose commons-beanutils to user input so it wouldn't pose a risk like the struts library that is called out in the CVE
-   ]]></notes>
+        <notes>
+            file name: commons-beanutils-1.8.3.jar
+            shiro-core has a dependency on this but it doesn’t expose commons-beanutils to user
+            input so it wouldn't pose a risk like the struts library that is called out in the CVE
+        </notes>
         <sha1>686EF3410BCF4AB8CE7FD0B899E832AABA5FACF7</sha1>
         <cve>CVE-2014-0114</cve>
     </suppress>
-
     <suppress>
-        <notes><![CDATA[
-   file name: ffmpeg-3.1.1_1-bin.zip: ffmpeg.exe
-   Reported CVE's are vulnerabilities in earlier versions of FFmpeg
-   ]]></notes>
+        <notes>
+            false positive CVE is unrelated. owasp is confusing the platform-filter-delegate with
+            the DeleGate library
+            file name: platform-filter-delegate-*.jar
+        </notes>
+        <cve>CVE-2005-0861</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            file name: ffmpeg-3.1.1_1-bin.zip: ffmpeg.exe
+            Reported CVE's are vulnerabilities in earlier versions of FFmpeg
+        </notes>
         <sha1>6EECC43A0883EF7C2A8E4BAF3AD45E24D8119ECC</sha1>
         <cpe>cpe:/a:ffmpeg:ffmpeg:-</cpe>
     </suppress>
 
+    <!-- proxy-camel-servlet false positives - these are all because the proxy-camel-servlet is getting confused with the camel-servlet-->
     <suppress>
-        <notes><![CDATA[
-        false positive CVE is unrelated
-   file name: platform-filter-delegate-*.jar
-   ]]></notes>
-        <cve>CVE-2005-0861</cve>
+        <notes>
+            This is an issue with Camel version before 2.16.1 OWASP appears to have confused the
+            internal proxy-camel-servlet version with the overall Camel version - marking as false
+            positive.
+
+            file name: proxy-camel-servlet-2.11.0-SNAPSHOT.jar
+        </notes>
+        <filePath regex="true">.*proxy-camel-servlet.*.jar</filePath>
+        <cve>CVE-2015-5344</cve>
+        <cve>CVE-2014-0002</cve>
+        <cve>CVE-2014-0003</cve>
+        <cve>CVE-2017-3159</cve>
+    </suppress>
+
+    <!-- tika -->
+    <suppress>
+        <notes>
+            This is an issue with the jmatio library included in the tika-parser 1.13. The problem
+            doesn't exist in 1.14/1.15 so this is a false positive.
+            tika-bundle-1.15.0_1.jar: vorbis-java-tika-0.8.jar: CVE-2016-6809
+        </notes>
+        <cve>CVE-2016-6809</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            False positive. The cve is for jcore which is not used by tika-bundle or
+            apache-mime4j-core
+            tika-bundle-1.14.0_1.jar: apache-mime4j-core-0.7.2.jar: CVE-2012-4232
+        </notes>
+        <cve>CVE-2012-4232</cve>
     </suppress>
 
     <suppress>
-        <notes><![CDATA[
-        false positive CVE is unrelated
-   file name: nagasena-0000.0002.0049.0.jar
-   ]]></notes>
-        <sha1>8821DF6D1BC22FBA8F608021F4F27698CF3FD91F</sha1>
-        <cve>CVE-2014-9389</cve>
+        <notes>
+            From security-core-api SecurityLogger. This is not an issue as we are not receiving
+            logging messages via TCP or UDP socket. This can be fixed by upgrading to version 2.8.2.
+            The version upgrade requires an update to karaf 4.1.1
+            log4j-api-2.4.1.jar (cpe:/a:apache:log4j:2.4.1,
+            org.apache.logging.log4j:log4j-api:2.4.1)
+        </notes>
+        <cve>CVE-2017-5645</cve>
     </suppress>
 
+    <!-- these are the geowebcache vulnerabilities it is not installed by default and it is only
+    experimental these security issues would need to be resolved before geowebcache can be
+    installed in a production environment-->
     <suppress>
-        <notes><![CDATA[
-        false positive CVE is unrelated
-   file name: org.apache.servicemix.bundles.not-yet-commons-ssl
-   ]]></notes>
-        <cve>CVE-2004-0009</cve>
-    </suppress>
-
-<!-- these are the geowebcache vulnerabilities it is not installed by default and it is only experimental these security issues would need to be resolved before geowebcache can be installed in a production enviroment-->
-
-    <suppress>
-        <notes><![CDATA[
-   file name: gwc-web-1.5.0.war: com.noelios.restlet-1.0.8.jar
-   ]]></notes>
-        <sha1>5F0208421863FC86B73235A340EE83593616B217</sha1>
+        <notes>
+            gwc-web-1.5.0.war: com.noelios.restlet-1.0.8.jar
+            gwc-web-1.5.0.war: commons-beanutils-1.7.0.jar
+            gwc-web-1.5.0.war: commons-collections-3.1.jar
+            gwc-web-1.5.0.war: postgresql-8.4-701.jdbc3.jar
+            geowebcache-server-standalone-0.7.0.war: gwc-sqlite-1.9.1.jar
+            geowebcache-server-standalone-0.7.0.war: commons-fileupload-1.2.1.jar
+        </notes>
+        <cve>CVE-2016-3092</cve>
+        <cve>CVE-2014-0050</cve>
         <cve>CVE-2013-4271</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: gwc-web-1.5.0.war: com.noelios.restlet-1.0.8.jar
-   ]]></notes>
-        <sha1>5F0208421863FC86B73235A340EE83593616B217</sha1>
         <cve>CVE-2013-4221</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: gwc-web-1.5.0.war: commons-beanutils-1.7.0.jar
-   ]]></notes>
-        <sha1>5675FD96B29656504B86029551973D60FB41339B</sha1>
         <cve>CVE-2014-0114</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: gwc-web-1.5.0.war: commons-collections-3.1.jar
-   ]]></notes>
-        <sha1>40FB048097CAEACDB11DBB33B5755854D89EFDEB</sha1>
         <cve>CVE-2015-6420</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: gwc-web-1.5.0.war: org.restlet-1.0.8.jar
-   ]]></notes>
-        <sha1>77F96BAC71084C85023434B8CCFE6F923FD77C13</sha1>
-        <cve>CVE-2013-4271</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: gwc-web-1.5.0.war: org.restlet-1.0.8.jar
-   ]]></notes>
-        <sha1>77F96BAC71084C85023434B8CCFE6F923FD77C13</sha1>
-        <cve>CVE-2013-4221</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: gwc-web-1.5.0.war: postgresql-8.4-701.jdbc3.jar
-   ]]></notes>
-        <sha1>0EC717C6A5FAC71DE1706D497FCAB15FF57582A9</sha1>
         <cve>CVE-2016-0766</cve>
+        <cve>CVE-2015-5895</cve>
+        <cve>CVE-2015-3717</cve>
+        <cve>CVE-2015-3416</cve>
+        <cve>CVE-2015-3415</cve>
+        <cve>CVE-2015-3414</cve>
     </suppress>
-    <!-- end of geowebcache vulnerabilities -->
 </suppressions>

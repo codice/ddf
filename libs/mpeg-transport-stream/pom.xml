@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.taktik</groupId>
             <artifactId>mpegts-streamer</artifactId>
-            <version>0.1.0_1</version>
+            <version>0.1.0_2</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

@@ -92,7 +92,21 @@
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
-            <version>1.3.1</version>
+            <version>${commons-validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>${commons-beanutils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>1.8.1</version>
         </dependency>
     </dependencies>
     <build>
@@ -128,7 +142,11 @@
                             httpcore,
                             platform-util-unavailableurls,
                             ddf-security-common,
-                            platform-util
+                            platform-util,
+                            commons-beanutils,
+                            commons-validator,
+                            commons-collections,
+                            commons-digester
                         </Embed-Dependency>
                         <Export-Package/>
                     </instructions>
