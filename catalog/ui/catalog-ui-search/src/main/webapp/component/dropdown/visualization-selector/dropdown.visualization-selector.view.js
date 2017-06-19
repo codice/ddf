@@ -19,7 +19,6 @@ var $ = require('jquery');
 var template = require('./dropdown.visualization-selector.hbs');
 var DropdownView = require('../dropdown.view');
 var ComponentView = require('component/visualization-selector/visualization-selector.view');
-var user = require('component/singletons/user-instance');
 
 module.exports = DropdownView.extend({
     template: template,

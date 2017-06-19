@@ -100,9 +100,7 @@ function unMaximize(contentItem) {
     } else if (contentItem.contentItems.length === 0) {
         return false;
     } else {
-        return _.some(contentItem.contentItems, (subContentItem) => {
-            return isMaximised(subContentItem);
-        });
+        return _.some(contentItem.contentItems, isMaximised);
     }
 }
 
@@ -112,9 +110,7 @@ function isMaximised(contentItem) {
     } else if (contentItem.contentItems.length === 0) {
         return false;
     } else {
-        return _.some(contentItem.contentItems, (subContentItem) => {
-            return isMaximised(subContentItem);
-        });
+        return _.some(contentItem.contentItems, isMaximised);
     }
 }
 
@@ -125,9 +121,7 @@ function removeActiveTabInformation(config){
     if (config.content === undefined || config.content.length === 0){
         return;
     } else {
-        return _.forEach(config.content, (subContent) => {
-            return removeActiveTabInformation(subContent);
-        });
+        return _.forEach(config.content, removeActiveTabInformation);
     }
 }
 
@@ -241,9 +235,9 @@ module.exports = Marionette.LayoutView.extend({
         this.goldenLayout.updateSize();
     },
     listenForResize: function () {
-        $(window).on('resize.' + this.cid, _.debounce(function (event) {
+        $(window).on('resize.' + this.cid, _.debounce((event) => {
             this.updateSize();
-        }.bind(this), 100, {
+        }, 100, {
             leading: false,
             trailing: true
         }));
