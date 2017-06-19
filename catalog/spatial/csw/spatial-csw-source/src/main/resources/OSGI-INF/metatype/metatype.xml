@@ -25,7 +25,7 @@
             default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw"/>
 
         <AD name="Event Service Address" id="eventServiceAddress" required="false" type="String"
-            description="DDF Event Service endpoint."
+            description="Event Service endpoint."
             default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw/subscription">
         </AD>
 
@@ -110,7 +110,7 @@
     </OCD>
 
     <OCD name="CSW Federation Profile Source"
-         description="DDF's full fidelity CSW Federation Profile. Use this when federating to a DDF based system."
+         description="Full fidelity CSW Federation Profile. Use this when federating to a DDF based system."
          id="Csw_Federation_Profile_Source">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
@@ -231,7 +231,7 @@
             default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw"/>
 
         <AD name="Event Service Address" id="eventServiceAddress" required="false" type="String"
-            description="DDF Event Service endpoint."
+            description="Event Service endpoint."
             default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw/subscription">
         </AD>
 

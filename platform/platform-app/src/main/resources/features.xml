@@ -812,43 +812,43 @@
     </feature>
 
     <feature name="action-core-api" install="manual" version="${project.version}"
-             description="DDF Action API">
+             description="Action API">
         <bundle>mvn:ddf.action.core/action-core-api/${project.version}</bundle>
     </feature>
 
     <feature name="action-core-impl" install="manual" version="${project.version}"
-             description="DDF Action Core">
+             description="Action Core">
         <feature>action-core-api</feature>
         <bundle>mvn:ddf.action.core/action-core-impl/${project.version}</bundle>
     </feature>
 
     <feature name="notifications-core-api" install="manual" version="${project.version}"
-             description="DDF Notifications API">
+             description="Notifications API">
         <bundle>mvn:ddf.notifications.core/platform-notifications-core-api/${project.version}</bundle>
     </feature>
 
     <feature name="notifications-core" install="manual" version="${project.version}"
-             description="DDF Notifications Core">
+             description="Notifications Core">
         <feature>notifications-core-api</feature>
         <feature>persistence-core-api</feature>
         <bundle>mvn:ddf.notifications.core/platform-core-notifications/${project.version}</bundle>
     </feature>
 
     <feature name="notifications-commands" install="manual" version="${project.version}"
-             description="DDF Notifications Console Commands">
+             description="Notifications Console Commands">
         <feature>notifications-core-api</feature>
         <feature>persistence-core-api</feature>
         <bundle>mvn:ddf.notifications.core/platform-core-notificationcommands/${project.version}</bundle>
     </feature>
 
     <feature name="mime-core-api" install="manual" version="${project.version}"
-             description="DDF MIME API">
+             description="MIME API">
         <feature prerequisite="true">platform-dependencies</feature>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
     </feature>
 
     <feature name="mime-core" install="manual" version="${project.version}"
-             description="DDF MIME Core">
+             description="MIME Core">
         <feature>mime-core-api</feature>
         <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
@@ -861,12 +861,12 @@
     </feature>
 
     <feature name="mime-tika-resolver" install="manual" version="${project.version}"
-             description="DDF Tika MIME Resolver.">
+             description="Tika MIME Resolver">
         <bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
     </feature>
 
     <feature name="security-core-api" install="manual" version="${project.version}"
-             description="DDF Security Core">
+             description="Security Core">
         <feature prerequisite="true">cxf-rt-security</feature>
         <feature prerequisite="true" version="${spring.version}_1">spring</feature>
         <bundle>mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
@@ -875,14 +875,14 @@
     </feature>
 
     <feature name="security-encryption" install="manual" version="${project.version}"
-             description="DDF Security Encryption">
+             description="Security Encryption">
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-commands/${project.version}</bundle>
     </feature>
 
     <feature name="metrics-reporting" install="manual" version="${project.version}"
-             description="Metrics reporting for DDF.">
+             description="Metrics reporting for the platform.">
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/3.9_2</bundle>
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
@@ -919,7 +919,7 @@
     </feature>
 
     <feature name="solr" install="manual" version="${project.version}"
-             description="DDF Standalone Solr Server">
+             description="Standalone Solr Server">
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
@@ -952,12 +952,12 @@
     </feature>
 
     <feature name="persistence-core-api" install="manual" version="${project.version}"
-             description="DDF Internal Persistence Core API">
+             description="Internal Persistence Core API">
         <bundle>mvn:ddf.persistence.core/persistence-core-api/${project.version}</bundle>
     </feature>
 
     <feature name="persistence-core" install="manual" version="${project.version}"
-             description="DDF Internal Persistence Core Implementation">
+             description="Internal Persistence Core Implementation">
         <feature prerequisite="true" version="${project.version}">solr</feature>
         <feature>persistence-core-api</feature>
         <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
@@ -996,7 +996,7 @@
     </feature>
 
     <feature name="platform-app" install="auto" version="${project.version}"
-             description="Installs the DDF platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::Platform">
+             description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::Platform">
         <feature prerequisite="true">web-container</feature>
         <feature prerequisite="true">platform-dependencies</feature>
         <feature>platform-all</feature>

@@ -29,7 +29,7 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <feature name="resourcemanagement-usage-plugin" install="manual" version="${project.version}"
-             description="DDF Resource Plugin tracking data usage ">
+             description="Resource Plugin tracking data usage ">
         <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-usage-plugin/${project.version}</bundle>
     </feature>
 
@@ -38,7 +38,7 @@
     </feature>
 
     <feature name="resourcemanagement-querymonitor-plugin" install="manual" version="${project.version}"
-             description="DDF Resource Plugin tracking data usage ">
+             description="Resource Plugin tracking data usage ">
         <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-querymonitor-plugin/${project.version}</bundle>
     </feature>
 

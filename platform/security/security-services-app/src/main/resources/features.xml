@@ -29,7 +29,7 @@
     </feature>
 
     <feature name="security-core" install="manual" version="${project.version}"
-             description="DDF Security Core">
+             description="Security Core">
         <feature prerequisite="true">security-core-api</feature>
         <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
@@ -38,31 +38,31 @@
     </feature>
 
     <feature name="security-expansion" install="manual" version="${project.version}"
-             description="DDF Security Expansion">
+             description="Security Expansion">
         <bundle>mvn:ddf.security.expansion/security-expansion-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.expansion/security-expansion-commands/${project.version}</bundle>
     </feature>
 
     <feature name="security-cas-client" install="manual" version="${project.version}"
-             description="DDF Security CAS Client.">
+             description="Security CAS Client.">
         <bundle>mvn:org.codice.thirdparty/cas-client-core/${cas.client.bundle.version}</bundle>
         <bundle>mvn:ddf.security.cas/security-cas-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}/war</bundle>
     </feature>
 
     <feature name="security-cas-tokenvalidator" install="manual" version="${project.version}"
-             description="DDF Security CAS Validator for the STS.">
+             description="Security CAS Validator for the STS.">
         <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
     </feature>
 
     <feature name="security-cas-cxfservletfilter" install="manual" version="${project.version}"
-             description="DDF Security CAS Servlet Filter for CXF.">
+             description="Security CAS Servlet Filter for CXF.">
         <feature>security-cas-client</feature>
         <bundle>mvn:ddf.security.cas/security-cas-cxfservletfilter/${project.version}</bundle>
     </feature>
 
     <feature name="security-pdp-authz" install="manual" version="${project.version}"
-             description="DDF Security PDP.">
+             description="Security PDP.">
         <configfile finalname="/etc/ddf.security.pdp.realm.AuthzRealm.config">mvn:ddf.security/security-services-app/${project.version}/config/pdp</configfile>
         <feature prerequisite="true">security-expansion</feature>
         <feature prerequisite="true">security-expansion-user-attributes</feature>
@@ -72,17 +72,17 @@
     </feature>
 
     <feature name="security-pep-serviceauthz" install="manual" version="${project.version}"
-             description="DDF Security PEP Service AuthZ">
+             description="Security PEP Service AuthZ">
         <bundle>mvn:ddf.security.pep/security-pep-interceptor/${project.version}</bundle>
     </feature>
 
     <feature name="security-expansion-user-attributes" install="manual" version="${project.version}"
-             description="DDF Security Expansion User Attributes Expansion">
+             description="Security Expansion User Attributes Expansion">
         <bundle>mvn:ddf.security.expansion/security-expansion-userattr-map/${project.version}</bundle>
     </feature>
 
     <feature name="security-expansion-metacard-attributes" install="manual" version="${project.version}"
-             description="DDF Security Expansion Metacard Attributes Expansion">
+             description="Security Expansion Metacard Attributes Expansion">
         <bundle dependency="true">mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.expansion/security-expansion-metacardattr-map/${project.version}</bundle>
     </feature>
@@ -99,7 +99,7 @@
     </feature>
 
     <feature name="security-sts-server" install="manual" version="${project.version}"
-             description="DDF Security STS.">
+             description="Security STS.">
         <feature prerequisite="true">sts-prereqs</feature>
         <configfile finalname="/etc/ws-security/attributeMap.properties">
             mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap
@@ -121,12 +121,12 @@
     </feature>
 
     <feature name="security-sts-realm" install="manual" version="${project.version}"
-             description="DDF Security STS Realm.">
+             description="Security STS Realm.">
         <bundle>mvn:ddf.security.sts/security-sts-realm/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-ldaplogin" install="manual" version="${project.version}"
-             description="DDF Security STS JAAS LDAP Login.">
+             description="Security STS JAAS LDAP Login.">
         <bundle>mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}</bundle>
     </feature>
 
@@ -280,7 +280,7 @@
     </feature>
 
     <feature name="security-services-app" install="auto" version="${project.version}"
-             description="The Security Application provides Authentication, Authorization, and Auditing services for the DDF.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::Security">
+             description="The Security Application provides Authentication, Authorization, and Auditing services.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::Security">
         <feature prerequisite="true">platform-app</feature>
         <feature>security-all</feature>
     </feature>

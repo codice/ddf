@@ -17,7 +17,7 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <feature name="admin-core" install="manual" version="${project.version}"
-             description="DDF Administration Tools">
+             description="Administration Tools">
         <feature prerequisite="true">security-services-app</feature>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-configpolicy/${project.version}</bundle>
@@ -32,31 +32,31 @@
     </feature>
 
     <feature name="admin-ui" install="manual" version="${project.version}"
-             description="DDF Administration UI">
+             description="Administration UI">
         <feature prerequisite="true">admin-core</feature>
         <bundle>mvn:ddf.admin/admin-ui/${project.version}</bundle>
     </feature>
 
     <feature name="admin-modules-configuration" install="manual" version="${project.version}"
-             description="DDF Configuration Module">
+             description="Configuration Module">
         <feature prerequisite="true">admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-configuration/${project.version}</bundle>
     </feature>
 
     <feature name="admin-modules-docs" install="manual" version="${project.version}"
-             description="DDF Documentation Module">
+             description="Documentation Module">
         <feature prerequisite="true">admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-docs-ui/${project.version}</bundle>
     </feature>
 
     <feature name="admin-modules-installer" install="manual" version="${project.version}"
-             description="DDF Installer Module">
+             description="Installer Module">
         <feature prerequisite="true">admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-installer/${project.version}</bundle>
     </feature>
 
     <feature name="admin-modules-application" install="manual" version="${project.version}"
-             description="DDF Application Module">
+             description="Application Module">
         <feature prerequisite="true">admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-application/${project.version}</bundle>
     </feature>
@@ -97,7 +97,7 @@
     </feature>
 
     <feature name="admin-app" install="auto" version="${project.version}"
-             description="Administration application for installing and managing DDF.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.::Admin">
+             description="Administration application for installation and management.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.::Admin">
         <feature prerequisite="true">security-services-app</feature>
         <feature>admin-core</feature>
         <feature>admin-ui</feature>

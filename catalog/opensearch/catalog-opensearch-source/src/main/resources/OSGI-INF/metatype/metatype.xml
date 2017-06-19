@@ -16,7 +16,7 @@
                    xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0"
                    xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0">
 
-    <OCD description="DDF OpenSearch Federated Source" name="Catalog OpenSearch Federated Source"
+    <OCD description="OpenSearch Federated Source" name="Catalog OpenSearch Federated Source"
          id="OpenSearchSource">
 
         <AD name="Source Name" id="shortname" required="true" type="String"

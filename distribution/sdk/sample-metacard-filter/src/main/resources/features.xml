@@ -14,7 +14,7 @@
 <features name="ddf-sdk-sample-metacard-filter-${project.version}">
 
 	<feature name="ddf-sdk-sample-metacard-filter" version="${project.version}"
-		description="Sample Metacard Filter for DDF">
+		description="Sample Metacard Filter">
 		<bundle start-level='80'>mvn:ddf.distribution/sample-metacard-filter/${project.version}</bundle>
 	</feature>
 </features>

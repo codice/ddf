@@ -16,7 +16,7 @@
                    xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0"
                    xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0">
 
-    <OCD description="DDF Confluence Federated Source" name="Confluence Federated Source"
+    <OCD description="Confluence Federated Source" name="Confluence Federated Source"
          id="Confluence_Federated_Source">
 
         <AD name="Confluence Rest URL" id="endpointUrl" required="true"
@@ -55,7 +55,7 @@
     </OCD>
 
 
-    <OCD description="DDF Confluence Connected Source" name="Confluence Connected Source"
+    <OCD description="Confluence Connected Source" name="Confluence Connected Source"
          id="Confluence_Connected_Source">
 
         <AD name="Confluence Rest URL" id="endpointUrl" required="true"
