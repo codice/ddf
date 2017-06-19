@@ -18,6 +18,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,8 +34,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -65,7 +68,9 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.service.SecurityManager;
 
@@ -87,14 +92,14 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     private CatalogFramework catalogFramework;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, SourceUnavailableException {
         directoryPath = temporaryFolder.getRoot()
                 .getCanonicalPath();
 
         SecurityManager securityManager = mock(SecurityManager.class);
         registerService(securityManager, SecurityManager.class);
 
-        catalogFramework = mock(CatalogFramework.class);
+        catalogFramework = mockCatalogFramework();
         registerService(catalogFramework, CatalogFramework.class);
     }
 
@@ -278,6 +283,28 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         assertThat(item.getFilename(), is(file.getName()));
         assertThat(item.getUri(), is("content:" + item.getId()));
         assertThat(item.getSize(), is(file.length()));
+    }
+
+    private CatalogFramework mockCatalogFramework() throws SourceUnavailableException {
+        CatalogFramework catalogFramework = mock(CatalogFramework.class);
+
+        SourceInfoResponse sourceInfoResponse = mockSourceInfoResponse();
+        when(catalogFramework.getSourceInfo(anyObject())).thenReturn(sourceInfoResponse);
+
+        return catalogFramework;
+    }
+
+    private SourceInfoResponse mockSourceInfoResponse() {
+        SourceInfoResponse sourceInfoResponse = mock(SourceInfoResponse.class);
+
+        SourceDescriptor sourceDescriptor = mock(SourceDescriptor.class);
+        when(sourceDescriptor.isAvailable()).thenReturn(true);
+
+        Set<SourceDescriptor> sourceInfo = new HashSet<>();
+        sourceInfo.add(sourceDescriptor);
+
+        when(sourceInfoResponse.getSourceInfo()).thenReturn(sourceInfo);
+        return sourceInfoResponse;
     }
 }
 
