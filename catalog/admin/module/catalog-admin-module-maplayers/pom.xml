@@ -78,6 +78,10 @@
                         <Web-ContextPath>/admin/map-layers</Web-ContextPath>
                         <_wab>${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
+                            org.eclipse.jetty.servlets,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
