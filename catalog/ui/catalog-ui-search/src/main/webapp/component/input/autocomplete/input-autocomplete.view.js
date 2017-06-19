@@ -19,7 +19,7 @@ var Marionette = require('marionette');
 var InputView = require('../input.view');
 var template = require('./input-autocomplete.hbs');
 var _ = require('underscore');
-require('select2js');
+require('select2');
 
 module.exports = InputView.extend({
     template,
