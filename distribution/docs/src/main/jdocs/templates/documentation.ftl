@@ -17,6 +17,12 @@ include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 <#include "managing.ftl">
 
 :sectnums!:
+== Using
+:sectnums:
+
+<#include "using.ftl">
+
+:sectnums!:
 == Integrating
 :sectnums:
 
