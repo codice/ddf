@@ -30,15 +30,20 @@ define([
         className: 'is-simpleDropdown',
         tagName: CustomElements.register('dropdown'),
         events: {
-            'click': 'handleClick'
+            'click': 'handleClick',
+            'mousedown': 'handleMouseDown'
         },
         behaviors: {
             button: {}
         },
+        wasOpen: false,
+        handleMouseDown: function(e){
+            this.wasOpen = this.model.get('isOpen');
+        },
         handleClick: function(e){
             e.preventDefault();
             e.stopPropagation();
-            if (this.model.get('isEditing')){
+            if (this.model.get('isEditing') && !this.wasOpen){
                 this.model.toggleOpen();
             }
         },
@@ -65,7 +70,6 @@ define([
         initialize: function(){
             this.initializeComponentModel();
             this.listenTo(this.model, 'change:value', this.render);
-            this.listenTo(this.model, 'change:isOpen', this.render);
             this.listenTo(this.model, 'change:isEditing', this.handleEditing);
             this.listenToComponent();
             this.handleEditing();

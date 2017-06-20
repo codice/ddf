@@ -1,0 +1,17 @@
+@{customElementNamespace}dropdown.is-detailsFilter {
+  display: inline-block;
+  height: @minimumButtonSize;
+  line-height: @minimumButtonSize;
+
+  .dropdown-text {
+    color: lighten(@warning-color, 20%);
+    display: none;
+  }
+
+}
+
+@{customElementNamespace}dropdown.is-detailsFilter.has-filter {
+  .dropdown-text {
+    display: inline-block;
+  }
+}

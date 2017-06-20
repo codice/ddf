@@ -20,6 +20,8 @@ define([
     var format = 'DD MMM YYYY HH:mm:ss.SSS';
 
     return {
+        //randomly generated guid guaranteed to be unique ;)
+        undefined: '2686dcb5-7578-4957-974d-aaa9289cd2f0',
         coreTransitionTime: 250,
         generateUUID: function(){
             var d = new Date().getTime();

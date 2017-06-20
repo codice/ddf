@@ -26,6 +26,16 @@ define([
     'moment'
 ], function (Marionette, _, $, template, CustomElements, InputView, MultivalueView, DropdownView, Common, moment) {
 
+    function sortNoValueToTop(a, b){
+        if (a.hasNoValue === true && b.hasNoValue !== undefined){
+            return -1;
+        }
+        if (b.hasNoValue === true && a.hasNoValue !== undefined){
+            return 1;
+        }
+        return 0;
+    }
+
     return InputView.extend({
         className: 'is-bulk',
         template: template,
@@ -44,15 +54,20 @@ define([
                     break;
                     case 'bulkCustom':
                         this.model.setValue(this.otherInput.currentView.model.getValue());
+                        this.model.set('hasChanged', true); 
                         break;
                     default:
                         this.model.setValue(value);
+                        this.model.set('hasChanged', true); 
                     break;
                 }
                 this.handleChange();
             });
             this.listenTo(this.otherInput.currentView.model, 'change:value', function(){
                 this.model.setValue(this.otherInput.currentView.model.getValue());
+                if (!this.model.isHomogeneous()){
+                    this.model.set('hasChanged', true);
+                }
                 this.handleChange();
             });
         },
@@ -65,18 +80,45 @@ define([
         serializeData: function(){
             // need duplicate (usually toJSON returns a side-effect free version, but this has a nested object that isn't using backbone associations)
             var modelJSON = Common.duplicate(this.model.toJSON());
-            switch(this.model.getCalculatedType()){
+            var type = this.model.getCalculatedType();
+            modelJSON.isThumbnail = type === 'thumbnail';
+            switch(type){
                 case 'date':
                     modelJSON.values = _.map(modelJSON.values, (function(valueInfo){
-                        valueInfo.value = valueInfo.value.map(function(value){
-                            return Common.getHumanReadableDate(value);
-                        });
+                        if (valueInfo.hasNoValue){
+                            valueInfo.value[0] = 'No Value';
+                        } else {
+                            valueInfo.value = valueInfo.value.map(function(value){
+                                return Common.getHumanReadableDate(value);
+                            });
+                            return valueInfo;
+                        }
+                        return valueInfo;
+                    }));
+                    break;
+                case 'thumbnail':
+                    modelJSON.values = _.map(modelJSON.values, (function(valueInfo){
+                        if (valueInfo.hasNoValue){
+                            valueInfo.value[0] = 'No Value';
+                        } else {
+                            valueInfo.value = valueInfo.value.map(function(value){
+                                return Common.getImageSrc(value);
+                            });
+                            return valueInfo;
+                        }
                         return valueInfo;
                     }));
                     break;
                 default:
+                    modelJSON.values = _.map(modelJSON.values, (function(valueInfo){
+                        if (valueInfo.hasNoValue){
+                            valueInfo.value[0] = 'No Value';
+                        }
+                        return valueInfo;
+                    }));
                     break;
             }
+            modelJSON.values.sort(sortNoValueToTop);
             return modelJSON;
         },
         initializeDropdown: function(){
@@ -92,27 +134,36 @@ define([
                     help: 'Select this to enter a custom value.'
                 }
             ];
+            var type = this.model.getCalculatedType();
             _.forEach( this.model.get('values'), function(valueInfo){
                 var value = valueInfo.value;
-                var label = value;
-                switch(this.model.getCalculatedType()){
-                    case 'date':
-                        label = label.map(function(text){
-                           return Common.getHumanReadableDate(text);
-                        });
-                        value = value.map(function(text){
-                            return moment(text);
-                        });
-                        break;
-                    default:
-                        break;
+                var label = valueInfo.hasNoValue ? 'No Value' : value;
+                var type = this.model.getCalculatedType();
+                if (!valueInfo.hasNoValue) {
+                    switch(type){
+                        case 'date':
+                            label = label.map(function(text){
+                            return Common.getHumanReadableDate(text);
+                            });
+                            value = value.map(function(text){
+                                return moment(text);
+                            });
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                enumValues.push({
-                    label: label,
-                    value: value,
-                    hits: valueInfo.hits
-                });
+                if (type !== 'thumbnail' || valueInfo.hasNoValue) {
+                    enumValues.push({
+                        label: label,
+                        value: value,
+                        hits: valueInfo.hits,
+                        hasNoValue: valueInfo.hasNoValue,
+                        isThumbnail: type === 'thumbnail'
+                    });
+                }
             }.bind(this));
+            enumValues.sort(sortNoValueToTop);
             this.enumRegion.show(DropdownView.createSimpleDropdown(
                 {
                     list: enumValues,

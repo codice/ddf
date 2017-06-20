@@ -21,12 +21,32 @@
     display: block;
   }
 
+  > .if-viewing img {
+    max-height: 140px;
+  }
+
   .value-list {
     border: 1px solid grey;
     max-height: 140px;
     overflow: auto;
     width: 90%;
     display: inline-block;
+  }
+
+  .value-list.is-thumbnail {
+    max-height: 200px;
+    white-space: normal;
+    .list-value:not(.hasNoValue) {
+      display: inline-block;
+      vertical-align: bottom;
+      padding: @minimumSpacing;
+      .cell-value {
+        max-width: none;
+      }
+      .cell-hits {
+        display: none;
+      }
+    }
   }
 
   .list-value {
@@ -36,6 +56,10 @@
     text-overflow: ellipsis;
     padding: 0px 10px;
     position: relative;
+  }
+
+  .list-value.hasNoValue {
+    opacity: @minimumOpacity;
   }
 
   .value-subvalue {

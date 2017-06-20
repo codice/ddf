@@ -20,15 +20,17 @@ define([
     './property.hbs',
     'js/CustomElements',
     'component/input/bulk/input-bulk.view',
-    'component/multivalue/multivalue.view'
-], function (Marionette, _, $, template, CustomElements, BulkInputView, MultivalueView) {
+    'component/multivalue/multivalue.view',
+    'js/Common'
+], function (Marionette, _, $, template, CustomElements, BulkInputView, MultivalueView, Common) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('property'),
         attributes: function(){
             return {
-                'data-id': this.model.get('id')
+                'data-id': this.model.get('id'),
+                'data-label': this.model.get('label') || this.model.get('id')
             }
         },
         events: {
@@ -54,11 +56,25 @@ define([
             this.handleValue();
             this.handleRevert();
             this.handleValidation();
+            this.handleLabel();
+            this.handleOnlyEditing();
         },
         onBeforeShow: function() {
             this.propertyValue.show(new BulkInputView({
                 model: this.model
             }));
+        },
+        hide: function(){
+            this.$el.toggleClass('is-hidden', true);
+        },
+        show: function(){
+            this.$el.toggleClass('is-hidden', false);
+        },
+        handleOnlyEditing: function(){
+            this.$el.toggleClass('only-editing', this.model.onlyEditing());
+        },
+        handleLabel: function(){
+            this.$el.toggleClass('hide-label', !this.model.showLabel());
         },
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
@@ -91,16 +107,15 @@ define([
             this.model.save(value);
         },
         toJSON: function(){
-            var attributeToVal = {};
-            attributeToVal[this.model.getId()] = this.model.getValue();
-            return attributeToVal;
+            var value = this.model.getValue();
+            return {
+                attribute: this.model.getId(),
+                values: value
+            };
         },
         toPatchJSON: function(){
             if (this.hasChanged()){
-                return {
-                    attribute: this.model.getId(),
-                    values: this.model.getValue()
-                };
+                return this.toJSON();
             } else {
                 return undefined;
             }

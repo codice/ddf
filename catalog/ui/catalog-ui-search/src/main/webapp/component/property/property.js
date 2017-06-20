@@ -35,11 +35,13 @@ define([
             calculatedType: 'text',
             hasChanged: false,
             showValidationIssues: true,
+            showLabel: true,
+            onlyEditing: false,
             initializeToDefault: false
         },
         setDefaultValue: function(){
             if (this.get('initializeToDefault')){
-                this.set('value', [this.getDefaultValue()]);
+                this.set('value', this.get('multivalued') ? [] : [this.getDefaultValue()]);
             }
         },
         getDefaultValue: function(){
@@ -139,6 +141,12 @@ define([
         },
         isHomogeneous: function(){
             return !this.get('bulk') || Object.keys(this.get('values')).length <= 1;
+        },
+        onlyEditing: function(){
+            return this.get('onlyEditing');
+        },
+        showLabel: function(){
+            return this.get('showLabel');
         },
         showValidationIssues: function(){
             return this.get('showValidationIssues');

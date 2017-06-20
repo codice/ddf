@@ -22,9 +22,10 @@ define([
     'component/property/property.collection.view',
     'component/loading-companion/loading-companion.view',
     'component/alert/alert',
-    'component/singletons/metacard-definitions'
+    'component/singletons/metacard-definitions',
+    'js/ResultUtils'
 ], function (Marionette, _, $, EditorView, store, PropertyCollectionView, LoadingCompanionView,
-             alertInstance, metacardDefinitions) {
+             alertInstance, metacardDefinitions, ResultUtils) {
 
     return EditorView.extend({
         className: 'is-metacard-advanced',
@@ -42,8 +43,13 @@ define([
                 [this.model.first().get('metacard>properties').toJSON()]));
             this.editorProperties.currentView.turnOnLimitedWidth();
             this.editorProperties.currentView.$el.addClass("is-list");
-
             this.getValidation();
+            EditorView.prototype.onBeforeShow.call(this);
+        },
+        getEditorActionsOptions: function(){
+            return {
+                summary: false
+            };
         },
         getValidation: function(){
             if (!this.model.first().isRemote()){
@@ -79,29 +85,7 @@ define([
                         data: JSON.stringify(payload),
                         contentType: 'application/json'
                     }).then(function(response){
-                        var attributeMap = response.reduce(function(attributeMap, changes){
-                            return changes.attributes.reduce(function(attrMap, chnges){
-                                attrMap[chnges.attribute] = metacardDefinitions.metacardTypes[chnges.attribute].multivalued ? chnges.values : chnges.values[0];
-                                return attrMap;
-                            }, attributeMap);
-                        }, {});
-                        self.model.first().get('metacard').get('properties').set(attributeMap);
-                        store.get('workspaces').forEach(function(workspace){
-                            workspace.get('queries').forEach(function(query){
-                                if (query.get('result')) {
-                                    query.get('result').get('results').forEach(function(result){
-                                        if (result.get('metacard').get('properties').get('id') ===  self.model.first().get('metacard').get('properties').get('id')){
-                                            result.get('metacard').get('properties').set(attributeMap);
-                                        }
-                                    });
-                                }
-                            });
-                        });
-                        alertInstance.get('currentResult').get('results').forEach(function(result){
-                            if (result.get('metacard').get('properties').get('id') ===  self.model.first().get('metacard').get('properties').get('id')){
-                                result.get('metacard').get('properties').set(attributeMap);
-                            }
-                        });
+                        ResultUtils.updateResults(self.model, response);
                     }).always(function(){
                         setTimeout(function(){  //let solr flush
                             LoadingCompanionView.endLoading(self);

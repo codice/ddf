@@ -50,6 +50,12 @@ define([
         isMultivalued: function(){
             return this.get('property').isMultivalued();
         },
+        onlyEditing: function(){
+            return this.get('property').onlyEditing();
+        },
+        showLabel: function(){
+            return this.get('property').showLabel();
+        },
         showValidationIssues: function(){
             return this.get('property').showValidationIssues();
         }

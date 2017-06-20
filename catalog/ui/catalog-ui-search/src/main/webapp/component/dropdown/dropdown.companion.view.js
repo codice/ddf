@@ -18,12 +18,9 @@ define([
     'underscore',
     'jquery',
     'js/CustomElements',
-    './dropdown.companion.hbs'
-], function (Marionette, _, $, CustomElements, template) {
-
-    function hasBottomRoom(top, element){
-        return ((top + element.clientHeight) < window.innerHeight);
-    }
+    './dropdown.companion.hbs',
+    'js/Common'
+], function (Marionette, _, $, CustomElements, template, Common) {
 
     function hasRightRoom(left, element){
         return ((left + element.clientWidth) < window.innerWidth);
@@ -31,6 +28,14 @@ define([
 
     function hasLeftRoom(left){
         return left > 0;
+    }
+
+    function getBottomRoom(top, element){
+        return window.innerHeight - top;
+    }
+
+    function getRightRoom(left, element){
+        return window.innerWidth - left;
     }
 
     return Marionette.LayoutView.extend({
@@ -42,7 +47,7 @@ define([
         events: {
             'keydown': 'handleSpecialKeys',
             'keyup .dropdown-companion-filter': 'handleFilterUpdate',
-            'mousedown': 'handleMousedown'
+            'click > button': 'triggerToggleAll'
         },
         attributes: {
             'tabindex': 0
@@ -52,11 +57,24 @@ define([
             this.listenForClose();
             this.listenForReposition();
         },
+        hasFiltering: function(){
+            return Boolean(this.options.linkedView.hasFiltering || this.options.linkedView.options.hasFiltering);
+        },  
+        isMultiSelect: function(){
+            return Boolean(this.options.linkedView.isMultiSelect || this.options.linkedView.options.isMultiSelect);
+        },
         updateWidth: function(){
-           // if (this.options.linkedView.matchWidth){
-                var clientRect = this.options.linkedView.getCenteringElement().getBoundingClientRect();
-                this.$el.css('min-width', clientRect.width);
-           // }
+            var clientRect = this.options.linkedView.getCenteringElement().getBoundingClientRect();
+            this.$el.css('min-width', Math.min(clientRect.width, window.innerWidth - 20));
+        },
+        updateFilterMaxHeight: function(bottomRoom){
+            var extraRoom = 0;
+            if (this.isMultiSelect()){
+                extraRoom = '2.75rem';
+            }
+            if (this.hasFiltering()){
+                this.componentToShow.el.style.maxHeight = 'calc('+bottomRoom+'px - 1.875rem - 2.75rem - 1.25rem - '+extraRoom+')';
+            }
         },
         updatePosition: function () {
             if (this.options.linkedView.isCentered){
@@ -64,15 +82,21 @@ define([
                 var menuWidth = this.el.clientWidth;
                 var necessaryLeft = Math.floor(clientRect.left + clientRect.width / 2 - menuWidth / 2);
                 var necessaryTop = Math.floor(clientRect.top + clientRect.height);
-                if (hasBottomRoom(necessaryTop, this.el)){
+                var bottomRoom = getBottomRoom(necessaryTop, this.el);
+                var topRoom = clientRect.top;
+                if (bottomRoom > topRoom){
                     this.$el.addClass('is-bottom').removeClass('is-top');
                     this.$el.css('left', necessaryLeft).css('top', necessaryTop);
+                    this.$el.css('max-height', bottomRoom - 10);
+                    this.updateFilterMaxHeight(bottomRoom);
                 } else {
                     this.$el.addClass('is-top').removeClass('is-bottom');
-                    this.$el.css('left', necessaryLeft).css('top', clientRect.top);
+                    this.$el.css('left', necessaryLeft).css('top', topRoom);
+                    this.$el.css('max-height', topRoom - 10);
+                    this.updateFilterMaxHeight(bottomRoom);
                 }
                 if(!hasRightRoom(necessaryLeft, this.el)){
-                    this.$el.css('left', window.innerWidth-menuWidth-2);
+                    this.$el.css('left', window.innerWidth-menuWidth-20);
                 }
                 if(!hasLeftRoom(necessaryLeft)){
                     this.$el.css('left', 10);
@@ -95,13 +119,13 @@ define([
         },
         onOpen: function () {
             if (!this.el.parentElement){
+                $('body').append(this.el);
                 this.render();
                 this.handleTail();
                 var componentToShow = this.options.linkedView.componentToShow ||  this.options.linkedView.options.componentToShow;
                 this.componentToShow.show(new componentToShow(_.extend(this.options.linkedView.options,{
                     model: this.options.linkedView.modelForComponent
                 })));
-                $('body').append(this.el);
             }
             this.updateWidth();
             this.updatePosition();
@@ -110,21 +134,32 @@ define([
             this.listenForResize();
             this.focusOnFilter();
             this.handleFiltering();
+            this.handleToggleAll();
             //this.listenForScroll();
         },
         focusOnFilter: function(){
-            var hasFiltering = Boolean(this.options.linkedView.hasFiltering || this.options.linkedView.options.hasFiltering);
-            if (hasFiltering) {
-                setTimeout(function () {
-                    this.$el.children('input').focus()
-                }.bind(this), 0);
+            if (this.hasFiltering()) {
+                Common.queueExecution(() => {
+                    this.$el.children('input').focus();
+                });
             } else {
-                this.$el.focus();
+                if (this.componentToShow.currentView.focus){
+                    Common.queueExecution(() => {
+                       this.componentToShow.currentView.focus();
+                    });
+                } else {
+                    this.$el.focus();
+                }
             }
         },
         handleFiltering: function(){
-            var hasFiltering = Boolean(this.options.linkedView.hasFiltering || this.options.linkedView.options.hasFiltering);
-            this.$el.toggleClass('has-filtering', hasFiltering);
+            this.$el.toggleClass('has-filtering', this.hasFiltering());
+        },
+        handleToggleAll: function(){
+            this.$el.toggleClass('is-multiselect', this.isMultiSelect());
+        },
+        triggerToggleAll: function(event){
+            this.componentToShow.currentView.handleToggleAll();
         },
         handleFilterUpdate: function(event){
             var code = event.keyCode;
@@ -182,6 +217,14 @@ define([
                         this.componentToShow.currentView.handleDownArrow();
                     }
                     break;
+                default: 
+                    //anything else
+                    var hasFiltering = Boolean(this.options.linkedView.hasFiltering || this.options.linkedView.options.hasFiltering);
+                    if (hasFiltering){
+                        Common.queueExecution(() => {
+                            this.$el.children('input').focus();
+                        });
+                    }
             }
         },
         onClose: function () {
@@ -201,6 +244,7 @@ define([
         },
         listenForReposition: function(){
             this.$el.on('repositionDropdown.'+CustomElements.getNamespace(), function(e){
+                this.updateWidth();
                 this.updatePosition();
             }.bind(this));
         },
@@ -221,7 +265,10 @@ define([
         },
         listenForOutsideClick: function () {
             $('body').on('mousedown.' + this.cid, function (event) {
-                if (this.$el.find(event.target).length === 0) {
+                if (this.$el.find(event.target).addBack(event.target).length === 0 && $(this.tagName).find(event.target).addBack(event.target).length === 0) {
+                    this.close();
+                }
+                if (this.$el.prevAll(this.tagName).find(event.target).addBack(event.target).length > 0){
                     this.close();
                 }
             }.bind(this));
@@ -232,6 +279,7 @@ define([
         listenForResize: function(){
             $(window).on('resize.'+this.cid, _.throttle(function(event){
                 this.updatePosition();
+                this.updateWidth();
             }.bind(this), 16));
         },
         stopListeningForResize: function(){
@@ -250,10 +298,6 @@ define([
             this.stopListeningForOutsideClick();
             this.stopListeningForResize();
             this.stopListeningForReposition();
-        },
-        handleMousedown: function(e){
-            // stop from closing dropdowns higher in the dom
-            e.stopPropagation();
         }
     }, {
         getNewCompanionView: function (linkedView) {
