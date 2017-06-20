@@ -138,5 +138,10 @@
             <artifactId>catalog-transformer-propertyjson-metacard</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.ui</groupId>
+            <artifactId>catalog-ui-enumeration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -26,6 +26,7 @@
 
         <bundle dependency="true">mvn:ddf.catalog.transformer/catalog-transformer-propertyjson-metacard/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
+        <bundle>mvn:ddf.ui/catalog-ui-enumeration/${project.version}</bundle>
     </feature>
 
     <feature name="search-ui" install="auto" version="${project.version}" description="Search UI">
