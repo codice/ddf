@@ -64,24 +64,23 @@ import ddf.measure.Distance.LinearUnit;
  */
 public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SolrFilterDelegate.class);
-
     public static final String XPATH_QUERY_PARSER_PREFIX = "{!xpath}";
 
     public static final String XPATH_FILTER_QUERY = "xpath";
 
     public static final String XPATH_FILTER_QUERY_INDEX = XPATH_FILTER_QUERY + "_index";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrFilterDelegate.class);
+
     private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
     // *, ?, and / are escaped by the filter adapter
     private static final String[] LUCENE_SPECIAL_CHARACTERS =
-            new String[] {"+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~",
-                    ":"};
+            {"+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", ":"};
 
     private static final String[] ESCAPED_LUCENE_SPECIAL_CHARACTERS =
-            new String[] {"\\+", "\\-", "\\&&", "\\||", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[",
-                    "\\]", "\\^", "\\\"", "\\~", "\\:"};
+            {"\\+", "\\-", "\\&&", "\\||", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^",
+                    "\\\"", "\\~", "\\:"};
 
     private static final String INTERSECTS_OPERATION = "Intersects";
 
@@ -138,11 +137,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private static final double DEFAULT_ERROR_IN_DEGREES = metersToDegrees(DEFAULT_ERROR_IN_METERS);
 
-    private static TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
+    private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
 
-    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-    private DynamicSchemaResolver resolver;
+    private final DynamicSchemaResolver resolver;
 
     private SortBy sortBy;
 
@@ -152,12 +151,23 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     public SolrFilterDelegate(DynamicSchemaResolver resolver) {
         this.resolver = resolver;
-        dateFormat.setTimeZone(utcTimeZone);
+        dateFormat.setTimeZone(UTC_TIME_ZONE);
     }
 
     private static double metersToDegrees(double distance) {
         return DistanceUtils.dist2Degrees((new Distance(distance,
                 LinearUnit.METER).getAs(LinearUnit.KILOMETER)), DistanceUtils.EARTH_MEAN_RADIUS_KM);
+    }
+
+    @Override
+    public SolrQuery propertyIsEqualTo(String functionName, List<Object> parameters,
+            Object literal) {
+        switch (functionName) {
+        case "PropertyIsDivisibleBy":
+            return propertyIsDivisibleBy(parameters);
+        default:
+            throw new UnsupportedOperationException(functionName + " is not supported.");
+        }
     }
 
     @Override
@@ -314,14 +324,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         if (Metacard.ANY_TEXT.equals(propertyName)) {
             solrQuery = resolver.anyTextFields()
                     .map(resolver::getWhitespaceTokenizedField)
-                    .map((whitespaceField) -> {
+                    .map(whitespaceField -> {
                         if (isCaseSensitive) {
                             return resolver.getCaseSensitiveField(whitespaceField);
                         } else {
                             return whitespaceField;
                         }
                     })
-                    .map((field) -> field + ":" + searchPhrase)
+                    .map(field -> field + ":" + searchPhrase)
                     .collect(Collectors.joining(" "));
         } else {
             String whitespaceField = resolver.getWhitespaceTokenizedField(getMappedPropertyName(
@@ -548,6 +558,36 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     @Override
     public SolrQuery propertyIsLessThanOrEqualTo(String propertyName, double literal) {
         return getLessThanOrEqualToQuery(propertyName, AttributeFormat.DOUBLE, literal);
+    }
+
+    public SolrQuery propertyIsDivisibleBy(List<Object> arguments) {
+        if (arguments.size() != 2) {
+            throw new UnsupportedOperationException("Required number of arguments not found");
+        }
+        try {
+            Long divisor = Long.parseLong(arguments.get(1)
+                    .toString());
+            return propertyIsDivisibleBy(arguments.get(0)
+                    .toString(), divisor);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Divisor parameter was not valid");
+        }
+    }
+
+    public SolrQuery propertyIsDivisibleBy(String propertyName, long divisor) {
+        //use the sort key for the field since divisible can't operate on multivalued fields (it will always be a single value).
+        List<String> solrExpressions = resolver.getAnonymousField(propertyName)
+                .stream()
+                .map(resolver::getSortKey)
+                .map(f -> "_val_:\"{!frange l=0 u=0}mod(" + f + "," + divisor + ")\"")
+                .collect(Collectors.toList());
+
+        if (solrExpressions.isEmpty()) {
+            throw new UnsupportedOperationException(
+                    "Anonymous Field Property does not exist. " + propertyName);
+        }
+
+        return new SolrQuery(String.join(" ", solrExpressions));
     }
 
     @Override

@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import org.geotools.feature.NameImpl;
@@ -24,26 +24,38 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 
+import ddf.catalog.impl.filter.PropertyIsDivisibleByFunction;
+
 /**
  * The ExtendedGeotoolsFunctionFactory is used to provide the GeoTools CommonFactoryFinder a list of custom
  * functions.  This allows for DDF to extend the OGC Filter 1.1.0 schema and pass along the extension
  * changes to Geotools via a service loader .
  */
+//TODO (RWY) - can we get rid of this and use the one in geotools?
 public class ExtendedGeotoolsFunctionFactory implements FunctionFactory {
+
+    @Override
     public List<FunctionName> getFunctionNames() {
-        return Collections.singletonList(PropertyIsFuzzyFunction.NAME);
+        return Arrays.asList(PropertyIsFuzzyFunction.NAME, PropertyIsDivisibleByFunction.NAME);
     }
 
+    @Override
     public Function function(String name, List<Expression> args, Literal fallback) {
         return function(new NameImpl(name), args, fallback);
     }
 
+    @Override
     public Function function(Name name, List<Expression> args, Literal fallback) {
 
         if (PropertyIsFuzzyFunction.NAME.getName()
                 .equals(name.getLocalPart())) {
 
             return new PropertyIsFuzzyFunction(args, fallback);
+        }
+
+        if (PropertyIsDivisibleByFunction.NAME.getName()
+                .equals(name.getLocalPart())) {
+            return new PropertyIsDivisibleByFunction(args, fallback);
         }
 
         return null; // we do not implement that function

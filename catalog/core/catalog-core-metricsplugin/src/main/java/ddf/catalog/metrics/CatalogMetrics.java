@@ -90,6 +90,8 @@ public final class CatalogMetrics
 
     protected final Meter fuzzyQueries;
 
+    protected final Meter functionQueries;
+
     protected final Meter temporalQueries;
 
     protected final Meter createdMetacards;
@@ -100,7 +102,7 @@ public final class CatalogMetrics
 
     protected final Meter resourceRetrival;
 
-    private FilterAdapter filterAdapter;
+    private final FilterAdapter filterAdapter;
 
     public CatalogMetrics(FilterAdapter filterAdapter) {
 
@@ -116,6 +118,7 @@ public final class CatalogMetrics
         xpathQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Xpath"));
         fuzzyQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Fuzzy"));
         temporalQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Temporal"));
+        functionQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Function"));
 
         exceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE));
         unsupportedQueryExceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE,
@@ -168,6 +171,9 @@ public final class CatalogMetrics
                 xpathQueries.mark();
             }
             if (queryType.isTemporal()) {
+                temporalQueries.mark();
+            }
+            if (queryType.isFunction()) {
                 temporalQueries.mark();
             }
         } catch (UnsupportedQueryException e) {

@@ -266,6 +266,22 @@ public abstract class FilterDelegate<T> {
                 "propertyIsEqualTo(String,Object) not supported by org.opengis.filter.Filter Delegate.");
     }
 
+    /**
+     * Compares the value function return value is equal to the value of a literal.
+     * Arguments and literal are objects but the function passed will dictate what they are required to be.
+     * <p>
+     * {@code function result == literal}
+     *
+     * @param functionName name of function
+     * @param arguments    list of arguments to pass to the function
+     * @param literal      value to compare
+     * @return result of equals operation between {@code functionName} result and {@code literal}
+     */
+    public T propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
+        throw new UnsupportedOperationException(
+                "function(String,List<Object> ) not supported by org.opengis.filter.Filter Delegate.");
+    }
+
     // PropertyIsNotEqualTo
 
     /***
@@ -1243,8 +1259,8 @@ public abstract class FilterDelegate<T> {
      * Determines if the property contains search terms that are within a certain distance of each other.
      *
      * @param propertyName name of property to compare
-     * @param distance distance (in words) between search terms
-     * @param searchTerm search terms to compare
+     * @param distance     distance (in words) between search terms
+     * @param searchTerm   search terms to compare
      * @return
      */
     public T propertyIsInProximityTo(String propertyName, Integer distance, String searchTerm) {
@@ -1256,13 +1272,12 @@ public abstract class FilterDelegate<T> {
      * Determines if the property contains search terms that are not within a certain distance of each other.
      *
      * @param propertyName name of property to compare
-     * @param distance distance (in words) between search terms
-     * @param searchTerm search terms to compare
+     * @param distance     distance (in words) between search terms
+     * @param searchTerm   search terms to compare
      * @return
      */
     public T propertyIsNotInProximityTo(String propertyName, Integer distance, String searchTerm) {
         throw new UnsupportedOperationException(
                 "propertyIsNotInProximityTo(String,Integer,String) not supported by org.opengis.filter.Filter Delegate.");
     }
-
 }

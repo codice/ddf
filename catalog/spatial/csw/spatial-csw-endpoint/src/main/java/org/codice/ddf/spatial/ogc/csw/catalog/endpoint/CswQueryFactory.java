@@ -104,6 +104,16 @@ public class CswQueryFactory {
         this.metacardTypes = metacardTypes;
     }
 
+    public static synchronized JAXBContext getJaxBContext() throws JAXBException {
+        if (jaxBContext == null) {
+
+            jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:"
+                            + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0",
+                    CswQueryFactory.class.getClassLoader());
+        }
+        return jaxBContext;
+    }
+
     public QueryRequest getQueryById(List<String> ids) {
         List<Filter> filters = ids.stream()
                 .map(id -> builder.attribute(Core.ID)
@@ -300,16 +310,6 @@ public class CswQueryFactory {
         IOUtils.closeQuietly(os);
 
         return input;
-    }
-
-    public static synchronized JAXBContext getJaxBContext() throws JAXBException {
-        if (jaxBContext == null) {
-
-            jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:"
-                            + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0",
-                    CswQueryFactory.class.getClassLoader());
-        }
-        return jaxBContext;
     }
 
     private Filter parseFilter(FilterType filterType) throws CswException {

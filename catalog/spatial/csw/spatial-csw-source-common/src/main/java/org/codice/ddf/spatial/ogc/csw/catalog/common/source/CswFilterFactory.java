@@ -57,6 +57,7 @@ import net.opengis.filter.v_1_1_0.BBOXType;
 import net.opengis.filter.v_1_1_0.BinaryComparisonOpType;
 import net.opengis.filter.v_1_1_0.BinaryLogicOpType;
 import net.opengis.filter.v_1_1_0.BinarySpatialOpType;
+import net.opengis.filter.v_1_1_0.ComparisonOpsType;
 import net.opengis.filter.v_1_1_0.DistanceBufferType;
 import net.opengis.filter.v_1_1_0.DistanceType;
 import net.opengis.filter.v_1_1_0.FeatureIdType;
@@ -65,6 +66,7 @@ import net.opengis.filter.v_1_1_0.LiteralType;
 import net.opengis.filter.v_1_1_0.LowerBoundaryType;
 import net.opengis.filter.v_1_1_0.ObjectFactory;
 import net.opengis.filter.v_1_1_0.PropertyIsBetweenType;
+import net.opengis.filter.v_1_1_0.PropertyIsDivisibleByType;
 import net.opengis.filter.v_1_1_0.PropertyIsFuzzyType;
 import net.opengis.filter.v_1_1_0.PropertyIsLikeType;
 import net.opengis.filter.v_1_1_0.PropertyIsNullType;
@@ -88,14 +90,14 @@ public class CswFilterFactory {
 
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
-    private ObjectFactory filterObjectFactory = new ObjectFactory();
+    private final ObjectFactory filterObjectFactory = new ObjectFactory();
 
-    private net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
+    private final net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
             new net.opengis.gml.v_3_1_1.ObjectFactory();
 
-    private CswAxisOrder cswAxisOrder;
+    private final CswAxisOrder cswAxisOrder;
 
-    private boolean isSetUsePosList;
+    private final boolean isSetUsePosList;
 
     /**
      * Constructor for CswFilterFactory.
@@ -501,7 +503,7 @@ public class CswFilterFactory {
         try {
             Map<String, String> geoConverterProps = new HashMap<String, String>();
             geoConverterProps.put(CswJTSToGML311GeometryConverter.USE_POS_LIST_GEO_CONVERTER_PROP_KEY,
-                    String.valueOf(this.isSetUsePosList));
+                    String.valueOf(isSetUsePosList));
 
             JTSToGML311GeometryConverter converter = new CswJTSToGML311GeometryConverter(
                     geoConverterProps);
@@ -513,8 +515,7 @@ public class CswFilterFactory {
             LOGGER.debug("Geometry as XML: {}", xmlGeo);
 
             XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
-            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
-                    false);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
             xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
             xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
             XMLStreamReader xmlStreamReader =
@@ -587,7 +588,7 @@ public class CswFilterFactory {
                     envelope.getMaxY()));
         }
 
-        return this.gmlObjectFactory.createEnvelope(envelopeType);
+        return gmlObjectFactory.createEnvelope(envelopeType);
     }
 
     private Envelope getEnvelopeFromWkt(String wkt) {
@@ -719,13 +720,13 @@ public class CswFilterFactory {
 
     private LowerBoundaryType createLowerBoundary(Object lowerBoundary) {
         LowerBoundaryType lowerBoundaryType = new LowerBoundaryType();
-        lowerBoundaryType.setExpression((createLiteralType(lowerBoundary)));
+        lowerBoundaryType.setExpression(createLiteralType(lowerBoundary));
         return lowerBoundaryType;
     }
 
     private UpperBoundaryType createUpperBoundary(Object upperBoundary) {
         UpperBoundaryType upperBoundaryType = new UpperBoundaryType();
-        upperBoundaryType.setExpression((createLiteralType(upperBoundary)));
+        upperBoundaryType.setExpression(createLiteralType(upperBoundary));
         return upperBoundaryType;
     }
 
@@ -833,6 +834,23 @@ public class CswFilterFactory {
         }
 
         return binarySpatialOpType;
+    }
+
+    public FilterType buildPropertyIsDivisibleBy(String propertyName, Long literal) {
+        FilterType filter = new FilterType();
+        filter.setComparisonOps(createPropertyIsDivisibleBy(propertyName, literal));
+        return filter;
+    }
+
+    private JAXBElement<? extends ComparisonOpsType> createPropertyIsDivisibleBy(
+            String propertyName, Long literal) {
+        PropertyIsDivisibleByType propertyIsDivisibleByType = new PropertyIsDivisibleByType();
+
+        propertyIsDivisibleByType.setPropertyName(createPropertyNameType(Arrays.asList(new Object[] {
+                propertyName})).getValue());
+        propertyIsDivisibleByType.setLiteral(createLiteralType(literal).getValue());
+
+        return filterObjectFactory.createPropertyIsDivisibleBy(propertyIsDivisibleByType);
     }
 
 }

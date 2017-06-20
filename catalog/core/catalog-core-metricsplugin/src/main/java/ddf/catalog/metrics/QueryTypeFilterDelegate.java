@@ -13,6 +13,8 @@
  */
 package ddf.catalog.metrics;
 
+import java.util.List;
+
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 
 /**
@@ -36,6 +38,8 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
     private boolean isCaseSensitive = false;
 
     private boolean isComparison = false;
+
+    private boolean isFunction = false;
 
     @Override
     public <S> Boolean spatialOperation(String propertyName, S literal, Class<S> wktClass,
@@ -98,6 +102,11 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
         return isComparison = true;
     }
 
+    @Override
+    public Boolean propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
+        return isFunction = true;
+    }
+
     public boolean isSpatial() {
         return isSpatial;
     }
@@ -124,6 +133,10 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
     public boolean isComparison() {
         return isComparison;
+    }
+
+    public boolean isFunction() {
+        return isFunction;
     }
 
 }

@@ -20,6 +20,17 @@ import ddf.catalog.filter.FilterDelegate;
 
 public class FilterToTextDelegate extends FilterDelegate<String> {
 
+    // Custom functions
+    @Override
+    public String propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
+        switch (functionName) {
+        case "PropertyIsDivisibleBy":
+            return propertyIsDivisibleBy(arguments);
+        default:
+            throw new UnsupportedOperationException(functionName + " is not supported.");
+        }
+    }
+
     // Logical operators
     @Override
     public String include() {
@@ -361,6 +372,27 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
     @Override
     public String propertyIsLessThanOrEqualTo(String propertyName, Object literal) {
         return propertyName + "<=" + literal + "o";
+    }
+
+    public String propertyIsDivisibleBy(List<Object> arguments) {
+        if (arguments.size() != 2) {
+            throw new UnsupportedOperationException("Required number of arguments not found");
+        }
+        try {
+            Long divisor = Long.parseLong(arguments.get(1)
+                    .toString());
+            return propertyIsDivisibleBy(arguments.get(0)
+                    .toString(), divisor);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Divisor parameter was not valid");
+        }
+
+    }
+
+    public String propertyIsDivisibleBy(String propertyName, long divisor) {
+        return divisor + "|" + propertyName;
+        //TODO (RWY) - which notation is more readable?
+        //        return propertyName + "%" + divisor + "i=0";
     }
 
     // PropertyIsBetween

@@ -308,6 +308,15 @@ class GeotoolsBuilder {
         return convert(clazz, secondaryValue);
     }
 
+    protected Object getSecondaryValue() {
+        return secondaryValue;
+    }
+
+    protected void setSecondaryValue(Object arg1) {
+        this.secondaryValue = arg1;
+
+    }
+
     /**
      * @return the value
      */
@@ -315,9 +324,8 @@ class GeotoolsBuilder {
         return convert(clazz, value);
     }
 
-    protected void setSecondaryValue(Object arg1) {
-        this.secondaryValue = arg1;
-
+    protected Object getValue() {
+        return value;
     }
 
     /**

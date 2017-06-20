@@ -60,6 +60,16 @@ public interface FilterBuilder {
 
     /**
      * <p>
+     * Begin creating a {@link Filter} that will call a function with the given name. The function can require 0..N arguments.
+     * </p>
+     *
+     * @param functionName
+     * @return {@link ArgumentBuilder} to continue and add function arguments {@link Filter}
+     */
+    ArgumentBuilder function(String functionName);
+
+    /**
+     * <p>
      * Begin creating a {@link Filter} that will match {@link ddf.catalog.data.Metacard}s based on values selected
      * via an XPath selector.
      * </p>

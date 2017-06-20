@@ -23,6 +23,7 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 
+import ddf.catalog.filter.ArgumentBuilder;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.XPathBuilder;
@@ -33,7 +34,7 @@ import ddf.catalog.filter.XPathBuilder;
  *
  */
 public class GeotoolsFilterBuilder implements FilterBuilder {
-    private FilterFactory factory = new FilterFactoryImpl();
+    private final FilterFactory factory = new FilterFactoryImpl();
 
     // public Filter cql(String cql) {
     // // TODO
@@ -55,6 +56,11 @@ public class GeotoolsFilterBuilder implements FilterBuilder {
 
     public AttributeBuilder attribute(String string) {
         return new GeotoolsAttributeBuilder(string);
+    }
+
+    @Override
+    public ArgumentBuilder function(String name) {
+        return new GeotoolsFunctionExpressionBuilder(name);
     }
 
     @Override

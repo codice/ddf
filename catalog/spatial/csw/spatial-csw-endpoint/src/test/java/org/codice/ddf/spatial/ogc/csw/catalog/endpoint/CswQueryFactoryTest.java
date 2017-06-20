@@ -209,6 +209,32 @@ public class CswQueryFactoryTest {
 
     private static List<MetacardType> metacardTypeList;
 
+    public static MetacardType getCswMetacardType() {
+        return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
+                Arrays.asList(new ContactAttributes(),
+                        new LocationAttributes(),
+                        new MediaAttributes(),
+                        new TopicAttributes(),
+                        new AssociationsAttributes(),
+                        new MetacardTypeImpl("TestDate",
+                                Collections.singleton(new AttributeDescriptorImpl("TestDate",
+                                        true,
+                                        true,
+                                        true,
+                                        false,
+                                        new AttributeType<Date>() {
+                                            @Override
+                                            public Class<Date> getBinding() {
+                                                return Date.class;
+                                            }
+
+                                            @Override
+                                            public AttributeFormat getAttributeFormat() {
+                                                return AttributeFormat.DATE;
+                                            }
+                                        })))));
+    }
+
     @org.junit.Before
     public void setUp()
             throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
@@ -775,7 +801,8 @@ public class CswQueryFactoryTest {
         PropertyNameType propName = new PropertyNameType();
         propName.getContent()
                 .add(SPATIAL_TEST_ATTRIBUTE);
-        binarySpatialOps.setPropertyName(propName);
+        binarySpatialOps.getPropertyName()
+                .add(propName);
 
         binarySpatialOps.setGeometry(createPolygon());
         return binarySpatialOps;
@@ -811,7 +838,7 @@ public class CswQueryFactoryTest {
 
         DistanceType distance = filterObjectFactory.createDistanceType();
         distance.setUnits(REL_GEO_UNITS);
-        distance.setContent(Double.toString(REL_GEO_DISTANCE));
+        distance.setValue(REL_GEO_DISTANCE);
 
         distanceBuffer.setDistance(distance);
         distanceBuffer.setGeometry(createPolygon());
@@ -1129,32 +1156,6 @@ public class CswQueryFactoryTest {
                 query);
         grr.setAbstractQuery(jaxbQuery);
         return grr;
-    }
-
-    public static MetacardType getCswMetacardType() {
-        return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
-                Arrays.asList(new ContactAttributes(),
-                        new LocationAttributes(),
-                        new MediaAttributes(),
-                        new TopicAttributes(),
-                        new AssociationsAttributes(),
-                        new MetacardTypeImpl("TestDate",
-                                Collections.singleton(new AttributeDescriptorImpl("TestDate",
-                                        true,
-                                        true,
-                                        true,
-                                        false,
-                                        new AttributeType<Date>() {
-                                            @Override
-                                            public Class<Date> getBinding() {
-                                                return Date.class;
-                                            }
-
-                                            @Override
-                                            public AttributeFormat getAttributeFormat() {
-                                                return AttributeFormat.DATE;
-                                            }
-                                        })))));
     }
 
 }

@@ -40,7 +40,6 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
-
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
@@ -68,6 +67,10 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     // 1000 Nautical Miles in meters
     private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = 1852000;
 
+    private final CswSourceConfiguration cswSourceConfiguration;
+
+    private final CswFilterFactory cswFilterFactory;
+
     // according to the spec, this will include at a minimum: equal, not equal,
     // less, greater, greater or equal, less or equal, and like
     private Set<ComparisonOperatorType> comparisonOps;
@@ -80,26 +83,33 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     // according to the spec, logicalOps (and/or/not) are always supported
     private boolean logicalOps;
 
-    private CswSourceConfiguration cswSourceConfiguration;
-
-    private CswFilterFactory cswFilterFactory;
-
     /**
      * Instantiates a CswFilterDelegate instance
      *
-     * @param getRecordsOp       An {@link net.opengis.ows.v_1_0_0.Operation} for the getRecords feature of the Csw service
-     * @param filterCapabilities The {@link net.opengis.filter.v_1_1_0.FilterCapabilities} understood by the Csw service
-     * @param outputFormatValues An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of valid Output Formats supported
-     * @param resultTypesValues  An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of Result Types supported
+     * @param getRecordsOp       An {@link Operation} for the getRecords feature of the Csw service
+     * @param filterCapabilities The {@link FilterCapabilities} understood by the Csw service
+     * @param outputFormatValues An {@link DomainType} containing a list of valid Output Formats supported
+     * @param resultTypesValues  An {@link DomainType} containing a list of Result Types supported
      */
     public CswFilterDelegate(Operation getRecordsOp, FilterCapabilities filterCapabilities,
             DomainType outputFormatValues, DomainType resultTypesValues,
             CswSourceConfiguration cswSourceConfiguration) {
         super(getRecordsOp, outputFormatValues, resultTypesValues);
         this.cswSourceConfiguration = cswSourceConfiguration;
-        this.cswFilterFactory = new CswFilterFactory(cswSourceConfiguration.getCswAxisOrder(),
+        cswFilterFactory = new CswFilterFactory(cswSourceConfiguration.getCswAxisOrder(),
                 cswSourceConfiguration.isSetUsePosList());
         updateAllowedOperations(filterCapabilities);
+    }
+
+    @Override
+    public FilterType propertyIsEqualTo(String functionName, List<Object> arguments,
+            Object literal) {
+        switch (functionName) {
+        case "PropertyIsDivisibleBy":
+            return propertyIsDivisibleBy(arguments);
+        default:
+            throw new UnsupportedOperationException(functionName + " is not supported.");
+        }
     }
 
     @Override
@@ -248,7 +258,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
-                    this.convertDateToIso8601Format(literal),
+                    convertDateToIso8601Format(literal),
                     true);
         } else {
             return new FilterType();
@@ -665,6 +675,30 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         }
     }
 
+    public FilterType propertyIsDivisibleBy(List<Object> arguments) {
+        if (arguments.size() != 2) {
+            throw new UnsupportedOperationException("Required number of arguments not found");
+        }
+        try {
+            Integer divisor = Integer.parseInt(arguments.get(1)
+                    .toString());
+            return propertyIsDivisibleBy(arguments.get(0)
+                    .toString(), divisor);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Divisor argument was not valid");
+        }
+    }
+
+    public FilterType propertyIsDivisibleBy(String propertyName, long literal) {
+        isComparisonOperationSupported(ComparisonOperatorType.DIVISIBLE_BY);
+        propertyName = mapPropertyName(propertyName);
+        if (isPropertyQueryable(propertyName)) {
+            return cswFilterFactory.buildPropertyIsDivisibleBy(propertyName, literal);
+        } else {
+            return new FilterType();
+        }
+    }
+
     @Override
     public FilterType propertyIsBetween(String propertyName, String lowerBoundary,
             String upperBoundary) {
@@ -811,7 +845,10 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     public FilterType beyond(String propertyName, String wkt, double distance) {
 
         LOGGER.debug("Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-                new Object[] {SpatialOperatorNameType.BEYOND.name(), propertyName, wkt, distance});
+                SpatialOperatorNameType.BEYOND.name(),
+                propertyName,
+                wkt,
+                distance);
 
         if (isAnyGeo(propertyName)) {
             propertyName = mapPropertyName(propertyName);
@@ -846,7 +883,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     public FilterType contains(String propertyName, String wkt) {
 
         LOGGER.debug("Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-                new Object[] {SpatialOperatorNameType.CONTAINS.name(), propertyName, wkt});
+                SpatialOperatorNameType.CONTAINS.name(),
+                propertyName,
+                wkt);
 
         if (isAnyGeo(propertyName)) {
             propertyName = mapPropertyName(propertyName);
@@ -883,7 +922,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         LOGGER.debug(
                 "Attempting to build {} filter for property {} and WKT {} in LON/LAT order in LON/LAT order.",
-                new Object[] {SpatialOperatorNameType.DISJOINT.name(), propertyName, wkt});
+                SpatialOperatorNameType.DISJOINT.name(),
+                propertyName,
+                wkt);
 
         if (isAnyGeo(propertyName)) {
             propertyName = mapPropertyName(propertyName);
@@ -929,7 +970,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     public FilterType crosses(String propertyName, String wkt) {
 
         LOGGER.debug("Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-                new Object[] {SpatialOperatorNameType.CROSSES.name(), propertyName, wkt});
+                SpatialOperatorNameType.CROSSES.name(),
+                propertyName,
+                wkt);
 
         if (isAnyGeo(propertyName)) {
             propertyName = mapPropertyName(propertyName);
@@ -956,8 +999,10 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     public FilterType dwithin(String propertyName, String wkt, double distance) {
 
         LOGGER.debug("Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-                new Object[] {SpatialOperatorNameType.D_WITHIN.name(), propertyName, wkt,
-                        distance});
+                SpatialOperatorNameType.D_WITHIN.name(),
+                propertyName,
+                wkt,
+                distance);
 
         if (isAnyGeo(propertyName)) {
             propertyName = mapPropertyName(propertyName);
@@ -1013,7 +1058,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     public FilterType intersects(String propertyName, String wkt) {
 
         LOGGER.debug("Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-                new Object[] {SpatialOperatorNameType.INTERSECTS.name(), propertyName, wkt});
+                SpatialOperatorNameType.INTERSECTS.name(),
+                propertyName,
+                wkt);
 
         if (isAnyGeo(propertyName)) {
             propertyName = mapPropertyName(propertyName);
@@ -1068,7 +1115,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     public FilterType overlaps(String propertyName, String wkt) {
 
         LOGGER.debug("Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-                new Object[] {SpatialOperatorNameType.OVERLAPS.name(), propertyName, wkt});
+                SpatialOperatorNameType.OVERLAPS.name(),
+                propertyName,
+                wkt);
 
         if (isAnyGeo(propertyName)) {
             propertyName = mapPropertyName(propertyName);
@@ -1094,7 +1143,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     public FilterType touches(String propertyName, String wkt) {
 
         LOGGER.debug("Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-                new Object[] {SpatialOperatorNameType.TOUCHES.name(), propertyName, wkt});
+                SpatialOperatorNameType.TOUCHES.name(),
+                propertyName,
+                wkt);
 
         if (isAnyGeo(propertyName)) {
             propertyName = mapPropertyName(propertyName);
@@ -1120,7 +1171,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     public FilterType within(String propertyName, String wkt) {
 
         LOGGER.debug("Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-                new Object[] {SpatialOperatorNameType.WITHIN.name(), propertyName, wkt});
+                SpatialOperatorNameType.WITHIN.name(),
+                propertyName,
+                wkt);
 
         if (isAnyGeo(propertyName)) {
             propertyName = mapPropertyName(propertyName);
@@ -1232,7 +1285,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         LOGGER.debug(
                 "Attempting to determine if geometry operand [{}] is supported for spatial operator [{}].",
                 wktGeometryOperand,
-                spatialOperatorName.toString());
+                spatialOperatorName);
 
         /**
          * Check if the geometry operand is supported for the specific spatial operation. For
@@ -1286,7 +1339,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
             binarySpatialOperand = BinarySpatialOperand.NONE;
         }
 
-        LOGGER.debug("Use geometry or envelope? {}", binarySpatialOperand.toString());
+        LOGGER.debug("Use geometry or envelope? {}", binarySpatialOperand);
         return binarySpatialOperand;
     }
 
@@ -1412,7 +1465,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         for (SpatialOperatorType spatialOp : spatialOperators.getSpatialOperator()) {
             LOGGER.debug("Adding key [spatialOp Name: {}]", spatialOp.getName());
             spatialOps.put(spatialOp.getName(), spatialOp);
-            LOGGER.debug("spatialOps Map: {}", spatialOps.toString());
+            LOGGER.debug("spatialOps Map: {}", spatialOps);
         }
     }
 }

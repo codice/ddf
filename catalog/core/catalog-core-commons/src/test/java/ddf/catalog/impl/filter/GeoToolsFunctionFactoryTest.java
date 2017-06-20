@@ -38,7 +38,7 @@ public class GeoToolsFunctionFactoryTest {
     @Test
     public void testGetFunctionNames() {
         List<FunctionName> functionNames = toTest.getFunctionNames();
-        assertThat(functionNames, hasSize(2));
+        assertThat(functionNames, hasSize(3));
         assertThat(functionNames.get(0).getName(), is(FuzzyFunction.NAME.getName()));
         assertThat(functionNames.get(1).getName(), is(ProximityFunction.NAME.getName()));
     }
