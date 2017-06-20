@@ -359,6 +359,12 @@
         </bundle>
     </feature>
 
+    <feature name="catalog-plugin-security-audit" install="auto" version="${project.version}"
+             description="Plugin to audit security changes on metacards.">
+        <feature prerequisite="true">security-pdp-authz</feature>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-security-audit/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-admin-module-sources" install="auto" version="${project.version}"
              description="DDF Admin Module">
         <feature prerequisite="true">catalog-app</feature>

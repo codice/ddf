@@ -678,6 +678,8 @@ include::{adoc-include}/_plugins/metacardingest-network-contents.adoc[]
 
 include::{adoc-include}/_plugins/developing-plugins-contents.adoc[]
 
+include::{adoc-include}/_plugins/security-audit-plugin-contents.adoc[]
+
 == Operations
 
 include::{adoc-include}/_operations/operations-intro-contents.adoc[]
