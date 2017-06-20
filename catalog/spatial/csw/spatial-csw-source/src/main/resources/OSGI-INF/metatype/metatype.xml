@@ -37,7 +37,7 @@
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
             required="false" type="String"/>
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
-            required="false" type="Password"/>
+            required="false" type="Password" default=""/>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck" required="true"
@@ -133,7 +133,7 @@
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
             required="false" type="String"/>
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
-            required="false" type="Password"/>
+            required="false" type="Password" default=""/>
     </OCD>
 
     <OCD name="GMD CSW ISO Federated Source" id="Gmd_Csw_Federated_Source"
@@ -148,7 +148,7 @@
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
             required="false" type="String"/>
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
-            required="false" type="Password"/>
+            required="false" type="Password" default=""/>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck" required="true"
@@ -243,7 +243,7 @@
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
             required="false" type="String"/>
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
-            required="false" type="Password"/>
+            required="false" type="Password" default=""/>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck" required="true"

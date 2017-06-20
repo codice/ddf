@@ -294,7 +294,13 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
                     .filter(metatype -> AttributeDefinition.PASSWORD == metatype.getType())
                     .forEach(metatype -> {
                         String passwordProperty = metatype.getId();
-                        propertiesTable.put(passwordProperty, "password");
+                        if (propertiesTable.get(passwordProperty) == null){
+                            propertiesTable.put(passwordProperty, "");
+                        } else {
+                            if (propertiesTable.get(passwordProperty).toString() != ""){
+                                propertiesTable.put(passwordProperty, "password");
+                            }
+                        }
                     });
 
             configData.setConfigurationProperties(propertiesTable);
