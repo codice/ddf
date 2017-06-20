@@ -1202,6 +1202,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
             //Test first operation
             Response response = given().auth()
+                    .preemptive()
                     .basic("admin", "admin")
                     .when()
                     .get(certGenPath + "/configureDemoCert/" + commonName);
@@ -1212,6 +1213,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
             //Test second operation
             response = given().auth()
+                    .preemptive()
                     .basic("admin", "admin")
                     .when()
                     .get(certGenPath + "/configureDemoCertWithDefaultHostname");
@@ -1224,10 +1226,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
             //Make sure an invalid key would return null
             assertThat(jsonPath.getString("someinvalidkey"), nullValue());
-
-            getServiceManager().stopFeature(false, featureName);
         } finally {
             restoreKeystoreFile();
+            getServiceManager().stopFeature(false, featureName);
         }
     }
 
