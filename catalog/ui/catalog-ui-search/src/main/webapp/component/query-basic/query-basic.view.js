@@ -177,6 +177,7 @@ define([
             }
             this.basicTypeSpecific.show(new PropertyView({
                 model: new Property({
+                    enumFiltering: true,
                     showValidationIssues: false,
                     enumMulti: true,
                     enum: sources.toJSON().reduce(function(enumArray, source){

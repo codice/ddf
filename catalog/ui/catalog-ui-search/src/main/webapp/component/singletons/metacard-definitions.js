@@ -76,15 +76,18 @@ define([
             }.bind(this));
         },
         addMetacardDefinition: function(metacardDefinitionName, metacardDefinition){
-            if (this.metacardDefinitions.indexOf(metacardDefinitionName) === -1){
+            if (Object.keys(this.metacardDefinitions).indexOf(metacardDefinitionName) === -1){
                 this.getEnumForMetacardDefinition(metacardDefinitionName);
-                this.metacardDefinitions.push(metacardDefinitionName);
+                this.metacardDefinitions[metacardDefinitionName] = metacardDefinition;
                 for (var type in metacardDefinition) {
                     if (metacardDefinition.hasOwnProperty(type)) {
                         this.metacardTypes[type] = metacardDefinition[type];
                         this.metacardTypes[type].id = this.metacardTypes[type].id || type;
                         this.metacardTypes[type].type = this.metacardTypes[type].type || this.metacardTypes[type].format;
                         this.metacardTypes[type].alias = properties.attributeAliases[type];
+                        this.metacardTypes[type].hidden = properties.isHidden(this.metacardTypes[type].id) ||
+                            this.isHiddenTypeExceptThumbnail(this.metacardTypes[type].id);
+                        this.metacardTypes[type].readOnly = properties.isReadOnly(this.metacardTypes[type].id);
                     }
                 }
                 return true;
@@ -107,14 +110,19 @@ define([
                 this.addMetacardDefinitions(metacardDefinitions);
             }.bind(this));
         },
-        updateSortedMetacardTypes: function(){
-            this.sortedMetacardTypes = [];
-            for (var propertyType in this.metacardTypes){
-                if (this.metacardTypes.hasOwnProperty(propertyType)) {
-                    this.sortedMetacardTypes.push(this.metacardTypes[propertyType]);
-                }
+        attributeComparator: function(a, b) {
+            var attrToCompareA = this.getLabel(a).toLowerCase();
+            var attrToCompareB = this.getLabel(b).toLowerCase();
+            if (attrToCompareA < attrToCompareB){
+                return -1;
             }
-            this.sortedMetacardTypes.sort(function(a, b){
+            if (attrToCompareA > attrToCompareB){
+                return 1;
+            }
+            return 0;
+        },
+        sortMetacardTypes: function(metacardTypes){
+            return metacardTypes.sort(function(a, b){
                 var attrToCompareA = (a.alias || a.id).toLowerCase();
                 var attrToCompareB = (b.alias || b.id).toLowerCase();
                 if (attrToCompareA < attrToCompareB){
@@ -125,6 +133,15 @@ define([
                 }
                 return 0;
             });
+        },
+        updateSortedMetacardTypes: function(){
+            this.sortedMetacardTypes = [];
+            for (var propertyType in this.metacardTypes){
+                if (this.metacardTypes.hasOwnProperty(propertyType)) {
+                    this.sortedMetacardTypes.push(this.metacardTypes[propertyType]);
+                }
+            }
+            this.sortMetacardTypes(this.sortedMetacardTypes);
         },
         getLabel: function(id){
             var definition = this.metacardTypes[id];
@@ -146,12 +163,14 @@ define([
             'metacard-type': {
                 id: 'metacard-type',
                 type: 'STRING',
-                multivalued: false
+                multivalued: false,
+                readOnly: true
             },
             'source-id': {
                 id: 'source-id',
                 type: 'STRING',
-                multivalued: false
+                multivalued: false,
+                readOnly: true
             },
             cached: {
                 id: 'cached',

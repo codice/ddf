@@ -56,7 +56,9 @@ public class IdpLogoutActionProvider implements ActionProvider {
             try {
 
                 @SuppressWarnings("unchecked")
-                String nameId = SubjectUtils.getName((Subject) ((Map) realmSubjectMap).get("idp"));
+                String nameId = SubjectUtils.getName((Subject) ((Map) realmSubjectMap).get("idp"),
+                        "You",
+                        true);
 
                 String nameIdTimestamp = nameId + "\n" + System.currentTimeMillis();
                 nameIdTimestamp = encryptionService.encrypt(nameIdTimestamp);

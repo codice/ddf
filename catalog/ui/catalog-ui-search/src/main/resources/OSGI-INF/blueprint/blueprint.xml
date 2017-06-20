@@ -162,7 +162,7 @@
     </jaxrs:server>
 
     <bean id="enumerationExtractor"
-          class="org.codice.ddf.catalog.ui.metacard.enumerations.ExperimentalEnumerationExtractor">
+          class="org.codice.ddf.catalog.ui.enumeration.ExperimentalEnumerationExtractor">
         <argument>
             <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"
                        availability="optional"/>

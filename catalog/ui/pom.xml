@@ -28,6 +28,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>search-ui</module>
+        <module>catalog-ui-enumeration</module>
         <module>catalog-ui-search</module>
         <module>search-ui-app</module>
     </modules>

@@ -118,7 +118,7 @@
             description="List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
             type="String"
             cardinality="10000"
-            default="^checksum$,^checksum-algorithm$,^id$,^metadata$,^metacard-type$,^source-id$,^point-of-contact$, ^metacard\\.,^version\\.,^validation\\."
+            default="^checksum$,^checksum-algorithm$,^id$,^resource-download-url$,^resource-uri$,^resource\\.derived-uri$,^resource\\.derived-download-url$,^modified$,^metacard-tags$,^metadata$,^metacard-type$,^source-id$,^point-of-contact$, ^metacard\\.,^version\\.,^validation\\."
             required="false"/>
 
         <AD id="summaryShow"
@@ -126,6 +126,7 @@
             description="List of metacard attributes to display in the summary view."
             type="String"
             cardinality="10000"
+            default="created,modified,thumbnail"
             required="false"/>
 
         <AD id="resultShow"
