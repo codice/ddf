@@ -200,7 +200,7 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-geocoding-geocoder</artifactId>
             <version>${project.version}</version>
-        </dependency>gs
+        </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-geocoding-admin-module</artifactId>
