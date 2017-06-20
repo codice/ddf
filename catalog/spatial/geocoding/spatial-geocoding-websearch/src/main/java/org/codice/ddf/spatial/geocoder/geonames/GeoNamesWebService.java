@@ -212,7 +212,7 @@ public class GeoNamesWebService implements GeoEntryQueryable {
                     .accept("application/json")
                     .get(String.class);
         } catch (WebApplicationException | ProcessingException e) {
-            LOGGER.debug("Error while making GeoNames request.", e);
+            LOGGER.debug("Error while making GeoNames request: {}", urlStr, e);
             return null;
         }
 
@@ -234,7 +234,7 @@ public class GeoNamesWebService implements GeoEntryQueryable {
         try {
             location = URLEncoder.encode(location, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            LOGGER.debug("Unable to encode location.", e);
+            LOGGER.debug("Unable to encode location: {}", location, e);
         }
 
         return location;

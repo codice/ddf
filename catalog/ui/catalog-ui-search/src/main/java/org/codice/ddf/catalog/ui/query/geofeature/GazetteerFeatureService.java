@@ -13,6 +13,8 @@
  **/
 package org.codice.ddf.catalog.ui.query.geofeature;
 
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,20 +78,20 @@ public class GazetteerFeatureService implements FeatureService {
         boundingBoxFeature.setName(geoResult.getFullName());
 
         List<Point> bbox = geoResult.getBbox();
-        boundingBoxFeature.setWest(bbox.get(0)
-                .getDirectPosition()
-                .getCoordinate()[0]);
-        boundingBoxFeature.setNorth(bbox.get(0)
-                .getDirectPosition()
-                .getCoordinate()[1]);
-        boundingBoxFeature.setEast(bbox.get(1)
-                .getDirectPosition()
-                .getCoordinate()[0]);
-        boundingBoxFeature.setSouth(bbox.get(1)
-                .getDirectPosition()
-                .getCoordinate()[1]);
-
+        if (isNotEmpty(bbox)) {
+            boundingBoxFeature.setWest(bbox.get(0)
+                    .getDirectPosition()
+                    .getCoordinate()[0]);
+            boundingBoxFeature.setNorth(bbox.get(0)
+                    .getDirectPosition()
+                    .getCoordinate()[1]);
+            boundingBoxFeature.setEast(bbox.get(1)
+                    .getDirectPosition()
+                    .getCoordinate()[0]);
+            boundingBoxFeature.setSouth(bbox.get(1)
+                    .getDirectPosition()
+                    .getCoordinate()[1]);
+        }
         return boundingBoxFeature;
     }
-
 }

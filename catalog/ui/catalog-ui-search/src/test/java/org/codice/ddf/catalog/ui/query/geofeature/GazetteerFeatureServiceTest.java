@@ -101,10 +101,10 @@ public class GazetteerFeatureServiceTest {
 
         BoundingBoxFeature feature = (BoundingBoxFeature) gazetteerFeatureService.getFeatureByName(
                 TEST_QUERY);
-        assertThat(feature.getName(), is(equalTo(geoResult.getFullName())));
-        assertThat(feature.getNorth(), equalTo(north));
-        assertThat(feature.getSouth(), equalTo(south));
-        assertThat(feature.getEast(), equalTo(east));
-        assertThat(feature.getWest(), equalTo(west));
+        assertThat(feature.getName(), is(geoResult.getFullName()));
+        assertThat(feature.getNorth(), is(north));
+        assertThat(feature.getSouth(), is(south));
+        assertThat(feature.getEast(), is(east));
+        assertThat(feature.getWest(), is(west));
     }
 }
