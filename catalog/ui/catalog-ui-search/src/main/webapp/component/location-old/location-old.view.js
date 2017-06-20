@@ -491,7 +491,7 @@ define([
             switch(data.type) {
                 case "bbox": {
                     var { north, south, west, east } = data;
-                    attrsToSet = { north, south, west, east, bbox: undefined };
+                    attrsToSet = { north, south, west, east };
                     eventToDrawShape = 'search:bboxdisplay';                    
                     break;
                 }
@@ -499,7 +499,7 @@ define([
                     var polygon = data.coordinates.map(function(coord){
                         return [coord.latitude, coord.longitude];
                     });
-                    attrsToSet = { polygon };
+                    attrsToSet = { polygon, bbox: undefined };
                     eventToDrawShape = 'search:polydisplay';
                     break;
                 }
