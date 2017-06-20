@@ -78,7 +78,10 @@ public class GazetteerFeatureServiceTest {
 
     @Test
     public void testGetFeatureByName() throws GeoEntryQueryException {
-        final double north = 1, south = -2, east = 3, west = -4;
+        final double north = 1;
+        final double south = -2;
+        final double east = 3;
+        final double west = -4;
         GeoResult geoResult = new GeoResult();
         geoResult.setFullName(GEO_ENTRY_1.getName());
         final DirectPosition northWest = new DirectPositionImpl(west, north);

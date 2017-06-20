@@ -32,10 +32,10 @@ module.exports = InputView.extend({
             delay: 250,
             cache: false,
             minimumInputLength: 3,
-            getUrlParams: function (query) { return { q: query }; },
-            getLabelForResult: function (item) { return item.name || item; },
-            getLabelForSelection: function (item) { return item.name || item; },
-            processResults: function (data) {
+            getUrlParams(query) { return { q: query }; },
+            getLabelForResult(item) { return item.name || item; },
+            getLabelForSelection(item) { return item.name || item; },
+            processResults(data) {
                 var items = data.items;
                 if (!Array.isArray(items)) { items = data; }
                 if (!Array.isArray(items)) { items = []; }
