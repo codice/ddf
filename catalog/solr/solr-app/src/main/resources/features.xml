@@ -36,7 +36,6 @@
 
 	<feature name="solr-app" install="auto" version="${project.version}"
              description="The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr ${solr.version} as a data store.\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.::Solr Catalog">
-		<feature prerequisite="true">platform-app</feature>
 		<feature prerequisite="true">catalog-app</feature>
 
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
