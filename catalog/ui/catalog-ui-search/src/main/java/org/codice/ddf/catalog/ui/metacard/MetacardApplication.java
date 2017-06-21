@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -79,8 +80,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.io.ByteSource;
 
 import ddf.catalog.CatalogFramework;
@@ -785,12 +786,13 @@ public class MetacardApplication implements SparkApplication {
                 .text(id);
 
         Filter filter = filterBuilder.allOf(historyFilter, idFilter);
-        ResultIterable resultIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(filter,
-                1,
-                pageSize,
-                SortBy.NATURAL_ORDER,
-                false,
-                TimeUnit.SECONDS.toMillis(10)), false));
+        ResultIterable resultIterable = new ResultIterable(catalogFramework,
+                new QueryRequestImpl(new QueryImpl(filter,
+                        1,
+                        pageSize,
+                        SortBy.NATURAL_ORDER,
+                        false,
+                        TimeUnit.SECONDS.toMillis(10)), false));
         return Lists.newArrayList(resultIterable);
     }
 

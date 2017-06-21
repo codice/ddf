@@ -94,50 +94,53 @@ public class CsvTransform {
     public List<Metacard> getTransformedMetacards(List<MetacardType> metacardTypes,
             AttributeRegistry attributeRegistry) {
         return metacards.stream()
-                .map((Map<String, Object> mapMetacard) -> {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> properties =
-                            (Map<String, Object>) ((Map<String, Object>) mapMetacard.getOrDefault(
-                                    "metacard",
-                                    new HashMap<>())).getOrDefault("properties", new HashMap<>());
-
-                    MetacardType metacardType = getMetacardType(properties,
-                            metacardTypes,
-                            attributeRegistry);
-
-                    Metacard metacard = new MetacardImpl(metacardType);
-
-                    properties.entrySet()
-                            .stream()
-                            .map(entry -> {
-                                String key = entry.getKey();
-                                Object val = entry.getValue();
-                                if (val == null) {
-                                    return null;
-                                }
-                                if (val instanceof List) {
-                                    List list = (List) val;
-                                    if (list.size() > 0 && !(list.get(0) instanceof Serializable)) {
-                                        return null;
-                                    }
-                                    return new AttributeImpl(key,
-                                            (List<Serializable>) new ArrayList<Serializable>((List) val));
-                                }
-                                if (!(val instanceof Serializable)) {
-                                    LOGGER.debug(
-                                            "Attribute value for [{}] is not serializable. Value: {}",
-                                            key,
-                                            val);
-                                    return null;
-                                }
-                                return new AttributeImpl(key, (Serializable) val);
-                            })
-                            .filter(Objects::nonNull)
-                            .forEach(metacard::setAttribute);
-
-                    return metacard;
-                })
+                .map(mapMetacard -> transform(mapMetacard, metacardTypes, attributeRegistry))
                 .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Metacard transform(Map<String, Object> mapMetacard, List<MetacardType> metacardTypes,
+            AttributeRegistry attributeRegistry) {
+
+        Map<String, Object> innerMap = (Map<String, Object>) mapMetacard //
+                .getOrDefault("metacard", new HashMap<>());
+        Map<String, Object> properties = (Map<String, Object>) innerMap  //
+                .getOrDefault("properties", new HashMap<>());
+
+        MetacardType metacardType = getMetacardType(properties, metacardTypes, attributeRegistry);
+
+        Metacard metacard = new MetacardImpl(metacardType);
+
+        properties.entrySet()
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(entry -> entry.getValue() != null)
+                .filter(this::isSerializableOrListOfSerializable)
+                .map(this::getAttribute)
+                .filter(Objects::nonNull)
+                .forEach(metacard::setAttribute);
+
+        return metacard;
+
+    }
+
+    private AttributeImpl getAttribute(Map.Entry<String, Object> entry) {
+        String key = entry.getKey();
+        Object val = entry.getValue();
+
+        if (val instanceof List) {
+            return new AttributeImpl(key,
+                    (List<Serializable>) new ArrayList<Serializable>((List) val));
+        }
+
+        return new AttributeImpl(key, (Serializable) val);
+    }
+
+    private boolean isSerializableOrListOfSerializable(Map.Entry<String, Object> entry) {
+        return entry.getValue() instanceof Serializable || //
+                (entry.getValue() instanceof List //
+                        && !((List) entry.getValue()).isEmpty()
+                        && ((List) entry.getValue()).get(0) instanceof Serializable);
     }
 
     private MetacardType getMetacardType(Map<String, Object> mapMetacard,

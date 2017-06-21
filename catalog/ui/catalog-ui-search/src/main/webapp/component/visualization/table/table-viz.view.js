@@ -108,25 +108,26 @@ module.exports = Marionette.LayoutView.extend({
             replaceElement: true
         });
     },
+    saveExport: (data, status, xhr) => {
+        var filename = getFilenameFromContentDisposition(xhr.getResponseHeader('Content-Disposition'));
+        if (filename === null) {
+            filename = 'export' + Date.now() + '.csv';
+        }
+        saveFile(filename, 'data:attachment/csv', data);
+    },
     exportAll: function() {
         let data = {
             hiddenFields: [],
             columnOrder: user.get('user').get('preferences').get('columnOrder'),
             columnAliasMap: properties.attributeAliases,
-            metacards: store.get('content').getCurrentQuery().get('result').get('results').fullCollection
+            metacards: this.options.selectionInterface.getCurrentQuery().get('result').get('results').fullCollection
         };
         $.ajax({
             type: "POST",
             url: '/search/catalog/internal/transform/csv?_=' + Date.now(),
             data: JSON.stringify(data),
             contentType: 'application/json',
-            success: (data, status,  xhr) => {
-                var filename = getFilenameFromContentDisposition(xhr.getResponseHeader('Content-Disposition'));
-                if (filename === null) {
-                    return;
-                }
-                saveFile(filename, 'data:attachment/csv', data);
-            }
+            success: this.saveExport
         })
     },
     exportVisible: function() {
@@ -135,20 +136,14 @@ module.exports = Marionette.LayoutView.extend({
             hiddenFields: user.get('user').get('preferences').get('columnHide'),
             columnOrder: user.get('user').get('preferences').get('columnOrder'),
             columnAliasMap: properties.attributeAliases,
-            metacards: store.get('content').getActiveSearchResults().toJSON()
+            metacards: this.options.selectionInterface.getActiveSearchResults().toJSON()
         };
         $.ajax({
             type: "POST",
             url: '/search/catalog/internal/transform/csv?_=' + Date.now(),
             data: JSON.stringify(data),
             contentType: 'application/json',
-            success: (data, status,  xhr) => {
-                var filename = getFilenameFromContentDisposition(xhr.getResponseHeader('Content-Disposition'));
-                if (filename === null) {
-                    return;
-                }
-                saveFile(filename, 'data:attachment/csv', data);
-            }
+            success: this.saveExport
         })
     }
 });

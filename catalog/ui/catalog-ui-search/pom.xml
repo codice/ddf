@@ -328,7 +328,7 @@
                             quartz-jobs,
                             spark-core,
                             spatial4j,
-                            versioning-common,
+                            versioning-common
                         </Embed-Dependency>
                         <Web-ContextPath>/search/catalog</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
