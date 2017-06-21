@@ -1,0 +1,36 @@
+@{customElementNamespace}query-time {
+    display: block;
+    width: 100%;
+
+    .basic-time-before,
+    .basic-time-after,
+    .basic-time-between,
+    .basic-time-relative {
+      display: none;
+      margin-left: 20px;
+    }
+}
+
+@{customElementNamespace}query-time.is-timeRange-before {
+     .basic-time-before {
+       display: block;
+     }
+ }
+
+@{customElementNamespace}query-time.is-timeRange-after {
+    .basic-time-after {
+      display: block;
+    }
+}
+
+@{customElementNamespace}query-time.is-timeRange-between {
+    .basic-time-between {
+      display: block;
+    }
+}
+
+@{customElementNamespace}query-time.is-timeRange-relative {
+  .basic-time-relative {
+    display: block;
+  }
+}

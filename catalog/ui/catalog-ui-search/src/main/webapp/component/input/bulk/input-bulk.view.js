@@ -23,8 +23,9 @@ define([
     'component/multivalue/multivalue.view',
     'component/dropdown/dropdown.view',
     'js/Common',
-    'moment'
-], function (Marionette, _, $, template, CustomElements, InputView, MultivalueView, DropdownView, Common, moment) {
+    'moment',
+    'component/singletons/user-instance'
+], function (Marionette, _, $, template, CustomElements, InputView, MultivalueView, DropdownView, Common, moment, user) {
 
     function sortNoValueToTop(a, b){
         if (a.hasNoValue === true && b.hasNoValue !== undefined){
@@ -89,7 +90,7 @@ define([
                             valueInfo.value[0] = 'No Value';
                         } else {
                             valueInfo.value = valueInfo.value.map(function(value){
-                                return Common.getHumanReadableDate(value);
+                                return user.getUserReadableDate(value);
                             });
                             return valueInfo;
                         }
@@ -143,7 +144,7 @@ define([
                     switch(type){
                         case 'date':
                             label = label.map(function(text){
-                            return Common.getHumanReadableDate(text);
+                            return user.getUserReadableDate(text);
                             });
                             value = value.map(function(text){
                                 return moment(text);

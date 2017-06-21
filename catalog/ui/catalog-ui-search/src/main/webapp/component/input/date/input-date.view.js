@@ -22,8 +22,13 @@ define([
     'moment',
     '../input.view',
     'js/Common',
+    'component/singletons/user-instance',
     'bootstrapDatepicker'
-], function (Marionette, _, $, template, CustomElements, moment, InputView, Common) {
+], function (Marionette, _, $, template, CustomElements, moment, InputView, Common, user) {
+
+    function getDateFormat() {
+        return user.get('user').get('preferences').get('timeFormat');
+    }
 
     return InputView.extend({
         template: template,
@@ -36,7 +41,7 @@ define([
         serializeData: function () {
             return _.extend(this.model.toJSON(), {
                 cid: this.cid,
-                humanReadableDate: this.model.getValue() ? Common.getHumanReadableDate(this.model.getValue()) : this.model.getValue()
+                humanReadableDate: this.model.getValue() ? user.getUserReadableDate(this.model.getValue()) : this.model.getValue()
             });
         },
         onRender: function () {
@@ -45,7 +50,7 @@ define([
         },
         initializeDatepicker: function(){
             this.$el.find('.input-group.date').datetimepicker({
-                format: Common.getDateFormat(),
+                format: getDateFormat(),
                 widgetParent: 'body'
             });
         },
@@ -53,7 +58,7 @@ define([
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
         },
         handleValue: function(){
-            this.$el.find('.input-group.date').data('DateTimePicker').date(Common.getHumanReadableDate(this.model.getValue()));
+            this.$el.find('.input-group.date').data('DateTimePicker').date(user.getUserReadableDate(this.model.getValue()));
         },
         focus: function(){
             this.$el.find('input').select();
@@ -77,7 +82,7 @@ define([
         getCurrentValue: function(){
             var currentValue = this.$el.find('input').val();
             if (currentValue){
-                return (moment(currentValue, Common.getDateFormat())).toISOString();
+                return (moment(currentValue, getDateFormat())).toISOString();
             } else {
                 return null;
             }

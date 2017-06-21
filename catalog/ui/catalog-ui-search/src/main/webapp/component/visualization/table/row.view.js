@@ -73,7 +73,7 @@ module.exports = Marionette.ItemView.extend({
                     switch (metacardDefinitions.metacardTypes[property].type) {
                         case 'DATE':
                             value = value.map(function(val) {
-                                return val !== undefined && val !== '' ? Common.getHumanReadableDate(val) : '';
+                                return val !== undefined && val !== '' ? user.getUserReadableDate(val) : '';
                             });
                             break;
                         default:

@@ -22,8 +22,9 @@ define([
     'js/model/UploadBatch',
     'component/announcement',
     'component/blacklist-item/blacklist-item',
+    'moment',
     'backboneassociations'
-], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem) {
+], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem, moment) {
     'use strict';
 
     var User = {};
@@ -148,6 +149,7 @@ define([
                 uploads: [],
                 fontSize: '16',
                 resultCount: properties.resultCount,
+                timeFormat: Common.getTimeFormats()['24'],
                 goldenLayout: undefined
             };
         },
@@ -315,6 +317,9 @@ define([
         },
         getSummaryShown: function(){
             return this.get('user').getSummaryShown();
+        },
+        getUserReadableDate: function(date){
+            return moment(date).format(this.get('user').get('preferences').get('timeFormat'));
         },
         parse: function (body) {
             if (body.isGuest) {

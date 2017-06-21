@@ -19,6 +19,10 @@ define([
     var DEGREES_TO_RADIANS =  Math.PI / 180;
     var RADIANS_TO_DEGREES =  1 / DEGREES_TO_RADIANS;
 
+    var METERS_KILOMETERS = 1000;
+    var METERS_FEET = 0.3048;
+    var METERS_YARDS = 0.9144;
+    var METERS_MILES = 1609.344;
 
     return {
         distToDegrees: function(distanceInMeters){
@@ -29,6 +33,42 @@ define([
         },
         toDegrees: function(distanceInRadians){
             return distanceInRadians * RADIANS_TO_DEGREES;
+        },
+        getDistanceInMeters: function (distance, units) {
+            distance = distance || 0;
+            switch (units) {
+                case 'kilometers':
+                    return distance * METERS_KILOMETERS;
+                case 'feet':
+                    return distance * METERS_FEET;
+                case 'yards':
+                    return distance * METERS_YARDS;
+                case 'miles':
+                    return distance * METERS_MILES;
+                case 'meters':
+                default:
+                    return distance;
+            }
+        },
+        getDistanceFromMeters: function (distance, units) {
+            distance = distance || 0;
+            switch (units) {
+                case 'kilometers':
+                    return distance / METERS_KILOMETERS;
+                case 'feet':
+                    return distance / METERS_FEET;
+                case 'yards':
+                    return distance / METERS_YARDS;
+                case 'miles':
+                    return distance / METERS_MILES;
+                case 'meters':
+                default:
+                    return distance;
+            }
+        },
+        altitudeRound: function(value) {
+            // round the value, don't need picometer precision.
+            return Math.round(value);
         }
     };
 });
