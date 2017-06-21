@@ -57,6 +57,8 @@ _This is a preview of a pending release and is subject to change._
     </li>
     <li><a href='https://codice.atlassian.net/browse/DDF-2928'>DDF-2928</a> - SolrCatalogProvider uses default row value of 10, which causes only the first 10 metacards to be updated from an UpdateRequest
     </li>
+    <li><a href='https://codice.atlassian.net/browse/DDF-2928'>DDF-3098</a> - Fix XstreamTreeWriter to correctly handle the case when a parent and child element contain the same attribute.
+    </li>
 </ul>
 
 <h3>Story</h3>
