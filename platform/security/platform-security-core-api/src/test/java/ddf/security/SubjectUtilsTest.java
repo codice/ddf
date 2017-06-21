@@ -32,12 +32,14 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.shiro.mgt.DefaultSecurityManager;
@@ -58,6 +60,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.principal.GuestPrincipal;
 
 /**
  * Tests out the SubjectUtils class
@@ -67,6 +70,8 @@ public class SubjectUtilsTest {
     private static final String TEST_NAME = "test123";
 
     private static final String DEFAULT_NAME = "default";
+
+    public static final String X500_DN = "CN=Foo,OU=Engineering,OU=Dev,O=DDF,ST=AZ,C=US";
 
     private Principal principal;
 
@@ -83,7 +88,10 @@ public class SubjectUtilsTest {
             principal = localhost.getSubjectDN();
         }
 
-        dnPrincipal = new X500Principal("CN=Foo,OU=Engineering,OU=Dev,O=DDF,ST=AZ,C=US");
+        Map<String, String> keywords = new HashMap<>();
+        keywords.put("E", BCStyle.EmailAddress.getId());
+
+        dnPrincipal = new X500Principal(X500_DN, keywords);
     }
 
     @Test
@@ -109,6 +117,62 @@ public class SubjectUtilsTest {
                 .buildSubject();
         assertEquals(DEFAULT_NAME, SubjectUtils.getName(subject, DEFAULT_NAME));
         assertEquals(DEFAULT_NAME, SubjectUtils.getName(null, DEFAULT_NAME));
+    }
+
+    @Test
+    public void testGuestDisplayName() {
+        Subject subject = getSubjectWithPrincipal(new GuestPrincipal("127.0.0.1"));
+        assertEquals(SubjectUtils.GUEST_DISPLAY_NAME, SubjectUtils.getName(subject, null, true));
+    }
+
+    @Test
+    public void testKerberosDisplayName() {
+        Subject subject = getSubjectWithPrincipal(new KerberosPrincipal("kerby/ddf.org@REALM"));
+        assertEquals("kerby", SubjectUtils.getName(subject, null, true));
+    }
+
+    @Test
+    public void testX509DisplayName() {
+        Subject subject = getSubjectWithPrincipal(dnPrincipal);
+        assertEquals("Foo", SubjectUtils.getName(subject, null, true));
+    }
+
+    @Test
+    public void testX509Name() {
+        Subject subject = getSubjectWithPrincipal(dnPrincipal);
+        assertEquals(X500_DN, SubjectUtils.getName(subject));
+    }
+
+    @Test
+    public void testX509Email() {
+        Map<String, String> keywords = new HashMap<>();
+        keywords.put("E", BCStyle.EmailAddress.getId());
+
+        X500Principal x500EmailPrincipal = new X500Principal("E=foo@bar.baz," + X500_DN, keywords);
+
+        assertEquals("foo@bar.baz", SubjectUtils.getEmailAddress(x500EmailPrincipal));
+    }
+
+    @Test
+    public void testX509Country() {
+        assertEquals("US", SubjectUtils.getCountry(dnPrincipal));
+    }
+
+    private Subject getSubjectWithPrincipal(Principal principal) {
+        Subject subject = mock(Subject.class);
+        PrincipalCollection pc = mock(PrincipalCollection.class);
+        SecurityAssertion assertion = mock(SecurityAssertion.class);
+
+        doReturn(pc).when(subject)
+                .getPrincipals();
+        doReturn(assertion).when(pc)
+                .oneByType(SecurityAssertion.class);
+        doReturn(ImmutableList.of(assertion)).when(pc)
+                .byType(SecurityAssertion.class);
+        doReturn(principal).when(assertion)
+                .getPrincipal();
+
+        return subject;
     }
 
     @Test

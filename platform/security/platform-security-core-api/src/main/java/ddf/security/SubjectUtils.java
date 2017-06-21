@@ -32,6 +32,8 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.commons.lang.Validate;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -74,7 +76,7 @@ public final class SubjectUtils {
         if (principal instanceof GuestPrincipal) {
             displayName = GUEST_DISPLAY_NAME;
         } else if (principal instanceof X500Principal) {
-            getCommonName((X500Principal) principal);
+            displayName = getCommonName((X500Principal) principal);
         } else {
             LOGGER.debug(
                     "No display name format identified for given principal. Returning principal name ",
@@ -156,10 +158,29 @@ public final class SubjectUtils {
         return name;
     }
 
+    private static String getExtendedCertAttribute(X500Principal principal,
+            ASN1ObjectIdentifier identifier) {
+        RDN[] rdNs = new X500Name(principal.getName()).getRDNs(identifier);
+        if (rdNs != null && rdNs.length > 0) {
+            AttributeTypeAndValue attributeTypeAndValue = rdNs[0].getFirst();
+            if (attributeTypeAndValue != null) {
+                return attributeTypeAndValue.getValue()
+                        .toString();
+            }
+        }
+        return null;
+    }
+
     public static String getCommonName(X500Principal principal) {
-        return new X500Name(principal.getName()).getRDNs(BCStyle.CN)[0].getFirst()
-                .getValue()
-                .toString();
+        return getExtendedCertAttribute(principal, BCStyle.CN);
+    }
+
+    public static String getEmailAddress(X500Principal principal) {
+        return getExtendedCertAttribute(principal, BCStyle.EmailAddress);
+    }
+
+    public static String getCountry(X500Principal principal) {
+        return getExtendedCertAttribute(principal, BCStyle.C);
     }
 
     public static String filterDN(X500Principal principal, Predicate<RDN> predicate) {
