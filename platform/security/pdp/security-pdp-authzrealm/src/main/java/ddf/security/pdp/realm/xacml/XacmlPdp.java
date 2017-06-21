@@ -16,13 +16,13 @@ package ddf.security.pdp.realm.xacml;
 
 import java.util.List;
 
-import org.apache.commons.validator.EmailValidator;
-import org.apache.commons.validator.UrlValidator;
 import org.apache.commons.validator.routines.CalendarValidator;
 import org.apache.commons.validator.routines.DateValidator;
 import org.apache.commons.validator.routines.DoubleValidator;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.IntegerValidator;
 import org.apache.commons.validator.routines.TimeValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.util.CollectionUtils;
