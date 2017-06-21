@@ -133,15 +133,8 @@ public class MockQuery implements FederatedSource, Query {
     }
 
     public void addTemporalFilter(XMLGregorianCalendar start, XMLGregorianCalendar end,
-            String timeType) {
-        Filter filter = null;
-
-        String timeProperty = Metacard.MODIFIED;
-
-        if (timeType != null && timeType.toLowerCase()
-                .equals(Metacard.EFFECTIVE)) {
-            timeProperty = Metacard.EFFECTIVE;
-        }
+            String timeProperty) {
+        Filter filter;
 
         if (start != null && end != null) {
             int compareTo = start.toGregorianCalendar()

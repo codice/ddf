@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.pubsub.EventProcessorImpl.DateType;
 import ddf.catalog.pubsub.criteria.temporal.TemporalEvaluationCriteria;
 import ddf.catalog.pubsub.criteria.temporal.TemporalEvaluationCriteriaImpl;
@@ -43,12 +44,9 @@ public class TemporalPredicate implements Predicate {
     /**
      * Instantiates a new temporal predicate.
      *
-     * @param start
-     *            the start date
-     * @param end
-     *            the end date
-     * @param type
-     *            What date
+     * @param start the start date
+     * @param end   the end date
+     * @param type  What date
      */
     public TemporalPredicate(Date start, Date end, DateType type) {
         if (end != null) {
@@ -103,21 +101,31 @@ public class TemporalPredicate implements Predicate {
             LOGGER.debug("entry id: {}", entry.getId());
 
             switch (this.type) {
-            case modified:
+            case MODIFIED:
                 LOGGER.debug("search by modified: {}", entry.getModifiedDate());
                 date = entry.getModifiedDate();
                 break;
-            case effective:
+            case METACARD_MODIFIED:
+                LOGGER.debug("search by metacard modified: {}",
+                        entry.getAttribute(Core.METACARD_MODIFIED));
+                date = (Date) entry.getAttribute(Core.METACARD_MODIFIED)
+                        .getValue();
+                break;
+            case EFFECTIVE:
                 LOGGER.debug("search by effective: {}", entry.getEffectiveDate());
                 date = entry.getEffectiveDate();
                 break;
-            case created:
-                // currently searches by createdDate not supported by endpoints
+            case CREATED:
                 LOGGER.debug("search by created: {}", entry.getCreatedDate());
                 date = entry.getCreatedDate();
                 break;
-            case expiration:
-                // currently searches by expirationDate not supported by endpoints
+            case METACARD_CREATED:
+                LOGGER.debug("search by metacard created: {}",
+                        entry.getAttribute(Core.METACARD_CREATED));
+                date = (Date) entry.getAttribute(Core.METACARD_CREATED)
+                        .getValue();
+                break;
+            case EXPIRATION:
                 LOGGER.debug("search by expiration: {}", entry.getExpirationDate());
                 date = entry.getExpirationDate();
                 break;
