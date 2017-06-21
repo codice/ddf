@@ -29,6 +29,7 @@
         <module>ui</module>
         <module>configurator</module>
         <module>modules</module>
+        <module>admin-configuration-passwordencryption</module>
         <module>admin-app</module>
     </modules>
     <build>
