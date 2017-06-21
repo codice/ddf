@@ -16,13 +16,13 @@ package ddf.security.pdp.realm.xacml;
 
 import java.util.List;
 
-import org.apache.commons.validator.EmailValidator;
-import org.apache.commons.validator.UrlValidator;
 import org.apache.commons.validator.routines.CalendarValidator;
 import org.apache.commons.validator.routines.DateValidator;
 import org.apache.commons.validator.routines.DoubleValidator;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.IntegerValidator;
 import org.apache.commons.validator.routines.TimeValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.util.CollectionUtils;
@@ -52,6 +52,52 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
 public class XacmlPdp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XacmlPdp.class);
+
+    private static final String ROLE_CLAIM =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+
+    private static final String STRING_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#string";
+
+    private static final String BOOLEAN_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#boolean";
+
+    private static final String INTEGER_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#integer";
+
+    private static final String DOUBLE_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#double";
+
+    private static final String TIME_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#time";
+
+    private static final String DATE_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#date";
+
+    private static final String DATE_TIME_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#dateTime";
+
+    private static final String URI_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#anyURI";
+
+    private static final String RFC822_NAME_DATA_TYPE =
+            "urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name";
+
+    private static final String IP_ADDRESS_DATA_TYPE =
+            "urn:oasis:names:tc:xacml:2.0:data-type:ipAddress";
+
+    private static final String X500_NAME_DATA_TYPE =
+            "urn:oasis:names:tc:xacml:1.0:data-type:x500Name";
+
+    private static final String ACTION_CATEGORY =
+            "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
+
+    private static final String RESOURCE_CATEGORY =
+            "urn:oasis:names:tc:xacml:3.0:attribute-category:resource";
+
+    private static final String ENVIRONMENT_CATEGORY =
+            "urn:oasis:names:tc:xacml:3.0:attribute-category:environment";
+
+    private static final String ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+
+    private static final String ACCESS_SUBJECT_CATEGORY =
+            "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+
+    private static final String SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
+
+    private static final String FILTER_ACTION = "filter";
 
     private XacmlClient pdp;
 
@@ -112,13 +158,13 @@ public class XacmlPdp {
 
         // Adding filter action
         AttributesType actionAttributes = new AttributesType();
-        actionAttributes.setCategory(XACMLConstants.ACTION_CATEGORY);
+        actionAttributes.setCategory(ACTION_CATEGORY);
         AttributeType actionAttribute = new AttributeType();
-        actionAttribute.setAttributeId(XACMLConstants.ACTION_ID);
+        actionAttribute.setAttributeId(ACTION_ID);
         actionAttribute.setIncludeInResult(false);
         AttributeValueType actionValue = new AttributeValueType();
-        actionValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
-        LOGGER.trace("Adding action: {} for subject: {}", XACMLConstants.FILTER_ACTION, subject);
+        actionValue.setDataType(STRING_DATA_TYPE);
+        LOGGER.trace("Adding action: {} for subject: {}", FILTER_ACTION, subject);
         actionValue.getContent()
                 .add(permission.getAction());
         actionAttribute.getAttributeValue()
@@ -136,10 +182,10 @@ public class XacmlPdp {
 
         // Adding permissions for the resource
         AttributesType metadataAttributes = new AttributesType();
-        metadataAttributes.setCategory(XACMLConstants.RESOURCE_CATEGORY);
+        metadataAttributes.setCategory(RESOURCE_CATEGORY);
 
         AttributesType environmentAttributesType = new AttributesType();
-        environmentAttributesType.setCategory(XACMLConstants.ENVIRONMENT_CATEGORY);
+        environmentAttributesType.setCategory(ENVIRONMENT_CATEGORY);
         if (!CollectionUtils.isEmpty(environmentAttributes)) {
             for (String envAttr : environmentAttributes) {
                 String[] attr = envAttr.split("=");
@@ -149,7 +195,7 @@ public class XacmlPdp {
                     String[] attrVals = attr[1].split(",");
                     for (String attrVal : attrVals) {
                         AttributeValueType attributeValueType = new AttributeValueType();
-                        attributeValueType.setDataType(XACMLConstants.STRING_DATA_TYPE);
+                        attributeValueType.setDataType(STRING_DATA_TYPE);
                         attributeValueType.getContent()
                                 .add(attrVal.trim());
                         attributeType.getAttributeValue()
@@ -168,8 +214,8 @@ public class XacmlPdp {
                 AttributeType resourceAttribute = new AttributeType();
                 resourceAttribute.setAttributeId(curPermission.getKey());
                 resourceAttribute.setIncludeInResult(false);
-                if (curPermission.getValues()
-                        .size() > 0) {
+                if (!curPermission.getValues()
+                        .isEmpty()) {
                     for (String curPermValue : curPermission.getValues()) {
                         AttributeValueType resourceAttributeValue = new AttributeValueType();
                         resourceAttributeValue.setDataType(getXacmlDataType(curPermValue));
@@ -221,12 +267,12 @@ public class XacmlPdp {
 
     private AttributesType createSubjectAttributes(String subject, AuthorizationInfo info) {
         AttributesType subjectAttributes = new AttributesType();
-        subjectAttributes.setCategory(XACMLConstants.ACCESS_SUBJECT_CATEGORY);
+        subjectAttributes.setCategory(ACCESS_SUBJECT_CATEGORY);
         AttributeType subjectAttribute = new AttributeType();
-        subjectAttribute.setAttributeId(XACMLConstants.SUBJECT_ID);
+        subjectAttribute.setAttributeId(SUBJECT_ID);
         subjectAttribute.setIncludeInResult(false);
         AttributeValueType subjectValue = new AttributeValueType();
-        subjectValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
+        subjectValue.setDataType(STRING_DATA_TYPE);
         LOGGER.debug("Adding subject: {}", subject);
         subjectValue.getContent()
                 .add(subject);
@@ -236,13 +282,13 @@ public class XacmlPdp {
                 .add(subjectAttribute);
 
         AttributeType roleAttribute = new AttributeType();
-        roleAttribute.setAttributeId(XACMLConstants.ROLE_CLAIM);
+        roleAttribute.setAttributeId(ROLE_CLAIM);
         roleAttribute.setIncludeInResult(false);
-        if (info.getRoles()
-                .size() > 0) {
+        if (!info.getRoles()
+                .isEmpty()) {
             for (String curRole : info.getRoles()) {
                 AttributeValueType roleValue = new AttributeValueType();
-                roleValue.setDataType(XACMLConstants.STRING_DATA_TYPE);
+                roleValue.setDataType(STRING_DATA_TYPE);
                 LOGGER.trace("Adding role: {} for subject: {}", curRole, subject);
                 roleValue.getContent()
                         .add(curRole);
@@ -258,8 +304,8 @@ public class XacmlPdp {
                 AttributeType subjAttr = new AttributeType();
                 subjAttr.setAttributeId(((KeyValuePermission) curPermission).getKey());
                 subjAttr.setIncludeInResult(false);
-                if (((KeyValuePermission) curPermission).getValues()
-                        .size() > 0) {
+                if (!((KeyValuePermission) curPermission).getValues()
+                        .isEmpty()) {
                     for (String curPermValue : ((KeyValuePermission) curPermission).getValues()) {
                         AttributeValueType subjAttrValue = new AttributeValueType();
                         subjAttrValue.setDataType(getXacmlDataType(curPermValue));
@@ -285,23 +331,23 @@ public class XacmlPdp {
 
     protected String getXacmlDataType(String curPermValue) {
         if ("false".equalsIgnoreCase(curPermValue) || "true".equalsIgnoreCase(curPermValue)) {
-            return XACMLConstants.BOOLEAN_DATA_TYPE;
+            return BOOLEAN_DATA_TYPE;
         } else if (IntegerValidator.getInstance()
                 .validate(curPermValue) != null) {
-            return XACMLConstants.INTEGER_DATA_TYPE;
+            return INTEGER_DATA_TYPE;
         } else if (DoubleValidator.getInstance()
                 .validate(curPermValue) != null) {
-            return XACMLConstants.DOUBLE_DATA_TYPE;
+            return DOUBLE_DATA_TYPE;
         } else if (TimeValidator.getInstance()
                 .validate(curPermValue, "H:mm:ss") != null || TimeValidator.getInstance()
                 .validate(curPermValue, "H:mm:ss.SSS") != null || TimeValidator.getInstance()
                 .validate(curPermValue, "H:mm:ssXXX") != null || TimeValidator.getInstance()
                 .validate(curPermValue, "H:mm:ss.SSSXXX") != null) {
-            return XACMLConstants.TIME_DATA_TYPE;
+            return TIME_DATA_TYPE;
         } else if (DateValidator.getInstance()
                 .validate(curPermValue, "yyyy-MM-dd") != null || DateValidator.getInstance()
                 .validate(curPermValue, "yyyy-MM-ddXXX") != null) {
-            return XACMLConstants.DATE_DATA_TYPE;
+            return DATE_DATA_TYPE;
         } else if (CalendarValidator.getInstance()
                 .validate(curPermValue, "yyyy-MM-dd:ss'T'H:mm") != null ||
                 CalendarValidator.getInstance()
@@ -312,26 +358,26 @@ public class XacmlPdp {
                         .validate(curPermValue, "yyyy-MM-dd'T'H:mm:ss.SSSXXX") != null ||
                 CalendarValidator.getInstance()
                         .validate(curPermValue, "yyyy-MM-dd'T'H:mm:ss") != null) {
-            return XACMLConstants.DATE_TIME_DATA_TYPE;
+            return DATE_TIME_DATA_TYPE;
         } else if (EmailValidator.getInstance()
                 .isValid(curPermValue)) {
-            return XACMLConstants.RFC822_NAME_DATA_TYPE;
+            return RFC822_NAME_DATA_TYPE;
         } else if (new UrlValidator().isValid(curPermValue)) {
-            return XACMLConstants.URI_DATA_TYPE;
+            return URI_DATA_TYPE;
         } else if (InetAddresses.isUriInetAddress(curPermValue)) {
-            return XACMLConstants.IP_ADDRESS_DATA_TYPE;
+            return IP_ADDRESS_DATA_TYPE;
         } else {
 
             try {
                 if (new X500Name(curPermValue).getRDNs().length > 0) {
-                    return XACMLConstants.X500_NAME_DATA_TYPE;
+                    return X500_NAME_DATA_TYPE;
                 }
             } catch (IllegalArgumentException e) {
 
             }
 
         }
-        return XACMLConstants.STRING_DATA_TYPE;
+        return STRING_DATA_TYPE;
     }
 }
 
