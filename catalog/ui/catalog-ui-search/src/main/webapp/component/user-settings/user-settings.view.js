@@ -19,7 +19,7 @@ var CustomElements = require('js/CustomElements');
 var ThemeSettings = require('component/theme-settings/theme-settings.view');
 var AlertSettings = require('component/alert-settings/alert-settings.view');
 var MapSettings = require('js/view/preferences/PreferencesModal.view');
-var VisualizationSettings = require('component/visualization-selector/visualization-selector.view');
+var VisualizationSettings = require('component/visualization-selector/visualization-selector-old.view');
 var SearchSettings = require('component/search-settings/search-settings.view');
 var HiddenSettings = require('component/user-blacklist/user-blacklist.view');
 

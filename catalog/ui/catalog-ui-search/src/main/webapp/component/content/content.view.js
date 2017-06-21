@@ -32,11 +32,12 @@ define([
     'component/metacard-title/metacard-title.view',
     'component/router/router',
     'component/visualization/visualization.view',
-    'component/query-title/query-title.view'
+    'component/query-title/query-title.view',
+    'component/golden-layout/golden-layout.view'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
              MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, router, VisualizationView,
-            QueryTitleView) {
+            QueryTitleView, GoldenLayoutView) {
 
     var debounceTime = 25;
 
@@ -58,7 +59,7 @@ define([
             'panelThree': '.content-panelThree'
         },
         initialize: function(){
-            this._mapView = new VisualizationView({
+            this._mapView = new GoldenLayoutView({
                 selectionInterface: store.get('content')
             });
             this.listenTo(router, 'change', this.handleRoute);
@@ -102,26 +103,9 @@ define([
         },
         updatePanelTwo: function(){
             var queryRef = store.getQuery();
-            var selectedResults = store.getSelectedResults();
-            if (queryRef === undefined && selectedResults.length === 0){
+            if (queryRef === undefined){
                 this.hidePanelTwo();
-            } else if (selectedResults.length === 1) {
-                this.showPanelTwo();
-                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardTabsView) {
-                    this.panelTwo.show(new MetacardTabsView());
-                }
-                this.panelTwoTitle.show(new MetacardTitleView({
-                    model: selectedResults
-                }));
-            } else if (selectedResults.length > 1) {
-                this.showPanelTwo();
-                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardsTabsView) {
-                    this.panelTwo.show(new MetacardsTabsView());
-                }
-                this.panelTwoTitle.show(new MetacardTitleView({
-                    model: selectedResults
-                }));
-            } else if (queryRef !== undefined) {
+            } else {
                 this.showPanelTwo();
                 if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== QueryTabsView) {
                     this.panelTwo.show(new QueryTabsView());
@@ -129,8 +113,6 @@ define([
                 this.panelTwoTitle.show(new QueryTitleView({
                     model: store.getQuery()
                 }));
-            } else {
-                this.hidePanelTwo();
             }
             Common.repaintForTimeframe(500, function(){
                 wreqr.vent.trigger('resize');

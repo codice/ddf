@@ -3661,9 +3661,9 @@ flatten@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
 
-font-awesome@4.6.3:
-  version "4.6.3"
-  resolved "https://registry.yarnpkg.com/font-awesome/-/font-awesome-4.6.3.tgz#86933651540ee00874c664017f50f2172f6531a2"
+font-awesome@4.7:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/font-awesome/-/font-awesome-4.7.0.tgz#8fa8cf0411a1a31afd07b06d2902bb9fc815a133"
 
 for-each@~0.3.2:
   version "0.3.2"
@@ -4459,6 +4459,12 @@ glslify@^4.0.0:
     through2 "^0.6.3"
     xtend "^4.0.0"
 
+golden-layout@1.5.8:
+  version "1.5.8"
+  resolved "https://registry.yarnpkg.com/golden-layout/-/golden-layout-1.5.8.tgz#320963eabdefec4fe143e2b769af918c7791c83c"
+  dependencies:
+    jquery "*"
+
 got@^5.0.0:
   version "5.7.1"
   resolved "https://registry.yarnpkg.com/got/-/got-5.7.1.tgz#5f81635a61e4a6589f180569ea4e381680a51f35"
@@ -5217,7 +5223,7 @@ jquery-ui@1.10.4:
   version "1.10.4"
   resolved "https://registry.yarnpkg.com/jquery-ui/-/jquery-ui-1.10.4.tgz#a096fe5f4e0f2ab69a0585cf10455877f57506bd"
 
-jquery@1.12.4, jquery@>=1.7.1, "jquery@>=1.8.3 <2.2.0":
+jquery@*, jquery@1.12.4, jquery@>=1.7.1, "jquery@>=1.8.3 <2.2.0":
   version "1.12.4"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-1.12.4.tgz#01e1dfba290fe73deba77ceeacb0f9ba2fec9e0c"
 
@@ -5437,6 +5443,10 @@ less-plugin-clean-css@1.5.1:
   resolved "https://registry.yarnpkg.com/less-plugin-clean-css/-/less-plugin-clean-css-1.5.1.tgz#cc57af7aa3398957e56decebe63cb60c23429703"
   dependencies:
     clean-css "^3.0.1"
+
+less-vars-to-js@1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/less-vars-to-js/-/less-vars-to-js-1.1.2.tgz#eef3e48e0ab8d0fb9a8b515753a2d7b502a9ab0c"
 
 less@2.7.2:
   version "2.7.2"

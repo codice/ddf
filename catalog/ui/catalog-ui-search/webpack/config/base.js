@@ -71,6 +71,11 @@ module.exports = {
                 from: resolve('node_modules/font-awesome/fonts'),
                 to: resolve('target/webapp/fonts'),
                 force: true
+            },
+            {
+                from: resolve('src/main/webapp/styles/vars.less'),
+                to: resolve('target/webapp/styles/vars.less'),
+                force: true
             }
         ]),
         new HtmlWebpackPlugin({

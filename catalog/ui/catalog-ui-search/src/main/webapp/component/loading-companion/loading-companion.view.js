@@ -18,8 +18,9 @@ define([
     'underscore',
     'jquery',
     './loading-companion.hbs',
-    'js/CustomElements'
-], function (Marionette, _, $, template, CustomElements) {
+    'js/CustomElements',
+    'js/Positioning'
+], function (Marionette, _, $, template, CustomElements, Positioning) {
 
     var loadingCompanions = [];
 
@@ -67,6 +68,7 @@ define([
                     var boundingBox = this.options.linkedView.el.getBoundingClientRect();
                     this.$el.css('left', boundingBox.left).css('top', boundingBox.top)
                         .css('width', boundingBox.width).css('height', boundingBox.height);
+                    this.$el.toggleClass('is-hidden', Positioning.isEffectivelyHidden(this.options.linkedView.el));
                     this.updatePosition();
                 }
             }.bind(this));

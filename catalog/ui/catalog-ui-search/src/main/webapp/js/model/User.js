@@ -147,7 +147,8 @@ define([
                 columnOrder: ['title', 'created', 'modified', 'thumbnail'],
                 uploads: [],
                 fontSize: '16',
-                resultCount: properties.resultCount
+                resultCount: properties.resultCount,
+                goldenLayout: undefined
             };
         },
         relations: [
@@ -188,6 +189,7 @@ define([
             this.listenTo(this.get('uploads'), 'remove', this.savePreferences);
             this.listenTo(this, 'change:visualization', this.savePreferences);
             this.listenTo(this, 'change:fontSize', this.savePreferences);
+            this.listenTo(this, 'change:goldenLayout', this.savePreferences);
         },
         handleRemove: function(){
             this.savePreferences();
