@@ -45,13 +45,6 @@ public class DivisibleByFunction extends FunctionExpressionImpl {
                 String.format("%s expression requires at least %s parameters", FUNCTION_NAME,
                         NUM_PARAMETERS));
 
-        if (!(parameters.get(0) instanceof PropertyName)) {
-            throw new IllegalArgumentException("First argument should be a property name");
-        }
-        if (!(parameters.get(1) instanceof Literal)) {
-            throw new IllegalArgumentException("Second argument should be a literal number");
-        }
-
         //TODO we could cast the arguments here to the correct object so that it doen't need to be done in the filter delegates
 
         setName(FUNCTION_NAME);

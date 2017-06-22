@@ -40,8 +40,8 @@ import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.IsEqualsToImpl;
-import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Parser;
 import org.opengis.filter.Filter;
@@ -177,7 +177,7 @@ public class CswQueryFactory {
         if (constraint != null) {
             if (constraint.isSetCqlText()) {
                 try {
-                    filter = CQL.toFilter(constraint.getCqlText());
+                    filter = ECQL.toFilter(constraint.getCqlText());
                 } catch (CQLException e) {
                     throw new CswException("Unable to parse CQL Constraint: " + e.getMessage(), e);
                 }

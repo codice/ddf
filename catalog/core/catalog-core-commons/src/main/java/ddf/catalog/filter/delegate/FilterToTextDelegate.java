@@ -25,9 +25,9 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
     public String propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
         switch (functionName) {
         case "divisibleBy":
-            return propertyIsDivisibleBy(arguments);
+            return propertyIsDivisibleBy(arguments) + '=' + literal;
         case "proximity":
-            return propertyIsInProximityTo(arguments, literal);
+            return propertyIsInProximityTo(arguments) + '=' + literal;
         default:
             throw new UnsupportedOperationException(functionName + " is not supported.");
         }
@@ -544,18 +544,17 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
         return "relative(" + propertyName + "," + duration + ")";
     }
 
-    public String propertyIsInProximityTo(List<Object> arguments, Object literal) {
+    public String propertyIsInProximityTo(List<Object> arguments) {
         return propertyIsInProximityTo(arguments.get(0)
                         .toString(),
                 Integer.parseInt(arguments.get(1)
                         .toString()),
                 arguments.get(2)
-                        .toString(),
-                Boolean.parseBoolean(literal.toString()));
+                        .toString());
     }
 
-    public String propertyIsInProximityTo(String propertyName, Integer distance, String searchTerm,
-            Boolean literal) {
-        return "proximity(" + propertyName + "," + distance + "," + searchTerm + ")=" + literal;
+    public String propertyIsInProximityTo(String propertyName, Integer distance,
+            String searchTerm) {
+        return "proximity(" + propertyName + "," + distance + "," + searchTerm + ")";
     }
 }
