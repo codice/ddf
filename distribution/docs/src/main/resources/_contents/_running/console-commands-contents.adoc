@@ -140,6 +140,9 @@ Provides a list of environment variables.
 |catalog:spatial
 |Searches spatially the local Catalog.
 
+|catalog:transformers
+|Provides information on available transformers.
+
 |catalog:validate
 |Validates an XML file against all installed validators and prints out human readable errors and warnings.
 
