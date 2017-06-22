@@ -47,6 +47,8 @@ public class CswTestCommons {
 
     public static final String CSW_REGISTRY_STORE_FACTORY_PID = "Csw_Registry_Store";
 
+    public static final String CSW_TRANSACTIONAL_SOURCE_FACTORY_PID = "Csw_Transactional_Federated_Source";
+
     public static final String GMD_CSW_FEDERATED_SOURCE_FACTORY_PID = "Gmd_Csw_Federated_Source";
 
     public static Map<String, Object> getCswSourceProperties(String sourceId, String cswUrl,
@@ -84,6 +86,17 @@ public class CswTestCommons {
                 CSW_REGISTRY_STORE_FACTORY_PID));
         cswSourceProperties.put("id", sourceId);
         cswSourceProperties.put("registryUrl", cswUrl);
+        return cswSourceProperties;
+    }
+
+    public static Map<String, Object> getCswTransactionalSourceProperties(String sourceId, String cswUrl, ServiceManager serviceManager) {
+        Map<String, Object> cswSourceProperties = new HashMap<>();
+        cswSourceProperties.putAll(serviceManager.getMetatypeDefaults(CSW_SOURCE_SYMBOLIC_NAME,
+                CSW_TRANSACTIONAL_SOURCE_FACTORY_PID));
+        cswSourceProperties.put("id", sourceId);
+        cswSourceProperties.put("cswUrl", cswUrl);
+        cswSourceProperties.put("pollInterval", 1);
+        cswSourceProperties.put("outputSchema", "urn:catalog:metacard");
         return cswSourceProperties;
     }
 

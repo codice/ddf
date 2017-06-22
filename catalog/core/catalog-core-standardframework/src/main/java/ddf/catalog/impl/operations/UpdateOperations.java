@@ -510,8 +510,17 @@ public class UpdateOperations {
         return updateResponse;
     }
 
+    private boolean metacardsUpdatedLocally(UpdateResponse updateResponse, UpdateRequest updateRequest) {
+        return updateResponse != null && updateResponse.getUpdatedMetacards() != null && updateRequest.getUpdates().size() == updateResponse.getUpdatedMetacards().size();
+    }
+
     private UpdateResponse performRemoteUpdate(UpdateRequest updateRequest,
             UpdateResponse updateResponse) {
+
+        if (metacardsUpdatedLocally(updateResponse, updateRequest)) {
+            return updateResponse;
+        }
+
         if (opsCatStoreSupport.isCatalogStoreRequest(updateRequest)) {
             UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateRequest);
             if (updateResponse == null) {
@@ -725,7 +734,7 @@ public class UpdateOperations {
             LOGGER.debug(
                     "While rewriting the query, did not get a metacardId corresponding to every attribute.");
             LOGGER.debug("Original Update By attribute was: {}", attributeName);
-            LOGGER.debug("Unable to get Metacard IDs from metacards:: {}",
+            LOGGER.debug("Unable to get Metacard IDs from metacards: {}",
                     updateRequest.getUpdates()
                             .stream()
                             .map(Map.Entry::getKey)

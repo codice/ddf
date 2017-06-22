@@ -92,6 +92,23 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
     }
 
     /**
+     * Instantiates a new UpdateRequestImpl from a set of destinations,
+     * an array of ids, and a list of {@link Metacard}
+     *
+     * @param destinations the destination ids this request should be sent to
+     * @param ids          the ids associated with the {@link Metacard} list
+     * @param metacards    the updated {@link Metacard} values
+     * @throws IllegalArgumentException if the ids array size and list of {@link Metacard} size does not match
+     */
+    public UpdateRequestImpl(Set<String> destinations, String[] ids, List<Metacard> metacards)
+            throws IllegalArgumentException {
+        this(formatEntryList(ids, metacards), UpdateRequest.UPDATE_BY_ID, null);
+        if (destinations != null) {
+            this.destinations = destinations;
+        }
+    }
+
+    /**
      * Instantiates a new UpdateRequestImpl from an array of {@link URI} and a list of
      * {@link Metacard}
      *

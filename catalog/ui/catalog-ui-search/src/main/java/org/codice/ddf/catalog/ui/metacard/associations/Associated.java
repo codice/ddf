@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
@@ -44,6 +45,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -55,34 +57,42 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public class Associated {
 
-    private static final Set<String> ASSOCIATION_TYPES = ImmutableSet.of(Metacard.DERIVED,
-            Metacard.RELATED);
+    private static final Set<String> ASSOCIATION_TYPES = ImmutableSet.of(AssociationsAttributes.DERIVED,
+            AssociationsAttributes.RELATED);
 
-    private final EndpointUtil util;
+    private final EndpointUtil endpointUtil;
 
     private final CatalogFramework catalogFramework;
 
-    public Associated(EndpointUtil util, CatalogFramework catalogFramework) {
-        this.util = util;
+    private int querySize;
+
+    public Associated(EndpointUtil endpointUtil, CatalogFramework catalogFramework, ConfigurationApplication configurationApplication) {
+        this.endpointUtil = endpointUtil;
         this.catalogFramework = catalogFramework;
+        this.querySize = configurationApplication.getResultCount();
     }
 
-    public Collection<Edge> getAssociations(String metacardId)
+    public Collection<Edge> getAssociations(List<String> writableSourceIds, String metacardId)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-        Map<String, Metacard> metacardMap =
-                query(withNonrestrictedTags(forRootAndParents(metacardId)));
+        Map<String, Metacard> metacardMap = query(writableSourceIds, withNonrestrictedTags(
+                forRootAndParents(metacardId)));
         if (metacardMap.isEmpty()) {
             return Collections.emptyList();
         }
+
         Metacard root = metacardMap.get(metacardId);
+        if (root == null) {
+            return Collections.emptyList();
+        }
+
         Collection<Metacard> parents = metacardMap.values()
                 .stream()
                 .filter(m -> !m.getId()
                         .equals(metacardId))
                 .collect(Collectors.toList());
 
-        Map<String, Metacard> childMetacardMap = query(withNonrestrictedTags(forChildAssociations(
-                root)));
+        Map<String, Metacard> childMetacardMap = query(writableSourceIds, withNonrestrictedTags(
+                forChildAssociations(root)));
 
         Collection<Edge> parentEdges = createParentEdges(parents, root);
         Collection<Edge> childrenEdges = createChildEdges(childMetacardMap.values(), root);
@@ -93,10 +103,10 @@ public class Associated {
         return edges;
     }
 
-    public void putAssociations(String id, Collection<Edge> edges)
+    public void putAssociations(List<String> writableSourceIds, String id, Collection<Edge> edges)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException,
             IngestException {
-        Collection<Edge> oldEdges = getAssociations(id);
+        Collection<Edge> oldEdges = getAssociations(writableSourceIds, id);
 
         List<String> ids = Stream.concat(oldEdges.stream(), edges.stream())
                 .flatMap(e -> Stream.of(e.child, e.parent))
@@ -107,7 +117,9 @@ public class Associated {
                 .distinct()
                 .collect(Collectors.toList());
 
-        Map<String, Metacard> metacards = util.getMetacards(ids, getNonrestrictedTagsFilter())
+        Map<String, Metacard> metacards = endpointUtil.getMetacards(writableSourceIds,
+                ids,
+                getNonrestrictedTagsFilter())
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
@@ -134,18 +146,22 @@ public class Associated {
 
         catalogFramework.update(new UpdateRequestImpl(changedMetacards.keySet()
                 .toArray(new String[0]), new ArrayList<>(changedMetacards.values())));
-
     }
 
     private void removeEdge(Edge edge, Map<String, Metacard> metacards,
-            /*Mutable*/ Map<String, Metacard> changedMetacards) {
+            /*Mutable*/ Map<String, Metacard> changedMetacards) throws IngestException {
         String id = edge.parent.get(Metacard.ID)
                 .toString();
         Metacard target = changedMetacards.getOrDefault(id, metacards.get(id));
+
+        if (target == null) {
+            throw new IngestException(String.format("Could not find metacard with id %s", id));
+        }
+
         ArrayList<String> values = Optional.of(target)
                 .map(m -> m.getAttribute(edge.relation))
                 .map(Attribute::getValues)
-                .map(util::getStringList)
+                .map(endpointUtil::getStringList)
                 .orElseGet(ArrayList::new);
         values.remove(edge.child.get(Metacard.ID)
                 .toString());
@@ -154,14 +170,19 @@ public class Associated {
     }
 
     private void addEdge(Edge edge, Map<String, Metacard> metacards,
-            Map<String, Metacard> changedMetacards) {
+            Map<String, Metacard> changedMetacards) throws IngestException {
         String id = edge.parent.get(Metacard.ID)
                 .toString();
         Metacard target = changedMetacards.getOrDefault(id, metacards.get(id));
+
+        if (target == null) {
+            throw new IngestException(String.format("Could not find metacard with id %s", id));
+        }
+
         ArrayList<String> values = Optional.of(target)
                 .map(m -> m.getAttribute(edge.relation))
                 .map(Attribute::getValues)
-                .map(util::getStringList)
+                .map(endpointUtil::getStringList)
                 .orElseGet(ArrayList::new);
         values.add(edge.child.get(Metacard.ID)
                 .toString());
@@ -192,25 +213,25 @@ public class Associated {
     }
 
     private Filter forRootAndParents(String rootId) {
-        Filter root = util.getFilterBuilder()
+        Filter root = endpointUtil.getFilterBuilder()
                 .attribute(Metacard.ID)
                 .is()
                 .equalTo()
                 .text(rootId);
-        Filter related = util.getFilterBuilder()
+        Filter related = endpointUtil.getFilterBuilder()
                 .attribute(Metacard.RELATED)
                 .is()
                 .like()
                 .text(rootId);
-        Filter derived = util.getFilterBuilder()
+        Filter derived = endpointUtil.getFilterBuilder()
                 .attribute(Metacard.DERIVED)
                 .is()
                 .like()
                 .text(rootId);
-        Filter parents = util.getFilterBuilder()
+        Filter parents = endpointUtil.getFilterBuilder()
                 .anyOf(related, derived);
 
-        return util.getFilterBuilder()
+        return endpointUtil.getFilterBuilder()
                 .anyOf(root, parents);
     }
 
@@ -218,19 +239,19 @@ public class Associated {
         if (filter == null) {
             return null;
         }
-        return util.getFilterBuilder()
+        return endpointUtil.getFilterBuilder()
                 .allOf(filter, getNonrestrictedTagsFilter());
     }
 
     private Filter getNonrestrictedTagsFilter() {
-        return util.getFilterBuilder()
-                .not(util.getFilterBuilder()
-                        .anyOf(util.getFilterBuilder()
+        return endpointUtil.getFilterBuilder()
+                .not(endpointUtil.getFilterBuilder()
+                        .anyOf(endpointUtil.getFilterBuilder()
                                         .attribute(Metacard.TAGS)
                                         .is()
                                         .like()
                                         .text(DeletedMetacard.DELETED_TAG),
-                                util.getFilterBuilder()
+                                endpointUtil.getFilterBuilder()
                                         .attribute(Metacard.TAGS)
                                         .is()
                                         .like()
@@ -251,9 +272,9 @@ public class Associated {
         if (childIds.isEmpty()) {
             return null;
         }
-        return util.getFilterBuilder()
+        return endpointUtil.getFilterBuilder()
                 .anyOf(childIds.stream()
-                        .map(id -> util.getFilterBuilder()
+                        .map(id -> endpointUtil.getFilterBuilder()
                                 .attribute(Metacard.ID)
                                 .is()
                                 .equalTo()
@@ -262,20 +283,22 @@ public class Associated {
 
     }
 
-    private Map<String, Metacard> query(Filter filter)
+    private Map<String, Metacard> query(List<String> writableSourceIds, Filter filter)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         if (filter == null) {
             return Collections.emptyMap();
         }
 
-        QueryResponse query = catalogFramework.query(new QueryRequestImpl(new QueryImpl(filter,
+        QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter,
                 1,
-                0,
+                querySize,
                 SortBy.NATURAL_ORDER,
                 false,
-                TimeUnit.SECONDS.toMillis(30)), false));
+                TimeUnit.SECONDS.toMillis(30)), writableSourceIds);
 
-        return query.getResults()
+        QueryResponse queryResponse = catalogFramework.query(queryRequest);
+
+        return queryResponse.getResults()
                 .stream()
                 .map(Result::getMetacard)
                 .collect(Collectors.toMap(Metacard::getId, Function.identity()));
@@ -287,7 +310,7 @@ public class Associated {
             if (Optional.of(parent)
                     .map(m -> m.getAttribute(associationType))
                     .map(Attribute::getValues)
-                    .map(util::getStringList)
+                    .map(endpointUtil::getStringList)
                     .map(l -> l.contains(child.getId()))
                     .orElse(false)) {
                 relations.add(associationType);
@@ -305,8 +328,8 @@ public class Associated {
         private String relation;
 
         public Edge(Metacard parent, Metacard child, String relation) {
-            this.parent = util.getMetacardMap(parent);
-            this.child = util.getMetacardMap(child);
+            this.parent = endpointUtil.getMetacardMap(parent);
+            this.child = endpointUtil.getMetacardMap(child);
             this.relation = relation;
         }
 
