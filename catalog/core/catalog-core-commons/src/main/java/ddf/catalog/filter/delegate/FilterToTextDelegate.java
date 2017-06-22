@@ -26,6 +26,8 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
         switch (functionName) {
         case "PropertyIsDivisibleBy":
             return propertyIsDivisibleBy(arguments);
+        case "proximity":
+            return propertyIsInProximityTo(arguments, literal);
         default:
             throw new UnsupportedOperationException(functionName + " is not supported.");
         }
@@ -542,13 +544,18 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
         return "relative(" + propertyName + "," + duration + ")";
     }
 
-    @Override
-    public String propertyIsInProximityTo(String propertyName, Integer distance, String searchTerm) {
-        return "proximity(" + propertyName + "," + distance + "," + searchTerm + ")=true";
+    public String propertyIsInProximityTo(List<Object> arguments, Object literal) {
+        return propertyIsInProximityTo(arguments.get(0)
+                        .toString(),
+                Integer.parseInt(arguments.get(1)
+                        .toString()),
+                arguments.get(2)
+                        .toString(),
+                Boolean.parseBoolean(literal.toString()));
     }
 
-    @Override
-    public String propertyIsNotInProximityTo(String propertyName, Integer distance, String searchTerm) {
-        return "proximity(" + propertyName + "," + distance + "," + searchTerm + ")=false";
+    public String propertyIsInProximityTo(String propertyName, Integer distance, String searchTerm,
+            Boolean literal) {
+        return "proximity(" + propertyName + "," + distance + "," + searchTerm + ")=" + literal;
     }
 }

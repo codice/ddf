@@ -60,13 +60,4 @@ public class SearchTermsDelegate extends SimpleFilterDelegate<Set<SearchTerm>> {
         return Collections.emptySet();
     }
 
-    @Override
-    public Set<SearchTerm> propertyIsInProximityTo(String propertyName, Integer distance, String searchTerms) {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public Set<SearchTerm> propertyIsNotInProximityTo(String propertyName, Integer distance, String searchTerms) {
-        return Collections.emptySet();
-    }
 }

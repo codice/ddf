@@ -165,6 +165,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         switch (functionName) {
         case "PropertyIsDivisibleBy":
             return propertyIsDivisibleBy(parameters);
+        case "proximity":
+            return propertyIsInProximityTo(parameters, literal);
         default:
             throw new UnsupportedOperationException(functionName + " is not supported.");
         }
@@ -794,27 +796,30 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return getXPathQuery(xpath, literal, false);
     }
 
-    @Override
-    public SolrQuery propertyIsInProximityTo(String propertyName, Integer distance, String searchTerms) {
-        return getProximityQuery(propertyName, distance, searchTerms, true);
+    public SolrQuery propertyIsInProximityTo(List<Object> arguments, Object literal) {
+        return propertyIsInProximityTo(arguments.get(0)
+                        .toString(),
+                Integer.parseInt(arguments.get(1)
+                        .toString()),
+                arguments.get(2)
+                        .toString(),
+                Boolean.parseBoolean(literal.toString()));
     }
 
-    @Override
-    public SolrQuery propertyIsNotInProximityTo(String propertyName, Integer distance, String searchTerms) {
-        return getProximityQuery(propertyName, distance, searchTerms, false);
-    }
-
-    private SolrQuery getProximityQuery(String propertyName, Integer distance, String searchTerms, boolean is) {
+    public SolrQuery propertyIsInProximityTo(String propertyName, Integer distance,
+            String searchTerms, boolean literal) {
         if (propertyName == null) {
             throw new UnsupportedOperationException("Property name should not be null.");
         }
 
         if (distance < 0) {
-            throw new UnsupportedOperationException("Distance should be greater than or equal to zero.");
+            throw new UnsupportedOperationException(
+                    "Distance should be greater than or equal to zero.");
         }
 
-        String not = is ? "" : "!";
-        String searchPhrase = QUOTE + escapeSpecialCharacters(searchTerms) + QUOTE + " ~" + distance;
+        String not = literal ? "" : "!";
+        String searchPhrase =
+                QUOTE + escapeSpecialCharacters(searchTerms) + QUOTE + " ~" + distance;
         SolrQuery query = new SolrQuery(wildcardSolrQuery(searchPhrase, propertyName, false));
         query.setQuery(not + query.getQuery());
         LOGGER.debug("Generated Query : {}", query.getQuery());

@@ -25,6 +25,7 @@ import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 
 import ddf.catalog.impl.filter.PropertyIsDivisibleByFunction;
+import ddf.catalog.impl.filter.ProximityFunction;
 
 /**
  * The ExtendedGeotoolsFunctionFactory is used to provide the GeoTools CommonFactoryFinder a list of custom
@@ -36,7 +37,9 @@ public class ExtendedGeotoolsFunctionFactory implements FunctionFactory {
 
     @Override
     public List<FunctionName> getFunctionNames() {
-        return Arrays.asList(PropertyIsFuzzyFunction.NAME, PropertyIsDivisibleByFunction.NAME);
+        return Arrays.asList(PropertyIsFuzzyFunction.NAME,
+                PropertyIsDivisibleByFunction.NAME,
+                ProximityFunction.NAME);
     }
 
     @Override

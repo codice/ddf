@@ -69,15 +69,4 @@ public class MetacardIdEqualityFilterDelegate extends SimpleFilterDelegate<Set<S
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
-
-    @Override
-    public Set<String> propertyIsInProximityTo(String propertyName, Integer distance, String searchTerm) {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public Set<String> propertyIsNotInProximityTo(String propertyName, Integer distance, String searchTerm) {
-        return Collections.emptySet();
-    }
-
 }

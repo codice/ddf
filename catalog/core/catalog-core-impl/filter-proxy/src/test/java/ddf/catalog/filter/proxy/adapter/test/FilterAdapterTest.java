@@ -611,14 +611,6 @@ public class FilterAdapterTest {
                 FF.literal(true)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testProximityFilterNoParameters() {
-        FunctionImpl function = new FunctionImpl();
-        function.setName("proximity");
-        assertFilterEquals("proximity(Test,1,property)=true", FF.equals(function,
-                FF.literal(true)));
-    }
-
     private void assertFilterFails(Filter filter) {
         FilterDelegate<String> delegate = new FilterToTextDelegate();
         FilterAdapter fa = new GeotoolsFilterAdapterImpl();
