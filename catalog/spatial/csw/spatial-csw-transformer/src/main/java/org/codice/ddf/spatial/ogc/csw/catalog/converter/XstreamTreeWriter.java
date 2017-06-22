@@ -26,6 +26,8 @@ public class XstreamTreeWriter {
 
     private static final Pattern NORMALIZE_NODE = Pattern.compile("\\[[0-9]+\\]");
 
+    private static final String PATH_SEP = "/";
+
     private PathTrackingWriter writer = null;
 
     private PathTracker tracker = null;
@@ -51,7 +53,7 @@ public class XstreamTreeWriter {
 
             if (value != null) {
 
-                if (currentPath.isAncestor(path) && path.toString()
+                if (isParent(currentPath, path) && path.toString()
                         .endsWith(node)) {
 
                     if (isAttributePath(path) && isAttributeNode(node)) {
@@ -62,6 +64,15 @@ public class XstreamTreeWriter {
             }
         }
 
+    }
+
+    /**
+     * Determine if currentPath is the parent of otherPath.
+     */
+    private boolean isParent(Path currentPath, Path otherPath) {
+        return !currentPath.relativeTo(otherPath)
+                .toString()
+                .contains(PATH_SEP);
     }
 
     private String normalizeNode(String node) {
@@ -80,7 +91,7 @@ public class XstreamTreeWriter {
                 if (value != null) {
 
                     if (currentPath.isAncestor(path) && path.toString()
-                            .endsWith("/" + node)) {
+                            .endsWith(PATH_SEP + node)) {
 
                         if (!isAttributeNode(node) && !isAttributePath(path)) {
 
