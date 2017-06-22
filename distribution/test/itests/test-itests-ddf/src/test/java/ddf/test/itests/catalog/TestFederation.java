@@ -27,6 +27,7 @@ import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSubscription;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearch;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -116,6 +117,7 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
+import com.jayway.restassured.response.ValidatableResponse;
 import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Condition;
@@ -386,11 +388,13 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testFederatedQueryByWildCardSearchPhrase() throws Exception {
-        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=xml&src=" + OPENSEARCH_SOURCE_ID;
+        ValidatableResponse response = getOpenSearch("xml",
+                null,
+                null,
+                "q=*",
+                "src=" + OPENSEARCH_SOURCE_ID);
 
-        when().get(queryUrl)
-                .then()
-                .assertThat()
+        response.assertThat()
                 .body(hasXPath(
                         "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
                                 + RECORD_TITLE_1 + "']"),
@@ -408,11 +412,13 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testAtomFederatedQueryByWildCardSearchPhrase() throws Exception {
-        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=atom&src=" + OPENSEARCH_SOURCE_ID;
+        ValidatableResponse response = getOpenSearch("atom",
+                null,
+                null,
+                "q=*",
+                "src=" + OPENSEARCH_SOURCE_ID);
 
-        when().get(queryUrl)
-                .then()
-                .assertThat()
+        response.assertThat()
                 .body(hasXPath("/feed/entry/title[text()='" + RECORD_TITLE_1 + "']"),
                         hasXPath("/feed/entry/title[text()='" + RECORD_TITLE_2 + "']"),
                         hasXPath("/feed/entry/content/metacard/geometry/value"));
@@ -426,12 +432,13 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testFederatedQueryBySearchPhrase() throws Exception {
-        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
-                + OPENSEARCH_SOURCE_ID;
+        ValidatableResponse response = getOpenSearch("xml",
+                null,
+                null,
+                "q=" + DEFAULT_KEYWORD,
+                "src=" + OPENSEARCH_SOURCE_ID);
 
-        when().get(queryUrl)
-                .then()
-                .assertThat()
+        response.assertThat()
                 .body(hasXPath(
                         "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
                                 + RECORD_TITLE_1 + "']"),
@@ -446,13 +453,16 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testFederatedSpatial() throws Exception {
-        String queryUrl = OPENSEARCH_PATH.getUrl()
-                + "?lat=10.0&lon=30.0&radius=250000&spatialType=POINT_RADIUS" + "&format=xml&src="
-                + OPENSEARCH_SOURCE_ID;
+        ValidatableResponse response = getOpenSearch("xml",
+                null,
+                null,
+                "lat=10.0",
+                "lon=30.0",
+                "radius=250000",
+                "spatialType=POINT_RADIUS",
+                "src=" + OPENSEARCH_SOURCE_ID);
 
-        when().get(queryUrl)
-                .then()
-                .assertThat()
+        response.assertThat()
                 .body(hasXPath(
                         "/metacards/metacard/string[@name='" + Metacard.TITLE + "']/value[text()='"
                                 + RECORD_TITLE_1 + "']"),
@@ -467,13 +477,16 @@ public class TestFederation extends AbstractIntegrationTest {
      */
     @Test
     public void testFederatedNegativeSpatial() throws Exception {
-        String queryUrl =
-                OPENSEARCH_PATH.getUrl() + "?lat=-10.0&lon=-30.0&radius=1&spatialType=POINT_RADIUS"
-                        + "&format=xml&src=" + OPENSEARCH_SOURCE_ID;
+        ValidatableResponse response = getOpenSearch("xml",
+                null,
+                null,
+                "lat=-10.0",
+                "lon=-30.0",
+                "radius=1",
+                "spatialType=POINT_RADIUS",
+                "src=" + OPENSEARCH_SOURCE_ID);
 
-        when().get(queryUrl)
-                .then()
-                .assertThat()
+        response.assertThat()
                 .body(not(containsString(RECORD_TITLE_1)), not(containsString(RECORD_TITLE_2)));
     }
 
@@ -485,13 +498,13 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testFederatedQueryByNegativeSearchPhrase() throws Exception {
         String negativeSearchPhrase = "negative";
-        String queryUrl =
-                OPENSEARCH_PATH.getUrl() + "?q=" + negativeSearchPhrase + "&format=xml&src="
-                        + OPENSEARCH_SOURCE_ID;
+        ValidatableResponse response = getOpenSearch("xml",
+                null,
+                null,
+                "q=" + negativeSearchPhrase,
+                "src=" + OPENSEARCH_SOURCE_ID);
 
-        when().get(queryUrl)
-                .then()
-                .assertThat()
+        response.assertThat()
                 .body(not(containsString(RECORD_TITLE_1)), not(containsString(RECORD_TITLE_2)));
     }
 
@@ -867,13 +880,13 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testOpensearchToCswSourceToCswEndpointQuerywithCswRecordXml() throws Exception {
+        ValidatableResponse response = getOpenSearch("xml",
+                null,
+                null,
+                "q=" + DEFAULT_KEYWORD,
+                "src=" + CSW_SOURCE_ID);
 
-        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
-                + CSW_SOURCE_ID;
-
-        when().get(queryUrl)
-                .then()
-                .assertThat()
+        response.assertThat()
                 .body(containsString(RECORD_TITLE_1),
                         containsString(RECORD_TITLE_2),
                         hasXPath("/metacards/metacard/string[@name='"
@@ -883,13 +896,13 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testOpensearchToCswSourceToCswEndpointQuerywithMetacardXml() throws Exception {
+        ValidatableResponse response = getOpenSearch("xml",
+                null,
+                null,
+                "q=" + DEFAULT_KEYWORD,
+                "src=" + CSW_SOURCE_WITH_METACARD_XML_ID);
 
-        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
-                + CSW_SOURCE_WITH_METACARD_XML_ID;
-
-        when().get(queryUrl)
-                .then()
-                .assertThat()
+        response.assertThat()
                 .body(containsString(RECORD_TITLE_1),
                         containsString(RECORD_TITLE_2),
                         hasXPath("/metacards/metacard/string[@name='"
@@ -899,13 +912,13 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @Test
     public void testOpensearchToGmdSourceToGmdEndpointQuery() throws Exception {
+        ValidatableResponse response = getOpenSearch("xml",
+                null,
+                null,
+                "q=" + RECORD_TITLE_1,
+                "src=" + GMD_SOURCE_ID);
 
-        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + RECORD_TITLE_1 + "&format=xml&src="
-                + GMD_SOURCE_ID;
-
-        when().get(queryUrl)
-                .then()
-                .assertThat()
+        response.assertThat()
                 .body(containsString(RECORD_TITLE_1),
                         hasXPath(
                                 "/metacards/metacard/stringxml/value/MD_Metadata/fileIdentifier/CharacterString",
@@ -924,7 +937,8 @@ public class TestFederation extends AbstractIntegrationTest {
         }
         */
 
-        given().auth().preemptive()
+        given().auth()
+                .preemptive()
                 .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
                 .when()
                 .get(ADMIN_ALL_SOURCES_PATH.getUrl())
@@ -938,7 +952,8 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testFederatedSourceStatus() {
         // Find and test OpenSearch Federated Source
-        String json = given().auth().preemptive()
+        String json = given().auth()
+                .preemptive()
                 .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
                 .when()
                 .get(ADMIN_ALL_SOURCES_PATH.getUrl())
@@ -2540,8 +2555,7 @@ public class TestFederation extends AbstractIntegrationTest {
         boolean isAllEventsReceived = false;
         boolean isUnexpectedEventReceived = false;
 
-        while (!isAllEventsReceived && !isUnexpectedEventReceived
-                && millis < MINUTES.toMillis(2)) {
+        while (!isAllEventsReceived && !isUnexpectedEventReceived && millis < MINUTES.toMillis(2)) {
 
             Set<String> foundIds;
 

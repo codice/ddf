@@ -17,6 +17,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.matchers.ConfigurationPropertiesEqualTo.equalToConfigurationProperties;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearch;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -24,7 +25,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static com.jayway.restassured.RestAssured.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +63,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.path.xml.element.NodeChildren;
-import com.jayway.restassured.response.Response;
+import com.jayway.restassured.response.ValidatableResponse;
 
 /**
  * Note: Tests prefixed with aRunFirst NEED to run before any other tests.  For this reason, we
@@ -178,6 +178,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
+    private static final String FELIX_FILE_INSTALLER = "org.apache.felix.fileinstall";
+
     private static Path symbolicLink;
 
     private static ManagedServiceConfigFile managedServiceStartupConfig =
@@ -203,8 +205,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private static ManagedServiceConfigFile invalidStartupConfigFile = new ManagedServiceConfigFile(
             "ddf.test.itests.platform.TestPlatform.startup.invalid");
-
-    private static final String FELIX_FILE_INSTALLER = "org.apache.felix.fileinstall";
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -709,11 +709,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
     }
 
     private void assertMetacardsIngested(int expectedumberOfMetacards) throws Exception {
-        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=xml&src=local";
-        Response response = when().get(queryUrl);
-        String bodyXml = response.body()
+        ValidatableResponse response = getOpenSearch("xml", null, null, "q=*", "src=local");
+        String bodyXml = response.extract()
+                .body()
                 .asString();
-
         NodeChildren metacards = new XmlPath(bodyXml).get("metacards.metacard");
 
         assertThat(metacards.size(), is(expectedumberOfMetacards));
@@ -1217,4 +1216,3 @@ public class TestConfiguration extends AbstractIntegrationTest {
     }
 
 }
-
