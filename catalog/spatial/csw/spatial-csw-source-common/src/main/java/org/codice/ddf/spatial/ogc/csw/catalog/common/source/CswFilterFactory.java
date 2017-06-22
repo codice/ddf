@@ -57,7 +57,6 @@ import net.opengis.filter.v_1_1_0.BBOXType;
 import net.opengis.filter.v_1_1_0.BinaryComparisonOpType;
 import net.opengis.filter.v_1_1_0.BinaryLogicOpType;
 import net.opengis.filter.v_1_1_0.BinarySpatialOpType;
-import net.opengis.filter.v_1_1_0.ComparisonOpsType;
 import net.opengis.filter.v_1_1_0.DistanceBufferType;
 import net.opengis.filter.v_1_1_0.DistanceType;
 import net.opengis.filter.v_1_1_0.FeatureIdType;
@@ -67,7 +66,6 @@ import net.opengis.filter.v_1_1_0.LiteralType;
 import net.opengis.filter.v_1_1_0.LowerBoundaryType;
 import net.opengis.filter.v_1_1_0.ObjectFactory;
 import net.opengis.filter.v_1_1_0.PropertyIsBetweenType;
-import net.opengis.filter.v_1_1_0.PropertyIsDivisibleByType;
 import net.opengis.filter.v_1_1_0.PropertyIsFuzzyType;
 import net.opengis.filter.v_1_1_0.PropertyIsLikeType;
 import net.opengis.filter.v_1_1_0.PropertyIsNullType;
@@ -870,23 +868,6 @@ public class CswFilterFactory {
         filter.setComparisonOps(filterObjectFactory.createPropertyIsEqualTo(propertyIsEqualTo));
 
         return filter;
-    }
-
-    public FilterType buildPropertyIsDivisibleBy(String propertyName, Long literal) {
-        FilterType filter = new FilterType();
-        filter.setComparisonOps(createPropertyIsDivisibleBy(propertyName, literal));
-        return filter;
-    }
-
-    private JAXBElement<? extends ComparisonOpsType> createPropertyIsDivisibleBy(
-            String propertyName, Long literal) {
-        PropertyIsDivisibleByType propertyIsDivisibleByType = new PropertyIsDivisibleByType();
-
-        propertyIsDivisibleByType.setPropertyName(createPropertyNameType(Arrays.asList(new Object[] {
-                propertyName})).getValue());
-        propertyIsDivisibleByType.setLiteral(createLiteralType(literal).getValue());
-
-        return filterObjectFactory.createPropertyIsDivisibleBy(propertyIsDivisibleByType);
     }
 
 }

@@ -24,7 +24,7 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 
-import ddf.catalog.impl.filter.PropertyIsDivisibleByFunction;
+import ddf.catalog.impl.filter.DivisibleByFunction;
 import ddf.catalog.impl.filter.ProximityFunction;
 
 /**
@@ -37,8 +37,7 @@ public class ExtendedGeotoolsFunctionFactory implements FunctionFactory {
 
     @Override
     public List<FunctionName> getFunctionNames() {
-        return Arrays.asList(PropertyIsFuzzyFunction.NAME,
-                PropertyIsDivisibleByFunction.NAME,
+        return Arrays.asList(PropertyIsFuzzyFunction.NAME, DivisibleByFunction.NAME,
                 ProximityFunction.NAME);
     }
 
@@ -56,9 +55,9 @@ public class ExtendedGeotoolsFunctionFactory implements FunctionFactory {
             return new PropertyIsFuzzyFunction(args, fallback);
         }
 
-        if (PropertyIsDivisibleByFunction.NAME.getName()
+        if (DivisibleByFunction.NAME.getName()
                 .equals(name.getLocalPart())) {
-            return new PropertyIsDivisibleByFunction(args, fallback);
+            return new DivisibleByFunction(args, fallback);
         }
 
         return null; // we do not implement that function

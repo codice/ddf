@@ -25,27 +25,24 @@ import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 
 /**
- * The PropertyIsDivisibleByFunction contains two parameters that can be used to build a filter.
+ * The DivisibleByFunction contains two parameters that can be used to build a filter.
  */
-public class PropertyIsDivisibleByFunction extends FunctionExpressionImpl {
+public class DivisibleByFunction extends FunctionExpressionImpl {
     public static final int NUM_PARAMETERS = 2;
 
-    public static final String NAME_STR = "PropertyIsDivisibleBy";
+    public static final String FUNCTION_NAME = "divisibleBy";
 
-    public static final String FUNCTION_NAME = "PropertyIsDivisibleBy";
-
-    public static final FunctionName NAME = FunctionExpressionImpl.functionName(NAME_STR,
+    public static final FunctionName NAME = FunctionExpressionImpl.functionName(FUNCTION_NAME,
             "result:Boolean",
             "property:String",
             "divisor:Long");
 
-    public PropertyIsDivisibleByFunction(List<Expression> parameters, Literal fallback) {
+    public DivisibleByFunction(List<Expression> parameters, Literal fallback) {
         super(FUNCTION_NAME, fallback);
 
         notNull(parameters, "Parameters are required");
         isTrue(parameters.size() == NUM_PARAMETERS,
-                String.format("%s expression requires at least %s parameters",
-                        NAME_STR,
+                String.format("%s expression requires at least %s parameters", FUNCTION_NAME,
                         NUM_PARAMETERS));
 
         if (!(parameters.get(0) instanceof PropertyName)) {
@@ -57,7 +54,7 @@ public class PropertyIsDivisibleByFunction extends FunctionExpressionImpl {
 
         //TODO we could cast the arguments here to the correct object so that it doen't need to be done in the filter delegates
 
-        setName(NAME_STR);
+        setName(FUNCTION_NAME);
         setParameters(parameters);
         setFallbackValue(fallback);
         functionName = NAME;

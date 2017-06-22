@@ -165,7 +165,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         String not;
         SolrQuery query;
         switch (functionName) {
-        case "PropertyIsDivisibleBy":
+        case "divisibleBy":
             //the return type is boolean so cast the literal to boolean and in effect this is just a NOT so we will update the query as such
             not = Boolean.parseBoolean(literal.toString()) ? "" : "!";
             query = propertyIsDivisibleBy(parameters);

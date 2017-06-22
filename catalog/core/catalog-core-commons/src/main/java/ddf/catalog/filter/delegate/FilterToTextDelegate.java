@@ -24,7 +24,7 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
     @Override
     public String propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
         switch (functionName) {
-        case "PropertyIsDivisibleBy":
+        case "divisibleBy":
             return propertyIsDivisibleBy(arguments);
         case "proximity":
             return propertyIsInProximityTo(arguments, literal);

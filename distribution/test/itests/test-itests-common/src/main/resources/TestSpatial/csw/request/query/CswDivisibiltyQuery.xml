@@ -21,7 +21,7 @@
         <csw:Constraint version="1.1.0">
             <ogc:Filter>
                 <ogc:PropertyIsEqualTo>
-                    <ogc:Function name="PropertyIsDivisibleBy">
+                    <ogc:Function name="divisibleBy">
                         <ogc:PropertyName>singlelong</ogc:PropertyName>
                         <ogc:Literal>2</ogc:Literal>
                     </ogc:Function>

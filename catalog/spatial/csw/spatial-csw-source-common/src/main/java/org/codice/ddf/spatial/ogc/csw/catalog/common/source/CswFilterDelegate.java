@@ -677,30 +677,6 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         }
     }
 
-    public FilterType propertyIsDivisibleBy(List<Object> arguments) {
-        if (arguments.size() != 2) {
-            throw new UnsupportedOperationException("Required number of arguments not found");
-        }
-        try {
-            Integer divisor = Integer.parseInt(arguments.get(1)
-                    .toString());
-            return propertyIsDivisibleBy(arguments.get(0)
-                    .toString(), divisor);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Divisor argument was not valid");
-        }
-    }
-
-    public FilterType propertyIsDivisibleBy(String propertyName, long literal) {
-        isComparisonOperationSupported(ComparisonOperatorType.DIVISIBLE_BY);
-        propertyName = mapPropertyName(propertyName);
-        if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory.buildPropertyIsDivisibleBy(propertyName, literal);
-        } else {
-            return new FilterType();
-        }
-    }
-
     @Override
     public FilterType propertyIsBetween(String propertyName, String lowerBoundary,
             String upperBoundary) {

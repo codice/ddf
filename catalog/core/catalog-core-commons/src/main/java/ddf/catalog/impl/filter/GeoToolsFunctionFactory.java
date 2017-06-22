@@ -32,8 +32,7 @@ public class GeoToolsFunctionFactory implements FunctionFactory {
 
     private static final List<FunctionName> FUNCTION_NAMES =
             Collections.unmodifiableList(Arrays.asList(FuzzyFunction.NAME,
-                    ProximityFunction.NAME,
-                    PropertyIsDivisibleByFunction.NAME));
+                    ProximityFunction.NAME, DivisibleByFunction.NAME));
 
     @Override
     public List<FunctionName> getFunctionNames() {
@@ -63,10 +62,10 @@ public class GeoToolsFunctionFactory implements FunctionFactory {
             return new ProximityFunction(args, fallback);
         }
 
-        if (PropertyIsDivisibleByFunction.NAME.getName()
+        if (DivisibleByFunction.NAME.getName()
                 .equals(name.getLocalPart())) {
-            LOGGER.trace("Inside function : returning {}", PropertyIsDivisibleByFunction.NAME);
-            return new PropertyIsDivisibleByFunction(args, fallback);
+            LOGGER.trace("Inside function : returning {}", DivisibleByFunction.NAME);
+            return new DivisibleByFunction(args, fallback);
         }
 
         LOGGER.trace("EXITING: {} - returning null", methodName);
