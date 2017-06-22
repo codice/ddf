@@ -20,6 +20,8 @@
 
     <systemSuffix systemIdSuffix="filter.xsd"
                   uri="maven:org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar::!/filter/1.1.0/filter.xsd"/>
+    <systemSuffix systemIdSuffix="filterAll.xsd"
+                  uri="maven:org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar::!/filter/1.1.0/filterAll.xsd"/>
     <systemSuffix systemIdSuffix="expr.xsd"
                   uri="maven:org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar::!/filter/1.1.0/expr.xsd"/>
     <systemSuffix systemIdSuffix="filterCapabilities.xsd"

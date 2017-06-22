@@ -561,7 +561,7 @@ public class CswFilterFactory {
          * correct this, we fixed filter.xsd and rebuilt the JAXB bindings (see project
          * ogc-filter-v_1_1_0-schema-bindings).
          */
-        distanceType.setContent(String.valueOf(distance));
+        distanceType.setValue(distance);
         return distanceType;
     }
 
@@ -803,7 +803,8 @@ public class CswFilterFactory {
     private BinarySpatialOpType createBinarySpatialOpTypeUsingGeometry(
             PropertyNameType propertyName, JAXBElement<? extends AbstractGeometryType> geometry) {
         BinarySpatialOpType binarySpatialOpType = new BinarySpatialOpType();
-        binarySpatialOpType.setPropertyName(propertyName);
+        binarySpatialOpType.getPropertyName()
+                .add(propertyName);
         binarySpatialOpType.setGeometry((JAXBElement<AbstractGeometryType>) geometry);
         return binarySpatialOpType;
     }
@@ -811,7 +812,8 @@ public class CswFilterFactory {
     private BinarySpatialOpType createBinarySpatialOpTypeUsingEnvelope(
             PropertyNameType propertyName, JAXBElement<EnvelopeType> envelope) {
         BinarySpatialOpType binarySpatialOpType = new BinarySpatialOpType();
-        binarySpatialOpType.setPropertyName(propertyName);
+        binarySpatialOpType.getPropertyName()
+                .add(propertyName);
         binarySpatialOpType.setEnvelope(envelope);
         return binarySpatialOpType;
     }
