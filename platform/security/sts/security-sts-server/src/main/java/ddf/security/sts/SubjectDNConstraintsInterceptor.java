@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.security.AccessDeniedException;
 import org.apache.cxf.message.Message;
@@ -41,11 +42,10 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
     }
 
     /**
-     * Return true if the provided certificate matches the regular expression
+     * Checks if the provided certificate matches the regular expression
      * defined in the Subject DN Certificate Constraints.
      *
      * @param message
-     * @return true if the certificate matches the constraints
      */
     @Override
     public void handleMessage(Message message) throws Fault {
@@ -72,10 +72,10 @@ public class SubjectDNConstraintsInterceptor extends AbstractPhaseInterceptor<Me
         }
     }
 
-    public Collection<Pattern> setSubjectDNPatterns(String subjectDNConstraints) {
+    Collection<Pattern> setSubjectDNPatterns(String subjectDNConstraints) {
         ArrayList<Pattern> subjectDNPatterns = new ArrayList<>();
-        if (subjectDNConstraints != null) {
-            String[] patterns = subjectDNConstraints.split(",");
+        if (StringUtils.isNotEmpty(subjectDNConstraints)) {
+            String[] patterns = subjectDNConstraints.split("\\|");
             for (String pattern : patterns) {
                 Pattern p = Pattern.compile(pattern);
                 subjectDNPatterns.add(p);
