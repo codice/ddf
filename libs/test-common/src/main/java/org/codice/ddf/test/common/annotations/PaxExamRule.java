@@ -11,12 +11,12 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.itests.common.annotations;
+package org.codice.ddf.test.common.annotations;
 
 import static org.junit.Assert.fail;
 
 import java.lang.annotation.Annotation;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.test.common.LoggingUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -32,10 +32,23 @@ import org.slf4j.LoggerFactory;
  * integration tests. There should only be one instance of the PaxExamRule for a test class,
  * including its super classes.
  *
- * <p><code>
+ * <p>
  *
- * @Rule public PaxExamRule paxExamRule = new PaxExamRule(this);
- * </code>
+ * <pre>
+ * public class TestClass {
+ *    {@literal @}Rule
+ *     public PaxExamRule paxExamRule = new PaxExamRule(this);
+ *
+ *    {@literal @}BeforeExam
+ *     public void beforeExam() {
+ *         // ...
+ *     }
+ *
+ *    {@literal @}AfterExam
+ *     public void afterExam() {
+ *         // ...
+ *     }
+ * </pre>
  */
 public class PaxExamRule implements TestRule {
 

@@ -40,5 +40,6 @@
         <module>owasp-diff-runner</module>
         <module>spock-shaded</module>
         <module>alerts</module>
+        <module>test-common</module>
     </modules>
 </project>

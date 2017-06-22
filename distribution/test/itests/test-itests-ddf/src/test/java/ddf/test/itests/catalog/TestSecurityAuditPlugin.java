@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.WaitCondition;
-import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

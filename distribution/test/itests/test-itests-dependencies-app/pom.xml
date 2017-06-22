@@ -28,7 +28,6 @@
     <properties>
         <httpcore.version>4.4.5</httpcore.version>
         <httpclient.version>4.5.2</httpclient.version>
-        <hamcrest-all.servicemix.version>1.3_1</hamcrest-all.servicemix.version>
         <commons-codec.servicemix.version>1.3_5</commons-codec.servicemix.version>
     </properties>
 
@@ -36,6 +35,11 @@
         <dependency>
             <groupId>ddf.test.itests</groupId>
             <artifactId>test-itests-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>test-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
