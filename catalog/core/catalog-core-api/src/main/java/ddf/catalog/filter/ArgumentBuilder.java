@@ -16,7 +16,7 @@ package ddf.catalog.filter;
 import java.util.Date;
 
 /**
- * Completes the fluent API to create a {@link org.opengis.filter.Filter} that takes N parameters.
+ * Completes the fluent API to create a {@link org.opengis.filter.Filter} for a function that takes N parameters.
  */
 public interface ArgumentBuilder {
 
@@ -126,11 +126,11 @@ public interface ArgumentBuilder {
     ArgumentBuilder attributeArg(String name);
 
     /**
-     * We only support propertyIsEqualTo(Function,val) currently so instead supporting ExpressionBuilder is() we just support equalTo
+     * Currently only propertyIsEqualTo(Function,val) is supported so instead supporting ExpressionBuilder is() the api just has equalTo
      * <p>
      * Continue building a Filter with the "equal to" operator ( {@link org.opengis.filter.PropertyIsEqualTo})
      *
-     * @return {@link NumericalExpressionBuilder} to continue building the {@link Filter}
+     * @return {@link NumericalExpressionBuilder} to continue building the {@link org.opengis.filter.Filter}
      */
     EqualityExpressionBuilder equalTo();
 

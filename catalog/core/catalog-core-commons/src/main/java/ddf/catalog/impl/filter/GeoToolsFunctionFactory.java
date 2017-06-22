@@ -27,7 +27,6 @@ import org.opengis.filter.expression.Literal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//todo (RWY) - this looks similar to ExtendedGeoToolsFunctionFactory can we get rid of one of them?
 public class GeoToolsFunctionFactory implements FunctionFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoToolsFunctionFactory.class);
 

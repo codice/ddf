@@ -86,10 +86,10 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     /**
      * Instantiates a CswFilterDelegate instance
      *
-     * @param getRecordsOp       An {@link Operation} for the getRecords feature of the Csw service
-     * @param filterCapabilities The {@link FilterCapabilities} understood by the Csw service
-     * @param outputFormatValues An {@link DomainType} containing a list of valid Output Formats supported
-     * @param resultTypesValues  An {@link DomainType} containing a list of Result Types supported
+     * @param getRecordsOp       An {@link net.opengis.ows.v_1_0_0.Operation} for the getRecords feature of the Csw service
+     * @param filterCapabilities The {@link net.opengis.filter.v_1_1_0.FilterCapabilities} understood by the Csw service
+     * @param outputFormatValues An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of valid Output Formats supported
+     * @param resultTypesValues  An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of Result Types supported
      */
     public CswFilterDelegate(Operation getRecordsOp, FilterCapabilities filterCapabilities,
             DomainType outputFormatValues, DomainType resultTypesValues,
@@ -105,10 +105,12 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     public FilterType propertyIsEqualTo(String functionName, List<Object> arguments,
             Object literal) {
         switch (functionName) {
-        case "PropertyIsDivisibleBy":
-            return propertyIsDivisibleBy(arguments);
         default:
-            throw new UnsupportedOperationException(functionName + " is not supported.");
+            //this assumes the first argument is a property name followed by 0-N literals if a new
+            //function is added that doesn't conform to this then a case will need to be added
+            //that calls its own builder method
+            return cswFilterFactory.buildPropertyIsEqualTo(functionName, arguments, literal);
+
         }
     }
 

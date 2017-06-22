@@ -130,7 +130,6 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         throw new UnsupportedOperationException(Divide.NAME + " expression not supported.");
     }
 
-    //TODO (RWY) not sure what this visit should do?
     @Override
     public Object visit(Function expression, Object delegate) {
         if (expression == null) {
@@ -138,6 +137,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                     Function.class.getSimpleName() + " must not be null.");
         }
 
+        //unwrap the function arguments and return them
         return expression.getParameters()
                 .stream()
                 .map(e -> visit(e, delegate))
@@ -168,6 +168,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         throw new UnsupportedOperationException(Subtract.NAME + " expresssion not supported.");
     }
 
+    //helper method because we are extending two visitor classes its confusing that you have to do
+    //accept to start visiting expressions inside of a filter
     protected Object visit(Expression expression, Object extraData) {
         if (expression == null) {
             return null;
@@ -185,6 +187,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
     public Object visit(IncludeFilter filter, Object delegate) {
         return ((FilterDelegate<?>) delegate).include();
+
     }
 
     public Object visit(Id filter, Object delegate) {

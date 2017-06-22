@@ -100,6 +100,12 @@ public class CopyFilterDelegate extends FilterDelegate<Filter> {
     }
 
     @Override
+    public Filter propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
+        throw new UnsupportedOperationException(
+                "propertyIsEqualTo(String,List,Object) not supported by CopyFilterDelegate.");
+    }
+
+    @Override
     public Filter propertyIsEqualTo(String propertyName, Date literal) {
         return filterBuilder.attribute(propertyName)
                 .equalTo()

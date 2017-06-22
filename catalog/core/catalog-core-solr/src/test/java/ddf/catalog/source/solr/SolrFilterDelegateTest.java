@@ -488,10 +488,7 @@ public class SolrFilterDelegateTest {
         stub(mockResolver.getWhitespaceTokenizedField("title_txt")).toReturn("title_txt_ws");
 
         String expectedQuery = "(title_txt_ws:\"a proximity string\" ~2)";
-        SolrQuery solrQuery = toTest.propertyIsInProximityTo(Core.TITLE,
-                2,
-                "a proximity string",
-                true);
+        SolrQuery solrQuery = toTest.propertyIsInProximityTo(Core.TITLE, 2, "a proximity string");
 
         assertThat(solrQuery.getQuery(), is(expectedQuery));
     }

@@ -62,6 +62,7 @@ import net.opengis.filter.v_1_1_0.DistanceBufferType;
 import net.opengis.filter.v_1_1_0.DistanceType;
 import net.opengis.filter.v_1_1_0.FeatureIdType;
 import net.opengis.filter.v_1_1_0.FilterType;
+import net.opengis.filter.v_1_1_0.FunctionType;
 import net.opengis.filter.v_1_1_0.LiteralType;
 import net.opengis.filter.v_1_1_0.LowerBoundaryType;
 import net.opengis.filter.v_1_1_0.ObjectFactory;
@@ -836,6 +837,39 @@ public class CswFilterFactory {
         }
 
         return binarySpatialOpType;
+    }
+
+    //default implementation just assume the first argument is a parameter name and the rest are values
+    public FilterType buildPropertyIsEqualTo(String functionName, List<Object> arguments,
+            Object literal) {
+        List<JAXBElement<?>> expressions = new ArrayList<>();
+        for (int i = 0; i < arguments.size(); i++) {
+            if (i == 0) {
+                expressions.add(createPropertyNameType(Arrays.asList(new Object[] {
+                        arguments.get(i)})));
+            } else {
+                expressions.add(createLiteralType(arguments.get(i)));
+            }
+        }
+        return createPropertyIsEqualTo(functionName, expressions, literal);
+    }
+
+    public FilterType createPropertyIsEqualTo(String functionName,
+            List<? extends JAXBElement<?>> arguments, Object literal) {
+
+        FunctionType function = new FunctionType();
+        function.setName(functionName);
+        function.getExpression()
+                .addAll(arguments);
+        FilterType filter = new FilterType();
+        BinaryComparisonOpType propertyIsEqualTo = new BinaryComparisonOpType();
+        propertyIsEqualTo.getExpression()
+                .add(filterObjectFactory.createFunction(function));
+        propertyIsEqualTo.getExpression()
+                .add(createLiteralType(literal));
+        filter.setComparisonOps(filterObjectFactory.createPropertyIsEqualTo(propertyIsEqualTo));
+
+        return filter;
     }
 
     public FilterType buildPropertyIsDivisibleBy(String propertyName, Long literal) {
