@@ -92,7 +92,7 @@ public class ValidateCommand extends CqlCommands {
                 metacards = getMetacardsFromCatalog();
             } else {
                 printer.printError(
-                        "Usage: catalog:validate < --path filePath > < --cqlQuery cqlQuery >");
+                        "Usage: catalog:validate < --path filePath > < --cql cqlQuery >");
                 return null;
             }
 
