@@ -15,6 +15,7 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -40,7 +41,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
@@ -112,14 +112,14 @@ public class ExportCommand extends CqlCommands {
     private JarSigner jarSigner = new JarSigner();
 
     @Reference
-    private StorageProvider storageProvider;
+    protected StorageProvider storageProvider;
 
     @Option(name = "--output", description = "Output file to export Metacards and contents into. Paths are absolute and must be in quotes. Will default to auto generated name inside of ddf.home", multiValued = false, required = false, aliases = {
             "-o"})
     String output = Paths.get(System.getProperty("ddf.home"), FILE_NAMER.get())
             .toString();
 
-    @Option(name = "--delete", required = true, multiValued = false, description = "Delete Metacards and content after export. EG: --delete=true or --delete=false")
+    @Option(name = "--delete", required = true, multiValued = false, description = "Delete Metacards and content after export. E.g., --delete=true or --delete=false")
     boolean delete = false;
 
     @Option(name = "--archived", required = false, aliases = {"-a",
@@ -146,20 +146,20 @@ public class ExportCommand extends CqlCommands {
         final File outputFile = initOutputFile(output);
         if (outputFile.exists()) {
             printErrorMessage(String.format("File [%s] already exists!", outputFile.getPath()));
-            throw new IllegalStateException("File already exists!");
+            throw new IllegalStateException("File already exists");
         }
 
         final File parentDirectory = outputFile.getParentFile();
         if (parentDirectory == null || !parentDirectory.isDirectory()) {
             printErrorMessage(String.format("Directory [%s] must exist.", output));
             console.println("If the directory does indeed exist, try putting the path in quotes.");
-            throw new IllegalStateException("Must be inside of a directory!");
+            throw new IllegalStateException("Must be inside of a directory");
         }
 
         String filename = FilenameUtils.getName(outputFile.getPath());
         if (StringUtils.isBlank(filename) || !filename.endsWith(".zip")) {
             console.println("Filename must end with '.zip' and not be blank");
-            throw new IllegalStateException("Must not be blank and end with '.zip'!");
+            throw new IllegalStateException("Filename must not be blank and must end with '.zip'");
         }
 
         if (delete && !force) {
@@ -188,7 +188,6 @@ public class ExportCommand extends CqlCommands {
         console.println("Metacards exported in: " + getFormattedDuration(start));
         console.println("Number of metacards exported: " + exportedItems.size());
         console.println();
-
 
         SecurityLogger.audit("Ids of exported metacards and content:\n{}",
                 exportedItems.stream()
@@ -222,6 +221,7 @@ public class ExportCommand extends CqlCommands {
                     System.getProperty("javax.net.ssl.keyStorePassword"));
             console.println("zip file signed in: " + getFormattedDuration(start));
         }
+
         console.println("Export complete.");
         console.println("Exported to: " + zipFile.getFile()
                 .getCanonicalPath());
@@ -427,8 +427,23 @@ public class ExportCommand extends CqlCommands {
         String id = exportItem.getId();
         String path = getContentPath(id, resource);
         parameters.setFileNameInZip(path);
-        zipFile.addStream(resource.getResource()
-                .getInputStream(), parameters);
+        try (InputStream resourceStream = resource.getResource()
+                .getInputStream()) {
+            zipFile.addStream(resourceStream, parameters);
+        } catch (IOException e) {
+            LOGGER.warn("Could not get content. Content will not be included in export [{}]",
+                    exportItem.getId());
+            console.printf(
+                    "%sCould not get Content. Content will not be included in export. %s (%s)%s%n",
+                    Ansi.ansi()
+                            .fg(Ansi.Color.RED)
+                            .toString(),
+                    exportItem.getId(),
+                    exportItem.getResourceUri(),
+                    Ansi.ansi()
+                            .reset()
+                            .toString());
+        }
     }
 
     private String getContentPath(String id, ResourceResponse resource) {
@@ -469,11 +484,13 @@ public class ExportCommand extends CqlCommands {
         try {
             BinaryContent binaryMetacard = transformer.transform(result.getMetacard(),
                     Collections.emptyMap());
-            zipFile.addStream(binaryMetacard.getInputStream(), parameters);
+            try (InputStream metacard = binaryMetacard.getInputStream()) {
+                zipFile.addStream(metacard, parameters);
+            }
         } catch (ZipException e) {
             LOGGER.error("Error processing result and adding to ZIP", e);
             throw new CatalogCommandRuntimeException(e);
-        } catch (CatalogTransformerException e) {
+        } catch (CatalogTransformerException | IOException e) {
             LOGGER.warn("Could not transform metacard. Metacard will not be added to zip [{}]",
                     result.getMetacard()
                             .getId());
@@ -570,11 +587,4 @@ public class ExportCommand extends CqlCommands {
                 TimeUnit.MINUTES.toMillis(1)), new HashMap<>());
     }
 
-    public void setStorageProvider(StorageProvider storageProvider) {
-        this.storageProvider = storageProvider;
-    }
-
-    public void setJarSigner(JarSigner jarSigner) {
-        this.jarSigner = jarSigner;
-    }
 }
