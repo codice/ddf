@@ -84,7 +84,7 @@
     "geo-convex-hull": "1.2.0",
     "golden-layout": "1.5.8",
     "handlebars": "4.0.5",
-    "jquery": "1.12.4",
+    "jquery": "2.2.4",
     "jquery-ui": "1.12.1",
     "less-vars-to-js": "1.1.2",
     "lodash.get": "4.4.2",
