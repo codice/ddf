@@ -26,9 +26,7 @@ define([
     'backboneassociations',
     'modelbinder',
     'collectionbinder',
-    'datepicker',
-    'multiselect',
-    'multiselectfilter'
+    'multiselect'
 ], function ($, _, Marionette, Backbone, properties, maptype, header, footer) {
     var Application = {};
     Application.App = new Marionette.Application();
