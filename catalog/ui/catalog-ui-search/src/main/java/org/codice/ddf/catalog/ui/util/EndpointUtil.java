@@ -37,7 +37,6 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -73,8 +72,6 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public class EndpointUtil {
 
-    public int querySize;
-
     private final List<MetacardType> metacardTypes;
 
     private final CatalogFramework catalogFramework;
@@ -86,6 +83,8 @@ public class EndpointUtil {
     private final AttributeRegistry attributeRegistry;
 
     private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
+    private int querySize;
 
     public EndpointUtil(List<MetacardType> metacardTypes, CatalogFramework catalogFramework,
             FilterBuilder filterBuilder, List<InjectableAttribute> injectableAttributes,
@@ -176,7 +175,7 @@ public class EndpointUtil {
     public Map<String, Result> getMetacards(String attributeName, Collection<String> ids,
             String tag)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-        return getMetacards(null,
+        return getMetacards(Collections.emptyList(),
                 attributeName,
                 ids,
                 filterBuilder.attribute(Metacard.TAGS)
@@ -185,7 +184,7 @@ public class EndpointUtil {
                         .text(tag));
     }
 
-    public Map<String, Result> getMetacards(@Nullable List<String> writableSources, String attributeName, Collection<String> ids,
+    public Map<String, Result> getMetacards(List<String> writableSources, String attributeName, Collection<String> ids,
             Filter tagFilter)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         if (ids.isEmpty()) {
