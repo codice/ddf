@@ -174,7 +174,7 @@ public final class CatalogMetrics
                 temporalQueries.mark();
             }
             if (queryType.isFunction()) {
-                temporalQueries.mark();
+                functionQueries.mark();
             }
         } catch (UnsupportedQueryException e) {
             // ignore filters not supported by the QueryTypeFilterDelegate

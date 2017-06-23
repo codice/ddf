@@ -14,7 +14,9 @@
 package ddf.catalog.filter.proxy.builder;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.geotools.filter.FilterFactoryImpl;
@@ -44,9 +46,7 @@ import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.catalog.impl.filter.JTSGeometryWrapper;
 
 /**
- *
  * @author michael.menousek@lmco.com
- *
  */
 class GeotoolsBuilder {
 
@@ -55,8 +55,7 @@ class GeotoolsBuilder {
     // match units assigned elsewhere throughout DDF
     private static final String METERS = UomOgcMapping.METRE.name();
 
-    private static final Logger LOGGER =
-             LoggerFactory.getLogger(GeotoolsBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeotoolsBuilder.class);
 
     private static WKTReader reader = new WKTReader();
 
@@ -73,17 +72,27 @@ class GeotoolsBuilder {
 
     private Object secondaryValue;
 
+    private String functionName;
+
+    private List<Expression> arguments = Collections.emptyList();
+
     GeotoolsBuilder() {
-        this(null, null);
+        this(null, null, null, Collections.emptyList());
     }
 
     protected GeotoolsBuilder(GeotoolsBuilder builder) {
-        this(builder.getAttribute(), builder.getOperator());
+        this(builder.getAttribute(),
+                builder.getOperator(),
+                builder.getFunctionName(),
+                builder.getArguments());
     }
 
-    private GeotoolsBuilder(String attribute, Operator operator) {
+    private GeotoolsBuilder(String attribute, Operator operator, String functionName,
+            List<Expression> arguments) {
         this.attribute = attribute;
         this.operator = operator;
+        this.functionName = functionName;
+        this.arguments = arguments;
         parser.setFactory(new PrimitiveFactoryImpl(DefaultGeographicCRS.WGS84));
     }
 
@@ -97,12 +106,17 @@ class GeotoolsBuilder {
 
     protected Filter build() {
 
-        LOGGER.debug("BUILDING attribute = {}, operator = {}, value = {}, secondaryValue = {}", attribute, operator, value, secondaryValue);
+        LOGGER.debug("BUILDING attribute = {}, operator = {}, value = {}, secondaryValue = {}",
+                attribute,
+                operator,
+                value,
+                secondaryValue);
 
         Filter filter = null;
         String wkt = null;
         Date date = null;
         double distance = 0;
+        Expression expression = null;
 
         switch (operator) {
         case AFTER:
@@ -143,7 +157,13 @@ class GeotoolsBuilder {
             }
             break;
         case EQ:
-            filter = factory.equals(factory.property(attribute), factory.literal(value));
+            if (functionName != null) {
+                expression = factory.function(functionName, arguments.toArray(new Expression[0]));
+            } else {
+                expression = factory.property(attribute);
+            }
+
+            filter = factory.equals(expression, factory.literal(value));
             break;
         case GT:
             filter = factory.greater(factory.property(attribute), factory.literal(value));
@@ -207,7 +227,7 @@ class GeotoolsBuilder {
                     getSecondaryValue(Boolean.class));
             break;
         case FUZZY:
-            Expression expression = factory.property(attribute);
+            expression = factory.property(attribute);
             filter = factory.like(new FuzzyFunction(Arrays.asList(expression),
                             factory.literal(Metacard.ANY_TEXT)),
                     getValue(String.class),
@@ -249,6 +269,22 @@ class GeotoolsBuilder {
         return convertedValue;
     }
 
+    String getFunctionName() {
+        return functionName;
+    }
+
+    protected void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    List<Expression> getArguments() {
+        return arguments;
+    }
+
+    protected void setArguments(List<Expression> arguments) {
+        this.arguments = arguments;
+    }
+
     /**
      * @return the attribute
      */
@@ -257,8 +293,7 @@ class GeotoolsBuilder {
     }
 
     /**
-     * @param attribute
-     *            the attribute to set
+     * @param attribute the attribute to set
      */
     protected void setAttribute(String attribute) {
         this.attribute = attribute;
@@ -284,8 +319,7 @@ class GeotoolsBuilder {
     }
 
     /**
-     * @param factory
-     *            the factory to set
+     * @param factory the factory to set
      */
     void setFactory(FilterFactory factory) {
         this.factory = factory;
@@ -296,8 +330,7 @@ class GeotoolsBuilder {
     }
 
     /**
-     * @param operator
-     *            the operator to set
+     * @param operator the operator to set
      */
     protected void setOperator(Operator operator) {
         LOGGER.debug("setting operator to {}", operator);
@@ -329,8 +362,7 @@ class GeotoolsBuilder {
     }
 
     /**
-     * @param value
-     *            the value to set
+     * @param value the value to set
      */
     protected void setValue(Object value) {
         this.value = value;

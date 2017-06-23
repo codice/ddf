@@ -60,6 +60,11 @@ public class ExtendedGeotoolsFunctionFactory implements FunctionFactory {
             return new DivisibleByFunction(args, fallback);
         }
 
+        if (ProximityFunction.NAME.getName()
+                .equals(name.getLocalPart())) {
+            return new ProximityFunction(args, fallback);
+        }
+
         return null; // we do not implement that function
     }
 }

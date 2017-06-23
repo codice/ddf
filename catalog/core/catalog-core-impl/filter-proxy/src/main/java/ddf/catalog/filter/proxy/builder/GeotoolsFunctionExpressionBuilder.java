@@ -15,26 +15,18 @@ package ddf.catalog.filter.proxy.builder;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPosition;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Function;
 
 import ddf.catalog.filter.ArgumentBuilder;
 import ddf.catalog.filter.EqualityExpressionBuilder;
 
 public class GeotoolsFunctionExpressionBuilder extends GeotoolsBuilder implements ArgumentBuilder {
 
-    private final String name;
-
-    private final List<Expression> parameters = new ArrayList();
-
     public GeotoolsFunctionExpressionBuilder(String name) {
-        this.name = name;
+        setFunctionName(name);
+        setArguments(new ArrayList<>());
     }
 
     @Override
@@ -115,15 +107,15 @@ public class GeotoolsFunctionExpressionBuilder extends GeotoolsBuilder implement
     }
 
     protected void addLiteralArg(Date date) {
-        parameters.add(getFactory().literal(new DefaultInstant(new DefaultPosition(date))));
+        getArguments().add(getFactory().literal(new DefaultInstant(new DefaultPosition(date))));
     }
 
     protected void addLiteralArg(Object value) {
-        parameters.add(getFactory().literal(getFactory().literal(value)));
+        getArguments().add(getFactory().literal(getFactory().literal(value)));
     }
 
     protected void addAttribute(String value) {
-        parameters.add(getFactory().property(value));
+        getArguments().add(getFactory().property(value));
 
     }
 
@@ -133,11 +125,4 @@ public class GeotoolsFunctionExpressionBuilder extends GeotoolsBuilder implement
         return new GeotoolsEqualityExpressionBuilder(this);
     }
 
-    @Override
-    protected Filter build() {
-        FilterFactory factory = getFactory();
-        Function function = factory.function(name, parameters.toArray(new Expression[0]));
-        //we can assume equality operation since that is the only supported one.
-        return factory.equals(function, factory.literal(getValue()));
-    }
 }
