@@ -141,7 +141,6 @@ module.exports = {
             backboneassociations: 'backbone-associations',
             backboneundo: 'Backbone.Undo.js/Backbone.Undo',
             poller: 'backbone-poller/backbone.poller',
-            underscore: 'lodash',
             marionette: 'backbone.marionette',
             // TODO test combining
             modelbinder: 'backbone.modelbinder/Backbone.ModelBinder',

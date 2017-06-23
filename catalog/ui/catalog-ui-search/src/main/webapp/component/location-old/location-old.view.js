@@ -68,7 +68,7 @@ define([
         initialize: function (options) {
             this.propertyModel = this.model;
             this.model = new LocationOldModel();
-            _.bindAll(this);
+            _.bindAll.apply(_, [this].concat(_.functions(this))); // underscore bindAll does not take array arg
             this.modelBinder = new Backbone.ModelBinder();
             this.deserialize();
             this.setupListeners();

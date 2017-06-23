@@ -104,7 +104,7 @@ define([
             drawing: false,
 
             initialize: function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this))); // underscore bindAll does not take array arg
                 this.set('id', this.getId());
                 this.listenTo(this, 'change:north change:south change:east change:west', this.setBBox);
                 this.listenTo(this, 'change:scheduled change:scheduleValue change:scheduleUnits', this.startScheduledSearch);

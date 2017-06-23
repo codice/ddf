@@ -14,6 +14,7 @@
  **/
 /*global require, window*/
 var _ = require('underscore');
+var _merge = require('lodash.merge');
 var $ = require('jquery');
 var wreqr = require('wreqr');
 var template = require('./golden-layout.hbs');
@@ -180,7 +181,7 @@ module.exports = Marionette.LayoutView.extend({
         if (currentConfig === undefined){
             currentConfig = defaultGoldenLayoutContent;
         }
-        _.merge(currentConfig, getGoldenLayoutSettings());
+        _merge(currentConfig, getGoldenLayoutSettings());
         return currentConfig;
     },
     registerGoldenLayoutComponents: function(){
