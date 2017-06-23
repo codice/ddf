@@ -22,7 +22,7 @@
             type="String"
             cardinality="1000"
             description="List of security attributes to audit when modified"
-            default="security.access-groups,security.access-individuals,security.classification,security.classification-system,security.codewords,security.dissemination-controls,security.other-dissemination-controls,security.owner-producer,security.releasability,ext.metadata-originator-classification,ext.metadata-classification,ext.metadata-classification-system,ext.metadata-dissemination-controls,ext.metadata-releasability,ext.resource-originator-classification,ext.resource-classification,ext.resource-classification-system,ext.resource-releasability,ext.resource-dissemination-controls">
+            default="security.access-groups,security.access-individuals">
         </AD>
     </OCD>
 

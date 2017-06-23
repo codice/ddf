@@ -26,23 +26,6 @@
             <list>
                 <value>security.access-groups</value>
                 <value>security.access-individuals</value>
-                <value>security.classification</value>
-                <value>security.classification-system</value>
-                <value>security.codewords</value>
-                <value>security.dissemination-controls</value>
-                <value>security.other-dissemination-controls</value>
-                <value>security.owner-producer</value>
-                <value>security.releasability</value>
-                <value>ext.metadata-originator-classification</value>
-                <value>ext.metadata-classification</value>
-                <value>ext.metadata-classification-system</value>
-                <value>ext.metadata-dissemination-controls</value>
-                <value>ext.metadata-releasability</value>
-                <value>ext.resource-originator-classification</value>
-                <value>ext.resource-classification</value>
-                <value>ext.resource-classification-system</value>
-                <value>ext.resource-releasability</value>
-                <value>ext.resource-dissemination-controls</value>
             </list>
         </property>
     </bean>

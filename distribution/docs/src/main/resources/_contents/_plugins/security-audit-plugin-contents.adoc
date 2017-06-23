@@ -5,14 +5,14 @@ Any time a metacard attribute listed in the configuration is updated, a log will
 
 ===== Installing the Security Audit Plugin
 
-The Security Audit Plugin is installed by default with a standard installation in the ${ddf-security} application.
+The Security Audit Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
 ===== Configuring the Security Audit Plugin
 
 To configure the Security Audit Plugin:
 
 . Navigate to the *${admin-console}*.
-. Select *${ddf-security}* application.
+. Select *${ddf-catalog}* application.
 . Select *Configuration* tab.
 . Select *Security Audit Plugin*.
 
