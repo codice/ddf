@@ -153,7 +153,7 @@ public class EndpointUtil {
                 -1,
                 SortBy.NATURAL_ORDER,
                 false,
-                TimeUnit.SECONDS.toMillis(10)), false));
+                TimeUnit.SECONDS.toMillis(30)), false));
 
         Map<String, Result> results = new HashMap<>();
         for (Result result : queryResponse.getResults()) {
@@ -212,14 +212,14 @@ public class EndpointUtil {
                     querySize,
                     SortBy.NATURAL_ORDER,
                     false,
-                    TimeUnit.SECONDS.toMillis(10)), false);
+                    TimeUnit.SECONDS.toMillis(30)), false);
         } else {
             queryRequest = new QueryRequestImpl(new QueryImpl(
                     queryFilter,
                     1, querySize,
                     SortBy.NATURAL_ORDER,
                     false,
-                    TimeUnit.SECONDS.toMillis(10)), writableSources);
+                    TimeUnit.SECONDS.toMillis(30)), writableSources);
         }
 
         QueryResponse response = catalogFramework.query(queryRequest);

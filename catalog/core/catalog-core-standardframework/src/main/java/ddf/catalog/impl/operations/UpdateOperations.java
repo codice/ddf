@@ -510,8 +510,12 @@ public class UpdateOperations {
         return updateResponse;
     }
 
-    private boolean metacardsUpdatedLocally(UpdateResponse updateResponse, UpdateRequest updateRequest) {
-        return updateResponse != null && updateResponse.getUpdatedMetacards() != null && updateRequest.getUpdates().size() == updateResponse.getUpdatedMetacards().size();
+    private boolean metacardsUpdatedLocally(UpdateResponse updateResponse,
+            UpdateRequest updateRequest) {
+        return updateResponse != null && updateResponse.getUpdatedMetacards() != null &&
+                updateRequest.getUpdates()
+                        .size() == updateResponse.getUpdatedMetacards()
+                        .size();
     }
 
     private UpdateResponse performRemoteUpdate(UpdateRequest updateRequest,
