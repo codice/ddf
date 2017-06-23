@@ -69,10 +69,9 @@ For example, to set the contact email for all metacards, add the custom mapping:
 Each mapping sets the value of a single metacard attribute. To set the value of an additional attribute, select the "plus"
  icon in the UI. This creates an empty line for the entry.
 
-To set multi-valued attributes, use a separate override for each value. For example, to add the keywords _PPI_ and _radiology_ to each metacard, add the custom attribute mappings:
+To set multi-valued attributes, use a comma-separated list of values. For example, to add the keywords _PPI_ and _radiology_ to the `topic.keywords` attribute for each metacard, add the custom attribute mapping:
 
-`*topic.keyword=PPI*` +
-`*topic.keyword=radiology*`
+`*topic.keyword=PPI,radiology*`
 
 .Blacklist
 The CDM blacklist uses the "bad.files" and "bad.file.extensions" properties from the system.properties file in "etc/" in order to prevent
