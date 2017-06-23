@@ -51,6 +51,10 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -62,6 +66,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
                         <Embed-Dependency>
+                            platform-util,
                             catalog-transformer-common,
                             Saxon-HE
                         </Embed-Dependency>
@@ -90,7 +95,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.70</minimum>
+                                            <minimum>0.67</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>

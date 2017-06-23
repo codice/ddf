@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.stream.StreamSource;
@@ -66,6 +65,8 @@ public class AttributeQueryClient {
 
     private static final String SAML2_UNKNOWN_PRINCIPAL =
             "urn:oasis:names:tc:SAML:2.0:status:UnknownPrincipal";
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     private Dispatch<StreamSource> dispatch;
 
@@ -221,7 +222,7 @@ public class AttributeQueryClient {
     protected Document sendRequest(Document requestDocument) {
         TransformerProperties transformerProperties = new TransformerProperties();
         transformerProperties.addOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        String request = XMLUtils.format(requestDocument, transformerProperties);
+        String request = XML_UTILS.format(requestDocument, transformerProperties);
 
         StreamSource streamSource;
         try {
@@ -230,24 +231,16 @@ public class AttributeQueryClient {
             throw new AttributeQueryException(String.format("Could not connect to: %s",
                     this.externalAttributeStoreUrl), e);
         }
-        String response = XMLUtils.format(streamSource, transformerProperties);
+        String response = XML_UTILS.format(streamSource, transformerProperties);
         if (StringUtils.isBlank(response)) {
             LOGGER.debug("Response is empty.");
             return null;
         }
 
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setNamespaceAware(true);
-        try {
-            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        } catch (ParserConfigurationException e) {
-            LOGGER.debug("Unable to configure features on document builder.", e);
-        }
         DocumentBuilder documentBuilder;
         Document responseDoc;
         try {
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            documentBuilder = XML_UTILS.getSecureDocumentBuilder(true);
             responseDoc = documentBuilder.parse(new InputSource(new StringReader(response)));
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new AttributeQueryException(
@@ -302,7 +295,7 @@ public class AttributeQueryClient {
     private void printXML(String message, Node xmlNode) {
         TransformerProperties transformerProperties = new TransformerProperties();
         transformerProperties.addOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        LOGGER.trace(message, XMLUtils.format(xmlNode, transformerProperties));
+        LOGGER.trace(message, XML_UTILS.format(xmlNode, transformerProperties));
     }
 
     public void setDispatch(Dispatch<StreamSource> dispatch) {

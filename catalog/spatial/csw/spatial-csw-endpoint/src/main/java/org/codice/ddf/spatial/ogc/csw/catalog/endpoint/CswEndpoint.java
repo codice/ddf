@@ -47,11 +47,11 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -225,6 +225,8 @@ public class CswEndpoint implements Csw {
     private static final List<String> TYPE_NAMES_LIST = Arrays.asList(CswConstants.CSW_RECORD,
             GmdConstants.GMD_METACARD_TYPE_NAME,
             CswConstants.EBRIM_RECORD);
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     private static Map<String, Element> documentElements = new HashMap<>();
 
@@ -980,17 +982,9 @@ public class CswEndpoint implements Csw {
             }
         }
 
-        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-        docBuilderFactory.setNamespaceAware(true);
-        try {
-            docBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            docBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        } catch (ParserConfigurationException e) {
-            LOGGER.debug("Unable to configure features on document builder.", e);
-        }
         Document doc;
         try {
-            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+            DocumentBuilder docBuilder = XML_UTILS.getSecureDocumentBuilder(true);
             doc = docBuilder.parse(recordUrl.openStream());
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new CswException(e);

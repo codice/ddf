@@ -35,6 +35,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
@@ -69,6 +70,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             "<%1$s:Evidence xmlns:%1$s=\"urn:oasis:names:tc:SAML:2.0:assertion\">%2$s</%1$s:Evidence>";
 
     private static final Pattern SAML_PREFIX = Pattern.compile("<(?<prefix>\\w+?):Assertion\\s.*");
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     private SessionFactory sessionFactory;
 
@@ -207,14 +210,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             thread.setContextClassLoader(SAMLAssertionHandler.class.getClassLoader());
 
             try {
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilderFactory dbf = XML_UTILS.getSecureDocumentBuilderFactory();
                 dbf.setNamespaceAware(true);
-                try {
-                    dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-                    dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-                } catch (ParserConfigurationException e) {
-                    LOGGER.debug("Unable to configure features on document builder.", e);
-                }
 
                 String evidence = String.format(EVIDENCE, prefix.group("prefix"), assertion);
 

@@ -71,6 +71,7 @@ import ddf.catalog.event.Subscription;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.EchoedRequestType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
@@ -82,6 +83,8 @@ import net.opengis.cat.csw.v_2_0_2.QueryType;
 public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSubscriptionEndpoint.class);
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     private static final String METACARD_SCHEMA = "urn:catalog:metacard";
 
@@ -373,7 +376,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
                     .getAny()) {
                 if (result instanceof Node) {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    XMLUtils.transform((Node) result,
+                    XML_UTILS.transform((Node) result,
                             new TransformerProperties(),
                             new StreamResult(outputStream));
                     InputStream is = new ByteArrayInputStream(outputStream.toByteArray());

@@ -19,7 +19,6 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -28,6 +27,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -35,18 +35,14 @@ import org.w3c.dom.Document;
 public final class XSLTUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(XSLTUtil.class);
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     private static final DocumentBuilderFactory DBF;
 
     static {
-        DBF = DocumentBuilderFactory.newInstance(
+        DBF = XML_UTILS.getSecureDocumentBuilderFactory(
                 org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
                 org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getClassLoader());
-        try {
-            DBF.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            DBF.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        } catch (ParserConfigurationException e) {
-            LOGGER.debug("Unable to set features on document builder.", e);
-        }
     }
 
 

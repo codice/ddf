@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.codice.ddf.platform.util.XMLUtils;
 import org.w3c.dom.Document;
 
 /**
@@ -36,6 +37,8 @@ import org.w3c.dom.Document;
  */
 public class XmlDocument {
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     /**
      * Create an DOM from a string representation of an XML document.
      *
@@ -45,12 +48,10 @@ public class XmlDocument {
      * @throws Exception
      */
     public static Document build(String input, boolean isNamespaceAware) throws Exception {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = XML_UTILS.getSecureDocumentBuilderFactory();
         factory.setNamespaceAware(isNamespaceAware);
-        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
         factory.setExpandEntityReferences(false);
-        return factory.newInstance()
+        return factory
                 .newDocumentBuilder()
                 .parse(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
     }

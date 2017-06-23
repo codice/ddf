@@ -39,7 +39,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
@@ -108,25 +107,15 @@ public class LoginFilter implements Filter {
         @Override
         protected DocumentBuilder initialValue() {
             try {
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                factory.setNamespaceAware(true);
-                try {
-                    factory.setFeature(
-                            "http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
-                            false);
-                    factory.setFeature(
-                            "http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                            false);
-                } catch (ParserConfigurationException e) {
-                    LOGGER.debug("Unable to configure features on document builder.", e);
-                }
-                return factory.newDocumentBuilder();
+                return XML_UTILS.getSecureDocumentBuilder(true);
             } catch (ParserConfigurationException ex) {
                 // This exception should not happen
                 throw new IllegalArgumentException("Unable to create new DocumentBuilder", ex);
             }
         }
     };
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     private static SAMLObjectBuilder<Status> statusBuilder;
 
@@ -661,7 +650,7 @@ public class LoginFilter implements Filter {
                                     .getToken();
 
                             LOGGER.trace("SAML Assertion returned: {}",
-                                    XMLUtils.prettyFormat(samlToken));
+                                    XML_UTILS.prettyFormat(samlToken));
                         }
                         SecurityToken securityToken =
                                 ((SecurityAssertion) principal).getSecurityToken();

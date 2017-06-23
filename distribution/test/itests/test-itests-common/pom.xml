@@ -193,6 +193,7 @@
                             org.codice.ddf.itests.common.*
                         </Export-Package>
                         <Embed-Dependency>
+                            platform-util,
                             pax-exam-container-karaf,
                             itests,
                             catalog-core-api-impl,

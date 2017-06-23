@@ -50,6 +50,8 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PEPAuthorizingInterceptor.class);
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     private SecurityManager securityManager;
 
     public PEPAuthorizingInterceptor() {
@@ -239,6 +241,6 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             return null;
         }
 
-        return XMLUtils.prettyFormat(unformattedXml);
+        return XML_UTILS.prettyFormat(unformattedXml);
     }
 }

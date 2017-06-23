@@ -51,7 +51,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -65,6 +64,7 @@ import ddf.catalog.validation.impl.report.MetacardValidationReportImpl;
 import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
 import ddf.catalog.validation.report.MetacardValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
+
 import net.sf.saxon.Configuration;
 import net.sf.saxon.TransformerFactoryImpl;
 
@@ -103,6 +103,8 @@ public class SchematronValidationService
             .toString();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchematronValidationService.class);
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     private TransformerFactory transformerFactory;
 
@@ -311,7 +313,7 @@ public class SchematronValidationService
         Set<String> attributes = ImmutableSet.of("metadata");
         String metadata = metacard.getMetadata();
         boolean canBeValidated = !(StringUtils.isEmpty(metadata) || (namespace != null
-                && !namespace.equals(XMLUtils.getRootNamespace(metadata))));
+                && !namespace.equals(XML_UTILS.getRootNamespace(metadata))));
         if (canBeValidated) {
             try {
                 for (Future<Templates> validator : validators) {
@@ -340,11 +342,7 @@ public class SchematronValidationService
 
         XMLReader xmlReader = null;
         try {
-            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
-            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                    false);
+            XMLReader xmlParser = XML_UTILS.getSecureXmlParser();
             xmlReader = new XMLFilterImpl(xmlParser);
         } catch (SAXException e) {
             throw new SchematronValidationException(e);

@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.input.TeeInputStream;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -61,6 +61,8 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SaxEventHandlerDelegate.class);
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     private XMLReader parser;
 
     private List<SaxEventHandler> eventHandlers = new ArrayList<>();
@@ -71,11 +73,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
 
     public SaxEventHandlerDelegate() {
         try {
-            parser = XMLReaderFactory.createXMLReader();
-            parser.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            parser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                    false);
+            parser = XML_UTILS.getSecureXmlParser();
         } catch (Exception e) {
             LOGGER.debug(
                     "Exception thrown during creation of SaxEventHandlerDelegate. Probably caused by one of the setFeature calls",

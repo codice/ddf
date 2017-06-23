@@ -28,7 +28,6 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -43,6 +42,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswUnmarshallHelper;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.GmdConverter;
@@ -105,6 +105,8 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
                     return new WKTWriter();
                 }
             };
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     private static MetacardType gmdMetacardType;
 
@@ -663,15 +665,7 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
 
     private void setMetacardLocationFromBoundingPolygonPoints(Metacard metacard) {
         try (InputStream inputStream = getSourceInputStream()) {
-            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            domFactory.setNamespaceAware(false);
-            try {
-                domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-                domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            } catch (ParserConfigurationException e) {
-                LOGGER.debug("Unable to configure features on document builder.", e);
-            }
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
+            DocumentBuilder builder = XML_UTILS.getSecureDocumentBuilder(false);
             Document document = builder.parse(inputStream);
 
             XPath xPath = XPathFactory.newInstance()
@@ -717,15 +711,7 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
     private void setMetacardDates(Metacard metacard,
             final XstreamPathValueTracker pathValueTracker) {
         try (InputStream inputStream = getSourceInputStream()) {
-            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-            try {
-                domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-                domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            } catch (ParserConfigurationException e) {
-                LOGGER.debug("Unable to configure features on document builder.", e);
-            }
-            domFactory.setNamespaceAware(false);
-            DocumentBuilder builder = domFactory.newDocumentBuilder();
+            DocumentBuilder builder = XML_UTILS.getSecureDocumentBuilder(false);
             Document document = builder.parse(inputStream);
 
             XPath xPath = XPathFactory.newInstance()

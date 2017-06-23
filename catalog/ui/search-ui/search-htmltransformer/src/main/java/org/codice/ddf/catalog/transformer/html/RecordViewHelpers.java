@@ -25,13 +25,12 @@ import java.util.TimeZone;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -44,19 +43,12 @@ public class RecordViewHelpers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordViewHelpers.class);
 
-    private static TransformerFactory transformerFactory;
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     private static DocumentBuilderFactory documentBuilderFactory;
 
     static {
-        transformerFactory = TransformerFactory.newInstance();
-        documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        try {
-            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        } catch (ParserConfigurationException e) {
-            LOGGER.debug("Unable to configure features on document builder.", e);
-        }
+        documentBuilderFactory = XML_UTILS.getSecureDocumentBuilderFactory();
     }
 
     public CharSequence buildMetadata(String metadata, Options options) {
@@ -64,16 +56,9 @@ public class RecordViewHelpers {
             return "";
         }
         try {
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
             DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
             StreamResult result = new StreamResult(new StringWriter());
-
+            Transformer transformer = XML_UTILS.getXmlTransformer(true);
             transformer.transform(new DOMSource(builder.parse(new InputSource(new StringReader(
                     metadata)))), result);
             StringBuilder sb = new StringBuilder();

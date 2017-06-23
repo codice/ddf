@@ -18,10 +18,10 @@ import java.io.InputStream;
 import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.osgi.framework.BundleContext;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -34,6 +34,8 @@ import ddf.security.ws.policy.PolicyLoader;
 public class FilePolicyLoader implements PolicyLoader {
 
     private static volatile Document policyDoc;
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     /**
      * Creates a new instance of the file policy loader.
@@ -61,21 +63,9 @@ public class FilePolicyLoader implements PolicyLoader {
         if (policyFileURL != null) {
             try {
                 policyStream = policyFileURL.openStream();
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                dbFactory.setNamespaceAware(true);
-                try {
-                    dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-                    dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-                } catch (ParserConfigurationException e) {
-                    throw new IOException(e);
-                }
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                DocumentBuilder dBuilder = XML_UTILS.getSecureDocumentBuilder(true);
                 doc = dBuilder.parse(policyStream);
-            } catch (IOException e) {
-                throw new IOException("Could not read policy file located at " + policyFileURL, e);
-            } catch (ParserConfigurationException e) {
-                throw new IOException("Could not read policy file located at " + policyFileURL, e);
-            } catch (SAXException e) {
+            } catch (IOException | ParserConfigurationException | SAXException e) {
                 throw new IOException("Could not read policy file located at " + policyFileURL, e);
             } finally {
                 IOUtils.closeQuietly(policyStream);

@@ -33,13 +33,13 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.ToXMLContentHandler;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -50,10 +50,13 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
 import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
+
 import net.sf.saxon.TransformerFactoryImpl;
 
 public class VideoInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoInputTransformer.class);
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     private Templates templates = null;
 
@@ -115,11 +118,7 @@ public class VideoInputTransformer implements InputTransformer {
         LOGGER.debug("Transforming xhtml to xml.");
         XMLReader xmlReader = null;
         try {
-            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
-            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                    false);
+            XMLReader xmlParser = XML_UTILS.getSecureXmlParser();
             xmlReader = new XMLFilterImpl(xmlParser);
         } catch (SAXException e) {
             LOGGER.debug(e.getMessage(), e);

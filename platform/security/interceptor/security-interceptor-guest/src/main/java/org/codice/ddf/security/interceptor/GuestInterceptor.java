@@ -70,6 +70,8 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GuestInterceptor.class);
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     private EncryptionService encryptionService;
 
     private SecurityManager securityManager;
@@ -123,7 +125,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
         if (LOGGER.isTraceEnabled()) {
             try {
                 LOGGER.trace("SOAP request after guest interceptor: {}",
-                        XMLUtils.prettyFormat(soapMessage.getSOAPHeader()
+                        XML_UTILS.prettyFormat(soapMessage.getSOAPHeader()
                                 .getParentNode()));
             } catch (SOAPException e) {
                 //ignore

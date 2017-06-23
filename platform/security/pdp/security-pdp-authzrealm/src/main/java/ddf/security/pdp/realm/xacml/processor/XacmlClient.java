@@ -37,6 +37,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -44,7 +45,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.connexta.arbitro.PDP;
 import com.connexta.arbitro.PDPConfig;
@@ -78,6 +78,8 @@ public class XacmlClient {
 
     private static final String NULL_DIRECTORY_EXCEPTION_MSG =
             "Cannot read from null XACML Policy Directory";
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     static long defaultPollingIntervalInSeconds = 60;
 
@@ -252,11 +254,7 @@ public class XacmlClient {
         XMLReader xmlReader = null;
 
         try {
-            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
-            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                    false);
+            XMLReader xmlParser = XML_UTILS.getSecureXmlParser();
             xmlReader = new XMLFilterImpl(xmlParser) {
                 @Override
                 public void startElement(String uri, String localName, String qName,

@@ -30,6 +30,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -39,7 +40,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
@@ -51,6 +51,8 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer
         implements MetacardTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XsltMetacardTransformer.class);
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     private Map<String, Object> localMap = new ConcurrentHashMap<String, Object>();
 
@@ -130,11 +132,7 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer
         StreamResult resultOutput = null;
         XMLReader xmlReader = null;
         try {
-            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
-            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                    false);
+            XMLReader xmlParser = XML_UTILS.getSecureXmlParser();
             xmlReader = new XMLFilterImpl(xmlParser);
         } catch (SAXException e) {
             LOGGER.debug(e.getMessage(), e);

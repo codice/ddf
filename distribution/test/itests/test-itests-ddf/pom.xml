@@ -257,6 +257,11 @@
             <version>${awaitility.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-metacardbackup-filestorage</artifactId>
             <version>${project.version}</version>
