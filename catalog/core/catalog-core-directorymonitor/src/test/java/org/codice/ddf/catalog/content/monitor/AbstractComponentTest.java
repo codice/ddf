@@ -15,10 +15,13 @@ package org.codice.ddf.catalog.content.monitor;
 
 import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.catalog.content.monitor.configurators.KarafConfigurator.karafConfiguration;
+import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +32,7 @@ import org.codice.ddf.catalog.content.monitor.util.BundleInfo;
 import org.junit.After;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.util.PathUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -41,12 +45,15 @@ public abstract class AbstractComponentTest {
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     @Configuration
-    public Option[] config() {
+    public Option[] config() throws IOException {
         Option[] bundleDependencies = bundlesToStart().stream()
                 .map(this::startBundle)
                 .toArray(Option[]::new);
 
-        return options(karafConfiguration(), setupDistribution(), composite(bundleDependencies));
+        return options(karafConfiguration(),
+                setupDistribution(),
+                getComponentUnderTestOptions(),
+                composite(bundleDependencies));
     }
 
     @After
@@ -70,5 +77,15 @@ public abstract class AbstractComponentTest {
         serviceRegistrations.add(registration);
         await("service registration").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
                 .until(() -> bundleContext.getServiceReference(registerClass) != null);
+    }
+
+    private Option getComponentUnderTestOptions() throws IOException {
+        String componentArtifactId = System.getProperty("component.artifactId");
+        String componentVersion = System.getProperty("component.version");
+        String bundleJarName = String.format("%s-%s.jar", componentArtifactId, componentVersion);
+        String bundleJarUrl = Paths.get(PathUtils.getBaseDir(), "target", bundleJarName)
+                .toUri()
+                .toString();
+        return bundle(bundleJarUrl);
     }
 }

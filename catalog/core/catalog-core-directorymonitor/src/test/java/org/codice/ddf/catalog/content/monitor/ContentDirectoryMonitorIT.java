@@ -230,9 +230,7 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
                 new BundleInfo("ddf.mime.core", "mime-core-api"),
                 new BundleInfo("ddf.mime.core", "mime-core-impl"),
-                new BundleInfo("ddf.catalog.core", "catalog-core-camelcomponent"),
-
-                new BundleInfo("ddf.catalog.core", "catalog-core-directorymonitor"));
+                new BundleInfo("ddf.catalog.core", "catalog-core-camelcomponent"));
     }
 
     private AtomicBoolean createStorageRequestNotification()
