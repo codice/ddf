@@ -61,6 +61,7 @@ import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.security.common.audit.SecurityLogger;
 
+//TODO DDF-3116 The catalog:dump shuts down DDF when it fails to transform
 @Service
 @Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.")
 public class DumpCommand extends CqlCommands {
