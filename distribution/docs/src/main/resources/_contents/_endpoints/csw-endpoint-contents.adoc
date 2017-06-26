@@ -1840,7 +1840,8 @@ The following example shows how the newly inserted record could be updated to mo
 <csw:Transaction
     service="CSW"
     version="2.0.2"
-    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns:ogc="http://www.opengis.net/ogc">
     <csw:Update>
         <csw:RecordProperty>
             <csw:Name>title</csw:Name>
@@ -1875,7 +1876,8 @@ The following example shows how the newly inserted record could be updated to mo
 <csw:Transaction
     service="CSW"
     version="2.0.2"
-    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns:ogc="http://www.opengis.net/ogc">
     <csw:Update>
         <csw:RecordProperty>
             <csw:Name>title</csw:Name>
