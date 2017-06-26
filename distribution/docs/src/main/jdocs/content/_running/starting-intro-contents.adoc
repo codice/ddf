@@ -145,20 +145,19 @@ RUN_AS_USER=<${branding-lowercase}-user>
 wrapper.java.additional.10=-D${ddf-branding-lowercase}.home=%KARAF_HOME%
 wrapper.java.additional.11=-Dderby.storage.fileSyncTransactionLog=true
 wrapper.java.additional.12=-server
-wrapper.java.additional.13=-Dcom.sun.management.jmxremote
-wrapper.java.additional.14=-Djava.security.egd=file:/dev/./urandom
-wrapper.java.additional.15=-Dfile.encoding=UTF8
-wrapper.java.additional.16=-Dkaraf.instances=%KARAF_HOME%/instances
-wrapper.java.additional.17=-Dkaraf.restart.jvm.supported=true
-wrapper.java.additional.18=-Djava.io.tmpdir=%KARAF_HOME%/data/tmp
-wrapper.java.additional.19=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
-wrapper.java.additional.20=-XX:+UnlockDiagnosticVMOptions
-wrapper.java.additional.21=-XX:+UnsyncloadClass
-wrapper.java.additional.22=-Dderby.system.home=%KARAF_HOME%/data/derby
-wrapper.java.additional.23=-Djava.awt.headless=true
+wrapper.java.additional.13=-Djava.security.egd=file:/dev/./urandom
+wrapper.java.additional.14=-Dfile.encoding=UTF8
+wrapper.java.additional.15=-Dkaraf.instances=%KARAF_HOME%/instances
+wrapper.java.additional.16=-Dkaraf.restart.jvm.supported=true
+wrapper.java.additional.17=-Djava.io.tmpdir=%KARAF_HOME%/data/tmp
+wrapper.java.additional.18=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
+wrapper.java.additional.19=-XX:+UnlockDiagnosticVMOptions
+wrapper.java.additional.20=-XX:+UnsyncloadClass
+wrapper.java.additional.21=-Dderby.system.home=%KARAF_HOME%/data/derby
+wrapper.java.additional.22=-Djava.awt.headless=true
 
 # Set the JVM max heap space as desired
-wrapper.java.additional.24=-Xmx4g
+wrapper.java.additional.23=-Xmx4g
 
 ----
 +
