@@ -60,11 +60,13 @@ public class XMLUtilsTest {
                     + "    <title>Harry Potter</title>\n" + "    <author>J K. Rowling</author>\n"
                     + "    <year>2005</year>\n" + "    <price>29.99</price>\n" + "  </book>";
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     @Test
     public void testFormatSource() throws ParserConfigurationException, IOException, SAXException {
         Source xmlSource = new StreamSource(new StringReader(XML));
 
-        assertThat(XMLUtils.format(xmlSource, setTransformerProperties()), is(equalTo(XML)));
+        assertThat(XML_UTILS.format(xmlSource, setTransformerProperties()), is(equalTo(XML)));
     }
 
     @Test
@@ -73,7 +75,7 @@ public class XMLUtilsTest {
                 .newDocumentBuilder()
                 .parse(new ByteArrayInputStream(XML.getBytes()));
 
-        assertThat(XMLUtils.format(xmlNode, setTransformerProperties()), is(equalTo(XML)));
+        assertThat(XML_UTILS.format(xmlNode, setTransformerProperties()), is(equalTo(XML)));
     }
 
     @Test
@@ -81,7 +83,7 @@ public class XMLUtilsTest {
             throws ParserConfigurationException, IOException, SAXException {
         Source xmlSource = new StreamSource(new StringReader(PRETTY_XML_SOURCE));
 
-        assertThat(XMLUtils.prettyFormat(xmlSource), is(equalTo(PRETTY_XML_SOURCE)));
+        assertThat(XML_UTILS.prettyFormat(xmlSource), is(equalTo(PRETTY_XML_SOURCE)));
     }
 
     @Test
@@ -91,14 +93,14 @@ public class XMLUtilsTest {
                 .newDocumentBuilder()
                 .parse(new ByteArrayInputStream(PRETTY_XML_NODE.getBytes()));
 
-        assertThat(XMLUtils.prettyFormat(xmlNode), is(equalTo(PRETTY_XML_NODE)));
+        assertThat(XML_UTILS.prettyFormat(xmlNode), is(equalTo(PRETTY_XML_NODE)));
     }
 
     @Test
     public void testTransformSource()
             throws ParserConfigurationException, IOException, SAXException {
         Source xmlSource = new StreamSource(new StringReader(XML));
-        StreamResult result = (StreamResult) XMLUtils.transform(xmlSource,
+        StreamResult result = (StreamResult) XML_UTILS.transform(xmlSource,
                 setTransformerProperties(),
                 new StreamResult(new StringWriter()));
 
@@ -111,7 +113,7 @@ public class XMLUtilsTest {
         Node xmlNode = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
                 .parse(new ByteArrayInputStream(XML.getBytes()));
-        StreamResult result = (StreamResult) XMLUtils.transform(xmlNode,
+        StreamResult result = (StreamResult) XML_UTILS.transform(xmlNode,
                 setTransformerProperties(),
                 new StreamResult(new StringWriter()));
 
@@ -121,13 +123,13 @@ public class XMLUtilsTest {
 
     @Test
     public void testGetRootNamespace() {
-        assert "doggy-namespace".equals(XMLUtils.getRootNamespace(XML_WITH_NAMESPACE));
+        assert "doggy-namespace".equals(XML_UTILS.getRootNamespace(XML_WITH_NAMESPACE));
     }
 
     @Test
     public void testProcessElementException() {
 
-        Object returnValue = XMLUtils.processElements("", (result, xmlReader) -> true);
+        Object returnValue = XML_UTILS.processElements("", (result, xmlReader) -> true);
         assertThat("Processing result should be null if an exception was thrown", returnValue,
                 is(nullValue()));
     }
@@ -135,7 +137,7 @@ public class XMLUtilsTest {
     @Test
     public void testProcessingStop() {
         int expectedValue = 3;
-        int returnValue = XMLUtils.processElements(XML_MULTIPLE_NODES,
+        int returnValue = XML_UTILS.processElements(XML_MULTIPLE_NODES,
                 (XMLUtils.ResultHolder<Integer> result, XMLStreamReader xmlStreamReader) -> {
                     result.setIfEmpty(0);
                     result.set((result.get() + 1));

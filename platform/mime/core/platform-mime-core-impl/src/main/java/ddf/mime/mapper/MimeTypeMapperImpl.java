@@ -48,6 +48,8 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
     private static final String XML_FILE_EXTENSION = "xml";
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     /**
      * The {@link List} of {@link MimeTypeResolver}s configured for this mapper and will be searched
      * on mime type/file extension mapping requests.
@@ -192,7 +194,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
         String namespace = null;
         if (fileExtension.equals(XML_FILE_EXTENSION)) {
             try {
-                namespace = XMLUtils.getRootNamespace(IOUtils.toString(is));
+                namespace = XML_UTILS.getRootNamespace(IOUtils.toString(is));
             } catch (IOException ioe) {
                 LOGGER.debug("Could not read namespace from input stream.", ioe);
             }

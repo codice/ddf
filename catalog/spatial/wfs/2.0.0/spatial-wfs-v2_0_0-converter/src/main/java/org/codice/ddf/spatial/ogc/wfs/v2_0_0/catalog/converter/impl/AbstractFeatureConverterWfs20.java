@@ -22,7 +22,6 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -33,6 +32,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.AbstractFeatureConverter;
@@ -66,6 +66,8 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
     private static final String CREATE_TRANSFORMER_FAILURE = "Failed to create Transformer.";
 
     private static final String GML_FAILURE = "Failed to transform GML.\n";
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     public AbstractFeatureConverterWfs20() {
 
@@ -140,15 +142,6 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
     protected Object readGml(String xml) {
         LOGGER.debug("readGml() input XML: {}", xml);
         //Add namespace into XML for processing
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        try {
-            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
-                    false);
-            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                    false);
-        } catch (ParserConfigurationException e) {
-            LOGGER.debug("Unable to configure features on document builder.", e);
-        }
         DocumentBuilder dBuilder = null;
         Document doc = null;
         Object gml = null;
@@ -156,7 +149,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
 
         //Check if GML 3.2.1 namespace exist on XML chunk
         try {
-            dBuilder = dbFactory.newDocumentBuilder();
+            dBuilder = XML_UTILS.getSecureDocumentBuilder(false);
             InputSource is = new InputSource();
             is.setCharacterStream(new StringReader(xml));
             doc = dBuilder.parse(is);

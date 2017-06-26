@@ -95,6 +95,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     private static final transient Logger LOGGER =
             LoggerFactory.getLogger(RrdMetricsRetriever.class);
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     private static final double DEFAULT_METRICS_MAX_THRESHOLD = 4000000000.0;
 
     private static final int RRD_STEP = 60;
@@ -389,7 +391,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             }
 
             // Write the content into xml stringwriter
-            xmlString = XMLUtils.prettyFormat(doc);
+            xmlString = XML_UTILS.prettyFormat(doc);
         } catch (ParserConfigurationException pce) {
             LOGGER.debug("Parsing error while creating xml data", pce);
         }

@@ -24,12 +24,12 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.karaf.features.Feature;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -50,6 +50,8 @@ public class ApplicationFileInstaller {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationFileInstaller.class);
 
     private static final String REPO_LOCATION = "system" + File.separator;
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     /**
      * Installs the given application file to the system repository.
@@ -235,16 +237,7 @@ public class ApplicationFileInstaller {
             return null;
         }
 
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-
-        try {
-            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        } catch (ParserConfigurationException e) {
-            LOGGER.debug("Unable to set features on document builder.", e);
-        }
-
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        DocumentBuilder dBuilder = XML_UTILS.getSecureDocumentBuilder(false);
         Document doc = dBuilder.parse(zipFile.getInputStream(featureZipEntry));
 
         NodeList featureNodes = doc.getElementsByTagName(FEATURE_TAG_NAME);

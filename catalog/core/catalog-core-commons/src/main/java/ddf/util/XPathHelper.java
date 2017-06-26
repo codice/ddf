@@ -36,6 +36,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.xml.serializer.OutputPropertiesFactory;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
@@ -58,6 +59,8 @@ public class XPathHelper {
     /** The Logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(XPathHelper.class);
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     private final DocumentBuilderFactory dbf;
 
     private final TransformerFactory tf;
@@ -67,16 +70,10 @@ public class XPathHelper {
 
     public XPathHelper() {
         dbf =
-                DocumentBuilderFactory.newInstance(org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
+                XML_UTILS.getSecureDocumentBuilderFactory(org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
                         this.getClass()
                                 .getClassLoader());
         dbf.setNamespaceAware(true);
-        try {
-            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        } catch (ParserConfigurationException e) {
-            LOGGER.debug("Unable to set features on document builder.", e);
-        }
         tf =
                 TransformerFactory.newInstance(org.apache.xalan.processor.TransformerFactoryImpl.class.getName(),
                         this.getClass()

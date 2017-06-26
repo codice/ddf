@@ -60,6 +60,7 @@ import org.apache.tika.sax.TeeContentHandler;
 import org.apache.tika.sax.ToTextContentHandler;
 import org.apache.tika.sax.ToXMLContentHandler;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.imgscalr.Scalr;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -73,7 +74,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
 import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
@@ -102,6 +102,8 @@ public class TikaInputTransformer implements InputTransformer {
             FALLBACK_MIME_TYPE_DATA_TYPE_MAP;
 
     private static final String OVERALL_FALLBACK_DATA_TYPE = "Dataset";
+
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
     static {
         SPECIFIC_MIME_TYPE_DATA_TYPE_MAP = new HashMap<>();
@@ -619,11 +621,7 @@ public class TikaInputTransformer implements InputTransformer {
 
         XMLReader xmlReader = null;
         try {
-            XMLReader xmlParser = XMLReaderFactory.createXMLReader();
-            xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                    false);
+            XMLReader xmlParser = XML_UTILS.getSecureXmlParser();
             xmlReader = new XMLFilterImpl(xmlParser);
         } catch (SAXException e) {
             LOGGER.debug(e.getMessage(), e);

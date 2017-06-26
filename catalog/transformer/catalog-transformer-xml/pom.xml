@@ -84,6 +84,10 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -97,7 +101,8 @@
                             ogc-tools-gml-jts,
                             catalog-transformer-xml-binding,
                             jaxb2-basics-runtime,
-                            gml-v_3_1_1-schema;inline=true
+                            gml-v_3_1_1-schema;inline=true,
+                            platform-util
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>

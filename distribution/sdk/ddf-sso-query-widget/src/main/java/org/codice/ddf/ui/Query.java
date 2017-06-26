@@ -73,6 +73,8 @@ public class Query extends HttpServlet {
     private static final String STS_SERVICE_URL =
             "https://localhost:8993/services/SecurityTokenService";
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     private transient CatalogFramework catalogFramework;
 
     private transient SecurityManager securityManager;
@@ -263,7 +265,7 @@ public class Query extends HttpServlet {
         Source xmlInput = new StreamSource(new StringReader(unformattedXml));
         String formattedXml;
 
-        formattedXml = XMLUtils.prettyFormat(xmlInput);
+        formattedXml = XML_UTILS.prettyFormat(xmlInput);
 
         LOGGER.debug("Formatted xml:\n{}", formattedXml);
 

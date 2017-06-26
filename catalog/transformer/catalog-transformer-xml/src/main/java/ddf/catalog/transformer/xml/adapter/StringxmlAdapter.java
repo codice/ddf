@@ -35,6 +35,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -53,21 +54,15 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StringxmlAdapter.class);
 
+    private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
+
     private static final DocumentBuilderFactory FACTORY;
 
     private static Templates templates = null;
 
     static {
-        FACTORY = DocumentBuilderFactory.newInstance();
+        FACTORY = XML_UTILS.getSecureDocumentBuilderFactory();
         FACTORY.setNamespaceAware(true);
-        try {
-            FACTORY.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
-                    false);
-            FACTORY.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                    false);
-        } catch (ParserConfigurationException e) {
-            LOGGER.debug("Unable to set features on document builder.", e);
-        }
 
         // Create Transformer
         TransformerFactory transFactory = TransformerFactory.newInstance();
