@@ -24,7 +24,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +66,6 @@ import ddf.catalog.data.Result;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.ResourceRequestByProductUri;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
@@ -95,18 +93,18 @@ public class ExportCommand extends CqlCommands {
 
     private static final SimpleDateFormat ISO_8601_DATE_FORMAT;
 
-    private static Supplier<String> fileNamer;
+    private static final Supplier<String> FILE_NAMER;
 
     static {
         ISO_8601_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSS'Z'");
         ISO_8601_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-        fileNamer =
+        FILE_NAMER =
                 () -> "export-" + ISO_8601_DATE_FORMAT.format(Date.from(Instant.now())) + ".zip";
     }
 
     @Option(name = "--output", description = "Output file to export Metacards and contents into. Paths are absolute and must be in quotes. Will default to auto generated name inside of ddf.home", multiValued = false, required = false, aliases = {
             "-o"})
-    String output = Paths.get(System.getProperty("ddf.home"), fileNamer.get())
+    String output = Paths.get(System.getProperty("ddf.home"), FILE_NAMER.get())
             .toString();
 
     @Option(name = "--delete", required = true, aliases = {
@@ -238,7 +236,7 @@ public class ExportCommand extends CqlCommands {
         File initialOutputFile = new File(output);
         if (initialOutputFile.isDirectory()) {
             // If directory was specified, auto generate file name
-            resolvedOutput = Paths.get(initialOutputFile.getPath(), fileNamer.get())
+            resolvedOutput = Paths.get(initialOutputFile.getPath(), FILE_NAMER.get())
                     .toString();
         } else {
             resolvedOutput = output;
@@ -555,13 +553,12 @@ public class ExportCommand extends CqlCommands {
         return filter;
     }
 
-    private QueryRequestImpl getQuery(Filter filter, int index, int pageSize) {
-        return new QueryRequestImpl(new QueryImpl(filter,
+    private QueryImpl getQuery(Filter filter, int index, int pageSize) {
+        return new QueryImpl(filter,
                 index,
                 pageSize,
                 SortBy.NATURAL_ORDER,
-                false,
-                TimeUnit.MINUTES.toMillis(1)), new HashMap<>());
+                false, TimeUnit.MINUTES.toMillis(1));
     }
 
 }

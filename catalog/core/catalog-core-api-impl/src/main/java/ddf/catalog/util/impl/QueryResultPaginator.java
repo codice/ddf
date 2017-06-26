@@ -43,7 +43,7 @@ public class QueryResultPaginator implements Iterator<List<Result>> {
 
     private final CatalogFramework catalogFramework;
 
-    private final QueryRequestImpl queryRequestCopy;
+    private final QueryImpl copyOfQuery;
 
     private int currentIndex;
 
@@ -54,15 +54,13 @@ public class QueryResultPaginator implements Iterator<List<Result>> {
 
     private BlockingQueue<Result> buffer;
 
-    public QueryResultPaginator(CatalogFramework catalogFramework, QueryRequestImpl queryRequest) {
+    public QueryResultPaginator(CatalogFramework catalogFramework, QueryImpl query) {
         Validate.notNull(catalogFramework);
-        Validate.notNull(queryRequest);
+        Validate.notNull(query);
         this.catalogFramework = catalogFramework;
-        this.queryRequestCopy = clone(queryRequest);
-        pageSize = queryRequestCopy.getQuery()
-                .getPageSize();
-        currentIndex = queryRequest.getQuery()
-                .getStartIndex();
+        this.copyOfQuery = copy(query);
+        pageSize = copyOfQuery.getPageSize();
+        currentIndex = copyOfQuery.getStartIndex();
         Validate.inclusiveBetween(1,
                 Integer.MAX_VALUE,
                 currentIndex,
@@ -76,14 +74,21 @@ public class QueryResultPaginator implements Iterator<List<Result>> {
      */
     public boolean hasNext() {
 
-        if (exhausted && buffer.isEmpty()) {
-            return false;
+        boolean hasMoreResults;
+        if (notEmpty()) {
+            return true;
+        } else {
+            if (exhausted) {
+                return false;
+            } else {
+                //Buffer is empty, but query might not be exhausted.
+                fetchNext();
+                return notEmpty();
+            }
         }
+    }
 
-        if (!exhausted) {
-            fetchNext();
-        }
-
+    protected boolean notEmpty() {
         return !buffer.isEmpty();
     }
 
@@ -112,14 +117,13 @@ public class QueryResultPaginator implements Iterator<List<Result>> {
         return buffer.size();
     }
 
-    QueryRequestImpl clone(QueryRequestImpl queryRequest) {
-        QueryImpl query = (QueryImpl) queryRequest.getQuery();
-        return new QueryRequestImpl(new QueryImpl(query.getFilter(),
+    QueryImpl copy(QueryImpl query) {
+
+        return new QueryImpl(query.getFilter(),
                 query.getStartIndex(),
                 query.getPageSize(),
                 query.getSortBy(),
-                query.requestsTotalResultsCount(),
-                query.getTimeoutMillis()));
+                query.requestsTotalResultsCount(), query.getTimeoutMillis());
     }
 
     int getCurrentIndex() {
@@ -135,7 +139,7 @@ public class QueryResultPaginator implements Iterator<List<Result>> {
      * If no results were returned, assume there are no more results possible.
      */
     private void fetchNext() {
-        ((QueryImpl) queryRequestCopy.getQuery()).setStartIndex(currentIndex);
+        copyOfQuery.setStartIndex(currentIndex);
         List<Result> results = queryCatalogFramework();
         if (results.isEmpty()) {
             exhausted = true;
@@ -147,7 +151,7 @@ public class QueryResultPaginator implements Iterator<List<Result>> {
 
     private List<Result> queryCatalogFramework() {
         try {
-            return catalogFramework.query(queryRequestCopy)
+            return catalogFramework.query(new QueryRequestImpl(copyOfQuery))
                     .getResults();
         } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             throw new CatalogRuntimeException(e);

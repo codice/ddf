@@ -15,6 +15,8 @@ package ddf.catalog.util.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,10 +27,12 @@ import java.util.NoSuchElementException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opengis.filter.Filter;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
@@ -36,8 +40,6 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 public class QueryResultPaginatorTest {
 
     private CatalogFramework catalogFrameworkMock;
-
-    private QueryRequestImpl queryRequestMock;
 
     private QueryResponseImpl queryResponseMock;
 
@@ -49,16 +51,15 @@ public class QueryResultPaginatorTest {
     public void setUp() throws Exception {
 
         catalogFrameworkMock = mock(CatalogFramework.class);
-        queryRequestMock = mock(QueryRequestImpl.class);
+        QueryRequestImpl queryRequestMock = mock(QueryRequestImpl.class);
         queryResponseMock = mock(QueryResponseImpl.class);
         queryMock = mock(QueryImpl.class);
-        when(catalogFrameworkMock.query(queryRequestMock)).thenReturn(queryResponseMock);
-        when(catalogFrameworkMock.query(queryRequestMock)).thenReturn(queryResponseMock);
+        when(catalogFrameworkMock.query(any(QueryRequest.class))).thenReturn(queryResponseMock);
         when(queryRequestMock.getQuery()).thenReturn(queryMock);
     }
 
     @Test
-    public void testhasNextIdempotency() throws Exception {
+    public void testhasNext() throws Exception {
         setStartIndexAndPageSize(1, 1);
         setResponses(1, 0);
         assertThat(paginator.hasNext(), equalTo(true));
@@ -112,8 +113,10 @@ public class QueryResultPaginatorTest {
         setStartIndexAndPageSize(10, pageSize);
         setResponses(5, 5, 0);
         List<Result> pageOne = paginator.next();
+        assertThat(pageOne, hasSize(5));
         assertThat(paginator.getCurrentIndex(), equalTo(15));
         List<Result> pageTwo = paginator.next();
+        assertThat(pageTwo, hasSize(5));
         assertThat(paginator.hasNext(), equalTo(false));
         assertThat(paginator.getBufferSize(), equalTo(0));
         assertThat(paginator.getCurrentIndex(), equalTo(20));
@@ -132,19 +135,17 @@ public class QueryResultPaginatorTest {
     private void setStartIndexAndPageSize(int startIndex, int pageSize) {
         when(queryMock.getStartIndex()).thenReturn(startIndex);
         when(queryMock.getPageSize()).thenReturn(pageSize);
-        paginator = new QueryResultPaginator(catalogFrameworkMock, queryRequestMock) {
-            // Keep the mock object
-            protected QueryRequestImpl clone(QueryRequestImpl queryRequest) {
-                return queryRequest;
-            }
-        };
+        when(queryMock.getSortBy()).thenReturn(null);
+        when(queryMock.requestsTotalResultsCount()).thenReturn(true);
+        when(queryMock.getTimeoutMillis()).thenReturn(0L);
+        when(queryMock.getFilter()).thenReturn(mock(Filter.class));
+        paginator = new QueryResultPaginator(catalogFrameworkMock, queryMock);
     }
 
     private void setResponses(int... arguments) {
         int index = 1;
         List<List<Result>> mockResponses = new ArrayList<>();
-        for (int i = 0; i < arguments.length; ++i) {
-            int numberofResults = arguments[i];
+        for (int numberofResults : arguments) {
             mockResponses.add(getResultListOfSize(numberofResults, index));
             index += numberofResults;
         }
