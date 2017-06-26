@@ -45,8 +45,6 @@ public class DivisibleByFunction extends FunctionExpressionImpl {
                 String.format("%s expression requires at least %s parameters", FUNCTION_NAME,
                         NUM_PARAMETERS));
 
-        //TODO we could cast the arguments here to the correct object so that it doen't need to be done in the filter delegates
-
         setName(FUNCTION_NAME);
         setParameters(parameters);
         setFallbackValue(fallback);

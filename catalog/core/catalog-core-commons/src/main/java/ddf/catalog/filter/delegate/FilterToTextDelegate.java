@@ -25,9 +25,12 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
     public String propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
         switch (functionName) {
         case "divisibleBy":
-            return propertyIsDivisibleBy(arguments) + '=' + literal;
+            return propertyIsDivisibleBy((String) arguments.get(0), (Long) arguments.get(1)) + '='
+                    + literal;
         case "proximity":
-            return propertyIsInProximityTo(arguments) + '=' + literal;
+            return propertyIsInProximityTo((String) arguments.get(0),
+                    (Integer) arguments.get(1),
+                    (String) arguments.get(2)) + '=' + literal;
         default:
             throw new UnsupportedOperationException(functionName + " is not supported.");
         }
@@ -376,21 +379,6 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
         return propertyName + "<=" + literal + "o";
     }
 
-    public String propertyIsDivisibleBy(List<Object> arguments) {
-        if (arguments.size() != 2) {
-            throw new UnsupportedOperationException("Required number of arguments not found");
-        }
-        try {
-            Long divisor = Long.parseLong(arguments.get(1)
-                    .toString());
-            return propertyIsDivisibleBy(arguments.get(0)
-                    .toString(), divisor);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Divisor parameter was not valid");
-        }
-
-    }
-
     public String propertyIsDivisibleBy(String propertyName, long divisor) {
         return divisor + "|" + propertyName;
         //TODO (RWY) - which notation is more readable?
@@ -542,15 +530,6 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
     @Override
     public String relative(String propertyName, long duration) {
         return "relative(" + propertyName + "," + duration + ")";
-    }
-
-    public String propertyIsInProximityTo(List<Object> arguments) {
-        return propertyIsInProximityTo(arguments.get(0)
-                        .toString(),
-                Integer.parseInt(arguments.get(1)
-                        .toString()),
-                arguments.get(2)
-                        .toString());
     }
 
     public String propertyIsInProximityTo(String propertyName, Integer distance,

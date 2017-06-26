@@ -34,6 +34,7 @@ import org.cometd.bayeux.server.ConfigurableServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.ServerMessageImpl;
+import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.Filter;
@@ -193,7 +194,11 @@ public class SearchService {
         Filter filter = null;
         try {
             if (StringUtils.isNotBlank(cql)) {
-                filter = ECQL.toFilter(cql);
+                try {
+                    filter = CQL.toFilter(cql);
+                } catch (CQLException e) {
+                    filter = ECQL.toFilter(cql);
+                }
             }
         } catch (CQLException e) {
             LOGGER.debug("Unable to parse CQL filter", e);

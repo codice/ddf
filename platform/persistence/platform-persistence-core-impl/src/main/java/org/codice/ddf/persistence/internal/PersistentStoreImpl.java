@@ -42,6 +42,7 @@ import org.codice.ddf.persistence.PersistentStore;
 import org.codice.solr.factory.SolrClientFactory;
 import org.codice.solr.factory.impl.SolrClientFactoryImpl;
 import org.codice.solr.query.SolrQueryFilterVisitor;
+import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.Filter;
@@ -158,7 +159,12 @@ public class PersistentStoreImpl implements PersistentStore {
             if (StringUtils.isBlank(cql)) {
                 solrQuery = new SolrQuery("*:*");
             } else {
-                Filter filter = ECQL.toFilter(cql);
+                Filter filter;
+                try {
+                    filter = CQL.toFilter(cql);
+                } catch (CQLException e) {
+                    filter = ECQL.toFilter(cql);
+                }
                 solrQuery = (SolrQuery) filter.accept(visitor, null);
             }
             QueryResponse solrResponse = solrClient.query(solrQuery, METHOD.POST);

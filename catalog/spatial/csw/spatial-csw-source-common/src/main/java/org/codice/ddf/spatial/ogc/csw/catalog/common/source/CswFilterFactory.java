@@ -840,9 +840,10 @@ public class CswFilterFactory {
     //default implementation just assume the first argument is a parameter name and the rest are values
     public FilterType buildPropertyIsEqualTo(String functionName, List<Object> arguments,
             Object literal) {
+        int propertyCount = 1;
         List<JAXBElement<?>> expressions = new ArrayList<>();
         for (int i = 0; i < arguments.size(); i++) {
-            if (i == 0) {
+            if (i < propertyCount) {
                 expressions.add(createPropertyNameType(Arrays.asList(new Object[] {
                         arguments.get(i)})));
             } else {
@@ -853,12 +854,12 @@ public class CswFilterFactory {
     }
 
     public FilterType createPropertyIsEqualTo(String functionName,
-            List<? extends JAXBElement<?>> arguments, Object literal) {
+            List<? extends JAXBElement<?>> expressions, Object literal) {
 
         FunctionType function = new FunctionType();
         function.setName(functionName);
         function.getExpression()
-                .addAll(arguments);
+                .addAll(expressions);
         FilterType filter = new FilterType();
         BinaryComparisonOpType propertyIsEqualTo = new BinaryComparisonOpType();
         propertyIsEqualTo.getExpression()

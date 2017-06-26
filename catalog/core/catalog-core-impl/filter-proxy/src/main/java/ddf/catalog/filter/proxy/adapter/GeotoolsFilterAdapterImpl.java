@@ -16,7 +16,6 @@ package ddf.catalog.filter.proxy.adapter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
@@ -136,19 +135,41 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
             throw new UnsupportedOperationException(
                     Function.class.getSimpleName() + " must not be null.");
         }
+        List<Expression> parameters = expression.getParameters();
 
+        int argCount = expression.getFunctionName()
+                .getArgumentCount();
+
+        if (parameters == null || parameters.size() != argCount) {
+            throw new UnsupportedOperationException(
+                    Function.class.getSimpleName() + " requires " + argCount + " arguments.");
+        }
         //unwrap the function arguments and return them
-        return expression.getParameters()
-                .stream()
-                .map(e -> visit(e, delegate))
-                .collect(Collectors.toList());
+        List<Object> ret = new ArrayList<>(argCount);
+        for (int i = 0; i < argCount; i++) {
+            Class<?> type = expression.getFunctionName()
+                    .getArguments()
+                    .get(i)
+                    .getType();
+            Expression arg = parameters.get(i);
+            ret.add(arg.accept(this, type)); //the type would only be used by literals
+        }
+
+        return ret;
     }
 
     @Override
-    public Object visit(Literal expression, Object delegate) {
+    public Object visit(Literal expression, Object clazz) {
         if (expression.getValue() == null) {
             throw new UnsupportedOperationException(
                     Literal.class.getSimpleName() + " value must not be null.");
+        }
+        //try and get the object as the requested class otherwise just return the object
+        if (clazz instanceof Class) {
+            Object ret = expression.evaluate(null, (Class) clazz);
+            if (ret != null) {
+                return ret;
+            } //could throw an exception saying it wasn't of the correct type?
         }
         return expression.getValue();
     }
@@ -166,15 +187,6 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
     public Object visit(Subtract expression, Object delegate) {
         throw new UnsupportedOperationException(Subtract.NAME + " expresssion not supported.");
-    }
-
-    //helper method because we are extending two visitor classes its confusing that you have to do
-    //accept to start visiting expressions inside of a filter
-    protected Object visit(Expression expression, Object extraData) {
-        if (expression == null) {
-            return null;
-        }
-        return expression.accept(this, extraData);
     }
 
     public Object visitNullFilter(Object delegate) {
@@ -971,7 +983,10 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         if (expression1 instanceof Function && expression2 instanceof Literal) {
             functionName = ((Function) expression1).getName();
             functionArgs = (List) expression1.accept(this, delegate);
-            literal = expression2.accept(this, delegate);
+            literal = expression2.accept(this,
+                    ((Function) expression1).getFunctionName()
+                            .getReturn()
+                            .getType());
             return new ExpressionValues(functionName, functionArgs, literal);
         } else if (expression2 instanceof Function && expression1 instanceof Literal) {
             literal = expression1.accept(this, delegate);

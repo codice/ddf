@@ -160,19 +160,22 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     @Override
-    public SolrQuery propertyIsEqualTo(String functionName, List<Object> parameters,
+    public SolrQuery propertyIsEqualTo(String functionName, List<Object> arguments,
             Object literal) {
         String not;
         SolrQuery query;
         switch (functionName) {
         case "divisibleBy":
-            //the return type is boolean so cast the literal to boolean and in effect this is just a NOT so we will update the query as such
-            not = Boolean.parseBoolean(literal.toString()) ? "" : "!";
-            query = propertyIsDivisibleBy(parameters);
+
+            //the return type is boolean so cast the literal to boolean and in effect this is just a NOT so we will update the query as such9
+            not = (Boolean) literal ? "" : "!";
+            query = propertyIsDivisibleBy((String) arguments.get(0), (Long) arguments.get(1));
             return query.setQuery(not + query.getQuery());
         case "proximity":
-            not = Boolean.parseBoolean(literal.toString()) ? "" : "!";
-            query = propertyIsInProximityTo(parameters);
+            not = (Boolean) literal ? "" : "!";
+            query = propertyIsInProximityTo((String) arguments.get(0),
+                    (Integer) arguments.get(1),
+                    (String) arguments.get(2));
             return query.setQuery(not + query.getQuery());
         default:
             throw new UnsupportedOperationException(functionName + " is not supported.");
@@ -569,20 +572,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return getLessThanOrEqualToQuery(propertyName, AttributeFormat.DOUBLE, literal);
     }
 
-    public SolrQuery propertyIsDivisibleBy(List<Object> arguments) {
-        if (arguments.size() != 2) {
-            throw new UnsupportedOperationException("Required number of arguments not found");
-        }
-        try {
-            Long divisor = Long.parseLong(arguments.get(1)
-                    .toString());
-            return propertyIsDivisibleBy(arguments.get(0)
-                    .toString(), divisor);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Divisor parameter was not valid");
-        }
-    }
-
     public SolrQuery propertyIsDivisibleBy(String propertyName, long divisor) {
         //use the sort key for the field since divisible can't operate on multivalued fields (it will always be a single value).
         List<String> solrExpressions = resolver.getAnonymousField(propertyName)
@@ -801,15 +790,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     public SolrQuery xpathIsFuzzy(String xpath, String literal) {
         // XPath does not support fuzzy matching, doing best effort case-insensitive evaluation instead
         return getXPathQuery(xpath, literal, false);
-    }
-
-    public SolrQuery propertyIsInProximityTo(List<Object> arguments) {
-        return propertyIsInProximityTo(arguments.get(0)
-                        .toString(),
-                Integer.parseInt(arguments.get(1)
-                        .toString()),
-                arguments.get(2)
-                        .toString());
     }
 
     public SolrQuery propertyIsInProximityTo(String propertyName, Integer distance,
