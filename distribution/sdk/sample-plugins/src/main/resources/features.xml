@@ -14,9 +14,9 @@
 <features name="ddf-sdk-sample-plugins-${project.version}">
 
 	<feature name="ddf-sdk-sample-plugins" version="${project.version}"
-		description="Sample Plugins for DDF">
+		description="Sample Plugins">
 		<bundle start-level='80'>mvn:ddf.distribution/sample-plugins/${project.version}</bundle>
 	</feature>
 
 </features>
-	
+

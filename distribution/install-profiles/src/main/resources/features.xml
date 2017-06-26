@@ -28,7 +28,7 @@
     </feature>
 
     <feature name="profile-development" install="manual" version="${project.version}"
-    	description="This will install all the DDF applications for development purposes." start-level="2">
+    	description="This will install all the applications for development purposes." start-level="2">
 		<feature>opendj-embedded</feature>
         <feature>admin-app</feature>
         <feature>platform-app</feature>

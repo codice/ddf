@@ -23,7 +23,7 @@
             name="CSW URL" id="cswUrl" required="true" type="String"/>
 
         <AD name="Event Service Address" id="eventServiceAddress" required="false" type="String"
-            description="DDF Event Service endpoint. Do NOT include .wsdl or ?wsdl.">
+            description="Event Service endpoint. Do NOT include .wsdl or ?wsdl.">
         </AD>
 
         <AD name="Register for Events" id="registerForEvents" required="false" type="Boolean"

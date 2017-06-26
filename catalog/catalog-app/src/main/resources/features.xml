@@ -238,7 +238,7 @@
     </feature>
 
     <feature name="catalog-transformer-tika" install="auto" version="${project.version}"
-             description="DDF default Input Transformer.">
+             description="Default Input Transformer.">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/tika-input-transformer/${project.version}</bundle>
     </feature>
@@ -250,7 +250,7 @@
     </feature>
 
     <feature name="catalog-transformer-json" install="auto" version="${project.version}"
-             description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
+             description="GeoJSON Transformer translates metacards into GeoJSON.">
         <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/geojson-metacard-transformer/${project.version}</bundle>
@@ -270,7 +270,7 @@
     </feature>
 
     <feature name="catalog-transformer-geoformatter" install="manual" version="${project.version}"
-             description="DDF Geo library to help with conversion of geometry objects into various formats such GeoJson, GeoRSS, etc.">
+             description="Geo library to help with conversion of geometry objects into various formats such GeoJson, GeoRSS, etc.">
         <feature prerequisite="true">abdera</feature>
         <bundle>mvn:ddf.catalog.common/geo-formatter/${project.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
@@ -298,34 +298,34 @@
     </feature>
 
     <feature name="catalog-security-filter" install="auto" version="${project.version}"
-             description="DDF Catalog Security Filtering">
+             description="Catalog Security Filtering">
         <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-security-operationplugin" install="auto" version="${project.version}"
-             description="DDF Catalog Security Operation Plugin">
+             description="Catalog Security Operation Plugin">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-operationplugin/${project.version}
         </bundle>
     </feature>
 
     <feature name="catalog-security-plugin" install="auto" version="${project.version}"
-             description="DDF Security Plugins">
+             description="Catalog Security Plugins">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-plugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-security-resourceplugin" install="auto" version="${project.version}"
-             description="DDF Catalog Resource URI Policy Plugins">
+             description="Catalog Resource URI Policy Plugins">
         <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-resourceplugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-security-policyplugin" install="auto" version="${project.version}"
-             description="DDF Catalog Policy Plugins">
+             description="Catalog Policy Plugins">
         <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-policyplugin/${project.version}</bundle>
@@ -333,7 +333,7 @@
 
     <feature name="catalog-security-pointofcontact-readonly" install="auto"
              version="${project.version}"
-             description="DDF Point of Contact Read Only">
+             description="Point of Contact Read Only">
         <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>
@@ -345,7 +345,7 @@
 
     <feature name="catalog-security-metacardattributeplugin" install="auto"
              version="${project.version}"
-             description="DDF Catalog Metacard Attribute Policy Plugin">
+             description="Catalog Metacard Attribute Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>
             mvn:ddf.catalog.security/catalog-security-metacardattributeplugin/${project.version}
@@ -353,32 +353,32 @@
     </feature>
 
     <feature name="catalog-security-xmlattributeplugin" install="auto" version="${project.version}"
-             description="DDF Catalog XML Attribute Policy Plugin">
+             description="Catalog XML Attribute Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-xmlattributeplugin/${project.version}
         </bundle>
     </feature>
 
     <feature name="catalog-admin-module-sources" install="auto" version="${project.version}"
-             description="DDF Admin Module">
+             description="Catalog Admin Module Sources">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-admin-module-maplayers" install="auto" version="${project.version}"
-             description="DDF Admin Module">
+             description="Catalog Admin Module Maplayers">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-maplayers/${project.version}</bundle>
     </feature>
 
     <feature name="admin-poller-service-bean" install="auto" version="${project.version}"
-             description="DDF Admin Poller">
+             description="Admin Poller">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.admin/catalog-admin-poller-service/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-streaming" install="manual" version="${project.version}"
-             description="DDF Generic Input Transformer API">
+             description="Generic Streaming Input Transformer API">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-streaming-api/${project.version}
         </bundle>
@@ -387,14 +387,14 @@
     </feature>
 
     <feature name="catalog-plugin-metacard-validation" install="manual" version="${project.version}"
-             description="DDF Metacard Validator Plugins">
+             description="Metacard Validator Plugins">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}
         </bundle>
     </feature>
 
     <feature name="catalog-core-validator" install="manual" version="${project.version}"
-             description="DDF Metacard and attribute validation services">
+             description="Metacard and attribute validation services">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-validator/${project.version}</bundle>
         <feature>catalog-plugin-metacard-validation</feature>
@@ -407,26 +407,26 @@
     </feature>
 
     <feature name="catalog-transformer-pdf" install="auto" version="${project.version}"
-             description="DDF PDF Input Transformer">
+             description="PDF Input Transformer">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pdf/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-versioning-plugin" install="manual" version="${project.version}"
-             description="DDF Metacard Versioning Plugin">
+             description="Metacard Versioning Plugin">
         <feature prerequisite="true">catalog-core</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-versioning/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-pptx" install="auto" version="${project.version}"
-             description="DDF PPTX Input Transformer">
+             description="PPTX Input Transformer">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pptx/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-validator-metacardduplication" install="manual"
              version="${project.version}"
-             description="DDF Metacard Duplicate Validator">
+             description="Metacard Duplicate Validator">
         <feature prerequisite="true">catalog-core</feature>
         <bundle>
             mvn:org.codice.ddf.validator/catalog-validator-metacardduplication/${project.version}
@@ -435,7 +435,7 @@
 
     <feature name="catalog-validator-metacardlocation" install="auto"
              version="${project.version}"
-             description="DDF Metacard Location Validator">
+             description="Metacard Location Validator">
         <feature prerequisite="true">catalog-core</feature>
         <bundle>
             mvn:org.codice.ddf.validator/catalog-validator-metacardlocation/${project.version}
@@ -495,7 +495,7 @@
     </feature>
 
     <feature name="catalog-ftp" install="manual" version="${project.version}"
-             description="FTP endpoint for ingesting files into the DDF catalog. Supports PUT and MPUT operations only. Avoids the extra IO overhead of otherwise having to temporarily write the file to the file system.">
+             description="FTP endpoint for ingesting files into the catalog. Supports PUT and MPUT operations only. Avoids the extra IO overhead of otherwise having to temporarily write the file to the file system.">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog/ftp/${project.version}</bundle>
         <bundle>mvn:org.apache.mina/mina-core/${mina.version}</bundle>
