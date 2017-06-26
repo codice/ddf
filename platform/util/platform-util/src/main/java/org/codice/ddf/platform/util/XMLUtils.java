@@ -269,9 +269,9 @@ public class XMLUtils {
         return xmlParser;
     }
 
-    public Document parseDocument(InputStream inputStream)
+    public Document parseDocument(InputStream inputStream, boolean namespaceAware)
             throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilder builder = getSecureDocumentBuilder(false);
+        DocumentBuilder builder = getSecureDocumentBuilder(namespaceAware);
         return builder.parse(inputStream);
     }
 
