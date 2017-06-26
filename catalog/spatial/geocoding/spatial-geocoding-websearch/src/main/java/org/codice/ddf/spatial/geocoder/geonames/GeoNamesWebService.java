@@ -13,12 +13,13 @@
  **/
 package org.codice.ddf.spatial.geocoder.geonames;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.Validate.notNull;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -26,6 +27,7 @@ import java.util.Optional;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -62,6 +64,8 @@ public class GeoNamesWebService implements GeoEntryQueryable {
 
     private static final String GEONAMES_COUNTRYCODE = "countryCode";
 
+    private static final int GEONAMES_MAX_ROWS = 1000;
+
     private static final String LAT_KEY = "lat";
 
     private static final String LON_KEY = "lng";
@@ -75,7 +79,6 @@ public class GeoNamesWebService implements GeoEntryQueryable {
     @Override
     public List<GeoEntry> query(String queryString, int maxResults) throws GeoEntryQueryException {
 
-        List<GeoEntry> entries = new ArrayList<>();
         String location = getUrlEncodedLocation(queryString);
 
         String urlStr = String.format("%s://%s/searchJSON?q=%s&username=%s&maxRows=%d",
@@ -83,7 +86,7 @@ public class GeoNamesWebService implements GeoEntryQueryable {
                 GEONAMES_API_ADDRESS,
                 location,
                 USERNAME,
-                maxResults);
+                limitMaxRows(maxResults));
 
         Object result = webQuery(urlStr);
 
@@ -92,30 +95,26 @@ public class GeoNamesWebService implements GeoEntryQueryable {
                 JSONObject jsonResult = (JSONObject) result;
                 JSONArray geoNames = (JSONArray) jsonResult.get(GEONAMES_KEY);
                 if (geoNames != null) {
-                    geoNames.forEach(item -> {
-                        JSONObject obj = (JSONObject) item;
-                        GeoEntry entry =
-                                new GeoEntry.Builder().name((String) obj.get(PLACENAME_KEY))
-                                        .population((Long) obj.get(POPULATION_KEY))
-                                        .featureCode((String) obj.get(ADMIN_CODE_KEY))
-                                        .latitude(Double.valueOf((String) obj.get(LAT_KEY)))
-                                        .longitude(Double.valueOf((String) obj.get(LON_KEY)))
-                                        .build();
-                        entries.add(entry);
-                    });
+                    return geoNames.stream()
+                            .map(JSONObject.class::cast)
+                            .map(obj -> new GeoEntry.Builder().name((String) obj.get(PLACENAME_KEY))
+                                    .population((Long) obj.get(POPULATION_KEY))
+                                    .featureCode((String) obj.get(ADMIN_CODE_KEY))
+                                    .latitude(Double.valueOf((String) obj.get(LAT_KEY)))
+                                    .longitude(Double.valueOf((String) obj.get(LON_KEY)))
+                                    .build())
+                            .collect(toList());
                 }
             }
         }
 
-        return entries;
+        return Collections.emptyList();
     }
 
     @Override
     public List<NearbyLocation> getNearestCities(String locationWkt, int radiusInKm, int maxResults)
             throws java.text.ParseException, GeoEntryQueryException {
         notNull(locationWkt, "argument locationWkt may not be null");
-
-        List<NearbyLocation> locations = new ArrayList<>();
 
         Point wktCenterPoint = createPointFromWkt(locationWkt);
 
@@ -125,7 +124,7 @@ public class GeoNamesWebService implements GeoEntryQueryable {
                 GEONAMES_API_ADDRESS,
                 wktCenterPoint.getY(),
                 wktCenterPoint.getX(),
-                maxResults,
+                limitMaxRows(maxResults),
                 radiusInKm,
                 USERNAME);
 
@@ -135,18 +134,20 @@ public class GeoNamesWebService implements GeoEntryQueryable {
             JSONObject jsonResult = (JSONObject) result;
             JSONArray geoNames = (JSONArray) jsonResult.get(GEONAMES_KEY);
             if (geoNames != null) {
-                geoNames.forEach(item -> {
-                    JSONObject obj = (JSONObject) item;
-                    double lat = Double.valueOf((String) obj.get(LAT_KEY));
-                    double lon = Double.valueOf((String) obj.get(LON_KEY));
-                    String cityName = (String) obj.get(PLACENAME_KEY);
-                    Point cityPoint = new PointImpl(lon, lat, SpatialContext.GEO);
-                    locations.add(new NearbyLocationImpl(wktCenterPoint, cityPoint, cityName));
-                });
+                return geoNames.stream()
+                        .map(JSONObject.class::cast)
+                        .map(obj -> {
+                            double lat = Double.valueOf((String) obj.get(LAT_KEY));
+                            double lon = Double.valueOf((String) obj.get(LON_KEY));
+                            String cityName = (String) obj.get(PLACENAME_KEY);
+                            Point cityPoint = new PointImpl(lon, lat, SpatialContext.GEO);
+                            return new NearbyLocationImpl(wktCenterPoint, cityPoint, cityName);
+                        })
+                        .collect(toList());
             }
         }
 
-        return locations;
+        return Collections.emptyList();
     }
 
     @Override
@@ -203,13 +204,17 @@ public class GeoNamesWebService implements GeoEntryQueryable {
         return null;
     }
 
+    private int limitMaxRows(int value) {
+        return value > GEONAMES_MAX_ROWS ? GEONAMES_MAX_ROWS : value;
+    }
+
     private Object webQuery(String urlStr) {
         final String response;
 
         try {
             WebClient client = createWebClient(urlStr);
             response = client.acceptEncoding(StandardCharsets.UTF_8.name())
-                    .accept("application/json")
+                    .accept(MediaType.APPLICATION_JSON)
                     .get(String.class);
         } catch (WebApplicationException | ProcessingException e) {
             LOGGER.debug("Error while making GeoNames request: {}", urlStr, e);

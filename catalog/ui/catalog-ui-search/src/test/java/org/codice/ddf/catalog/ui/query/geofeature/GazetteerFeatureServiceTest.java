@@ -13,8 +13,8 @@
  **/
 package org.codice.ddf.catalog.ui.query.geofeature;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -72,8 +72,7 @@ public class GazetteerFeatureServiceTest {
 
         List<String> results = gazetteerFeatureService.getSuggestedFeatureNames(TEST_QUERY,
                 maxResults);
-        assertThat(results.get(0), is(equalTo(GEO_ENTRY_1.getName())));
-        assertThat(results.get(1), is(equalTo(GEO_ENTRY_2.getName())));
+        assertThat(results, contains(GEO_ENTRY_1.getName(), GEO_ENTRY_2.getName()));
     }
 
     @Test
