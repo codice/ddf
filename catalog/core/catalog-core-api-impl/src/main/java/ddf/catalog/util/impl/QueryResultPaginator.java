@@ -74,7 +74,6 @@ public class QueryResultPaginator implements Iterator<List<Result>> {
      */
     public boolean hasNext() {
 
-        boolean hasMoreResults;
         if (notEmpty()) {
             return true;
         } else {
