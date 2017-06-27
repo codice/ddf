@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
+import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -658,10 +659,16 @@ public class QueryOperations extends DescribableImpl {
     private Filter getNonVersionTagsFilter() {
         return frameworkProperties.getFilterBuilder()
                 .not(frameworkProperties.getFilterBuilder()
-                        .attribute(Metacard.TAGS)
-                        .is()
-                        .like()
-                        .text(MetacardVersion.VERSION_TAG));
+                        .anyOf(frameworkProperties.getFilterBuilder()
+                                        .attribute(Metacard.TAGS)
+                                        .is()
+                                        .like()
+                                        .text(MetacardVersion.VERSION_TAG),
+                                frameworkProperties.getFilterBuilder()
+                                        .attribute(Metacard.TAGS)
+                                        .is()
+                                        .like()
+                                        .text(DeletedMetacard.DELETED_TAG)));
     }
 
     static class QuerySources {
