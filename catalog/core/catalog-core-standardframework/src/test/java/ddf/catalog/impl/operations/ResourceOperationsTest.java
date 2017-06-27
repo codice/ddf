@@ -14,9 +14,12 @@
 
 package ddf.catalog.impl.operations;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,8 +27,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +39,7 @@ import org.junit.Test;
 
 import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.impl.MockMemoryStorageProvider;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
@@ -129,6 +135,7 @@ public class ResourceOperationsTest {
         metacard = new MetacardImpl();
         metacard.setId("Bobbert");
         metacard.setTitle("Bobbert's Title");
+        metacard.setResourceURI(testUri);
 
         resourceOperations = new ResourceOperations(frameworkProperties,
                 queryOperationsMock,
@@ -400,6 +407,98 @@ public class ResourceOperationsTest {
 
         verify(resourceRequestMock).getAttributeValue();
         verify(resourceRequestMock).getAttributeName();
+    }
+
+    @Test
+    public void testGetResourceInfoWithFragment() throws Exception {
+        when(resourceRequestMock.getAttributeValue()).thenReturn(testUri);
+        when(resourceRequestMock.getAttributeName()).thenReturn("resource-uri");
+        StringBuilder federatedSite = new StringBuilder();
+        Map<String, Serializable> requestProperties = new HashMap<>();
+        ArrayList<Result> mockResultList = new ArrayList<>();
+        mockResultList.add(resultMock);
+        when(resultMock.getMetacard()).thenReturn(metacard);
+        when(queryOperationsMock.query(any(QueryRequest.class),
+                any(FederationStrategy.class),
+                anyBoolean(),
+                anyBoolean())).thenReturn(queryResponseMock);
+        when(queryResponseMock.getResults()).thenReturn(mockResultList);
+
+        ResourceOperations resourceOperationsSpy = spy(resourceOperations);
+        resourceOperationsSpy.getResourceInfo(resourceRequestMock,
+                "site",
+                isEnterprise,
+                federatedSite,
+                requestProperties,
+                false);
+        verify(resourceOperationsSpy).createPropertyStartsWithQuery(Metacard.RESOURCE_URI,
+                "bobUri:test");
+    }
+
+    @Test
+    public void testGetResourceInfoWithEscapedCharacters() throws Exception {
+        URI uri = new URI("scheme:///" + URLEncoder.encode("part1?file://some/pathto/file", "UTF-8")
+                + "#fragment");
+        when(resourceRequestMock.getAttributeValue()).thenReturn(uri);
+        when(resourceRequestMock.getAttributeName()).thenReturn("resource-uri");
+        StringBuilder federatedSite = new StringBuilder();
+        Map<String, Serializable> requestProperties = new HashMap<>();
+        ArrayList<Result> mockResultList = new ArrayList<>();
+        mockResultList.add(resultMock);
+        when(resultMock.getMetacard()).thenReturn(metacard);
+        when(queryOperationsMock.query(any(QueryRequest.class),
+                any(FederationStrategy.class),
+                anyBoolean(),
+                anyBoolean())).thenReturn(queryResponseMock);
+        when(queryResponseMock.getResults()).thenReturn(mockResultList);
+
+        ResourceOperations resourceOperationsSpy = spy(resourceOperations);
+        ResourceOperations.ResourceInfo resourceInfo = resourceOperationsSpy.getResourceInfo(
+                resourceRequestMock,
+                "site",
+                isEnterprise,
+                federatedSite,
+                requestProperties,
+                false);
+        verify(resourceOperationsSpy).createPropertyStartsWithQuery(Metacard.RESOURCE_URI,
+                "scheme:///" + URLEncoder.encode("part1?file://some/pathto/file"));
+        assertThat(resourceInfo.getResourceUri(), equalTo(uri));
+    }
+
+    @Test
+    public void testGetResourceInfoWithFragmentAndMultipleResults() throws Exception {
+        when(resourceRequestMock.getAttributeValue()).thenReturn(testUri);
+        when(resourceRequestMock.getAttributeName()).thenReturn("resource-uri");
+        StringBuilder federatedSite = new StringBuilder();
+        Map<String, Serializable> requestProperties = new HashMap<>();
+        Result mockResult1 = mock(Result.class);
+        Result mockResult2 = mock(Result.class);
+        ArrayList<Result> mockResultList = new ArrayList<>();
+        mockResultList.add(mockResult1);
+        mockResultList.add(mockResult2);
+        MetacardImpl wrongMetacard = new MetacardImpl();
+        wrongMetacard.setId("wrong");
+        wrongMetacard.setTitle("wrong title");
+        wrongMetacard.setResourceURI(new URI("bobUri", "test", "wrongfragment"));
+        when(mockResult1.getMetacard()).thenReturn(wrongMetacard);
+        when(mockResult2.getMetacard()).thenReturn(metacard);
+        when(queryOperationsMock.query(any(QueryRequest.class),
+                any(FederationStrategy.class),
+                anyBoolean(),
+                anyBoolean())).thenReturn(queryResponseMock);
+        when(queryResponseMock.getResults()).thenReturn(mockResultList);
+
+        ResourceOperations resourceOperationsSpy = spy(resourceOperations);
+        ResourceOperations.ResourceInfo resourceInfo = resourceOperationsSpy.getResourceInfo(
+                resourceRequestMock,
+                "site",
+                isEnterprise,
+                federatedSite,
+                requestProperties,
+                false);
+        verify(resourceOperationsSpy).createPropertyStartsWithQuery(Metacard.RESOURCE_URI,
+                "bobUri:test");
+        assertThat(resourceInfo.getResourceUri(), equalTo(testUri));
     }
 
     @Test(expected = ResourceNotFoundException.class)

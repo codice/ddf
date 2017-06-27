@@ -34,7 +34,7 @@ import spock.lang.Unroll
 
 import java.util.concurrent.ExecutorService
 
-class ResourceOperationsTest extends Specification {
+class ResourceOperationsSpec extends Specification {
     private FrameworkProperties frameworkProperties
     private QueryOperations queryOperations
     private OperationsSecuritySupport opsSecurity

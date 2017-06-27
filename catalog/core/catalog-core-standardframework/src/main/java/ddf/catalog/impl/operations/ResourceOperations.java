@@ -336,10 +336,8 @@ public class ResourceOperations extends DescribableImpl {
             }
 
             Serializable enterpriseProperty = requestProperties.get(ResourceRequest.IS_ENTERPRISE);
-            if (enterpriseProperty != null) {
-                if (Boolean.parseBoolean(enterpriseProperty.toString())) {
-                    isEnterprise = true;
-                }
+            if (enterpriseProperty != null && Boolean.parseBoolean(enterpriseProperty.toString())) {
+                isEnterprise = true;
             }
 
             // check if the resourceRequest has an ID only
@@ -552,137 +550,124 @@ public class ResourceOperations extends DescribableImpl {
             Map<String, Serializable> requestProperties, boolean fanoutEnabled)
             throws ResourceNotSupportedException, ResourceNotFoundException {
 
-        Metacard metacard;
-        URI resourceUri;
+
+        ResourceInfo resourceInfo;
+        Query query = null;
+        URI resourceUri = null;
         String name = resourceRequest.getAttributeName();
+        Object value = resourceRequest.getAttributeValue();
+
+        validateResourceInfoRequest(name, value);
+
         try {
             if (ResourceRequest.GET_RESOURCE_BY_PRODUCT_URI.equals(name)) {
                 // because this is a get resource by product uri, we already
                 // have the product uri to return
                 LOGGER.debug("get resource by product uri");
-                Object value = resourceRequest.getAttributeValue();
-
-                if (value instanceof URI) {
-                    resourceUri = (URI) value;
-                    if (StringUtils.isNotBlank(resourceUri.getFragment())) {
-                        resourceRequest.getProperties()
-                                .put(ContentItem.QUALIFIER, resourceUri.getFragment());
-                        try {
-                            resourceUri = new URI(resourceUri.getScheme(),
-                                    resourceUri.getSchemeSpecificPart(),
-                                    null);
-                        } catch (URISyntaxException e) {
-                            throw new ResourceNotFoundException(
-                                    "Could not resolve URI by doing a URI based query: " + value);
-                        }
-                    }
-
-                    Query propertyEqualToUriQuery =
-                            createPropertyIsEqualToQuery(Metacard.RESOURCE_URI,
-                                    resourceUri.toString());
-
-                    // if isEnterprise, go out and obtain the actual source
-                    // where the product's metacard is stored.
-                    QueryRequest queryRequest = new QueryRequestImpl(anyTag(propertyEqualToUriQuery,
-                            site,
-                            isEnterprise),
-                            isEnterprise,
-                            Collections.singletonList(site == null ? this.getId() : site),
-                            resourceRequest.getProperties());
-
-                    QueryResponse queryResponse = queryOperations.query(queryRequest,
-                            null,
-                            true,
-                            fanoutEnabled);
-                    if (!queryResponse.getResults()
-                            .isEmpty()) {
-                        metacard = queryResponse.getResults()
-                                .get(0)
-                                .getMetacard();
-                        federatedSite.append(metacard.getSourceId());
-                        LOGGER.debug("Trying to lookup resource URI {} for metacardId: {}",
-                                resourceUri,
-                                resourceUri);
-
-                        if (!requestProperties.containsKey(Metacard.ID)) {
-                            requestProperties.put(Metacard.ID, metacard.getId());
-                        }
-                        if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
-                            requestProperties.put(Metacard.RESOURCE_URI, metacard.getResourceURI());
-                        }
-                    } else {
+                resourceUri = (URI) value;
+                URI truncatedUri = resourceUri;
+                if (StringUtils.isNotBlank(resourceUri.getFragment())) {
+                    resourceRequest.getProperties()
+                            .put(ContentItem.QUALIFIER, resourceUri.getFragment());
+                    try {
+                        //Creating the truncated URL this way is important to preserve encoding!!
+                        String uriString = resourceUri.toString();
+                        truncatedUri = new URI(uriString.substring(0, uriString.lastIndexOf('#')));
+                    } catch (URISyntaxException e) {
                         throw new ResourceNotFoundException(
-                                "Could not resolve source id for URI by doing a URI based query: "
-                                        + resourceUri);
+                                "Could not resolve URI by doing a URI based query: " + value);
                     }
-                } else {
-                    throw new ResourceNotSupportedException(
-                            "The GetResourceRequest with attribute value of class '"
-                                    + value.getClass()
-                                    + "' is not supported by this instance of the CatalogFramework.");
                 }
+                query = createPropertyStartsWithQuery(Metacard.RESOURCE_URI,
+                        truncatedUri.toString());
             } else if (ResourceRequest.GET_RESOURCE_BY_ID.equals(name)) {
                 // since this is a get resource by id, we need to obtain the
                 // product URI
                 LOGGER.debug("get resource by id");
-                Object value = resourceRequest.getAttributeValue();
-                if (value instanceof String) {
-                    String metacardId = (String) value;
-                    LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
-                    QueryRequest queryRequest = new QueryRequestImpl(anyTag(createMetacardIdQuery(
-                            metacardId), site, isEnterprise),
-                            isEnterprise,
-                            Collections.singletonList(site == null ? this.getId() : site),
-                            resourceRequest.getProperties());
-
-                    QueryResponse queryResponse = queryOperations.query(queryRequest,
-                            null,
-                            true,
-                            fanoutEnabled);
-                    if (!queryResponse.getResults()
-                            .isEmpty()) {
-                        metacard = queryResponse.getResults()
-                                .get(0)
-                                .getMetacard();
-                        resourceUri = metacard.getResourceURI();
-                        federatedSite.append(metacard.getSourceId());
-                        LOGGER.debug("Trying to lookup resource URI {} for metacardId: {}",
-                                resourceUri,
-                                metacardId);
-                    } else {
-                        throw new ResourceNotFoundException(
-                                "Could not resolve source id for URI by doing an id based query: "
-                                        + metacardId);
-                    }
-
-                    if (!requestProperties.containsKey(Metacard.ID)) {
-                        requestProperties.put(Metacard.ID, metacardId);
-                    }
-                    if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
-                        requestProperties.put(Metacard.RESOURCE_URI, resourceUri);
-                    }
-                } else {
-                    throw new ResourceNotSupportedException(
-                            "The GetResourceRequest with attribute value of class '"
-                                    + value.getClass()
-                                    + "' is not supported by this instance of the CatalogFramework.");
-                }
-            } else {
-                throw new ResourceNotSupportedException(
-                        "The GetResourceRequest with attribute name '" + name
-                                + "' is not supported by this instance of the CatalogFramework.");
+                String metacardId = (String) value;
+                LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
+                query = createMetacardIdQuery(metacardId);
             }
+
+            QueryRequest queryRequest = new QueryRequestImpl(anyTag(query,
+                    site,
+                    isEnterprise),
+                    isEnterprise,
+                    Collections.singletonList(site == null ? this.getId() : site),
+                    resourceRequest.getProperties());
+
+            resourceInfo = getResourceInfo(queryRequest,
+                    resourceUri,
+                    requestProperties,
+                    federatedSite,
+                    fanoutEnabled);
         } catch (UnsupportedQueryException | FederationException e) {
 
             throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE, e);
         }
 
-        LOGGER.debug("Returning resourceURI: {}", resourceUri);
-        if (resourceUri == null) {
+        if (resourceInfo.getResourceUri() == null) {
             throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE);
+        }
+        LOGGER.debug("Returning resourceURI: {}", resourceInfo.getResourceUri());
+        return resourceInfo;
+    }
+
+    private ResourceInfo getResourceInfo(QueryRequest queryRequest, URI uri,
+            Map<String, Serializable> requestProperties, StringBuilder federatedSite,
+            boolean fanoutEnabled)
+            throws ResourceNotFoundException, UnsupportedQueryException, FederationException {
+        Metacard metacard;
+        URI resourceUri = uri;
+        QueryResponse queryResponse = queryOperations.query(queryRequest,
+                null,
+                true,
+                fanoutEnabled);
+        if (queryResponse.getResults()
+                .isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "Could not resolve source id for URI by doing a URI based query.");
+        }
+        metacard = queryResponse.getResults()
+                .get(0)
+                .getMetacard();
+        if (uri != null && queryResponse.getResults()
+                .size() > 1) {
+            for (Result result : queryResponse.getResults()) {
+                if (uri.equals(result.getMetacard()
+                        .getResourceURI())) {
+                    metacard = result.getMetacard();
+                    break;
+                }
+            }
+        }
+        if(resourceUri == null) {
+            resourceUri = metacard.getResourceURI();
+        }
+        federatedSite.append(metacard.getSourceId());
+        LOGGER.debug("Trying to lookup resource URI {} for metacardId: {}",
+                resourceUri,
+                metacard.getId());
+
+        if (!requestProperties.containsKey(Metacard.ID)) {
+            requestProperties.put(Metacard.ID, metacard.getId());
+        }
+        if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
+            requestProperties.put(Metacard.RESOURCE_URI, metacard.getResourceURI());
         }
 
         return new ResourceInfo(metacard, resourceUri);
+    }
+
+    private void validateResourceInfoRequest(String name, Object value)
+            throws ResourceNotSupportedException {
+        if (!(ResourceRequest.GET_RESOURCE_BY_PRODUCT_URI.equals(name) && value instanceof URI)
+                && !(ResourceRequest.GET_RESOURCE_BY_ID.equals(name) && value instanceof String)) {
+            throw new ResourceNotSupportedException(String.format(
+                    "The GetResourceRequest with attribute name '%s' and value of class '%s' is not supported by this instance of the CatalogFramework.",
+                    name,
+                    value.getClass()));
+        }
     }
 
     private Query anyTag(Query query, String site, boolean isEnterprise) {
@@ -731,6 +716,7 @@ public class ResourceOperations extends DescribableImpl {
      *
      * @param metacard the {@link Metacard} to get the supported options for
      * @return the {@link Set} of supported options for the metacard
+     * @deprecated
      */
     @Deprecated
     private Set<String> getOptionsFromLocalProvider(Metacard metacard) {
@@ -758,6 +744,7 @@ public class ResourceOperations extends DescribableImpl {
      * @param sourceId the ID of the federated source to look for the {@link Metacard}
      * @return the {@link Set} of supported options for the metacard
      * @throws ResourceNotFoundException if the {@link ddf.catalog.source.Source} cannot be found for the source ID
+     * @deprecated
      */
     @Deprecated
     private Set<String> getOptionsFromFederatedSource(Metacard metacard, String sourceId)
@@ -786,6 +773,14 @@ public class ResourceOperations extends DescribableImpl {
     protected Query createPropertyIsEqualToQuery(String propertyName, String literal) {
         return new QueryImpl(new PropertyIsEqualToLiteral(new PropertyNameImpl(propertyName),
                 new LiteralImpl(literal)));
+    }
+
+    protected Query createPropertyStartsWithQuery(String propertyName, String literal) {
+        return new QueryImpl(frameworkProperties.getFilterBuilder()
+                .attribute(propertyName)
+                .is()
+                .like()
+                .text(literal + FilterDelegate.WILDCARD_CHAR));
     }
 
     /**
