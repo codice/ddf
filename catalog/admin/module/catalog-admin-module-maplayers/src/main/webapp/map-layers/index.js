@@ -1,11 +1,12 @@
 import React from 'react'
 
-import { Map } from 'immutable'
+import { Map, fromJS } from 'immutable'
 import { connect } from 'react-redux'
 
 import CircularProgress from 'material-ui/CircularProgress'
 import ContentAdd from 'material-ui/svg-icons/content/add'
 import DeleteIcon from 'material-ui/svg-icons/action/delete'
+import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
 import Flexbox from 'flexbox-react'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
@@ -28,18 +29,23 @@ import 'brace/theme/github'
 import options from './options'
 import {
   // actions
+  set,
   fetch,
   update,
   save,
   validate,
+  validateJson,
+  validateStructure,
   reset,
   message,
+  setInvalid,
 
   // selectors
   getProviders,
   isLoading,
   hasChanges,
-  getMessage
+  getMessage,
+  getInvalid
 } from './reducer'
 
 const submittingStyle = {
@@ -117,7 +123,7 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
         floatingLabelText='Provider URL' />
     </div>
     <Flexbox flex='1' style={{ padding: '0 16px' }}>
-      <Flexbox flex='5' style={{ marginRight: 20 }}>
+      <Flexbox flex='3' style={{ marginRight: 20 }}>
         <div style={{ width: '100%' }}>
           <SelectField
             floatingLabelText='Provider Type'
@@ -145,7 +151,7 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
           step={0.01}
           value={typeof provider.get('alpha') === 'number' ? provider.get('alpha') : ''}
           errorText={error.get('alpha')}
-          floatingLabelText='Alpha'
+          floatingLabelText='Alpha (0 - 1)'
           fullWidth
           onChange={(e, value) => {
             if (value === '') {
@@ -237,54 +243,129 @@ let FixedHeader = ({ muiTheme: { palette }, disabled = true, onSave, onReset }) 
 
 FixedHeader = muiThemeable()(FixedHeader)
 
-const MapLayers = ({ onFetch, onUpdate, onSave, onReset, onMessage, disabled, providers = [], errors, loading, message }) => (
-  <Spinner submitting={loading}>
-    <Mount on={onFetch} />
-    <FixedHeader onReset={onReset} onSave={onSave} disabled={disabled} />
+const FixConfig = ({ buffer, error, onUpdate, onDiscard, onSave }) => {
+  const actions = [
+    <FlatButton
+      label='discard'
+      secondary
+      onClick={onDiscard}
+    />,
+    <RaisedButton
+      label='keep'
+      primary
+      disabled={error !== undefined}
+      keyboardFocused
+      onClick={onSave}
+    />
+  ]
 
-    <div style={{ paddingTop: 96 }}>
+  return (
+    <Dialog title='Invalid Map Layer Configuration Found' actions={actions} open>
       <Description>
-        The following form allows users to configure imagery providers
-        for <Link target='_blank' href='/search/catalog'>Intrigue</Link>.
-        Providers are sorted by alpha, where higher alpha providers appear below
-        lower alpha providers on the map.
+        Existing map layers configuration was found to be invalid. You can
+        edit the JSON here and keep or discard the existing configuration.
       </Description>
-      <Description>
-        Some provider types are currently only support by the 2D <Link target='_blank'
-          href='https://openlayers.org'>Openlayers</Link> map and some only
-        by the 3D <Link target='_blank' href='https://cesiumjs.org'>Cesium</Link> map.
-      </Description>
-      {providers.map((provider, i) =>
-        <Paper key={i} style={{ position: 'relative', marginTop: 20 }}>
-          <IconButton
-            tooltip='Delete Layer'
-            style={{ position: 'absolute', top: 20, right: 20 }}
-            onClick={() => onUpdate(null, [i])}>
-            <DeleteIcon />
-          </IconButton>
-          <ProviderEditor
-            error={errors.get(i)}
-            provider={provider.get('layer')}
-            onUpdate={(value, path = []) => onUpdate(value, [i, 'layer'].concat(path))}
-            buffer={provider.get('buffer')}
-            onEdit={(value) => onUpdate(value, [i, 'buffer'])} />
-        </Paper>)}
+      <Error errorText={error}>
+        <AceEditor
+          mode='json'
+          theme='github'
+          fontSize={15}
+          tabSize={2}
+          width='100%'
+          height='400px'
+          editorProps={{
+            $blockScrolling: Infinity
+          }}
+          enableBasicAutocompletion
+          name='json-editor'
+          value={buffer}
+          onChange={onUpdate} />
+      </Error>
+    </Dialog>
+  )
+}
 
-      <Flexbox style={{ padding: 20 }} justifyContent='center'>
-        <FloatingActionButton onClick={() => onUpdate(undefined, [providers.length || providers.size])}>
-          <ContentAdd />
-        </FloatingActionButton>
-      </Flexbox>
-      <Snackbar
-        open={message.text !== undefined}
-        message={message.text || ''}
-        action={message.action}
-        autoHideDuration={5000}
-        onRequestClose={() => onMessage()}
-        onActionTouchTap={() => window.open('/search/catalog')} />
-    </div>
-  </Spinner>
-)
+const MapLayers = (props) => {
+  const {
+    // actions
+    onFetch,
+    onUpdate,
+    onSave,
+    onReset,
+    onMessage,
+    onSetInvalid,
+    onSet,
+
+    // data
+    disabled,
+    providers = [],
+    errors,
+    loading,
+    message,
+    invalid
+  } = props
+
+  return (
+    <Spinner submitting={loading}>
+      <Mount on={onFetch} />
+      <FixedHeader onReset={onReset} onSave={onSave} disabled={disabled} />
+
+      <div style={{ paddingTop: 96 }}>
+        <Description>
+          The following form allows users to configure imagery providers
+          for <Link target='_blank' href='/search/catalog'>Intrigue</Link>.
+          Providers are sorted by alpha, where higher alpha providers appear below
+          lower alpha providers on the map.
+        </Description>
+        <Description>
+          Some provider types are currently only support by the 2D <Link target='_blank'
+            href='https://openlayers.org'>Openlayers</Link> map and some only
+          by the 3D <Link target='_blank' href='https://cesiumjs.org'>Cesium</Link> map.
+        </Description>
+        {providers.map((provider, i) =>
+          <Paper key={i} style={{ position: 'relative', marginTop: 20 }}>
+            <IconButton
+              tooltip='Delete Layer'
+              style={{ position: 'absolute', top: 20, right: 20 }}
+              onClick={() => onUpdate(null, [i])}>
+              <DeleteIcon />
+            </IconButton>
+            <ProviderEditor
+              error={errors.get(i)}
+              provider={provider.get('layer')}
+              onUpdate={(value, path = []) => onUpdate(value, [i, 'layer'].concat(path))}
+              buffer={provider.get('buffer')}
+              onEdit={(value) => onUpdate(value, [i, 'buffer'])} />
+          </Paper>)}
+
+        <Flexbox style={{ padding: 20 }} justifyContent='center'>
+          <FloatingActionButton onClick={() => onUpdate(undefined, [providers.length || providers.size])}>
+            <ContentAdd />
+          </FloatingActionButton>
+        </Flexbox>
+        <Snackbar
+          open={message.text !== undefined}
+          message={message.text || ''}
+          action={message.action}
+          autoHideDuration={5000}
+          onRequestClose={() => onMessage()}
+          onActionTouchTap={() => window.open('/search/catalog')} />
+      </div>
+      {invalid !== null
+        ? <FixConfig
+          buffer={invalid}
+          onSave={() => {
+            const imageryProviders = JSON.parse(invalid)
+            onSet(fromJS({ imageryProviders }))
+            onSetInvalid(null)
+          }}
+          onDiscard={() => onSetInvalid(null)}
+          onUpdate={(buffer) => onSetInvalid(buffer)}
+          error={validateJson(invalid) || validateStructure(JSON.parse(invalid))} />
+        : null}
+    </Spinner>
+  )
+}
 
 export default connect(
   (state) => {
@@ -293,7 +374,8 @@ export default connect(
     const loading = isLoading(state)
     const disabled = !hasChanges(state)
     const message = getMessage(state)
-    return { providers, errors, loading, disabled, message }
+    const invalid = getInvalid(state)
+    return { providers, errors, loading, disabled, message, invalid }
   },
-  { onFetch: fetch, onUpdate: update, onSave: save, onReset: reset, onMessage: message }
+  { onFetch: fetch, onUpdate: update, onSave: save, onReset: reset, onMessage: message, onSetInvalid: setInvalid, onSet: set }
 )(MapLayers)

@@ -16,10 +16,12 @@ export const hasChanges = (state) => {
   return !providers.equals(config.get('imageryProviders'))
 }
 export const getMessage = (state) => select(state).get('msg')
+export const getInvalid = (state) => select(state).get('invalid')
 
-const set = (value) => ({ type: 'map-layers/SET', value })
+export const set = (value) => ({ type: 'map-layers/SET', value })
 const start = () => ({ type: 'map-layers/START_SUBMIT' })
 const end = () => ({ type: 'map-layers/END_SUBMIT' })
+export const setInvalid = (buffer) => ({ type: 'map-layers/SET_INVALID', buffer })
 export const message = (text, action) => ({ type: 'map-layers/MESSAGE', text, action })
 export const update = (value, path) => ({ type: 'map-layers/UPDATE', value, path })
 export const reset = () => (dispatch, getState) => dispatch({
@@ -45,7 +47,20 @@ export const fetch = () => (dispatch) => {
     .then((res) => res.json())
     .then((json) => {
       const config = fromJS(json).getIn(configPath)
-        .update('imageryProviders', (providers) => fromJS(JSON.parse(providers || '[]')))
+        .update('imageryProviders', (providers) => {
+          try {
+            const parsed = JSON.parse(providers)
+            const err = validateStructure(parsed)
+            if (err !== undefined) {
+              throw Error(err)
+            }
+            return fromJS(parsed)
+          } catch (e) {
+            dispatch(setInvalid(providers))
+            dispatch(message(`Existing map layers are invalid: ${e.message}`))
+            return fromJS([])
+          }
+        })
       dispatch(set(config))
       dispatch(end())
     })
@@ -107,6 +122,25 @@ export const save = () => (dispatch, getState) => {
     })
 }
 
+export const validateJson = (json) => {
+  try {
+    JSON.parse(json)
+    return undefined
+  } catch (e) {
+    return 'Invalid JSON configuration'
+  }
+}
+
+export const validateStructure = (providers) => {
+  if (!Array.isArray(providers)) {
+    return 'Providers should be an array'
+  }
+
+  if (providers.some((obj) => Array.isArray(obj) || typeof obj !== 'object')) {
+    return 'All provider entries must be objects'
+  }
+}
+
 export const validate = (providers) => {
   let errors = List()
 
@@ -118,8 +152,10 @@ export const validate = (providers) => {
       errors = errors.setIn([i, 'alpha'], 'Alpha cannot be empty')
     } else if (typeof alpha !== 'number') {
       errors = errors.setIn([i, 'alpha'], 'Alpha must be a number')
-    } else if (alpha < 0 || alpha > 1) {
-      errors = errors.setIn([i, 'alpha'], 'Invalid alpha')
+    } else if (alpha < 0) {
+      errors = errors.setIn([i, 'alpha'], 'Alpha too small')
+    } else if (alpha > 1) {
+      errors = errors.setIn([i, 'alpha'], 'Alpha too large')
     }
 
     const type = layer.get('type')
@@ -145,12 +181,10 @@ export const validate = (providers) => {
       errors = errors.setIn([i, 'url'], 'Invalid URL')
     }
 
-    const buffer = provider.get('buffer')
+    const err = validateJson(provider.get('buffer'))
 
-    try {
-      JSON.parse(buffer)
-    } catch (e) {
-      errors = errors.setIn([i, 'buffer'], `Invalid JSON configuration`)
+    if (err !== undefined) {
+      errors = errors.setIn([i, 'buffer'], err)
     }
   })
 
@@ -233,7 +267,7 @@ const loading = (state = false, { type }) => {
 const config = (state = Map(), { type, value }) => {
   switch (type) {
     case 'map-layers/SET':
-      return value
+      return value.mergeDeep(value)
     default:
       return state
   }
@@ -248,4 +282,13 @@ const msg = (state = {}, { type, text, action }) => {
   }
 }
 
-export default combineReducers({ config, providers, loading, msg })
+const invalid = (state = null, { type, buffer }) => {
+  switch (type) {
+    case 'map-layers/SET_INVALID':
+      return buffer
+    default:
+      return state
+  }
+}
+
+export default combineReducers({ config, providers, loading, msg, invalid })
