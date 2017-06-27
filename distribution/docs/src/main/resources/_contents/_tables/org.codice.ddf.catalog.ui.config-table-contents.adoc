@@ -1,4 +1,4 @@
-.[[org.codice.ddf.catalog.ui.config]]Catalog UI Search
+.[[org.codice.ddf.catalog.ui.config]]${catalog-ui} Search
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 
@@ -175,7 +175,7 @@ TMS example (3d map support only): `[{"type" : "TMS", "url" : "https://cesiumjs.
 |Query Schedule Frequencies
 |scheduleFrequencyList
 |Long
-|Custom list of schedule frequencies in seconds.  This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog UI.
+|Custom list of schedule frequencies in seconds.  This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on ${catalog-ui}.
 |1800,3600,7200,14400,28800,57600,86400
 |true
 

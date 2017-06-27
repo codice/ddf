@@ -13,7 +13,7 @@
 define([
 ], function () {
 
-    var namespace = 'ddf-';
+    var namespace = 'intrigue-';
 
     var registry = {};
 
