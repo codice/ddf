@@ -24,7 +24,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,6 @@ import org.codice.ddf.catalog.transformer.zip.JarSigner;
 import org.codice.ddf.commands.catalog.export.ExportItem;
 import org.codice.ddf.commands.catalog.export.IdAndUriMetacard;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
-import org.codice.ddf.commands.util.QueryResultIterable;
 import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.Filter;
@@ -68,13 +66,13 @@ import ddf.catalog.data.Result;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.ResourceRequestByProductUri;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.util.impl.QueryResultPaginator;
 import ddf.security.common.audit.SecurityLogger;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -91,26 +89,18 @@ public class ExportCommand extends CqlCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportCommand.class);
 
+    private static final int PAGE_SIZE = 64;
+
     private static final SimpleDateFormat ISO_8601_DATE_FORMAT;
+
+    private static final Supplier<String> FILE_NAMER;
 
     static {
         ISO_8601_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSS'Z'");
         ISO_8601_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+        FILE_NAMER =
+                () -> "export-" + ISO_8601_DATE_FORMAT.format(Date.from(Instant.now())) + ".zip";
     }
-
-    private static final Supplier<String> FILE_NAMER =
-            () -> "export-" + ISO_8601_DATE_FORMAT.format(Date.from(Instant.now())) + ".zip";
-
-    private static final int PAGE_SIZE = 64;
-
-    private MetacardTransformer transformer;
-
-    private Filter revisionFilter;
-
-    private JarSigner jarSigner = new JarSigner();
-
-    @Reference
-    private StorageProvider storageProvider;
 
     @Option(name = "--output", description = "Output file to export Metacards and contents into. Paths are absolute and must be in quotes. Will default to auto generated name inside of ddf.home", multiValued = false, required = false, aliases = {
             "-o"})
@@ -131,6 +121,26 @@ public class ExportCommand extends CqlCommands {
 
     @Option(name = "--skip-signature-verification", required = false, multiValued = false, description = "Produces the export zip but does NOT sign the resulting zip file. This file will not be able to be verified on import for integrity and security.")
     boolean unsafe = false;
+
+    private MetacardTransformer transformer;
+
+    private Filter revisionFilter;
+
+    private JarSigner jarSigner = new JarSigner();
+
+    @Reference
+    private StorageProvider storageProvider;
+
+    /**
+     * Generates stateful predicate to filter distinct elements by a certain key in the object.
+     *
+     * @param keyExtractor Function to pull the desired key out of the object
+     * @return the stateful predicate
+     */
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
 
     @Override
     protected Object executeWithSubject() throws Exception {
@@ -238,42 +248,42 @@ public class ExportCommand extends CqlCommands {
     private List<ExportItem> doMetacardExport(/*Mutable,IO*/ZipFile zipFile, Filter filter) {
         Set<String> seenIds = new HashSet<>(1024);
         List<ExportItem> exportedItems = new ArrayList<>();
-        for (Result result : new QueryResultIterable(catalogFramework,
-                (i) -> getQuery(filter, i, PAGE_SIZE),
-                PAGE_SIZE)) {
-            if (!seenIds.contains(result.getMetacard()
-                    .getId())) {
-                writeToZip(zipFile, result);
-                exportedItems.add(new ExportItem(result.getMetacard()
-                        .getId(),
-                        getTag(result),
-                        result.getMetacard()
-                                .getResourceURI(),
-                        getDerivedResources(result)));
-                seenIds.add(result.getMetacard()
-                        .getId());
-            }
+        QueryResultPaginator paginator = new QueryResultPaginator(catalogFramework,
+                getQuery(filter, 1, PAGE_SIZE));
+        while (paginator.hasNext()) {
+            List<Result> results = paginator.next();
+            writeResult(results, seenIds, exportedItems, zipFile);
 
             // Fetch and export all history for each exported item
-            for (Result revision : new QueryResultIterable(catalogFramework,
-                    (i) -> getQuery(getHistoryFilter(result), i, PAGE_SIZE),
-                    PAGE_SIZE)) {
-                if (seenIds.contains(revision.getMetacard()
-                        .getId())) {
-                    continue;
+            for (Result each : results) {
+                QueryResultPaginator historyPaginator = new QueryResultPaginator(catalogFramework,
+                        getQuery(getHistoryFilter(each), 1, PAGE_SIZE));
+                while (historyPaginator.hasNext()) {
+                    List<Result> revisions = historyPaginator.next();
+                    writeResult(revisions, seenIds, exportedItems, zipFile);
                 }
-                writeToZip(zipFile, revision);
-                exportedItems.add(new ExportItem(revision.getMetacard()
-                        .getId(),
-                        getTag(revision),
-                        revision.getMetacard()
-                                .getResourceURI(),
-                        getDerivedResources(result)));
-                seenIds.add(revision.getMetacard()
-                        .getId());
             }
         }
         return exportedItems;
+    }
+
+    private void writeResult(List<Result> items, Set<String> seenIds,
+            List<ExportItem> exportedItems, ZipFile zipFile) {
+
+        for (Result item : items) {
+            if (!seenIds.contains(item.getMetacard()
+                    .getId())) {
+                writeToZip(zipFile, item);
+                exportedItems.add(new ExportItem(item.getMetacard()
+                        .getId(),
+                        getTag(item),
+                        item.getMetacard()
+                                .getResourceURI(),
+                        getDerivedResources(item)));
+                seenIds.add(item.getMetacard()
+                        .getId());
+            }
+        }
     }
 
     private List<String> getDerivedResources(Result result) {
@@ -485,17 +495,6 @@ public class ExportCommand extends CqlCommands {
         }
     }
 
-    /**
-     * Generates stateful predicate to filter distinct elements by a certain key in the object.
-     *
-     * @param keyExtractor Function to pull the desired key out of the object
-     * @return the stateful predicate
-     */
-    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-    }
-
     private String getTag(Result r) {
         Set<String> tags = r.getMetacard()
                 .getTags();
@@ -554,13 +553,12 @@ public class ExportCommand extends CqlCommands {
         return filter;
     }
 
-    private QueryRequestImpl getQuery(Filter filter, int index, int pageSize) {
-        return new QueryRequestImpl(new QueryImpl(filter,
+    private QueryImpl getQuery(Filter filter, int index, int pageSize) {
+        return new QueryImpl(filter,
                 index,
                 pageSize,
                 SortBy.NATURAL_ORDER,
-                false,
-                TimeUnit.MINUTES.toMillis(1)), new HashMap<>());
+                false, TimeUnit.MINUTES.toMillis(1));
     }
 
 }
