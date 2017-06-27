@@ -19,6 +19,15 @@
         text-overflow: ellipsis;
     }
 
+    .alerts-badge {
+        position: absolute;
+        font-size: @minimumFontSize;
+        top: 35%;
+        transform: scale(0) translateY(-50%);
+        transition: transform @coreTransitionTime ease-in-out;
+        color: @warning-color;
+    }
+
     .item-alerts {
         transition: transform 4*@coreTransitionTime ease-in-out;
         transform: scale(1);
@@ -67,6 +76,10 @@
         opacity: 1;
         animation: navigation-right-unseen-notifications 4*@coreTransitionTime 5 alternate ease-in-out;
         transform: scale(1.2);
+    }
+
+    .alerts-badge {
+        transform: scale(1) translateY(-50%);
     }
 
 }
