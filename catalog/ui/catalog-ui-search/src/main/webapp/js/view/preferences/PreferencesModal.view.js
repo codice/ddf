@@ -128,25 +128,19 @@ define([
             var prevAlpha = 0;
             for (var index=0;index<this.collection.models.length;index++) {
                 if (index !== 0) {
-                    if (this.getAlpha(index) > prevAlpha) {
+                    if (this.collection.at(index).get('alpha') > prevAlpha) {
                         sort = true;
                         break;
                     } else {
-                        prevAlpha = this.getAlpha(index);
+                        prevAlpha = this.collection.at(index).get('alpha');
                     }
                 } else {
-                    prevAlpha = this.getAlpha(index);
+                    prevAlpha = this.collection.at(index).get('alpha');
                 }
             }
             if (sort) {
                 this.collection.sort();
             }
-        },
-        /*
-         * Get the alpha value set for a specific layer in the range [0,1].
-         */
-        getAlpha: function(index) {
-            return this.collection.at(index).get('alpha') / 100.0;
         }
     });
     PrefsModalView.LayerPicker = Marionette.ItemView.extend({
@@ -163,7 +157,7 @@ define([
         onRender: function () {
             var layerBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
             this.modelBinder.bind(this.model, this.$el, layerBindings);
-            this.changeShow();           
+            this.changeShow();
         },
         changeShow: function () {
             this.$el.toggleClass('is-disabled', !this.model.get('show'));
