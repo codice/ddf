@@ -21,6 +21,7 @@ import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultPeriodDuration;
+import org.geotools.util.Converters;
 import org.opengis.filter.And;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.ExcludeFilter;
@@ -145,7 +146,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                     Function.class.getSimpleName() + " requires " + argCount + " arguments.");
         }
         //unwrap the function arguments and return them
-        List<Object> ret = new ArrayList<>(argCount);
+        List<Object> ret = new ArrayList<>();
         for (int i = 0; i < argCount; i++) {
             Class<?> type = expression.getFunctionName()
                     .getArguments()
@@ -159,6 +160,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
 
     @Override
+
     public Object visit(Literal expression, Object clazz) {
         if (expression.getValue() == null) {
             throw new UnsupportedOperationException(
@@ -166,10 +168,13 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         }
         //try and get the object as the requested class otherwise just return the object
         if (clazz instanceof Class) {
-            Object ret = expression.evaluate(null, (Class) clazz);
+            Object ret = Converters.convert(expression.getValue(), (Class) clazz);
             if (ret != null) {
                 return ret;
-            } //could throw an exception saying it wasn't of the correct type?
+            } else {
+                throw new IllegalArgumentException("Could not convert:" + expression.getValue()
+                        .getClass() + " to " + clazz);
+            }
         }
         return expression.getValue();
     }
@@ -989,7 +994,9 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                             .getType());
             return new ExpressionValues(functionName, functionArgs, literal);
         } else if (expression2 instanceof Function && expression1 instanceof Literal) {
-            literal = expression1.accept(this, delegate);
+            literal = expression2.accept(this, ((Function) expression2).getFunctionName()
+                            .getReturn()
+                            .getType());
             functionName = ((Function) expression2).getName();
             functionArgs = (List) expression1.accept(this, delegate);
             return new ExpressionValues(functionName, functionArgs, literal);

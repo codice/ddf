@@ -97,6 +97,12 @@ public class GeotoolsFunctionExpressionBuilder extends GeotoolsBuilder implement
     }
 
     @Override
+    public ArgumentBuilder objArg(Object obj) {
+        addLiteralArg(obj);
+        return this;
+    }
+
+    @Override
     public ArgumentBuilder attributeArg(String name) {
         addAttribute(name);
         return this;
@@ -111,7 +117,7 @@ public class GeotoolsFunctionExpressionBuilder extends GeotoolsBuilder implement
     }
 
     protected void addLiteralArg(Object value) {
-        getArguments().add(getFactory().literal(getFactory().literal(value)));
+        getArguments().add(getFactory().literal(value));
     }
 
     protected void addAttribute(String value) {

@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
-import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.Filter;
@@ -147,11 +146,7 @@ public abstract class CqlCommands extends CatalogCommands {
         filterCurrentTime = System.currentTimeMillis();
 
         if (cqlFilter != null) {
-            try {
-                return CQL.toFilter(cqlFilter);
-            } catch (CQLException e) {
-                return ECQL.toFilter(cqlFilter);
-            }
+            return ECQL.toFilter(cqlFilter);
         }
 
         final long start = getFilterStartTime();

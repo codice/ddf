@@ -18,7 +18,6 @@ import static spark.Spark.halt;
 import java.util.Collections;
 
 import org.apache.commons.lang.StringUtils;
-import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.Filter;
@@ -154,15 +153,10 @@ public class CqlRequest {
     private Filter createFilter(FilterBuilder filterBuilder) {
         Filter filter = null;
         try {
-            filter = CQL.toFilter(cql);
-        } catch (CQLException e1) {
-            try {
-                filter = ECQL.toFilter(cql);
-            } catch (CQLException e2) {
-                halt(400, "Unable to parse CQL filter");
-            }
+            filter = ECQL.toFilter(cql);
+        } catch (CQLException e) {
+            halt(400, "Unable to parse CQL filter");
         }
-
 
         if (filter == null) {
             LOGGER.debug("Received an empty filter. Using a wildcard contextual filter instead.");

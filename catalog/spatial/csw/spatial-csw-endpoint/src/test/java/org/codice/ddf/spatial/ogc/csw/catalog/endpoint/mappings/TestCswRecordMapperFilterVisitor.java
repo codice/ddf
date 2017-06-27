@@ -277,18 +277,6 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(duplicate.getExpression1(), Matchers.instanceOf(Function.class));
         Function dupFunction = (Function) duplicate.getExpression1();
         assertThat(dupFunction.getFunctionName(), is(function.getFunctionName()));
-        assertThat(dupFunction.getParameters()
-                        .get(0),
-                is(function.getParameters()
-                        .get(0)));
-        assertThat(dupFunction.getParameters()
-                        .get(1),
-                is(function.getParameters()
-                        .get(1)));
-        assertThat(dupFunction.getParameters()
-                        .get(2),
-                is(function.getParameters()
-                        .get(2)));
         assertThat(dupFunction.getParameters(), is(function.getParameters()));
         assertThat(duplicate.getExpression2(), is(val));
         assertThat(duplicate.isMatchingCase(), is(true));

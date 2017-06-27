@@ -2131,12 +2131,12 @@ public class TestCatalog extends AbstractIntegrationTest {
                             .size(), equalTo(1));
 
             List<Map<String, Object>> storedWs = pstore.get(PersistentStore.WORKSPACE_TYPE,
-                    "id = 'itest'");
+                    "\"id\" = 'itest'");
             assertThat(storedWs, hasSize(1));
             assertThat(storedWs.get(0)
                     .get("user_txt"), is("itest"));
         } finally {
-            pstore.delete(PersistentStore.WORKSPACE_TYPE, "id = 'itest'");
+            pstore.delete(PersistentStore.WORKSPACE_TYPE, "\"id\" = 'itest'");
             expect("Workspace to be empty").within(5, TimeUnit.MINUTES)
                     .until(() -> pstore.get(PersistentStore.WORKSPACE_TYPE)
                             .size(), equalTo(0));

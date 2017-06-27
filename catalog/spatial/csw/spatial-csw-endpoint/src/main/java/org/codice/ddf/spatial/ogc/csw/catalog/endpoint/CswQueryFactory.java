@@ -40,7 +40,6 @@ import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.IsEqualsToImpl;
-import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.xml.Configuration;
@@ -178,14 +177,9 @@ public class CswQueryFactory {
         if (constraint != null) {
             if (constraint.isSetCqlText()) {
                 try {
-                    filter = CQL.toFilter(constraint.getCqlText());
-                } catch (CQLException e1) {
-                    try {
-                        filter = ECQL.toFilter(constraint.getCqlText());
-                    } catch (CQLException e2) {
-                        throw new CswException("Unable to parse CQL Constraint: " + e2.getMessage(),
-                                e2);
-                    }
+                    filter = ECQL.toFilter(constraint.getCqlText());
+                } catch (CQLException e) {
+                    throw new CswException("Unable to parse CQL Constraint: " + e.getMessage(), e);
                 }
             } else if (constraint.isSetFilter()) {
                 FilterType constraintFilter = constraint.getFilter();

@@ -18,8 +18,10 @@ import static org.codice.ddf.itests.common.AbstractIntegrationTest.CSW_REQUEST_R
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.getFileContent;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -32,7 +34,6 @@ import org.xml.sax.InputSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.Response;
-
 
 public class CswTestCommons {
 
@@ -50,18 +51,25 @@ public class CswTestCommons {
 
     public static Map<String, Object> getCswSourceProperties(String sourceId, String cswUrl,
             ServiceManager serviceManager) {
-        return getCswSourceProperties(sourceId, CSW_FEDERATED_SOURCE_FACTORY_PID, cswUrl, serviceManager);
+        return getCswSourceProperties(sourceId,
+                CSW_FEDERATED_SOURCE_FACTORY_PID,
+                cswUrl,
+                serviceManager);
     }
 
     public static Map<String, Object> getCswConnectedSourceProperties(String sourceId,
             String cswUrl, ServiceManager serviceManager) {
-        return getCswSourceProperties(sourceId, CSW_CONNECTED_SOURCE_FACTORY_PID, cswUrl, serviceManager);
+        return getCswSourceProperties(sourceId,
+                CSW_CONNECTED_SOURCE_FACTORY_PID,
+                cswUrl,
+                serviceManager);
     }
 
     public static Map<String, Object> getCswSourceProperties(String sourceId, String factoryPid,
             String cswUrl, ServiceManager serviceManager) {
         Map<String, Object> cswSourceProperties = new HashMap<>();
-        cswSourceProperties.putAll(serviceManager.getMetatypeDefaults(CSW_SOURCE_SYMBOLIC_NAME, factoryPid));
+        cswSourceProperties.putAll(serviceManager.getMetatypeDefaults(CSW_SOURCE_SYMBOLIC_NAME,
+                factoryPid));
         cswSourceProperties.put("id", sourceId);
         cswSourceProperties.put("cswUrl", cswUrl);
         cswSourceProperties.put("pollInterval", 1);
@@ -71,7 +79,9 @@ public class CswTestCommons {
     public static Map<String, Object> getCswRegistryStoreProperties(String sourceId, String cswUrl,
             ServiceManager serviceManager) {
         Map<String, Object> cswSourceProperties = new HashMap<>();
-        cswSourceProperties.putAll(serviceManager.getMetatypeDefaults(CSW_REGISTRY_STORE_SYMBOLIC_NAME, CSW_REGISTRY_STORE_FACTORY_PID));
+        cswSourceProperties.putAll(serviceManager.getMetatypeDefaults(
+                CSW_REGISTRY_STORE_SYMBOLIC_NAME,
+                CSW_REGISTRY_STORE_FACTORY_PID));
         cswSourceProperties.put("id", sourceId);
         cswSourceProperties.put("registryUrl", cswUrl);
         return cswSourceProperties;
@@ -94,6 +104,30 @@ public class CswTestCommons {
                         outputFormat,
                         "outputSchema",
                         schema));
+    }
+
+    public static String getCswFunctionQuery(String propertyName, Object literalValue,
+            String outputFormat, String outputSchema, String functionName,
+            Object... additionalArguments) {
+
+        String schema = "";
+        if (StringUtils.isNotBlank(outputSchema)) {
+            schema = "outputSchema=\"" + outputSchema + "\" ";
+        }
+        String argsStr = "";
+        if (additionalArguments != null) {
+            argsStr = Arrays.stream(additionalArguments)
+                    .map(arg -> String.format("<ns2:Literal>%s</ns2:Literal>", arg.toString()))
+                    .collect(Collectors.joining());
+        }
+        return getFileContent("/csw-function-query.xml", ImmutableMap.<String, String>builder().
+                put("propertyName", propertyName)
+                .put("literal", literalValue.toString())
+                .put("outputFormat", outputFormat)
+                .put("outputSchema", schema)
+                .put("functionName", functionName)
+                .put("additionalArguments", argsStr)
+                .build());
     }
 
     public static String getCswSubscription(String propertyName, String literalValue,

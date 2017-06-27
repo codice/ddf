@@ -844,8 +844,7 @@ public class CswFilterFactory {
         List<JAXBElement<?>> expressions = new ArrayList<>();
         for (int i = 0; i < arguments.size(); i++) {
             if (i < propertyCount) {
-                expressions.add(createPropertyNameType(Arrays.asList(new Object[] {
-                        arguments.get(i)})));
+                expressions.add(createPropertyNameType(Arrays.asList(arguments.get(i))));
             } else {
                 expressions.add(createLiteralType(arguments.get(i)));
             }

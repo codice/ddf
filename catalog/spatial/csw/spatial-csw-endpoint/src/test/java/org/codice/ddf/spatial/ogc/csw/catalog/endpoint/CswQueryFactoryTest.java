@@ -29,7 +29,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,10 +76,10 @@ import com.vividsolutions.jts.io.WKTReader;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
-import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.types.AssociationsAttributes;
 import ddf.catalog.data.impl.types.ContactAttributes;
@@ -227,19 +226,7 @@ public class CswQueryFactoryTest {
                                 Collections.singleton(new AttributeDescriptorImpl("TestDate",
                                         true,
                                         true,
-                                        true,
-                                        false,
-                                        new AttributeType<Date>() {
-                                            @Override
-                                            public Class<Date> getBinding() {
-                                                return Date.class;
-                                            }
-
-                                            @Override
-                                            public AttributeFormat getAttributeFormat() {
-                                                return AttributeFormat.DATE;
-                                            }
-                                        })))));
+                                        true, false, BasicTypes.DATE_TYPE)))));
     }
 
     @org.junit.Before

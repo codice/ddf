@@ -27,7 +27,9 @@ public class ProximityFunction extends FunctionImpl {
 
     public static final int NUM_PARAMETERS = 3;
 
-    public static final FunctionName NAME = functionName("proximity",
+    public static final String FUNCTION_NAME = "proximity";
+
+    public static final FunctionName NAME = functionName(FUNCTION_NAME,
             "result:Boolean",
             "property:String",
             "distance:Integer",
@@ -39,7 +41,7 @@ public class ProximityFunction extends FunctionImpl {
                 "Proximity expression requires at least %s parameters",
                 NUM_PARAMETERS));
 
-        this.setName("proximity");
+        this.setName(FUNCTION_NAME);
         this.setParameters(parameters);
         this.setFallbackValue(fallback);
         this.functionName = NAME;

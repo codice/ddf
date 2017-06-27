@@ -51,7 +51,6 @@ import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceService;
 import org.codice.ddf.security.common.Security;
-import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.And;
@@ -356,14 +355,10 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
 
     private Filter metacardToFilter(QueryMetacardImpl queryMetacard) {
         try {
-            return CQL.toFilter(queryMetacard.getCql());
-        } catch (CQLException e1) {
-            try {
-                return ECQL.toFilter(queryMetacard.getCql());
-            } catch (CQLException e2) {
-                LOGGER.warn("Error parsing CQL", e2);
-                return null;
-            }
+            return ECQL.toFilter(queryMetacard.getCql());
+        } catch (CQLException e) {
+            LOGGER.warn("Error parsing CQL", e);
+            return null;
         }
     }
 

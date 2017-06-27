@@ -45,9 +45,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.catalog.impl.filter.JTSGeometryWrapper;
 
-/**
- * @author michael.menousek@lmco.com
- */
 class GeotoolsBuilder {
 
     // Use the OGC SE standard mapping for meters so that units assigned here

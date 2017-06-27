@@ -18,11 +18,12 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.List;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.geotools.filter.FunctionExpressionImpl;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
 
 /**
  * The DivisibleByFunction contains two parameters that can be used to build a filter.
@@ -33,43 +34,49 @@ public class DivisibleByFunction extends FunctionExpressionImpl {
     public static final String FUNCTION_NAME = "divisibleBy";
 
     public static final FunctionName NAME = FunctionExpressionImpl.functionName(FUNCTION_NAME,
-            "result:Boolean",
+            "return:Boolean",
             "property:String",
             "divisor:Long");
 
     public DivisibleByFunction(List<Expression> parameters, Literal fallback) {
-        super(FUNCTION_NAME, fallback);
+        super(NAME);
 
         notNull(parameters, "Parameters are required");
         isTrue(parameters.size() == NUM_PARAMETERS,
                 String.format("%s expression requires at least %s parameters", FUNCTION_NAME,
                         NUM_PARAMETERS));
 
-        setName(FUNCTION_NAME);
         setParameters(parameters);
         setFallbackValue(fallback);
-        functionName = NAME;
     }
 
-    public String getPropertyName() {
-        return ((PropertyName) params.get(0)).getPropertyName();
-    }
-
-    public Long getLiteral() {
-        return Long.parseLong(((Literal) params.get(1)).getValue()
-                .toString());
-    }
-
+    @Override
     public boolean equals(Object obj) {
-        return super.equals(obj);
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        DivisibleByFunction rhs = (DivisibleByFunction) obj;
+        return new EqualsBuilder().appendSuper(super.equals(obj))
+                .append(this.name, rhs.name)
+                .append(this.params, rhs.params)
+                .append(this.fallback, rhs.fallback)
+                .append(this.functionName, rhs.functionName)
+                .isEquals();
     }
 
-    //findbugs: parent class overrides equals() but not hashcode
+    @Override
     public int hashCode() {
-
-        return 31 * (getPropertyName().toString()
-                .hashCode() + getLiteral().toString()
-                .hashCode()) + 17;
+        return new HashCodeBuilder().appendSuper(super.hashCode())
+                .append(name)
+                .append(params)
+                .append(fallback)
+                .append(functionName)
+                .toHashCode();
     }
-
 }

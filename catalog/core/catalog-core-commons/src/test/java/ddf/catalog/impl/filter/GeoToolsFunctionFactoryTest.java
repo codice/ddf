@@ -41,6 +41,8 @@ public class GeoToolsFunctionFactoryTest {
         assertThat(functionNames, hasSize(3));
         assertThat(functionNames.get(0).getName(), is(FuzzyFunction.NAME.getName()));
         assertThat(functionNames.get(1).getName(), is(ProximityFunction.NAME.getName()));
+        assertThat(functionNames.get(2)
+                .getName(), is(DivisibleByFunction.NAME.getName()));
     }
 
     @Test

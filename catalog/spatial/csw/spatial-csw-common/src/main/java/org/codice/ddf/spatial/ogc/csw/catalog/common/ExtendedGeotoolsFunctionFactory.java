@@ -13,32 +13,30 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.feature.NameImpl;
-import org.geotools.filter.FunctionFactory;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 
-import ddf.catalog.impl.filter.DivisibleByFunction;
-import ddf.catalog.impl.filter.ProximityFunction;
+import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
 
 /**
  * The ExtendedGeotoolsFunctionFactory is used to provide the GeoTools CommonFactoryFinder a list of custom
  * functions.  This allows for DDF to extend the OGC Filter 1.1.0 schema and pass along the extension
  * changes to Geotools via a service loader .
  */
-//TODO (RWY) - can we get rid of this and use the one in geotools?
-public class ExtendedGeotoolsFunctionFactory implements FunctionFactory {
+public class ExtendedGeotoolsFunctionFactory extends GeoToolsFunctionFactory {
 
     @Override
     public List<FunctionName> getFunctionNames() {
-        return Arrays.asList(PropertyIsFuzzyFunction.NAME, DivisibleByFunction.NAME,
-                ProximityFunction.NAME);
+        List<FunctionName> functionNames = new ArrayList<>(super.getFunctionNames());
+        functionNames.add(PropertyIsFuzzyFunction.NAME);
+        return functionNames;
     }
 
     @Override
@@ -48,23 +46,10 @@ public class ExtendedGeotoolsFunctionFactory implements FunctionFactory {
 
     @Override
     public Function function(Name name, List<Expression> args, Literal fallback) {
-
         if (PropertyIsFuzzyFunction.NAME.getName()
                 .equals(name.getLocalPart())) {
-
             return new PropertyIsFuzzyFunction(args, fallback);
         }
-
-        if (DivisibleByFunction.NAME.getName()
-                .equals(name.getLocalPart())) {
-            return new DivisibleByFunction(args, fallback);
-        }
-
-        if (ProximityFunction.NAME.getName()
-                .equals(name.getLocalPart())) {
-            return new ProximityFunction(args, fallback);
-        }
-
-        return null; // we do not implement that function
+        return super.function(name, args, fallback);
     }
 }

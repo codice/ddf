@@ -16,6 +16,11 @@ package ddf.catalog.filter;
 import java.util.Date;
 
 /**
+ * <p>
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ * </p>
+ *
  * Completes the fluent API to create a {@link org.opengis.filter.Filter} for a function that takes N parameters.
  */
 public interface ArgumentBuilder {
@@ -118,6 +123,14 @@ public interface ArgumentBuilder {
     ArgumentBuilder textArg(String text);
 
     /**
+     * Continues building the {@link ArgumentBuilder} based on a object value
+     *
+     * @param obj - {@link Object} argument to ArgumentBuilder on
+     * @return {@link ArgumentBuilder}
+     */
+    ArgumentBuilder objArg(Object obj);
+
+    /**
      * Continues building the {@link ArgumentBuilder} based on an attribute
      *
      * @param name - {@link String} argument to ArgumentBuilder on
@@ -130,7 +143,7 @@ public interface ArgumentBuilder {
      * <p>
      * Continue building a Filter with the "equal to" operator ( {@link org.opengis.filter.PropertyIsEqualTo})
      *
-     * @return {@link NumericalExpressionBuilder} to continue building the {@link org.opengis.filter.Filter}
+     * @return {@link EqualityExpressionBuilder} to continue building the {@link org.opengis.filter.Filter}
      */
     EqualityExpressionBuilder equalTo();
 

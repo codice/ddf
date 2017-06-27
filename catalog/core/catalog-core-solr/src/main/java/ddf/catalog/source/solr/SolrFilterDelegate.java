@@ -56,6 +56,8 @@ import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.impl.filter.DivisibleByFunction;
+import ddf.catalog.impl.filter.ProximityFunction;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
 
@@ -164,14 +166,16 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             Object literal) {
         String not;
         SolrQuery query;
+        //add a case for each new function that is added.
+        //the literal should be cast to the functions return type (i.e. not necessarily boolean)
+        //arguments should be assumed to be in the correct order and can be cast directly.
         switch (functionName) {
-        case "divisibleBy":
-
-            //the return type is boolean so cast the literal to boolean and in effect this is just a NOT so we will update the query as such9
+        case DivisibleByFunction.FUNCTION_NAME:
+            //the return type is boolean so cast the literal to boolean and in effect this is just a NOT so we will update the query as such
             not = (Boolean) literal ? "" : "!";
             query = propertyIsDivisibleBy((String) arguments.get(0), (Long) arguments.get(1));
             return query.setQuery(not + query.getQuery());
-        case "proximity":
+        case ProximityFunction.FUNCTION_NAME:
             not = (Boolean) literal ? "" : "!";
             query = propertyIsInProximityTo((String) arguments.get(0),
                     (Integer) arguments.get(1),
@@ -576,8 +580,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         //use the sort key for the field since divisible can't operate on multivalued fields (it will always be a single value).
         List<String> solrExpressions = resolver.getAnonymousField(propertyName)
                 .stream()
-                .map(resolver::getSortKey)
-                .map(f -> "_val_:\"{!frange l=0 u=0}mod(" + f + "," + divisor + ")\"")
+                .map(f -> String.format("_val_:\"{!frange l=0 u=0}mod(%s,%d)\"",
+                        resolver.getSortKey(f),
+                        divisor))
                 .collect(Collectors.toList());
 
         if (solrExpressions.isEmpty()) {

@@ -1053,14 +1053,11 @@ public class TestCswFilterDelegate {
     private String createComparisonFunctionFilterString(ComparisonOperator comparisonOp,
             String functionName, Object literal, Object... args) {
 
-        String compString =
-                getXmlHeaderString() + createComparisonFunctionFilterStringWithoutHeaderAndFooter(
+        return getXmlHeaderString() + createComparisonFunctionFilterStringWithoutHeaderAndFooter(
                         comparisonOp,
                         functionName,
                         literal,
                         args) + getXmlFooterString();
-
-        return compString;
     }
 
     /**

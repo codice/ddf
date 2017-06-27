@@ -123,7 +123,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                                 sourceCRS);
                         literalExpression.setValue(convertedGeometry);
                     } catch (GeoFormatException e) {
-                        LOGGER.trace("Unable to convert geometry to EPSG:4326 format", e);
+                        LOGGER.debug("Unable to convert geometry to EPSG:4326 format", e);
                     }
                 }
             }
@@ -305,7 +305,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                             ((Function) filter.getExpression1()).getFunctionName()
                                     .getReturn()
                                     .getType()));
-            return factory.equals(function, visit((Expression) typedExpression, function));
+            return factory.equals(function, visit(typedExpression, function));
         }
 
         if (StringUtils.equals(Core.SOURCE_ID,

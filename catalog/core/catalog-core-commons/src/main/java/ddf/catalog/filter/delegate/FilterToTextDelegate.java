@@ -17,6 +17,8 @@ import java.util.Date;
 import java.util.List;
 
 import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.impl.filter.DivisibleByFunction;
+import ddf.catalog.impl.filter.ProximityFunction;
 
 public class FilterToTextDelegate extends FilterDelegate<String> {
 
@@ -24,10 +26,10 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
     @Override
     public String propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
         switch (functionName) {
-        case "divisibleBy":
+        case DivisibleByFunction.FUNCTION_NAME:
             return propertyIsDivisibleBy((String) arguments.get(0), (Long) arguments.get(1)) + '='
                     + literal;
-        case "proximity":
+        case ProximityFunction.FUNCTION_NAME:
             return propertyIsInProximityTo((String) arguments.get(0),
                     (Integer) arguments.get(1),
                     (String) arguments.get(2)) + '=' + literal;
@@ -380,9 +382,7 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
     }
 
     public String propertyIsDivisibleBy(String propertyName, long divisor) {
-        return divisor + "|" + propertyName;
-        //TODO (RWY) - which notation is more readable?
-        //        return propertyName + "%" + divisor + "i=0";
+        return propertyName + "%" + divisor + "l=0";
     }
 
     // PropertyIsBetween
