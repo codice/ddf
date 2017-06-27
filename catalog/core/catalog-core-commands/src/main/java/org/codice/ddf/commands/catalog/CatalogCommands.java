@@ -72,19 +72,19 @@ public abstract class CatalogCommands extends SubjectCommands {
     @Option(name = "--provider", required = false, aliases = {"-p",
             "-provider"}, multiValued = false, description = "Interacts with the Provider directly "
             + "instead of the framework. NOTE: This option picks the first Provider.")
-    boolean isProvider = false;
+    protected boolean isProvider = false;
 
     @Reference
-    CatalogProvider catalogProvider;
+    protected CatalogProvider catalogProvider;
 
     @Reference
-    CatalogFramework catalogFramework;
+    protected CatalogFramework catalogFramework;
 
     @Reference
-    BundleContext bundleContext;
+    protected BundleContext bundleContext;
 
     @Reference
-    FilterBuilder filterBuilder;
+    protected FilterBuilder filterBuilder;
 
     protected SolrCacheMBean getCacheProxy()
             throws IOException, MalformedObjectNameException, InstanceNotFoundException {
