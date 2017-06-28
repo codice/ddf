@@ -55,6 +55,7 @@ function getGoldenLayoutSettings(){
     return {
         settings: {
             showPopoutIcon: false,
+            responsiveMode: 'none'
         },
         dimensions: {
             borderWidth: 0.5 * parseFloat(theme.minimumSpacing) * fontSize,

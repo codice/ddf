@@ -38,6 +38,11 @@ define([
                 type: Backbone.Many,
                 key: 'activeSearchResults',
                 relatedModel: Metacard.MetacardResult
+            },
+            {
+                type: Backbone.Many,
+                key: 'completeActiveSearchResults',
+                relatedModel: Metacard.MetacardResult
             }
         ],
         defaults: {
@@ -46,6 +51,8 @@ define([
             selectedResults: [],
             activeSearchResults: [],
             activeSearchResultsAttributes: [],
+            completeActiveSearchResults: [],
+            completeActiveSearchResultsAttributes: [],
         },
         initialize: function(){
             this.set('currentResult', new Metacard.SearchResult());
@@ -53,6 +60,23 @@ define([
             this.listenTo(this, 'change:currentMetacard', this.handleCurrentMetacard);
             this.listenTo(this, 'change:currentResult', this.handleResultChange);
             this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
+            this.listenTo(this.get('completeActiveSearchResults'), 'update add remove reset', this.updateActiveSearchResultsFullAttributes);
+        },
+        updateActiveSearchResultsFullAttributes: function() {
+            var availableAttributes = this.get('completeActiveSearchResults').reduce(function(currentAvailable, result) {
+                currentAvailable = _.union(currentAvailable, Object.keys(result.get('metacard').get('properties').toJSON()));
+                return currentAvailable;
+            }, []).sort();
+            this.set('completeActiveSearchResultsAttributes', availableAttributes);
+        },
+        getCompleteActiveSearchResultsAttributes: function(){
+            return this.get('completeActiveSearchResultsAttributes');
+        },
+        getCompleteActiveSearchResults: function(){
+            return this.get('completeActiveSearchResults');
+        },
+        setCompleteActiveSearchResults: function(results){
+            this.get('completeActiveSearchResults').reset(results.models || results);
         },
         handleResultChange: function(){
             this.listenTo(this.get('currentResult'), 'sync reset:results', this.handleResults);
@@ -73,6 +97,7 @@ define([
         handleUpdate: function(){
             this.clearSelectedResults();
             this.setActiveSearchResults(this.get('currentResult').get('results'));
+            this.setCompleteActiveSearchResults(this.get('currentResult').get('results'));
             this.addSelectedResult(this.get('currentMetacard'));
         },
         handleCurrentMetacard: function(){
