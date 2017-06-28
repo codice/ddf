@@ -31,6 +31,7 @@ define([
             this.options.selectionInterface.setCurrentQuery(undefined);
             this.options.selectionInterface.setActiveSearchResults([]);
             this.options.selectionInterface.clearSelectedResults();
+            this.options.selectionInterface.setCompleteActiveSearchResults([]);
         },
         onDestroy: function(){
             this.closePanelTwo();

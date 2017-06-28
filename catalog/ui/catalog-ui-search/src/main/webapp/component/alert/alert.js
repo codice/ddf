@@ -44,6 +44,11 @@ define([
                 type: Backbone.Many,
                 key: 'activeSearchResults',
                 relatedModel: Metacard.MetacardResult
+            },
+            {
+                type: Backbone.Many,
+                key: 'completeActiveSearchResults',
+                relatedModel: Metacard.MetacardResult
             }
         ],
         defaults: {
@@ -53,11 +58,14 @@ define([
             selectedResults: [],
             activeSearchResults: [],
             activeSearchResultsAttributes: [],
+            completeActiveSearchResults: [],
+            completeActiveSearchResultsAttributes: [],
         },
         initialize: function(){
             this.set('currentResult', new Metacard.SearchResult());
             this.listenTo(this, 'change:currentAlert', this.clearSelectedResults);
             this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
+            this.listenTo(this.get('completeActiveSearchResults'), 'update add remove reset', this.updateActiveSearchResultsFullAttributes);
         },
         updateActiveSearchResultsAttributes: function(){
             var availableAttributes = this.get('activeSearchResults').reduce(function(currentAvailable, result) {
@@ -66,6 +74,22 @@ define([
             }, []).sort();
             this.set('activeSearchResultsAttributes', availableAttributes);
         }, 
+        updateActiveSearchResultsFullAttributes: function() {
+            var availableAttributes = this.get('completeActiveSearchResults').reduce(function(currentAvailable, result) {
+                currentAvailable = _.union(currentAvailable, Object.keys(result.get('metacard').get('properties').toJSON()));
+                return currentAvailable;
+            }, []).sort();
+            this.set('completeActiveSearchResultsAttributes', availableAttributes);
+        },
+        getCompleteActiveSearchResultsAttributes: function(){
+            return this.get('completeActiveSearchResultsAttributes');
+        },
+        getCompleteActiveSearchResults: function(){
+            return this.get('completeActiveSearchResults');
+        },
+        setCompleteActiveSearchResults: function(results){
+            this.get('completeActiveSearchResults').reset(results.models || results);
+        },
         getActiveSearchResultsAttributes: function(){
             return this.get('activeSearchResultsAttributes');
         },

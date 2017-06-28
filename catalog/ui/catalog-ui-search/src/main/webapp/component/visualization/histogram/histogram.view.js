@@ -25,10 +25,16 @@ define([
     'component/property/property.view',
     'component/singletons/metacard-definitions',
     'js/Common',
-    'properties'
-], function (wreqr, $, _, Marionette, CustomElements, template, Plotly, Property, PropertyView, metacardDefinitions, Common, properties) {
+    'properties',
+    'moment'
+], function (wreqr, $, _, Marionette, CustomElements, template, Plotly, Property, PropertyView, metacardDefinitions, Common, properties, moment) {
 
     var zeroWidthSpace = "\u200B";
+    var plotlyDateFormat = 'YYYY-MM-DD HH:mm:ss.SS';
+
+    function getPlotlyDate(date){
+        return moment(date).format(plotlyDateFormat);
+    }
 
     function calculateAvailableAttributes(results){
         var availableAttributes = [];
@@ -92,7 +98,8 @@ define([
         if (value !== undefined){
             switch(metacardDefinitions.metacardTypes[attribute].type){
                 case 'DATE':
-                    return values.indexOf(Common.getHumanReadableDate(value)) >= 0;
+                    var plotlyDate = getPlotlyDate(value);
+                    return plotlyDate >= values[0] && plotlyDate <= values[1];
                 case 'BOOLEAN':
                 case 'STRING':
                 case 'GEOMETRY':
@@ -107,7 +114,7 @@ define([
         if (value !== undefined){
             switch(metacardDefinitions.metacardTypes[attribute].type){
                 case 'DATE':
-                    valueArray.push(Common.getHumanReadableDate(value));
+                    valueArray.push(getPlotlyDate(value));
                     break;
                 case 'BOOLEAN':
                 case 'STRING':
@@ -127,12 +134,19 @@ define([
         }));
     }
 
-    function getValueFromClick(data){
-        if (data.points[0].x.constructor === Number){
-            var spread = data.points[0].data.xbins.size*0.5;
-            return [data.points[0].x - spread, data.points[0].x + spread];
-        } else {
-            return [data.points[0].x];
+    function getValueFromClick(data, categories){
+        switch (data.points[0].xaxis.type) {
+            case 'category':
+                return [data.points[0].x];
+            case 'date':
+                var currentDate = moment(data.points[0].x).format(plotlyDateFormat);
+                return _.find(categories, (category) => {
+                    return currentDate >= category[0] && currentDate <= category[1];
+                });
+            default:
+                return _.find(categories, (category) => {
+                    return data.points[0].x >= category[0] && data.points[0].x <= category[1];
+                });
         }
     }
 
@@ -180,6 +194,7 @@ define([
         },
         events: {
         },
+        defaultValue: undefined,
         initialize: function(){
             this.showHistogram = _.debounce(this.showHistogram, 30);
             this.updateHistogram = _.debounce(this.updateHistogram, 30);
@@ -188,25 +203,32 @@ define([
             this.setupListeners();
         },
         showHistogram: function(){
-            if (this.histogramAttribute.currentView.model.getValue()[0] && this.options.selectionInterface.getActiveSearchResults().length !== 0){
+            if (this.histogramAttribute.currentView.model.getValue()[0] && this.options.selectionInterface.getCompleteActiveSearchResults().length !== 0){
+                this.defaultValue = this.histogramAttribute.currentView.model.getValue();
                 var histogramElement = this.el.querySelector('.histogram-container');
-                //Plotly.purge(histogramElement);
-                Plotly.newPlot(histogramElement, this.determineInitialData(), getLayout(), {
+                var initialData = this.determineInitialData();
+                if (initialData[0].x.length === 0){
+                    this.$el.addClass('no-matching-data');
+                    this.el.querySelector('.histogram-container').innerHTML = '';
+                } else {
+                    this.$el.removeClass('no-matching-data');
+                    Plotly.newPlot(histogramElement, initialData, getLayout(), {
                     displayModeBar: false
-                }).then(function(plot){
-                    Plotly.newPlot(histogramElement, this.determineData(plot), getLayout(plot), {
-                        displayModeBar: false
-                    });
-                    this.handleResize();
-                    this.listenToHistogram();
-                }.bind(this));
+                    }).then(function(plot){
+                        Plotly.newPlot(histogramElement, this.determineData(plot), getLayout(plot), {
+                            displayModeBar: false
+                        });
+                        this.handleResize();
+                        this.listenToHistogram();
+                    }.bind(this));
+                }
             } else {
                 this.el.querySelector('.histogram-container').innerHTML = '';
             }
         },
         updateHistogram: function(){
-            if (this.histogramAttribute.currentView.model.getValue()[0] && this.options.selectionInterface.getActiveSearchResults().length !== 0){
-                var histogramElement = this.el.querySelector('.histogram-container');
+            var histogramElement = this.el.querySelector('.histogram-container');
+            if (histogramElement.children.length !== 0 && this.histogramAttribute.currentView.model.getValue()[0] && this.options.selectionInterface.getCompleteActiveSearchResults().length !== 0){
                 Plotly.deleteTraces(histogramElement, 1);
                 Plotly.addTraces(histogramElement, this.determineData(histogramElement)[1]);     
                 this.handleResize();
@@ -216,14 +238,12 @@ define([
         },
         showHistogramAttributeSelector: function(){
             var defaultValue = [];
-            if (this.histogramAttribute.currentView) {
-                defaultValue = this.histogramAttribute.currentView.model.getValue();
-            }
+            defaultValue = this.defaultValue || defaultValue;
             this.histogramAttribute.show(new PropertyView({
                 model: new Property({
                     showValidationIssues: false,
                     enumFiltering: true,
-                    enum: calculateAvailableAttributes(this.options.selectionInterface.getActiveSearchResults()),
+                    enum: calculateAvailableAttributes(this.options.selectionInterface.getCompleteActiveSearchResults()),
                     value: defaultValue,
                     id: 'Group by'
                 })
@@ -238,7 +258,7 @@ define([
             this.handleEmpty();
         },
         determineInitialData: function(){
-            var activeResults = this.options.selectionInterface.getActiveSearchResults();
+            var activeResults = this.options.selectionInterface.getCompleteActiveSearchResults();
              return [
                 {
                     x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.model.getValue()[0]),
@@ -256,10 +276,15 @@ define([
              ];
         },
         determineData: function(plot){
-            var activeResults = this.options.selectionInterface.getActiveSearchResults();
+            var activeResults = this.options.selectionInterface.getCompleteActiveSearchResults();
             var selectedResults = this.options.selectionInterface.getSelectedResults();
             var xbins = Common.duplicate(plot._fullData[0].xbins);
-            xbins.end = xbins.end + xbins.size; //https://github.com/plotly/plotly.js/issues/1229
+            if (xbins.size.constructor !== String){
+                xbins.end = xbins.end + xbins.size; //https://github.com/plotly/plotly.js/issues/1229
+            } else {
+                // soooo plotly introduced this cool bin size shorthand where M3 means 3 months, M6 6 months etc.
+                xbins.end = xbins.end + parseInt(xbins.size.substring(1)) * 31 * 24 * 3600000; //https://github.com/plotly/plotly.js/issues/1229
+            }
             return [
                 {
                     x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.model.getValue()[0]),
@@ -290,7 +315,7 @@ define([
 
         },
         handleEmpty: function(){
-            this.$el.toggleClass('is-empty', this.options.selectionInterface.getActiveSearchResults().length === 0);
+            this.$el.toggleClass('is-empty', this.options.selectionInterface.getCompleteActiveSearchResults().length === 0);
         },
         handleResize: function(){
             var histogramElement = this.el.querySelector('.histogram-container');
@@ -317,7 +342,7 @@ define([
             this.removeResizeHandler();
         },
         setupListeners: function(){
-            this.listenTo(this.options.selectionInterface, 'reset:activeSearchResults', this.render);
+            this.listenTo(this.options.selectionInterface, 'reset:completeActiveSearchResults', this.render);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update', this.updateHistogram);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'add', this.updateHistogram);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'remove', this.updateHistogram);
@@ -342,18 +367,19 @@ define([
         },
         handleControlClick: function(data, alreadySelected){
             var attributeToCheck = this.histogramAttribute.currentView.model.getValue()[0];
+            var categories = this.retrieveCategoriesFromPlotly();
             if (alreadySelected){
                 this.options.selectionInterface.removeSelectedResult(findMatchesForAttributeValues(
-                    this.options.selectionInterface.getActiveSearchResults(),
+                    this.options.selectionInterface.getCompleteActiveSearchResults(),
                     attributeToCheck,
-                    getValueFromClick(data)
+                    getValueFromClick(data, categories)
                 ));
                 this.pointsSelected.splice(this.pointsSelected.indexOf(getIndexClicked(data)), 1);
             } else {
                 this.options.selectionInterface.addSelectedResult(findMatchesForAttributeValues(
-                    this.options.selectionInterface.getActiveSearchResults(),
+                    this.options.selectionInterface.getCompleteActiveSearchResults(),
                     attributeToCheck,
-                    getValueFromClick(data)
+                    getValueFromClick(data, categories)
                 ));
                 this.pointsSelected.push(getIndexClicked(data));
             }
@@ -386,7 +412,7 @@ define([
             var attributeToCheck = this.histogramAttribute.currentView.model.getValue()[0];
             var categories = this.retrieveCategoriesFromPlotly();
             var validCategories = categories.slice(firstIndex, lastIndex);
-            var activeSearchResults = this.options.selectionInterface.getActiveSearchResults();
+            var activeSearchResults = this.options.selectionInterface.getCompleteActiveSearchResults();
             this.options.selectionInterface.addSelectedResult(validCategories.reduce(function(results, category){
                 results = results.concat(findMatchesForAttributeValues(
                     activeSearchResults,
@@ -401,9 +427,12 @@ define([
         retrieveCategoriesFromPlotly: function(){
             var histogramElement = this.el.querySelector('.histogram-container');
             var xaxis = histogramElement._fullLayout.xaxis;
-            if (xaxis._categories.length > 0){
-                return xaxis._categories;
-            } else {
+            switch(xaxis.type){
+                case 'category':
+                     return xaxis._categories;
+                case 'date':
+                    return this.retrieveCategoriesFromPlotlyForDates();
+                default:
                 var xbins = histogramElement._fullData[0].xbins;
                 var min = xbins.start;
                 var max = xbins.end;
@@ -416,6 +445,25 @@ define([
                 }
                 return categories;
             }
+        },
+        retrieveCategoriesFromPlotlyForDates: function(){
+            var histogramElement = this.el.querySelector('.histogram-container');
+            var categories = [];
+            var xbins = histogramElement._fullData[0].xbins;
+            var min = xbins.start;
+            var max = xbins.end;
+            var start = min;
+            var inMonths = xbins.size.constructor === String;
+            var binSize = inMonths ? parseInt(xbins.size.substring(1)) : xbins.size;
+            while (start < max){
+                var startDate = moment(start).format(plotlyDateFormat);
+                var endDate = inMonths ? moment(start).add(binSize, 'months').format(plotlyDateFormat) :
+                    moment(start).add(binSize, 'ms').format(plotlyDateFormat);
+                categories.push([startDate, endDate]);
+                start = parseInt(inMonths ? moment(start).add(binSize, 'months').format('x') :
+                    moment(start).add(binSize, 'ms').format('x'));
+            }
+            return categories;
         },
         resetKeyTracking: function(){
             this.shiftKey = false;

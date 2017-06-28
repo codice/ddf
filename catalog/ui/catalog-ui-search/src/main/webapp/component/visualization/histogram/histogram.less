@@ -1,3 +1,16 @@
+//plotly styling only
+@{customElementNamespace}histogram{
+  .hovertext rect, .hovertext path, .axistext path {
+    fill: @dropdown-background-color !important;
+    stroke: @text-color !important;
+    fill-opacity: 1 !important;
+  }
+
+  .hovertext text, .axistext text {
+    fill: @text-color !important;
+  }
+}
+
 @{customElementNamespace}histogram {
   .customElement;
 
@@ -24,9 +37,14 @@
     transform: translateX(0%);
   }
 
-  > .histogram-empty {
+  > .histogram-empty, > .histogram-no-matching-data {
     text-align: center;
+    padding: @largeSpacing;
     display: none;
+
+    span {
+      color: @warning-color;
+    }
   }
 
 }
@@ -45,6 +63,16 @@
   }
 
 }
+
+@{customElementNamespace}histogram.no-matching-data:not(.is-empty) {
+  overflow: hidden;
+
+  > .histogram-no-matching-data {
+    display: block;
+  }
+
+}
+
 
 .is-medium-screen, .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}histogram {
