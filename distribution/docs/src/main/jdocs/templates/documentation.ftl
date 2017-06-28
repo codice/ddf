@@ -26,6 +26,8 @@ include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 == Integrating
 :sectnums:
 
+<#include "integrating.ftl">
+
 == Endpoints
 
 <#include "endpoints.ftl">
