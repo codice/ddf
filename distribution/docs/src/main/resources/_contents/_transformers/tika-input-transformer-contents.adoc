@@ -14,7 +14,9 @@ This transformer is installed by default with a standard installation in the ${d
 
 ===== Configuring the Tika Input Transformer
 
-The Tika Input Transformer has no configurable properties.
+The properties below describe how to configure the tika input transformer.
+
+include::{adoc-include}/_tables/ddf.catalog.transformer.input.tika.TikaInputTransformer-table-contents.adoc[]
 
 ===== Using the Tika Input Transformer
 

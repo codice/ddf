@@ -49,6 +49,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.tika.io.CloseShieldInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
@@ -172,6 +173,8 @@ public class TikaInputTransformer implements InputTransformer {
     private MetacardType commonTikaMetacardType = null;
 
     private Map<String, MetacardType> mimeTypeToMetacardTypeMap = new HashMap<>();
+
+    private boolean useResourceTitleAsTitle;
 
     public TikaInputTransformer(BundleContext bundleContext, MetacardType metacardType) {
         this.commonTikaMetacardType = metacardType;
@@ -380,7 +383,8 @@ public class TikaInputTransformer implements InputTransformer {
             Metacard metacard = MetacardCreator.createMetacard(metadata,
                     id,
                     metadataText,
-                    metacardType);
+                    metacardType,
+                    useResourceTitleAsTitle);
 
             if (textContentHandler != null) {
                 String plainText = textContentHandler.toString();
@@ -426,6 +430,14 @@ public class TikaInputTransformer implements InputTransformer {
 
     public void removeMetadataExtractor(ServiceReference<MetadataExtractor> metadataExtractorRef) {
         metadataExtractors.remove(metadataExtractorRef);
+    }
+
+    /**
+     * @param useResourceTitleAsTitle must be non-null
+     */
+    public void setUseResourceTitleAsTitle(Boolean useResourceTitleAsTitle) {
+        Validate.notNull(useResourceTitleAsTitle, "useResourceTitleAsTitle must be non-null");
+        this.useResourceTitleAsTitle = useResourceTitleAsTitle;
     }
 
     private void classLoaderAndBundleContextSetup(BundleContext bundleContext) {

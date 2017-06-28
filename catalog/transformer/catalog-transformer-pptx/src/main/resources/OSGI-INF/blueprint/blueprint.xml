@@ -20,10 +20,6 @@
 
     <bean id="pptxTransformer" class="ddf.catalog.transformer.input.pptx.PptxInputTransformer">
         <argument ref="tikaInputTransformer"/>
-        <cm:managed-properties
-                persistent-id="ddf.catalog.transformer.input.pptx.PptxInputTransformer"
-                update-strategy="container-managed"/>
-        <argument value="false"/>
     </bean>
 
     <service ref="pptxTransformer" interface="ddf.catalog.transform.InputTransformer">

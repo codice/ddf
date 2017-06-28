@@ -45,21 +45,40 @@ public class MetacardCreator {
 
     public static final String DURATION_METDATA_KEY = "xmpDM:duration";
 
+
     /**
-     * @param metadata     the {@code Metadata} object containing the metadata relevant to the
-     *                     metacard, must not be null
-     * @param id           the value for the {@link Metacard#ID} attribute that should be set in the
-     *                     generated {@code Metacard}, may be null
-     * @param metadataXml  the XML for the {@link Metacard#METADATA} attribute that should be set in
-     *                     the generated {@code Metacard}, may be null
-     * @param metacardType The {@link MetacardType} for the created metacard
+     * @param metadata         the {@code Metadata} object containing the metadata relevant to the
+     *                         metacard, must not be null
+     * @param id               the value for the {@link Metacard#ID} attribute that should be set in the
+     *                         generated {@code Metacard}, may be null
+     * @param metadataXml      the XML for the {@link Metacard#METADATA} attribute that should be set in
+     *                         the generated {@code Metacard}, may be null
+     * @param metacardType     The {@link MetacardType} for the created metacard
      * @return a new {@code Metacard}
      */
     public static Metacard createMetacard(final Metadata metadata, final String id,
-            final String metadataXml, MetacardType metacardType) {
+                                          final String metadataXml, MetacardType metacardType) {
+        return createMetacard(metadata, id, metadataXml, metacardType, true);
+    }
+
+    /**
+     * @param metadata         the {@code Metadata} object containing the metadata relevant to the
+     *                         metacard, must not be null
+     * @param id               the value for the {@link Metacard#ID} attribute that should be set in the
+     *                         generated {@code Metacard}, may be null
+     * @param metadataXml      the XML for the {@link Metacard#METADATA} attribute that should be set in
+     *                         the generated {@code Metacard}, may be null
+     * @param metacardType     The {@link MetacardType} for the created metacard
+     * @param useMetadataTitle If true then use title from the metadata as the metacard title
+     * @return a new {@code Metacard}
+     */
+    public static Metacard createMetacard(final Metadata metadata, final String id,
+            final String metadataXml, MetacardType metacardType, boolean useMetadataTitle) {
         final Metacard metacard = new MetacardImpl(metacardType);
 
-        setAttribute(metacard, Metacard.TITLE, metadata.get(TikaCoreProperties.TITLE));
+        if(useMetadataTitle) {
+            setAttribute(metacard, Metacard.TITLE, metadata.get(TikaCoreProperties.TITLE));
+        }
 
         setAttribute(metacard, Metacard.CONTENT_TYPE, metadata.get(Metadata.CONTENT_TYPE));
 

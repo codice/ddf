@@ -50,7 +50,7 @@ public class PptxInputTransformerTest {
     public void testBadCopy() throws IOException, CatalogTransformerException {
         IOException ioe = new IOException();
         try {
-            PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
+            PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
             InputStream is = mock(InputStream.class);
             when(is.read(any())).thenThrow(ioe);
             t.transform(is);
@@ -62,13 +62,13 @@ public class PptxInputTransformerTest {
 
     @Test(expected = CatalogTransformerException.class)
     public void testTransformNullInput() throws IOException, CatalogTransformerException {
-        PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
+        PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
         t.transform(null);
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testPasswordProtected() throws IOException, CatalogTransformerException {
-        PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
+        PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
         try (InputStream is = getResource("/password-powerpoint.pptx")) {
             t.transform(is);
         }
@@ -76,7 +76,7 @@ public class PptxInputTransformerTest {
 
     @Test
     public void testOle2() throws IOException, CatalogTransformerException {
-        PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
+        PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
         try (InputStream is = getResource("/empty.ppt")) {
             Metacard mc = t.transform(is);
             assertThat(mc.getThumbnail(), is(nullValue()));
@@ -92,7 +92,7 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
+                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getThumbnail(), is(nullValue()));
                 }
@@ -114,7 +114,10 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
+                    TikaInputTransformer inputTransformer = new TikaInputTransformer(null,
+                            mock(MetacardType.class));
+                    inputTransformer.setUseResourceTitleAsTitle(true);
+                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getTitle(), is("TheTitle"));
                 }
@@ -136,7 +139,10 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer, false);
+                    TikaInputTransformer inputTransformer = new TikaInputTransformer(null,
+                            mock(MetacardType.class));
+                    inputTransformer.setUseResourceTitleAsTitle(false);
+                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getTitle(), nullValue());
                 }
@@ -163,7 +169,7 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
+                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getCreatedDate()
                             .getTime(), is(d.getTime()));
@@ -188,7 +194,7 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer, true);
+                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getModifiedDate()
                             .getTime(), is(d.getTime()));

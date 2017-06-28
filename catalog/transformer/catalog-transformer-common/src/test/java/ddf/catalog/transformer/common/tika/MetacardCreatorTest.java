@@ -196,6 +196,19 @@ public class MetacardCreatorTest {
         assertThat(count, is(attrNames.size()));
     }
 
+    @Test
+    public void testMetacardTitle() {
+        final Metadata metadata = new Metadata();
+
+        metadata.add(TikaCoreProperties.TITLE, "metadata title");
+        final Metacard metacard = MetacardCreator.createMetacard(metadata,
+                null,
+                null,
+                BasicTypes.BASIC_METACARD, false);
+
+        assertThat(metacard.getTitle(), nullValue());
+    }
+
     private AttributeDescriptorImpl createObjectAttr(String name) {
         return new AttributeDescriptorImpl(name,
                 false,

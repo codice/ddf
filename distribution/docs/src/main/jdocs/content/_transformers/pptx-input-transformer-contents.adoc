@@ -16,14 +16,5 @@ This transformer is installed by default with a standard installation in the ${d
 
 ===== Configuring the PPTX Input Transformer
 
-To configure the PPTX Input Transformer:
-
-. Navigate to the *${ddf-catalog}* application.
-. Select the *Configuration* tab.
-. Select the *PPTX Input Transformer*.
-
-These configurations are available for the PDF Input Transformer:
-
-include::{adoc-include}/_tables/ddf.catalog.transformer.input.pptx.PptxInputTransformer-table-contents.adoc[]
-
+The PPTX Input Transformer has no configurable properties.
 '''
